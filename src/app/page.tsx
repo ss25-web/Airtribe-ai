@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import type { Track } from '@/components/pm-fundamentals/designSystem';
 import SeriesHomepage from '@/components/SeriesHomepage';
 import PlacementQuiz from '@/components/PlacementQuiz';
+import CourseOverview from '@/components/CourseOverview';
 import PMFundamentalsModule from '@/components/PMFundamentalsModule';
 
-type Stage = 'home' | 'quiz' | 'reading';
+type Stage = 'home' | 'quiz' | 'overview' | 'reading';
 
 const LS_STAGE = 'airtribe_stage';
 const LS_TRACK = 'airtribe_track';
@@ -24,8 +25,8 @@ export default function Home() {
     const savedTrack = localStorage.getItem(LS_TRACK) as Track | null;
     const savedDark  = localStorage.getItem(LS_DARK) === 'true';
 
-    if (savedStage === 'reading' && savedTrack) {
-      setStage('reading');
+    if ((savedStage === 'reading' || savedStage === 'overview') && savedTrack) {
+      setStage(savedStage);
       setAssignedTrack(savedTrack);
     } else if (savedStage === 'quiz') {
       setStage('quiz');
@@ -56,11 +57,16 @@ export default function Home() {
     localStorage.setItem(LS_STAGE, 'quiz');
   };
 
-  const goReading = (track: Track) => {
+  const goOverview = (track: Track) => {
     setAssignedTrack(track);
+    setStage('overview');
+    localStorage.setItem(LS_STAGE, 'overview');
+    localStorage.setItem(LS_TRACK, track);
+  };
+
+  const goReading = () => {
     setStage('reading');
     localStorage.setItem(LS_STAGE, 'reading');
-    localStorage.setItem(LS_TRACK, track);
   };
 
   const toggleDark = () => setDarkMode(d => !d);
@@ -81,7 +87,17 @@ export default function Home() {
   if (stage === 'quiz') {
     return (
       <PlacementQuiz
-        onComplete={(track) => goReading(track)}
+        onComplete={(track) => goOverview(track)}
+        onBack={goHome}
+      />
+    );
+  }
+
+  if (stage === 'overview' && assignedTrack) {
+    return (
+      <CourseOverview
+        track={assignedTrack}
+        onStartModule={goReading}
         onBack={goHome}
       />
     );
