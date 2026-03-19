@@ -161,46 +161,46 @@ body {
 
 /* Editorial dark mode — triggered by html.dark class (set globally from homepage toggle) */
 html.dark .editorial {
-  --bg:    #181628;
-  --bg2:   #1E1C32;
-  --bg3:   #25223C;
-  --bg4:   #2C2946;
-  --tx:    #EAE6FF;
-  --tx2:   #BCB5DC;
-  --tx3:   #7870A0;
-  --dim:   #36325A;
-  --card:  #211F38;
-  --txcard:  #EAE6FF;
-  --txcard2: #BCB5DC;
-  --bar-bg:  #36325A;
+  --bg:    #22203A;
+  --bg2:   #282640;
+  --bg3:   #2F2D4A;
+  --bg4:   #363454;
+  --tx:    #EDEAFF;
+  --tx2:   #C8C2E8;
+  --tx3:   #8880B0;
+  --dim:   #3E3A62;
+  --card:  #2A2844;
+  --txcard:  #EDEAFF;
+  --txcard2: #C8C2E8;
+  --bar-bg:  #3E3A62;
   /* Accent colors lightened for dark-bg readability */
-  --purple: #A78BFA;
-  --teal:   #22D3EE;
+  --purple: #B39DFA;
+  --teal:   #2DD4BF;
   --green:  #34D399;
   --coral:  #FB8469;
   --blue:   #60A5FA;
   --ok-bg:  rgba(13, 122, 90, 0.18);
   --no-bg:  rgba(181, 60, 40, 0.18);
-  --purple-light: #A992F8;
+  --purple-light: #C4B5FD;
 
-  --ed-ink:   #EAE6FF;
-  --ed-ink2:  #BCB5DC;
-  --ed-ink3:  #7870A0;
-  --ed-rule:  #32305A;
-  --ed-card:  #211F38;
-  --ed-cream: #181628;
-  --ed-cream2: #1E1C32;
-  --ed-indigo: #A89CF8;
-  --ed-indigo-bg: rgba(168,156,248,0.12);
-  --ed-indigo-border: rgba(168,156,248,0.28);
-  --ed-amber: #E09A18;
-  --ed-amber-bg: rgba(224,154,24,0.1);
-  --ed-amber-border: rgba(224,154,24,0.28);
-  --ed-green: #28C896;
-  --ed-green-bg: rgba(40,200,150,0.1);
-  --ed-green-border: rgba(40,200,150,0.28);
-  --card-subtle: rgba(255,255,255,0.05);
-  --svg-muted: rgba(210,195,255,0.35);
+  --ed-ink:   #EDEAFF;
+  --ed-ink2:  #C8C2E8;
+  --ed-ink3:  #8880B0;
+  --ed-rule:  #3E3A62;
+  --ed-card:  #2A2844;
+  --ed-cream: #22203A;
+  --ed-cream2: #282640;
+  --ed-indigo: #B39DFA;
+  --ed-indigo-bg: rgba(179,157,250,0.14);
+  --ed-indigo-border: rgba(179,157,250,0.30);
+  --ed-amber: #FBBF24;
+  --ed-amber-bg: rgba(251,191,36,0.1);
+  --ed-amber-border: rgba(251,191,36,0.28);
+  --ed-green: #34D399;
+  --ed-green-bg: rgba(52,211,153,0.1);
+  --ed-green-border: rgba(52,211,153,0.28);
+  --card-subtle: rgba(255,255,255,0.06);
+  --svg-muted: rgba(220,210,255,0.35);
 }
 
 html.dark .editorial h1,
