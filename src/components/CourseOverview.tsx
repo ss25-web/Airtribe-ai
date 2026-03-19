@@ -133,15 +133,6 @@ const MODULES = [
     available: false,
     accent: '#B5720A',
   },
-  {
-    num: '12',
-    label: 'Capstone & Career Prep',
-    desc: 'Build and present an AI-first product. Resume, portfolio, mock interviews, and access to hiring partners.',
-    duration: '16 weeks',
-    tools: ['Portfolio', 'Mock Interviews'],
-    available: false,
-    accent: '#E07A5F',
-  },
 ];
 
 interface Props {
@@ -206,7 +197,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '140px' }}>
             {[
               { label: 'Duration', value: '16 weeks' },
-              { label: 'Modules', value: '11 + Capstone' },
+              { label: 'Modules', value: '11 modules' },
               { label: 'Format', value: 'Live + Async' },
             ].map(s => (
               <div key={s.label} style={{ padding: '8px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
@@ -224,7 +215,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
             <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-Course Prep is available now. Modules 1–12 unlock week by week.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            1 of 13 available
+            1 of 12 available
           </div>
         </div>
 

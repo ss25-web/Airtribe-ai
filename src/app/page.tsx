@@ -107,7 +107,10 @@ export default function Home() {
     return (
       <PMFundamentalsModule
         startTrack={assignedTrack}
-        onBack={goHome}
+        onBack={() => {
+          setStage('overview');
+          localStorage.setItem(LS_STAGE, 'overview');
+        }}
       />
     );
   }

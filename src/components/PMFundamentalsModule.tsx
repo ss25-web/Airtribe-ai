@@ -622,7 +622,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
                 background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer',
               }}>
               <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
-              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>All tracks</span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Curriculum</span>
             </motion.button>
           </div>
         </motion.div>
