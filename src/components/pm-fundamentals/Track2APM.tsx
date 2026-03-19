@@ -653,26 +653,26 @@ const APM_MODULES = [
 ];
 
 const IntroHero = () => (
-  <section style={{ padding: '56px 0 48px', borderBottom: '1px solid #E0D9D0' }}>
+  <section style={{ padding: '56px 0 48px', borderBottom: '1px solid var(--ed-rule)' }}>
     {/* Breadcrumb */}
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#8A8580', marginBottom: '32px', letterSpacing: '0.04em' }}>
-      PM Fundamentals <span style={{ margin: '0 8px', color: '#C4BEB6' }}>›</span>
-      <span style={{ color: '#4A4540' }}>Advanced Track</span>
-      <span style={{ margin: '0 10px', color: '#D4CEC6' }}>·</span>
-      <span style={{ color: '#8A8580' }}>30 min · 12 concepts</span>
+    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '32px', letterSpacing: '0.04em' }}>
+      PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-ink3)' }}>›</span>
+      <span style={{ color: 'var(--ed-ink2)' }}>Advanced Track</span>
+      <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
+      <span style={{ color: 'var(--ed-ink3)' }}>30 min · 12 concepts</span>
     </div>
 
     {/* Title */}
     <h1 style={{
       fontSize: 'clamp(28px, 3.6vw, 48px)', fontWeight: 700, lineHeight: 1.12,
-      letterSpacing: '-0.025em', marginBottom: '20px', color: '#1C1814',
+      letterSpacing: '-0.025em', marginBottom: '20px', color: 'var(--ed-ink)',
       fontFamily: "'Lora', 'Georgia', 'Times New Roman', serif",
     }}>
       You ship. You execute. You&apos;re good.<br />
-      <span style={{ color: '#7843EE' }}>Here&apos;s what&apos;s holding you back.</span>
+      <span style={{ color: 'var(--purple)' }}>Here&apos;s what&apos;s holding you back.</span>
     </h1>
 
-    <p style={{ fontSize: '17px', color: '#4A4540', lineHeight: 1.8, maxWidth: '560px', marginBottom: '40px' }}>
+    <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '560px', marginBottom: '40px' }}>
       This track assumes you know how to run a sprint. What it covers is harder: the subtle errors in thinking that create execution failures, strategy drift, and invisible ceilings — and how to fix them.
     </p>
 
@@ -681,14 +681,14 @@ const IntroHero = () => (
       {APM_MODULES.map(m => (
         <div key={m.roman} style={{
           padding: '12px 14px', borderRadius: '6px',
-          background: '#FFFFFF', border: '1px solid #E0D9D0',
+          background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
           display: 'flex', gap: '10px', alignItems: 'baseline',
         }}>
           <span style={{
             fontFamily: "'JetBrains Mono', monospace", fontSize: '10px',
-            fontWeight: 700, color: '#7843EE', flexShrink: 0,
+            fontWeight: 700, color: 'var(--purple)', flexShrink: 0,
           }}>{m.roman}.</span>
-          <span style={{ fontSize: '13px', color: '#4A4540', lineHeight: 1.4 }}>{m.label}</span>
+          <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.4 }}>{m.label}</span>
         </div>
       ))}
     </div>
@@ -696,16 +696,16 @@ const IntroHero = () => (
     {/* How it works */}
     <div style={{
       padding: '20px 24px', borderRadius: '8px',
-      background: '#FFFFFF', border: '1px solid #E0D9D0',
-      borderLeft: '4px solid #7843EE',
+      background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
+      borderLeft: '4px solid var(--purple)',
     }}>
       <div style={{
         fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
-        letterSpacing: '0.16em', color: '#7843EE', textTransform: 'uppercase' as const,
+        letterSpacing: '0.16em', color: 'var(--purple)', textTransform: 'uppercase' as const,
         marginBottom: '10px',
       }}>How this is structured</div>
-      <div style={{ fontSize: '15px', color: '#4A4540', lineHeight: 1.8 }}>
-        Each module follows <strong style={{ color: '#1C1814' }}>Priya Sharma</strong> — now two years into her PM role at EdSpark — as she hits the ceiling that execution-focused PMs always hit. Each scenario exposes a specific failure mode in thinking. Her mistakes are the curriculum.
+      <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
+        Each module follows <strong style={{ color: 'var(--ed-ink)' }}>Priya Sharma</strong> — now two years into her PM role at EdSpark — as she hits the ceiling that execution-focused PMs always hit. Each scenario exposes a specific failure mode in thinking. Her mistakes are the curriculum.
       </div>
     </div>
   </section>

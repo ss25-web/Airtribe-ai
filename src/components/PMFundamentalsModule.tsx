@@ -115,7 +115,20 @@ const ACHIEVEMENTS_NEW_PM = [
   { id: 'part6-measuring',     icon: '📊', label: 'Data Driven', desc: 'Measured what matters' },
   { id: 'final-reflection',    icon: '🎯', label: 'PM Thinker',  desc: 'Completed the full loop' },
 ];
-const ACHIEVEMENTS_APM = ACHIEVEMENTS_NEW_PM;
+const ACHIEVEMENTS_APM = [
+  { id: 'm1-pm-role',          icon: '🎯', label: 'PM Role',      desc: 'Understood the PM influence model' },
+  { id: 'm1-product-triangle', icon: '🔺', label: 'Triangle',     desc: 'Mastered the product triangle' },
+  { id: 'm2-problem-solution', icon: '🔍', label: 'Root Cause',   desc: 'Diagnosed problem vs solution' },
+  { id: 'm2-research',         icon: '📋', label: 'Researcher',   desc: 'Applied research methods' },
+  { id: 'm3-strategy',         icon: '🗺️', label: 'Strategist',  desc: 'Defined product strategy' },
+  { id: 'm3-pmf',              icon: '🎯', label: 'PMF',          desc: 'Found product-market fit signals' },
+  { id: 'm4-prioritization',   icon: '⚖️',  label: 'Prioritizer', desc: 'Made hard tradeoff decisions' },
+  { id: 'm4-frameworks',       icon: '🛠️', label: 'Frameworks',  desc: 'Applied RICE and other frameworks' },
+  { id: 'm5-teams',            icon: '🤝', label: 'Leader',       desc: 'Led without authority' },
+  { id: 'm5-execution',        icon: '🚀', label: 'Executor',     desc: 'Managed execution risks' },
+  { id: 'm6-metrics',          icon: '📊', label: 'Data Driven',  desc: 'Defined success metrics' },
+  { id: 'm6-north-star',       icon: '⭐', label: 'North Star',   desc: 'Set the North Star metric' },
+];
 
 // ─────────────────────────────────────────
 // AIRTRIBE LOGO MARK
