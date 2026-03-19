@@ -833,6 +833,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>&ldquo;What do you think your job is?&rdquo; she asks.<br /><br />Priya: &ldquo;Build features? Manage the roadmap? Make decisions about the product?&rdquo;<br /><br />Asha: &ldquo;Close. But not quite. Here&apos;s the thing — engineers build the product. Designers shape how it feels. Business decides how it makes money. So what&apos;s left for you?&rdquo;<br /><br />Priya: &ldquo;I... don&apos;t know.&rdquo;<br /><br />Asha: &ldquo;Your job is to make sure the <em>right</em> thing gets built. Not to build it yourself. The PM is the person who asks: <em>why are we building this at all?</em> And: <em>is this the most important thing to build right now?</em>&rdquo;</>}
             expandedContent={<>Think of it this way. Engineering owns the HOW — how features are built, what&apos;s technically possible. Design owns the experience — how it looks and feels for users. Business owns the commercial model — how the company makes money. The PM is the one who connects all three and asks: given what users need, what&apos;s technically feasible, and what the business requires — what should we actually build? That&apos;s the whole job. It sounds simple. In practice, it&apos;s the hardest role on the team.</>}
+            conceptId="pm-role"
+            question="Engineering says it's too complex to build. Business says it's critical to ship. The PM should:"
+            options={[
+              { text: "Side with business — revenue always takes priority", correct: false, feedback: "That breaks engineering trust and leads to poor technical decisions. The PM's job is to find a path that works for both sides." },
+              { text: "Find a solution that achieves the business goal within real technical constraints", correct: true, feedback: "Exactly. The PM bridges business intent and technical reality — not by overruling either, but by facilitating the right tradeoff." },
+              { text: "Let engineering and business work it out between themselves", correct: false, feedback: "That's stepping out of the role. When business and engineering can't align, the PM is exactly who should be in the room." },
+            ]}
           />
         </div>
 
@@ -882,6 +889,13 @@ export default function Track1NewPM() {
             borderColor="var(--coral)"
             content={<>&ldquo;What did the user say exactly?&rdquo;<br /><br />Priya: &ldquo;The app is confusing.&rdquo;<br /><br />Maya: &ldquo;That&apos;s a feeling. Not a problem. What were they trying to do when they felt confused?&rdquo;<br /><br />Priya: &ldquo;I... don&apos;t know. I assumed it was navigation.&rdquo;<br /><br />Maya: &ldquo;Maybe. Or maybe they couldn&apos;t find a specific feature. Or the language was unclear. Or the page loaded slowly. Or they were new and had no idea where to start. Each of those is a completely different fix.&rdquo;</>}
             expandedContent={<>Designers see this constantly — a complaint comes in, someone jumps to a visual solution, and we end up redesigning things that weren&apos;t the problem. The most expensive thing in product is building the right solution to the wrong problem. Before you open Figma, write one sentence: &ldquo;Users who are trying to [X] experience [Y] because [Z].&rdquo; If you can&apos;t fill in all three, you&apos;re not ready to design anything yet.</>}
+            conceptId="problem-definition"
+            question="A user says 'the app is slow.' What's your first move as a PM?"
+            options={[
+              { text: "Ask engineering to performance-optimize the app", correct: false, feedback: "Slow where? For whom? On what device? You're building a solution to an unknown problem." },
+              { text: "Ask: slow doing what, and how does that affect what they're trying to accomplish?", correct: true, feedback: "Right. 'Slow' is a symptom. First understand which user flow, and what it makes impossible for them." },
+              { text: "Survey users to see how widespread the slowness is", correct: false, feedback: "Scale comes later. First you need to understand what 'slow' actually means before measuring how common it is." },
+            ]}
           />
         </div>
 
@@ -899,6 +913,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>Priya tells Asha what happened. &ldquo;I almost redesigned the entire navigation for a search problem.&rdquo;<br /><br />Asha: &ldquo;This happens to everyone. We call it solution-first thinking. You see a complaint, your brain jumps to a fix. The fix feels productive. But you&apos;ve skipped the most important step.&rdquo;<br /><br />Priya: &ldquo;Understanding the actual problem.&rdquo;<br /><br />Asha: &ldquo;Exactly. A user complaint is a signal, not a specification. It tells you something is wrong. It doesn&apos;t tell you what.&rdquo;</>}
             expandedContent={<>Here&apos;s the test I use. A good problem statement has three parts: WHO is experiencing it, WHAT they&apos;re trying to do, and WHERE it breaks down. &ldquo;The app is confusing&rdquo; has none of those. &ldquo;Users trying to find past call recordings can&apos;t locate them in under 30 seconds&rdquo; has all three. That second version tells you exactly what to solve — and gives you a way to know when you&apos;ve solved it.</>}
+            conceptId="problem-definition"
+            question="Which of these is a proper problem statement?"
+            options={[
+              { text: "'The search is bad'", correct: false, feedback: "No WHO, no WHAT, no WHERE. This tells you nothing about what to fix or how to know when it's fixed." },
+              { text: "'Users trying to find past call recordings can't locate them in under 30 seconds'", correct: true, feedback: "WHO (users looking for recordings), WHAT (can't find them fast enough), WHERE (search flow). That's a complete problem statement." },
+              { text: "'We need better search'", correct: false, feedback: "That's a solution request, not a problem statement. Better search for whom? Doing what?" },
+            ]}
           />
         </div>
 
@@ -938,6 +959,13 @@ export default function Track1NewPM() {
             borderColor="var(--blue)"
             content={<>&ldquo;What kind of search?&rdquo;<br /><br />Priya: &ldquo;Just... search. For recordings.&rdquo;<br /><br />Dev: &ldquo;By date? By contact name? Keywords in the transcript? Duration? Those are four completely different things to build. Also — Friday? We have two other things this sprint. To do this properly, I&apos;d need at least a week.&rdquo;<br /><br />Priya feels like she&apos;s failed some test she didn&apos;t know she was taking.<br /><br />Dev: &ldquo;Don&apos;t worry. But next time — tell me the problem. Not the solution. Let me figure out what&apos;s actually buildable and what tradeoffs you&apos;d be making.&rdquo;</>}
             expandedContent={<>I don&apos;t say this to make PMs feel bad. I say it because when someone gives me a wireframe without context, I build exactly what&apos;s in the wireframe — even if there&apos;s a better solution two feet away. But when someone tells me the problem, I bring everything I know about the system to it. I&apos;ll often find an approach that&apos;s faster to build and solves the problem better. Give me the problem. I&apos;ll find a way in.</>}
+            conceptId="collaboration"
+            question="You have a wireframe ready. When should you show it to an engineer?"
+            options={[
+              { text: "Right away — they need to know what to build", correct: false, feedback: "Show the wireframe too early and they'll build exactly what you drew — even if there's a smarter solution two feet away." },
+              { text: "After sharing the problem and asking 'what are our options?'", correct: true, feedback: "The problem first opens up the solution space. Dev might find a faster, simpler approach. Share the wireframe only after you've heard their thinking." },
+              { text: "Only after they've estimated the complexity", correct: false, feedback: "They can't estimate something they haven't seen — but more importantly, don't lead with the wireframe at all." },
+            ]}
           />
         </div>
 
@@ -954,6 +982,13 @@ export default function Track1NewPM() {
             borderColor="var(--coral)"
             content={<>&ldquo;I&apos;ve been watching session recordings for weeks,&rdquo; Maya says. &ldquo;Users search by contact name — not date. They remember who they talked to. Not when. If you build date-based search, it&apos;ll solve the wrong problem.&rdquo;</>}
             expandedContent={<>This is why design research matters before the build starts, not after. Session recordings, user interviews, click maps — they all tell you how users actually behave, not how they say they behave. The gap between those two is often where product decisions go wrong.</>}
+            conceptId="collaboration"
+            question="You assumed users search by date. Data shows 78% search by name. You should:"
+            options={[
+              { text: "Trust your instinct — users don't always know what they want", correct: false, feedback: "That's dangerous reasoning. 'Users don't know what they want' is often how bad features get built despite clear evidence." },
+              { text: "Build name-based search — design for the majority behaviour, not your assumption", correct: true, feedback: "You were solving for 12% of the problem. The data made the right choice obvious." },
+              { text: "Build both and let users choose", correct: false, feedback: "One engineer. Two weeks. Building both means shipping neither well. The data tells you where to invest." },
+            ]}
           />
           <Avatar
             name="Kiran"
@@ -961,6 +996,13 @@ export default function Track1NewPM() {
             borderColor="var(--teal)"
             content={<>Kiran pulls up the analytics. &ldquo;Confirms it. 78% of search queries in the logs include a person&apos;s name. Only 12% include a date. If you optimize for dates, you&apos;re solving for 12% of the problem.&rdquo;</>}
             expandedContent={<>Data doesn&apos;t replace judgment — it informs it. In this case, the data makes the decision obvious. But even when it&apos;s less clear, start with the data before you start with assumptions. You&apos;ll be surprised how often the data tells you something you didn&apos;t expect.</>}
+            conceptId="collaboration"
+            question="Before looking at data, you assumed users searched by date. The data shows 78% search by name. What does this reveal?"
+            options={[
+              { text: "Data is unreliable — run an A/B test to confirm", correct: false, feedback: "The data is clear and directional. Demanding more evidence before acting is how obvious improvements get delayed." },
+              { text: "Your mental model of user behaviour was wrong — always check data before assuming", correct: true, feedback: "Exactly. The gap between how we think users behave and how they actually behave is where bad product decisions live." },
+              { text: "The product was built incorrectly from the start", correct: false, feedback: "Not necessarily — products are built with the best knowledge at the time. The issue is not updating your assumptions with new data." },
+            ]}
           />
         </div>
 
@@ -1002,6 +1044,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>Priya brings the list to Asha. &ldquo;How do I choose?&rdquo;<br /><br />Asha: &ldquo;Before you pick a feature — what outcome is EdSpark trying to improve right now?&rdquo;<br /><br />Priya: &ldquo;Users like the product?&rdquo;<br /><br />Asha: &ldquo;More specifically. Are you trying to grow? Retain? Activate? Those are different problems with different solutions. You can&apos;t prioritize features without knowing what goal you&apos;re prioritizing toward.&rdquo;</>}
             expandedContent={<>This is the mistake I see most often in new PMs — prioritizing features without anchoring to an outcome. Every stakeholder will tell you their feature is the most important. They&apos;re not lying. From their vantage point, it is. Your job is to find the outcome that matters most to the business right now, and pick the feature that most directly drives it. That gives you a defensible reason to say no to everything else.</>}
+            conceptId="prioritization"
+            question="You have 5 features on the backlog. Before using RICE to score them, your first step is:"
+            options={[
+              { text: "Score all 5 with RICE and pick the highest", correct: false, feedback: "RICE answers 'which of these is most valuable?' — but it can't tell you if you're solving for the right business outcome." },
+              { text: "Confirm what business outcome needs to move most right now", correct: true, feedback: "The outcome comes first. Once you know if you're trying to grow, retain, or activate — most of your backlog will answer itself." },
+              { text: "Ask stakeholders to rank their requests", correct: false, feedback: "Every stakeholder will rank their own request first. You need an objective outcome to anchor to, not a popularity contest." },
+            ]}
           />
         </div>
 
@@ -1016,6 +1065,13 @@ export default function Track1NewPM() {
             borderColor="var(--teal)"
             content={<>&ldquo;40% of users churn in the first two weeks,&rdquo; Kiran says, pulling up a cohort chart. &ldquo;They sign up. They poke around. They leave and never come back. We traced it — most of them never completed onboarding. They never got to the first value moment.&rdquo;<br /><br />Priya: &ldquo;So the Salesforce integration...&rdquo;<br /><br />Kiran: &ldquo;Three customers asked. We lose 200 users a month to bad onboarding.&rdquo;</>}
             expandedContent={<>The Salesforce integration might be the right call if those three customers represent 60% of ARR. That&apos;s a business decision, not a product decision. But if you&apos;re making it without knowing that number, you&apos;re guessing. Always find the numbers before you make the call.</>}
+            conceptId="prioritization"
+            question="3 enterprise customers want a CRM integration. Data shows 200 users churn monthly due to bad onboarding. Which do you pick?"
+            options={[
+              { text: "CRM integration — enterprise customers are higher value per seat", correct: false, feedback: "Maybe. But do those 3 customers represent more revenue than 200 churned users? You need the numbers before you can know." },
+              { text: "Onboarding — the data shows a larger, quantified problem", correct: true, feedback: "Unless those 3 represent 60%+ of ARR, the data points clearly to onboarding. Always find the numbers before making the call." },
+              { text: "Build both in parallel — different engineers can own each", correct: false, feedback: "One engineer. Two weeks. Splitting effort means delivering neither well. Prioritization means choosing." },
+            ]}
           />
         </div>
 
@@ -1031,6 +1087,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>&ldquo;You&apos;re going to be saying no to someone, always,&rdquo; Asha tells her. &ldquo;The question isn&apos;t how to avoid that. It&apos;s how to make sure the no is the right no. A no backed by data and strategy is something people can respect, even if they don&apos;t like it. A no that&apos;s just &apos;not right now&apos; is just friction.&rdquo;</>}
             expandedContent={<>Prioritization is a negotiation, not a formula. Frameworks like RICE help you structure the conversation and surface assumptions. But the actual decision requires judgment — about the business stage, the competitive environment, the team&apos;s capacity. Get comfortable making that call, owning it, and explaining it clearly. That&apos;s what separates a PM from a backlog manager.</>}
+            conceptId="prioritization"
+            question="A VP challenges your priority decision in a public Slack thread. Your response:"
+            options={[
+              { text: "Don't engage — internal politics aren't a PM's job", correct: false, feedback: "Ignoring it doesn't make the disagreement go away. Unexplained decisions create distrust." },
+              { text: "Reply with the outcome you anchored to and the data behind it, then offer to discuss further offline", correct: true, feedback: "Data-backed decisions you can explain publicly. The VP's disagreement is an opportunity to show your reasoning — and maybe learn something they know that you don't." },
+              { text: "Agree to reconsider to avoid the conflict", correct: false, feedback: "That's not prioritization — that's politics. The VP's loudness is not a signal of correctness." },
+            ]}
           />
         </div>
 
@@ -1073,6 +1136,13 @@ export default function Track1NewPM() {
             borderColor="var(--blue)"
             content={<>&ldquo;You wrote &apos;share results.&apos; I built that,&rdquo; Dev says. &ldquo;I didn&apos;t know how sharing usually happens. If you know that, tell me. I&apos;m not guessing to annoy you — I genuinely didn&apos;t have that context.&rdquo;<br /><br />Priya: &ldquo;Fair. I should have specified.&rdquo;<br /><br />Dev: &ldquo;Also — did you check in during the sprint at all?&rdquo;<br /><br />Priya: &ldquo;No. I didn&apos;t want to micromanage.&rdquo;<br /><br />Dev: &ldquo;There&apos;s a difference. Checking in is not micromanaging.&rdquo;</>}
             expandedContent={<>A spec is a starting point, not a complete specification of reality. Things that feel obvious to a PM are often genuinely ambiguous to an engineer who hasn&apos;t been in every stakeholder conversation. The solution isn&apos;t longer specs — it&apos;s more conversation. Check in mid-sprint. Ask: does your understanding of &apos;done&apos; match mine? If not, fix it then — not in the retrospective.</>}
+            conceptId="collaboration"
+            question="Mid-sprint, your spec says 'share results.' Dev might build a link, email, or Slack integration. The right move:"
+            options={[
+              { text: "Wait until sprint end — don't interrupt the build", correct: false, feedback: "That 10 minutes of ambiguity now becomes a week of rework later. Catching it mid-sprint is always cheaper." },
+              { text: "Clarify immediately: 'When I said share results, I meant via Slack integration'", correct: true, feedback: "Exactly. Catching misalignment during the sprint is product management. Catching it in the retro is damage control." },
+              { text: "Add more detail to the spec for next sprint", correct: false, feedback: "Writing longer specs doesn't fix this — the spec already had the ambiguous phrase in it. What fixes it is a mid-sprint conversation." },
+            ]}
           />
         </div>
 
@@ -1083,6 +1153,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>Priya: &ldquo;Should I have been more specific in the spec?&rdquo;<br /><br />Asha: &ldquo;Sometimes. But the bigger question — did you talk to Dev at all during those two weeks?&rdquo;<br /><br />Priya: &ldquo;No. I assumed it was going fine.&rdquo;<br /><br />Asha: &ldquo;That assumption cost you a week of re-work. Alignment isn&apos;t a kickoff meeting. It&apos;s a habit. You&apos;re not done when the sprint starts.&rdquo;</>}
             expandedContent={<>The most common thing I hear from PMs is &apos;I don&apos;t want to micromanage.&apos; I understand the instinct. But there&apos;s a meaningful difference between checking on a person and checking on shared understanding. You&apos;re not checking whether Dev is working hard. You&apos;re checking whether what&apos;s being built still matches what you both meant when the sprint started. That&apos;s not micromanagement. That&apos;s product management.</>}
+            conceptId="collaboration"
+            question="After a sprint ends with a mismatch between what you intended and what was built, the most likely root cause is:"
+            options={[
+              { text: "The spec was too short", correct: false, feedback: "Longer specs contain more ambiguous words. Length doesn't fix clarity — conversations do." },
+              { text: "Shared understanding was never confirmed during the sprint", correct: true, feedback: "Alignment at kickoff decays. Things agreed on Monday are often interpreted differently by Wednesday. Mid-sprint check-ins catch this." },
+              { text: "Engineering should ask more questions upfront", correct: false, feedback: "Maybe — but it's the PM's job to make the problem clear enough that the right questions surface naturally." },
+            ]}
           />
         </div>
 
@@ -1125,6 +1202,13 @@ export default function Track1NewPM() {
             borderColor="var(--teal)"
             content={<>&ldquo;What did you define as success before we shipped?&rdquo;<br /><br />Priya: &ldquo;Users completing onboarding.&rdquo;<br /><br />Kiran: &ldquo;What number? And when were you going to check?&rdquo;<br /><br />Priya doesn&apos;t have answers.<br /><br />Kiran: &ldquo;That&apos;s the problem. If you didn&apos;t define what &apos;working&apos; looks like before you shipped, you can&apos;t know if it&apos;s working after.&rdquo;</>}
             expandedContent={<>Before every launch, I ask PMs three questions: What behavior are you trying to change? What number tells you that behavior has changed? When are you checking? If you can&apos;t answer all three, the feature isn&apos;t ready to ship — or at least, you&apos;re not ready to evaluate it. Shipping without measurement is just hope.</>}
+            conceptId="north-star"
+            question="You're about to ship a new search feature. Which set of answers do you need before launch?"
+            options={[
+              { text: "What % of users will use it, and what did it cost to build?", correct: false, feedback: "Cost and adoption are useful — but they don't tell you whether the feature actually solved the problem it was meant to solve." },
+              { text: "What behaviour am I trying to change, what number proves it changed, and when am I checking?", correct: true, feedback: "Kiran's three questions. If you can't answer all three, you're not ready to evaluate the feature after it ships." },
+              { text: "Is it on the roadmap, and did the CEO approve it?", correct: false, feedback: "Approval tells you the feature is sanctioned. It doesn't tell you what success looks like after it ships." },
+            ]}
           />
         </div>
 
@@ -1141,6 +1225,13 @@ export default function Track1NewPM() {
             borderColor="var(--teal)"
             content={<>&ldquo;The metric told us something was wrong. The investigation told us what. That&apos;s how it&apos;s supposed to work.&rdquo;<br /><br />Priya: &ldquo;What should I have done differently?&rdquo;<br /><br />Kiran: &ldquo;Before you shipped: define what success looks like in a number. After you ship: check it within a week. Don&apos;t wait a month. A week. Things that are broken need to be found fast.&rdquo;</>}
             expandedContent={<>The metric I care about most for any new feature isn&apos;t the vanity metric — page views, impressions. It&apos;s the completion metric: did users do the thing the feature was designed for? For onboarding, that&apos;s completion rate. For search, it&apos;s successful searches. For sharing, it&apos;s shares that resulted in someone opening the shared content. Find the behavior that proves the feature is doing what it was meant to do. That&apos;s your metric.</>}
+            conceptId="north-star"
+            question="You shipped a sharing feature. Which metric best tells you if it worked?"
+            options={[
+              { text: "Total shares (clicks on the share button)", correct: false, feedback: "That's a vanity metric — it tells you people tried to share, not whether sharing accomplished anything." },
+              { text: "Shares that led to the recipient opening the shared content", correct: true, feedback: "That's the completion metric — did users do the thing the feature was designed for? For sharing, success is someone receiving and opening what was shared." },
+              { text: "Daily active users in the week after launch", correct: false, feedback: "DAU is too broad — it won't isolate the sharing feature's impact. You need the metric closest to the specific behaviour you changed." },
+            ]}
           />
         </div>
 
@@ -1190,6 +1281,13 @@ export default function Track1NewPM() {
             borderColor="var(--purple)"
             content={<>Asha appears in the doorway. Still here?<br /><br />&ldquo;Just connecting some dots,&rdquo; Priya says.<br /><br />Asha walks over. Reads what Priya wrote. &ldquo;Understand. Decide. Build. Measure.&rdquo; She nods. &ldquo;That&apos;s it. That&apos;s the whole loop.&rdquo;<br /><br />Priya: &ldquo;Is it always that simple?&rdquo;<br /><br />Asha: &ldquo;The loop is simple. The work inside it isn&apos;t. But if you always know which part you&apos;re in — you&apos;ll know what to do next.&rdquo;</>}
             expandedContent={<>Every product decision you&apos;ll ever make lives somewhere in that loop. And the loop never stops. You finish measuring, and you start understanding again. A new problem surfaces. You decide what matters. You build. You measure. The PMs who plateau are the ones who skip steps — who build without understanding, or ship without measuring. The ones who grow are the ones who run the full loop, every time, even when it&apos;s uncomfortable.</>}
+            conceptId="pm-role"
+            question="A PM skips measuring after shipping because the next sprint has already started. What's the cost?"
+            options={[
+              { text: "The team misses retrospective data", correct: false, feedback: "Retros are useful — but the deeper cost is building the next sprint on assumptions about whether the last one worked." },
+              { text: "They'll never know if what they built solved the problem — so the next sprint may be built on a false assumption", correct: true, feedback: "This is how products drift. Each sprint assumes the last one worked. Without measurement, you're stacking assumption on assumption." },
+              { text: "Stakeholders will be frustrated by the lack of updates", correct: false, feedback: "That's a communication problem. The deeper issue is epistemic — you don't know what's true about your product." },
+            ]}
           />
         </div>
 

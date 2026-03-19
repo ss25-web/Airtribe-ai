@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
+import { useLearnerStore } from '@/lib/learnerStore';
 
 // Map name strings used in Avatar calls to MentorId
 const NAME_TO_MENTOR: Record<string, MentorId> = {
@@ -243,22 +244,44 @@ export const ChapterSection = ({ num, accentRgb, id, first = false, children }: 
 );
 
 // ─────────────────────────────────────────
-// AVATAR  (AI Mentor card with illustrated face)
+// AVATAR  (AI Mentor card — interactive question + concept mastery)
 // ─────────────────────────────────────────
-export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expandedContent }: {
+export interface AvatarOption {
+  text: string;
+  correct: boolean;
+  feedback: string;
+}
+
+export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expandedContent, question, options, conceptId }: {
   emoji?: string; name: string; nameColor: string; borderColor: string;
-  content: React.ReactNode; expandedContent: React.ReactNode;
+  content: React.ReactNode;
+  expandedContent?: React.ReactNode;
+  question?: string;
+  options?: AvatarOption[];
+  conceptId?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const mentorId: MentorId = NAME_TO_MENTOR[name] ?? 'asha';
   const meta = MENTOR_META[mentorId];
+  const store = useLearnerStore();
+
+  const answered = selectedIdx !== null;
+  const isCorrect = answered && options ? options[selectedIdx].correct : false;
+
+  const handleAnswer = (i: number) => {
+    if (answered) return;
+    setSelectedIdx(i);
+    if (conceptId && options) {
+      store.recordQuizAttempt(conceptId, options[i].correct);
+    }
+  };
 
   return (
     <motion.div
       whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
-      onClick={() => setOpen(o => !o)}
       style={{
-        cursor: 'pointer', background: 'var(--ed-card)', borderRadius: '10px',
+        background: 'var(--ed-card)', borderRadius: '10px',
         borderTop: '1px solid var(--ed-rule)',
         borderRight: '1px solid var(--ed-rule)',
         borderBottom: '1px solid var(--ed-rule)',
@@ -268,11 +291,14 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
       }}>
 
       {/* Header strip */}
-      <div style={{
-        padding: '7px 18px', background: 'var(--ed-cream)',
-        borderBottom: '1px solid var(--ed-rule)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
+      <div
+        onClick={() => setOpen(o => !o)}
+        style={{
+          padding: '7px 18px', background: 'var(--ed-cream)',
+          borderBottom: '1px solid var(--ed-rule)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          cursor: 'pointer',
+        }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <motion.span
             animate={{ opacity: [1, 0.3, 1] }}
@@ -283,11 +309,24 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
             fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700,
             letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'var(--ed-indigo)',
           }}>AI Mentor</span>
+          {question && (
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: '8px',
+              color: 'var(--ed-ink3)', letterSpacing: '0.06em', marginLeft: '4px',
+            }}>· has a question for you</span>
+          )}
         </div>
-        <span style={{
-          fontFamily: "'JetBrains Mono', monospace", fontSize: '8px',
-          color: 'var(--ed-ink3)', letterSpacing: '0.06em',
-        }}>{open ? 'collapse ↑' : 'tap to expand ↓'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {question && answered && (
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700,
+              color: isCorrect ? 'var(--ed-green)' : 'var(--coral)', letterSpacing: '0.06em',
+            }}>{isCorrect ? '✓ correct' : '✗ revisit'}</span>
+          )}
+          <motion.span
+            animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }}
+            style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>▼</motion.span>
+        </div>
       </div>
 
       {/* Body */}
@@ -301,13 +340,9 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
           }}>{meta.role}</div>
           <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.82 }}>{content}</div>
         </div>
-        <motion.div
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.25 }}
-          style={{ fontSize: '10px', color: 'var(--ed-ink3)', flexShrink: 0, marginTop: '4px' }}>▼</motion.div>
       </div>
 
-      {/* Expanded deep-dive */}
+      {/* Expanded: deep-dive + interactive question */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -315,13 +350,108 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             style={{ overflow: 'hidden' }}>
-            <div style={{
-              padding: '16px 18px 20px', borderTop: '1px solid var(--ed-rule)',
-              background: 'var(--ed-cream)', display: 'flex', gap: '16px', alignItems: 'flex-start',
-            }}>
-              <div style={{ width: '3px', flexShrink: 0, background: borderColor, borderRadius: '2px', alignSelf: 'stretch', opacity: 0.35 }} />
-              <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.9 }}>{expandedContent}</div>
-            </div>
+
+            {/* Deep-dive text */}
+            {expandedContent && (
+              <div style={{
+                padding: '16px 18px 20px', borderTop: '1px solid var(--ed-rule)',
+                background: 'var(--ed-cream)', display: 'flex', gap: '16px', alignItems: 'flex-start',
+              }}>
+                <div style={{ width: '3px', flexShrink: 0, background: borderColor, borderRadius: '2px', alignSelf: 'stretch', opacity: 0.35 }} />
+                <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.9 }}>{expandedContent}</div>
+              </div>
+            )}
+
+            {/* Interactive question */}
+            {question && options && (
+              <div style={{
+                padding: '18px 20px 20px',
+                borderTop: '1px solid var(--ed-rule)',
+                background: 'var(--ed-cream)',
+              }}>
+                {/* Question header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{
+                    width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                    background: borderColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '10px', fontWeight: 700, color: '#fff',
+                  }}>{meta.name[0]}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em' }}>
+                    {meta.name.toUpperCase()} ASKS
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ed-ink)', lineHeight: 1.55, marginBottom: '14px', fontFamily: "'Lora', serif" }}>
+                  {question}
+                </div>
+
+                {/* Options */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: answered ? '14px' : '0' }}>
+                  {options.map((opt, i) => {
+                    const isSelected = selectedIdx === i;
+                    const showResult = answered && isSelected;
+                    const resultColor = opt.correct ? 'var(--ed-green)' : 'var(--coral)';
+                    const resultBg = opt.correct ? 'var(--ed-green-bg)' : 'var(--no-bg)';
+
+                    return (
+                      <motion.button
+                        key={i}
+                        whileHover={!answered ? { x: 3 } : {}}
+                        whileTap={!answered ? { scale: 0.99 } : {}}
+                        onClick={() => handleAnswer(i)}
+                        style={{
+                          textAlign: 'left', padding: '12px 16px', borderRadius: '8px',
+                          border: showResult ? `2px solid ${resultColor}` : isSelected ? `2px solid ${borderColor}` : '1.5px solid var(--ed-rule)',
+                          background: showResult ? resultBg : isSelected ? 'rgba(120,67,238,0.05)' : 'var(--ed-card)',
+                          cursor: answered ? 'default' : 'pointer',
+                          fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.55,
+                          fontFamily: 'inherit', transition: 'all 0.15s',
+                          display: 'flex', alignItems: 'flex-start', gap: '10px',
+                          opacity: answered && !isSelected ? 0.5 : 1,
+                        }}>
+                        <span style={{
+                          width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
+                          border: showResult ? `1.5px solid ${resultColor}` : '1.5px solid var(--ed-rule)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                          color: showResult ? resultColor : 'var(--ed-ink3)',
+                          background: showResult ? resultBg : 'transparent',
+                          transition: 'all 0.15s',
+                        }}>
+                          {showResult ? (opt.correct ? '✓' : '✗') : String.fromCharCode(65 + i)}
+                        </span>
+                        {opt.text}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* Feedback */}
+                <AnimatePresence>
+                  {answered && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+                      style={{
+                        marginTop: '12px', padding: '12px 14px', borderRadius: '8px',
+                        background: isCorrect ? 'var(--ed-green-bg)' : 'var(--ed-amber-bg)',
+                        border: `1px solid ${isCorrect ? 'var(--ed-green-border)' : 'var(--ed-amber-border)'}`,
+                      }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', color: isCorrect ? 'var(--ed-green)' : 'var(--ed-amber)', marginBottom: '5px' }}>
+                        {isCorrect ? '✓ RIGHT TRACK' : '→ THINK AGAIN'}
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
+                        {options[selectedIdx!].feedback}
+                      </div>
+                      {conceptId && (
+                        <div style={{ marginTop: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.08em' }}>
+                          {isCorrect ? '↑ concept mastery updated' : '· try the section quiz for more practice'}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

@@ -20,7 +20,7 @@ export interface ConceptState {
 
 // Default BKT parameters calibrated for PM concepts
 const DEFAULT_PARAMS: BKTParams = {
-  pLearn: 0.35,
+  pLearn: 0.0,   // start at 0% — mastery earned through activity only
   pTransit: 0.12,
   pSlip: 0.08,
   pGuess: 0.25,
