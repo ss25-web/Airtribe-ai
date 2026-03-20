@@ -197,6 +197,7 @@ export const useLearnerStore = create<LearnerStore>()(
     }),
     {
       name: 'airtribe-learner',
+      version: 2, // bumped: conceptStates now start at 0% not 35%
       partialize: (state) => ({
         learnerId: state.learnerId,
         conceptStates: state.conceptStates,

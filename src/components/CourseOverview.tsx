@@ -198,7 +198,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
             {[
               { label: 'Duration', value: '16 weeks' },
               { label: 'Modules', value: '11 modules' },
-              { label: 'Format', value: 'Live + Async' },
+              { label: 'Start with', value: 'Pre-read' },
             ].map(s => (
               <div key={s.label} style={{ padding: '8px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: '2px' }}>{s.label}</div>
