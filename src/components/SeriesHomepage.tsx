@@ -58,7 +58,7 @@ export default function SeriesHomepage({ onSelectPM, darkMode, onToggleDark }: P
     <div style={{ minHeight: '100vh', background: bg, transition: 'background 0.3s, color 0.3s' }}>
 
       {/* Top bar with theme toggle */}
-      <div style={{
+      <div className="series-topbar" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '14px 28px', maxWidth: '980px', margin: '0 auto',
       }}>
@@ -106,7 +106,7 @@ export default function SeriesHomepage({ onSelectPM, darkMode, onToggleDark }: P
       <div style={{ height: '2px', background: 'linear-gradient(90deg, #7843EE 0%, #4F46E5 50%, #0097A7 100%)', maxWidth: '100%' }} />
 
       {/* Main content */}
-      <div style={{ maxWidth: '980px', margin: '0 auto', padding: '52px 28px 48px' }}>
+      <div className="series-main" style={{ maxWidth: '980px', margin: '0 auto', padding: '52px 28px 48px' }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h1 style={{
             fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 700, lineHeight: 1.1,
@@ -122,7 +122,7 @@ export default function SeriesHomepage({ onSelectPM, darkMode, onToggleDark }: P
         </motion.div>
 
         {/* Series grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+        <div className="series-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
           {SERIES.map((s, i) => (
             <motion.div
               key={s.id}

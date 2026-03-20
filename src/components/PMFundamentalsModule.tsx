@@ -600,7 +600,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
           </div>
 
           {/* Center: reading progress */}
-          <div style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
+          <div className="top-nav-progress" style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
             <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
               <motion.div
                 animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }}
@@ -633,10 +633,10 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
       </div>
 
       {/* ── Main content ── */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+      <div className="three-col-wrap" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
 
         {/* ── Three-column layout ── */}
-        <div style={{
+        <div className="three-col-grid" style={{
           display: 'grid',
           gridTemplateColumns: '200px minmax(0, 1fr) 240px',
           gap: '40px',
@@ -645,13 +645,15 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
         }}>
 
           {/* LEFT: CONTENTS */}
-          <LeftNav
-            track={track}
-            sections={cfg.sections}
-            completedSections={completedSections}
-            activeSection={activeSection}
-            accent={cfg.accent}
-          />
+          <div className="left-col">
+            <LeftNav
+              track={track}
+              sections={cfg.sections}
+              completedSections={completedSections}
+              activeSection={activeSection}
+              accent={cfg.accent}
+            />
+          </div>
 
           {/* CENTER: Content */}
           <AnimatePresence mode="wait">
@@ -707,14 +709,16 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
           </AnimatePresence>
 
           {/* RIGHT: Gamified sidebar */}
-          <Sidebar
-            track={track}
-            onSwitchTrack={onBack}
-            completedSections={completedSections}
-            progressPct={progressPct}
-            xp={xp}
-            prevXp={prevXpRef.current}
-          />
+          <div className="right-col">
+            <Sidebar
+              track={track}
+              onSwitchTrack={onBack}
+              completedSections={completedSections}
+              progressPct={progressPct}
+              xp={xp}
+              prevXp={prevXpRef.current}
+            />
+          </div>
 
         </div>
       </div>

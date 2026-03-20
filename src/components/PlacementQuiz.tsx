@@ -196,7 +196,7 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', display: 'flex', flexDirection: 'column' }}>
 
       {/* ── Top bar ── */}
-      <div style={{
+      <div className="screen-topbar" style={{
         background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)',
         padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 10,
@@ -262,7 +262,7 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
       )}
 
       {/* ── Main content ── */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '40px 24px' }}>
+      <div className="quiz-content" style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ width: '100%', maxWidth: '640px' }}>
 
           <AnimatePresence mode="wait">
@@ -455,7 +455,7 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: 'var(--ed-ink3)', textTransform: 'uppercase' as const, marginBottom: '16px' }}>
                     How we placed you
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                  <div className="result-score-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                     {[
                       {
                         label: 'Experience',

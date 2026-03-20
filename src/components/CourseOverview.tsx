@@ -148,7 +148,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
 
       {/* Top bar */}
-      <div style={{
+      <div className="screen-topbar" style={{
         position: 'sticky', top: 0, zIndex: 10,
         background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)',
         padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -170,7 +170,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <div style={{ width: '60px' }} />
       </div>
 
-      <div style={{ maxWidth: '860px', margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div className="overview-content" style={{ maxWidth: '860px', margin: '0 auto', padding: '40px 24px 80px' }}>
 
         {/* Track banner */}
         <motion.div

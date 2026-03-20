@@ -221,3 +221,62 @@ html.dark .editorial h3 {
   height: 2px;
   background: linear-gradient(90deg, #7843EE 0%, #4F46E5 50%, #0097A7 100%);
 }
+
+/* ─────────────────────────────────────────
+   MOBILE RESPONSIVE — <768px
+   ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* PMFundamentalsModule: collapse 3-col grid to single column */
+  .three-col-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .three-col-grid .left-col,
+  .three-col-grid .right-col {
+    display: none !important;
+  }
+
+  /* PMFundamentalsModule: reduce outer padding */
+  .three-col-wrap {
+    padding: 0 16px !important;
+  }
+
+  /* PMFundamentalsModule: hide center progress bar in sticky nav */
+  .top-nav-progress {
+    display: none !important;
+  }
+
+  /* SeriesHomepage: stack 3-col series cards to single column */
+  .series-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* SeriesHomepage: reduce main content padding */
+  .series-main {
+    padding: 36px 16px 40px !important;
+  }
+
+  /* SeriesHomepage: reduce top bar padding */
+  .series-topbar {
+    padding: 14px 16px !important;
+  }
+
+  /* PlacementQuiz: reduce outer padding */
+  .quiz-content {
+    padding: 24px 16px !important;
+  }
+
+  /* PlacementQuiz: result screen 3-col score breakdown → 2 col */
+  .result-score-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* CourseOverview: reduce content padding */
+  .overview-content {
+    padding: 32px 16px 60px !important;
+  }
+
+  /* CourseOverview & PlacementQuiz: reduce top bar padding */
+  .screen-topbar {
+    padding: 14px 16px !important;
+  }
+}
