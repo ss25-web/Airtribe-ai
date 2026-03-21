@@ -26,21 +26,12 @@ const TRACK_META = {
 
 const MODULES = [
   {
-    num: '00',
-    label: 'Pre-Course Prep',
-    desc: 'Introduction to PM, key responsibilities, must-know frameworks, and how GenAI transforms the PM role.',
-    duration: '30 min',
-    tools: ['Foundations'],
-    available: true,
-    accent: '#4F46E5',
-  },
-  {
     num: '01',
     label: 'Fundamentals of Product Management',
-    desc: "The PM role in tech companies, what separates great PMs from good ones, and how product thinking solves problems at scale.",
+    desc: "The PM role in tech companies, what separates great PMs from good ones, how product thinking solves problems at scale, and how GenAI is transforming every PM's toolkit.",
     duration: '45 min',
     tools: ['ChatGPT', 'Claude', 'Lovable'],
-    available: false,
+    available: true,
     accent: '#4F46E5',
   },
   {
@@ -198,7 +189,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
             {[
               { label: 'Duration', value: '16 weeks' },
               { label: 'Modules', value: '11 modules' },
-              { label: 'Start with', value: 'Pre-read' },
+              { label: 'Start with', value: 'Module 1' },
             ].map(s => (
               <div key={s.label} style={{ padding: '8px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: '2px' }}>{s.label}</div>
@@ -212,10 +203,10 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-Course Prep is available now. Modules 1–12 unlock week by week.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Module 1 is available now. Modules 2–11 unlock week by week.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            1 of 12 available
+            1 of 11 available
           </div>
         </div>
 
@@ -308,8 +299,8 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         {/* Footer note */}
         <div style={{ marginTop: '32px', padding: '16px 20px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', textAlign: 'center' as const }}>
           <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-            Modules 1–12 are part of the <strong style={{ color: 'var(--ed-ink)' }}>AI-First Product Management</strong> program.
-            The Pre-Course Prep above is your free preview — the full program unlocks everything.
+            Modules 1–11 are part of the <strong style={{ color: 'var(--ed-ink)' }}>AI-First Product Management</strong> program.
+            Module 1 is available now — the full program unlocks week by week.
           </div>
         </div>
       </div>
