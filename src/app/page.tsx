@@ -6,16 +6,19 @@ import SeriesHomepage from '@/components/SeriesHomepage';
 import PlacementQuiz from '@/components/PlacementQuiz';
 import CourseOverview from '@/components/CourseOverview';
 import PMFundamentalsModule from '@/components/PMFundamentalsModule';
+import ProblemDiscoveryModule from '@/components/ProblemDiscoveryModule';
 
 type Stage = 'home' | 'quiz' | 'overview' | 'reading';
 
-const LS_STAGE = 'airtribe_stage';
-const LS_TRACK = 'airtribe_track';
-const LS_DARK  = 'airtribe_dark';
+const LS_STAGE  = 'airtribe_stage';
+const LS_TRACK  = 'airtribe_track';
+const LS_DARK   = 'airtribe_dark';
+const LS_MODULE = 'airtribe_module';
 
 export default function Home() {
   const [stage, setStage] = useState<Stage>('home');
   const [assignedTrack, setAssignedTrack] = useState<Track | null>(null);
+  const [activeModule, setActiveModule] = useState<string>('01');
   const [darkMode, setDarkMode] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -25,9 +28,11 @@ export default function Home() {
     const savedTrack = localStorage.getItem(LS_TRACK) as Track | null;
     const savedDark  = localStorage.getItem(LS_DARK) === 'true';
 
+    const savedModule = localStorage.getItem(LS_MODULE) ?? '01';
     if ((savedStage === 'reading' || savedStage === 'overview') && savedTrack) {
       setStage(savedStage);
       setAssignedTrack(savedTrack);
+      setActiveModule(savedModule);
     } else if (savedStage === 'quiz') {
       setStage('quiz');
     }
@@ -64,9 +69,11 @@ export default function Home() {
     localStorage.setItem(LS_TRACK, track);
   };
 
-  const goReading = () => {
+  const goReading = (moduleNum: string) => {
+    setActiveModule(moduleNum);
     setStage('reading');
     localStorage.setItem(LS_STAGE, 'reading');
+    localStorage.setItem(LS_MODULE, moduleNum);
   };
 
   const toggleDark = () => setDarkMode(d => !d);
@@ -97,20 +104,25 @@ export default function Home() {
     return (
       <CourseOverview
         track={assignedTrack}
-        onStartModule={goReading}
+        onStartModule={(num) => goReading(num)}
         onBack={goHome}
       />
     );
   }
 
+  const goBackToOverview = () => {
+    setStage('overview');
+    localStorage.setItem(LS_STAGE, 'overview');
+  };
+
   if (stage === 'reading' && assignedTrack) {
+    if (activeModule === '02') {
+      return <ProblemDiscoveryModule onBack={goBackToOverview} />;
+    }
     return (
       <PMFundamentalsModule
         startTrack={assignedTrack}
-        onBack={() => {
-          setStage('overview');
-          localStorage.setItem(LS_STAGE, 'overview');
-        }}
+        onBack={goBackToOverview}
       />
     );
   }

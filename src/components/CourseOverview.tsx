@@ -37,10 +37,10 @@ const MODULES = [
   {
     num: '02',
     label: 'Problem Discovery & User Research',
-    desc: 'Define customer segments, run research methodologies, and leverage AI to uncover hidden insights from user data.',
+    desc: 'Define customer segments, run user interviews, and turn messy research notes into a crisp problem statement that gets the team aligned.',
     duration: '45 min',
-    tools: ['OpenAI', 'Kraftful'],
-    available: false,
+    tools: ['Notion', 'Dovetail', 'Kraftful'],
+    available: true,
     accent: '#0097A7',
   },
   {
@@ -128,7 +128,7 @@ const MODULES = [
 
 interface Props {
   track: Track;
-  onStartModule: () => void;
+  onStartModule: (moduleNum: string) => void;
   onBack: () => void;
 }
 
@@ -203,10 +203,10 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Module 1 is available now. Modules 2–11 unlock week by week.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Modules 1–2 are available now. Modules 3–11 unlock week by week.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            1 of 11 available
+            2 of 11 available
           </div>
         </div>
 
@@ -218,7 +218,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
-              onClick={mod.available ? onStartModule : undefined}
+              onClick={mod.available ? () => onStartModule(mod.num) : undefined}
               style={{
                 borderRadius: '10px', padding: '18px 20px',
                 background: 'var(--ed-card)',
