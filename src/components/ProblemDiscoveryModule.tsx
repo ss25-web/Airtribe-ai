@@ -402,7 +402,7 @@ export default function ProblemDiscoveryModule({ onBack }: Props) {
       <div className="three-col-wrap" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
         <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
-          <div className="left-col">
+          <div className="left-col" style={{ alignSelf: 'stretch' }}>
             <LeftNav completedSections={completedSections} activeSection={activeSection} />
           </div>
 
@@ -431,7 +431,7 @@ export default function ProblemDiscoveryModule({ onBack }: Props) {
             <div style={{ height: '60px' }} />
           </motion.main>
 
-          <div className="right-col">
+          <div className="right-col" style={{ alignSelf: 'stretch' }}>
             <Sidebar
               completedSections={completedSections}
               progressPct={progressPct}

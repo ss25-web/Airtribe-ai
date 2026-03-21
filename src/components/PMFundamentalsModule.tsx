@@ -645,7 +645,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
         }}>
 
           {/* LEFT: CONTENTS */}
-          <div className="left-col">
+          <div className="left-col" style={{ alignSelf: 'stretch' }}>
             <LeftNav
               track={track}
               sections={cfg.sections}
@@ -709,7 +709,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
           </AnimatePresence>
 
           {/* RIGHT: Gamified sidebar */}
-          <div className="right-col">
+          <div className="right-col" style={{ alignSelf: 'stretch' }}>
             <Sidebar
               track={track}
               onSwitchTrack={onBack}
