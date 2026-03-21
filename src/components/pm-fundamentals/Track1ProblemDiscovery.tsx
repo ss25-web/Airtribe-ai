@@ -9,7 +9,7 @@ import {
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
 } from './designSystem';
 
-// Local helper for rich-content key boxes (keyBox only accepts string[])
+// Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
   <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', margin: '24px 0', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${accent}` }}>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: accent, marginBottom: '14px' }}>{title}</div>
@@ -17,100 +17,108 @@ const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; a
   </div>
 );
 
+// Tool badge
+const ToolBadge = ({ name, desc, accent = 'var(--teal)' }: { name: string; desc: string; accent?: string }) => (
+  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: `1px solid var(--ed-rule)`, borderLeft: `3px solid ${accent}`, margin: '4px 0' }}>
+    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: accent, letterSpacing: '0.08em' }}>{name}</div>
+    <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{desc}</div>
+  </div>
+);
+
 const MODULE_CONTEXT = `Module 02 of Airtribe PM Fundamentals — Track: New to PM.
-Continues with Priya Sharma, PM at EdSpark (B2B SaaS for sales coaching). Covers: user discovery mindset, customer segmentation, Jobs to Be Done, research methods (interviews vs analytics), running good user interviews, insight synthesis, and writing a discovery brief.`;
+Continues with Priya Sharma, PM at EdSpark (B2B SaaS for sales coaching). She must investigate why 40% of users churn in week 2. Covers: resisting premature solutions, customer segmentation, Jobs to Be Done, choosing research methods (using Notion for notes, Dovetail for synthesis, Kraftful for AI analysis), running user interviews, affinity mapping, and writing a discovery brief.`;
 
 const QUIZZES = [
   {
-    question: "Your manager says 'Users are confused — fix it.' What's your first move?",
+    question: "Your manager says '40% of users churn in week 2 — fix it.' You have a theory about onboarding. What do you do first?",
     options: [
-      'A. Redesign the confusing section based on your best guess',
-      'B. Go talk to 5–6 users who experienced confusion before deciding anything',
+      'A. Start redesigning the onboarding — your instinct is probably right',
+      'B. Talk to 5–6 churned users before touching anything',
       'C. Run a survey to all users asking what they find confusing',
-      'D. Ask design to run a usability test on the current flow',
+      'D. Ask engineering to instrument better analytics first',
     ],
     correctIndex: 1,
-    explanation: "'Confused' is a symptom. You don't know yet where, who, when, or why. Talking to 5–6 actual users who experienced the issue gives you specificity — fast. A survey at this stage only tells you opinions, not root causes.",
+    explanation: "Your instinct might be right — or it might be completely wrong. Priya spent a weekend building 14 Figma screens for an onboarding problem that turned out not to be an onboarding problem at all. Five conversations would have saved two days. Talk first, build second.",
     conceptId: 'user-research',
-    keyInsight: 'Start with conversations, not solutions. Five real conversations beat fifty survey responses when you don\'t yet know what to ask.',
+    keyInsight: "The cost of five conversations is hours. The cost of building the wrong thing is weeks. Always talk first.",
   },
   {
-    question: "EdSpark has 500 users. You need to understand why some churn. Who do you interview?",
+    question: "EdSpark has 340 churned users last month. You need to understand why managers specifically are churning. Who do you interview?",
     options: [
-      'A. The 10 most active users — they know the product best',
-      'B. A random sample of 20 users to avoid bias',
-      'C. Users who churned in the past 2 weeks — they remember why they left',
-      'D. Enterprise customers — they pay the most',
+      'A. Your 10 most active managers — they know the product best',
+      'B. A random sample of 20 users to avoid selection bias',
+      'C. Managers who churned in the last 2–3 weeks — while it\'s still fresh',
+      'D. Enterprise managers — they represent the most valuable segment',
     ],
     correctIndex: 2,
-    explanation: "Research is about answering a specific question. If the question is 'why do users churn?', you talk to churned users — while it's still fresh. Active users can't tell you why others left. Enterprise customers are a different segment entirely.",
+    explanation: "Research participants must match your research question. If the question is 'why do managers churn?', you talk to churned managers — and recent ones, because memory fades fast. Active managers can't tell you why others left. Enterprise managers are a different segment with different context.",
     conceptId: 'customer-segments',
-    keyInsight: 'Match your research participants to your research question. The wrong respondents give you the wrong insights.',
+    keyInsight: "Match participants to the question. The wrong respondents give you the wrong insights.",
   },
   {
-    question: "You want to understand users' core motivations for using EdSpark. Which method fits?",
+    question: "Kiran's Amplitude data shows 43% of managers never click 'Add Recording' in their first session. What does this tell you?",
     options: [
-      'A. A/B test two onboarding flows',
-      'B. Analyse session recordings from the last 30 days',
-      'C. 1:1 open-ended user interviews',
-      'D. An NPS survey sent to all users',
+      'A. The button is broken or hard to find — fix the UI',
+      'B. WHERE the problem shows up. Not WHY. Interview users to find the root cause.',
+      'C. Managers don\'t understand the product — add an onboarding tutorial',
+      'D. The product isn\'t useful to managers — consider a pivot',
     ],
-    correctIndex: 2,
-    explanation: "A/B tests tell you which performs better — not why. Session recordings show behaviour, not motivation. NPS shows satisfaction at a point in time. 1:1 interviews are the only method that lets you follow threads: 'Tell me more about that...' Motivation requires conversation.",
+    correctIndex: 1,
+    explanation: "Analytics show you where and when. They don't show you why. 43% never clicking 'Add Recording' could mean the button is hard to find, OR they don't understand why to add recordings, OR they got interrupted, OR they're waiting for their team to set up first. Only conversations reveal which it is.",
     conceptId: 'research-methods',
-    keyInsight: 'Match the method to the question. Interviews for motivation and context. Analytics for scale and patterns. Use both together.',
+    keyInsight: "Data shows you where. Interviews show you why. Use both — but in the right order.",
   },
   {
-    question: "During an interview you ask: 'Would you use a daily digest email feature?' What's wrong with this?",
+    question: "Midway through an interview, Rahul says 'I wasn't sure what to do next.' You should:",
     options: [
-      "A. Nothing — it's important to validate features with users",
-      'B. It\'s a leading question that tells you nothing — people say yes to hypotheticals',
-      'C. The question is too narrow; ask about all email preferences',
-      'D. You should show a prototype first before asking',
+      'A. Note "user felt lost" and move to the next question',
+      'B. Ask: "When you say you weren\'t sure what to do — can you walk me through what you tried?"',
+      'C. Validate: "Did you find the product confusing?"',
+      'D. Move on — you have 20 more questions to get through',
     ],
     correctIndex: 1,
-    explanation: "Asking users if they'd use a hypothetical feature almost always gets a 'yes' — because agreeing is easy and costs nothing. What people say they'll do and what they actually do are very different. Instead, ask: 'Tell me about the last time you wanted to share results with your team. What did you do?'",
+    explanation: "'I wasn't sure what to do next' is an observation, not an insight. What did he try? What was he hoping to see? What would have made it clear? The follow-up question is the whole job. Asking 'did you find it confusing?' is leading — you're suggesting the answer. And racing through 20 questions means you'll miss the one thing that matters.",
     conceptId: 'user-research',
-    keyInsight: "Ask about past behaviour, not hypothetical intent. 'Tell me about the last time...' beats 'Would you use...' every time.",
+    keyInsight: "'Tell me more' and 'Can you walk me through that?' are the two most powerful interview questions. Use them every time.",
   },
   {
-    question: "A user says: 'I just want to find things faster.' As a PM, what does this tell you?",
+    question: "Rahul said 'I just wanted to see if my coaching was actually working.' As a PM, what's the job?",
     options: [
-      'A. Build a better search — speed is the job',
-      'B. That speed is a signal, not the job — keep asking why until you find what they\'re actually trying to accomplish',
-      'C. Run an experiment on load time to test the hypothesis',
-      'D. Add a keyboard shortcut for power users',
+      'A. Better analytics dashboard — that\'s what he\'s asking for',
+      'B. Coaching effectiveness visibility — he hired EdSpark to prove his coaching is improving his team',
+      'C. Notification emails — remind managers to check their data',
+      'D. A/B test the dashboard layout to see what drives engagement',
     ],
     correctIndex: 1,
-    explanation: "'Find things faster' is a means, not an end. Faster to do what? Find which things? For what purpose? The job might be 'prep for a coaching call in under 5 minutes' or 'prove ROI to my manager before Friday.' Two very different jobs — and two very different solutions.",
+    explanation: "'See if coaching was working' isn't a request for a dashboard — it's a job: prove to himself (and his manager) that he's making his team better. That's about confidence, credibility, and career safety. The product solution might be a dashboard — or an automated report, or a Slack summary, or a weekly email. The job determines the direction. The feature is just one possible answer.",
     conceptId: 'jtbd',
-    keyInsight: "Every feature request hides the real job. Keep asking why until you hit an outcome that matters to the user's life.",
+    keyInsight: "Every feature request hides a job. Find the job first — then decide what to build.",
   },
   {
-    question: "After 8 user interviews you have 40 handwritten notes. What do you do next?",
+    question: "After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?",
     options: [
-      'A. Write up each interview as a separate report',
-      'B. Find the quote that best proves your original hypothesis',
-      'C. Group notes by theme across all interviews, not by user',
-      'D. Share all raw notes with the team and let them decide',
-    ],
-    correctIndex: 2,
-    explanation: "Grouping by user hides patterns. Grouping by theme reveals them. You're looking for themes that appear across multiple users — those are real signals. A single user mentioning something might be noise. Four out of eight saying the same thing is an insight.",
-    conceptId: 'insight-synthesis',
-    keyInsight: 'Patterns across users are insights. One user\'s opinion is a data point. Group by theme to find what really matters.',
-  },
-  {
-    question: "You've finished your research. How do you present the findings to your team?",
-    options: [
-      "A. 'I think we should redesign the onboarding — here's my plan'",
-      "B. 'We discovered that new users struggle to complete their first setup because they don't understand what the product does for them in context of their actual work'",
-      "C. 'Six users gave feedback — here are their quotes'",
-      "D. 'The research was inconclusive — we need more interviews'",
+      'A. Report both equally — all feedback is valid',
+      'B. 5/6 on "no clear next step" is your primary finding; flag billing as a separate data point',
+      'C. Throw out the billing issue — outliers skew findings',
+      'D. Do more interviews until billing comes up again before deciding',
     ],
     correctIndex: 1,
-    explanation: "Research findings should be framed as discoveries, not opinions — and definitely not as solutions. Your job at this stage is to get the team to understand the problem, not to pitch a fix. When you present the problem clearly, the team finds better solutions than you would alone.",
+    explanation: "Frequency across independent respondents is signal. 5 of 6 users independently describing the same experience is a finding — not a coincidence. 1 user with a billing issue is a data point worth noting, but it's a different problem requiring separate investigation. Don't let one loud outlier dilute a clear pattern.",
+    conceptId: 'insight-synthesis',
+    keyInsight: "Patterns across users are insights. Individual issues are data points. Weight them accordingly.",
+  },
+  {
+    question: "You've written your discovery brief. How do you open the Friday meeting with Rohan?",
+    options: [
+      'A. \"I recommend adding example coaching sessions to onboarding — here\'s the plan.\"',
+      'B. \"We discovered that managers join EdSpark to prove their coaching is working — but the product never shows them what good looks like. Here\'s what we found.\"',
+      'C. \"The research was interesting. I have some thoughts but want more data before proposing anything.\"',
+      'D. \"Users are confused — we need to redesign the onboarding flow.\"',
+    ],
+    correctIndex: 1,
+    explanation: "Option A leads with a solution — you've already decided, and the meeting becomes a presentation, not a problem-solving session. Option B leads with the discovery — you present what you learned and let the team think. Option C is avoidance. Option D is a vague symptom, not an insight. Lead with what you learned. The team will find better solutions than you would alone.",
     conceptId: 'problem-framing',
-    keyInsight: "Present what you learned, not what you think should be built. A clear problem statement is more powerful than a premature solution.",
+    keyInsight: "Present the problem, not the solution. A clear problem statement unlocks the team's best thinking.",
   },
 ];
 
@@ -119,27 +127,27 @@ const QUIZZES = [
 // ─────────────────────────────────────────
 const RESEARCH_SCENARIOS = [
   {
-    scenario: "You want to know WHY 40% of new users churn in week 1.",
+    scenario: "You want to know WHY 40% of managers churn in week 2, but you have no hypothesis yet.",
     methods: [
-      { label: 'User interviews', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "You don't know what to look for yet. Interviews let you follow unexpected threads. They're the best tool when the question is open-ended." },
-      { label: 'Session recordings', fit: 'Useful but partial', color: 'var(--blue)', rgb: '58,134,255', reason: "Shows what users do, not why they leave. Use after interviews to confirm patterns you already discovered." },
-      { label: 'Exit survey', fit: 'Weak signal', color: 'var(--coral)', rgb: '224,122,95', reason: "Users fill these after they've already decided to leave. Responses are often vague ('not what I needed'). Better than nothing, but not enough on its own." },
+      { label: 'User interviews', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "You don't know what to look for yet. Interviews let you follow unexpected threads — like when Rahul mentioned coaching evidence rather than onboarding confusion. The right tool when the problem is still fuzzy." },
+      { label: 'Session recordings', fit: 'Useful but partial', color: 'var(--blue)', rgb: '58,134,255', reason: "Shows what users do, not why they stop. Use after interviews to confirm patterns — 'do users actually pause at this screen the way Rahul described?'" },
+      { label: 'NPS survey', fit: 'Wrong tool', color: 'var(--coral)', rgb: '224,122,95', reason: "NPS tells you satisfaction at a single point in time. It won't tell you why users churned, or what they were trying to accomplish when they gave up." },
     ],
   },
   {
-    scenario: "You want to know which of two onboarding flows converts better.",
+    scenario: "Kiran found that managers who add a recording in session 1 retain at 78%. You want to know which onboarding prompt drives this behaviour.",
     methods: [
-      { label: 'A/B test', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "You have a clear success metric (conversion rate) and enough traffic to get statistical significance. This is exactly what A/B tests are built for." },
-      { label: 'User interviews', fit: 'Wrong tool', color: 'var(--coral)', rgb: '224,122,95', reason: "Interviews give you opinions, not outcomes. People's stated preferences often don't predict their actual behaviour. Test it instead." },
-      { label: 'Funnel analytics', fit: 'Useful signal', color: 'var(--blue)', rgb: '58,134,255', reason: "Shows where the drop-off happens but not which variant wins. Combine with the A/B test, don't replace it." },
+      { label: 'A/B test', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "You have a clear success metric (recording added in session 1), a hypothesis, and enough traffic. A/B tests are built for exactly this: 'does change X cause behaviour Y?'" },
+      { label: 'User interviews', fit: 'Wrong tool here', color: 'var(--coral)', rgb: '224,122,95', reason: "You're past the 'why' question — Kiran's data already gave you the hypothesis. Interviews give you opinions on hypotheticals. Test behaviour instead." },
+      { label: 'Funnel analytics', fit: 'Partial signal', color: 'var(--blue)', rgb: '58,134,255', reason: "Useful for measuring the current baseline before the test, and tracking results after. Doesn't tell you which variant wins on its own." },
     ],
   },
   {
-    scenario: "You want to understand what 'job' users hire EdSpark to do.",
+    scenario: "Maya wants to understand what 'job' managers hire EdSpark to do when they first sign up.",
     methods: [
-      { label: 'JTBD interviews', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "Ask users to walk you through their decision to start using EdSpark. The moment of 'switch' reveals the job. You can't get this from data alone." },
-      { label: 'NPS survey', fit: 'Wrong tool', color: 'var(--coral)', rgb: '224,122,95', reason: "NPS tells you how satisfied users are — not what job they hired the product to do. These are different questions." },
-      { label: 'Usage analytics', fit: 'Partial context', color: 'var(--blue)', rgb: '58,134,255', reason: "Analytics show what features users touch, which hints at the job. But it's indirect — two users touching the same feature might have completely different jobs." },
+      { label: 'JTBD interviews', fit: 'Best fit', color: 'var(--green)', rgb: '21,129,88', reason: "Ask users to walk you through the moment they decided to sign up. 'What was going on in your work life when you first looked for a product like this?' The switch moment reveals the job — no other method gets there." },
+      { label: 'Usage analytics', fit: 'Indirect hint', color: 'var(--blue)', rgb: '58,134,255', reason: "Which features they touch hints at the job, but two users touching the same feature might have completely different jobs. Analytics are a starting point, not the answer." },
+      { label: 'Support tickets via Kraftful', fit: 'Good starting point', color: 'var(--teal)', rgb: '0,151,167', reason: "Kraftful can cluster tickets by theme and reveal patterns in what users struggle with. Great for scoping — but support tickets over-represent frustrated users, not successful ones. Combine with interviews." },
     ],
   },
 ];
@@ -149,14 +157,11 @@ const ResearchMethodChooser = () => {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
   const scenario = RESEARCH_SCENARIOS[activeScenario];
-
   const reveal = (key: string) => setRevealed(r => ({ ...r, [key]: true }));
 
   return (
     <div style={glassCard('var(--teal)', '0,151,167')}>
-      {demoLabel('Match the research method to the question', 'var(--teal)')}
-
-      {/* Scenario tabs */}
+      {demoLabel('Match the method to the question', 'var(--teal)')}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
         {RESEARCH_SCENARIOS.map((s, i) => (
           <button key={i} onClick={() => { setActiveScenario(i); setRevealed({}); }}
@@ -165,13 +170,9 @@ const ResearchMethodChooser = () => {
           </button>
         ))}
       </div>
-
-      {/* Scenario description */}
       <div style={{ padding: '14px 18px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '20px', fontSize: '14px', fontStyle: 'italic', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
         &ldquo;{scenario.scenario}&rdquo;
       </div>
-
-      {/* Methods */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {scenario.methods.map((m, i) => {
           const key = `${activeScenario}-${i}`;
@@ -204,45 +205,44 @@ const ResearchMethodChooser = () => {
 // ─────────────────────────────────────────
 const INTERVIEW_QS = [
   {
-    question: '"Would you use a feature that automatically organises your call recordings?"',
+    question: '"Would you use a feature that shows example coaching sessions in onboarding?"',
     verdict: 'Avoid',
     verdictColor: 'var(--coral)',
-    why: "Hypothetical. Users say 'yes' to things they'll never use. This tells you nothing about actual behaviour.",
-    better: '"Tell me about the last time you went looking for a specific call recording. What happened?"',
+    why: "Hypothetical. Users say yes to things they'll never use — agreeing is easy and costs nothing. This tells you nothing about actual behaviour. Rahul would have said yes to this, then churned anyway.",
+    better: '"Tell me about a time you tried to figure out what good coaching looks like. What did you do?"',
   },
   {
-    question: '"Tell me about the last time you had to prepare for a coaching session. What did you do?"',
+    question: '"Walk me through what happened when you first logged into EdSpark."',
     verdict: 'Great',
     verdictColor: 'var(--green)',
-    why: "Past behaviour is real. This opens a story — and stories contain the jobs, workarounds, and pain points you're looking for.",
+    why: "Past behaviour, open-ended, non-leading. This is how Priya found out Rahul completed setup but then didn't know what to do — a detail that never would have appeared in a survey.",
     better: null,
   },
   {
-    question: '"Don\'t you find the current search frustrating?"',
+    question: '"Did you find it confusing when you couldn\'t figure out where to start?"',
     verdict: 'Avoid',
     verdictColor: 'var(--coral)',
-    why: "Leading. You're suggesting the answer. Users will often agree just to be polite — giving you confirmation bias, not insight.",
-    better: '"How do you typically find what you\'re looking for in EdSpark?"',
+    why: "Double problem: leading (suggesting 'confusing') and compound (two questions in one). The user will agree because it seems like what you want to hear. Priya made this mistake live — Rahul said 'a little, yeah' and she nearly moved on.",
+    better: '"When you weren\'t sure what to do next — what did you try?"',
   },
   {
-    question: `"What\u2019s the hardest part of your job right now?"`,
+    question: '"What was going on in your work at the time that made you look for something like EdSpark?"',
     verdict: 'Great',
     verdictColor: 'var(--green)',
-    why: "Broad, open, non-leading. The answer might surprise you — and surprises are the most valuable thing research can give you.",
+    why: "This is the JTBD opener. It surfaces the context, the trigger, and the job — all in one question. Rahul's answer ('my team's close rate had dropped two quarters in a row') revealed more about the job than any product question would have.",
     better: null,
   },
   {
-    question: '"On a scale of 1–5, how satisfied are you with EdSpark?"',
+    question: '"On a scale of 1–10, how likely are you to recommend EdSpark to a colleague?"',
     verdict: 'Context-dependent',
     verdictColor: 'var(--blue)',
-    why: "Useful for benchmarking, not for discovery. A '3' tells you almost nothing. Only useful if followed up with 'Tell me more about that...'",
+    why: "Useful for benchmarking NPS at scale — but useless in a discovery interview. A '4' tells you almost nothing. Only useful if immediately followed by 'tell me more about what's driving that score' — and then the number doesn't matter anyway.",
     better: null,
   },
 ];
 
 const InterviewQuality = () => {
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
-
   return (
     <div style={glassCard('var(--purple)', '120,67,238')}>
       {demoLabel('Good question or one to avoid? Tap to see why.', 'var(--purple)')}
@@ -252,7 +252,7 @@ const InterviewQuality = () => {
           return (
             <motion.button key={i} whileHover={{ y: -1 }} whileTap={{ scale: 0.99 }}
               onClick={() => setRevealed(r => ({ ...r, [i]: true }))}
-              style={{ padding: '16px 18px', borderRadius: '12px', border: `2px solid ${isRevealed ? item.verdictColor : 'rgba(120,67,238,0.18)'}`, background: isRevealed ? 'var(--ed-card)' : 'var(--ed-card)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
+              style={{ padding: '16px 18px', borderRadius: '12px', border: `2px solid ${isRevealed ? item.verdictColor : 'rgba(120,67,238,0.18)'}`, background: 'var(--ed-card)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
               <div style={{ fontSize: '13px', fontStyle: 'italic', color: 'var(--ed-ink2)', lineHeight: 1.6, marginBottom: isRevealed ? '10px' : 0 }}>{item.question}</div>
               <AnimatePresence>
                 {isRevealed && (
@@ -282,33 +282,30 @@ const InterviewQuality = () => {
 const JTBD_ITEMS = [
   {
     quote: '"I need to quickly prep for my 2pm coaching call without digging through old recordings."',
-    job: 'Fast context retrieval before a call',
-    notJob: 'Organising recordings',
-    explanation: "The urgency and the time-bound nature reveal the real job: speed + recency, not organisation. A good search or 'recent calls' view solves this — a folder system does not.",
+    job: 'Fast context retrieval before a time-pressured meeting',
+    notJob: 'Recording organisation',
+    explanation: "The urgency and time-bound nature reveal the real job: speed + recency under pressure, not organisation. A search bar that shows 'most recent from this rep' solves it. A folder system doesn't.",
   },
   {
     quote: '"My manager wants to see proof that the coaching programme is working."',
     job: 'Build credibility with leadership using data',
     notJob: 'Better reporting features',
-    explanation: "This person doesn't want a report — they want to look good to their manager. The job is political and social: demonstrating impact. The product needs to make that easy, not just produce data.",
+    explanation: "This person doesn't want a report — they want to look competent to their boss. The job is political: demonstrate impact. The product needs to make that effortless, not just export data.",
   },
   {
-    quote: '"I want to share this call snippet with the new hire so they can learn faster."',
-    job: 'Accelerate team learning through examples',
-    notJob: 'Sharing / collaboration',
-    explanation: "Generic 'sharing' misses the job. This is about mentoring, not communication. The product should surface clips that make for good teaching moments — not just send a link.",
+    quote: '"I joined EdSpark because my team\'s close rate dropped two quarters in a row and I needed to do something."',
+    job: 'Prove to myself and my manager that I\'m fixing the problem',
+    notJob: 'Sales coaching tools',
+    explanation: "Rahul's actual job. He's not shopping for a coaching tool — he's under performance pressure and needs evidence that he's responding to it. EdSpark is a credibility tool as much as a coaching tool.",
   },
 ];
 
 const JTBDMatcher = () => {
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
-
   return (
     <div style={glassCard('var(--coral)', '224,122,95')}>
       {demoLabel("What's the real job? Tap to reveal.", 'var(--coral)')}
-      <div style={{ marginBottom: '14px', fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-        Users say what they want. PMs listen for what they're actually trying to accomplish.
-      </div>
+      <div style={{ marginBottom: '14px', fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Users say what they want. PMs listen for what they&apos;re actually trying to accomplish.</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {JTBD_ITEMS.map((item, i) => {
           const isRevealed = revealed[i];
@@ -322,11 +319,11 @@ const JTBDMatcher = () => {
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
                       <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(21,129,88,0.08)', border: '1px solid rgba(21,129,88,0.2)' }}>
-                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--green)', letterSpacing: '0.1em', marginBottom: '5px' }}>THE JOB</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--green)', letterSpacing: '0.1em', marginBottom: '5px' }}>THE REAL JOB</div>
                         <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', fontWeight: 600, lineHeight: 1.5 }}>{item.job}</div>
                       </div>
                       <div style={{ padding: '10px 12px', borderRadius: '8px', background: 'rgba(224,122,95,0.07)', border: '1px solid rgba(224,122,95,0.2)' }}>
-                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--coral)', letterSpacing: '0.1em', marginBottom: '5px' }}>NOT THE JOB</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--coral)', letterSpacing: '0.1em', marginBottom: '5px' }}>NOT JUST</div>
                         <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', fontWeight: 600, lineHeight: 1.5 }}>{item.notJob}</div>
                       </div>
                     </div>
@@ -346,16 +343,15 @@ const JTBDMatcher = () => {
 // INTERACTIVE 4: INSIGHT OR OPINION?
 // ─────────────────────────────────────────
 const INSIGHT_ITEMS = [
-  { statement: '"Users probably find the dashboard confusing because it has too many options."', type: 'Opinion', color: 'var(--coral)', explanation: "No evidence. 'Probably' and 'I think' are opinion markers. This might feel true but it's just a hypothesis." },
-  { statement: '"5 of 8 interviewed users couldn\'t complete account setup without asking for help."', type: 'Insight', color: 'var(--green)', explanation: "Specific, observable, and reproducible. 5/8 is a meaningful signal. This came from actual user sessions, not inference." },
-  { statement: '"I think the main problem is that users don\'t understand our value prop."', type: 'Opinion', color: 'var(--coral)', explanation: "This is a hypothesis, not a finding. It might be right — but you need evidence. Have users told you this directly?" },
-  { statement: '"Every interviewed user mentioned looking for recordings from specific sales reps, not dates."', type: 'Insight', color: 'var(--green)', explanation: "Unprompted and consistent across all users. That's a pattern. It directly implies the current search (by date) doesn't match how users think." },
-  { statement: '"Users want more integrations — it came up in customer support tickets."', type: 'Partial insight', color: 'var(--blue)', explanation: "Support tickets are a real signal, but they over-represent users who had a problem. You don't know if this is 2% of users or 80%. Validate with research before acting." },
+  { statement: '"Users probably find the product confusing because it has too many options."', type: 'Opinion', color: 'var(--coral)', explanation: "No evidence. 'Probably' is an opinion marker. This might be true — but it might not. You need to observe it happening before you can act on it." },
+  { statement: '"5 of 6 interviewed managers said they didn\'t know what to do after completing account setup."', type: 'Insight', color: 'var(--green)', explanation: "Specific, observable, and consistent across independent respondents. This is what Priya found. It directly implies there\'s a gap between setup completion and the product delivering value." },
+  { statement: '"I think the main issue is managers don\'t understand the product\'s value proposition."', type: 'Opinion', color: 'var(--coral)', explanation: "This is a hypothesis, not a finding. It might be right — but 'I think' without evidence is just an assumption wearing the clothes of an insight." },
+  { statement: '"Every interviewed manager mentioned wanting to show their boss that coaching was having an impact."', type: 'Insight', color: 'var(--green)', explanation: "Consistent, unprompted, across all participants. That's the job — and it implies EdSpark needs to make coaching impact visible, not just record calls." },
+  { statement: '"Kraftful clustered 34% of support tickets as \'not knowing where to start\' — so that\'s the main problem."', type: 'Partial insight', color: 'var(--blue)', explanation: "Support tickets are real signal, but they over-represent users who were frustrated enough to write in. They may not represent the silent majority who just churned. Use it to scope interviews, not to make the final call." },
 ];
 
 const InsightOrOpinion = () => {
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
-
   return (
     <div style={glassCard('var(--blue)', '58,134,255')}>
       {demoLabel('Insight, opinion, or in between? Tap to reveal.', 'var(--blue)')}
@@ -390,25 +386,25 @@ const BRIEF_OPTIONS = {
   segment: {
     label: 'Who is affected?',
     options: [
-      'New users in their first 2 weeks',
-      'Sales managers reviewing team performance',
+      'Sales managers at small teams (2–20 reps)',
+      'Individual sales reps in their first week',
       'Power users with 50+ saved recordings',
     ],
   },
   behaviour: {
     label: 'What are they trying to do?',
     options: [
-      'understand the product well enough to complete their first setup',
-      'find coaching insights from specific team members quickly',
-      'track whether their coaching efforts are improving rep performance',
+      'prove that their coaching is improving their team\'s close rate',
+      'find specific coaching moments quickly before a call',
+      'understand whether EdSpark is worth continuing to use',
     ],
   },
   barrier: {
     label: 'What gets in the way?',
     options: [
-      'the onboarding doesn\'t connect the product to their real workflow',
-      'search only works by date, not by rep or keyword',
-      'there\'s no way to filter results by outcome or improvement over time',
+      'the product never shows them what good coaching looks like, so they can\'t tell if they\'re using it right',
+      'search only works by date, not by rep name or call outcome',
+      'there\'s no signal that the product is working — no benchmark, no improvement score, no highlight',
     ],
   },
 } as const;
@@ -419,15 +415,12 @@ const DiscoveryBriefBuilder = () => {
   const order: BriefField[] = ['segment', 'behaviour', 'barrier'];
   const currentStep = order.find(f => !sel[f]) ?? null;
   const done = order.every(f => sel[f]);
-
   const pick = (field: BriefField, val: string) => setSel(s => ({ ...s, [field]: val }));
   const reset = () => setSel({});
 
   return (
     <div style={glassCard('var(--teal)', '0,151,167')}>
-      {demoLabel('Build a discovery brief — the output of good research', 'var(--teal)')}
-
-      {/* Live brief */}
+      {demoLabel('Build a discovery brief — the output that gets teams aligned', 'var(--teal)')}
       <div style={{ padding: '16px 20px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '20px', fontSize: '14px', lineHeight: 1.9, color: 'var(--ed-ink2)' }}>
         <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', display: 'block', marginBottom: '10px' }}>DISCOVERY BRIEF</span>
         <span style={{ color: sel.segment ? 'var(--ed-ink)' : 'var(--ed-ink3)', fontStyle: sel.segment ? 'normal' : 'italic', fontWeight: sel.segment ? 600 : 400 }}>{sel.segment ?? '[ who is affected ]'}</span>
@@ -437,8 +430,6 @@ const DiscoveryBriefBuilder = () => {
         <span style={{ color: sel.barrier ? 'var(--ed-ink)' : 'var(--ed-ink3)', fontStyle: sel.barrier ? 'normal' : 'italic', fontWeight: sel.barrier ? 600 : 400 }}>{sel.barrier ?? '[ what gets in the way ]'}</span>
         {done ? '.' : ' …'}
       </div>
-
-      {/* Step chooser */}
       {!done && currentStep && (
         <div>
           <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink2)', marginBottom: '10px' }}>
@@ -455,14 +446,13 @@ const DiscoveryBriefBuilder = () => {
           </div>
         </div>
       )}
-
       <AnimatePresence>
         {done && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <div style={{ padding: '14px 18px', borderRadius: '10px', background: 'rgba(21,129,88,0.08)', border: '1px solid rgba(21,129,88,0.2)', borderLeft: '4px solid var(--green)', marginBottom: '12px' }}>
               <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--green)', letterSpacing: '0.12em', marginBottom: '6px' }}>BRIEF COMPLETE</div>
               <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
-                This is what a discovery brief looks like: a specific user, a specific job, and a specific barrier. From here your team can debate solutions — not whether there's a problem.
+                This is what Priya handed Rohan on Friday. Specific user, specific job, specific barrier — no solution. The team generated three solutions in ten minutes. That&apos;s what a clear problem statement does.
               </div>
             </div>
             <motion.button whileHover={{ opacity: 0.8 }} onClick={reset}
@@ -490,18 +480,16 @@ const IntroHero = () => (
           Problem Discovery<br />&amp; User Research
         </h1>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '24px' }}>
-          Before you build anything, you need to understand who has the problem, what they&apos;re actually trying to do, and why existing solutions aren&apos;t working. That&apos;s discovery.
+          The most expensive thing a PM can build is the wrong thing. Discovery is how you avoid it — not by doing more research, but by talking to the right people before you open Figma.
         </div>
-
-        {/* Learning objectives */}
         <div style={{ padding: '16px 20px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.18)', marginBottom: '24px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.14em', marginBottom: '10px' }}>BY THE END OF THIS MODULE</div>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
             {[
-              'Know when to research before you build — and what method to use',
-              'Run a user interview that gives you real insight, not just polite agreement',
-              'Identify the real job a user is trying to get done',
-              'Turn messy interview notes into a crisp problem statement',
+              'Stop building before you understand the problem',
+              'Run a user interview that gives you real insight, not polite agreement',
+              'Find the job a user is actually trying to get done',
+              'Turn messy notes into a crisp brief that gets the team aligned in 10 minutes',
             ].map((obj, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 <span style={{ color: 'var(--teal)', fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>→</span>
@@ -511,12 +499,20 @@ const IntroHero = () => (
           </div>
         </div>
 
-        <div style={{ padding: '18px 22px', borderRadius: '8px', background: 'var(--ed-card)', borderTop: '1px solid var(--ed-rule)', borderRight: '1px solid var(--ed-rule)', borderBottom: '1px solid var(--ed-rule)', borderLeft: '4px solid var(--teal)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--teal)', textTransform: 'uppercase' as const, marginBottom: '10px' }}>
-            How this works
+        {/* Tools used in this module */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: '10px' }}>TOOLS PRIYA USES IN THIS MODULE</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <ToolBadge name="Notion" desc="Interview notes template + affinity mapping board" accent="var(--blue)" />
+            <ToolBadge name="Dovetail" desc="Research repository — tag, cluster, find patterns" accent="var(--purple)" />
+            <ToolBadge name="Kraftful" desc="AI analysis of support tickets — fast pattern detection" accent="var(--teal)" />
           </div>
+        </div>
+
+        <div style={{ padding: '18px 22px', borderRadius: '8px', background: 'var(--ed-card)', borderTop: '1px solid var(--ed-rule)', borderRight: '1px solid var(--ed-rule)', borderBottom: '1px solid var(--ed-rule)', borderLeft: '4px solid var(--teal)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--teal)', textTransform: 'uppercase' as const, marginBottom: '10px' }}>Where we left Priya</div>
           <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
-            Priya is now three weeks into EdSpark. Her manager just handed her a number: <strong style={{ color: 'var(--ed-ink)' }}>40% of new users churn in two weeks.</strong> Fix it by Friday. She opens Figma. <strong style={{ color: 'var(--ed-ink)' }}>Asha walks by.</strong>
+            It&apos;s Monday morning. Rohan messaged Friday at 11:43pm: <strong style={{ color: 'var(--ed-ink)' }}>&ldquo;Need a plan on week-2 churn. Stakeholder call Thursday. Make it good.&rdquo;</strong> Priya spent the weekend building. She has 14 screens in Figma. She&apos;s about to send the link in Slack.
           </div>
         </div>
       </div>
@@ -566,12 +562,12 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="01" accentRgb="0,151,167" id="m2-discovery-mindset" first>
         <div className="rv">
           {chLabel('Part 1 · Discovery Mindset', 'var(--teal)')}
-          {h2(<>The most expensive thing you can build is the wrong thing</>)}
+          {h2(<>You spent the weekend building the wrong thing</>)}
 
           <div style={{ padding: '16px 20px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.18)', marginBottom: '28px' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.14em', marginBottom: '10px' }}>BY THE END OF THIS PART</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
-              {['Understand why discovery comes before building', 'Recognise the difference between a symptom and a root cause', 'Know when you have enough to act — and when you don\'t'].map((obj, i) => (
+              {['Know why symptoms and root causes are not the same thing', 'Understand the cost of building before understanding', "See what Asha's discovery process looks like in Notion"].map((obj, i) => (
                 <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                   <span style={{ color: 'var(--teal)', fontWeight: 700, flexShrink: 0 }}>→</span>
                   <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{obj}</span>
@@ -581,16 +577,17 @@ export default function Track1ProblemDiscovery() {
           </div>
 
           <SituationCard accent="var(--teal)" accentRgb="0,151,167">
-            Monday morning. Rohan, EdSpark&apos;s head of product, calls Priya into his office. He pulls up a chart: a 40% drop in users between day 1 and day 14. &ldquo;Fix this,&rdquo; he says. &ldquo;I want a plan by Friday.&rdquo; Priya nods. She walks back to her desk and opens Figma.
+            9:17am Monday. Priya has 14 screens in Figma — a completely redesigned onboarding: 7 steps collapsed to 4, new progress indicators, rewritten welcome email, cleaner copy. She worked Saturday and Sunday on it. She&apos;s proud of it. She&apos;s about to paste the link into Slack when Asha pulls up a chair.
           </SituationCard>
 
-          {para(<>She starts wireframing a new onboarding flow. It feels productive. She moves things around. Adds a progress bar. Simplifies a few steps. By lunchtime she has something that looks clean and logical. She&apos;s almost excited to present it.</>)}
-
-          {para(<>Asha leans over. &ldquo;What are you building?&rdquo;</>)}
-          {para(<>&ldquo;A better onboarding,&rdquo; Priya says. &ldquo;40% of users churn in two weeks. The onboarding is probably where they drop off.&rdquo;</>)}
-          {para(<>Asha looks at the screen. &ldquo;Have you talked to any of those 40%?&rdquo;</>)}
-          {para(<>Priya pauses. &ldquo;No. But it seems obvious that onboarding is the issue. Where else would they be dropping?&rdquo;</>)}
-          {para(<>Asha pulls up a chair.</>)}
+          {para(<>&ldquo;Nice mockup,&rdquo; Asha says, looking at the screen. &ldquo;When did you talk to users?&rdquo;</>)}
+          {para(<>&ldquo;I haven&apos;t yet. But the problem seems—&rdquo;</>)}
+          {para(<>Asha interrupts quietly. &ldquo;Pull up the churn data. When exactly are users dropping off?&rdquo;</>)}
+          {para(<>Priya clicks through to the dashboard. She&apos;d looked at the headline number — 40% — but not the shape of it. The drop-off isn&apos;t on day 1. It peaks between days 3 and 7. &ldquo;Day 3 to 7,&rdquo; she says slowly.</>)}
+          {para(<>&ldquo;And do those users complete setup before they churn?&rdquo;</>)}
+          {para(<>Another click. 62% of churned users completed setup. &ldquo;Yes,&rdquo; Priya says. &ldquo;Most of them.&rdquo;</>)}
+          {para(<>Asha lets that sit for a moment. &ldquo;So they get through your onboarding. They create an account, set everything up. And then they leave anyway.&rdquo;</>)}
+          {para(<>Priya stares at the screen. She has 14 screens of a redesigned onboarding for users who already got through the onboarding just fine. She closes Figma.</>)}
         </div>
 
         <div className="rv">
@@ -598,29 +595,27 @@ export default function Track1ProblemDiscovery() {
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;Here&apos;s what you know: 40% of users don&apos;t come back after two weeks. That&apos;s a symptom. You don&apos;t know yet what causes it — or whether your redesign will help.<br /><br />&ldquo;You&apos;re about to spend three days building a solution to a problem you haven&apos;t defined yet. What happens if the real problem is pricing? Or that users don&apos;t understand how EdSpark fits into their daily workflow? Or that the sales team is promising features that don&apos;t exist?<br /><br />&ldquo;A redesigned onboarding won&apos;t fix any of those.&rdquo;</>}
-            expandedContent={<>The discovery phase is uncomfortable because it feels unproductive. You&apos;re not building anything. You&apos;re asking questions, sitting with uncertainty, and resisting the urge to jump to solutions. But this is exactly where the leverage is. The average cost of building a feature based on a wrong assumption is 3–5x more than the cost of a few hours of research. Discovery is the highest-ROI thing a PM does — it&apos;s just harder to show in a Jira ticket.</>}
+            content={<>&ldquo;Here&apos;s what happened. You saw a number — 40% churn — and your brain immediately jumped to a cause: &apos;the onboarding must be confusing.&apos; Then you spent a weekend solving that cause before checking whether it was real.<br /><br />&ldquo;The number is a symptom. You don&apos;t know the cause yet. It could be onboarding. Or the product doesn&apos;t show value fast enough. Or managers don&apos;t know what to do once they set it up. Or the sales team is promising features that don&apos;t exist. Your redesign doesn&apos;t help with any of those.<br /><br />&ldquo;You caught it before you shipped it. Most PMs don&apos;t.&rdquo;</>}
+            expandedContent={<>Asha opens a Notion doc on her laptop. &ldquo;This is the template I use for every discovery sprint — interview notes, patterns, brief, all in one place. I&apos;ll share it with you.&rdquo; The template has three sections: raw notes from each interview, an affinity map organized by theme (not by user), and a one-page brief at the end. &ldquo;By Wednesday you&apos;ll have something better than 14 Figma screens. And it&apos;ll actually solve the right problem.&rdquo;</>}
             conceptId="user-research"
-            question="A PM has a hypothesis that slow load times are causing churn. The right first move is:"
+            question="Your manager says '40% of users churn in week 2 — fix it.' You have a theory about onboarding. What do you do first?"
             options={[
-              { text: "Brief engineering to optimize load times — the data supports it", correct: false, feedback: "Load time might be a factor, but 'might be' isn't enough to brief engineering. Test the hypothesis first with real users before committing resources." },
-              { text: "Talk to churned users to understand why they actually left before building anything", correct: true, feedback: "Correct. The hypothesis might be right — but it also might not. User conversations cost hours. An engineering sprint costs weeks. Validate first." },
-              { text: "Run an A/B test on the current experience to measure impact", correct: false, feedback: "A/B tests answer 'which performs better' — not 'why are users leaving'. You need qualitative research first to understand the problem." },
+              { text: "Start redesigning the onboarding — your instinct is probably right", correct: false, feedback: "Priya's instinct was wrong. She spent a weekend building 14 screens for a problem that didn't exist. Talk to users first — before you invest any time in solutions." },
+              { text: "Talk to 5–6 churned users before touching anything", correct: true, feedback: "Exactly what Asha recommended. Five conversations take hours. A weekend of building takes a weekend. Talk first, build second." },
+              { text: "Run a survey to all users asking what they find confusing", correct: false, feedback: "Surveys give you opinions on a question you've already assumed. When you don't know what the problem is, you need conversations — not checkboxes." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>Priya stares at her Figma file. &ldquo;But Rohan wants a plan by Friday. I can&apos;t spend all week talking to users.&rdquo;</>)}
-          {para(<>Asha: &ldquo;You don&apos;t need all week. You need five conversations. Six at most. Block two hours today, two hours tomorrow morning. By Wednesday afternoon you&apos;ll know more than any amount of wireframing would tell you.&rdquo;</>)}
-          {pullQuote('Build the right thing slowly. Don\'t build the wrong thing fast.', 'var(--teal)')}
+          {pullQuote("Build the right thing slowly. Don't build the wrong thing fast.", 'var(--teal)')}
 
-          <InfoBox title="The Discovery Principle" accent="var(--teal)">
+          <InfoBox title="Symptom vs Root Cause" accent="var(--teal)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
-                { label: 'Symptoms', desc: 'What you can observe: churn rate, drop-off, support tickets, NPS' },
-                { label: 'Root causes', desc: "Why it's happening: something users don't understand, can't do, or don't value" },
-                { label: 'Solutions', desc: 'What you might build — only chosen after you understand the root cause' },
+                { label: 'Symptom', desc: "What you observe: '40% churn in week 2.' Real, measurable, but tells you nothing about why." },
+                { label: 'Theory', desc: "What your brain invents to explain it: 'The onboarding is confusing.' May be right. May be completely wrong." },
+                { label: 'Root cause', desc: "What's actually happening: You can only find this by talking to users. It might match your theory. It often doesn't." },
               ].map(item => (
                 <div key={item.label} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <div style={{ padding: '3px 10px', borderRadius: '20px', background: 'rgba(0,151,167,0.12)', border: '1px solid rgba(0,151,167,0.25)', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--teal)', flexShrink: 0, whiteSpace: 'nowrap' }}>{item.label}</div>
@@ -630,6 +625,8 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
+          <QuizEngine conceptId="user-research" conceptName="User Research" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[0]} />
+
           <ResearchMethodChooser />
         </div>
       </ChapterSection>
@@ -638,15 +635,20 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="02" accentRgb="120,67,238" id="m2-customer-segments">
         <div className="rv">
           {chLabel('Part 2 · Customer Segments', 'var(--purple)')}
-          {h2(<>Not all users are the same problem</>)}
+          {h2(<>340 churned users. Three completely different problems.</>)}
 
           <SituationCard accent="var(--purple)" accentRgb="120,67,238">
-            Priya starts by pulling up the list of churned users. There are 340 of them over the past 30 days. She feels overwhelmed. &ldquo;I can&apos;t interview 340 people.&rdquo; Maya, EdSpark&apos;s designer, rolls her chair over. &ldquo;You don&apos;t need to. First, split them into groups.&rdquo;
+            Priya pulls up the list of churned users. 340 names, emails, account types. She stares at it. &ldquo;I can&apos;t interview 340 people.&rdquo; Maya, EdSpark&apos;s designer, rolls her chair over. &ldquo;You don&apos;t need to. You need to figure out which 340 people this actually is.&rdquo;
           </SituationCard>
 
-          {para(<>Maya pulls up a spreadsheet. She starts dividing the churned users by role: sales reps, sales managers, team leads. Then by company size: solo, small team (2–10), larger org (&gt;50 reps). Then by where they dropped off: some never completed setup; others used the product for a week then stopped; others never invited a teammate.</>)}
-
-          {para(<>&ldquo;These aren&apos;t the same problem,&rdquo; Maya says. &ldquo;A solo sales rep who never completed setup is a different issue than a manager who used EdSpark for a week and then stopped. Build one persona and you get a solution that fits neither of them.&rdquo;</>)}
+          {para(<>Maya opens a spreadsheet. She starts sorting — first by role: 180 are individual sales reps, 110 are sales managers, 50 are ops or admin. Then by company size: solo, small team (2–20 reps), larger org (20+). Then by where they stopped: 220 churned after setup, 80 churned before completing it, 40 set up and used it for a few sessions then stopped.</>)}
+          {para(<>&ldquo;Now look at this,&rdquo; Maya says. She points at the manager segment. &ldquo;A sales manager who churned after 5 days of using it — what job were they trying to do when they signed up?&rdquo;</>)}
+          {para(<>Priya: &ldquo;Improve their team&apos;s coaching?&rdquo;</>)}
+          {para(<>&ldquo;Specifically. They&apos;re not using EdSpark themselves — they&apos;re using it to manage their team&apos;s development. Now look at the sales rep who churned on day 2. What job were they trying to do?&rdquo;</>)}
+          {para(<>&ldquo;Track their own performance?&rdquo;</>)}
+          {para(<>&ldquo;Completely different job. Different context, different success criteria, different failure mode. If you build one solution for 'churned users,' it fits neither of them.&rdquo;</>)}
+          {para(<>Priya looks at the two groups. EdSpark is called a &ldquo;Sales Coaching Platform.&rdquo; The managers are the buyers — the people who pay for it and decide whether to keep it. &ldquo;Then I research the managers,&rdquo; she says. &ldquo;That&apos;s the segment that matters most for retention.&rdquo;</>)}
+          {para(<>&ldquo;Good,&rdquo; Maya says. &ldquo;Now: which managers? You need to narrow further.&rdquo;</>)}
         </div>
 
         <div className="rv">
@@ -654,30 +656,29 @@ export default function Track1ProblemDiscovery() {
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>&ldquo;Customer segmentation isn&apos;t about creating marketing personas with stock-photo names. It&apos;s about finding the groups where the problem is actually different.<br /><br />&ldquo;For EdSpark, I&apos;d bet the drop-off at setup completion is a different problem than the drop-off after one week. One is about understanding the product quickly. The other might be about habit formation, or about the product not fitting into their existing workflow.<br /><br />&ldquo;You need to find out which group is larger — and which one is more solvable.&rdquo;</>}
-            expandedContent={<>There&apos;s a useful exercise called &apos;Who has this problem most acutely?&apos; For any given issue, some users feel it sharply and some barely notice it. Start by finding the segment that feels the pain most. They&apos;ll give you the clearest signal in research — and solving for them often helps adjacent segments too. This is why B2B products often focus on a single role (e.g. &apos;sales manager&apos;) before expanding: clearer problem, faster signal, easier to measure success.</>}
+            content={<>&ldquo;I&apos;ve set up a Dovetail workspace for the team. Every research session goes in there — interview transcript, clips, tags. By the time you&apos;ve done 5 interviews, the patterns start forming automatically.<br /><br />&ldquo;Here&apos;s what I&apos;d recommend: interview managers who churned in the last 10 days, at teams of 5–20 reps. That&apos;s your most representative group — not enterprise (too complex), not solo reps (different job), not ancient history (memory fades). I&apos;ll add you to the workspace tonight.&rdquo;</>}
+            expandedContent={<>Dovetail is a research repository that stores transcripts, recordings, and notes from interviews. The real value comes from tagging: as you read each interview, you tag observations (e.g. &ldquo;didn&apos;t know what to do first,&rdquo; &ldquo;wanted to see an example&rdquo;). Once all interviews are tagged, Dovetail shows you which tags appear most — automatically surfacing the patterns. It turns 8 pages of notes into a prioritized list of themes. Priya will use it in Part 5 to build her synthesis.</>}
             conceptId="customer-segments"
-            question="You're researching why users churn. Who should you talk to first?"
+            question="EdSpark has 340 churned users last month. You need to understand why managers specifically are churning. Who do you interview?"
             options={[
-              { text: "Your 10 most engaged users — they understand the product best", correct: false, feedback: "Engaged users can tell you what's working — but not why others leave. They've already solved whatever problem caused churn. Talk to people who left." },
-              { text: "Churned users who left in the last 2–3 weeks — the memory is still fresh", correct: true, feedback: "Exactly. Recent churners can tell you why they left while it's still clear. Older churners forget or rationalise differently. Recency matters in research." },
-              { text: "A random sample of all users to avoid selection bias", correct: false, feedback: "Random sampling makes sense for quantitative surveys. For qualitative discovery, you want people who actually experienced the problem you're investigating." },
+              { text: "Your 10 most active managers — they know the product best", correct: false, feedback: "Active managers can tell you what's working. They can't tell you why others left. You need churned users, not retained ones." },
+              { text: "Managers who churned in the last 2–3 weeks — while it's still fresh", correct: true, feedback: "Exactly. Recent churners remember why they left. Older churners rationalise differently ('I just got busy') or forget entirely. Recency matters enormously in research." },
+              { text: "A random sample of all 340 churned users to avoid bias", correct: false, feedback: "Random sampling makes sense for surveys with statistical claims. For qualitative discovery, you want people whose experience matches your research question — recent churned managers, not a random cross-section." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>Priya looks at the segments. The largest group — 180 users — never completed their initial setup. The second group — 110 users — completed setup but churned after 5–7 days. &ldquo;Let&apos;s focus on the first group,&rdquo; she says. &ldquo;It&apos;s bigger and the problem is probably more acute.&rdquo;</>)}
-          {para(<>Maya nods. &ldquo;Good. Now — within that group, who should you actually interview?&rdquo;</>)}
+          {pullQuote("Segmentation isn't about personas with names and stock photos. It's about finding where the problem is actually different.", 'var(--purple)')}
 
-          {pullQuote("The right segment is the one where your question has a specific, observable answer.", 'var(--purple)')}
-
-          <InfoBox title="Jobs to Be Done (JTBD)" accent="var(--purple)">
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
-              Before picking your research segment, ask: <strong>what job did they hire EdSpark to do?</strong><br /><br />
-              The &ldquo;job&rdquo; is the progress a user is trying to make in a specific context. Not &ldquo;manage coaching sessions&rdquo; — that&apos;s a feature description. The job might be: &ldquo;help my team improve their close rate so I don&apos;t lose my bonus target.&rdquo; Two managers could use EdSpark for completely different jobs — and need completely different things.
+          <InfoBox title="Jobs to Be Done" accent="var(--purple)">
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.85 }}>
+              The &ldquo;job&rdquo; is the progress a person is trying to make in a specific situation. Not &ldquo;use EdSpark&rdquo; — that&apos;s a feature. The job might be: <em>&ldquo;prove to my director that my coaching programme is improving the team&apos;s numbers before the quarterly review.&rdquo;</em><br /><br />
+              Two managers could use EdSpark for completely different jobs — one tracking team improvement, one benchmarking her reps before a reorg. They&apos;d need different things. Find the job before you design the solution.
             </div>
           </InfoBox>
+
+          <QuizEngine conceptId="customer-segments" conceptName="Customer Segments" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[1]} />
 
           <JTBDMatcher />
         </div>
@@ -687,14 +688,17 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="03" accentRgb="58,134,255" id="m2-research-methods">
         <div className="rv">
           {chLabel('Part 3 · Research Methods', 'var(--blue)')}
-          {h2(<>Pick the right tool for the question you&apos;re asking</>)}
+          {h2(<>Data shows you where. Users tell you why.</>)}
 
           <SituationCard accent="var(--blue)" accentRgb="58,134,255">
-            Priya mentions she&apos;s going to run some research. Kiran, EdSpark&apos;s analyst, immediately pulls up a dashboard. &ldquo;We already have data,&rdquo; he says. &ldquo;Session recordings, funnel analytics, heatmaps. What are you looking for? I can query it.&rdquo; Meanwhile Dev says, &ldquo;I can set up event tracking for whatever you need.&rdquo; Priya looks between them. &ldquo;So... do I even need to talk to users?&rdquo;
+            Before Priya books a single interview, Kiran rolls his chair over with his laptop open. &ldquo;Before you talk to anyone — look at this.&rdquo; Three Amplitude charts. He&apos;s been sitting on these for a week.
           </SituationCard>
 
-          {para(<>Asha, who&apos;s been listening from across the room: &ldquo;Yes. Analytics tell you what happened. Users tell you why.&rdquo;</>)}
-          {para(<>Kiran raises an eyebrow. &ldquo;Data doesn&apos;t lie.&rdquo; Asha: &ldquo;Data doesn&apos;t lie — but it also doesn&apos;t explain itself. You can see that 40% of users drop off at step 3. You cannot see whether it&apos;s because step 3 is confusing, because they got interrupted, or because they realised they signed up for the wrong product.&rdquo;</>)}
+          {para(<>The first chart: 43% of managers who complete setup never click &ldquo;Add Recording&rdquo; in their first session. The second: of managers who <em>do</em> add a recording in session 1, 78% are still active in week 2. Of managers who don&apos;t, 91% churn. Third chart: median time between signup and first recording is 4.2 days — for churned users. For retained users, it&apos;s 18 hours.</>)}
+          {para(<>&ldquo;So,&rdquo; Kiran says, &ldquo;if a manager adds their first recording within 24 hours of signup, they almost always stick. If they don&apos;t add one in the first 4 days, they almost always leave.&rdquo;</>)}
+          {para(<>Priya: &ldquo;So the fix is to get them to add a recording faster. Better prompt, maybe a tooltip—&rdquo;</>)}
+          {para(<>Asha: &ldquo;Maybe. Or maybe the problem is they don&apos;t understand <em>why</em> to add a recording. Or they don&apos;t know what to look for once they do. The data shows WHERE the problem is. It doesn&apos;t show WHY.&rdquo;</>)}
+          {para(<>Kiran nods, surprisingly. &ldquo;Exactly. I can tell you that not adding a recording predicts churn. I can&apos;t tell you what&apos;s going through their head when they don&apos;t.&rdquo;</>)}
         </div>
 
         <div className="rv">
@@ -702,42 +706,44 @@ export default function Track1ProblemDiscovery() {
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>&ldquo;Fair. Here&apos;s what I actually use analytics for: to scope the problem before research, and to validate hypotheses after it.<br /><br />&ldquo;Before: look at where drop-off happens, which segments are affected most, what actions users take before they leave. This gives you a hypothesis to test — and helps you ask better interview questions.<br /><br />&ldquo;After: once you have a theory from research, you use analytics to check if it holds at scale. 'Five users told me X' + 'the data shows 70% of churned users never did Y' — that&apos;s a strong signal.&rdquo;</>}
-            expandedContent={<>The research stack at a well-run product team: Interviews (qualitative) → Insight. Analytics (quantitative) → Scale. Session recordings → Behaviour patterns. A/B tests → Causality. Surveys → Broad signal at scale. Most teams over-index on surveys and analytics — and under-invest in actual conversations. The result is lots of what and almost no why. Use both. Start with conversations when the problem is fuzzy. Use data to confirm what you found — or to find the next fuzzy problem.</>}
+            content={<>&ldquo;One more thing before you go interview people. We ran three months of EdSpark support tickets through Kraftful last week. The AI clustered them by theme automatically.<br /><br />&ldquo;34% of tickets: &lsquo;not knowing where to start.&rsquo; 28%: &lsquo;not understanding the difference between features.&rsquo; 18%: technical issues. 20% other.<br /><br />&ldquo;This is a good starting point — it tells you what people who write in are struggling with. But remember: these are users who cared enough to reach out. The silent churners might have a completely different experience. Use Kraftful to sharpen your interview questions, not to replace them.&rdquo;</>}
+            expandedContent={<>Kraftful uses AI to analyze patterns in customer feedback — support tickets, app store reviews, user surveys — and group them into themes automatically. It&apos;s useful for understanding what users who surface issues are experiencing. The limitation: it only captures people who chose to say something. If 40% of users churn silently, Kraftful tells you nothing about them. Use it to scope your research — not to finish it.</>}
             conceptId="research-methods"
-            question="Your analytics show users drop off at step 3 of 5 in onboarding. What do you do next?"
+            question="Kiran's Amplitude data shows 43% of managers never click 'Add Recording' in their first session. What does this tell you?"
             options={[
-              { text: "Redesign step 3 — the data clearly shows that's where the problem is", correct: false, feedback: "Data shows where drop-off happens, not why. Users might be dropping at step 3 because step 2 confused them. Talk to users before redesigning." },
-              { text: "Talk to 5 users who dropped off at step 3 to understand what went wrong at that moment", correct: true, feedback: "Right. The analytics give you a hypothesis: something happens at step 3. Now test it with conversations. 'Walk me through what happened when you were setting up EdSpark.' Then listen." },
-              { text: "Run an A/B test on step 3 to see which version converts better", correct: false, feedback: "A/B tests are great for validating fixes — but you don't know what to fix yet. Build the hypothesis with research first, then test with data." },
+              { text: "The button is broken or hard to find — fix the UI", correct: false, feedback: "That's one possible cause. But it could also mean they don't understand WHY to add a recording, or they're waiting for their team to use it first, or they got interrupted. Data shows where. Interviews show why." },
+              { text: "WHERE the problem shows up. Not WHY. Interview users to find the root cause.", correct: true, feedback: "Exactly what Asha said. Kiran's data is invaluable — it narrows the problem to a specific behaviour. Now you need to understand what's behind that behaviour. That requires conversations." },
+              { text: "Managers don't find the product useful — consider a different approach", correct: false, feedback: "78% of managers who DO add a recording stay active. The product is useful — for users who get past this specific point. The problem is getting them there, not the product itself." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>Dev leans forward. &ldquo;So what&apos;s the research plan? I can help instrument whatever you need to measure.&rdquo;</>)}
-          {para(<>Priya thinks about it. &ldquo;I&apos;ll start with 6 user interviews — churned users who never completed setup. I want to understand why in their own words. Then I&apos;ll look at the analytics to see if what they tell me shows up in the data.&rdquo;</>)}
-          {para(<>Asha smiles. &ldquo;That&apos;s the right order. Qualitative first to build the hypothesis. Quantitative to test it.&rdquo;</>)}
+          {para(<>Priya writes in her Notion doc: <em>&ldquo;Research question: Why do managers not add a recording in their first 24 hours? What&apos;s happening in their head at that point?&rdquo;</em> Kiran&apos;s data gave her a specific behaviour to investigate. Now she needs to understand what&apos;s behind it.</>)}
 
-          {pullQuote("Qualitative research finds the why. Quantitative research checks if the why is widespread.", 'var(--blue)')}
+          {pullQuote("Qualitative research finds the why. Quantitative confirms whether the why is widespread.", 'var(--blue)')}
 
-          <InfoBox title="Research Methods Overview" accent="var(--blue)">
+          <InfoBox title="When to use each method" accent="var(--blue)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
-                { method: 'User interviews', best: 'Why do users behave this way?', limit: 'Small sample, not statistically significant' },
-                { method: 'Funnel analytics', best: 'Where do users drop off at scale?', limit: 'Shows what, not why' },
-                { method: 'Session recordings', best: 'Exactly where do users get confused?', limit: 'Behaviour without context or motivation' },
-                { method: 'Surveys', best: 'Broad patterns across many users', limit: 'Only as good as your questions; no follow-ups' },
-                { method: 'A/B tests', best: 'Does change X improve metric Y?', limit: 'Requires traffic, time, and a clear hypothesis first' },
+                { method: 'User interviews', use: "When the problem is fuzzy and you don't know what to look for", limit: 'Small sample — can\'t prove scale' },
+                { method: 'Funnel analytics', use: 'Finding where users drop off at scale', limit: 'Shows what, not why' },
+                { method: 'Kraftful / AI ticket analysis', use: 'Fast pattern detection across support tickets and feedback', limit: 'Only captures users who spoke up' },
+                { method: 'A/B tests', use: 'Testing whether change X causes behaviour Y', limit: 'Needs a clear hypothesis and enough traffic first' },
+                { method: 'Dovetail', use: 'Organising and finding patterns across interview notes', limit: 'Only as good as your tagging' },
               ].map(row => (
-                <div key={row.method} style={{ display: 'grid', gridTemplateColumns: '140px 1fr 1fr', gap: '10px', alignItems: 'start', fontSize: '12px' }}>
-                  <div style={{ fontWeight: 700, color: 'var(--ed-ink)', fontFamily: 'monospace', fontSize: '11px' }}>{row.method}</div>
-                  <div style={{ color: 'var(--green)', lineHeight: 1.5 }}>✓ {row.best}</div>
-                  <div style={{ color: 'var(--ed-ink3)', lineHeight: 1.5 }}>✗ {row.limit}</div>
+                <div key={row.method} style={{ paddingBottom: '8px', borderBottom: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--ed-ink)', fontSize: '12px', marginBottom: '4px' }}>{row.method}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--green)', lineHeight: 1.5 }}>✓ {row.use}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>✗ {row.limit}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </InfoBox>
+
+          <QuizEngine conceptId="research-methods" conceptName="Research Methods" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[2]} />
 
           <InsightOrOpinion />
         </div>
@@ -747,17 +753,26 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="04" accentRgb="224,122,95" id="m2-interview">
         <div className="rv">
           {chLabel('Part 4 · The Interview', 'var(--coral)')}
-          {h2(<>How to ask questions that give you real answers</>)}
+          {h2(<>Rahul says the thing that changes everything</>)}
 
           <SituationCard accent="var(--coral)" accentRgb="224,122,95">
-            Tuesday morning. Priya has her first user interview scheduled: Rahul, a sales rep who signed up for EdSpark two weeks ago and never came back after day 3. She&apos;s nervous. She&apos;s prepared 20 questions. Asha looks at the list and sighs.
+            Tuesday 11am. Priya has her first interview: Rahul Shah, sales manager at a 12-person team. He signed up for EdSpark 9 days ago and stopped logging in after day 6. He agreed to a 30-minute call. Priya has 22 questions prepared. Asha looked at the list before the call: &ldquo;You need one. &lsquo;Tell me what happened when you first signed up for EdSpark.&rsquo; Then follow the story.&rdquo;
           </SituationCard>
 
-          {para(<>&ldquo;You only need five questions,&rdquo; Asha says. &ldquo;Actually, you only need one: &apos;Tell me what happened when you first signed up.&apos; Then just follow the story.&rdquo;</>)}
-          {para(<>&ldquo;But what if they don&apos;t mention the things I care about?&rdquo;</>)}
-          {para(<>&ldquo;Then maybe those things don&apos;t matter to them as much as you thought. That&apos;s a valuable insight too.&rdquo;</>)}
-          {para(<>Priya does the interview. She makes three mistakes in the first ten minutes:</>)}
-          {para(<>First, she asks: &ldquo;Would you find it helpful if EdSpark sent you a daily recap?&rdquo; Rahul says yes. (He probably would have said yes to anything that sounded helpful.) Second, she asks: &ldquo;Did you find the onboarding confusing?&rdquo; Rahul says &ldquo;a little.&rdquo; (Leading question — he agreed because that seemed to be what she was looking for.) Third, she moves on before Rahul finishes a sentence that started with: &ldquo;What I actually wanted was...&rdquo;</>)}
+          {para(<>The call starts. Priya takes a breath and asks the one question.</>)}
+          {para(<>Rahul: &ldquo;Yeah — so I saw an ad, it said something about improving coaching outcomes. That&apos;s exactly what I&apos;d been thinking about. My team&apos;s close rate had dropped two quarters in a row and my director was asking questions. I figured I needed to do something visible. I signed up.&rdquo;</>)}
+          {para(<>Priya is writing fast. [Job: prove to director that I&apos;m responding to the performance drop. Not &lsquo;improve coaching&apos; — prove I&apos;m doing something about the problem.]</>)}
+          {para(<>Priya: &ldquo;What happened when you first got into the product?&rdquo;</>)}
+          {para(<>Rahul: &ldquo;Setup was pretty smooth actually. Connected my team&apos;s accounts, configured the basics — took maybe 20 minutes. Then I was on the main dashboard and I just... wasn&apos;t sure what to do next. There were charts. Some options. But nothing was telling me where to start.&rdquo;</>)}
+          {para(<>Priya (internal): He got through setup. He&apos;s describing exactly what Kiran&apos;s data showed — he didn&apos;t add a recording in his first session. But why?</>)}
+          {para(<>Priya: &ldquo;What did you do when you weren&apos;t sure what to do?&rdquo;</>)}
+          {para(<>Rahul laughs a little. &ldquo;Honestly? Opened another tab. Checked some emails. Told myself I&apos;d come back and figure it out properly when I had more time.&rdquo;</>)}
+          {para(<>Priya makes her first mistake: &ldquo;Did you find it confusing?&rdquo;</>)}
+          {para(<>Rahul: &ldquo;A little, yeah.&rdquo;</>)}
+          {para(<>Priya writes: &ldquo;User found product confusing.&rdquo; She moves to her next question. But a Slack message pops up from Asha, who&apos;s been reading the transcript in real time: <em>&ldquo;Don&apos;t accept &apos;confusing.&apos; Ask what was confusing. Dig.&rdquo;</em></>)}
+          {para(<>Priya: &ldquo;Sorry — going back for a second. When you say confusing, can you be more specific about what felt unclear?&rdquo;</>)}
+          {para(<>Rahul: &ldquo;I knew I was supposed to add call recordings. But I didn&apos;t understand... what I was supposed to do with them. Like, what am I looking for? What does good coaching sound like? I&apos;ve been a manager for 3 years but I&apos;ve never actually heard someone tell me what great sales coaching looks like in a recording. The product just gave me the tool. It didn&apos;t tell me how to use it.&rdquo;</>)}
+          {para(<>Priya goes very still. <em>That</em> is not an onboarding problem.</>)}
         </div>
 
         <div className="rv">
@@ -765,33 +780,31 @@ export default function Track1ProblemDiscovery() {
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;The most important skill in user research is listening past the first answer.<br /><br />&ldquo;When Rahul said &apos;I wanted to check how my calls were going&apos; — that&apos;s the job. Not &apos;I wanted to use EdSpark&apos;. Not &apos;I wanted to analyse recordings&apos;. He wanted to know if he was improving. That&apos;s a fundamentally different job than what EdSpark currently optimises for.<br /><br />&ldquo;You interrupted him before he finished. The most valuable insights are often in the second half of a sentence.&rdquo;</>}
-            expandedContent={<>The two questions to always have ready: &apos;Can you tell me more about that?&apos; and &apos;What happened next?&apos; These two prompts will pull more signal from a 30-minute interview than any list of prepared questions. Good interviews feel like conversations, not interrogations. The user should be talking 80% of the time. If you find yourself talking more than that, you&apos;re interviewing wrong.</>}
+            content={<>&ldquo;Rahul didn&apos;t churn because the product was confusing. He churned because EdSpark assumes managers already know what great coaching looks like. They don&apos;t. The product gave him a toolbox without showing him how to use a single tool.<br /><br />&ldquo;Your 14 Figma screens would have simplified the account setup process that Rahul had no problem with. And then he&apos;d still leave at exactly the same point, for exactly the same reason.<br /><br />&ldquo;The follow-up question — &apos;can you be more specific?&apos; — is the whole job. That&apos;s where the insight lives. Always.&rdquo;</>}
+            expandedContent={<>After the call, Priya adds Rahul&apos;s transcript to Dovetail and starts tagging. One tag immediately: &ldquo;doesn&apos;t know what good looks like.&rdquo; Another: &ldquo;job is proving value to director.&rdquo; She has five more interviews to run. But she already has a hypothesis to test: EdSpark never shows users what good coaching looks like — and managers, specifically, have never been taught this either. The product assumes expertise the user doesn&apos;t have.</>}
             conceptId="user-research"
-            question="Midway through an interview, a user says 'I just wanted something simpler' and moves on. You should:"
+            question="Midway through an interview, Rahul says 'I wasn't sure what to do next.' You should:"
             options={[
-              { text: "Accept the answer and move to your next question", correct: false, feedback: "'Simpler' means nothing by itself. Simpler than what? In what way? This is a signal, not an insight. Follow it." },
-              { text: "Ask: 'Can you tell me what specifically felt complex when you were using it?'", correct: true, feedback: "Correct. 'Simpler' is an evaluation, not a description. Your job is to get them to describe what they experienced. 'Tell me more about that' is the most underused question in research." },
-              { text: "Note 'user wants simpler UI' in your research report", correct: false, feedback: "Never transcribe user evaluations as insights. 'Simpler' is a reaction. You need the experience underneath it before you can know what to fix." },
+              { text: "Note 'user felt lost' and move to the next question", correct: false, feedback: "'Wasn't sure what to do next' is an observation, not an insight. What did he try? What was he expecting to see? What would have made it clear? The follow-up is the actual research." },
+              { text: "Ask: 'When you say you weren't sure — can you walk me through what you tried?'", correct: true, feedback: "Exactly. 'Tell me more' and 'walk me through what you tried' are the two most powerful follow-ups in research. Priya used them — and Rahul's answer changed her entire understanding of the problem." },
+              { text: "Validate: 'Did you find it confusing?'", correct: false, feedback: "This is leading — you're suggesting the answer. Rahul said 'a little yeah' because it seemed like what Priya wanted to hear. It's confirmation bias disguised as research." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>After the call, Priya reviews her notes. Despite the mistakes, she got something useful: Rahul didn&apos;t churn because the onboarding was confusing. He churned because he came back on day 3, couldn&apos;t remember why he&apos;d signed up, and didn&apos;t have time to figure it out. &ldquo;I just forgot what it was supposed to do for me,&rdquo; he said.</>)}
-          {para(<>That&apos;s not an onboarding flow problem. That&apos;s a value proposition clarity problem.</>)}
-          {pullQuote("Users don't leave because of bugs. They leave because they can't see how the product fits into their life.", 'var(--coral)')}
+          {pullQuote("The insight isn't in the first answer. It's in the question after the first answer.", 'var(--coral)')}
 
           <InterviewQuality />
 
-          <InfoBox title="The 5 Rules of Good Interviews" accent="var(--coral)">
+          <InfoBox title="The 5 rules Priya learned the hard way" accent="var(--coral)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
-                { num: '01', rule: 'Ask about the past, not the future', detail: '"Tell me about the last time..." beats "Would you ever..." every time.' },
-                { num: '02', rule: 'Never ask leading questions', detail: '"Did you find it confusing?" vs "Walk me through what happened here."' },
-                { num: '03', rule: 'Let silence work', detail: 'Wait 3 seconds after they answer. People often add the most valuable thing after the pause.' },
-                { num: '04', rule: 'Follow the "I actually wanted..."', detail: 'Any sentence that starts with what they wanted is a job. Never let it pass without "Tell me more."' },
-                { num: '05', rule: 'Aim for their story, not your checklist', detail: '5 good follow-up questions > 20 prepared ones. Follow the narrative.' },
+                { num: '01', rule: "Ask about what happened, not what they'd do", detail: "'Walk me through your first session' beats 'would you use this feature' every time." },
+                { num: '02', rule: 'Never suggest the answer', detail: '"Did you find it confusing?" vs "What felt unclear?" — the first one gave Priya a useless answer.' },
+                { num: '03', rule: "Don't accept the first answer", detail: "Rahul's breakthrough came when Priya asked a follow-up Asha pushed her to ask. The real insight is almost never in the first sentence." },
+                { num: '04', rule: 'Silence is a tool', detail: 'Three seconds of silence after an answer. Users often add the most important thing after they think you\'re done listening.' },
+                { num: '05', rule: 'The story is the research', detail: 'Drop your question list. Follow what the user is telling you. The unexpected thread is usually where the real problem lives.' },
               ].map(item => (
                 <div key={item.num} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                   <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: 'var(--coral)', flexShrink: 0, paddingTop: '3px' }}>{item.num}</div>
@@ -803,6 +816,8 @@ export default function Track1ProblemDiscovery() {
               ))}
             </div>
           </InfoBox>
+
+          <QuizEngine conceptId="user-research" conceptName="Interview Technique" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[3]} />
         </div>
       </ChapterSection>
 
@@ -810,14 +825,17 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="05" accentRgb="21,129,88" id="m2-synthesis">
         <div className="rv">
           {chLabel('Part 5 · Insight Synthesis', 'var(--green)')}
-          {h2(<>From 40 notes to 3 insights</>)}
+          {h2(<>Eight pages of notes. Three things that matter.</>)}
 
           <SituationCard accent="var(--green)" accentRgb="21,129,88">
-            Wednesday afternoon. Priya has completed 6 interviews. She has 8 pages of notes, 3 pages of quotes, and a growing sense of dread. The interviews were fascinating. But she has no idea how to turn them into something useful. She stares at her notes. They stare back.
+            Wednesday afternoon. Priya has run 6 interviews. She&apos;s added all six transcripts to Dovetail. Now she&apos;s in the tagging phase — reading each interview, highlighting key moments, applying tags. It&apos;s slow. It&apos;s also where the actual research happens.
           </SituationCard>
 
-          {para(<>Asha sits next to her. &ldquo;What&apos;s the same across all six?&rdquo; Priya flips through. She notices something. Three out of six users mentioned some version of: &ldquo;I couldn&apos;t remember what EdSpark was supposed to do for me.&rdquo; Two others mentioned: &ldquo;I didn&apos;t have time to figure it out on my own.&rdquo; One had a totally different issue: &ldquo;My manager set it up wrong and I had no admin access.&rdquo;</>)}
-          {para(<>&ldquo;That last one is an outlier,&rdquo; Asha says. &ldquo;Real signal is patterns. What appears in 4 out of 6 conversations is more likely a problem than what appears once.&rdquo;</>)}
+          {para(<>Tag: <em>&ldquo;doesn&apos;t know what good looks like&rdquo;</em> — Rahul, interview 1. She keeps reading.</>)}
+          {para(<>Interview 2: Kavita, a sales manager at a 7-person team. &ldquo;I connected everything, set it up, and then I opened a recording and just... watched it. I didn&apos;t know what I was looking for. Was that a good call? A bad one? I had no frame of reference.&rdquo; Tag: <em>&ldquo;doesn&apos;t know what good looks like.&rdquo;</em></>)}
+          {para(<>Interview 3: Sanjay. Different team, different city, different role. But at minute 12 he says: &ldquo;I kept hoping the product would tell me what to do with the data. Like, here&apos;s what this means about your team.&rdquo; Tag: <em>&ldquo;doesn&apos;t know what good looks like.&rdquo;</em></>)}
+          {para(<>By interview 5, the same tag has appeared in 5 of 5 sessions. Priya looks at her Dovetail board. That tag — unprompted, across five independent conversations — is glowing. It&apos;s not confirmation bias. It&apos;s a pattern.</>)}
+          {para(<>The 6th interview is different. Mihir had a billing issue on day 2 and gave up. That&apos;s its own problem, logged separately. It doesn&apos;t dilute the pattern in the other five.</>)}
         </div>
 
         <div className="rv">
@@ -825,41 +843,60 @@ export default function Track1ProblemDiscovery() {
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>&ldquo;The technique is called affinity mapping. You put each observation on a card — or a sticky note — then group by theme, not by user.<br /><br />&ldquo;Most people&apos;s instinct is to write up each interview separately. That hides the patterns. Instead, take all 40 notes and ask: which of these belong together?<br /><br />&ldquo;What you&apos;ll find is that 40 notes collapse into 5–7 themes. And then 2–3 of those themes appear across almost every user. Those are your insights. The rest is noise.&rdquo;</>}
-            expandedContent={<>A useful distinction: an observation is something a user said or did. An insight is what it means — why it matters, what it implies about the problem. 'User couldn't find the search bar' is an observation. 'Users can't navigate to their most-used feature because the UI structure doesn't match how they think about their workflow' is an insight. Good synthesis converts observations into insights. Bad synthesis just collects quotes.</>}
+            content={<>&ldquo;What Dovetail does automatically — once you tag — is show you which themes appear across the most interviews. You can literally see: &apos;this observation appeared in 5 of 6 sessions.&apos; That&apos;s your primary finding.<br /><br />&ldquo;But the tool doesn&apos;t tell you what it means. That&apos;s yours. Your 5 managers didn&apos;t just have trouble with a feature — they lacked a mental model for good coaching. EdSpark gives them a mirror but no benchmark. That&apos;s a completely different problem than UX confusion.<br /><br />&ldquo;That&apos;s not in the data. That&apos;s your synthesis.&rdquo;</>}
+            expandedContent={<>The difference between a note and an insight: a note is what happened. An insight is what it means. &ldquo;User didn&apos;t know what to do after setup&rdquo; is a note. &ldquo;EdSpark assumes managers know what great coaching looks like — but most of them have never been taught&rdquo; is an insight. It explains the pattern, points to a root cause, and implies a direction without dictating a solution. That&apos;s the goal of synthesis.</>}
             conceptId="insight-synthesis"
-            question="After 6 interviews, 4 users mentioned they 'couldn't figure out what to do first.' 2 users mentioned pricing confusion. You should:"
+            question="After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?"
             options={[
-              { text: "Report both equally — all feedback matters", correct: false, feedback: "Not all feedback is equally weighted. Frequency across independent respondents is the signal. 4/6 on 'what to do first' is a finding. 2/6 on pricing might be real but warrants more investigation." },
-              { text: "Focus your brief on 'unclear first action' — 4/6 is a strong pattern; flag pricing as a hypothesis to test", correct: true, feedback: "Correct. Pattern = insight. 4/6 users independently saying the same thing is unlikely to be coincidence. Pricing at 2/6 is worth noting — but not yet an insight. Investigate separately." },
-              { text: "Ignore pricing — only focus on what the majority said", correct: false, feedback: "Don't ignore it — note it as a hypothesis worth testing. It might reveal a second distinct problem. But don't give it equal weight to the majority pattern." },
+              { text: "Report both equally — all feedback is valid", correct: false, feedback: "All feedback is data — but not all data is equal. 5/6 independent users saying the same thing unprompted is a pattern. 1 user with a billing issue is a separate problem that needs its own investigation." },
+              { text: "5/6 on 'no clear next step' is your primary finding; flag billing as a separate data point", correct: true, feedback: "Exactly. Priya's report led with the 5/6 pattern. The billing issue was noted in an appendix as 'worth investigating separately.' Weighted correctly, the findings are clear." },
+              { text: "Do more interviews until billing comes up again before deciding", correct: false, feedback: "You'd be chasing a pattern that probably doesn't exist. 6 interviews on a consistent theme is enough to act. Do more research if you're uncertain — not to balance a clear finding against an outlier." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>By Thursday morning, Priya has grouped her notes into three themes:</>)}
+          {para(<>By Thursday morning, Priya has her synthesis. From 8 pages of notes, three insights:</>)}
 
-          <InfoBox title="Priya's Three Insights from 6 Interviews" accent="var(--green)">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <InfoBox title="Priya's Three Findings — from 6 interviews via Dovetail" accent="var(--green)">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {[
-                { num: '1', insight: 'Value amnesia', detail: "4 of 6 users said they couldn't remember why they signed up — or what EdSpark was supposed to do for them — when they returned after day 1.", implication: "The product doesn't reinforce its own value at the moment of return." },
-                { num: '2', insight: 'No obvious first step', detail: "3 of 6 users described opening the product and not knowing where to start. They had completed setup but didn't know what to actually do with it.", implication: 'Setup completion ≠ onboarding success. There\'s a gap between "account created" and "first value moment."' },
-                { num: '3', insight: 'No reason to come back', detail: '2 of 6 users described EdSpark as something they\'d use "eventually" but felt no urgency. Nothing in the product created a reason to return.', implication: 'The product has no activation hook — no early win that makes users feel the product is already working for them.' },
+                {
+                  num: '1', tag: '5 of 6 interviews', insight: 'No benchmark for good',
+                  detail: "Managers set up EdSpark and open recordings — but don't know what to look for. They've never been shown what great sales coaching sounds like. EdSpark provides the mirror; nobody provided the reference.",
+                  implication: "The problem isn't feature confusion — it's missing context. The product assumes expertise the user doesn't have.",
+                },
+                {
+                  num: '2', tag: '4 of 6 interviews', insight: 'Job is visibility, not improvement',
+                  detail: "Managers signed up not to improve coaching but to prove to their director that they were responding to a performance problem. They need evidence of action as much as actual coaching improvement.",
+                  implication: "The product needs to make coaching effort visible quickly — not just track it quietly in the background.",
+                },
+                {
+                  num: '3', tag: '3 of 6 interviews', insight: 'No signal that it\'s working',
+                  detail: "After adding recordings, managers had no way to tell if anything was improving. No before/after, no benchmark, no nudge from the product.",
+                  implication: "Without a signal of progress, there's no reason to come back. The product has no activation moment — no early win.",
+                },
               ].map(item => (
                 <div key={item.num} style={{ paddingBottom: '12px', borderBottom: '1px solid var(--ed-rule)' }}>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '6px' }}>
-                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(21,129,88,0.15)', border: '1px solid rgba(21,129,88,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '10px', fontWeight: 700, color: 'var(--green)', flexShrink: 0 }}>{item.num}</div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', paddingTop: '2px' }}>{item.insight}</div>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '6px', alignItems: 'flex-start' }}>
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(21,129,88,0.15)', border: '1px solid rgba(21,129,88,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '10px', fontWeight: 700, color: 'var(--green)', flexShrink: 0, marginTop: '1px' }}>{item.num}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px', flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{item.insight}</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--green)', background: 'rgba(21,129,88,0.1)', padding: '2px 7px', borderRadius: '10px' }}>{item.tag}</div>
+                      </div>
+                      <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: '6px' }}>{item.detail}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--green)', lineHeight: 1.6, fontStyle: 'italic' }}>→ {item.implication}</div>
+                    </div>
                   </div>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: '6px', paddingLeft: '30px' }}>{item.detail}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--green)', lineHeight: 1.6, paddingLeft: '30px', fontStyle: 'italic' }}>→ {item.implication}</div>
                 </div>
               ))}
             </div>
           </InfoBox>
 
-          {pullQuote("The goal of synthesis isn't to summarise what you heard. It's to say what it means.", 'var(--green)')}
+          {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
+
+          <QuizEngine conceptId="insight-synthesis" conceptName="Insight Synthesis" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[5]} />
         </div>
       </ChapterSection>
 
@@ -867,14 +904,16 @@ export default function Track1ProblemDiscovery() {
       <ChapterSection num="06" accentRgb="181,114,10" id="m2-problem-statement">
         <div className="rv">
           {chLabel('Part 6 · The Discovery Brief', 'var(--amber)')}
-          {h2(<>The document that turns research into action</>)}
+          {h2(<>One page that unlocks the whole team</>)}
 
           <SituationCard accent="var(--amber)" accentRgb="181,114,10">
-            Thursday afternoon. Priya has her insights. Now she needs to present to Rohan on Friday. She starts writing: &ldquo;Based on user interviews, I recommend redesigning...&rdquo; Asha stops her. &ldquo;Don&apos;t start with the solution. Start with what you found. Let the problem make the case for itself.&rdquo;
+            Thursday evening. The stakeholder call is tomorrow at 10am. Priya opens Notion and starts writing her brief. Her first draft begins: &ldquo;Based on user interviews, I recommend adding example coaching sessions to the onboarding flow...&rdquo; She sends it to Asha. Asha replies in 3 minutes: &ldquo;You led with a solution. What did you discover?&rdquo;
           </SituationCard>
 
-          {para(<>&ldquo;If I just present the problem, Rohan will ask: &apos;so what do we do?&apos;&rdquo;</>)}
-          {para(<>&ldquo;Yes, he will. And you&apos;ll say: &apos;I have hypotheses, but I want the team to ideate together first — because I might be missing something.&apos; That&apos;s how you involve the team in the solution without giving up ownership of the problem.&rdquo;</>)}
+          {para(<>Priya stares at the screen. She&apos;s been sitting on this hypothesis since Rahul&apos;s interview two days ago. She knows what she wants to build. She&apos;s already thought about how it would work. But Asha is right — the brief is supposed to describe the problem, not prescribe the answer.</>)}
+          {para(<>She deletes everything after the first paragraph and starts again.</>)}
+          {para(<>The second draft: &ldquo;Sales managers at small teams (5–20 reps) sign up for EdSpark with one job in mind: prove to their leadership that they&apos;re responding to a performance problem. But the product assumes they already know what great coaching looks like. They don&apos;t. So they complete setup, open a recording, and have no frame of reference for what they&apos;re seeing. 5 of 6 churned managers described a version of this: &lsquo;I didn&apos;t know what I was supposed to be creating.&rsquo; The product has never shown them what success looks like.&rdquo;</>)}
+          {para(<>She shows it to Asha. A single reply: &ldquo;That&apos;s it.&rdquo;</>)}
         </div>
 
         <div className="rv">
@@ -882,54 +921,53 @@ export default function Track1ProblemDiscovery() {
             name="Dev"
             nameColor="var(--blue)"
             borderColor="var(--blue)"
-            content={<>&ldquo;As an engineer, the single most valuable thing a PM can hand me is a clear problem statement. Not a wireframe. Not a spec. A problem statement.<br /><br />&ldquo;When I understand the problem, I can suggest solutions you haven&apos;t thought of. I can tell you what&apos;s technically easy vs. what&apos;s expensive. I can propose a smaller version that gets 80% of the value in 20% of the time.<br /><br />&ldquo;A wireframe tells me what to build. A problem statement lets me help you figure out the right thing to build. Big difference.&rdquo;</>}
-            expandedContent={<>The best discovery briefs have four components: (1) Who — the specific user segment affected. (2) What they&apos;re trying to do — the job. (3) What gets in the way — the specific barrier. (4) Why it matters now — the business context. Notice: no solution. The solution emerges when the team hears the problem together. A PM who presents a solution at this stage has usually already decided what to build before the team had a chance to think about it.</>}
+            content={<>&ldquo;Priya showed us the brief on Friday morning. Rohan read it in 90 seconds. Then he looked up and said, &apos;What&apos;s the fix?&apos;<br /><br />&ldquo;Priya said, &apos;I have a hypothesis, but I want to hear what the team thinks first.&apos;<br /><br />&ldquo;I said: what if we showed an anonymised example coaching session the first time you add a recording — a real before/after call with commentary? I can build that in a day, maybe less. Maya said: or a 60-second video. Kiran said: let&apos;s A/B test both. Two weeks, measure day-14 retention.<br /><br />&ldquo;When Priya arrived Monday with 14 wireframes, I would have built exactly what she asked for. It would have been wrong. On Friday she gave us the problem. We built the right thing together.&rdquo;</>}
+            expandedContent={<>The brief doesn&apos;t end with a solution for a reason. When a PM presents a clear problem, the team&apos;s collective intelligence — engineering&apos;s knowledge of what&apos;s feasible, design&apos;s knowledge of what&apos;s usable, analytics&apos;s knowledge of what&apos;s measurable — produces better ideas than any one person could generate alone. The PM&apos;s job is to make the problem so clear that the solution becomes obvious. Not to arrive with both.</>}
             conceptId="problem-framing"
-            question="You finish research and present to your team. Which opening is best?"
+            question="You've written your discovery brief. How do you open the Friday meeting with Rohan?"
             options={[
-              { text: "'I think we should add a daily highlights email — here's why the research supports it'", correct: false, feedback: "This is leading with the solution. You're using research to justify a decision you've already made. It limits the team's ability to think of better options." },
-              { text: "'We found that 4 of 6 churned users couldn't remember EdSpark's value when they returned. Here's what that means for us.'", correct: true, feedback: "Lead with the insight. Let the team sit with the problem before jumping to solutions. This builds shared understanding — and usually produces better ideas than you'd have alone." },
-              { text: "'The research was interesting but inconclusive — we need to do more interviews before we can act'", correct: false, feedback: "6 interviews with a 4/6 signal on a clear theme is actionable. 'Inconclusive' usually means you're avoiding the discomfort of commitment. Act on what you know; refine as you learn." },
+              { text: "\"I recommend adding example coaching sessions to onboarding — here's the plan.\"", correct: false, feedback: "You've already decided — and the meeting becomes a presentation, not a problem-solving session. Dev wouldn't have proposed the before/after idea if Priya had arrived with wireframes." },
+              { text: "\"We discovered that managers join EdSpark to prove their coaching is working — but the product never shows them what good looks like. Here's what we found.\"", correct: true, feedback: "This is exactly what Priya did. She led with the discovery, not the solution. In ten minutes, the team generated three solutions she hadn't thought of — including one that was better than her original idea." },
+              { text: "\"The research was interesting but I need more interviews before proposing anything.\"", correct: false, feedback: "5 of 6 churned managers saying the same thing unprompted is enough to act. 'Needs more research' is sometimes avoidance — a way of delaying the discomfort of commitment." },
             ]}
           />
         </div>
 
         <div className="rv">
-          {para(<>Priya writes her discovery brief. One page. Three insights. A clear problem statement. No solution proposed — just the framing.</>)}
-          {para(<>Friday morning. She presents it to Rohan and the team. Maya immediately says: &ldquo;What if the product showed a personalised &apos;your highlights from this week&apos; when you open it — so the value is obvious from day one?&rdquo; Dev says: &ldquo;We already have the data to do that in a day. Let me prototype something.&rdquo; Kiran says: &ldquo;I can instrument it and we&apos;ll know within two weeks whether it changes day-7 retention.&rdquo;</>)}
-          {para(<>Priya didn&apos;t solve the problem. She defined it clearly enough that the team solved it themselves — and faster than she could have alone.</>)}
-
-          {pullQuote("A PM's job isn't to have the answer. It's to frame the question so clearly that the answer becomes obvious.", 'var(--amber)')}
+          {pullQuote("Make the problem so clear that the solution becomes obvious. That's the PM's job in discovery.", 'var(--amber)')}
 
           <DiscoveryBriefBuilder />
 
           <PMPrincipleBox
-            principle="Symptom → Research → Insight → Brief → Ideation. Every product decision starts with understanding, not assumption."
+            principle="Symptom → Research → Insight → Brief → Ideation. Discovery is not a phase — it's the habit that separates PMs who build the right thing from PMs who build things right."
           />
+
+          <QuizEngine conceptId="problem-framing" conceptName="Problem Framing" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[6]} />
         </div>
       </ChapterSection>
 
       {/* ── FINAL REFLECTION ── */}
-      <ChapterSection num="07" accentRgb="79,70,229" id="m2-reflection">
+      <ChapterSection num="07" accentRgb="120,67,238" id="m2-reflection">
         <div className="rv">
           {chLabel('Final Reflection · Module 02', 'var(--purple)')}
-          {h2(<>What Priya now knows that she didn&apos;t on Monday</>)}
+          {h2(<>What changed between Monday and Friday</>)}
 
-          {para(<>Five days ago, Priya&apos;s instinct was to open Figma. She had a problem, and her job — as she understood it then — was to solve it.</>)}
-          {para(<>What she knows now: the problem wasn&apos;t what she thought. And the solution that felt obvious on Monday would have been wrong. The redesigned onboarding she almost built wouldn&apos;t have addressed value amnesia, or the missing first-step clarity, or the lack of an activation hook. It would have been a better onboarding for a problem that didn&apos;t exist.</>)}
-          {para(<>She didn&apos;t waste three days shipping the wrong thing. She spent two days understanding the right problem. And the team shipped a prototype in a day.</>)}
+          {para(<>Monday morning: 14 Figma screens. A redesigned onboarding for a problem that didn&apos;t exist. Two days of weekend work pointed in completely the wrong direction.</>)}
+          {para(<>Friday morning: one page. Three insights. A brief that took ten minutes to produce three better ideas than the one Priya had arrived with on Monday.</>)}
+          {para(<>She didn&apos;t know what the problem was until she asked. The Amplitude data gave her where. Kraftful gave her a starting hypothesis. The interviews gave her why. Dovetail helped her see the pattern. The brief turned the pattern into something her team could act on.</>)}
+          {para(<>None of that required genius. It required asking before building.</>)}
 
-          {pullQuote("Discovery is not a phase. It's a habit. The best PMs never stop asking why before they start asking how.", 'var(--purple)')}
+          {pullQuote("Discovery is not a phase. It's the habit you build to stop solving the wrong problems.", 'var(--purple)')}
 
-          <InfoBox title="The Discovery Toolkit" accent="var(--purple)">
+          <InfoBox title="The full toolkit Priya used this week" accent="var(--purple)">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               {[
-                { icon: '🎯', label: 'Discovery mindset', text: 'Resist the solution. Understand first.' },
-                { icon: '👥', label: 'Segmentation', text: 'Different users = different problems.' },
-                { icon: '💼', label: 'JTBD', text: 'Find the job, not just the complaint.' },
-                { icon: '🔬', label: 'Research methods', text: 'Match the method to the question.' },
-                { icon: '🎤', label: 'Good interviews', text: 'Past behaviour. Open questions. Follow the story.' },
-                { icon: '🗂️', label: 'Synthesis', text: 'Patterns > individual quotes.' },
+                { icon: '🔭', label: 'Discovery first', text: 'Resist the solution. Kiran\'s data, not Figma.' },
+                { icon: '👥', label: 'Segmentation', text: 'Managers ≠ reps. Different jobs, different problems.' },
+                { icon: '💼', label: 'JTBD', text: 'Rahul\'s job: prove coaching works to his director.' },
+                { icon: '📊', label: 'Amplitude + Kraftful', text: 'Where it breaks + what users already say.' },
+                { icon: '🎤', label: 'Interviews', text: 'Follow the story. Follow-ups over question lists.' },
+                { icon: '🗂️', label: 'Dovetail + Notion', text: 'Tag, cluster, find the pattern. Then write the brief.' },
               ].map(item => (
                 <div key={item.label} style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(120,67,238,0.06)', border: '1px solid rgba(120,67,238,0.15)' }}>
                   <div style={{ fontSize: '18px', marginBottom: '6px' }}>{item.icon}</div>
@@ -939,22 +977,17 @@ export default function Track1ProblemDiscovery() {
               ))}
             </div>
           </InfoBox>
-
-          <ApplyItBox
-            prompt="Pick one thing your team is about to build. Ask: have we talked to users about this problem, or just assumed it exists? Then write a one-sentence brief: [Segment] is trying to [do what] but [barrier]. Does everyone agree with it?"
-          />
         </div>
 
         <div className="rv">
-          <QuizEngine conceptId="user-research" conceptName="User Research" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[0]} />
-          <QuizEngine conceptId="customer-segments" conceptName="Customer Segments" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[1]} />
-          <QuizEngine conceptId="research-methods" conceptName="Research Methods" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[2]} />
-          <QuizEngine conceptId="user-research" conceptName="Interview Technique" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[3]} />
           <QuizEngine conceptId="jtbd" conceptName="Jobs to Be Done" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[4]} />
-          <QuizEngine conceptId="insight-synthesis" conceptName="Insight Synthesis" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[5]} />
-          <QuizEngine conceptId="problem-framing" conceptName="Problem Framing" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[6]} />
+
+          <ApplyItBox
+            prompt="Pick one thing your team is building right now. Write the job: '[User type] is trying to [accomplish what] in [what situation].' Now ask: have you talked to anyone who's failed to accomplish that job? If not — that's this week's research."
+          />
+
           <NextChapterTeaser
-            text="Module 03 · Problem Framing & Prioritization — You've discovered the problem. Now: how do you decide which problem to solve first when there are always more problems than time?"
+            text="Module 03 · Problem Framing & Prioritization — Priya has three insights and a brief. Now: which one does she solve first? And how does she make that case to a team that wants to build all three?"
           />
         </div>
       </ChapterSection>
