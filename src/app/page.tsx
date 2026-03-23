@@ -117,7 +117,7 @@ export default function Home() {
 
   if (stage === 'reading' && assignedTrack) {
     if (activeModule === '02') {
-      return <ProblemDiscoveryModule onBack={goBackToOverview} />;
+      return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     return (
       <PMFundamentalsModule
