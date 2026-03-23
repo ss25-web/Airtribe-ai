@@ -9,9 +9,6 @@ import PMFundamentalsModule from '@/components/PMFundamentalsModule';
 import ProblemDiscoveryModule from '@/components/ProblemDiscoveryModule';
 
 type Stage = 'home' | 'quiz' | 'overview' | 'reading';
-const VALID_TRACKS: Track[] = ['new-pm', 'apm'];
-const isTrack = (value: string | null): value is Track =>
-  value !== null && VALID_TRACKS.includes(value as Track);
 
 const LS_STAGE  = 'airtribe_stage';
 const LS_TRACK  = 'airtribe_track';
@@ -28,15 +25,10 @@ export default function Home() {
   // Restore persisted state on mount
   useEffect(() => {
     const savedStage = localStorage.getItem(LS_STAGE) as Stage | null;
-    const rawTrack = localStorage.getItem(LS_TRACK);
-    const savedTrack = isTrack(rawTrack) ? rawTrack : null;
+    const savedTrack = localStorage.getItem(LS_TRACK) as Track | null;
     const savedDark  = localStorage.getItem(LS_DARK) === 'true';
+
     const savedModule = localStorage.getItem(LS_MODULE) ?? '01';
-
-    if (rawTrack && !savedTrack) {
-      localStorage.removeItem(LS_TRACK);
-    }
-
     if ((savedStage === 'reading' || savedStage === 'overview') && savedTrack) {
       setStage(savedStage);
       setAssignedTrack(savedTrack);
