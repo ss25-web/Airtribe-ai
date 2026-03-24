@@ -16,82 +16,111 @@ const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to 
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: diagnosing UX failures vs feature failures, session recordings, the 45-second drop-off problem, spec completeness (loading/error/empty/success states), and how small feedback changes drive massive metric improvements.`;
 
 // ─────────────────────────────────────────
+// TILT CARD — 3D mouse-tracking wrapper
+// ─────────────────────────────────────────
+const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -7, y: x * 7, scale: 1.015 });
+  };
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`,
+        transition: 'transform 0.18s ease',
+        willChange: 'transform',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────
 // LOCAL: METRICS DASHBOARD MOCKUP
 // ─────────────────────────────────────────
 const MetricsDashboardMockup = () => (
-  <div style={{ margin: '32px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #2A3A5C', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
-    {/* Header bar */}
-    <div style={{ background: '#0F1B30', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-          <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
-        ))}
-      </div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.08em' }}>
-        EdSpark Analytics &middot; Onboarding Funnel &middot; Last 14 days
-      </div>
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <motion.span
-          animate={{ opacity: [1, 0.3, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', display: 'inline-block' }}
-        />
-        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>LIVE</span>
-      </div>
-    </div>
-    {/* Metrics */}
-    <div style={{ background: '#1B2A47', padding: '28px 24px', display: 'flex', gap: '20px', flexWrap: 'wrap' as const }}>
-      {/* Completion Rate card */}
-      <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(224,122,95,0.3)' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
-          Onboarding Completion
+  <TiltCard style={{ margin: '32px 0' }}>
+    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2A3A5C', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)' }}>
+      {/* Header bar */}
+      <div style={{ background: '#0F1B30', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
+            <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
+          ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>30%</span>
-          <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontSize: '18px', color: '#E07A5F' }}>↓</span>
-            <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#E07A5F' }}>−30pts from target</span>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.08em' }}>
+          EdSpark Analytics &middot; Onboarding Funnel &middot; Last 14 days
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <motion.span
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', display: 'inline-block' }}
+          />
+          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>LIVE</span>
+        </div>
+      </div>
+      {/* Metrics */}
+      <div style={{ background: '#1B2A47', padding: '28px 24px', display: 'flex', gap: '20px', flexWrap: 'wrap' as const }}>
+        {/* Completion Rate card */}
+        <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(224,122,95,0.3)' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
+            Onboarding Completion
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>30%</span>
+            <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '18px', color: '#E07A5F' }}>↓</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#E07A5F' }}>−30pts from target</span>
+            </div>
+          </div>
+          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ width: '30%', height: '100%', background: '#E07A5F', borderRadius: '2px' }} />
+          </div>
+          <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)' }}>
+            ▲ 2pts vs last week &mdash; still 30pts below target
           </div>
         </div>
-        <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-          <div style={{ width: '30%', height: '100%', background: '#E07A5F', borderRadius: '2px' }} />
+        {/* Target card */}
+        <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(40,200,64,0.25)', position: 'relative' as const }}>
+          <div style={{ position: 'absolute' as const, top: '12px', right: '12px', fontFamily: 'monospace', fontSize: '8px', color: '#28C840', background: 'rgba(40,200,64,0.1)', padding: '2px 7px', borderRadius: '3px', letterSpacing: '0.1em' }}>TARGET</div>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
+            Completion Goal
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>60%</span>
+          </div>
+          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden', position: 'relative' as const }}>
+            <div style={{ width: '60%', height: '100%', background: '#28C840', borderRadius: '2px' }} />
+            <div style={{ position: 'absolute' as const, left: '30%', top: '-3px', width: '2px', height: '10px', background: '#E07A5F' }} />
+          </div>
+          <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', borderTop: '1px dashed rgba(40,200,64,0.2)', paddingTop: '8px' }}>
+            Q1 OKR &middot; Set 3 weeks ago
+          </div>
         </div>
-        <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)' }}>
-          ▲ 2pts vs last week &mdash; still 30pts below target
+        {/* Gap callout */}
+        <div style={{ flex: '1', minWidth: '180px', background: 'rgba(224,122,95,0.06)', borderRadius: '10px', padding: '20px', border: '1px dashed rgba(224,122,95,0.35)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '10px' }}>Gap</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '36px', fontWeight: 700, color: '#E07A5F', lineHeight: 1, marginBottom: '8px' }}>−30pts</div>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.8)', lineHeight: 1.6 }}>
+            Two weeks post-launch.<br />Something specific is wrong.
+          </div>
         </div>
       </div>
-      {/* Target card */}
-      <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(40,200,64,0.25)', position: 'relative' as const }}>
-        <div style={{ position: 'absolute' as const, top: '12px', right: '12px', fontFamily: 'monospace', fontSize: '8px', color: '#28C840', background: 'rgba(40,200,64,0.1)', padding: '2px 7px', borderRadius: '3px', letterSpacing: '0.1em' }}>TARGET</div>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
-          Completion Goal
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>60%</span>
-        </div>
-        <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden', position: 'relative' as const }}>
-          <div style={{ width: '60%', height: '100%', background: '#28C840', borderRadius: '2px' }} />
-          <div style={{ position: 'absolute' as const, left: '30%', top: '-3px', width: '2px', height: '10px', background: '#E07A5F' }} />
-        </div>
-        <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', borderTop: '1px dashed rgba(40,200,64,0.2)', paddingTop: '8px' }}>
-          Q1 OKR &middot; Set 3 weeks ago
-        </div>
-      </div>
-      {/* Gap callout */}
-      <div style={{ flex: '1', minWidth: '180px', background: 'rgba(224,122,95,0.06)', borderRadius: '10px', padding: '20px', border: '1px dashed rgba(224,122,95,0.35)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '10px' }}>Gap</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '36px', fontWeight: 700, color: '#E07A5F', lineHeight: 1, marginBottom: '8px' }}>−30pts</div>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.8)', lineHeight: 1.6 }}>
-          Two weeks post-launch.<br />Something specific is wrong.
-        </div>
+      <div style={{ background: '#0F1B30', padding: '8px 16px', borderTop: '1px solid #1A2A44' }}>
+        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em' }}>
+          ⚠ Drop-off detected at Step 2 · Same cohort · Same pattern · 14 days running
+        </span>
       </div>
     </div>
-    <div style={{ background: '#0F1B30', padding: '8px 16px', borderTop: '1px solid #1A2A44' }}>
-      <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em' }}>
-        ⚠ Drop-off detected at Step 2 · Same cohort · Same pattern · 14 days running
-      </span>
-    </div>
-  </div>
+  </TiltCard>
 );
 
 // ─────────────────────────────────────────
@@ -136,199 +165,201 @@ const SessionRecordingMockup = () => {
   const currentPhase = phases[phase];
 
   return (
-    <div style={{ margin: '32px 0' }}>
-      <div style={{
-        borderRadius: '12px', overflow: 'hidden',
-        background: '#1A1A2E', border: '1px solid #2A2A4E',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.45)',
-      }}>
-        {/* Player header */}
-        <div style={{ background: '#12122A', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #2A2A4E' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-              <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
-            ))}
-          </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
-            ▶ Playing session #4821
-          </div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>EdSpark · Onboarding · Step 2</span>
-          </div>
-        </div>
-
-        {/* Browser mockup */}
-        <div style={{ padding: '16px' }}>
-          <div style={{
-            background: '#FFFFFF', borderRadius: '8px', overflow: 'hidden',
-            minHeight: '220px', position: 'relative' as const,
-          }}>
-            {/* URL bar */}
-            <div style={{ background: '#F1F3F4', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #E0E0E0' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#dadada' }} />
-              <div style={{ background: '#fff', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#444', fontFamily: 'monospace', flex: 1, border: '1px solid #e0e0e0' }}>
-                app.edspark.io/onboarding/step-2
-              </div>
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div>
+        <div style={{
+          borderRadius: '12px', overflow: 'hidden',
+          background: '#1A1A2E', border: '1px solid #2A2A4E',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.3)',
+        }}>
+          {/* Player header */}
+          <div style={{ background: '#12122A', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #2A2A4E' }}>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
+                <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
+              ))}
             </div>
-            {/* Content */}
-            <div style={{ padding: '24px 28px', minHeight: '175px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontSize: '18px', fontWeight: 700, color: '#1C1814', marginBottom: '8px' }}>Step 2: Analyze your recording</div>
-                <div style={{ fontSize: '13px', color: '#8A8580', marginBottom: '20px' }}>Upload complete. Click below to start AI analysis.</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
+              ▶ Playing session #4821
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>EdSpark · Onboarding · Step 2</span>
+            </div>
+          </div>
 
-                {/* Analyze button */}
-                <motion.div
-                  animate={phase === 1 ? { scale: [1, 0.97, 1], background: ['#E07A5F', '#c85f45', '#E07A5F'] } : {}}
-                  transition={{ duration: 0.3 }}
-                  style={{
-                    display: 'inline-block',
-                    background: '#E07A5F', color: '#fff', fontWeight: 700,
-                    padding: '12px 32px', borderRadius: '8px', fontSize: '14px',
-                    cursor: 'pointer', userSelect: 'none' as const,
-                    boxShadow: phase === 1 ? '0 0 0 3px rgba(224,122,95,0.4)' : '0 2px 8px rgba(224,122,95,0.3)',
-                    transition: 'box-shadow 0.2s',
-                  }}
-                >
-                  Analyze Recording
-                </motion.div>
+          {/* Browser mockup */}
+          <div style={{ padding: '16px' }}>
+            <div style={{
+              background: '#FFFFFF', borderRadius: '8px', overflow: 'hidden',
+              minHeight: '220px', position: 'relative' as const,
+            }}>
+              {/* URL bar */}
+              <div style={{ background: '#F1F3F4', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #E0E0E0' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#dadada' }} />
+                <div style={{ background: '#fff', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#444', fontFamily: 'monospace', flex: 1, border: '1px solid #e0e0e0' }}>
+                  app.edspark.io/onboarding/step-2
+                </div>
               </div>
+              {/* Content */}
+              <div style={{ padding: '24px 28px', minHeight: '175px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+                <div style={{ textAlign: 'center' as const }}>
+                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#1C1814', marginBottom: '8px' }}>Step 2: Analyze your recording</div>
+                  <div style={{ fontSize: '13px', color: '#8A8580', marginBottom: '20px' }}>Upload complete. Click below to start AI analysis.</div>
 
-              {/* Processing phase — silence */}
-              <AnimatePresence>
-                {phase >= 2 && phase < 5 && (
+                  {/* Analyze button */}
                   <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    style={{ textAlign: 'center' as const }}
-                  >
-                    <div style={{ fontSize: '12px', color: '#ccc', fontFamily: 'monospace' }}>
-                      {/* Nothing. White space. That's the point. */}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Rage click indicators */}
-              <AnimatePresence>
-                {phase >= 3 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    style={{ display: 'flex', gap: '6px', alignItems: 'center' }}
-                  >
-                    {[0, 1, 2].map(i => (
-                      <motion.div
-                        key={i}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: phase >= (3 + i) ? 1 : 0 }}
-                        transition={{ delay: i * 0.1, type: 'spring', stiffness: 400 }}
-                        style={{
-                          width: '10px', height: '10px', borderRadius: '50%',
-                          background: phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF',
-                          border: `2px solid ${phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF'}`,
-                        }}
-                      />
-                    ))}
-                    {phase >= 4 && (
-                      <span style={{ fontFamily: 'monospace', fontSize: '10px', color: phase >= 5 ? '#E07A5F' : '#FF8B00', marginLeft: '4px', fontWeight: 700 }}>
-                        {phase >= 5 ? '⚡ rage click' : 'clicking again…'}
-                      </span>
-                    )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Session ended */}
-              <AnimatePresence>
-                {phase >= 5 && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    animate={phase === 1 ? { scale: [1, 0.97, 1], background: ['#E07A5F', '#c85f45', '#E07A5F'] } : {}}
+                    transition={{ duration: 0.3 }}
                     style={{
-                      background: 'rgba(224,122,95,0.1)', border: '1px solid rgba(224,122,95,0.3)',
-                      borderRadius: '6px', padding: '8px 16px',
-                      fontSize: '12px', color: '#E07A5F', fontFamily: 'monospace', fontWeight: 700,
+                      display: 'inline-block',
+                      background: '#E07A5F', color: '#fff', fontWeight: 700,
+                      padding: '12px 32px', borderRadius: '8px', fontSize: '14px',
+                      cursor: 'pointer', userSelect: 'none' as const,
+                      boxShadow: phase === 1 ? '0 0 0 3px rgba(224,122,95,0.4)' : '0 2px 8px rgba(224,122,95,0.3)',
+                      transition: 'box-shadow 0.2s',
                     }}
                   >
-                    ✕ User navigated away
+                    Analyze Recording
                   </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
+                </div>
 
-        {/* Timeline */}
-        <div style={{ padding: '12px 16px 8px', borderTop: '1px solid #2A2A4E' }}>
-          <div style={{ position: 'relative' as const, height: '24px', background: '#0E0E20', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-            {/* Progress fill */}
-            <motion.div
-              animate={{ width: `${(phase / (phases.length - 1)) * 100}%` }}
-              transition={{ duration: 0.4 }}
-              style={{ height: '100%', background: 'rgba(58,134,255,0.3)', position: 'absolute' as const, top: 0, left: 0 }}
-            />
-            {/* Phase markers */}
-            {phases.map((p, i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute' as const,
-                  left: `${(i / (phases.length - 1)) * 100}%`,
-                  top: '50%', transform: 'translate(-50%, -50%)',
-                  width: i === 5 ? '3px' : '2px',
-                  height: i === 5 ? '16px' : '12px',
-                  background: i <= phase ? p.color : 'rgba(255,255,255,0.1)',
-                  borderRadius: '1px',
-                  transition: 'background 0.3s',
-                }}
-              />
-            ))}
-            {/* 12s marker */}
-            <div style={{ position: 'absolute' as const, right: '0', top: 0, height: '100%', display: 'flex', alignItems: 'center', paddingRight: '8px' }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#E07A5F', fontWeight: 700 }}>12s · User left</span>
+                {/* Processing phase — silence */}
+                <AnimatePresence>
+                  {phase >= 2 && phase < 5 && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      style={{ textAlign: 'center' as const }}
+                    >
+                      <div style={{ fontSize: '12px', color: '#ccc', fontFamily: 'monospace' }}>
+                        {/* Nothing. White space. That's the point. */}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Rage click indicators */}
+                <AnimatePresence>
+                  {phase >= 3 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      style={{ display: 'flex', gap: '6px', alignItems: 'center' }}
+                    >
+                      {[0, 1, 2].map(i => (
+                        <motion.div
+                          key={i}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: phase >= (3 + i) ? 1 : 0 }}
+                          transition={{ delay: i * 0.1, type: 'spring', stiffness: 400 }}
+                          style={{
+                            width: '10px', height: '10px', borderRadius: '50%',
+                            background: phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF',
+                            border: `2px solid ${phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF'}`,
+                          }}
+                        />
+                      ))}
+                      {phase >= 4 && (
+                        <span style={{ fontFamily: 'monospace', fontSize: '10px', color: phase >= 5 ? '#E07A5F' : '#FF8B00', marginLeft: '4px', fontWeight: 700 }}>
+                          {phase >= 5 ? '⚡ rage click' : 'clicking again…'}
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Session ended */}
+                <AnimatePresence>
+                  {phase >= 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      style={{
+                        background: 'rgba(224,122,95,0.1)', border: '1px solid rgba(224,122,95,0.3)',
+                        borderRadius: '6px', padding: '8px 16px',
+                        fontSize: '12px', color: '#E07A5F', fontFamily: 'monospace', fontWeight: 700,
+                      }}
+                    >
+                      ✕ User navigated away
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
-          {/* Current phase label */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <motion.div
-              key={phase}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: currentPhase.color, display: 'inline-block', flexShrink: 0 }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: currentPhase.color, fontWeight: 700 }}>{currentPhase.time}</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{currentPhase.desc}</span>
-            </motion.div>
-            <button
-              onClick={play}
-              disabled={isPlaying}
-              style={{
-                background: isPlaying ? 'rgba(58,134,255,0.15)' : 'rgba(224,122,95,0.15)',
-                border: `1px solid ${isPlaying ? 'rgba(58,134,255,0.3)' : 'rgba(224,122,95,0.3)'}`,
-                borderRadius: '5px', padding: '4px 12px',
-                fontFamily: 'monospace', fontSize: '9px', fontWeight: 700,
-                color: isPlaying ? '#3A86FF' : '#E07A5F',
-                cursor: isPlaying ? 'default' : 'pointer',
-                letterSpacing: '0.08em',
-                transition: 'all 0.2s',
-              }}
-            >
-              {isPlaying ? '▶ PLAYING…' : phase === phases.length - 1 ? '↺ REPLAY' : '▶ PLAY'}
-            </button>
+
+          {/* Timeline */}
+          <div style={{ padding: '12px 16px 8px', borderTop: '1px solid #2A2A4E' }}>
+            <div style={{ position: 'relative' as const, height: '24px', background: '#0E0E20', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
+              {/* Progress fill */}
+              <motion.div
+                animate={{ width: `${(phase / (phases.length - 1)) * 100}%` }}
+                transition={{ duration: 0.4 }}
+                style={{ height: '100%', background: 'rgba(58,134,255,0.3)', position: 'absolute' as const, top: 0, left: 0 }}
+              />
+              {/* Phase markers */}
+              {phases.map((p, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute' as const,
+                    left: `${(i / (phases.length - 1)) * 100}%`,
+                    top: '50%', transform: 'translate(-50%, -50%)',
+                    width: i === 5 ? '3px' : '2px',
+                    height: i === 5 ? '16px' : '12px',
+                    background: i <= phase ? p.color : 'rgba(255,255,255,0.1)',
+                    borderRadius: '1px',
+                    transition: 'background 0.3s',
+                  }}
+                />
+              ))}
+              {/* 12s marker */}
+              <div style={{ position: 'absolute' as const, right: '0', top: 0, height: '100%', display: 'flex', alignItems: 'center', paddingRight: '8px' }}>
+                <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#E07A5F', fontWeight: 700 }}>12s · User left</span>
+              </div>
+            </div>
+            {/* Current phase label */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <motion.div
+                key={phase}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              >
+                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: currentPhase.color, display: 'inline-block', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: currentPhase.color, fontWeight: 700 }}>{currentPhase.time}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{currentPhase.desc}</span>
+              </motion.div>
+              <button
+                onClick={play}
+                disabled={isPlaying}
+                style={{
+                  background: isPlaying ? 'rgba(58,134,255,0.15)' : 'rgba(224,122,95,0.15)',
+                  border: `1px solid ${isPlaying ? 'rgba(58,134,255,0.3)' : 'rgba(224,122,95,0.3)'}`,
+                  borderRadius: '5px', padding: '4px 12px',
+                  fontFamily: 'monospace', fontSize: '9px', fontWeight: 700,
+                  color: isPlaying ? '#3A86FF' : '#E07A5F',
+                  cursor: isPlaying ? 'default' : 'pointer',
+                  letterSpacing: '0.08em',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {isPlaying ? '▶ PLAYING…' : phase === phases.length - 1 ? '↺ REPLAY' : '▶ PLAY'}
+              </button>
+            </div>
           </div>
         </div>
+        {/* Below mockup stats */}
+        <div style={{ marginTop: '12px', display: 'flex', gap: '20px', fontFamily: 'monospace', fontSize: '11px', color: 'var(--ed-ink3)' }}>
+          <span style={{ color: '#E07A5F', fontWeight: 700 }}>⚡ 3 rage clicks detected</span>
+          <span>·</span>
+          <span>Session ended at 12s</span>
+          <span>·</span>
+          <span>Process completion: 45s</span>
+        </div>
       </div>
-      {/* Below mockup stats */}
-      <div style={{ marginTop: '12px', display: 'flex', gap: '20px', fontFamily: 'monospace', fontSize: '11px', color: 'var(--ed-ink3)' }}>
-        <span style={{ color: '#E07A5F', fontWeight: 700 }}>⚡ 3 rage clicks detected</span>
-        <span>·</span>
-        <span>Session ended at 12s</span>
-        <span>·</span>
-        <span>Process completion: 45s</span>
-      </div>
-    </div>
+    </TiltCard>
   );
 };
 
@@ -362,118 +393,120 @@ const DropOffChartMockup = () => {
   const maxH = 180;
 
   return (
-    <div ref={ref} style={{ margin: '32px 0' }}>
-      <div style={{
-        background: '#111827', borderRadius: '12px', padding: '24px',
-        border: '1px solid #1F2D42', boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-          <div>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '4px' }}>
-              Kiran · User Retention During Processing
-            </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '15px', fontWeight: 700, color: '#fff' }}>
-              % of users still waiting · by second
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' as const }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>Sample</div>
-            <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#3A86FF', fontWeight: 700 }}>n = 1,240</div>
-          </div>
-        </div>
-        {/* Chart */}
-        <div style={{ position: 'relative' as const, height: `${maxH + 40}px` }}>
-          {/* Y-axis labels */}
-          {[100, 75, 50, 25, 0].map(v => (
-            <div key={v} style={{
-              position: 'absolute' as const, left: 0, top: `${((100 - v) / 100) * maxH}px`,
-              fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)',
-              transform: 'translateY(-50%)', userSelect: 'none' as const,
-            }}>{v}%</div>
-          ))}
-          {/* Grid lines */}
-          {[75, 50, 25].map(v => (
-            <div key={v} style={{
-              position: 'absolute' as const,
-              left: '32px', right: 0,
-              top: `${((100 - v) / 100) * maxH}px`,
-              height: '1px', background: 'rgba(255,255,255,0.05)',
-            }} />
-          ))}
-          {/* Bars */}
-          <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: 0, height: `${maxH}px`, display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
-            {dataPoints.map((pt, i) => {
-              const isDropZone = i >= 2 && i <= 3;
-              const isSuccess = pt.success;
-              const barH = animated ? (pt.pct / 100) * maxH : 0;
-              const barColor = isDropZone
-                ? `rgba(224,122,95,${0.5 + i * 0.1})`
-                : isSuccess
-                ? 'rgba(40,200,64,0.6)'
-                : pt.pct > 60
-                ? 'rgba(58,134,255,0.5)'
-                : 'rgba(224,122,95,0.3)';
-
-              return (
-                <div key={pt.t} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', position: 'relative' as const }}>
-                  {/* Alert line for 12s */}
-                  {pt.alert && (
-                    <div style={{
-                      position: 'absolute' as const, bottom: 0, width: '2px',
-                      height: `${maxH}px`, background: '#E07A5F', opacity: 0.4,
-                      zIndex: 2,
-                    }} />
-                  )}
-                  {/* Success line for 45s */}
-                  {pt.success && (
-                    <div style={{
-                      position: 'absolute' as const, bottom: 0, width: '2px',
-                      height: `${maxH}px`,
-                      background: 'repeating-linear-gradient(to bottom, #28C840 0px, #28C840 4px, transparent 4px, transparent 8px)',
-                      opacity: 0.5, zIndex: 2,
-                    }} />
-                  )}
-                  <motion.div
-                    animate={{ height: barH }}
-                    initial={{ height: 0 }}
-                    transition={{ duration: 0.6, delay: i * 0.07, ease: 'easeOut' }}
-                    style={{
-                      width: '100%', background: barColor,
-                      borderRadius: '3px 3px 0 0',
-                      position: 'relative' as const, zIndex: 1,
-                    }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-          {/* X-axis labels */}
-          <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: `${maxH + 8}px`, display: 'flex', gap: '6px' }}>
-            {dataPoints.map((pt) => (
-              <div key={pt.t} style={{ flex: 1, textAlign: 'center' as const }}>
-                <span style={{ fontFamily: 'monospace', fontSize: '9px', color: pt.alert ? '#E07A5F' : pt.success ? '#28C840' : 'rgba(255,255,255,0.35)', fontWeight: (pt.alert || pt.success) ? 700 : 400 }}>
-                  {pt.t}
-                </span>
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div ref={ref}>
+        <div style={{
+          background: '#111827', borderRadius: '12px', padding: '24px',
+          border: '1px solid #1F2D42', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '4px' }}>
+                Kiran · User Retention During Processing
               </div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '15px', fontWeight: 700, color: '#fff' }}>
+                % of users still waiting · by second
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' as const }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', marginBottom: '4px' }}>Sample</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#3A86FF', fontWeight: 700 }}>n = 1,240</div>
+            </div>
+          </div>
+          {/* Chart */}
+          <div style={{ position: 'relative' as const, height: `${maxH + 40}px` }}>
+            {/* Y-axis labels */}
+            {[100, 75, 50, 25, 0].map(v => (
+              <div key={v} style={{
+                position: 'absolute' as const, left: 0, top: `${((100 - v) / 100) * maxH}px`,
+                fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)',
+                transform: 'translateY(-50%)', userSelect: 'none' as const,
+              }}>{v}%</div>
             ))}
+            {/* Grid lines */}
+            {[75, 50, 25].map(v => (
+              <div key={v} style={{
+                position: 'absolute' as const,
+                left: '32px', right: 0,
+                top: `${((100 - v) / 100) * maxH}px`,
+                height: '1px', background: 'rgba(255,255,255,0.05)',
+              }} />
+            ))}
+            {/* Bars */}
+            <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: 0, height: `${maxH}px`, display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
+              {dataPoints.map((pt, i) => {
+                const isDropZone = i >= 2 && i <= 3;
+                const isSuccess = pt.success;
+                const barH = animated ? (pt.pct / 100) * maxH : 0;
+                const barColor = isDropZone
+                  ? `rgba(224,122,95,${0.5 + i * 0.1})`
+                  : isSuccess
+                  ? 'rgba(40,200,64,0.6)'
+                  : pt.pct > 60
+                  ? 'rgba(58,134,255,0.5)'
+                  : 'rgba(224,122,95,0.3)';
+
+                return (
+                  <div key={pt.t} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', position: 'relative' as const }}>
+                    {/* Alert line for 12s */}
+                    {pt.alert && (
+                      <div style={{
+                        position: 'absolute' as const, bottom: 0, width: '2px',
+                        height: `${maxH}px`, background: '#E07A5F', opacity: 0.4,
+                        zIndex: 2,
+                      }} />
+                    )}
+                    {/* Success line for 45s */}
+                    {pt.success && (
+                      <div style={{
+                        position: 'absolute' as const, bottom: 0, width: '2px',
+                        height: `${maxH}px`,
+                        background: 'repeating-linear-gradient(to bottom, #28C840 0px, #28C840 4px, transparent 4px, transparent 8px)',
+                        opacity: 0.5, zIndex: 2,
+                      }} />
+                    )}
+                    <motion.div
+                      animate={{ height: barH }}
+                      initial={{ height: 0 }}
+                      transition={{ duration: 0.6, delay: i * 0.07, ease: 'easeOut' }}
+                      style={{
+                        width: '100%', background: barColor,
+                        borderRadius: '3px 3px 0 0',
+                        position: 'relative' as const, zIndex: 1,
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            {/* X-axis labels */}
+            <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: `${maxH + 8}px`, display: 'flex', gap: '6px' }}>
+              {dataPoints.map((pt) => (
+                <div key={pt.t} style={{ flex: 1, textAlign: 'center' as const }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '9px', color: pt.alert ? '#E07A5F' : pt.success ? '#28C840' : 'rgba(255,255,255,0.35)', fontWeight: (pt.alert || pt.success) ? 700 : 400 }}>
+                    {pt.t}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-        {/* Annotations */}
-        <div style={{ marginTop: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' as const }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(224,122,95,0.1)', padding: '7px 12px', borderRadius: '6px', border: '1px solid rgba(224,122,95,0.2)' }}>
-            <div style={{ width: '3px', height: '14px', background: '#E07A5F', borderRadius: '2px' }} />
-            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#E07A5F', fontWeight: 700 }}>12s &mdash; 68% drop-off here</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(40,200,64,0.07)', padding: '7px 12px', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.25)' }}>
-            <div style={{ width: '3px', height: '14px', background: '#28C840', borderRadius: '2px' }} />
-            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#28C840', fontWeight: 700 }}>45s &mdash; process completes</span>
-          </div>
-          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
-            Only 5% wait the full 45 seconds.
+          {/* Annotations */}
+          <div style={{ marginTop: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' as const }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(224,122,95,0.1)', padding: '7px 12px', borderRadius: '6px', border: '1px solid rgba(224,122,95,0.2)' }}>
+              <div style={{ width: '3px', height: '14px', background: '#E07A5F', borderRadius: '2px' }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#E07A5F', fontWeight: 700 }}>12s &mdash; 68% drop-off here</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(40,200,64,0.07)', padding: '7px 12px', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.25)' }}>
+              <div style={{ width: '3px', height: '14px', background: '#28C840', borderRadius: '2px' }} />
+              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#28C840', fontWeight: 700 }}>45s &mdash; process completes</span>
+            </div>
+            <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
+              Only 5% wait the full 45 seconds.
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </TiltCard>
   );
 };
 
@@ -481,70 +514,72 @@ const DropOffChartMockup = () => {
 // LOCAL: SPEC COMPARISON MOCKUP
 // ─────────────────────────────────────────
 const SpecComparisonMockup = () => (
-  <div style={{ margin: '32px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-    {/* Header */}
-    <div style={{ background: '#1C2938', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-          <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
-        ))}
-      </div>
-      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
-        EdSpark Spec &middot; Onboarding · Step 2
-      </span>
-    </div>
-    {/* Two columns */}
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-      {/* Before */}
-      <div style={{ padding: '20px 24px', background: '#FAFAFA', borderRight: '1px solid #E8E8E8' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#6E7681', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: '#F0F0F0', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS WRITTEN</span>
-          <span style={{ color: '#E07A5F' }}>Original Spec &middot; Step 2</span>
-        </div>
-        <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#444', lineHeight: 1.9 }}>
-          <span style={{ color: '#6E7681', marginRight: '10px', userSelect: 'none' as const, fontSize: '11px' }}>1</span>
-          <span style={{ fontWeight: 600 }}>Step 2: Analyze recording.</span>
-        </div>
-        <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.2)', borderRadius: '6px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#E07A5F', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '6px' }}>MISSING STATES</div>
-          {['Loading / processing state', 'Progress indicator', 'Time estimate', 'Error state', 'Success state'].map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-              <span style={{ color: '#E07A5F', fontSize: '10px' }}>✕</span>
-              <span style={{ fontSize: '12px', color: '#6E7681', textDecoration: 'line-through' as const }}>{item}</span>
-            </div>
+  <TiltCard style={{ margin: '32px 0' }}>
+    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)' }}>
+      {/* Header */}
+      <div style={{ background: '#1C2938', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
+            <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
           ))}
         </div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
+          EdSpark Spec &middot; Onboarding · Step 2
+        </span>
       </div>
-      {/* After */}
-      <div style={{ padding: '20px 24px', background: '#F8FFF9' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#0D7A5A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ background: 'rgba(13,122,90,0.1)', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS NEEDED</span>
-          <span>Complete Spec &middot; Step 2</span>
+      {/* Two columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        {/* Before */}
+        <div style={{ padding: '20px 24px', background: '#FAFAFA', borderRight: '1px solid #E8E8E8' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#6E7681', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ background: '#F0F0F0', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS WRITTEN</span>
+            <span style={{ color: '#E07A5F' }}>Original Spec &middot; Step 2</span>
+          </div>
+          <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#444', lineHeight: 1.9 }}>
+            <span style={{ color: '#6E7681', marginRight: '10px', userSelect: 'none' as const, fontSize: '11px' }}>1</span>
+            <span style={{ fontWeight: 600 }}>Step 2: Analyze recording.</span>
+          </div>
+          <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.2)', borderRadius: '6px' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#E07A5F', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '6px' }}>MISSING STATES</div>
+            {['Loading / processing state', 'Progress indicator', 'Time estimate', 'Error state', 'Success state'].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+                <span style={{ color: '#E07A5F', fontSize: '10px' }}>✕</span>
+                <span style={{ fontSize: '12px', color: '#6E7681', textDecoration: 'line-through' as const }}>{item}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ background: '#fff', border: '1px solid rgba(13,122,90,0.2)', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: '#333', lineHeight: 2.1 }}>
-          {[
-            { n: '1', text: 'Step 2: Analyze recording.', bold: true },
-            { n: '2', text: '' },
-            { n: '3', text: 'Loading state:', bold: true },
-            { n: '4', text: '  Show: "Analyzing your recording…"' },
-            { n: '5', text: '  Progress bar (indeterminate OK)' },
-            { n: '6', text: '  Time estimate: "~30 seconds"' },
-            { n: '7', text: '' },
-            { n: '8', text: 'Error state:', bold: true },
-            { n: '9', text: '  "Analysis failed. Try again."' },
-            { n: '10', text: '' },
-            { n: '11', text: 'Success state:', bold: true },
-            { n: '12', text: '  Transition to results view.' },
-          ].map(({ n, text, bold }) => (
-            <div key={n} style={{ display: 'flex', gap: '10px' }}>
-              <span style={{ color: 'rgba(13,122,90,0.4)', fontSize: '10px', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const }}>{n}</span>
-              <span style={{ fontWeight: bold ? 700 : 400, color: bold ? '#0D7A5A' : '#555' }}>{text}</span>
-            </div>
-          ))}
+        {/* After */}
+        <div style={{ padding: '20px 24px', background: '#F8FFF9' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#0D7A5A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ background: 'rgba(13,122,90,0.1)', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS NEEDED</span>
+            <span>Complete Spec &middot; Step 2</span>
+          </div>
+          <div style={{ background: '#fff', border: '1px solid rgba(13,122,90,0.2)', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: '#333', lineHeight: 2.1 }}>
+            {[
+              { n: '1', text: 'Step 2: Analyze recording.', bold: true },
+              { n: '2', text: '' },
+              { n: '3', text: 'Loading state:', bold: true },
+              { n: '4', text: '  Show: "Analyzing your recording…"' },
+              { n: '5', text: '  Progress bar (indeterminate OK)' },
+              { n: '6', text: '  Time estimate: "~30 seconds"' },
+              { n: '7', text: '' },
+              { n: '8', text: 'Error state:', bold: true },
+              { n: '9', text: '  "Analysis failed. Try again."' },
+              { n: '10', text: '' },
+              { n: '11', text: 'Success state:', bold: true },
+              { n: '12', text: '  Transition to results view.' },
+            ].map(({ n, text, bold }) => (
+              <div key={n} style={{ display: 'flex', gap: '10px' }}>
+                <span style={{ color: 'rgba(13,122,90,0.4)', fontSize: '10px', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const }}>{n}</span>
+                <span style={{ fontWeight: bold ? 700 : 400, color: bold ? '#0D7A5A' : '#555' }}>{text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </TiltCard>
 );
 
 // ─────────────────────────────────────────
@@ -589,71 +624,73 @@ const BeforeAfterMockup = () => {
   );
 
   return (
-    <div style={{ margin: '32px 0' }}>
-      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' as const }}>
-        {/* Before */}
-        <PhoneFrame label="Before" badge="BEFORE" badgeColor="#E07A5F">
-          <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
-            <div style={{ textAlign: 'center' as const }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
-              <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
-              <div style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block' }}>
-                Analyze
-              </div>
-            </div>
-            {/* Silence */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '18px', color: '#DDD' }}>?</span>
-              </div>
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
-                12 seconds of silence.
-                <br />Nothing visible.
-              </div>
-            </div>
-          </div>
-        </PhoneFrame>
-
-        {/* After */}
-        <PhoneFrame label="After" badge="AFTER" badgeColor="#28C840">
-          <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
-            <div style={{ textAlign: 'center' as const }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
-              <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
-              <motion.div
-                whileTap={{ scale: 0.97 }}
-                onClick={() => { setStarted(true); setProgress(0); }}
-                style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block', cursor: 'pointer' }}
-              >
-                Analyze
-              </motion.div>
-            </div>
-            {/* Feedback */}
-            <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-              {started ? (
-                <>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#1C1814' }}>Analyzing your recording…</div>
-                  <div style={{ width: '100%', height: '6px', background: '#F0F0F0', borderRadius: '3px', overflow: 'hidden' }}>
-                    <motion.div
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.1 }}
-                      style={{ height: '100%', background: 'linear-gradient(90deg, #E07A5F, #F4A261)', borderRadius: '3px' }}
-                    />
-                  </div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#8A8580' }}>
-                    {progress < 100 ? `~${Math.max(1, Math.round(30 * (1 - progress / 100)))}s remaining` : '✓ Done!'}
-                  </div>
-                </>
-              ) : (
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
-                  Tap &ldquo;Analyze&rdquo; above<br />to see the fix in action.
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div>
+        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' as const }}>
+          {/* Before */}
+          <PhoneFrame label="Before" badge="BEFORE" badgeColor="#E07A5F">
+            <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
+              <div style={{ textAlign: 'center' as const }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
+                <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
+                <div style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block' }}>
+                  Analyze
                 </div>
-              )}
+              </div>
+              {/* Silence */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '18px', color: '#DDD' }}>?</span>
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
+                  12 seconds of silence.
+                  <br />Nothing visible.
+                </div>
+              </div>
             </div>
-          </div>
-        </PhoneFrame>
+          </PhoneFrame>
+
+          {/* After */}
+          <PhoneFrame label="After" badge="AFTER" badgeColor="#28C840">
+            <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
+              <div style={{ textAlign: 'center' as const }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
+                <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { setStarted(true); setProgress(0); }}
+                  style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block', cursor: 'pointer' }}
+                >
+                  Analyze
+                </motion.div>
+              </div>
+              {/* Feedback */}
+              <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                {started ? (
+                  <>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#1C1814' }}>Analyzing your recording…</div>
+                    <div style={{ width: '100%', height: '6px', background: '#F0F0F0', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.1 }}
+                        style={{ height: '100%', background: 'linear-gradient(90deg, #E07A5F, #F4A261)', borderRadius: '3px' }}
+                      />
+                    </div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#8A8580' }}>
+                      {progress < 100 ? `~${Math.max(1, Math.round(30 * (1 - progress / 100)))}s remaining` : '✓ Done!'}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
+                    Tap &ldquo;Analyze&rdquo; above<br />to see the fix in action.
+                  </div>
+                )}
+              </div>
+            </div>
+          </PhoneFrame>
+        </div>
       </div>
-    </div>
+    </TiltCard>
   );
 };
 
@@ -691,48 +728,321 @@ const MetricsComparisonMockup = () => {
   }, [visible]);
 
   return (
-    <div ref={ref} style={{ margin: '32px 0' }}>
-      <div style={{
-        background: '#111827', borderRadius: '12px', padding: '28px 24px',
-        border: '1px solid #1F2D42', boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-      }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', marginBottom: '20px', textAlign: 'center' as const }}>
-          ONBOARDING COMPLETION RATE &middot; ONE WEEK LATER
-        </div>
-        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-          {/* Before */}
-          <div style={{ flex: 1, minWidth: '160px', background: 'rgba(224,122,95,0.08)', border: '1px solid rgba(224,122,95,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>Before</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>{beforeCount}%</div>
-            <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.5)', marginTop: '8px' }}>Original launch</div>
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div ref={ref}>
+        <div style={{
+          background: '#111827', borderRadius: '12px', padding: '28px 24px',
+          border: '1px solid #1F2D42', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)',
+        }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', marginBottom: '20px', textAlign: 'center' as const }}>
+            ONBOARDING COMPLETION RATE &middot; ONE WEEK LATER
           </div>
-          {/* Arrow + delta */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '80px' }}>
-            <motion.div
-              animate={visible ? { scale: [0.8, 1.1, 1], opacity: [0, 1] } : { scale: 0.8, opacity: 0 }}
-              transition={{ delay: 1.5, duration: 0.5 }}
-            >
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '28px', fontWeight: 700, color: '#28C840' }}>+28</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', textAlign: 'center' as const }}>points</div>
-            </motion.div>
-            <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
-            <div style={{ fontFamily: 'monospace', fontSize: '20px', color: 'rgba(255,255,255,0.3)' }}>→</div>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
+            {/* Before */}
+            <div style={{ flex: 1, minWidth: '160px', background: 'rgba(224,122,95,0.08)', border: '1px solid rgba(224,122,95,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>Before</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>{beforeCount}%</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.5)', marginTop: '8px' }}>Original launch</div>
+            </div>
+            {/* Arrow + delta */}
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '80px' }}>
+              <motion.div
+                animate={visible ? { scale: [0.8, 1.1, 1], opacity: [0, 1] } : { scale: 0.8, opacity: 0 }}
+                transition={{ delay: 1.5, duration: 0.5 }}
+              >
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '28px', fontWeight: 700, color: '#28C840' }}>+28</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', textAlign: 'center' as const }}>points</div>
+              </motion.div>
+              <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ fontFamily: 'monospace', fontSize: '20px', color: 'rgba(255,255,255,0.3)' }}>→</div>
+            </div>
+            {/* After */}
+            <div style={{ flex: 1, minWidth: '160px', background: 'rgba(40,200,64,0.07)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>After</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>{afterCount}%</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.5)', marginTop: '8px' }}>After loading state fix</div>
+            </div>
           </div>
-          {/* After */}
-          <div style={{ flex: 1, minWidth: '160px', background: 'rgba(40,200,64,0.07)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>After</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>{afterCount}%</div>
-            <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.5)', marginTop: '8px' }}>After loading state fix</div>
+          {/* Change callout */}
+          <div style={{ textAlign: 'center' as const, padding: '12px', background: 'rgba(40,200,64,0.05)', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.2)' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.1em' }}>
+              Change: progress feedback only · Backend unchanged · Feature unchanged
+            </span>
           </div>
-        </div>
-        {/* Change callout */}
-        <div style={{ textAlign: 'center' as const, padding: '12px', background: 'rgba(40,200,64,0.05)', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.2)' }}>
-          <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.1em' }}>
-            Change: progress feedback only · Backend unchanged · Feature unchanged
-          </span>
         </div>
       </div>
-    </div>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// FIGMA MOCKUP
+// ─────────────────────────────────────────
+const FigmaMockup = () => {
+  const [selectedFrame, setSelectedFrame] = useState<'before' | 'after'>('after');
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #3C3C3C', boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
+        {/* Figma toolbar */}
+        <div style={{ background: '#2C2C2C', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #3C3C3C' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          {/* Figma logo */}
+          <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
+            <path d="M3 18C4.65685 18 6 16.6569 6 15V12H3C1.34315 12 0 13.3431 0 15C0 16.6569 1.34315 18 3 18Z" fill="#0ACF83"/>
+            <path d="M0 9C0 7.34315 1.34315 6 3 6H6V12H3C1.34315 12 0 10.6569 0 9Z" fill="#A259FF"/>
+            <path d="M0 3C0 1.34315 1.34315 0 3 0H6V6H3C1.34315 6 0 4.65685 0 3Z" fill="#F24E1E"/>
+            <path d="M6 0H9C10.6569 0 12 1.34315 12 3C12 4.65685 10.6569 6 9 6H6V0Z" fill="#FF7262"/>
+            <path d="M12 9C12 10.6569 10.6569 12 9 12C7.34315 12 6 10.6569 6 9C6 7.34315 7.34315 6 9 6C10.6569 6 12 7.34315 12 9Z" fill="#1ABCFE"/>
+          </svg>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.6)', flex: 1, textAlign: 'center' as const }}>
+            EdSpark · Analyze Flow · Loading State Fix
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>100%</div>
+            <div style={{ background: '#18A0FB', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '3px 10px', borderRadius: '5px', fontFamily: 'monospace' }}>Share</div>
+          </div>
+        </div>
+        {/* Main area: left panel + canvas + right panel */}
+        <div style={{ display: 'flex', height: '320px', background: '#1E1E1E' }}>
+          {/* Left layers panel */}
+          <div style={{ width: '160px', background: '#2C2C2C', borderRight: '1px solid #3C3C3C', padding: '10px 0', flexShrink: 0, overflowY: 'auto' as const }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', padding: '0 10px', marginBottom: '8px', letterSpacing: '0.1em' }}>LAYERS</div>
+            {[
+              { name: 'Analyze Flow', depth: 0, type: 'frame' },
+              { name: '→ Before', depth: 1, type: 'frame', active: selectedFrame === 'before' },
+              { name: '  → Button', depth: 2, type: 'rect' },
+              { name: '  → Label', depth: 2, type: 'text' },
+              { name: '→ After ✦', depth: 1, type: 'frame', active: selectedFrame === 'after' },
+              { name: '  → Button', depth: 2, type: 'rect' },
+              { name: '  → Progress', depth: 2, type: 'rect', highlight: true },
+              { name: '  → Label', depth: 2, type: 'text', highlight: true },
+              { name: '  → Timer', depth: 2, type: 'text', highlight: true },
+            ].map((item, i) => (
+              <div key={i}
+                onClick={() => { if (item.active !== undefined) setSelectedFrame(item.name.includes('Before') ? 'before' : 'after'); }}
+                style={{
+                  padding: `3px ${8 + item.depth * 10}px`,
+                  fontFamily: 'monospace', fontSize: '10px',
+                  color: item.active ? '#18A0FB' : (item as { highlight?: boolean }).highlight ? '#A259FF' : 'rgba(255,255,255,0.55)',
+                  background: item.active ? 'rgba(24,160,251,0.12)' : 'transparent',
+                  cursor: item.active !== undefined ? 'pointer' : 'default',
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                }}>
+                <span style={{ opacity: 0.5, fontSize: '8px' }}>{item.type === 'frame' ? '□' : item.type === 'text' ? 'T' : '▭'}</span>
+                {item.name.replace('→ ', '').replace('  → ', '')}
+              </div>
+            ))}
+          </div>
+
+          {/* Canvas */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '20px' }}>
+            {/* Before frame */}
+            <div
+              onClick={() => setSelectedFrame('before')}
+              style={{ cursor: 'pointer' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: selectedFrame === 'before' ? '#18A0FB' : 'rgba(255,255,255,0.3)', marginBottom: '6px', textAlign: 'center' as const }}>Before</div>
+              <div style={{
+                width: '140px', background: '#FAFAFA', borderRadius: '8px', padding: '20px 16px',
+                border: selectedFrame === 'before' ? '2px solid #18A0FB' : '2px solid transparent',
+                boxShadow: selectedFrame === 'before' ? '0 0 0 2px rgba(24,160,251,0.3)' : 'none',
+                transition: 'all 0.2s',
+              }}>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
+                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '7px 12px', fontSize: '11px', fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: '10px' }}>
+                  Analyze ▶
+                </div>
+                {/* Silence indicator */}
+                <div style={{ height: '28px', border: '1px dashed rgba(224,122,95,0.4)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#E07A5F' }}>nothing…</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '20px' }}>→</div>
+
+            {/* After frame */}
+            <div
+              onClick={() => setSelectedFrame('after')}
+              style={{ cursor: 'pointer' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: selectedFrame === 'after' ? '#18A0FB' : 'rgba(255,255,255,0.3)', marginBottom: '6px', textAlign: 'center' as const }}>After ✦</div>
+              <div style={{
+                width: '140px', background: '#FAFAFA', borderRadius: '8px', padding: '20px 16px',
+                border: selectedFrame === 'after' ? '2px solid #18A0FB' : '2px solid transparent',
+                boxShadow: selectedFrame === 'after' ? '0 0 0 2px rgba(24,160,251,0.3)' : 'none',
+                transition: 'all 0.2s',
+              }}>
+                <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
+                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '7px 12px', fontSize: '11px', fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: '8px' }}>
+                  Analyzing… ●
+                </div>
+                {/* Progress bar */}
+                <div style={{ height: '4px', background: '#E8E8E8', borderRadius: '2px', marginBottom: '6px', overflow: 'hidden' }}>
+                  <motion.div
+                    animate={{ width: ['0%', '70%', '85%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }}
+                    style={{ height: '100%', background: '#0097A7', borderRadius: '2px' }}
+                  />
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#888', textAlign: 'center' as const }}>~30 seconds</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right properties panel */}
+          <div style={{ width: '180px', background: '#2C2C2C', borderLeft: '1px solid #3C3C3C', padding: '10px', flexShrink: 0 }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginBottom: '10px', letterSpacing: '0.1em' }}>DESIGN</div>
+            {selectedFrame === 'after' && (
+              <>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Progress Bar</div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ flex: 1, background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>W: 140</div>
+                    <div style={{ flex: 1, background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>H: 4</div>
+                  </div>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Fill</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px' }}>
+                    <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#0097A7', flexShrink: 0 }} />
+                    <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>#0097A7</span>
+                  </div>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Timer Text</div>
+                  <div style={{ background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>~30 seconds</div>
+                </div>
+              </>
+            )}
+            {selectedFrame === 'before' && (
+              <div style={{ padding: '12px', background: 'rgba(224,122,95,0.1)', borderRadius: '5px', border: '1px solid rgba(224,122,95,0.25)' }}>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#E07A5F', lineHeight: 1.6 }}>No loading state defined in this frame.</div>
+              </div>
+            )}
+            <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #3C3C3C' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px' }}>PROTOTYPE</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#28C840', background: 'rgba(40,200,64,0.1)', padding: '4px 8px', borderRadius: '4px' }}>Ready to hand off</div>
+            </div>
+          </div>
+        </div>
+        {/* Footer */}
+        <div style={{ background: '#2C2C2C', padding: '6px 14px', borderTop: '1px solid #3C3C3C', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Maya Sharma · edited 2 minutes ago</span>
+          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#A259FF' }}>✦ 3 components added</span>
+        </div>
+      </div>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// LOVABLE AI MOCKUP
+// ─────────────────────────────────────────
+const LovableAIMockup = () => {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { label: 'Prompt sent', done: true },
+    { label: 'Analyzing codebase', done: true },
+    { label: 'Generating component', done: step >= 2 },
+    { label: 'Preview ready', done: step >= 3 },
+  ];
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
+        {/* Header */}
+        <div style={{ background: '#0A0A0A', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #1A1A2E' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)', background: '#1A1A2E', padding: '3px 14px', borderRadius: '5px', letterSpacing: '0.05em' }}>
+              lovable.dev · EdSpark · analyze-loading-state
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', height: '280px' }}>
+          {/* Chat panel */}
+          <div style={{ width: '52%', background: '#0F0F0F', borderRight: '1px solid #1A1A2E', display: 'flex', flexDirection: 'column' as const }}>
+            <div style={{ flex: 1, padding: '16px', overflowY: 'auto' as const, display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+              {/* User prompt */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end' as const }}>
+                <div style={{ background: '#8B5CF6', borderRadius: '10px 10px 2px 10px', padding: '8px 12px', maxWidth: '80%' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#fff', lineHeight: 1.5 }}>
+                    Add a loading state to the Analyze button. Show a progress bar and &ldquo;~30 seconds&rdquo; text while processing.
+                  </div>
+                </div>
+              </div>
+              {/* AI response */}
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'linear-gradient(135deg, #8B5CF6, #EC4899)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px' }}>✦</div>
+                <div style={{ background: '#1A1A2E', borderRadius: '2px 10px 10px 10px', padding: '10px 12px', maxWidth: '85%' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: '8px' }}>
+                    I&apos;ve added the loading state to <span style={{ color: '#8B5CF6' }}>AnalyzeButton.tsx</span>. Here&apos;s what changed:
+                  </div>
+                  <div style={{ background: '#0A0A0A', borderRadius: '6px', padding: '8px 10px', fontFamily: 'monospace', fontSize: '10px', color: '#28C840', lineHeight: 1.8 }}>
+                    <div><span style={{ color: '#666' }}>+</span> <span style={{ color: '#A3E635' }}>isAnalyzing</span> state</div>
+                    <div><span style={{ color: '#666' }}>+</span> Progress bar component</div>
+                    <div><span style={{ color: '#666' }}>+</span> <span style={{ color: '#67E8F9' }}>&ldquo;Analyzing…&rdquo;</span> copy</div>
+                    <div><span style={{ color: '#666' }}>+</span> Timer estimate text</div>
+                  </div>
+                </div>
+              </div>
+              {/* Build steps */}
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px', paddingLeft: '30px' }}>
+                {steps.map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: s.done ? '#28C840' : '#1A1A2E', border: `1px solid ${s.done ? '#28C840' : '#333'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {s.done && <span style={{ fontSize: '8px', color: '#000' }}>✓</span>}
+                    </div>
+                    <span style={{ fontFamily: 'monospace', fontSize: '9px', color: s.done ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)' }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Input */}
+            <div style={{ padding: '10px', borderTop: '1px solid #1A1A2E', display: 'flex', gap: '8px' }}>
+              <div style={{ flex: 1, background: '#1A1A2E', borderRadius: '6px', padding: '7px 10px', fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>
+                Ask Lovable to refine…
+              </div>
+              <div style={{ background: '#8B5CF6', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                onClick={() => setStep(s => Math.min(s + 1, 3))}>
+                <span style={{ color: '#fff', fontSize: '12px' }}>↑</span>
+              </div>
+            </div>
+          </div>
+          {/* Preview panel */}
+          <div style={{ flex: 1, background: '#111', display: 'flex', flexDirection: 'column' as const }}>
+            <div style={{ padding: '8px 12px', borderBottom: '1px solid #1A1A2E', display: 'flex', gap: '10px' }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#8B5CF6', fontWeight: 700, borderBottom: '2px solid #8B5CF6', paddingBottom: '2px' }}>Preview</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Code</span>
+            </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+              <div style={{ background: '#FAFAFA', borderRadius: '8px', padding: '24px 20px', width: '100%', maxWidth: '220px' }}>
+                <div style={{ fontSize: '11px', color: '#666', marginBottom: '12px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
+                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, textAlign: 'center' as const, marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>●</motion.span>
+                  Analyzing…
+                </div>
+                <div style={{ height: '4px', background: '#E8E8E8', borderRadius: '2px', marginBottom: '6px', overflow: 'hidden' }}>
+                  <motion.div
+                    animate={{ width: ['15%', '75%', '88%'] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ height: '100%', background: 'linear-gradient(90deg, #0097A7, #00BCD4)', borderRadius: '2px' }}
+                  />
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999', textAlign: 'center' as const }}>~30 seconds</div>
+              </div>
+            </div>
+            <div style={{ padding: '8px 12px', borderTop: '1px solid #1A1A2E', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#28C840' }}>✓ Deployed in 43s</span>
+              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>1 file changed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </TiltCard>
   );
 };
 
@@ -1131,6 +1441,14 @@ export default function Track1UXDesign() {
         </SituationCard>
 
         {h2(<>The best UX fix is often the smallest one</>)}
+
+        {para(<>Maya opens Figma. Two frames. &ldquo;Before&rdquo; and &ldquo;After.&rdquo; Twenty minutes. The after frame has three additions: a status label, a progress bar, a time estimate. That&apos;s it.</>)}
+
+        <FigmaMockup />
+
+        {para(<>Dev opens Lovable. Pastes the design spec. &ldquo;Add a loading state to the Analyze button. Show a progress bar and ~30 seconds text while processing.&rdquo; Forty-three seconds later, it&apos;s deployed.</>)}
+
+        <LovableAIMockup />
 
         <BeforeAfterMockup />
 
