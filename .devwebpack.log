@@ -1,0 +1,26 @@
+
+> airtribe-learn@0.1.0 dev
+> next dev --webpack
+
+▲ Next.js 16.1.7 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://10.1.8.147:3000
+- Environments: .env.local
+
+✓ Starting...
+✓ Ready in 2.6s
+○ Compiling / ...
+⨯ ./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[3]!./src/app/globals.css
+Error: Your custom PostCSS configuration must export a `plugins` key.
+Import trace for requested module:
+./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[3]!./src/app/globals.css
+./src/app/globals.css
+⨯ ./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[3]!./src/app/globals.css
+Error: Your custom PostCSS configuration must export a `plugins` key.
+Import trace for requested module:
+./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[15].oneOf[10].use[3]!./src/app/globals.css
+./src/app/globals.css
+ GET / 500 in 17.3s (compile: 17.1s, render: 206ms)
+ GET / 500 in 92ms (compile: 53ms, render: 40ms)
+
+c:\Users\shour\Desktop\Claude\airtribe-learn>

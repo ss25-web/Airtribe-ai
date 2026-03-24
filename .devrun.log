@@ -1,0 +1,1875 @@
+
+> airtribe-learn@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.1.8.147:3000
+- Environments: .env.local
+
+✓ Starting...
+Creating turbopack project {
+  dir: 'c:\\Users\\shour\\Desktop\\Claude\\airtribe-learn',
+  testMode: true
+}
+✓ Ready in 1847ms
+○ Compiling / ...
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+
+<--- Last few GCs --->
+
+[36372:0000021B8B566000]     2547 ms: Scavenge 14.7 (20.2) -> 13.2 (20.9) MB, pooled: 0.0 MB, 2.18 / 0.00 ms (average mu = 1.000, current mu = 1.000) allocation failure; 
+[36372:0000021B8B566000]     2616 ms: Scavenge 20.4 (25.2) -> 14.3 (26.4) MB, pooled: 0.0 MB, 1.70 / 0.00 ms (average mu = 1.000, current mu = 1.000) allocation failure; 
+
+FATAL ERROR: Zone Allocation failed - process out of memory
+----- Native stack trace -----
+
+ 1: 00007FF6AE792846 
+ 2: 00007FF6AF332627 
+ 3: 00007FF6AECF0F73 
+ 4: 00007FF6AEFF981C 
+ 5: 00007FF6AEFEE140 
+ 6: 00007FF6AEFDCACB 
+ 7: 00007FF6AEFD4AC3 
+ 8: 00007FF6AF2E79F1 
+ 9: 0000021BC3CBB43A 
+
+<--- Last few GCs --->
+
+[35988:000001BCBFE59000]     1351 ms: Scavenge 14.7 (20.2) -> 13.2 (21.4) MB, pooled: 0.0 MB, 1.11 / 0.00 ms (average mu = 1.000, current mu = 1.000) allocation failure; 
+[35988:000001BCBFE59000]     6435 ms: Scavenge 20.4 (25.7) -> 14.2 (26.7) MB, pooled: 0.0 MB, 0.92 / 0.00 ms (average mu = 1.000, current mu = 1.000) allocation failure; 
+
+FATAL ERROR: Zone Allocation failed - process out of memory
+----- Native stack trace -----
+
+ 1: 00007FF6AE792846 node::OnFatalError+1318
+ 2: 00007FF6AF332627 v8::Function::NewInstance+423
+ 3: 00007FF6AECF0F73 v8::SnapshotCreator::GetIsolate+57619
+ 4: 00007FF6AEFF981C v8::Promise::MarkAsSilent+389420
+ 5: 00007FF6AEFEE140 v8::Promise::MarkAsSilent+342608
+ 6: 00007FF6AEFDCACB v8::Promise::MarkAsSilent+271323
+ 7: 00007FF6AEFD4AC3 v8::Promise::MarkAsSilent+238547
+ 8: 00007FF6AF2E79F1 v8::internal::ThreadIsolation::LookupJumpTableAllocations+395233
+ 9: 000001BCF857B43A 
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to C:\Users\shour\AppData\Local\Temp\next-panic-34e85b8a06d10b777659e3f290426605.log.
+
+To help make Turbopack better, report this error by clicking here: https://github.com/vercel/next.js/discussions/new?category=turbopack-error-report&title=Turbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage&body=Turbopack%20version%3A%20%60dc98c04f%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ATurbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+Error: Can't resolve 'tailwindcss' in 'c:\Users\shour\Desktop\Claude'
+    [2m[at finishWithoutResolve (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:587:18)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:679:14][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:16:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m
+    [2m[at c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\enhanced-resolve\lib\Resolver.js:740:5][0m
+    [2m[at eval (eval at create (c:\Users\shour\Desktop\Claude\airtribe-learn\node_modules\tapable\lib\HookCodeFactory.js:31:10), <anonymous>:15:1)][0m {
+  details: "resolve 'tailwindcss' in 'c:\\Users\\shour\\Desktop\\Claude'\n" +
+    '  Parsed request is a module\n' +
+    '  No description file found in c:\\Users\\shour\\Desktop\\Claude or above\n' +
+    '  resolve as module\n' +
+    "    c:\\Users\\shour\\Desktop\\Claude\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\Desktop\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\shour\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\Users\\node_modules doesn't exist or is not a directory\n" +
+    "    c:\\node_modules doesn't exist or is not a directory"
+}
+ GET / 500 in 40s (compile: 39.9s, render: 249ms)
+ GET / 500 in 34.7s (compile: 34.7s, render: 31ms)
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to C:\Users\shour\AppData\Local\Temp\next-panic-34e85b8a06d10b777659e3f290426605.log.
+
+To help make Turbopack better, report this error by clicking here: https://github.com/vercel/next.js/discussions/new?category=turbopack-error-report&title=Turbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage&body=Turbopack%20version%3A%20%60dc98c04f%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ATurbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+ GET / 500 in 32ms (compile: 17ms, render: 15ms)

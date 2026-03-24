@@ -1,0 +1,27 @@
+
+> airtribe-learn@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.1.8.147:3000
+- Environments: .env.local
+
+✓ Starting...
+Creating turbopack project {
+  dir: 'C:\\Users\\shour\\Desktop\\Claude\\airtribe-learn',
+  testMode: true
+}
+✓ Ready in 11.3s
+○ Compiling / ...
+✓ Finished filesystem cache database compaction in 71s
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to C:\Users\shour\AppData\Local\Temp\next-panic-e6379a42fb06a7c7c40bd0ef30104aaf.log.
+
+To help make Turbopack better, report this error by clicking here: https://github.com/vercel/next.js/discussions/new?category=turbopack-error-report&title=Turbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage&body=Turbopack%20version%3A%20%60dc98c04f%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ATurbopack%20Error%3A%20Failed%20to%20write%20app%20endpoint%20%2Fpage%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+○ Compiling /_error ...
+✓ Finished writing to filesystem cache in 50s
+✓ Finished writing to filesystem cache in 36.8s

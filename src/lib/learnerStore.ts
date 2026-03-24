@@ -56,6 +56,11 @@ interface LearnerStore {
   getEngagementScore: () => number;
 }
 
+type PersistedLearnerStore = Partial<Pick<
+  LearnerStore,
+  'learnerId' | 'conceptStates' | 'recentAnswers' | 'cards' | 'preferredDifficulty' | 'streakDays' | 'lastActiveDate' | 'theme'
+>>;
+
 export const useLearnerStore = create<LearnerStore>()(
   persist(
     (set, get) => ({
@@ -198,6 +203,19 @@ export const useLearnerStore = create<LearnerStore>()(
     {
       name: 'airtribe-learner',
       version: 2, // bumped: conceptStates now start at 0% not 35%
+      migrate: (persistedState: unknown, _version) => {
+        const state = (persistedState as PersistedLearnerStore | undefined) ?? {};
+        return {
+          learnerId: state.learnerId ?? `learner_${Math.random().toString(36).slice(2, 9)}`,
+          conceptStates: state.conceptStates ?? {},
+          recentAnswers: state.recentAnswers ?? [],
+          cards: state.cards ?? {},
+          preferredDifficulty: state.preferredDifficulty ?? 'medium',
+          streakDays: state.streakDays ?? 0,
+          lastActiveDate: state.lastActiveDate ?? '',
+          theme: state.theme ?? 'dark',
+        };
+      },
       partialize: (state) => ({
         learnerId: state.learnerId,
         conceptStates: state.conceptStates,

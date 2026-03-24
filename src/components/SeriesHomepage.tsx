@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 
 interface Props {
   onSelectPM: () => void;
+  onSelectGenAI: () => void;
   darkMode: boolean;
   onToggleDark: () => void;
 }
@@ -24,12 +25,12 @@ const SERIES = [
     id: 'genai',
     label: 'SERIES',
     title: 'GenAI\nLaunchpad',
-    parts: '4 pre-reads · coming soon',
-    description: 'How LLMs actually work, what makes AI products different to design, and how to evaluate, ship, and measure AI features — without a CS degree.',
-    tags: ['LLMs', 'Evaluation', 'AI UX'],
+    parts: 'Cohort-based · n8n-first',
+    description: 'Move from GenAI fundamentals to production-grade AI workflows and agentic systems with n8n as the orchestration layer.',
+    tags: ['n8n', 'Agents', 'Automation'],
     headerBg: 'linear-gradient(145deg, #5B2DA6 0%, #3D1D75 100%)',
     headerAccent: '#C4A8F8',
-    available: false,
+    available: true,
   },
   {
     id: 'swe',
@@ -44,7 +45,7 @@ const SERIES = [
   },
 ];
 
-export default function SeriesHomepage({ onSelectPM, darkMode, onToggleDark }: Props) {
+export default function SeriesHomepage({ onSelectPM, onSelectGenAI, darkMode, onToggleDark }: Props) {
   const bg      = darkMode ? '#131110' : '#F6F1E7';
   const card    = darkMode ? '#1D1A16' : '#FFFFFF';
   const ink     = darkMode ? '#EDE5D5' : '#1C1814';
@@ -129,7 +130,7 @@ export default function SeriesHomepage({ onSelectPM, darkMode, onToggleDark }: P
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
-              onClick={s.available ? onSelectPM : undefined}
+              onClick={s.available ? (s.id === 'pm' ? onSelectPM : s.id === 'genai' ? onSelectGenAI : undefined) : undefined}
               whileHover={s.available ? { y: -4, boxShadow: '0 20px 60px rgba(0,0,0,0.18)' } : {}}
               style={{
                 borderRadius: '12px', overflow: 'hidden',
