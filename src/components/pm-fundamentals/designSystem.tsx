@@ -11,6 +11,7 @@ const NAME_TO_MENTOR: Record<string, MentorId> = {
   'Dev':   'dev',
   'Maya':  'maya',
   'Kiran': 'kiran',
+  'Rohan': 'dev',
 };
 
 // ─────────────────────────────────────────

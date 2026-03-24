@@ -575,18 +575,19 @@ const QUIZZES = [
 // ─────────────────────────────────────────
 const IntroHero = () => (
   <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px' }}>
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap' as const }}>
-      <div style={{ flex: 1, minWidth: '280px' }}>
+    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px' }}>
+      {/* Full-width text content */}
+      <div style={{ marginBottom: '32px' }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
           MODULE 02 · APM TRACK
         </div>
         <h1 style={{ fontFamily: "'Lora', serif", fontSize: '32px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px' }}>
           Discovery at the<br />Organisational Level
         </h1>
-        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '24px' }}>
+        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '24px', maxWidth: '640px' }}>
           As a senior PM, your job isn&apos;t just to do discovery. It&apos;s to build a culture where the team can&apos;t ship without it — and to challenge the briefs that point everyone at the wrong problem.
         </div>
-        <div style={{ padding: '16px 20px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.18)', marginBottom: '24px' }}>
+        <div style={{ padding: '16px 20px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.18)', marginBottom: '24px', maxWidth: '580px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.14em', marginBottom: '10px' }}>APM TRACK OBJECTIVES</div>
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
             {[
@@ -615,35 +616,28 @@ const IntroHero = () => (
           ))}
         </div>
       </div>
-      <div style={{ width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {/* Priya profile card */}
-        <div style={{ borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderTop: '3px solid var(--teal)', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,151,167,0.08)' }}>
-          <div style={{ padding: '16px 16px 12px' }}>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal) 0%, #4F46E5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,151,167,0.3)' }}>🧑‍💼</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.2 }}>Priya Sharma</div>
-                <div style={{ fontSize: '10px', color: 'var(--teal)', fontFamily: 'monospace', marginTop: '2px', fontWeight: 600 }}>APM · 2 yrs · EdSpark</div>
+
+      {/* Character row — all key stakeholders */}
+      <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: '20px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+          {[
+            { emoji: '🧑‍💼', name: 'Priya Sharma', role: 'APM · 2 yrs · EdSpark', desc: 'Leading discovery. Her challenge: the team keeps solving yesterday\'s problem.', accent: 'var(--teal)' },
+            { emoji: '👔', name: 'Rohan', role: 'CEO · EdSpark', desc: 'Sets the strategic brief. Brings strong opinions, sometimes based on stale data.', accent: '#E67E22' },
+            { emoji: '🔬', name: 'Maya', role: 'User Researcher · EdSpark', desc: 'Runs the interview studies. Learns to catch survivorship bias before it corrupts the data.', accent: 'var(--purple)' },
+            { emoji: '🧑‍🏫', name: 'Asha', role: 'AI Mentor', desc: 'Challenges your assumptions. Appears throughout the module to sharpen your thinking.', accent: '#4F46E5' },
+          ].map(c => (
+            <div key={c.name} style={{ flex: '1', minWidth: '180px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${c.accent}`, padding: '12px 14px' }}>
+              <div style={{ display: 'flex', gap: '9px', alignItems: 'center', marginBottom: '7px' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: `${c.accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>{c.emoji}</div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.2 }}>{c.name}</div>
+                  <div style={{ fontSize: '9px', color: c.accent, fontFamily: 'monospace', marginTop: '1px', fontWeight: 600 }}>{c.role}</div>
+                </div>
               </div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>{c.desc}</div>
             </div>
-            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
-              She leads a cross-functional team. Her hardest job isn&apos;t running interviews — it&apos;s making sure the team solves the right problem.
-            </div>
-          </div>
-          <div style={{ background: 'rgba(0,151,167,0.06)', borderTop: '1px solid rgba(0,151,167,0.15)', padding: '10px 16px' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.12em', marginBottom: '5px' }}>THIS WEEK</div>
-            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-              3 onboarding improvements shipped. Retention: unchanged. CEO has a new theory. Priya has conflicting data.
-            </div>
-          </div>
-        </div>
-        {/* Asha AI mentor teaser */}
-        <div style={{ borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg,#7843EE,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧑‍🏫</div>
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '3px' }}>Asha</div>
-            <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>AI mentor. Challenges your assumptions throughout the module.</div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -692,6 +686,21 @@ export default function Track2ProblemDiscovery() {
             { text: "Run the research the CEO asked for — they have more context than you", correct: false, feedback: "The CEO has authority, not omniscience. Their brief is based on information they had at the time. If you have newer data, your job is to surface it, not bury it." },
             { text: "Show the trend data and propose reframing before committing to the study", correct: true, feedback: "Exactly right. You're not rejecting the brief — you're making sure it's still based on current reality before you invest 2 weeks running it." },
             { text: "Do both — run the original research and the new angle in parallel", correct: false, feedback: "Hedging avoids the hard conversation and delivers two shallow studies. The right move is to resolve the framing conflict before you start." },
+          ]}
+          conceptId="user-research"
+        />
+
+        <Avatar
+          name="Rohan"
+          nameColor="var(--coral)"
+          borderColor="#E67E22"
+          content={<>&ldquo;I realised I&apos;d been treating the brief like a fact, not a hypothesis. The data Priya showed me was three months newer than what I was working from. When the evidence shifts, the question has to shift too.&rdquo; — Rohan, after the Monday sync</>}
+          expandedContent={<>The moment Priya showed Rohan the Kraftful trend, she wasn&apos;t challenging him — she was updating the shared model. <strong>A brief is a hypothesis about where the problem is.</strong> When new data arrives, good leaders update. When they don&apos;t, it&apos;s usually not stubbornness — it&apos;s that no one showed them the data clearly enough.</>}
+          question="Rohan's brief is based on data from Q3. You have Q4 data that contradicts it. What's your opening line in the Monday meeting?"
+          options={[
+            { text: '"I think we should look at onboarding again — maybe we missed something."', correct: false, feedback: "This reinforces the old brief without surfacing the new data. You've buried the insight before the conversation even starts." },
+            { text: '"Before we commit to a direction — I found something in Kraftful last night I want to show the room."', correct: true, feedback: "You're not rejecting Rohan's view — you're creating space to introduce evidence. Leading with 'I found something' positions you as bringing value, not picking a fight." },
+            { text: '"The CEO brief is wrong and here\'s why."', correct: false, feedback: "Even if true, this framing makes Rohan defensive before you've shown him anything. Evidence should do the work, not your framing of it." },
           ]}
           conceptId="user-research"
         />
@@ -776,6 +785,21 @@ export default function Track2ProblemDiscovery() {
         </p>
 
         <BiasSpotter />
+
+        <Avatar
+          name="Maya"
+          nameColor="var(--coral)"
+          borderColor="var(--purple)"
+          content={<>&ldquo;I recruited active users because they were easier to reach. I didn&apos;t realise I&apos;d designed out the people who could actually answer the question. The fix was simple — go to the CRM, filter for accounts that went inactive in the last 3 weeks, reach out directly. The answer was always in the data I wasn&apos;t looking at.&rdquo; — Maya</>}
+          expandedContent={<>Survivorship bias in research recruitment is a process failure, not a judgement failure. Maya didn&apos;t ask the wrong question — she built a sample that made the right answer impossible to find. <strong>Fix: before you recruit, write down exactly who needs to be in your sample for your research question to be answerable.</strong> Then build your recruitment list from that, not from who&apos;s easy to reach.</>}
+          question="You need to understand why managers churn. Which recruitment approach gives you the most useful signal?"
+          options={[
+            { text: "Email your 20 most engaged active managers — they know the product deeply", correct: false, feedback: "Engaged users can tell you why they stayed. They cannot tell you why others left. You're optimising for accessibility, not relevance." },
+            { text: "Pull churned managers from the CRM (inactive 10–30 days) and reach out directly", correct: true, feedback: "Correct. The signal lives with people who just made the decision you're trying to understand. Recency matters — churn reasons fade fast." },
+            { text: "Post a survey to all users and segment by churn status in analysis", correct: false, feedback: "Churned users have low survey response rates by definition — they've disengaged. You'll get a biased response set and the same survivorship problem." },
+          ]}
+          conceptId="research-methods"
+        />
 
         {pullQuote("The users who matter most for a churn study are the ones who can no longer reply to your emails.")}
 
