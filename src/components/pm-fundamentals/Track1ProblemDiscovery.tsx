@@ -25,6 +25,212 @@ const ToolBadge = ({ name, desc, accent = 'var(--teal)' }: { name: string; desc:
   </div>
 );
 
+// ─────────────────────────────────────────
+// NOTION TEMPLATE MOCKUP
+// ─────────────────────────────────────────
+const NotionTemplateMockup = () => (
+  <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 8px 32px rgba(0,0,0,0.10)', background: '#fff' }}>
+    {/* Window chrome */}
+    <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '5px' }}>
+        {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
+      </div>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace', background: '#EDEDEC', padding: '3px 12px', borderRadius: '5px' }}>
+          📄 discovery-sprint-template.notion
+        </div>
+      </div>
+    </div>
+    {/* Notion sidebar + content */}
+    <div style={{ display: 'flex', minHeight: '280px' }}>
+      {/* Left sidebar */}
+      <div style={{ width: '180px', background: '#F7F6F3', borderRight: '1px solid #E0D9D0', padding: '14px 0', flexShrink: 0 }}>
+        <div style={{ padding: '0 12px', marginBottom: '8px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#37352F', marginBottom: '4px' }}>🔭 Discovery Sprint</div>
+          <div style={{ fontSize: '11px', color: '#999', marginBottom: '2px' }}>Priya Sharma</div>
+        </div>
+        <div style={{ height: '1px', background: '#E0D9D0', margin: '8px 0' }} />
+        {[
+          { icon: '📋', label: 'Interview Template', active: true },
+          { icon: '👤', label: 'Interview 1 — Rahul' },
+          { icon: '👤', label: 'Interview 2 — Kavita' },
+          { icon: '🗂️', label: 'Affinity Map' },
+          { icon: '📄', label: 'Discovery Brief' },
+        ].map(item => (
+          <div key={item.label} style={{ padding: '5px 12px', display: 'flex', alignItems: 'center', gap: '7px', background: item.active ? '#EDEDEC' : 'transparent', borderRadius: '4px', margin: '1px 4px' }}>
+            <span style={{ fontSize: '12px' }}>{item.icon}</span>
+            <span style={{ fontSize: '11px', color: item.active ? '#37352F' : '#888', fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      {/* Main content */}
+      <div style={{ flex: 1, padding: '20px 28px', background: '#fff', overflow: 'hidden' }}>
+        <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#999', letterSpacing: '0.1em', marginBottom: '6px' }}>TEMPLATE · SHARED BY ASHA</div>
+        <div style={{ fontSize: '18px', fontWeight: 700, color: '#37352F', marginBottom: '16px' }}>📋 Interview Notes Template</div>
+        {[
+          { label: 'Participant', value: 'Rahul Shah · Sales Manager · 12-person team', color: '#0097A7' },
+          { label: 'Date', value: 'Tuesday 11:00 AM · 30 min call', color: '#4F46E5' },
+          { label: 'Research Q', value: 'Why do managers not add a recording in first 24h?', color: '#C85A40' },
+        ].map(row => (
+          <div key={row.label} style={{ display: 'flex', gap: '12px', alignItems: 'baseline', marginBottom: '8px' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: row.color, fontWeight: 700, letterSpacing: '0.08em', width: '80px', flexShrink: 0 }}>{row.label}</div>
+            <div style={{ fontSize: '12px', color: '#37352F' }}>{row.value}</div>
+          </div>
+        ))}
+        <div style={{ height: '1px', background: '#E0D9D0', margin: '14px 0' }} />
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#37352F', marginBottom: '8px' }}>Opening question</div>
+        <div style={{ fontSize: '12px', color: '#555', fontStyle: 'italic', lineHeight: 1.7, padding: '10px 14px', background: '#F7F6F3', borderRadius: '6px', borderLeft: '3px solid #0097A7', marginBottom: '12px' }}>
+          &ldquo;Tell me what happened when you first signed up for EdSpark.&rdquo;
+        </div>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#37352F', marginBottom: '6px' }}>Key observations</div>
+        {['Completed setup in ~20 min — no friction', 'Opened dashboard, didn\'t know next step', 'Said: "I didn\'t know what I was supposed to do with recordings"'].map((note, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '5px' }}>
+            <span style={{ color: '#0097A7', fontWeight: 700, flexShrink: 0 }}>→</span>
+            <span style={{ fontSize: '12px', color: '#555', lineHeight: 1.5 }}>{note}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// ─────────────────────────────────────────
+// KRAFTFUL DASHBOARD MOCKUP
+// ─────────────────────────────────────────
+const KraftfulDashboardMockup = () => {
+  const clusters = [
+    { label: 'Not knowing where to start', pct: 34, color: '#00BCD4', tickets: '127 tickets' },
+    { label: 'Confused about feature differences', pct: 28, color: '#4F46E5', tickets: '104 tickets' },
+    { label: 'Other / mixed feedback', pct: 20, color: '#8A8580', tickets: '75 tickets' },
+    { label: 'Technical / billing issues', pct: 18, color: '#C85A40', tickets: '67 tickets' },
+  ];
+  return (
+    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 8px 32px rgba(0,0,0,0.22)' }}>
+      {/* Header bar */}
+      <div style={{ background: '#0D1F24', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#00BCD4', letterSpacing: '0.1em' }}>KRAFTFUL</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark · Support Tickets · Last 90 days</div>
+        </div>
+        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>373 tickets analyzed · AI clustered</div>
+      </div>
+      {/* Content */}
+      <div style={{ background: '#111C1F', padding: '20px 24px' }}>
+        <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: '16px' }}>THEME CLUSTERS</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {clusters.map((c, i) => (
+            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1, duration: 0.35 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: i === 0 ? 600 : 400 }}>{c.label}</span>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>{c.tickets}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: c.color, minWidth: '32px', textAlign: 'right' }}>{c.pct}%</span>
+                </div>
+              </div>
+              <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
+                <motion.div initial={{ width: 0 }} animate={{ width: `${c.pct}%` }} transition={{ delay: i * 0.1 + 0.2, duration: 0.7, ease: 'easeOut' }} style={{ height: '100%', background: c.color, borderRadius: '3px', opacity: 0.85 }} />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        <div style={{ marginTop: '16px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,188,212,0.08)', border: '1px solid rgba(0,188,212,0.2)' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00BCD4', letterSpacing: '0.1em', marginBottom: '4px' }}>KIRAN&apos;S NOTE</div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
+            34% clustering on &ldquo;not knowing where to start&rdquo; is strong signal — but these are users who cared enough to write in. Silent churners may tell a different story. Use this to sharpen interview questions, not replace them.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────
+// DOVETAIL TAGGING MOCKUP
+// ─────────────────────────────────────────
+const DovetailTaggingMockup = () => {
+  const [activeTag, setActiveTag] = useState<string | null>(null);
+  const interviews = [
+    { name: 'Rahul Shah', tags: ["doesn't know what good looks like", 'job: prove value to director', 'completed setup fine'] },
+    { name: 'Kavita R.', tags: ["doesn't know what good looks like", 'no frame of reference', 'opened recording, got stuck'] },
+    { name: 'Sanjay M.', tags: ["doesn't know what good looks like", 'wanted product to guide them', 'churned day 5'] },
+    { name: 'Deepa P.', tags: ["doesn't know what good looks like", 'job: prove value to director', 'no progress signal'] },
+    { name: 'Arjun K.', tags: ["doesn't know what good looks like", 'job: prove value to director', 'no progress signal'] },
+    { name: 'Mihir S.', tags: ['billing issue day 2', 'different problem — separate track'] },
+  ];
+  const allTags = Array.from(new Set(interviews.flatMap(i => i.tags)));
+  const tagCounts = allTags.reduce((acc, tag) => {
+    acc[tag] = interviews.filter(i => i.tags.includes(tag)).length;
+    return acc;
+  }, {} as Record<string, number>);
+  const sortedTags = allTags.sort((a, b) => tagCounts[b] - tagCounts[a]);
+
+  return (
+    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 6px 24px rgba(0,0,0,0.09)' }}>
+      {/* Header */}
+      <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+        </div>
+        <div style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.1em' }}>DOVETAIL</div>
+        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>/ EdSpark Manager Research · 6 interviews</div>
+      </div>
+      <div style={{ display: 'flex', background: '#FAFAFA' }}>
+        {/* Tag panel */}
+        <div style={{ width: '220px', borderRight: '1px solid #E0D9D0', padding: '14px 12px', flexShrink: 0 }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '10px' }}>TAGS · click to highlight</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {sortedTags.map(tag => {
+              const count = tagCounts[tag];
+              const isActive = activeTag === tag;
+              const isPrimary = count >= 4;
+              return (
+                <motion.button key={tag} whileHover={{ x: 2 }} onClick={() => setActiveTag(isActive ? null : tag)}
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderRadius: '6px', border: `1px solid ${isActive ? '#7C3AED' : '#E0D9D0'}`, background: isActive ? 'rgba(124,58,237,0.08)' : isPrimary ? 'rgba(0,188,212,0.05)' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
+                  <span style={{ fontSize: '10px', color: isActive ? '#7C3AED' : isPrimary ? '#0097A7' : '#888', fontWeight: isPrimary ? 600 : 400, lineHeight: 1.4 }}>{tag}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '10px', fontWeight: 700, color: isPrimary ? '#0097A7' : '#999', marginLeft: '6px', flexShrink: 0 }}>{count}/6</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+        {/* Interview grid */}
+        <div style={{ flex: 1, padding: '14px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '10px' }}>INTERVIEWS</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {interviews.map((interview, i) => {
+              const highlighted = activeTag ? interview.tags.includes(activeTag) : false;
+              return (
+                <motion.div key={i} animate={{ opacity: activeTag ? (highlighted ? 1 : 0.35) : 1 }} transition={{ duration: 0.2 }}
+                  style={{ padding: '10px 14px', borderRadius: '8px', background: highlighted ? 'rgba(124,58,237,0.06)' : '#fff', border: `1px solid ${highlighted ? '#7C3AED' : '#E0D9D0'}` }}>
+                  <div style={{ fontSize: '11px', fontWeight: 600, color: '#37352F', marginBottom: '6px' }}>{interview.name}</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                    {interview.tags.map(tag => {
+                      const isHl = activeTag === tag;
+                      return (
+                        <span key={tag} style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: isHl ? 'rgba(124,58,237,0.15)' : 'rgba(0,0,0,0.05)', color: isHl ? '#7C3AED' : '#666', border: `1px solid ${isHl ? '#7C3AED' : 'transparent'}`, fontWeight: isHl ? 700 : 400 }}>
+                          {tag}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div style={{ background: '#F7F3FF', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
+        <span style={{ fontSize: '11px', color: '#7C3AED', fontWeight: 600 }}>
+          {activeTag ? `"${activeTag}" appears in ${tagCounts[activeTag]}/6 interviews${tagCounts[activeTag] >= 4 ? ' — this is your primary finding' : ''}` : 'Click a tag to see which interviews match'}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const MODULE_CONTEXT = `Module 02 of Airtribe PM Fundamentals — Track: New to PM.
 Continues with Priya Sharma, PM at EdSpark (B2B SaaS for sales coaching). She must investigate why 40% of users churn in week 2. Covers: resisting premature solutions, customer segmentation, Jobs to Be Done, choosing research methods (using Notion for notes, Dovetail for synthesis, Kraftful for AI analysis), running user interviews, affinity mapping, and writing a discovery brief.`;
 
@@ -625,6 +831,8 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
+          <NotionTemplateMockup />
+
           <QuizEngine conceptId="user-research" conceptName="User Research" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[0]} />
 
           <ResearchMethodChooser />
@@ -742,6 +950,8 @@ export default function Track1ProblemDiscovery() {
               ))}
             </div>
           </InfoBox>
+
+          <KraftfulDashboardMockup />
 
           <QuizEngine conceptId="research-methods" conceptName="Research Methods" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[2]} />
 
@@ -893,6 +1103,8 @@ export default function Track1ProblemDiscovery() {
               ))}
             </div>
           </InfoBox>
+
+          <DovetailTaggingMockup />
 
           {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
 

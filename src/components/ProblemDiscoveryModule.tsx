@@ -3,7 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
+import type { Track } from './pm-fundamentals/designSystem';
 import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
 
 const ROMAN = ['I','II','III','IV','V','VI','VII'];
 const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
@@ -299,9 +301,10 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
 // ─────────────────────────────────────────
 interface Props {
   onBack: () => void;
+  track?: Track | null;
 }
 
-export default function ProblemDiscoveryModule({ onBack }: Props) {
+export default function ProblemDiscoveryModule({ onBack, track }: Props) {
   const store = useLearnerStore();
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -407,7 +410,7 @@ export default function ProblemDiscoveryModule({ onBack }: Props) {
           </div>
 
           <motion.main key="m2-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            <Track1ProblemDiscovery />
+            {track === 'apm' ? <Track2ProblemDiscovery /> : <Track1ProblemDiscovery />}
 
             <AnimatePresence>
               {progressPct >= 87 && (
