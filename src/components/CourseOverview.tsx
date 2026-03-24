@@ -58,7 +58,7 @@ const MODULES = [
     desc: 'Express product ideas visually, give actionable design feedback, and validate with users — using AI to speed up prototyping.',
     duration: '45 min',
     tools: ['Figma', 'Lovable AI'],
-    available: false,
+    available: true,
     accent: '#E07A5F',
   },
   {
