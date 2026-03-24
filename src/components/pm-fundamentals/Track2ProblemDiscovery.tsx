@@ -624,7 +624,7 @@ const IntroHero = () => (
           {[
             { emoji: '🧑‍💼', name: 'Priya Sharma', role: 'APM · 2 yrs · EdSpark', desc: 'Leading discovery. Her challenge: the team keeps solving yesterday\'s problem.', accent: 'var(--teal)' },
             { emoji: '👔', name: 'Rohan', role: 'CEO · EdSpark', desc: 'Sets the strategic brief. Brings strong opinions, sometimes based on stale data.', accent: '#E67E22' },
-            { emoji: '🔬', name: 'Maya', role: 'User Researcher · EdSpark', desc: 'Runs the interview studies. Learns to catch survivorship bias before it corrupts the data.', accent: 'var(--purple)' },
+            { emoji: '🎨', name: 'Maya', role: 'Designer · EdSpark', desc: 'Helps run interview studies. Learns to catch survivorship bias before it corrupts the data.', accent: 'var(--purple)' },
             { emoji: '🧑‍🏫', name: 'Asha', role: 'AI Mentor', desc: 'Challenges your assumptions. Appears throughout the module to sharpen your thinking.', accent: '#4F46E5' },
           ].map(c => (
             <div key={c.name} style={{ flex: '1', minWidth: '180px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${c.accent}`, padding: '12px 14px' }}>
@@ -775,7 +775,7 @@ export default function Track2ProblemDiscovery() {
       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
         <div style={{ ...h2, color: 'var(--teal)' }}>Part III · The Biases That Corrupt Discovery</div>
         <SituationCard>
-          Priya told her researcher, Maya, to prep a new study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
+          Priya asked Maya, EdSpark&apos;s designer, to help prep the interview study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
         </SituationCard>
         <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
           &ldquo;Maya — the users you want to talk to are the ones who <em>didn&apos;t</em> churn. We&apos;re asking why people leave. We need to talk to people who left.&rdquo;
