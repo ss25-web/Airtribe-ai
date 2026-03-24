@@ -26,10 +26,33 @@ const ToolBadge = ({ name, desc, accent = 'var(--teal)' }: { name: string; desc:
 );
 
 // ─────────────────────────────────────────
+// TILT CARD — 3D mouse-tracking wrapper
+// ─────────────────────────────────────────
+const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
+  };
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
+      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────
 // NOTION TEMPLATE MOCKUP
 // ─────────────────────────────────────────
 const NotionTemplateMockup = () => (
-  <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 8px 32px rgba(0,0,0,0.10)', background: '#fff' }}>
+  <TiltCard style={{ margin: '24px 0' }}>
+  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', background: '#fff' }}>
     {/* Window chrome */}
     <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
       <div style={{ display: 'flex', gap: '5px' }}>
@@ -92,6 +115,7 @@ const NotionTemplateMockup = () => (
       </div>
     </div>
   </div>
+  </TiltCard>
 );
 
 // ─────────────────────────────────────────
@@ -105,7 +129,7 @@ const KraftfulDashboardMockup = () => {
     { label: 'Technical / billing issues', pct: 18, color: '#C85A40', tickets: '67 tickets' },
   ];
   return (
-    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 8px 32px rgba(0,0,0,0.22)' }}>
+    <TiltCard style={{ margin: '24px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
       {/* Header bar */}
       <div style={{ background: '#0D1F24', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -143,7 +167,7 @@ const KraftfulDashboardMockup = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div></TiltCard>
   );
 };
 
@@ -168,7 +192,7 @@ const DovetailTaggingMockup = () => {
   const sortedTags = allTags.sort((a, b) => tagCounts[b] - tagCounts[a]);
 
   return (
-    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 6px 24px rgba(0,0,0,0.09)' }}>
+    <TiltCard style={{ margin: '24px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
       {/* Header */}
       <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '5px' }}>
@@ -227,7 +251,7 @@ const DovetailTaggingMockup = () => {
           {activeTag ? `"${activeTag}" appears in ${tagCounts[activeTag]}/6 interviews${tagCounts[activeTag] >= 4 ? ' — this is your primary finding' : ''}` : 'Click a tag to see which interviews match'}
         </span>
       </div>
-    </div>
+    </div></TiltCard>
   );
 };
 

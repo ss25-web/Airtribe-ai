@@ -16,6 +16,28 @@ const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to 
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
 
 // ─────────────────────────────────────────
+// TILT CARD — 3D mouse-tracking wrapper
+// ─────────────────────────────────────────
+const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
+  };
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
+      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
+    >
+      {children}
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────
 // LOCAL: BACKLOG INPUTS MOCKUP (Jira-style)
 // ─────────────────────────────────────────
 const BacklogInputsMockup = () => {
@@ -27,7 +49,7 @@ const BacklogInputsMockup = () => {
   ];
 
   return (
-    <div style={{ margin: '32px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
       {/* Jira-style header bar */}
       <div style={{ background: '#172B4D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '5px' }}>
@@ -80,7 +102,7 @@ const BacklogInputsMockup = () => {
           &#9888; All items marked &ldquo;REQUEST&rdquo; &mdash; no problem statements defined. RICE score: N/A. Estimated effort: unknown.
         </div>
       </div>
-    </div>
+    </div></TiltCard>
   );
 };
 
@@ -233,7 +255,7 @@ const KiranDataMockup = () => {
   ];
 
   return (
-    <div style={{ margin: '32px 0', borderRadius: '14px', overflow: 'hidden', border: '1px solid #2C3E60', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #2C3E60', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
       <div style={{ background: '#1B2A47', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '5px' }}>
           {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
@@ -274,7 +296,7 @@ const KiranDataMockup = () => {
           &#10022; Kiran&apos;s note: 3 CRM requests vs. 40% of all users churning in week 1. The data is not ambiguous.
         </div>
       </div>
-    </div>
+    </div></TiltCard>
   );
 };
 
@@ -292,7 +314,7 @@ const RICECalculatorMockup = () => {
   const cols = ['Problem', 'Reach', 'Impact', 'Confidence', 'Effort', 'RICE Score'];
 
   return (
-    <div style={{ margin: '32px 0', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 4px 16px rgba(0,0,0,0.07)' }}>
+    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
       <div style={{ background: `rgba(${ACCENT_RGB},0.9)`, padding: '10px 16px', display: 'flex', alignItems: 'center' }}>
         {cols.map((col, i) => (
           <div key={col} style={{
@@ -346,7 +368,7 @@ const RICECalculatorMockup = () => {
           e.g. Onboarding: (500 &times; 2 &times; 0.80) &divide; 1 = 800
         </div>
       </div>
-    </div>
+    </div></TiltCard>
   );
 };
 
@@ -354,7 +376,8 @@ const RICECalculatorMockup = () => {
 // LOCAL: STAKEHOLDER REPLY MOCKUP (Slack-style)
 // ─────────────────────────────────────────
 const StakeholderReplyMockup = () => (
-  <div style={{ margin: '32px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1A1D21', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+  <TiltCard style={{ margin: '32px 0' }}>
+  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1A1D21', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
     <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
       <div style={{ display: 'flex', gap: '5px' }}>
         {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
@@ -421,6 +444,7 @@ const StakeholderReplyMockup = () => (
       </div>
     </div>
   </div>
+  </TiltCard>
 );
 
 // ─────────────────────────────────────────
