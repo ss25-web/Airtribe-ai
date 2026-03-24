@@ -58,19 +58,21 @@ const NotionResearchRepoMockup = () => (
         <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#999', letterSpacing: '0.1em', marginBottom: '6px' }}>SHARED REPOSITORY · LAST UPDATED TODAY</div>
         <div style={{ fontSize: '18px', fontWeight: 700, color: '#37352F', marginBottom: '4px' }}>🗂️ Insight Repository</div>
         <div style={{ fontSize: '11px', color: '#999', marginBottom: '16px' }}>16 studies · 89 tagged insights · 4 open research questions</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
           {[
-            { tag: 'Managers need to prove ROI to leadership', studies: '4 studies', strength: 'Strong', color: '#0097A7' },
-            { tag: 'No feedback loop after recording upload', studies: '3 studies', strength: 'Strong', color: '#0097A7' },
-            { tag: 'Setup friction under-reported vs churn signal', studies: '2 studies', strength: 'Emerging', color: '#B5720A' },
-            { tag: 'Reps adoption driven by manager mandate, not choice', studies: '2 studies', strength: 'Emerging', color: '#B5720A' },
+            { tag: 'Managers need to prove ROI to leadership', studies: '4 studies', strength: 'Strong', color: '#0097A7', bg: 'rgba(0,151,167,0.05)' },
+            { tag: 'No feedback loop after recording upload', studies: '3 studies', strength: 'Strong', color: '#0097A7', bg: 'rgba(0,151,167,0.05)' },
+            { tag: 'Setup friction under-reported vs churn signal', studies: '2 studies', strength: 'Emerging', color: '#B5720A', bg: 'rgba(181,114,10,0.05)' },
+            { tag: 'Reps adoption driven by manager mandate', studies: '2 studies', strength: 'Emerging', color: '#B5720A', bg: 'rgba(181,114,10,0.05)' },
           ].map(row => (
-            <div key={row.tag} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: '6px', background: '#F7F6F3', border: '1px solid #E0D9D0' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                <span style={{ fontSize: '10px', fontWeight: 700, color: row.color, flexShrink: 0, fontFamily: 'monospace' }}>{row.strength}</span>
-                <span style={{ fontSize: '12px', color: '#37352F', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{row.tag}</span>
+            <div key={row.tag} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '7px', background: row.bg, border: `1px solid ${row.color}30`, borderLeft: `3px solid ${row.color}` }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <span style={{ fontSize: '12px', color: '#37352F', lineHeight: 1.4 }}>{row.tag}</span>
               </div>
-              <span style={{ fontSize: '10px', color: '#999', flexShrink: 0, marginLeft: '8px', fontFamily: 'monospace' }}>{row.studies}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', flexShrink: 0 }}>
+                <span style={{ fontSize: '8px', fontWeight: 800, color: row.color, fontFamily: 'monospace', letterSpacing: '0.06em', background: `${row.color}15`, padding: '2px 6px', borderRadius: '3px' }}>{row.strength.toUpperCase()}</span>
+                <span style={{ fontSize: '9px', color: '#999', fontFamily: 'monospace' }}>{row.studies}</span>
+              </div>
             </div>
           ))}
         </div>
@@ -89,62 +91,110 @@ const NotionResearchRepoMockup = () => (
 // KRAFTFUL: TREND ANALYSIS MOCKUP
 // ─────────────────────────────────────────
 const KraftfulTrendMockup = () => {
-  const data = [
-    { month: 'Oct', onboarding: 38, value: 21, other: 41 },
-    { month: 'Nov', onboarding: 36, value: 29, other: 35 },
-    { month: 'Dec', onboarding: 31, value: 38, other: 31 },
-    { month: 'Jan', onboarding: 28, value: 41, other: 31 },
+  // Each month: two side-by-side bars (onboarding, value)
+  const months = [
+    { month: 'Oct', onboarding: 38, value: 21 },
+    { month: 'Nov', onboarding: 36, value: 29 },
+    { month: 'Dec', onboarding: 31, value: 38 },
+    { month: 'Jan', onboarding: 28, value: 41 },
   ];
-  const maxVal = 50;
+  const maxH = 110; // px height for 100%
+  const series = [
+    { key: 'onboarding' as const, label: 'Onboarding confusion', color: '#00BCD4', glow: 'rgba(0,188,212,0.35)' },
+    { key: 'value' as const,      label: 'Value visibility gap', color: '#B794F4', glow: 'rgba(183,148,244,0.35)' },
+  ];
+
   return (
-    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 8px 32px rgba(0,0,0,0.22)' }}>
-      <div style={{ background: '#0D1F24', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <div style={{ margin: '24px 0', borderRadius: '14px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 12px 48px rgba(0,0,0,0.4)' }}>
+      {/* Title bar */}
+      <div style={{ background: 'linear-gradient(90deg,#0D1F24 0%,#0A1A1F 100%)', padding: '13px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}55` }} />)}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#00BCD4', letterSpacing: '0.1em' }}>KRAFTFUL</div>
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark · Ticket Themes · Oct–Jan trend</div>
+          <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)' }} />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 800, color: '#00BCD4', letterSpacing: '0.12em', textShadow: '0 0 12px rgba(0,188,212,0.5)' }}>KRAFTFUL</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark · Ticket Themes · Oct–Jan</div>
         </div>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>1,240 tickets · AI trend analysis</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', boxShadow: '0 0 6px #28C840' }} />
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>1,240 tickets · AI analysis</div>
+        </div>
       </div>
-      <div style={{ background: '#111C1F', padding: '20px 24px' }}>
-        <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: '16px' }}>THEME TREND — % OF TOTAL TICKETS</div>
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '16px', flexWrap: 'wrap' }}>
-          {[
-            { label: 'Onboarding confusion', color: '#00BCD4' },
-            { label: 'Value visibility gap', color: '#B794F4' },
-            { label: 'Other / mixed', color: '#666' },
-          ].map(leg => (
-            <div key={leg.label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>{leg.label}</span>
+
+      <div style={{ background: 'linear-gradient(180deg,#111C1F 0%,#0D1619 100%)', padding: '24px 28px' }}>
+        {/* Legend */}
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+          {series.map(s => (
+            <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <div style={{ width: '12px', height: '4px', borderRadius: '2px', background: s.color, boxShadow: `0 0 6px ${s.glow}` }} />
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>{s.label}</span>
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', height: '100px' }}>
-          {data.map((d, i) => (
-            <div key={d.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'stretch' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, justifyContent: 'flex-end' }}>
-                {[
-                  { val: d.onboarding, color: '#00BCD4' },
-                  { val: d.value, color: '#B794F4' },
-                ].map((bar, bi) => (
-                  <motion.div key={bi}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${(bar.val / maxVal) * 80}px` }}
-                    transition={{ delay: i * 0.1 + bi * 0.05, duration: 0.6, ease: 'easeOut' }}
-                    style={{ background: bar.color, borderRadius: '3px 3px 0 0', opacity: 0.85 }}
-                  />
-                ))}
+
+        {/* Chart */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', height: `${maxH + 24}px`, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', marginBottom: '8px' }}>
+          {/* Y-axis labels */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: `${maxH}px`, marginBottom: '16px', flexShrink: 0 }}>
+            {[40, 30, 20, 10].map(v => (
+              <div key={v} style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', lineHeight: 1 }}>{v}%</div>
+            ))}
+          </div>
+          {/* Grid lines + bars */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '20px', position: 'relative' }}>
+            {/* Horizontal grid lines */}
+            {[0.25, 0.5, 0.75, 1].map(f => (
+              <div key={f} style={{ position: 'absolute', left: 0, right: 0, bottom: `${f * maxH}px`, borderTop: '1px dashed rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+            ))}
+            {months.map((d, i) => (
+              <div key={d.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0' }}>
+                {/* Two bars side by side */}
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', width: '100%' }}>
+                  {series.map((s, si) => {
+                    const pct = d[s.key] / 50;
+                    const h = Math.round(pct * maxH);
+                    return (
+                      <div key={s.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        {/* Value label */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: i * 0.12 + si * 0.06 + 0.5, duration: 0.3 }}
+                          style={{ fontSize: '9px', fontFamily: 'monospace', fontWeight: 700, color: s.color, lineHeight: 1 }}
+                        >
+                          {d[s.key]}%
+                        </motion.div>
+                        {/* Bar */}
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: `${h}px`, opacity: 1 }}
+                          transition={{ delay: i * 0.12 + si * 0.06, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                          style={{
+                            width: '100%',
+                            background: `linear-gradient(180deg, ${s.color} 0%, ${s.color}99 100%)`,
+                            borderRadius: '4px 4px 1px 1px',
+                            boxShadow: `0 -2px 12px ${s.glow}, inset 0 1px 0 rgba(255,255,255,0.15)`,
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', marginTop: '6px', letterSpacing: '0.06em' }}>{d.month}</div>
               </div>
-              <div style={{ textAlign: 'center' as const, fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>{d.month}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(183,148,244,0.1)', border: '1px solid rgba(183,148,244,0.25)' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#B794F4', letterSpacing: '0.1em', marginBottom: '4px' }}>AI INSIGHT</div>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-            &ldquo;Onboarding confusion&rdquo; tickets are declining. &ldquo;Value visibility&rdquo; is rising sharply — up 95% in 4 months. The problem may have shifted. If you&apos;re still optimising onboarding, you&apos;re solving yesterday&apos;s problem.
+
+        {/* AI Insight callout */}
+        <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '10px', background: 'linear-gradient(135deg, rgba(183,148,244,0.1) 0%, rgba(0,188,212,0.06) 100%)', border: '1px solid rgba(183,148,244,0.25)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div style={{ fontSize: '18px', flexShrink: 0, lineHeight: 1, marginTop: '2px' }}>✦</div>
+          <div>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.12em', marginBottom: '5px' }}>AI INSIGHT</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75 }}>
+              &ldquo;Onboarding confusion&rdquo; tickets are <span style={{ color: '#00BCD4', fontWeight: 600 }}>declining ↓26%</span>. &ldquo;Value visibility&rdquo; is <span style={{ color: '#B794F4', fontWeight: 600 }}>rising ↑95%</span> in 4 months. The problem may have shifted. If you&apos;re still optimising onboarding, you&apos;re solving yesterday&apos;s problem.
+            </div>
           </div>
         </div>
       </div>
@@ -566,12 +616,12 @@ const IntroHero = () => (
           name="Priya Sharma"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<><strong>APM · 2 years in · EdSpark</strong><br />Two years ago Priya joined as a junior PM. Now she leads a cross-functional team — and she&apos;s realised that the hardest part of the job isn&apos;t running interviews. It&apos;s making sure the team is working on the right problem in the first place.</>}
+          content={<><strong>APM · 2 yrs · EdSpark</strong><br />Now leads a cross-functional team. The hardest part isn&apos;t running interviews — it&apos;s making sure the team is solving the right problem.</>}
         />
-        <div style={{ marginTop: '16px', padding: '14px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>THIS WEEK AT EDSPARK</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
-            Priya&apos;s team has shipped 3 onboarding improvements. Retention didn&apos;t move. The CEO has a new theory. Priya has data that suggests a completely different problem.
+        <div style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.2)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.12em', marginBottom: '7px' }}>THIS WEEK</div>
+          <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>
+            3 onboarding improvements shipped. Retention: unchanged. CEO has a theory. Priya has conflicting data.
           </div>
         </div>
       </div>
