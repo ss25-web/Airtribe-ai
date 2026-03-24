@@ -324,9 +324,91 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
 
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+  const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
+  const protagonistDesc = track === 'tech'
+    ? 'Building reliable AI systems out of messy ad-hoc scripts and broken pipelines.'
+    : 'Turning chaotic AI experiments into workflows her team can actually trust.';
+
+  const MENTORS = [
+    { name: 'Anika', role: 'AI Workflow Strategist', desc: 'System design before tool selection.', color: '#7C3AED', initial: 'A' },
+    { name: 'Rohan', role: 'Automation Engineer', desc: 'Payloads, retries, and execution paths.', color: '#2563EB', initial: 'R' },
+    { name: 'Leela', role: 'Risk & Compliance', desc: 'Where Human Reviewers must stay in the loop.', color: '#C2410C', initial: 'L' },
+    { name: 'Kabir', role: 'Operations Intelligence', desc: 'Judgment on what to automate — and when.', color: '#0F766E', initial: 'K' },
+  ];
+
   return (
     <>
-      <div style={{ marginBottom: '10px', padding: '18px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : 'rgba(124,58,237,0.08)', border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : 'rgba(124,58,237,0.18)'}` }}>
+      {/* ── Module Hero ── */}
+      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>01</div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>
+            GenAI Launchpad · Pre-Read 01
+          </div>
+          <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>
+            Orientation &amp; AI Mindset
+          </h1>
+          <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>
+            &ldquo;The real product is not the prompt. The real product is the workflow around the prompt.&rdquo;
+          </p>
+
+          {/* Characters */}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
+            {/* Protagonist */}
+            <div style={{
+              background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`,
+              border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`,
+              borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: track === 'tech' ? 'rgba(15,118,110,0.2)' : `rgba(${ACCENT_RGB},0.15)`, border: `2px solid ${track === 'tech' ? '#0F766E' : ACCENT}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '15px', color: track === 'tech' ? '#0F766E' : ACCENT, fontFamily: "'Lora', Georgia, serif", flexShrink: 0 }}>
+                  {protagonist[0]}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{protagonist}</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: track === 'tech' ? '#0F766E' : ACCENT, background: track === 'tech' ? 'rgba(15,118,110,0.1)' : `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em' }}>PROTAGONIST</div>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{protagonistDesc}</div>
+            </div>
+
+            {/* Mentors */}
+            {MENTORS.map(m => (
+              <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: `${m.color}18`, border: `2px solid ${m.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px', color: m.color, fontFamily: "'Lora', Georgia, serif", flexShrink: 0 }}>{m.initial}</div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Learning objectives */}
+          <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
+            {[
+              'Understand why workflow design matters more than prompt quality for reliable AI systems',
+              'Map the GenAI stack: trigger → context → model → control → outcome',
+              'Learn why n8n is the control layer, not just a connector',
+              'Identify which workflows deserve AI early — and which ones don\'t yet',
+            ].map((obj, i) => (
+              <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
+                <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", marginTop: '2px' }}>0{i + 1}</span>
+                <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{obj}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Track lens banner */}
+      <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : 'rgba(124,58,237,0.08)', border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : 'rgba(124,58,237,0.18)'}` }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: track === 'tech' ? '#0F766E' : '#7C3AED', marginBottom: '8px' }}>
           {TRACK_META[track].label.toUpperCase()}
         </div>
@@ -341,7 +423,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {chLabel('Week 0 · Orientation & AI Mindset')}
         {h2('AI is useful when you stop treating it like a magic answer engine')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Rhea leads operations at Northstar Health. Her team handles provider escalations, claims exceptions, partner intake, and internal follow-ups every week. People are already pasting snippets into ChatGPT to move faster. The results are mixed. Some outputs are useful. Some are wrong. Some bypass the Human Reviewer entirely. Rhea realizes the problem is not “we need better prompts.” The problem is that the workflow has no clear Workflow Operator, Human Reviewer, or control layer.
+          {track === 'tech'
+            ? <>Aarav is a platform engineer at Northstar Health. His team handles tooling for provider workflows, claims processing, and partner integrations. Colleagues are using AI APIs in ad-hoc scripts. Some work. Most break silently. Aarav realizes the problem is not the model. It is that there is no trigger discipline, no retry logic, no observability, and no control layer making the system legible.</>
+            : <>Rhea leads operations at Northstar Health. Her team handles provider escalations, claims exceptions, partner intake, and internal follow-ups every week. People are already pasting snippets into ChatGPT to move faster. The results are mixed. Some outputs are useful. Some are wrong. Some bypass the Human Reviewer entirely. Rhea realizes the problem is not &ldquo;we need better prompts.&rdquo; The problem is that the workflow has no clear Workflow Operator, Human Reviewer, or control layer.</>}
         </SituationCard>
         {para('Most teams first approach GenAI as a model prompt problem: write a prompt, call an API, hope the answer is good enough. That is not how reliable AI systems are built. In practice, useful AI work is about designing a system around the model: what triggers it, what context it receives, what it is allowed to do, how its output is checked, and what happens when something fails.')}
         {para('That shift matters because the model is only one part of the workflow. Real work happens around it: requests arrive from forms, inboxes, internal tools, document systems, and operational queues. Someone has to orchestrate that movement, validate the context, and decide what happens next.')}
@@ -391,7 +475,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {chLabel('The Stack')}
         {h2('Where GenAI systems actually live')}
         <SituationCard accent="#2563EB" accentRgb="37,99,235">
-          Rhea sketches the current exception-handling process on a whiteboard. Intake comes from a form. Policy history lives in an internal system. Process docs live in Notion. The team wants AI to summarize the case, estimate urgency, and suggest a route. That is the first moment she sees it clearly: the model is only one box in a much larger path.
+          {track === 'tech'
+            ? <>Aarav opens a diagram of their exception-handling pipeline. Intake arrives via webhook. Policy history sits in a Postgres database. Process docs live in Notion. The team wants AI to summarize the case, estimate urgency, and suggest a route. That is the moment he sees it clearly: the model call is one step inside a much larger execution path with payloads, context fetching, output validation, and downstream routing.</>
+            : <>Rhea sketches the current exception-handling process on a whiteboard. Intake comes from a form. Policy history lives in an internal system. Process docs live in Notion. The team wants AI to summarize the case, estimate urgency, and suggest a route. That is the first moment she sees it clearly: the model is only one box in a much larger path.</>}
         </SituationCard>
         {para('A useful GenAI stack usually has five layers: trigger, context, model, logic, and destination. An operational request arrives. Relevant case context is fetched. A model classifies or drafts. Logic decides whether to route, escalate, retry, or request Human Reviewer approval. Then the result lands in Slack, email, a case system, or a database.')}
         {para('The important thing is that the model does not sit alone. It sits inside a controlled execution path. That is the difference between a fun demo and a workflow the team can trust on a Monday morning.')}
@@ -428,7 +514,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {chLabel('Why n8n')}
         {h2('n8n is not just a connector layer. It is the control layer.')}
         <SituationCard accent="#0F766E" accentRgb="15,118,110">
-          The team’s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, “Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?”, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.
+          {track === 'tech'
+            ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+            : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
         </SituationCard>
         {para('In this program, n8n is the spine of the system. It is where workflows begin, branch, validate inputs, call models, handle retries, and expose decisions clearly. That matters because the hardest part of production AI is rarely just getting a model output. It is making the system observable, maintainable, and debuggable when real work is flowing through it.')}
         {para('That is why learners will build with webhook nodes, HTTP requests, logic nodes, code nodes, LLM integrations, approvals, and recovery patterns. We are not using n8n as decoration around a chatbot. We are using it as the orchestration layer where Workflow Operator logic, Human Reviewer checkpoints, and system reliability become explicit.')}
@@ -520,7 +608,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {chLabel('Apply It')}
         {h2('Think from your role outward')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          By the end of the session, Rhea does not leave with a flashy agent demo. She leaves with something more valuable: one clearly framed workflow. An exception request enters through a webhook. Case context is fetched. AI proposes category and urgency. Ambiguous cases route to a Human Reviewer. The run is logged for the Business Process Owner and Risk / Compliance Reviewers. That is the beginning of a real system.
+          {track === 'tech'
+            ? <>By the end of the session, Aarav does not have a clever script. He has something more useful: one workflow drawn with five labels. A webhook triggers the run. A database fetch pulls case context. A structured LLM call proposes category and urgency. A code node validates the output shape. Ambiguous cases route to a Human Reviewer via Slack. Runs are logged. That is the beginning of a real, inspectable system.</>
+            : <>By the end of the session, Rhea does not leave with a flashy agent demo. She leaves with something more valuable: one clearly framed workflow. An exception request enters through a webhook. Case context is fetched. AI proposes category and urgency. Ambiguous cases route to a Human Reviewer. The run is logged for the Business Process Owner and Risk / Compliance Reviewers. That is the beginning of a real system.</>}
         </SituationCard>
         {para('By the end of this pre-read, the goal is not that you memorize tool names. The goal is that you start seeing your work as a set of triggers, decisions, inputs, outputs, and approval loops. Once you can frame work that way, you can reason much more clearly about where AI belongs and where orchestration matters most.')}
         {para('If you are a PM, this means identifying where AI can structure demand, triage work, or surface decision-ready context. If you are an Automation Engineer or Systems / Platform Engineer, it means thinking about interfaces, failure handling, and maintainable execution paths. If you are in ops, compliance, or business operations, it means spotting repetitive operational loops where AI can reduce cognitive drag without creating silent failure.')}
@@ -541,7 +631,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         />
         {ApplyItBox({ prompt: 'Pick one workflow from your world. Who is the Business Process Owner? Who is the Human Reviewer? Who is the Systems / Platform Engineer or Source System Owner? What should the AI do, and what should remain explicitly human-controlled?' })}
         <QuizEngine conceptId="genai-system-framing" conceptName="System Framing" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
-        {NextChapterTeaser({ text: 'Next, we move into prompt engineering and LLM reliability inside real automation systems.' })}
+        <NextChapterTeaser text="Next, we move into prompt engineering and LLM reliability inside real automation systems." />
       </ChapterSection>
     </>
   );

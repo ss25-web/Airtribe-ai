@@ -272,7 +272,10 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartPreRead }
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',
+                  boxShadow: mod.available ? `0 2px 12px ${mod.accent}14` : 'none',
+                  cursor: mod.available ? 'pointer' : 'default',
                 }}
+              whileHover={mod.available ? { y: -2, boxShadow: `0 6px 20px ${mod.accent}22` } : {}}
               >
                 <div
                   style={{
