@@ -49,8 +49,8 @@ const MODULES = [
     desc: 'Jobs to Be Done, RICE, MoSCoW — and AI tools to accelerate decision-making and roadmap prioritization.',
     duration: '45 min',
     tools: ['OpenAI', 'Jira', 'Kraftful'],
-    available: false,
-    accent: '#0097A7',
+    available: true,
+    accent: '#C85A40',
   },
   {
     num: '04',

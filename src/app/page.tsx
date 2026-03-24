@@ -7,6 +7,7 @@ import PlacementQuiz from '@/components/PlacementQuiz';
 import CourseOverview from '@/components/CourseOverview';
 import PMFundamentalsModule from '@/components/PMFundamentalsModule';
 import ProblemDiscoveryModule from '@/components/ProblemDiscoveryModule';
+import PrioritizationModule from '@/components/PrioritizationModule';
 import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
@@ -177,6 +178,9 @@ export default function Home() {
   if (stage === 'reading' && assignedTrack) {
     if (activeModule === '02') {
       return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} />;
+    }
+    if (activeModule === '03') {
+      return <PrioritizationModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     return (
       <PMFundamentalsModule
