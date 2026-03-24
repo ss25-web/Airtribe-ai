@@ -22,7 +22,8 @@ const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; a
 // NOTION: RESEARCH REPO MOCKUP
 // ─────────────────────────────────────────
 const NotionResearchRepoMockup = () => (
-  <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 8px 32px rgba(0,0,0,0.10)', background: '#fff' }}>
+  <div style={{ margin: '32px 0', perspective: '1200px' }}>
+  <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08)', background: '#fff', transform: 'perspective(1200px) rotateX(1.5deg) rotateY(-0.5deg)', transition: 'transform 0.4s ease' }}>
     <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
       <div style={{ display: 'flex', gap: '5px' }}>
         {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
@@ -84,6 +85,7 @@ const NotionResearchRepoMockup = () => (
         </div>
       </div>
     </div>
+  </div>
   </div>
 );
 
@@ -235,7 +237,8 @@ const DovetailClustersMockup = () => {
     },
   ];
   return (
-    <div style={{ margin: '24px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}>
+    <div style={{ margin: '32px 0', perspective: '1200px' }}>
+    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 24px 64px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12)', transform: 'perspective(1200px) rotateX(1.5deg) rotateY(0.5deg)', transition: 'transform 0.4s ease' }}>
       <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '5px' }}>
           {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
@@ -277,6 +280,7 @@ const DovetailClustersMockup = () => {
           </motion.div>
         ))}
       </div>
+    </div>
     </div>
   );
 };
@@ -611,17 +615,34 @@ const IntroHero = () => (
           ))}
         </div>
       </div>
-      <div style={{ width: '220px', flexShrink: 0 }}>
-        <Avatar
-          name="Priya Sharma"
-          nameColor="var(--teal)"
-          borderColor="var(--teal)"
-          content={<><strong>APM · 2 yrs · EdSpark</strong><br />Now leads a cross-functional team. The hardest part isn&apos;t running interviews — it&apos;s making sure the team is solving the right problem.</>}
-        />
-        <div style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '10px', background: 'rgba(0,151,167,0.06)', border: '1px solid rgba(0,151,167,0.2)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.12em', marginBottom: '7px' }}>THIS WEEK</div>
-          <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>
-            3 onboarding improvements shipped. Retention: unchanged. CEO has a theory. Priya has conflicting data.
+      <div style={{ width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {/* Priya profile card */}
+        <div style={{ borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderTop: '3px solid var(--teal)', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,151,167,0.08)' }}>
+          <div style={{ padding: '16px 16px 12px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal) 0%, #4F46E5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0, boxShadow: '0 2px 8px rgba(0,151,167,0.3)' }}>🧑‍💼</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.2 }}>Priya Sharma</div>
+                <div style={{ fontSize: '10px', color: 'var(--teal)', fontFamily: 'monospace', marginTop: '2px', fontWeight: 600 }}>APM · 2 yrs · EdSpark</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
+              She leads a cross-functional team. Her hardest job isn&apos;t running interviews — it&apos;s making sure the team solves the right problem.
+            </div>
+          </div>
+          <div style={{ background: 'rgba(0,151,167,0.06)', borderTop: '1px solid rgba(0,151,167,0.15)', padding: '10px 16px' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.12em', marginBottom: '5px' }}>THIS WEEK</div>
+            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
+              3 onboarding improvements shipped. Retention: unchanged. CEO has a new theory. Priya has conflicting data.
+            </div>
+          </div>
+        </div>
+        {/* Asha AI mentor teaser */}
+        <div style={{ borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '12px 14px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg,#7843EE,#4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🧑‍🏫</div>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '3px' }}>Asha</div>
+            <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>AI mentor. Challenges your assumptions throughout the module.</div>
           </div>
         </div>
       </div>
@@ -659,6 +680,21 @@ export default function Track2ProblemDiscovery() {
           <strong>&ldquo;Rohan, before we commit to onboarding again — I want to show you something I found in Kraftful last night. The ticket trend has shifted. The problem might have moved.&rdquo;</strong>
         </p>
         {pullQuote("Challenging a brief isn't insubordination. It's the job. A PM who executes every brief unquestioned is an order-taker, not a strategist.")}
+
+        <Avatar
+          name="Asha"
+          nameColor="var(--purple-light)"
+          borderColor="var(--purple)"
+          content={<>&ldquo;The data doesn&apos;t just contradict Rohan&apos;s brief — it tells you something more important: the problem has moved. Onboarding was the issue three months ago. Now it&apos;s something different. If you run with the old brief, you ship the right solution to yesterday&apos;s problem.&rdquo;</>}
+          expandedContent={<>This happens more than you&apos;d think. A CEO spots a problem, commissions research, ships a fix. Six months later the same metric hasn&apos;t moved — because the problem evolved and no one updated the hypothesis. <strong>The Kraftful trend chart isn&apos;t just data. It&apos;s your mandate to pause.</strong></>}
+          question="Your CEO defines the research question. Your Kraftful data suggests it's based on stale assumptions. What's the right move?"
+          options={[
+            { text: "Run the research the CEO asked for — they have more context than you", correct: false, feedback: "The CEO has authority, not omniscience. Their brief is based on information they had at the time. If you have newer data, your job is to surface it, not bury it." },
+            { text: "Show the trend data and propose reframing before committing to the study", correct: true, feedback: "Exactly right. You're not rejecting the brief — you're making sure it's still based on current reality before you invest 2 weeks running it." },
+            { text: "Do both — run the original research and the new angle in parallel", correct: false, feedback: "Hedging avoids the hard conversation and delivers two shallow studies. The right move is to resolve the framing conflict before you start." },
+          ]}
+          conceptId="user-research"
+        />
 
         <InfoBox title="The APM's research contract" accent="var(--teal)">
           {keyBox('Three questions before you run any study', [
@@ -742,6 +778,21 @@ export default function Track2ProblemDiscovery() {
         <BiasSpotter />
 
         {pullQuote("The users who matter most for a churn study are the ones who can no longer reply to your emails.")}
+
+        <Avatar
+          name="Asha"
+          nameColor="var(--purple-light)"
+          borderColor="var(--purple)"
+          content={<>&ldquo;Maya&apos;s study design has survivorship bias baked in from the first line. She didn&apos;t do it on purpose — it&apos;s an easy mistake. But notice what it reveals: she framed the research question around active users, which made churned users invisible by default. That&apos;s design bias, not data bias.&rdquo;</>}
+          expandedContent={<>The fix is structural. Before you recruit participants, ask: <strong>who has to be in my sample for this question to be answerable?</strong> If your question is &ldquo;why do managers churn?&rdquo; and your sample contains zero churned managers, the study is broken before it starts. No analysis will fix a broken sample.</>}
+          question="Maya wants to study 'why managers leave EdSpark.' She recruits 10 active users. What's the core flaw?"
+          options={[
+            { text: "Too small a sample — she needs at least 30 to be statistically valid", correct: false, feedback: "Sample size is a secondary problem here. You could have 1,000 active users in your sample and still get the wrong answer because you excluded the people who could actually answer the question." },
+            { text: "She excluded the only people who can answer the question — churned users", correct: true, feedback: "Exactly. Survivorship bias: the sample only includes users who didn't exhibit the behaviour you're trying to understand. The answer to 'why do managers leave' lives with managers who have already left." },
+            { text: "She should use a survey instead of interviews for a question this broad", correct: false, feedback: "Method choice matters, but it's secondary to sample design. A survey of active users has the same survivorship bias problem as interviews of active users." },
+          ]}
+          conceptId="research-methods"
+        />
 
         <InfoBox title="How Dovetail helps mitigate confirmation bias" accent="var(--purple)">
           <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
@@ -830,6 +881,21 @@ export default function Track2ProblemDiscovery() {
         <DovetailClustersMockup />
 
         {pullQuote("Synthesis is about reducing. You start with 94 tagged moments and end with one sentence that explains all of them.")}
+
+        <Avatar
+          name="Asha"
+          nameColor="var(--purple-light)"
+          borderColor="var(--purple)"
+          content={<>&ldquo;Priya has two findings: &apos;no feedback loop&apos; and &apos;can&apos;t show ROI.&apos; Most PMs would write two problem statements and run two separate workstreams. But they&apos;re the same root. Once you see that, everything simplifies — one brief, one team direction, one sharp question for Rohan.&rdquo;</>}
+          expandedContent={<>This is what separates synthesis from summarising. <strong>Summarising</strong> is listing what you heard. <strong>Synthesising</strong> is finding the single frame that explains why you heard all of it. The Dovetail clusters give you the what. The &lsquo;why&rsquo; is the insight only a human can provide.</>}
+          question="You have two Dovetail clusters: 'no feedback loop post-upload' (9/14) and 'can't show ROI to leadership' (11/14). How do you write the brief?"
+          options={[
+            { text: "Two separate briefs — don't collapse findings", correct: false, feedback: "They look separate but they share a root cause: the product never shows managers that it's working. Writing two briefs doubles the workstream and splits team focus unnecessarily." },
+            { text: "One brief: managers can't see evidence EdSpark is working — for themselves or their leadership", correct: true, feedback: "This is the synthesis move. Both clusters are expressions of the same underlying job. One sentence covers both — and gives the team a single target to design against." },
+            { text: "Pick the higher-frequency cluster (ROI, 11/14) and lead with that", correct: false, feedback: "Frequency is a signal, not a decision rule. The 9/14 cluster might be the same root cause at a different level of abstraction. Always ask what they have in common before you pick one." },
+          ]}
+          conceptId="insight-synthesis"
+        />
 
         <InfoBox title="The synthesis test" accent="var(--teal)">
           <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
