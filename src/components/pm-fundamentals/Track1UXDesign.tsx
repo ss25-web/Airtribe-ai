@@ -1049,67 +1049,47 @@ const LovableAIMockup = () => {
 // ─────────────────────────────────────────
 // CUSTOM MENTOR CARDS
 // ─────────────────────────────────────────
+// ─────────────────────────────────────────
+// CHARACTER QUOTE — avatar + speech bubble
+// ─────────────────────────────────────────
+const CharacterQuote = ({ initial, name, role, color, quote }: {
+  initial: string; name: string; role: string; color: string; quote: string;
+}) => (
+  <div style={{ margin: '24px 0', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+    <div style={{
+      width: '42px', height: '42px', borderRadius: '50%', flexShrink: 0, marginTop: '2px',
+      background: `${color}1A`, border: `2px solid ${color}`,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontWeight: 800, fontSize: '16px', color, fontFamily: "'Lora', Georgia, serif",
+    }}>
+      {initial}
+    </div>
+    <div style={{ flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '7px' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color }}>{name}</span>
+        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>{role}</span>
+      </div>
+      <div style={{
+        background: 'var(--ed-card)', borderRadius: '2px 10px 10px 10px',
+        border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${color}`,
+        padding: '14px 18px',
+        fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.8,
+        fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif",
+      }}>
+        &ldquo;{quote}&rdquo;
+      </div>
+    </div>
+  </div>
+);
+
 const KiranCard = ({ quote }: { quote: string }) => (
-  <div style={{
-    margin: '24px 0',
-    background: 'var(--ed-card)',
-    borderLeft: '4px solid #3A86FF',
-    borderTop: '1px solid var(--ed-rule)',
-    borderRight: '1px solid var(--ed-rule)',
-    borderBottom: '1px solid var(--ed-rule)',
-    borderRadius: '0 8px 8px 0',
-    padding: '18px 20px',
-  }}>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: '#3A86FF', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3A86FF', display: 'inline-block' }} />
-      KIRAN · DATA ANALYST
-    </div>
-    <div style={{ fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.75, fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif" }}>
-      &ldquo;{quote}&rdquo;
-    </div>
-  </div>
+  <CharacterQuote initial="K" name="Kiran" role="Data Analyst · EdSpark" color="#3A86FF" quote={quote} />
 );
-
 const MayaCard = ({ quote }: { quote: string }) => (
-  <div style={{
-    margin: '24px 0',
-    background: 'var(--ed-card)',
-    borderLeft: '4px solid #E07A5F',
-    borderTop: '1px solid var(--ed-rule)',
-    borderRight: '1px solid var(--ed-rule)',
-    borderBottom: '1px solid var(--ed-rule)',
-    borderRadius: '0 8px 8px 0',
-    padding: '18px 20px',
-  }}>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: '#E07A5F', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#E07A5F', display: 'inline-block' }} />
-      MAYA · DESIGNER
-    </div>
-    <div style={{ fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.75, fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif" }}>
-      &ldquo;{quote}&rdquo;
-    </div>
-  </div>
+  <CharacterQuote initial="M" name="Maya" role="Designer · EdSpark" color="#C85A40" quote={quote} />
 );
-
 const DevCard = ({ quote }: { quote: string }) => (
-  <div style={{
-    margin: '24px 0',
-    background: 'var(--ed-card)',
-    borderLeft: '4px solid #6E7681',
-    borderTop: '1px solid var(--ed-rule)',
-    borderRight: '1px solid var(--ed-rule)',
-    borderBottom: '1px solid var(--ed-rule)',
-    borderRadius: '0 8px 8px 0',
-    padding: '18px 20px',
-  }}>
-    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: '#6E7681', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6E7681', display: 'inline-block' }} />
-      DEV · ENGINEER
-    </div>
-    <div style={{ fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.75, fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif" }}>
-      &ldquo;{quote}&rdquo;
-    </div>
-  </div>
+  <CharacterQuote initial="D" name="Dev" role="Engineer · EdSpark" color="#6E7681" quote={quote} />
 );
 
 // ─────────────────────────────────────────
@@ -1144,18 +1124,30 @@ export default function Track1UXDesign() {
           {/* Character row */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '40px' }}>
             {[
-              { name: 'Priya', role: 'APM · 2 yrs', org: 'EdSpark', color: ACCENT, bg: `rgba(${ACCENT_RGB},0.08)`, border: `rgba(${ACCENT_RGB},0.2)` },
-              { name: 'Maya', role: 'Designer', org: 'EdSpark', color: '#E07A5F', bg: 'rgba(224,122,95,0.07)', border: 'rgba(224,122,95,0.2)' },
-              { name: 'Kiran', role: 'Data Analyst', org: 'EdSpark', color: '#3A86FF', bg: 'rgba(58,134,255,0.07)', border: 'rgba(58,134,255,0.2)' },
-              { name: 'Asha', role: 'AI Mentor', org: '', color: '#0097A7', bg: 'rgba(0,151,167,0.07)', border: 'rgba(0,151,167,0.2)' },
+              { initial: 'P', name: 'Priya', role: 'APM · 2 yrs', desc: 'Your protagonist. Figuring it out in real time.', color: ACCENT, bg: `rgba(${ACCENT_RGB},0.07)`, border: `rgba(${ACCENT_RGB},0.2)` },
+              { initial: 'M', name: 'Maya', role: 'Designer', desc: 'Sees what users feel, not what they say.', color: '#C85A40', bg: 'rgba(200,90,64,0.07)', border: 'rgba(200,90,64,0.2)' },
+              { initial: 'K', name: 'Kiran', role: 'Data Analyst', desc: 'Brings the number nobody wants to see.', color: '#3A86FF', bg: 'rgba(58,134,255,0.07)', border: 'rgba(58,134,255,0.2)' },
+              { initial: 'D', name: 'Dev', role: 'Engineer', desc: 'Builds exactly what the spec says. No more.', color: '#6E7681', bg: 'rgba(110,118,129,0.07)', border: 'rgba(110,118,129,0.2)' },
+              { initial: 'A', name: 'Asha', role: 'AI Mentor', desc: 'Asks the question you haven\'t asked yet.', color: '#0097A7', bg: 'rgba(0,151,167,0.07)', border: 'rgba(0,151,167,0.2)' },
             ].map(c => (
               <div key={c.name} style={{
                 background: c.bg, border: `1px solid ${c.border}`,
-                borderRadius: '8px', padding: '12px 16px', minWidth: '130px',
+                borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1',
               }}>
-                <div style={{ fontWeight: 700, fontSize: '14px', color: c.color, marginBottom: '3px' }}>{c.name}</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>{c.role}</div>
-                {c.org && <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', opacity: 0.7 }}>{c.org}</div>}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <div style={{
+                    width: '34px', height: '34px', borderRadius: '50%',
+                    background: `${c.color}22`, border: `2px solid ${c.color}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 800, fontSize: '14px', color: c.color,
+                    fontFamily: "'Lora', Georgia, serif", flexShrink: 0,
+                  }}>{c.initial}</div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.color, lineHeight: 1.2 }}>{c.name}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{c.role}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
               </div>
             ))}
           </div>
