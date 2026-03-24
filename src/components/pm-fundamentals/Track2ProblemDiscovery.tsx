@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
-  glassCard, demoLabel, h2, pullQuote, keyBox,
+  glassCard, demoLabel, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser,
 } from './designSystem';
 
@@ -654,7 +654,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 1 — THE BRIEF THAT'S WRONG */}
       <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part I · When the Brief Is Wrong</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part I · When the Brief Is Wrong</h2>
         <SituationCard>
           Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
         </SituationCard>
@@ -725,7 +725,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 2 — RESEARCH OPS */}
       <ChapterSection id="m2-customer-segments" num="02" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part II · Research Ops: Building Team Memory</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part II · Research Ops: Building Team Memory</h2>
         <SituationCard>
           After the Monday meeting, Rohan agreed to pause and re-scope. &ldquo;Okay, Priya — what do we actually know about why managers leave? And please don&apos;t tell me we need to start from scratch.&rdquo;
         </SituationCard>
@@ -773,7 +773,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 3 — RESEARCH BIASES */}
       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part III · The Biases That Corrupt Discovery</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part III · The Biases That Corrupt Discovery</h2>
         <SituationCard>
           Priya asked Maya, EdSpark&apos;s designer, to help prep the interview study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
         </SituationCard>
@@ -834,7 +834,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 4 — THE INTERVIEWS */}
       <ChapterSection id="m2-interview" num="04" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part IV · Running 14 Interviews in 8 Days</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part IV · Running 14 Interviews in 8 Days</h2>
         <SituationCard>
           Priya and Maya split the interviews: Priya took the churned managers (recruited via email from the CRM), Maya took the active ones. They used the same Notion template — but Priya added one rule: <strong>don&apos;t mention onboarding until the participant does.</strong>
         </SituationCard>
@@ -891,7 +891,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 5 — SYNTHESIS */}
       <ChapterSection id="m2-synthesis" num="05" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part V · Synthesising 14 Interviews into One Insight</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part V · Synthesising 14 Interviews into One Insight</h2>
         <SituationCard>
           Friday afternoon. Priya and Maya had 14 interview transcripts tagged in Dovetail. 94 individual moments. They booked a 2-hour synthesis session and opened the clusters.
         </SituationCard>
@@ -937,7 +937,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 6 — PROBLEM FRAMING */}
       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Part VI · Framing the Problem That Gets Teams Aligned</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part VI · Framing the Problem That Gets Teams Aligned</h2>
         <SituationCard>
           Monday morning again. Priya had one slide and one sentence. She opened the meeting. &ldquo;I said we&apos;d come back with a validated research question. Here&apos;s what we found.&rdquo;
         </SituationCard>
@@ -971,7 +971,7 @@ export default function Track2ProblemDiscovery() {
 
       {/* FINAL REFLECTION */}
       <ChapterSection id="m2-reflection" num="07" accentRgb="0,151,167">
-        <div style={{ ...h2, color: 'var(--teal)' }}>Final Reflection · The Discovery Playbook for APMs</div>
+        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Final Reflection · The Discovery Playbook for APMs</h2>
         <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
           Priya had done discovery before. But this sprint was different — she had run it as an APM, not as an individual contributor. She&apos;d challenged a CEO brief, used a shared repo to avoid redundant research, caught a bias in her team&apos;s study design, and compressed 14 interviews into one sentence that changed the product direction.
         </p>
