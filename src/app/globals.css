@@ -159,39 +159,40 @@ body {
 }
 
 /* Editorial dark mode — triggered by html.dark class (set globally from homepage toggle) */
+/* Palette inspired by PML Brochure: deep purple #4B2DA0, near-black #130B2B, lavender text */
 html.dark .editorial {
-  --bg:    #22203A;
-  --bg2:   #282640;
-  --bg3:   #2F2D4A;
-  --bg4:   #363454;
-  --tx:    #EDEAFF;
-  --tx2:   #C8C2E8;
-  --tx3:   #8880B0;
-  --dim:   #3E3A62;
-  --card:  #2A2844;
-  --txcard:  #EDEAFF;
-  --txcard2: #C8C2E8;
-  --bar-bg:  #3E3A62;
+  --bg:    #130B2B;
+  --bg2:   #1A1040;
+  --bg3:   #1E1245;
+  --bg4:   #271660;
+  --tx:    #F0ECFF;
+  --tx2:   #C4B0F5;
+  --tx3:   #8868C8;
+  --dim:   #3B2280;
+  --card:  #1E1245;
+  --txcard:  #F0ECFF;
+  --txcard2: #C4B0F5;
+  --bar-bg:  #3B2280;
   /* Accent colors lightened for dark-bg readability */
-  --purple: #B39DFA;
+  --purple: #C8AEFF;
   --teal:   #2DD4BF;
   --green:  #34D399;
   --coral:  #FB8469;
   --blue:   #60A5FA;
   --ok-bg:  rgba(13, 122, 90, 0.18);
   --no-bg:  rgba(181, 60, 40, 0.18);
-  --purple-light: #C4B5FD;
+  --purple-light: #C8AEFF;
 
-  --ed-ink:   #EDEAFF;
-  --ed-ink2:  #C8C2E8;
-  --ed-ink3:  #8880B0;
-  --ed-rule:  #3E3A62;
-  --ed-card:  #2A2844;
-  --ed-cream: #22203A;
-  --ed-cream2: #282640;
-  --ed-indigo: #B39DFA;
-  --ed-indigo-bg: rgba(179,157,250,0.14);
-  --ed-indigo-border: rgba(179,157,250,0.30);
+  --ed-ink:   #F0ECFF;
+  --ed-ink2:  #C4B0F5;
+  --ed-ink3:  #8868C8;
+  --ed-rule:  #3B2280;
+  --ed-card:  #1E1245;
+  --ed-cream: #130B2B;
+  --ed-cream2: #1A1040;
+  --ed-indigo: #C8AEFF;
+  --ed-indigo-bg: rgba(180,140,255,0.12);
+  --ed-indigo-border: rgba(180,140,255,0.28);
   --ed-amber: #FBBF24;
   --ed-amber-bg: rgba(251,191,36,0.1);
   --ed-amber-border: rgba(251,191,36,0.28);
@@ -199,7 +200,7 @@ html.dark .editorial {
   --ed-green-bg: rgba(52,211,153,0.1);
   --ed-green-border: rgba(52,211,153,0.28);
   --card-subtle: rgba(255,255,255,0.06);
-  --svg-muted: rgba(220,210,255,0.35);
+  --svg-muted: rgba(220,200,255,0.35);
 }
 
 html.dark .editorial h1,
