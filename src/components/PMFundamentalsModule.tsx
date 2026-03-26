@@ -586,8 +586,16 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
             padding: '11px 0',
           }}>
 
-          {/* Left: Airtribe logo + breadcrumb */}
+          {/* Left: back button + logo + breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+            <motion.button
+              whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }}
+              onClick={onBack}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}>
+              <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
+            </motion.button>
+            <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
             <AirtribeLogo />
             <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
@@ -610,21 +618,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: cfg.accent, flexShrink: 0 }}>{progressPct}%</span>
           </div>
 
-          {/* Right: back button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            {/* Back button */}
-            <motion.button
-              whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }}
-              onClick={onBack}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '5px',
-                padding: '6px 12px', borderRadius: '6px',
-                background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer',
-              }}>
-              <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
-              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Curriculum</span>
-            </motion.button>
-          </div>
+          <div style={{ width: '80px', flexShrink: 0 }} />
         </motion.div>
 
         {/* Airtribe gradient accent bar */}

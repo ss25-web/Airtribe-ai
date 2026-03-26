@@ -14,7 +14,7 @@ const SERIES = [
     id: 'pm',
     label: 'START HERE',
     title: 'Product Management\nLaunchpad',
-    parts: '1 pre-read · placement quiz',
+    parts: '4 pre-reads · placement quiz',
     description: 'The core mental models every PM needs — from defining problems correctly, to making tradeoff decisions, to measuring what actually matters. Starts with a 10-question quiz to assign your level.',
     tags: ['Strategy', 'Prioritization', 'Metrics'],
     headerBg: 'linear-gradient(145deg, #2C3654 0%, #1E2640 100%)',
