@@ -6,6 +6,7 @@ import {
   h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1123,28 +1124,19 @@ export default function Track1UXDesign() {
 
           {/* Character row */}
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '40px' }}>
-            {[
-              { initial: 'P', name: 'Priya', role: 'APM · 2 yrs', desc: 'Your protagonist. Figuring it out in real time.', color: ACCENT, bg: `rgba(${ACCENT_RGB},0.07)`, border: `rgba(${ACCENT_RGB},0.2)` },
-              { initial: 'M', name: 'Maya', role: 'Designer', desc: 'Sees what users feel, not what they say.', color: '#C85A40', bg: 'rgba(200,90,64,0.07)', border: 'rgba(200,90,64,0.2)' },
-              { initial: 'K', name: 'Kiran', role: 'Data Analyst', desc: 'Brings the number nobody wants to see.', color: '#3A86FF', bg: 'rgba(58,134,255,0.07)', border: 'rgba(58,134,255,0.2)' },
-              { initial: 'D', name: 'Dev', role: 'Engineer', desc: 'Builds exactly what the spec says. No more.', color: '#6E7681', bg: 'rgba(110,118,129,0.07)', border: 'rgba(110,118,129,0.2)' },
-              { initial: 'A', name: 'Asha', role: 'AI Mentor', desc: 'Asks the question you haven\'t asked yet.', color: '#0097A7', bg: 'rgba(0,151,167,0.07)', border: 'rgba(0,151,167,0.2)' },
-            ].map(c => (
-              <div key={c.name} style={{
-                background: c.bg, border: `1px solid ${c.border}`,
-                borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1',
-              }}>
+            {([
+              { mentor: 'priya' as const, accent: ACCENT,    desc: 'Your protagonist. Figuring it out in real time.' },
+              { mentor: 'maya'  as const, accent: '#C85A40', desc: 'Sees what users feel, not what they say.' },
+              { mentor: 'kiran' as const, accent: '#3A86FF', desc: 'Brings the number nobody wants to see.' },
+              { mentor: 'dev'   as const, accent: '#6E7681', desc: 'Builds exactly what the spec says. No more.' },
+              { mentor: 'asha'  as const, accent: '#0097A7', desc: 'Asks the question you haven\'t asked yet.' },
+            ]).map(c => (
+              <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <div style={{
-                    width: '34px', height: '34px', borderRadius: '50%',
-                    background: `${c.color}22`, border: `2px solid ${c.color}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 800, fontSize: '14px', color: c.color,
-                    fontFamily: "'Lora', Georgia, serif", flexShrink: 0,
-                  }}>{c.initial}</div>
+                  <MentorFace mentor={c.mentor} size={44} />
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.color, lineHeight: 1.2 }}>{c.name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{c.role}</div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{{ priya: 'Priya', maya: 'Maya', kiran: 'Kiran', dev: 'Dev', asha: 'Asha' }[c.mentor]}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{{ priya: 'APM · 2 yrs', maya: 'Designer', kiran: 'Data Analyst', dev: 'Engineer', asha: 'AI Mentor' }[c.mentor]}</div>
                   </div>
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>

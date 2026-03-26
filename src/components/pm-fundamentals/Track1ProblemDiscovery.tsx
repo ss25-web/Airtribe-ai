@@ -8,6 +8,7 @@ import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
 
 // Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
@@ -736,6 +737,31 @@ const IntroHero = () => (
             <ToolBadge name="Notion" desc="Interview notes template + affinity mapping board" accent="var(--blue)" />
             <ToolBadge name="Dovetail" desc="Research repository — tag, cluster, find patterns" accent="var(--purple)" />
             <ToolBadge name="Kraftful" desc="AI analysis of support tickets — fast pattern detection" accent="var(--teal)" />
+          </div>
+        </div>
+
+        {/* Characters */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+            {([
+              { mentor: 'priya' as const, accent: 'var(--teal)', accentHex: '#0097A7', desc: '14 Figma screens ready. About to send the wrong thing.' },
+              { mentor: 'maya'  as const, accent: '#C85A40',      accentHex: '#C85A40', desc: 'Watches session recordings. Knows what users actually mean.' },
+              { mentor: 'kiran' as const, accent: '#3A86FF',      accentHex: '#3A86FF', desc: 'Has the churn segmentation. Waiting for someone to ask.' },
+              { mentor: 'dev'   as const, accent: '#6E7681',      accentHex: '#6E7681', desc: 'Builds what you ask for. Problem is you haven\'t asked the right thing yet.' },
+              { mentor: 'asha'  as const, accent: '#7843EE',      accentHex: '#7843EE', desc: 'Keeps asking "what problem are you actually solving?"' },
+            ]).map(c => (
+              <div key={c.mentor} style={{ background: `${c.accentHex}0D`, border: `1px solid ${c.accentHex}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '130px', flex: '1' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <MentorFace mentor={c.mentor} size={44} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{{ priya: 'Priya', maya: 'Maya', kiran: 'Kiran', dev: 'Dev', asha: 'Asha' }[c.mentor]}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{{ priya: 'APM · 2 yrs', maya: 'Designer', kiran: 'Data Analyst', dev: 'Engineer', asha: 'AI Mentor' }[c.mentor]}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
+              </div>
+            ))}
           </div>
         </div>
 

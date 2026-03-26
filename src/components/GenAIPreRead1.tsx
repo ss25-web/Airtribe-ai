@@ -468,7 +468,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {PMPrincipleBox({ principle: 'The first serious AI question is not “Can the model do this?” It is “What happens when it does this imperfectly?”' })}
         <ApplyItBox prompt="Think of one AI experiment your team has already tried. Which role was missing from the design: Business Process Owner, Human Reviewer, Risk / Compliance Reviewer, Systems / Platform Engineer, or Source System Owner?" />
         <QuizEngine conceptId="genai-workflow-thinking" conceptName="Workflow Thinking" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
-        <NextChapterTeaser text="Rhea now sees that prompt quality is only one layer. The next question is where the rest of the system actually lives: trigger, context, control, and destination." />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now sees that prompt quality is only one layer. The next question is where the rest of the system actually lives: trigger, context, control, and destination." : "Rhea now sees that prompt quality is only one layer. The next question is where the rest of the system actually lives: trigger, context, control, and destination."} />
       </ChapterSection>
 
       <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-preread-stack">
@@ -507,7 +507,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         />
         {ApplyItBox({ prompt: 'Draw one workflow you know using five labels only: trigger, context, model, control, outcome. Which box is weakest right now?' })}
         <QuizEngine conceptId="genai-orchestration" conceptName="The GenAI Stack" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
-        <NextChapterTeaser text="Once Rhea can see the stack, a more practical question appears: which layer should actually hold the logic, retries, approvals, and visibility?" />
+        <NextChapterTeaser text={track === 'tech' ? "Once Aarav can see the stack, a more practical question appears: which layer should actually hold the logic, retries, approvals, and visibility?" : "Once Rhea can see the stack, a more practical question appears: which layer should actually hold the logic, retries, approvals, and visibility?"} />
       </ChapterSection>
 
       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
@@ -552,7 +552,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         />
         {ApplyItBox({ prompt: 'Pick a workflow you want to automate. Where would the Business Process Owner need visibility? Where would the Human Reviewer need a checkpoint? Where would the Risk / Compliance Reviewer need an audit trail?' })}
         <QuizEngine conceptId="genai-n8n-role" conceptName="n8n as Control Layer" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
-        <NextChapterTeaser text="Rhea now has a place for execution logic. The next decision is harder: which workflows deserve AI at all, and which ones are still too risky?" />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has a place for execution logic. The next decision is harder: which workflows deserve AI at all, and which ones are still too risky?" : "Rhea now has a place for execution logic. The next decision is harder: which workflows deserve AI at all, and which ones are still too risky?"} />
       </ChapterSection>
 
       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-preread-judgment">
@@ -601,7 +601,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {PMPrincipleBox({ principle: 'The safest early AI systems assist decisions before they automate decisions.' })}
         <ApplyItBox prompt="Name one workflow in your world that should stay assistive for now, not autonomous. Which role would object first if it acted on its own: Human Reviewer, Workflow Operator, Risk / Compliance Reviewer, or Source System Owner?" />
         <QuizEngine conceptId="genai-use-case-judgment" conceptName="Use-Case Judgment" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
-        <NextChapterTeaser text="Rhea now knows what a good first use case looks like. The last step is to frame one clearly enough that building it becomes straightforward." />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now knows what a good first use case looks like. The last step is to frame one clearly enough that building it becomes straightforward." : "Rhea now knows what a good first use case looks like. The last step is to frame one clearly enough that building it becomes straightforward."} />
       </ChapterSection>
 
       <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-preread-apply">

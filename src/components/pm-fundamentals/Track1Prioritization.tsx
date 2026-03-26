@@ -6,6 +6,7 @@ import {
   glassCard, demoLabel, h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, para,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -729,23 +730,28 @@ const IntroHero = () => (
       <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: '20px' }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
-          {[
-            { emoji: '&#129489;&#8205;&#128188;', name: 'Priya Sharma', role: 'APM · 2 yrs · EdSpark', desc: 'Leading sprint planning. Her challenge: everyone says their request is the most important.', accent: ACCENT },
-            { emoji: '&#128084;', name: 'Rohan', role: 'CEO · EdSpark', desc: 'Sets product strategy. Priya needs to align her decisions with his goals.', accent: '#E67E22' },
-            { emoji: '&#128202;', name: 'Kiran', role: 'Data Analyst · EdSpark', desc: 'Pulls the Amplitude numbers that change the whole conversation.', accent: '#3A86FF' },
-            { emoji: '&#129489;&#8205;&#127979;', name: 'Asha', role: 'AI Mentor', desc: 'Challenges Priya\'s reasoning throughout. The voice that asks "but why?"', accent: '#4F46E5' },
-          ].map(c => (
-            <div key={c.name} style={{ flex: '1', minWidth: '180px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${c.accent}`, padding: '12px 14px' }}>
-              <div style={{ display: 'flex', gap: '9px', alignItems: 'center', marginBottom: '7px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: `${c.accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: c.emoji }} />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.2 }}>{c.name}</div>
-                  <div style={{ fontSize: '9px', color: c.accent, fontFamily: 'monospace', marginTop: '1px', fontWeight: 600 }}>{c.role}</div>
+          {([
+            { mentor: 'priya' as const, desc: 'Navigating four conflicting priorities with one engineer.' },
+            { mentor: 'rohan' as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },
+            { mentor: 'kiran' as const, desc: 'Pulls the Amplitude numbers that change the whole conversation.' },
+            { mentor: 'asha'  as const, desc: 'Keeps asking "what outcome does that actually move?"' },
+          ]).map(c => {
+            const accent = { priya: ACCENT, rohan: '#E67E22', kiran: '#3A86FF', asha: '#0097A7' }[c.mentor];
+            const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor];
+            const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor];
+            return (
+              <div key={c.mentor} style={{ background: `${accent}0D`, border: `1px solid ${accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <MentorFace mentor={c.mentor} size={44} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: accent, lineHeight: 1.2 }}>{name}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{role}</div>
+                  </div>
                 </div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>{c.desc}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

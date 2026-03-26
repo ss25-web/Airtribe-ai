@@ -7,6 +7,7 @@ import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
@@ -712,6 +713,31 @@ const IntroHero = () => (
           }}>How this works</div>
           <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
             Each part follows <strong style={{ color: 'var(--ed-ink)' }}>Priya Sharma</strong>, a first-time PM at EdSpark, through a real situation that surfaces one key idea. Four guides — <strong style={{ color: 'var(--ed-ink)' }}>Asha</strong>, <strong style={{ color: 'var(--ed-ink)' }}>Dev</strong>, <strong style={{ color: 'var(--ed-ink)' }}>Maya</strong>, and <strong style={{ color: 'var(--ed-ink)' }}>Kiran</strong> — appear when Priya gets stuck.
+          </div>
+        </div>
+
+        {/* Characters */}
+        <div style={{ marginTop: '24px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+            {([
+              { mentor: 'priya' as const, accent: '#4F46E5', desc: 'Your protagonist. First week as a PM. Figuring it out in real time.' },
+              { mentor: 'maya'  as const, accent: '#E07A5F', desc: 'Sees what users feel, not what they say.' },
+              { mentor: 'dev'   as const, accent: '#3A86FF', desc: 'Builds exactly what the spec says. No more, no less.' },
+              { mentor: 'kiran' as const, accent: '#0097A7', desc: 'Brings the number nobody wanted to see.' },
+              { mentor: 'asha'  as const, accent: '#7843EE', desc: 'Asks the question you haven\'t thought to ask yet.' },
+            ]).map(c => (
+              <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '12px 14px', minWidth: '130px', flex: '1' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
+                  <MentorFace mentor={c.mentor} size={42} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{{ priya: 'Priya', maya: 'Maya', dev: 'Dev', kiran: 'Kiran', asha: 'Asha' }[c.mentor]}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{{ priya: 'APM · EdSpark', maya: 'Designer', dev: 'Engineer', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor]}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
