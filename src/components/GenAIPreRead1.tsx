@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace } from './GenAIAvatar';
+import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox,
@@ -21,9 +22,6 @@ import {
 
 const ACCENT = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
-const MODULE_CONTEXT = `GenAI Launchpad · Pre-Read 01 · Orientation & AI Mindset.
-Follows Rhea, an operations lead at Northstar Health, as she moves from ad-hoc AI experiments to designing reliable n8n-based workflows. Covers workflow thinking, the GenAI stack, the role of n8n as orchestration and control, early use-case judgment, and system framing.`;
-
 const TRACK_META: Record<GenAITrack, { label: string; shortLabel: string; introTitle: string; moduleContext: string }> = {
   'non-tech': {
     label: 'Workflow & Operator Track',
@@ -41,7 +39,6 @@ Follows Aarav, a platform-minded builder at Northstar Health, as he turns messy 
   },
 };
 
-const trackText = <T,>(track: GenAITrack, values: Record<GenAITrack, T>) => values[track];
 
 const QUIZZES = [
   {
@@ -322,19 +319,111 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
+function RheaFace({ size = 44 }: { size?: number }) {
+  const [blink, setBlink] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(() => {
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => { setBlink(false); schedule(); }, 130);
+      }, 2800 + Math.random() * 2200);
+    };
+    schedule();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+  const eyeRy = blink ? 0.6 : 4.8;
+  return (
+    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', border: '2px solid #7C3AED', overflow: 'hidden', flexShrink: 0 }}>
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4F46E5" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#7C3AED" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#C98B5A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#C98B5A" />
+        {/* Hair — long, flowing */}
+        <ellipse cx="50" cy="22" rx="28" ry="16" fill="#1A0D2E" />
+        <path d="M 22 30 Q 18 55 22 80 Q 26 72 26 55 Z" fill="#1A0D2E" />
+        <path d="M 78 30 Q 82 55 78 80 Q 74 72 74 55 Z" fill="#1A0D2E" />
+        <path d="M 22 28 Q 28 20 50 18 Q 72 20 78 28 L 76 42 Q 64 35 50 35 Q 36 35 24 42 Z" fill="#1A0D2E" />
+        <ellipse cx="24" cy="55" rx="4" ry="7" fill="#C98B5A" />
+        <ellipse cx="76" cy="55" rx="4" ry="7" fill="#C98B5A" />
+        {/* Eyebrows */}
+        <path d="M 31 42 Q 38 39 45 41" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 41 Q 62 39 69 42" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        {/* Eyes */}
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.4" fill="#2D1A6E" /><circle cx="62.5" cy="50.5" r="3.4" fill="#2D1A6E" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        {/* Nose */}
+        <path d="M 48 57 Q 50 61 52 57" stroke="#A96938" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        {/* Smile */}
+        <path d="M 40 67 Q 50 74 60 67" stroke="#9C5D3B" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function AaravFace({ size = 44 }: { size?: number }) {
+  const [blink, setBlink] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(() => {
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => { setBlink(false); schedule(); }, 130);
+      }, 2800 + Math.random() * 2200);
+    };
+    schedule();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+  const eyeRy = blink ? 0.6 : 4.8;
+  return (
+    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #0F766E 0%, #059669 100%)', border: '2px solid #0F766E', overflow: 'hidden', flexShrink: 0 }}>
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#065F46" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#0F766E" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#7A4A33" />
+        <ellipse cx="50" cy="52" rx="27" ry="30" fill="#7A4A33" />
+        {/* Short cropped hair */}
+        <ellipse cx="50" cy="22" rx="27" ry="15" fill="#111" />
+        <path d="M 23 32 Q 24 20 50 18 Q 76 20 77 32 L 76 44 Q 64 36 50 36 Q 36 36 24 44 Z" fill="#111" />
+        <ellipse cx="24" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
+        <ellipse cx="76" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
+        {/* Eyebrows */}
+        <path d="M 30 41 Q 38 38 46 40" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+        <path d="M 54 40 Q 62 38 70 41" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+        {/* Glasses */}
+        <rect x="28" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
+        <rect x="52" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
+        <line x1="48" y1="49.5" x2="52" y2="49.5" stroke="#222" strokeWidth="1.7" />
+        {/* Eyes (behind glasses) */}
+        <ellipse cx="38" cy="49.5" rx="6" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="49.5" rx="6" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.3" cy="50" r="2.9" fill="#1A2030" /><circle cx="62.3" cy="50" r="2.9" fill="#1A2030" /></>}
+        {!blink && <><circle cx="39.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /><circle cx="63.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /></>}
+        {/* Nose */}
+        <path d="M 48 57 Q 50 61 52 57" stroke="#5C3420" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        {/* Smile */}
+        <path d="M 40 67 Q 50 72 60 67" stroke="#5C3420" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
   const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
   const protagonistDesc = track === 'tech'
-    ? 'Building reliable AI systems out of messy ad-hoc scripts and broken pipelines.'
-    : 'Turning chaotic AI experiments into workflows her team can actually trust.';
+    ? 'His team runs on ad-hoc AI scripts. Most break silently. He wants a system his team can debug at 2am.'
+    : 'Her team is already using ChatGPT in production. Some outputs are useful. Some are wrong. Nobody owns the failure mode.';
 
-  const MENTORS = [
-    { name: 'Anika', role: 'AI Workflow Strategist', desc: 'System design before tool selection.', color: '#7C3AED', initial: 'A' },
-    { name: 'Rohan', role: 'Automation Engineer', desc: 'Payloads, retries, and execution paths.', color: '#2563EB', initial: 'R' },
-    { name: 'Leela', role: 'Risk & Compliance', desc: 'Where Human Reviewers must stay in the loop.', color: '#C2410C', initial: 'L' },
-    { name: 'Kabir', role: 'Operations Intelligence', desc: 'Judgment on what to automate — and when.', color: '#0F766E', initial: 'K' },
+  const MENTORS: { name: string; role: string; desc: string; color: string; mentorId: GenAIMentorId }[] = [
+    { name: 'Anika', role: 'AI Workflow Strategist', desc: 'Asks who owns the failure mode before anyone designs the happy path.', color: '#7C3AED', mentorId: 'anika' },
+    { name: 'Rohan', role: 'Automation Engineer', desc: 'Thinks in payloads, retries, and what the system does at 2am.', color: '#2563EB', mentorId: 'rohan' },
+    { name: 'Leela', role: 'Risk & Compliance', desc: 'First to ask what happens to people when the workflow is wrong.', color: '#C2410C', mentorId: 'leela' },
+    { name: 'Kabir', role: 'Operations Intelligence', desc: 'Distinguishes repetitive work from work that is actually ready for AI.', color: '#0F766E', mentorId: 'kabir' },
   ];
 
   return (
@@ -362,9 +451,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
               borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: track === 'tech' ? 'rgba(15,118,110,0.2)' : `rgba(${ACCENT_RGB},0.15)`, border: `2px solid ${track === 'tech' ? '#0F766E' : ACCENT}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '15px', color: track === 'tech' ? '#0F766E' : ACCENT, fontFamily: "'Lora', Georgia, serif", flexShrink: 0 }}>
-                  {protagonist[0]}
-                </div>
+                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{protagonist}</div>
                   <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
@@ -378,7 +465,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             {MENTORS.map(m => (
               <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: `${m.color}18`, border: `2px solid ${m.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px', color: m.color, fontFamily: "'Lora', Georgia, serif", flexShrink: 0 }}>{m.initial}</div>
+                  <GenAIMentorFace mentor={m.mentorId} size={34} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
                     <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
@@ -393,10 +480,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
-              'Understand why workflow design matters more than prompt quality for reliable AI systems',
-              'Map the GenAI stack: trigger → context → model → control → outcome',
-              'Learn why n8n is the control layer, not just a connector',
-              'Identify which workflows deserve AI early — and which ones don\'t yet',
+              'See why the workflow around the model matters more than the model itself',
+              'Map any AI system as five layers: trigger, context, model, control, outcome',
+              'Understand why n8n is the control layer — not just a connector',
+              'Build judgment for which workflows earn AI early, and which ones are not ready',
             ].map((obj, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
                 <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", marginTop: '2px' }}>0{i + 1}</span>
@@ -414,8 +501,8 @@ function CoreContent({ track }: { track: GenAITrack }) {
         </div>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
           {track === 'tech'
-            ? 'In this version of Module 01, we will keep asking how the workflow is implemented: what triggers the run, what payload enters the system, what output shape is required, and where validation, retries, and observability live.'
-            : 'In this version of Module 01, we will keep asking whether the workflow deserves AI in the first place: what decision it helps with, where Human Reviewers belong, and how to design a useful system before getting lost in implementation detail.'}
+            ? 'Your lens throughout this module: how is the workflow actually implemented? What triggers the run, what payload enters the system, what output shape is required, and where do validation, retries, and observability live?'
+            : 'Your lens throughout this module: does the workflow deserve AI yet? What decision does it help with, where do Human Reviewers belong, and how do you design something trustworthy before getting lost in tools?'}
         </div>
       </div>
 
@@ -466,9 +553,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
         />
         {PMPrincipleBox({ principle: 'The first serious AI question is not “Can the model do this?” It is “What happens when it does this imperfectly?”' })}
-        <ApplyItBox prompt="Think of one AI experiment your team has already tried. Which role was missing from the design: Business Process Owner, Human Reviewer, Risk / Compliance Reviewer, Systems / Platform Engineer, or Source System Owner?" />
+        <ApplyItBox prompt={track === 'tech' ? "Pick one AI script your team already runs. What is the trigger? What validates the output? What happens when it fails silently at 2am? Which layer is missing?" : "Think of one AI experiment your team has already tried. Which role was missing from the design: Business Process Owner, Human Reviewer, Risk / Compliance Reviewer, Systems / Platform Engineer, or Source System Owner?"} />
         <QuizEngine conceptId="genai-workflow-thinking" conceptName="Workflow Thinking" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now sees that prompt quality is only one layer. The next question is where the rest of the system actually lives: trigger, context, control, and destination." : "Rhea now sees that prompt quality is only one layer. The next question is where the rest of the system actually lives: trigger, context, control, and destination."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav can see the problem now. But naming a problem and knowing where the system should live are different things. Next: the five-layer stack that turns a model call into a real execution path." : "Rhea can see the problem now. But a mindset shift alone does not build anything. Next: the five-layer stack that separates a useful AI workflow from a fragile demo."} />
       </ChapterSection>
 
       <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-preread-stack">
@@ -505,9 +592,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: 'Replace all logic with an agent loop so the system can self-correct.', correct: false, feedback: 'Agent loops can help in some cases, but they are not a substitute for clear workflow design.' },
           ]}
         />
-        {ApplyItBox({ prompt: 'Draw one workflow you know using five labels only: trigger, context, model, control, outcome. Which box is weakest right now?' })}
+        {ApplyItBox({ prompt: track === 'tech' ? 'Map the exception-handling pipeline your team runs most. Label each step: trigger, context fetch, model call, control logic, output destination. Where is the payload shape loosest?' : 'Draw one workflow your team runs regularly using five labels only: trigger, context, model, control, outcome. Which box is weakest right now, and who owns fixing it?' })}
         <QuizEngine conceptId="genai-orchestration" conceptName="The GenAI Stack" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
-        <NextChapterTeaser text={track === 'tech' ? "Once Aarav can see the stack, a more practical question appears: which layer should actually hold the logic, retries, approvals, and visibility?" : "Once Rhea can see the stack, a more practical question appears: which layer should actually hold the logic, retries, approvals, and visibility?"} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has a mental model for the stack. But knowing the layers does not tell you where the execution logic, retries, and approval checkpoints should actually live. That is where n8n comes in." : "Rhea can map the workflow now. But knowing the shape of the system and having a place to make it real are different things. That is what n8n is for."} />
       </ChapterSection>
 
       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
@@ -518,10 +605,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
         </SituationCard>
-        {para('In this program, n8n is the spine of the system. It is where workflows begin, branch, validate inputs, call models, handle retries, and expose decisions clearly. That matters because the hardest part of production AI is rarely just getting a model output. It is making the system observable, maintainable, and debuggable when real work is flowing through it.')}
-        {para('That is why learners will build with webhook nodes, HTTP requests, logic nodes, code nodes, LLM integrations, approvals, and recovery patterns. We are not using n8n as decoration around a chatbot. We are using it as the orchestration layer where Workflow Operator logic, Human Reviewer checkpoints, and system reliability become explicit.')}
-        {para('That orchestration role is what makes n8n such a useful teaching surface. You can see the workflow. You can inspect inputs and outputs. You can trace a failed execution. You can reason about where the system branched and why. For learners, that visibility creates a much better mental model than invisible automation hidden behind a single assistant interface.')}
-        {para('It also forces good engineering habits early: clear node boundaries, explicit credentials, understandable branching logic, retries for unreliable services, and approval gates for high-risk actions. Those are not “advanced extras.” They are the foundation of trustworthy AI systems.')}
+        {para('In this program, n8n is the spine of every system we build. It is where workflows begin, branch, validate inputs, call models, handle retries, and surface decisions clearly. That matters because the hardest part of production AI is rarely the model step. It is making the surrounding system observable, maintainable, and recoverable when real work is flowing through it.')}
+        {para('We are not using n8n as decoration around a chatbot. We are using it as the execution layer where Workflow Operator logic, Human Reviewer checkpoints, retry behavior, and approval gates become explicit and inspectable. You can see the workflow. You can trace a failed run. You can reason about where the system branched and why.')}
+        {para('That forces good habits early: clear node boundaries, explicit credentials, defined output shapes, retries for unreliable services, and approval gates before irreversible actions. Those are not advanced extras. They are what separate a workflow that earns trust from one that quietly fails.')}
         <GenAIAvatar
           name="Rohan"
           nameColor="#2563EB"
@@ -550,16 +636,18 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: 'Reducing every workflow to a single node so it looks simple.', correct: false, feedback: 'A workflow can look simple while becoming impossible to reason about.' },
           ]}
         />
-        {ApplyItBox({ prompt: 'Pick a workflow you want to automate. Where would the Business Process Owner need visibility? Where would the Human Reviewer need a checkpoint? Where would the Risk / Compliance Reviewer need an audit trail?' })}
+        {ApplyItBox({ prompt: track === 'tech' ? 'Name one workflow your team might build in n8n. Where does the execution path branch? Where would a failed run be hardest to debug? Which node owns the Human Reviewer checkpoint?' : 'Pick a workflow you want to automate. Where would the Business Process Owner need visibility into what the AI decided? Where would the Human Reviewer need a pause before the system acts?' })}
         <QuizEngine conceptId="genai-n8n-role" conceptName="n8n as Control Layer" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has a place for execution logic. The next decision is harder: which workflows deserve AI at all, and which ones are still too risky?" : "Rhea now has a place for execution logic. The next decision is harder: which workflows deserve AI at all, and which ones are still too risky?"} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the execution surface. But knowing where logic should live is different from knowing what logic deserves to be automated at all. That judgment is harder than it looks." : "Rhea now has a place where the workflow becomes real. But the harder question is: which workflows should become AI workflows in the first place?"} />
       </ChapterSection>
 
       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-preread-judgment">
         {chLabel('Use-Case Judgment')}
         {h2('Not every workflow should become an agent')}
         <SituationCard accent="#C2410C" accentRgb="194,65,12">
-          A senior teammate proposes an “AI ops agent” that can read requests, update records, trigger follow-ups, and approve routine exceptions automatically. Rhea likes the ambition, but she also notices that the team has not yet agreed on what counts as a safe action, what requires Human Reviewer sign-off, or what happens when the model is unsure.
+          {track === 'tech'
+            ? <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Aarav likes the ambition. But when he asks where the retry logic lives, what the Human Reviewer checkpoint looks like, and what happens when confidence is low, the answer is a shrug. The workflow has no control layer yet.</>
+            : <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Rhea likes the ambition. But she also notices that the team has not agreed on what counts as a safe action, what requires Human Reviewer sign-off, or what happens when the model is unsure. The workflow is ambitious before it is trustworthy.</>}
         </SituationCard>
         {para('One of the most important Workflow Operator skills is deciding where AI adds leverage and where it introduces risk. A good GenAI use case usually has clear inputs, a bounded output format, recoverable mistakes, and obvious Human Reviewer checkpoints. A bad one often combines ambiguity, sensitive consequences, and no clear fallback.')}
         {para('That is why this program is not just about connecting nodes. It is about judgment. When should a workflow summarize? When should it classify? When should it suggest instead of act? When should it pause for Human Reviewer or Risk / Compliance Reviewer sign-off? Those are design choices, not tool settings.')}
@@ -599,9 +687,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
         />
         {PMPrincipleBox({ principle: 'The safest early AI systems assist decisions before they automate decisions.' })}
-        <ApplyItBox prompt="Name one workflow in your world that should stay assistive for now, not autonomous. Which role would object first if it acted on its own: Human Reviewer, Workflow Operator, Risk / Compliance Reviewer, or Source System Owner?" />
+        <ApplyItBox prompt={track === 'tech' ? "Name a workflow your team is tempted to fully automate. What is the error rate tolerance? What happens if the model is wrong? Which action in that flow should never be automated without a Human Reviewer checkpoint?" : "Name one workflow in your world that should stay assistive for now, not autonomous. Which role would object first if it acted on its own: Human Reviewer, Workflow Operator, Risk / Compliance Reviewer, or Source System Owner?"} />
         <QuizEngine conceptId="genai-use-case-judgment" conceptName="Use-Case Judgment" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now knows what a good first use case looks like. The last step is to frame one clearly enough that building it becomes straightforward." : "Rhea now knows what a good first use case looks like. The last step is to frame one clearly enough that building it becomes straightforward."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has use-case judgment. The last step is harder than it sounds: framing a workflow precisely enough that the implementation decisions become obvious." : "Rhea now has use-case judgment. The last step before building is framing the workflow clearly enough that every design decision has a clear answer."} />
       </ChapterSection>
 
       <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-preread-apply">
@@ -629,9 +717,9 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: 'You have a long prompt drafted before anything else.', correct: false, feedback: 'Prompts matter, but they are only one component inside the system.' },
           ]}
         />
-        {ApplyItBox({ prompt: 'Pick one workflow from your world. Who is the Business Process Owner? Who is the Human Reviewer? Who is the Systems / Platform Engineer or Source System Owner? What should the AI do, and what should remain explicitly human-controlled?' })}
+        {ApplyItBox({ prompt: track === 'tech' ? 'Pick one workflow you want to build in this program. Write the five-layer spec: trigger source, context payload, model instruction, output validation rule, and fallback path. Where does the design get blurry?' : 'Pick one workflow from your world. Who is the Business Process Owner? Who is the Human Reviewer? What should the AI do, and what must stay human-controlled — not because automation is impossible, but because the stakes are too high to skip the review?' })}
         <QuizEngine conceptId="genai-system-framing" conceptName="System Framing" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
-        <NextChapterTeaser text="Next, we move into prompt engineering and LLM reliability inside real automation systems." />
+        <NextChapterTeaser text={track === 'tech' ? "With the workflow framed, the next challenge is what you put inside it. Pre-Read 02 goes deep on prompt engineering and LLM reliability inside real automation systems." : "With the workflow framed, the next challenge is writing instructions the model can actually follow reliably. Pre-Read 02 covers prompt engineering and LLM reliability inside real workflows."} />
       </ChapterSection>
     </>
   );

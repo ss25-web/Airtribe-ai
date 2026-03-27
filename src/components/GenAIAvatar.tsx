@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 
-type GenAIMentorId = 'anika' | 'rohan' | 'leela' | 'kabir';
+export type GenAIMentorId = 'anika' | 'rohan' | 'leela' | 'kabir';
 
 const MENTOR_META: Record<GenAIMentorId, {
   name: string;
@@ -51,7 +51,7 @@ interface AvatarOption {
   feedback: string;
 }
 
-function MentorChip({ mentor }: { mentor: GenAIMentorId }) {
+export function GenAIMentorFace({ mentor, size = 66 }: { mentor: GenAIMentorId; size?: number }) {
   const meta = MENTOR_META[mentor];
   const [blink, setBlink] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -161,9 +161,9 @@ function MentorChip({ mentor }: { mentor: GenAIMentorId }) {
       animate={{ y: [0, -2, 0] }}
       transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
       style={{
-        width: 66,
-        height: 66,
-        borderRadius: '18px',
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.27),
         background: `linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03)), ${meta.gradient}`,
         flexShrink: 0,
         boxShadow: `0 10px 24px ${meta.accent}40`,
@@ -267,7 +267,7 @@ export default function GenAIAvatar({
       </div>
 
       <div style={{ padding: '18px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-        <MentorChip mentor={mentor} />
+        <GenAIMentorFace mentor={mentor} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '1px' }}>{meta.name}</div>
           <div style={{ fontSize: '10px', color: meta.accent, fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px', letterSpacing: '0.04em' }}>
