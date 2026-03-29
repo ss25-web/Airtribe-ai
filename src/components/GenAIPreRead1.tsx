@@ -26,108 +26,108 @@ const TRACK_META: Record<GenAITrack, { label: string; shortLabel: string; introT
   'non-tech': {
     label: 'Workflow & Operator Track',
     shortLabel: 'Non-Tech',
-    introTitle: 'Orientation & AI Mindset · Workflow Lens',
-    moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 01 · Orientation & AI Mindset.
-Follows Rhea, an operations lead at Northstar Health, as she moves from ad-hoc AI experiments to designing reliable n8n-based workflows. Emphasizes workflow clarity, review loops, safe use cases, and business-first system thinking.`,
+    introTitle: 'Introduction to GenAI · Operator Lens',
+    moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 01 · Introduction to Generative AI.
+Follows Rhea, an operations lead at Northstar Health, as she moves from confused AI experiments to a clear mental model for what GenAI is, what it reliably does, and how to select a first use case worth building.`,
   },
   tech: {
     label: 'Tech Builder Track',
     shortLabel: 'Tech',
-    introTitle: 'Orientation & AI Mindset · Builder Lens',
-    moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 01 · Orientation & AI Mindset.
-Follows Aarav, a platform-minded builder at Northstar Health, as he turns messy AI experiments into reliable n8n-based workflows. Emphasizes payloads, control logic, implementation reliability, and observability.`,
+    introTitle: 'Introduction to GenAI · Builder Lens',
+    moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 01 · Introduction to Generative AI.
+Follows Aarav, a platform engineer at Northstar Health, as he moves from a vague integration ticket to a clear framework for evaluating LLM use cases, understanding capability zones, and selecting the right first candidate.`,
   },
 };
 
 
 const QUIZZES = [
   {
-    question: "A team says, 'We need a better prompt for our incident-triage workflow.' What is the strongest response?",
+    question: "AI keeps returning wrong policy details. A colleague says the model is too weak. What is the stronger first response?",
     options: [
-      'A. Start rewriting the prompt first because the model is the core product',
-      'B. Ask what triggers the workflow, what context is available, and what should happen when the output is uncertain',
-      'C. Switch to a stronger model before looking at the workflow',
-      'D. Add more examples and hope reliability improves enough',
+      'A. Agree — policy tasks need a stronger model trained on recent data',
+      'B. Check what context was sent and whether retrieval was part of the design',
+      'C. Write much longer prompts with the full policy text pasted inline each time',
+      'D. Run the prompt on three different models and use the most consistent answer',
     ],
     correctIndex: 1,
-    explanation: 'Prompt quality matters, but workflow design matters first. Reliable systems depend on trigger quality, context, validation, fallback paths, and human review logic around the model.',
-    conceptId: 'genai-workflow-thinking',
-    keyInsight: 'The model is only one component. The workflow around it determines whether the system is trustworthy.',
+    explanation: 'Policy details require specific, current information the model cannot hold in weights. The fix is a retrieval layer — not a stronger model. Stronger models hallucinate policy details just as confidently.',
+    conceptId: 'genai-m1-what-it-is',
+    keyInsight: 'The model completes. It does not retrieve. These are different failure modes with different fixes.',
   },
   {
-    question: 'Which change usually improves a GenAI workflow most reliably?',
+    question: 'Which task belongs in the reliable zone without a retrieval layer?',
     options: [
-      'A. Making the prompt longer without changing any inputs',
-      'B. Improving the trigger, tightening the context, and validating the output structure',
-      'C. Turning the workflow into a fully autonomous agent immediately',
-      'D. Adding more downstream tools before the flow is stable',
+      'A. Check whether each exception was resolved within the 48-hour SLA window',
+      'B. Classify inbound requests by type based on their description',
+      'C. Pull and summarise the last 20 unread emails automatically',
+      'D. Look up the current premium rate for a given policy and coverage tier',
     ],
     correctIndex: 1,
-    explanation: 'Most brittle workflows fail because poor inputs, weak context, or messy outputs propagate through the system. Tightening those layers usually helps more than adding model cleverness.',
-    conceptId: 'genai-orchestration',
-    keyInsight: 'Reliability often comes from input discipline and control logic, not prompt cleverness.',
+    explanation: 'Classification from a description with defined categories is a language task — no external data needed. The others require live system access the model does not have.',
+    conceptId: 'genai-m1-capabilities',
+    keyInsight: 'Reliable zone = language in, language out, no live data required. Everything else needs retrieval infrastructure.',
   },
   {
-    question: 'Why is n8n the backbone of this program?',
+    question: 'A summarisation task gives excellent output sometimes and generic output other times. Most likely cause?',
     options: [
-      'A. Because it replaces external systems and APIs',
-      'B. Because it is where logic, retries, approvals, and observability can be made explicit',
-      'C. Because it hides complexity so teams do not need to think about execution paths',
-      'D. Because it guarantees model outputs will be correct',
+      'A. The model is non-deterministic and high variance is a fundamental limitation',
+      'B. The brief is missing format or length constraints',
+      'C. The prompt needs more examples to anchor the style and register',
+      'D. The model is degrading — retraining on domain data would stabilise it',
     ],
     correctIndex: 1,
-    explanation: 'n8n is valuable here because it acts as the orchestration and control layer. It makes workflow behavior inspectable and maintainable instead of opaque.',
-    conceptId: 'genai-n8n-role',
-    keyInsight: 'A good orchestration layer makes the system legible when it works and when it fails.',
+    explanation: 'When format, length, and structure are unspecified, the model fills those gaps differently each run. Defining them tightens variance dramatically without any model changes.',
+    conceptId: 'genai-m1-mental-model',
+    keyInsight: 'Variance almost always signals an underspecified brief, not a broken model.',
   },
   {
-    question: 'Which is the best early AI workflow to automate first?',
+    question: 'A model works well in demo but produces poor outputs in staging. First thing to investigate?',
     options: [
-      'A. Auto-reject job candidates based on inferred fit',
-      'B. Auto-approve policy exceptions without Human Reviewer sign-off',
-      'C. Categorize inbound operational requests and route ambiguous ones to a Human Reviewer',
-      'D. Give an agent permission to execute any outbound action that seems useful',
+      'A. Whether model drift has occurred between the demo and staging environments',
+      'B. Whether the context in staging is as complete and clean as in the demo',
+      'C. Whether the prompt template is rendering differently across environments',
+      'D. Whether a higher-tier model is needed to handle real production edge cases',
     ],
-    correctIndex: 2,
-    explanation: 'Request classification is bounded, structured, and easy to route into Human Reviewer checkpoints. The others involve higher-risk decisions and less forgiving failure modes.',
-    conceptId: 'genai-use-case-judgment',
-    keyInsight: 'Strong early use cases are bounded, reviewable, and safe to recover from.',
+    correctIndex: 1,
+    explanation: 'Demo data is curated to be clean. Staging data is real — missing fields, truncated text, edge cases. That difference in context quality almost always explains the output quality gap.',
+    conceptId: 'genai-m1-context',
+    keyInsight: 'Demo-to-production gaps are a context problem. The payload is the first thing to inspect.',
   },
   {
-    question: 'What best shows that you understand a workflow well enough to build it?',
+    question: 'Which candidate makes the best first AI use case?',
     options: [
-      'A. You know which tools are popular for the problem',
-      'B. You have already drafted a very long prompt',
-      'C. You can explain the trigger, context, model step, control logic, and fallback clearly',
-      'D. You have decided to add an agent loop because it sounds powerful',
+      'A. Auto-approve routine policy exceptions to cut manual review time significantly',
+      'B. Classify inbound requests and flag uncertain cases for human review',
+      'C. Migrate the case management system to a fully autonomous AI agent pipeline',
+      'D. Generate and send personalised customer emails with async human spot-checks',
     ],
-    correctIndex: 2,
-    explanation: 'Clear system framing is the sign of real understanding. Once the workflow shape is clear, tool decisions and implementation details become much easier.',
-    conceptId: 'genai-system-framing',
-    keyInsight: 'Workflow clarity matters more than tool familiarity.',
+    correctIndex: 1,
+    explanation: 'Classification with a review gate is bounded, language-based, easy to verify, and recoverable. The others involve irreversibility, high stakes, or scope that outpaces what the system has earned.',
+    conceptId: 'genai-m1-use-case-readiness',
+    keyInsight: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.',
   },
 ];
 
 const CONCEPTS = [
-  { id: 'genai-workflow-thinking', label: 'Workflow Thinking', color: '#7C3AED' },
-  { id: 'genai-orchestration', label: 'Orchestration', color: '#2563EB' },
-  { id: 'genai-n8n-role', label: 'n8n Role', color: '#0F766E' },
-  { id: 'genai-use-case-judgment', label: 'Use-Case Judgment', color: '#C2410C' },
-  { id: 'genai-system-framing', label: 'System Framing', color: '#DC2626' },
+  { id: 'genai-m1-what-it-is', label: 'What GenAI Is', color: '#7C3AED' },
+  { id: 'genai-m1-capabilities', label: 'Capability Map', color: '#2563EB' },
+  { id: 'genai-m1-mental-model', label: 'Mental Model', color: '#0F766E' },
+  { id: 'genai-m1-context', label: 'Context as Input', color: '#C2410C' },
+  { id: 'genai-m1-use-case-readiness', label: 'Use-Case Readiness', color: '#DC2626' },
 ];
 const SECTIONS = [
-  { id: 'genai-preread-intro', label: 'AI-Native Workflows' },
-  { id: 'genai-preread-stack', label: 'The GenAI Stack' },
-  { id: 'genai-preread-n8n', label: 'Why n8n Matters' },
-  { id: 'genai-preread-judgment', label: 'Good Use Cases' },
-  { id: 'genai-preread-apply', label: 'Apply It' },
+  { id: 'genai-m1-whatitis', label: 'What Is This Thing?' },
+  { id: 'genai-m1-capabilities', label: 'The Capability Map' },
+  { id: 'genai-m1-mental-model', label: 'The Mental Model Shift' },
+  { id: 'genai-m1-context', label: 'Context Is the Input' },
+  { id: 'genai-m1-apply', label: 'Your First Use Case' },
 ];
 const BADGES = [
-  { id: 'genai-preread-intro', icon: 'AI', label: 'Mindset', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-  { id: 'genai-preread-stack', icon: 'ST', label: 'Stack', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-  { id: 'genai-preread-n8n', icon: 'N8', label: 'n8n', color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
-  { id: 'genai-preread-judgment', icon: 'JC', label: 'Judgment', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
-  { id: 'genai-preread-apply', icon: 'GO', label: 'Operator', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
+  { id: 'genai-m1-whatitis', icon: 'AI', label: 'Model', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+  { id: 'genai-m1-capabilities', icon: 'CP', label: 'Capability', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+  { id: 'genai-m1-mental-model', icon: 'MM', label: 'Mindset', color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
+  { id: 'genai-m1-context', icon: 'CX', label: 'Context', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
+  { id: 'genai-m1-apply', icon: 'UC', label: 'Use Case', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
 ];
 const SECTION_XP = 50;
 const QUIZ_XP = 100;
@@ -416,8 +416,8 @@ function CoreContent({ track }: { track: GenAITrack }) {
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
   const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
   const protagonistDesc = track === 'tech'
-    ? 'His team runs on ad-hoc AI scripts. Most break silently. He wants a system his team can debug at 2am.'
-    : 'Her team is already using ChatGPT in production. Some outputs are useful. Some are wrong. Nobody owns the failure mode.';
+    ? 'Just handed a Jira ticket: "Integrate LLM capabilities." No acceptance criteria. No definition of success. He needs a framework before he needs code.'
+    : 'Has been asked to find 20% efficiency using AI. Her team has tried it. Results are mixed. She needs a mental model before she needs a plan.';
 
   const MENTORS: { name: string; role: string; desc: string; color: string; mentorId: GenAIMentorId }[] = [
     { name: 'Anika', role: 'AI Workflow Strategist', desc: 'Asks who owns the failure mode before anyone designs the happy path.', color: '#7C3AED', mentorId: 'anika' },
@@ -436,10 +436,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
             GenAI Launchpad · Pre-Read 01
           </div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>
-            Orientation &amp; AI Mindset
+            What Is This Thing, Actually?
           </h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>
-            &ldquo;The real product is not the prompt. The real product is the workflow around the prompt.&rdquo;
+            &ldquo;Before you prompt anything, understand what you are talking to.&rdquo;
           </p>
 
           {/* Characters */}
@@ -480,10 +480,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
-              'See why the workflow around the model matters more than the model itself',
-              'Map any AI system as five layers: trigger, context, model, control, outcome',
-              'Understand why n8n is the control layer — not just a connector',
-              'Build judgment for which workflows earn AI early, and which ones are not ready',
+              'Understand what GenAI actually is — a probabilistic completion system, not an oracle',
+              'Map the capability zones: what LLMs reliably do well vs where they reliably fail',
+              'Make the mental model shift from search query to task specification',
+              'Select your first AI use case using five concrete readiness criteria',
             ].map((obj, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
                 <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", marginTop: '2px' }}>0{i + 1}</span>
@@ -501,14 +501,14 @@ function CoreContent({ track }: { track: GenAITrack }) {
         </div>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
           {track === 'tech'
-            ? 'Your lens throughout this module: how is the workflow actually implemented? What triggers the run, what payload enters the system, what output shape is required, and where do validation, retries, and observability live?'
-            : 'Your lens throughout this module: does the workflow deserve AI yet? What decision does it help with, where do Human Reviewers belong, and how do you design something trustworthy before getting lost in tools?'}
+            ? 'Your lens throughout this module: what type of task is this, and is it in the reliable zone? Before evaluating any integration, you will evaluate the task itself — input consistency, output contract, failure cost, and context availability.'
+            : 'Your lens throughout this module: what does this tool actually do, and where does it genuinely help? Before building anything, you will build a clear mental model of what AI is, what it is good for, and which of your tasks belong to it.'}
         </div>
       </div>
 
-      <ChapterSection num="01" accentRgb={ACCENT_RGB} id="genai-preread-intro" first>
-        {chLabel('Week 0 · Orientation & AI Mindset')}
-        {h2('AI is useful when you stop treating it like a magic answer engine')}
+      <ChapterSection num="01" accentRgb={ACCENT_RGB} id="genai-m1-whatitis" first>
+        {chLabel('Week 0 · Introduction to Generative AI')}
+        {h2('Most people are using AI before they understand what it actually does')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
             ? <>Aarav is a platform engineer at Northstar Health. His team handles tooling for provider workflows, claims processing, and partner integrations. Colleagues are using AI APIs in ad-hoc scripts. Some work. Most break silently. Aarav realizes the problem is not the model. It is that there is no trigger discipline, no retry logic, no observability, and no control layer making the system legible.</>
