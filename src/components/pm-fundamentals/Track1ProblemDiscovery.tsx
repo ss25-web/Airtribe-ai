@@ -328,10 +328,10 @@ const QUIZZES = [
   {
     question: "After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?",
     options: [
-      'A. Report both equally — all feedback is valid',
-      'B. 5/6 on "no clear next step" is your primary finding; flag billing as a separate data point',
-      'C. Throw out the billing issue — outliers skew findings',
-      'D. Do more interviews until billing comes up again before deciding',
+      'A. Report both equally — every data point deserves equal weight in the synthesis',
+      'B. 5/6 on "no clear next step" is your signal; note billing as a separate issue',
+      'C. Discard the billing issue — single mentions are outliers and shouldn\'t influence your findings',
+      'D. Do more interviews until billing comes up at least twice before treating it as a separate finding',
     ],
     correctIndex: 1,
     explanation: "Frequency across independent respondents is signal. 5 of 6 users independently describing the same experience is a finding — not a coincidence. 1 user with a billing issue is a data point worth noting, but it's a different problem requiring separate investigation. Don't let one loud outlier dilute a clear pattern.",
@@ -341,10 +341,10 @@ const QUIZZES = [
   {
     question: "You've written your discovery brief. How do you open the Friday meeting with Rohan?",
     options: [
-      'A. \"I recommend adding example coaching sessions to onboarding — here\'s the plan.\"',
-      'B. \"We discovered that managers join EdSpark to prove their coaching is working — but the product never shows them what good looks like. Here\'s what we found.\"',
-      'C. \"The research was interesting. I have some thoughts but want more data before proposing anything.\"',
-      'D. \"Users are confused — we need to redesign the onboarding flow.\"',
+      'A. \"Based on my research, I recommend adding coaching examples to onboarding. Here\'s the detailed plan I\'ve put together.\"',
+      'B. \"We found that managers use EdSpark to prove their coaching works — but the product never shows them what good looks like.\"',
+      'C. \"The interviews raised a lot of interesting questions. I think I need at least two more rounds before I can propose anything.\"',
+      'D. \"After talking to users, it\'s clear they\'re confused — my read is we need a complete redesign of the onboarding flow.\"',
     ],
     correctIndex: 1,
     explanation: "Option A leads with a solution — you've already decided, and the meeting becomes a presentation, not a problem-solving session. Option B leads with the discovery — you present what you learned and let the team think. Option C is avoidance. Option D is a vague symptom, not an insight. Lead with what you learned. The team will find better solutions than you would alone.",
@@ -1108,9 +1108,9 @@ export default function Track1ProblemDiscovery() {
             conceptId="insight-synthesis"
             question="After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?"
             options={[
-              { text: "Report both equally — all feedback is valid", correct: false, feedback: "All feedback is data — but not all data is equal. 5/6 independent users saying the same thing unprompted is a pattern. 1 user with a billing issue is a separate problem that needs its own investigation." },
-              { text: "5/6 on 'no clear next step' is your primary finding; flag billing as a separate data point", correct: true, feedback: "Exactly. Priya's report led with the 5/6 pattern. The billing issue was noted in an appendix as 'worth investigating separately.' Weighted correctly, the findings are clear." },
-              { text: "Do more interviews until billing comes up again before deciding", correct: false, feedback: "You'd be chasing a pattern that probably doesn't exist. 6 interviews on a consistent theme is enough to act. Do more research if you're uncertain — not to balance a clear finding against an outlier." },
+              { text: "Report both equally — every user's feedback matters and should carry equal weight in synthesis", correct: false, feedback: "All feedback is data — but not all data is equal. 5/6 independent users saying the same thing unprompted is a pattern. 1 user with a billing issue is a separate problem that needs its own investigation." },
+              { text: "5/6 on 'no clear next step' is your signal; note billing as a separate issue", correct: true, feedback: "Exactly. Priya's report led with the 5/6 pattern. The billing issue was noted in an appendix as 'worth investigating separately.' Weighted correctly, the findings are clear." },
+              { text: "Run more interviews until you see billing mentioned at least twice more before deciding", correct: false, feedback: "You'd be chasing a pattern that probably doesn't exist. 6 interviews on a consistent theme is enough to act. Do more research if you're uncertain — not to balance a clear finding against an outlier." },
             ]}
           />
         </div>
@@ -1188,9 +1188,9 @@ export default function Track1ProblemDiscovery() {
             conceptId="problem-framing"
             question="You've written your discovery brief. How do you open the Friday meeting with Rohan?"
             options={[
-              { text: "\"I recommend adding example coaching sessions to onboarding — here's the plan.\"", correct: false, feedback: "You've already decided — and the meeting becomes a presentation, not a problem-solving session. Dev wouldn't have proposed the before/after idea if Priya had arrived with wireframes." },
-              { text: "\"We discovered that managers join EdSpark to prove their coaching is working — but the product never shows them what good looks like. Here's what we found.\"", correct: true, feedback: "This is exactly what Priya did. She led with the discovery, not the solution. In ten minutes, the team generated three solutions she hadn't thought of — including one that was better than her original idea." },
-              { text: "\"The research was interesting but I need more interviews before proposing anything.\"", correct: false, feedback: "5 of 6 churned managers saying the same thing unprompted is enough to act. 'Needs more research' is sometimes avoidance — a way of delaying the discomfort of commitment." },
+              { text: "\"My recommendation: add coaching examples to onboarding. I've mapped out a two-sprint delivery plan to share.\"", correct: false, feedback: "You've already decided — and the meeting becomes a presentation, not a problem-solving session. Dev wouldn't have proposed the before/after idea if Priya had arrived with wireframes." },
+              { text: "\"We found that managers use EdSpark to prove their coaching works — but the product never shows what good looks like.\"", correct: true, feedback: "This is exactly what Priya did. She led with the discovery, not the solution. In ten minutes, the team generated three solutions she hadn't thought of — including one that was better than her original idea." },
+              { text: "\"There were interesting patterns in the interviews — but I'd like to gather more data before presenting any conclusions to the team.\"", correct: false, feedback: "5 of 6 churned managers saying the same thing unprompted is enough to act. 'Needs more research' is sometimes avoidance — a way of delaying the discomfort of commitment." },
             ]}
           />
         </div>
