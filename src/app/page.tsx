@@ -12,13 +12,18 @@ import UXDesignModule from '@/components/UXDesignModule';
 import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
+import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
+import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
+import SWEPreRead1 from '@/components/SWEPreRead1';
 import type { GenAITrack } from '@/components/genaiTypes';
+import type { SWETrack } from '@/components/sweTypes';
 
-type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading';
+type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading' | 'swe-quiz' | 'swe' | 'swe-reading';
 
 const LS_STAGE  = 'airtribe_stage';
 const LS_TRACK  = 'airtribe_track';
 const LS_GENAI_TRACK = 'airtribe_genai_track';
+const LS_SWE_TRACK = 'airtribe_swe_track';
 const LS_DARK   = 'airtribe_dark';
 const LS_MODULE = 'airtribe_module';
 
@@ -26,6 +31,7 @@ export default function Home() {
   const [stage, setStage] = useState<Stage>('home');
   const [assignedTrack, setAssignedTrack] = useState<Track | null>(null);
   const [genaiTrack, setGenaiTrack] = useState<GenAITrack | null>(null);
+  const [sweTrack, setSweTrack] = useState<SWETrack | null>(null);
   const [activeModule, setActiveModule] = useState<string>('01');
   const [darkMode, setDarkMode] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -51,6 +57,16 @@ export default function Home() {
     } else if (savedStage === 'genai-reading') {
       setStage('genai-reading');
       if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+    } else if (savedStage === 'swe-quiz') {
+      setStage('swe-quiz');
+    } else if (savedStage === 'swe') {
+      setStage('swe');
+      const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
+    } else if (savedStage === 'swe-reading') {
+      setStage('swe-reading');
+      const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
     } else if (savedStage === 'quiz') {
       setStage('quiz');
     }
@@ -72,9 +88,11 @@ export default function Home() {
     setStage('home');
     setAssignedTrack(null);
     setGenaiTrack(null);
+    setSweTrack(null);
     localStorage.setItem(LS_STAGE, 'home');
     localStorage.removeItem(LS_TRACK);
     localStorage.removeItem(LS_GENAI_TRACK);
+    localStorage.removeItem(LS_SWE_TRACK);
   };
 
   const goQuiz = () => {
@@ -121,6 +139,29 @@ export default function Home() {
     localStorage.setItem(LS_MODULE, moduleNum);
   };
 
+  const goSWE = () => {
+    setStage('swe-quiz');
+    localStorage.setItem(LS_STAGE, 'swe-quiz');
+    localStorage.removeItem(LS_TRACK);
+  };
+
+  const goSWEOverview = (track: SWETrack) => {
+    setSweTrack(track);
+    setStage('swe');
+    localStorage.setItem(LS_STAGE, 'swe');
+    localStorage.setItem(LS_SWE_TRACK, track);
+  };
+
+  const goSWEPreRead = () => {
+    setStage('swe-reading');
+    localStorage.setItem(LS_STAGE, 'swe-reading');
+  };
+
+  const goBackToSWEOverview = () => {
+    setStage('swe');
+    localStorage.setItem(LS_STAGE, 'swe');
+  };
+
   const toggleDark = () => setDarkMode(d => !d);
 
   // Avoid flash of wrong screen before hydration
@@ -131,10 +172,26 @@ export default function Home() {
       <SeriesHomepage
         onSelectPM={goQuiz}
         onSelectGenAI={goGenAI}
+        onSelectSWE={goSWE}
         darkMode={darkMode}
         onToggleDark={toggleDark}
       />
     );
+  }
+
+  if (stage === 'swe-quiz') {
+    return <SWEPlacementQuiz onComplete={goSWEOverview} onBack={goHome} />;
+  }
+
+  if (stage === 'swe') {
+    if (!sweTrack) {
+      return <SWEPlacementQuiz onComplete={goSWEOverview} onBack={goHome} />;
+    }
+    return <SWELaunchpadOverview track={sweTrack} onBack={goHome} onStartPreRead={goSWEPreRead} />;
+  }
+
+  if (stage === 'swe-reading' && sweTrack) {
+    return <SWEPreRead1 track={sweTrack} onBack={goBackToSWEOverview} />;
   }
 
   if (stage === 'quiz') {

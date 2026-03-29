@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 interface Props {
   onSelectPM: () => void;
   onSelectGenAI: () => void;
+  onSelectSWE: () => void;
   darkMode: boolean;
   onToggleDark: () => void;
 }
@@ -35,17 +36,17 @@ const SERIES = [
   {
     id: 'swe',
     label: 'SERIES',
-    title: 'Software Development\nLaunchpad',
-    parts: '3 pre-reads · coming soon',
-    description: 'What engineers actually do all day, how to read a system design doc, why tech debt matters, and how to make better decisions with your engineering team.',
-    tags: ['Engineering', 'Systems', 'APIs'],
-    headerBg: 'linear-gradient(145deg, #0A5C45 0%, #073D2F 100%)',
-    headerAccent: '#6ED4B0',
-    available: false,
+    title: 'Software Engineering\nLaunchpad',
+    parts: '6 modules · Python · Java · Node.js',
+    description: 'Learn software engineering through your chosen language — Python, Java, or Node.js. Build real APIs, work with databases, write tests, and ship to production. Starts with a placement quiz to assign your track.',
+    tags: ['Python', 'Java', 'Node.js'],
+    headerBg: 'linear-gradient(145deg, #14532D 0%, #0A3D1F 100%)',
+    headerAccent: '#86EFAC',
+    available: true,
   },
 ];
 
-export default function SeriesHomepage({ onSelectPM, onSelectGenAI, darkMode, onToggleDark }: Props) {
+export default function SeriesHomepage({ onSelectPM, onSelectGenAI, onSelectSWE, darkMode, onToggleDark }: Props) {
   const bg      = darkMode ? '#131110' : '#F6F1E7';
   const card    = darkMode ? '#1D1A16' : '#FFFFFF';
   const ink     = darkMode ? '#EDE5D5' : '#1C1814';
@@ -130,7 +131,7 @@ export default function SeriesHomepage({ onSelectPM, onSelectGenAI, darkMode, on
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
-              onClick={s.available ? (s.id === 'pm' ? onSelectPM : s.id === 'genai' ? onSelectGenAI : undefined) : undefined}
+              onClick={s.available ? (s.id === 'pm' ? onSelectPM : s.id === 'genai' ? onSelectGenAI : s.id === 'swe' ? onSelectSWE : undefined) : undefined}
               whileHover={s.available ? { y: -4, boxShadow: '0 20px 60px rgba(0,0,0,0.18)' } : {}}
               style={{
                 borderRadius: '12px', overflow: 'hidden',
