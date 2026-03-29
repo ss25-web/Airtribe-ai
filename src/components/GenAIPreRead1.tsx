@@ -508,218 +508,259 @@ function CoreContent({ track }: { track: GenAITrack }) {
 
       <ChapterSection num="01" accentRgb={ACCENT_RGB} id="genai-m1-whatitis" first>
         {chLabel('Week 0 · Introduction to Generative AI')}
-        {h2('Most people are using AI before they understand what it actually does')}
+        {h2('It does not look things up. It generates what probably comes next.')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
-            ? <>Aarav is a platform engineer at Northstar Health. His team handles tooling for provider workflows, claims processing, and partner integrations. Colleagues are using AI APIs in ad-hoc scripts. Some work. Most break silently. Aarav realizes the problem is not the model. It is that there is no trigger discipline, no retry logic, no observability, and no control layer making the system legible.</>
-            : <>Rhea leads operations at Northstar Health. Her team handles provider escalations, claims exceptions, partner intake, and internal follow-ups every week. People are already pasting snippets into ChatGPT to move faster. The results are mixed. Some outputs are useful. Some are wrong. Some bypass the Human Reviewer entirely. Rhea realizes the problem is not &ldquo;we need better prompts.&rdquo; The problem is that the workflow has no clear Workflow Operator, Human Reviewer, or control layer.</>}
+            ? <>Aarav is a platform engineer at Northstar Health. His team needs to check edge-case coverage rates during claims triage. Someone adds an LLM call that returns the rates — confidently, professionally, in bullet points. The numbers look right. They are not. They are plausible extrapolations from training data, not from Northstar&apos;s actual policy database. Aarav realises the team has built a retrieval problem, not a model problem. The model was never broken. It was being asked to do something fundamentally different from what it actually does.</>
+            : <>Rhea leads operations at Northstar Health. Her team starts using an AI assistant for policy questions. Someone asks it for the escalation procedure. It responds with a confident, well-formatted answer. Wrong procedure. When she asks the vendor, they say: &ldquo;The model does not have access to your systems. It responds based on training data.&rdquo; That sentence changes how Rhea thinks about every AI tool her team will ever use. The model was not broken. She had been asking it the wrong kind of question.</>}
         </SituationCard>
-        {para('Most teams first approach GenAI as a model prompt problem: write a prompt, call an API, hope the answer is good enough. That is not how reliable AI systems are built. In practice, useful AI work is about designing a system around the model: what triggers it, what context it receives, what it is allowed to do, how its output is checked, and what happens when something fails.')}
-        {para('That shift matters because the model is only one part of the workflow. Real work happens around it: requests arrive from forms, inboxes, internal tools, document systems, and operational queues. Someone has to orchestrate that movement, validate the context, and decide what happens next.')}
-        {para('This is the mindset reset for the whole GenAI Launchpad. We are not starting from "how do I use a chatbot better?" We are starting from "what work is happening in my team, where does judgment live, and which parts of that flow can be assisted, structured, or automated safely?" That framing changes the kind of systems you build.')}
-        {para('An AI-native workflow is not one where AI is used everywhere. It is one where the system is designed consciously around uncertainty. Some steps need Human Reviewer sign-off. Some steps need deterministic rules. Some steps need the model. The Business Process Owner decides which is which, and Risk / Compliance Reviewers often shape those boundaries.')}
-        {pullQuote('The real product is not the prompt. The real product is the workflow around the prompt.')}
-        {keyBox('What changes in AI-native work', [
-          'You design around uncertainty instead of assuming deterministic outputs.',
-          'You think in triggers, context, actions, review loops, and recovery paths.',
-          'You separate AI suggestions from irreversible actions.',
+        {para('Generative AI models are not databases. They are not search engines. They are completion systems: given an input sequence, they generate the most statistically plausible continuation. The model has no live connection to the world. It has weights — billions of numerical parameters trained on text — and when you send it a prompt, it uses those weights to produce a response that fits.')}
+        {para('That sounds abstract until you feel the implications. The model can sound completely certain about things it is factually wrong about, because certainty is a stylistic property of the text, not a function of truth. It cannot tell you current information without retrieval infrastructure. It cannot access your databases, check your live systems, or verify that its answer matches your specific context. It generates — it does not look up.')}
+        {para('This is not a flaw to be fixed in a future version. It is the fundamental architecture. An LLM trained on general text will always need external infrastructure to interact with specific, live, or proprietary data. Understanding this is what separates people who get disappointed by AI from people who build things that actually work.')}
+        {pullQuote('The model is finishing your sentence, not consulting your database.')}
+        {keyBox('Three things GenAI is', [
+          'A probabilistic text completion system trained on large corpora.',
+          'Extremely capable at language tasks: summarising, classifying, drafting, transforming.',
+          'Disconnected from live data — outputs reflect training patterns, not current reality.',
         ], ACCENT)}
         <GenAIAvatar
           name="Anika"
           nameColor={ACCENT}
           borderColor={ACCENT}
-          conceptId="genai-workflow-thinking"
-          content="If you only improve the prompt, you might improve the answer a little. If you improve the workflow, you improve reliability, trust, and operational usefulness."
-          expandedContent="That is why this program starts with systems thinking. Before we talk about agents, toolchains, or capstones, we need the right mental model for where AI belongs in a workflow."
-          question="Which framing is stronger for a production AI workflow?"
+          conceptId="genai-m1-what-it-is"
+          content="When a model returns wrong information confidently, teams usually say the model hallucinated. That framing leads to the wrong fix."
+          expandedContent="Hallucination is the symptom. The cause is usually a mismatch between what the model can do and what it was asked to do. If you ask a completion system for specific factual data it was never trained on, you are not using the wrong model — you are using the wrong architecture. The fix is a retrieval layer, not a stronger model."
+          question="Your team&apos;s AI assistant returns incorrect policy details. A colleague says the model is too weak. What is the stronger diagnosis?"
           options={[
-            { text: 'The model is the product, and orchestration is secondary.', correct: false, feedback: 'That framing usually leads to fragile workflows because validation, routing, and recovery get treated as afterthoughts.' },
-            { text: 'The workflow is the product, and the model is one component inside it.', correct: true, feedback: 'Exactly. Reliability usually comes from the surrounding system, not from the model alone.' },
-            { text: 'A stronger model removes the need for workflow design.', correct: false, feedback: 'Even strong models still need context handling, guardrails, and clear decision boundaries.' },
+            { text: 'Agree — this type of factual task needs a model trained on more recent data', correct: false, feedback: 'Model recency rarely solves policy-accuracy problems. The model cannot access your live policy database regardless of its training date.' },
+            { text: 'The task requires live data the model does not have — this is a retrieval gap, not a model weakness', correct: true, feedback: 'Exactly. Policy details require specific, current information the model cannot hold in weights. The fix is infrastructure, not a stronger model.' },
+            { text: 'Write much more detailed prompts that include the full policy text each time', correct: false, feedback: 'Pasting policy text into the prompt is a workaround that does not scale and introduces context window constraints.' },
           ]}
         />
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
           borderColor={ACCENT}
-          conceptId="genai-system-framing"
-          content="The easiest way to spot shallow AI thinking is this: the team can describe the prompt, but cannot describe the failure mode."
-          expandedContent="If I ask what happens when the model returns the wrong structure, or when confidence is low, or when the upstream data is incomplete, and the answer is silence, then the team has built a model call, not a workflow. Strong Workflow Operators think about failure paths as early as happy paths."
-          question="A team shows you an AI workflow demo that works on the happy path. What question should you ask next?"
+          conceptId="genai-m1-what-it-is"
+          content="The most useful question when evaluating an AI use case is: does this task require specific facts the model cannot have in its weights?"
+          expandedContent="If the answer is yes — live data, proprietary records, current state — you are in retrieval territory. That is not bad news. It is just an architecture decision. You build the retrieval layer. The model does the language work. Those are two different problems with two different solutions."
+          question="Which of these is purely a language task that needs no retrieval layer?"
           options={[
-            { text: 'Which model did you use and what is its benchmark score?', correct: false, feedback: 'That might matter later, but it does not tell you whether the workflow is operationally trustworthy.' },
-            { text: 'What happens when the output is wrong, malformed, or low confidence?', correct: true, feedback: 'Exactly. That question forces the team to reveal whether they have designed for real-world reliability.' },
-            { text: 'Can we add more tools so the agent feels more advanced?', correct: false, feedback: 'More tools often increase complexity before the fundamentals are sound.' },
+            { text: 'Return the current premium for a given policy and coverage tier', correct: false, feedback: 'That requires live system data. The model cannot produce accurate current rates without retrieval.' },
+            { text: 'Rewrite a dense claims summary into plain language for a patient letter', correct: true, feedback: 'That is a language transformation task. The model has everything it needs in the input — no external data required.' },
+            { text: 'Check whether an exception was resolved within the 48-hour SLA window', correct: false, feedback: 'SLA compliance requires a timestamp lookup. That is a data query, not a language task.' },
           ]}
         />
-        {PMPrincipleBox({ principle: 'The first serious AI question is not “Can the model do this?” It is “What happens when it does this imperfectly?”' })}
-        <ApplyItBox prompt={track === 'tech' ? "Pick one AI script your team already runs. What is the trigger? What validates the output? What happens when it fails silently at 2am? Which layer is missing?" : "Think of one AI experiment your team has already tried. Which role was missing from the design: Business Process Owner, Human Reviewer, Risk / Compliance Reviewer, Systems / Platform Engineer, or Source System Owner?"} />
-        <QuizEngine conceptId="genai-workflow-thinking" conceptName="Workflow Thinking" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav can see the problem now. But naming a problem and knowing where the system should live are different things. Next: the five-layer stack that turns a model call into a real execution path." : "Rhea can see the problem now. But a mindset shift alone does not build anything. Next: the five-layer stack that separates a useful AI workflow from a fragile demo."} />
+        {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs.' })}
+        <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. What was the model actually doing: completing language, or implicitly expected to know live facts? If the latter, where should the retrieval layer sit?" : "Think of one thing your team asked an AI tool to do that gave a wrong or unreliable answer. Was the task a language problem (the right tool) or a data-lookup problem (the wrong tool)? What would the right design have looked like?"} />
+        <QuizEngine conceptId="genai-m1-what-it-is" conceptName="What GenAI Is" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now knows what the model is. The next question is where it is reliable — and where even the best model consistently fails. Those boundaries matter more than model quality." : "Rhea now knows what the model is. The next question is where it is genuinely useful and where it is reliably wrong — and that boundary has very little to do with which tool you choose."} />
       </ChapterSection>
 
-      <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-preread-stack">
-        {chLabel('The Stack')}
-        {h2('Where GenAI systems actually live')}
+      <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-m1-capabilities">
+        {chLabel('The Capability Map')}
+        {h2('Every model has a reliable zone. Most teams use it outside that zone.')}
         <SituationCard accent="#2563EB" accentRgb="37,99,235">
           {track === 'tech'
-            ? <>Aarav opens a diagram of their exception-handling pipeline. Intake arrives via webhook. Policy history sits in a Postgres database. Process docs live in Notion. The team wants AI to summarize the case, estimate urgency, and suggest a route. That is the moment he sees it clearly: the model call is one step inside a much larger execution path with payloads, context fetching, output validation, and downstream routing.</>
-            : <>Rhea sketches the current exception-handling process on a whiteboard. Intake comes from a form. Policy history lives in an internal system. Process docs live in Notion. The team wants AI to summarize the case, estimate urgency, and suggest a route. That is the first moment she sees it clearly: the model is only one box in a much larger path.</>}
+            ? <>Aarav maps the team&apos;s attempted LLM use cases on a whiteboard. Classification of inbound request types: works reliably. Summarising long case notes: works well. Extracting structured fields from free-text forms: mostly works. Performing arithmetic on claim amounts: unreliable. Answering questions about current patient records: fails without retrieval. Generating legally precise contract language: too risky without review. The pattern becomes obvious. The model is powerful inside a specific zone, and brittle outside it.</>
+            : <>Rhea lists every AI experiment her team has run in the last two months. She puts them in three columns: worked well, sometimes worked, failed or caused problems. The pattern is clear. When the task was language — drafting an email, summarising a case, rewriting a form — AI helped. When the task needed specific facts, live data, or precise calculations — it consistently failed. No one had drawn this map before. They had been treating AI as uniformly capable or uniformly unreliable.</>}
         </SituationCard>
-        {para('A useful GenAI stack usually has five layers: trigger, context, model, logic, and destination. An operational request arrives. Relevant case context is fetched. A model classifies or drafts. Logic decides whether to route, escalate, retry, or request Human Reviewer approval. Then the result lands in Slack, email, a case system, or a database.')}
-        {para('The important thing is that the model does not sit alone. It sits inside a controlled execution path. That is the difference between a fun demo and a workflow the team can trust on a Monday morning.')}
-        {para('This is also why the same model can feel magical in one workflow and disappointing in another. If the context is poor, if the input arrives in messy formats, if the downstream action is vague, or if the system has no recovery logic, the experience will feel brittle. The stack around the model determines whether the workflow is robust.')}
-        {para('A helpful mental model is to think of the LLM as a probabilistic reasoning component inside a mostly deterministic system. The system decides when to call it, what to ask, what shape the answer must take, and what happens if the answer fails the check.')}
-        {PMPrincipleBox({ principle: 'A model call without a workflow is a demo. A model call inside a controlled system is a product capability.' })}
-        {keyBox('A simple execution path', [
-          'Trigger: a webhook, schedule, form, or inbox event starts the run.',
-          'Context: documents, CRM state, or prior messages get pulled in.',
-          'Model: the LLM summarizes, classifies, extracts, or drafts.',
-          'Control: logic decides whether to continue, wait, retry, or ask a human.',
-          'Outcome: the result gets posted, logged, stored, or handed off.',
+        {para('LLMs have a clear zone of reliable performance: language tasks where the input and output are both text, no live data is required, and quality can be assessed quickly by a reader. Summarisation, classification, drafting, explanation, rewriting, extraction from documents — these sit firmly in the reliable zone.')}
+        {para('Beyond that zone, there is an extended zone where LLMs can perform well with the right infrastructure: retrieval-augmented tasks where the model reasons over documents you provide, structured outputs where the format is tightly controlled, or tool-augmented tasks where the model calls external systems. These work, but they require design effort.')}
+        {para('Then there is the unreliable zone. Precise arithmetic on novel numbers. Accurate recall of specific facts from training data. Real-time information without retrieval. Legally or clinically sensitive outputs where every word matters. Tasks with no objective verifiable answer. The model will attempt these confidently. It will often be wrong.')}
+        {para('Teams that understand this map stop over-expecting from the reliable zone and under-investing in the extended zone. They stop being surprised by failures and start designing around boundaries instead.')}
+        {keyBox('The three zones', [
+          'Reliable: summarise, classify, draft, explain, extract, reformat. Language in, language out.',
+          'Extended: retrieval-augmented Q&A, structured outputs, tool-augmented workflows. Needs infrastructure.',
+          'Unreliable: real-time data, precise calculations, sensitive factual claims, novel edge cases.',
         ], '#2563EB')}
-        <GenAIAvatar
-          name="Anika"
-          nameColor="#2563EB"
-          borderColor="#2563EB"
-          conceptId="genai-orchestration"
-          content="Operators often over-focus on the model step because it feels sophisticated. In practice, the quality of the trigger and context layers often matters more."
-          expandedContent="A sloppy trigger means junk enters the system. Weak context means the model guesses. No validation means downstream systems receive messy outputs. When a workflow disappoints, I look around the model before I blame the model. Usually the surrounding stack is what made the result unreliable."
-          question="Which improvement most often increases reliability first?"
-          options={[
-            { text: 'Add more prompt cleverness without changing the inputs.', correct: false, feedback: 'Prompting helps, but if inputs and context are weak, the gains are usually limited.' },
-            { text: 'Tighten the trigger, improve the context, and validate the output shape.', correct: true, feedback: 'Yes. Reliability often improves fastest when the workflow around the model becomes more disciplined.' },
-            { text: 'Replace all logic with an agent loop so the system can self-correct.', correct: false, feedback: 'Agent loops can help in some cases, but they are not a substitute for clear workflow design.' },
-          ]}
-        />
-        {ApplyItBox({ prompt: track === 'tech' ? 'Map the exception-handling pipeline your team runs most. Label each step: trigger, context fetch, model call, control logic, output destination. Where is the payload shape loosest?' : 'Draw one workflow your team runs regularly using five labels only: trigger, context, model, control, outcome. Which box is weakest right now, and who owns fixing it?' })}
-        <QuizEngine conceptId="genai-orchestration" conceptName="The GenAI Stack" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has a mental model for the stack. But knowing the layers does not tell you where the execution logic, retries, and approval checkpoints should actually live. That is where n8n comes in." : "Rhea can map the workflow now. But knowing the shape of the system and having a place to make it real are different things. That is what n8n is for."} />
-      </ChapterSection>
-
-      <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
-        {chLabel('Why n8n')}
-        {h2('n8n is not just a connector layer. It is the control layer.')}
-        <SituationCard accent="#0F766E" accentRgb="15,118,110">
-          {track === 'tech'
-            ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
-            : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
-        </SituationCard>
-        {para('In this program, n8n is the spine of every system we build. It is where workflows begin, branch, validate inputs, call models, handle retries, and surface decisions clearly. That matters because the hardest part of production AI is rarely the model step. It is making the surrounding system observable, maintainable, and recoverable when real work is flowing through it.')}
-        {para('We are not using n8n as decoration around a chatbot. We are using it as the execution layer where Workflow Operator logic, Human Reviewer checkpoints, retry behavior, and approval gates become explicit and inspectable. You can see the workflow. You can trace a failed run. You can reason about where the system branched and why.')}
-        {para('That forces good habits early: clear node boundaries, explicit credentials, defined output shapes, retries for unreliable services, and approval gates before irreversible actions. Those are not advanced extras. They are what separate a workflow that earns trust from one that quietly fails.')}
         <GenAIAvatar
           name="Rohan"
           nameColor="#2563EB"
           borderColor="#2563EB"
-          conceptId="genai-n8n-role"
-          content="Teams get into trouble when they use a low-code tool as a place to draw arrows, but never think about Human Reviewer checkpoints, retries, edge cases, or observability."
-          expandedContent="The whole point of an orchestration layer is that it makes system behavior legible. When something fails, you should be able to inspect the path, understand the decision, and recover safely."
-          question="Why is n8n the core tool in this program?"
+          conceptId="genai-m1-capabilities"
+          content="Most LLM disappointments come from tasks in the unreliable zone being treated as if they were in the reliable zone."
+          expandedContent="The model does not announce when it crosses into uncertain territory. It continues generating with the same fluency. That is what makes capability mapping critical — the model looks equally confident everywhere. You have to know the zones before you assign the tasks."
+          question="A team wants to use an LLM to auto-check whether submitted forms contain all required fields. Which zone does this sit in?"
           options={[
-            { text: 'Because it makes demos look fast even if the workflow is opaque.', correct: false, feedback: 'Speed helps, but opacity creates reliability problems later.' },
-            { text: 'Because it acts as the workflow control layer where logic, validation, retries, and visibility live.', correct: true, feedback: 'Yes. That control layer is what turns scattered model calls into maintainable systems.' },
-            { text: 'Because it replaces the need for APIs or external systems.', correct: false, feedback: 'n8n orchestrates across systems. It does not eliminate the need for them.' },
+            { text: 'Unreliable — the model cannot do structured validation consistently', correct: false, feedback: 'Extraction and structured checking from documents is actually a reliable-zone task for modern LLMs, especially with a well-defined schema.' },
+            { text: 'Reliable — extracting structured data from free-text forms is a core language task', correct: true, feedback: 'Exactly. Given a clear schema and consistent input format, LLMs are very good at extracting and validating structure from text.' },
+            { text: 'Extended — this requires retrieval infrastructure to work at all', correct: false, feedback: 'If the form is in the prompt, no retrieval is needed. Extraction from provided text is in the reliable zone.' },
           ]}
         />
         <GenAIAvatar
           name="Leela"
+          nameColor="#2563EB"
+          borderColor="#2563EB"
+          conceptId="genai-m1-capabilities"
+          content="I think about capability zones in terms of where errors are acceptable versus where they are costly. That determines how much verification a task needs."
+          expandedContent="A draft email that is 90% right saves time even if a human edits it. A premium calculation that is 90% right is a liability. The capability zone tells you what the model can produce. Risk assessment tells you whether that is good enough. Both questions matter before you assign a task."
+          question="Which capability zone concern is most operationally serious?"
+          options={[
+            { text: 'The model is inconsistent about tone in customer-facing draft emails', correct: false, feedback: 'Tone inconsistency in drafts is a quality issue, but easily caught in human review before sending.' },
+            { text: 'The model is used to compute claim payment amounts directly from submitted figures', correct: true, feedback: 'Arithmetic on real financial figures is in the unreliable zone. Errors here are both likely and consequential.' },
+            { text: 'The model sometimes formats summaries differently across runs', correct: false, feedback: 'Format variance in summaries is annoying but low-risk — the information is still there and reviewable.' },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Map your last three LLM integration attempts across the three zones: reliable, extended, unreliable. For any that failed, which zone were they actually in? What would the right infrastructure have been?" : "List three AI tasks your team has tried. Label each: reliable zone, extended zone (needs retrieval/tools), or unreliable zone (should not rely on the model alone). What does that map tell you about where to invest next?"} />
+        <QuizEngine conceptId="genai-m1-capabilities" conceptName="Capability Map" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the capability map. But knowing the zones does not tell you how to assign tasks well. That requires a shift in how you think about what you are giving the model — from question to specification." : "Rhea has the capability map. But knowing where AI is reliable does not mean her team will use it well. That depends on a different shift: from asking questions to writing specifications."} />
+      </ChapterSection>
+
+      <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-m1-mental-model">
+        {chLabel('The Mental Model Shift')}
+        {h2('You are not asking a question. You are specifying a task.')}
+        <SituationCard accent="#0F766E" accentRgb="15,118,110">
+          {track === 'tech'
+            ? <>Aarav notices a pattern in how his team writes prompts. They ask: &ldquo;Can you summarise this case?&rdquo; The model returns something. Sometimes it is one paragraph, sometimes six. Sometimes it includes risk flags, sometimes it ignores them. The frustration is real. But when he rewrites the same prompt as a specification — role, output format, required fields, length constraint, what to exclude — the variance collapses. Same model. Same task. Completely different reliability.</>
+            : <>Rhea watches her team use the AI assistant for a week. She notices that the people getting useful results are writing very different kinds of prompts from the people getting frustrating ones. The useful prompts are long and specific: what the task is, what format the output should take, what to include and what to skip. The frustrating ones are short questions: &ldquo;Summarise this.&rdquo; &ldquo;What should I do?&rdquo; She realises this is not a model quality problem. It is a communication problem.</>}
+        </SituationCard>
+        {para('Most people approach LLMs the way they approach a search engine: type a question, expect an answer. That mental model produces inconsistent results because search engines retrieve; LLMs complete. When you type a vague question, the model fills every unspecified dimension — format, length, perspective, tone, level of detail — with plausible defaults from its training. Those defaults may not match what you need.')}
+        {para('The shift is from asking to specifying. A well-specified task tells the model: what role to take, what the input is, what the output format must be, what constraints apply, and what success looks like. When those dimensions are defined, the model stops choosing them. Variance drops. Quality improves. Not because the model got better — because the brief got clearer.')}
+        {para('This is the most immediately actionable insight in this entire module. You do not need new tools, new models, or new infrastructure to experience it. Write a vague prompt, note the output. Write the same task as a specification, note the output. The difference is usually dramatic.')}
+        {pullQuote('Vague brief, model chooses. Specific brief, you choose. The model executes either way.')}
+        {keyBox('Elements of a clear task specification', [
+          'Role: who the model should behave as ("You are a claims triage analyst").',
+          'Task: what to do, precisely ("Classify this request into one of five categories").',
+          'Format: what the output must look like ("Return JSON with fields: category, confidence, rationale").',
+          'Constraints: what to include, exclude, or prioritise.',
+          'Examples: one or two demonstrations anchor style and level of detail.',
+        ], '#0F766E')}
+        <GenAIAvatar
+          name="Anika"
           nameColor="#0F766E"
           borderColor="#0F766E"
-          conceptId="genai-orchestration"
-          content="The moment a workflow touches a real team, observability stops being optional. Somebody will ask why a request was routed, why an approval was skipped, or why a run failed."
-          expandedContent="That is where n8n earns its place. It gives you execution history, node-level visibility, and a legible system shape. In an AI context, that matters twice as much because outputs are probabilistic. If you cannot inspect the path, you cannot debug the behavior. If you cannot debug the behavior, you cannot responsibly scale it."
-          question="What makes a workflow maintainable after launch?"
+          conceptId="genai-m1-mental-model"
+          content="When outputs are inconsistent across runs, teams usually blame the model. The brief is almost always the real variable."
+          expandedContent="I ask teams to run a simple experiment: take their worst-performing prompt and add format, length, and constraint specifications without changing anything else. The improvement rate is very high. Inconsistency is almost always a symptom of an underspecified brief — the model fills the gaps differently each time. Define the gaps, and the variance disappears."
+          question="A summarisation task gives excellent output sometimes and generic output other times. Most likely cause?"
           options={[
-            { text: 'Only using the most capable model so the workflow rarely fails.', correct: false, feedback: 'Even strong models fail or behave inconsistently. Maintainability comes from visibility and control.' },
-            { text: 'Being able to inspect runs, understand decisions, and recover from failures clearly.', correct: true, feedback: 'Exactly. Maintainability is operational clarity, not just model quality.' },
-            { text: 'Reducing every workflow to a single node so it looks simple.', correct: false, feedback: 'A workflow can look simple while becoming impossible to reason about.' },
+            { text: 'High variance is a fundamental limitation of probabilistic models', correct: false, feedback: 'Variance is real, but it is dramatically reduced when format, length, and structure are specified explicitly.' },
+            { text: 'The brief is missing format, length, or structure constraints', correct: true, feedback: 'Yes. When those dimensions are unspecified, the model fills them differently each run. Define them once, and variance collapses.' },
+            { text: 'The model needs domain-specific fine-tuning to stabilise for this task', correct: false, feedback: 'Fine-tuning can help, but it is rarely the right first fix for variance caused by an underspecified brief.' },
           ]}
         />
-        {ApplyItBox({ prompt: track === 'tech' ? 'Name one workflow your team might build in n8n. Where does the execution path branch? Where would a failed run be hardest to debug? Which node owns the Human Reviewer checkpoint?' : 'Pick a workflow you want to automate. Where would the Business Process Owner need visibility into what the AI decided? Where would the Human Reviewer need a pause before the system acts?' })}
-        <QuizEngine conceptId="genai-n8n-role" conceptName="n8n as Control Layer" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the execution surface. But knowing where logic should live is different from knowing what logic deserves to be automated at all. That judgment is harder than it looks." : "Rhea now has a place where the workflow becomes real. But the harder question is: which workflows should become AI workflows in the first place?"} />
-      </ChapterSection>
-
-      <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-preread-judgment">
-        {chLabel('Use-Case Judgment')}
-        {h2('Not every workflow should become an agent')}
-        <SituationCard accent="#C2410C" accentRgb="194,65,12">
-          {track === 'tech'
-            ? <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Aarav likes the ambition. But when he asks where the retry logic lives, what the Human Reviewer checkpoint looks like, and what happens when confidence is low, the answer is a shrug. The workflow has no control layer yet.</>
-            : <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Rhea likes the ambition. But she also notices that the team has not agreed on what counts as a safe action, what requires Human Reviewer sign-off, or what happens when the model is unsure. The workflow is ambitious before it is trustworthy.</>}
-        </SituationCard>
-        {para('One of the most important Workflow Operator skills is deciding where AI adds leverage and where it introduces risk. A good GenAI use case usually has clear inputs, a bounded output format, recoverable mistakes, and obvious Human Reviewer checkpoints. A bad one often combines ambiguity, sensitive consequences, and no clear fallback.')}
-        {para('That is why this program is not just about connecting nodes. It is about judgment. When should a workflow summarize? When should it classify? When should it suggest instead of act? When should it pause for Human Reviewer or Risk / Compliance Reviewer sign-off? Those are design choices, not tool settings.')}
-        {para('A lot of teams jump too quickly from “this task is repetitive” to “this task should be fully autonomous.” That is where bad AI automation begins. Repetition alone is not enough. You also need clarity. If the task has fuzzy inputs, hidden edge cases, or high-cost mistakes, the right move may be partial automation with review rather than full autonomy.')}
-        {para('The best early wins tend to be workflows where AI helps structure or accelerate a decision while humans still retain final authority. That gives the team leverage without asking them to trust the system beyond what it has earned.')}
-        {keyBox('Strong early use cases', [
-          'Operational request categorization with Human Reviewer handoff for low-confidence cases.',
-          'Case-priority suggestions separated from actual system updates.',
-          'Document or exception triage with explicit uncertainty and approval before decisions.',
-        ], '#C2410C')}
         <GenAIAvatar
           name="Kabir"
+          nameColor="#0F766E"
+          borderColor="#0F766E"
+          conceptId="genai-m1-mental-model"
+          content="The most underused technique in prompting is examples. One good example teaches format, tone, level of detail, and scope all at once."
+          expandedContent="Teams spend a lot of effort writing instructions and then wonder why the model interprets them differently than expected. An example shows, rather than tells. If I give the model a sample input and the exact output I want for it, ambiguity disappears. The model has a concrete reference point. It stops guessing about what I mean."
+          question="What is the fastest way to anchor format and style in a reusable prompt?"
+          options={[
+            { text: 'Write detailed written instructions covering every possible edge case', correct: false, feedback: 'Detailed instructions help, but they often still leave room for interpretation. An example is more efficient at conveying format intent.' },
+            { text: 'Add one sample input-output pair so the model has a concrete reference', correct: true, feedback: 'Exactly. A single well-chosen example teaches format, length, tone, and scope more efficiently than instructions alone.' },
+            { text: 'Switch to a different model that better understands your domain', correct: false, feedback: 'Model choice rarely solves format consistency issues. A clearer brief almost always does.' },
+          ]}
+        />
+        {PMPrincipleBox({ principle: 'Every gap in a prompt is a decision the model makes for you. Decide intentionally or accept whatever the model chooses.' })}
+        <ApplyItBox prompt={track === 'tech' ? "Take the worst-performing LLM call in your current stack. Identify the unspecified dimensions: role, output format, constraints, examples. Rewrite the prompt with each one defined. What changed?" : "Find a prompt your team uses regularly that gives inconsistent results. Identify the unspecified gaps — format, length, perspective, what to exclude. Add them. Compare the output before and after."} />
+        <QuizEngine conceptId="genai-m1-mental-model" conceptName="Mental Model Shift" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the specification mindset. But a well-written prompt still fails when what it processes is poor. The quality of the context packet is often the deciding variable." : "Rhea can write better specifications now. But there is one more thing that determines whether a good prompt produces a good output — what the model actually receives to work with."} />
+      </ChapterSection>
+
+      <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-m1-context">
+        {chLabel('Context Is the Input')}
+        {h2('The quality of the output is bounded by the quality of what went in.')}
+        <SituationCard accent="#C2410C" accentRgb="194,65,12">
+          {track === 'tech'
+            ? <>Aarav&apos;s team has a prompt that works well in testing. In staging, the same prompt produces poor outputs on roughly one in five cases. When he inspects the failing runs, the pattern is immediate: the context packets are broken. A patient record with missing fields. A case note that was truncated at the API limit. An intake form where the structured fields were flattened into a single string. The model was not failing. It was doing its best with damaged input.</>
+            : <>Rhea notices that the AI summary tool works well when her team uses it on recent, fully completed cases, but struggles on older cases with partial records. A colleague says the model is &ldquo;inconsistent.&rdquo; Rhea pulls up two examples side by side — one good output, one poor one. The difference is not the prompt. The poor output came from a case with half the fields missing and two attached PDFs that never loaded. The model received a skeleton and wrote accordingly.</>}
+        </SituationCard>
+        {para('Context is not configuration. It is the actual input the model receives. Everything the model knows about your specific situation — the case, the document, the request, the background — must be in the context window at inference time. The model has no memory between calls, no access to prior sessions, no ability to retrieve information it was not sent.')}
+        {para('This means the quality of your outputs is bounded by the quality of your inputs. A well-written prompt with poor, incomplete, or incorrectly structured context will produce a poor output. Not because the model failed — because it did exactly what you asked with what you gave it. The garbage-in-garbage-out principle applies more literally to LLMs than to almost any other system.')}
+        {para('The most common gap between demo and production is almost always a context quality gap. Demo inputs are hand-crafted and clean. Production inputs are assembled from real, messy, incomplete, inconsistently formatted data. When a model that worked perfectly in a demo produces poor results in production, the first thing to inspect is the context packet, not the prompt.')}
+        {keyBox('What belongs in a good context packet', [
+          'The task input: the document, case note, request, or record being processed.',
+          'Relevant background: role of the reader, purpose of the output, audience.',
+          'Constraints: what to include, exclude, or flag.',
+          'Format of the input: tell the model what type of data it is reading.',
+        ], '#C2410C')}
+        <GenAIAvatar
+          name="Rohan"
           nameColor="#C2410C"
           borderColor="#C2410C"
-          conceptId="genai-use-case-judgment"
-          content="The best first AI workflows reduce repetitive cognitive load without hiding important operational decisions."
-          expandedContent="That usually means using AI to structure, summarize, classify, enrich, or draft, while keeping sensitive approvals and irreversible actions visible to Human Reviewers, Workflow Operators, or Risk / Compliance Reviewers."
-          question="Which use case is safest to automate first?"
+          conceptId="genai-m1-context"
+          content="When a model works in demo and fails in production, I look at the context packet first. It is the right answer 80% of the time."
+          expandedContent="Demo data is curated. Someone assembled a clean, complete example specifically to show the workflow working. Production data arrives from real systems — missing fields, truncated strings, inconsistent formats, encoding issues. The model is the same. The payload is different. That gap explains almost every demo-to-production failure I have investigated."
+          question="A model works well in demo but gives poor outputs in staging. Best first thing to investigate?"
           options={[
-            { text: 'Auto-approve policy exceptions without Human Reviewer review.', correct: false, feedback: 'That combines sensitive consequences with no review gate. It is high risk.' },
-            { text: 'Categorize incoming operational requests and escalate ambiguous ones to Human Reviewers.', correct: true, feedback: 'Right. It has clear inputs, a bounded task, and a safe review path for edge cases.' },
-            { text: 'Auto-deny claims or applications based on inferred fit.', correct: false, feedback: 'That is too sensitive and too easy to get wrong without strong controls.' },
+            { text: 'Whether model drift has occurred between the demo and staging environments', correct: false, feedback: 'Models do not drift between environments. The model is the same everywhere you call it.' },
+            { text: 'Whether the context in staging is as complete and clean as in the demo', correct: true, feedback: 'Yes. Demo data is curated. Staging data is real — missing fields, edge cases, truncation. That difference explains most output quality gaps.' },
+            { text: 'Whether a higher-tier model is needed to handle real production inputs', correct: false, feedback: 'Upgrading the model rarely solves a context quality problem. The model needs better inputs, not more parameters.' },
           ]}
         />
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
           borderColor="#C2410C"
-          conceptId="genai-use-case-judgment"
-          content="A workflow becomes dangerous when the system is allowed to take a sensitive action before the team has learned where it fails."
-          expandedContent="That is why I like a staged progression. First, let AI summarize. Then let it classify. Then let it recommend. Only much later should it act automatically, and even then only when the action is reversible, well-bounded, and heavily observed. Teams that skip those stages usually learn the same lesson the expensive way."
-          question="Which rollout path is more responsible?"
+          conceptId="genai-m1-context"
+          content="Context assembly is where a lot of the real engineering effort lives in a production AI system — and it is where most teams underinvest."
+          expandedContent="The model is the easy part. APIs are easy. The hard part is reliably assembling a complete, correctly structured context packet every time a request comes in — with the right fields, in the right format, with the right fallback when a field is missing. That is real engineering. And it is what separates a demo that works once from a workflow that works every Monday morning."
+          question="Your team wants to improve AI output quality. Which investment has the highest expected return?"
           options={[
-            { text: 'Start with full autonomy so the team sees the biggest efficiency gains immediately.', correct: false, feedback: 'That usually creates hidden trust and quality problems before the workflow has earned autonomy.' },
-            { text: 'Start with assistive outputs, learn failure patterns, then increase autonomy gradually where safe.', correct: true, feedback: 'Yes. Good AI rollouts earn trust in stages instead of demanding it upfront.' },
-            { text: 'Avoid human review because it slows down the learning process.', correct: false, feedback: 'Human review is often the thing that teaches the team where the workflow still needs work.' },
+            { text: 'Upgrade to a more powerful model to handle edge cases better', correct: false, feedback: 'A more powerful model receiving a poor context packet still produces a poor output. Context quality is almost always the binding constraint.' },
+            { text: 'Improve context assembly — ensure all required fields arrive clean and complete', correct: true, feedback: 'Exactly. If the context is complete and correctly structured, output quality improves dramatically without any model change.' },
+            { text: 'Add more instructions to the system prompt to compensate for missing context', correct: false, feedback: 'Instructions cannot substitute for missing information. If the model does not have the data, instructions cannot conjure it.' },
           ]}
         />
-        {PMPrincipleBox({ principle: 'The safest early AI systems assist decisions before they automate decisions.' })}
-        <ApplyItBox prompt={track === 'tech' ? "Name a workflow your team is tempted to fully automate. What is the error rate tolerance? What happens if the model is wrong? Which action in that flow should never be automated without a Human Reviewer checkpoint?" : "Name one workflow in your world that should stay assistive for now, not autonomous. Which role would object first if it acted on its own: Human Reviewer, Workflow Operator, Risk / Compliance Reviewer, or Source System Owner?"} />
-        <QuizEngine conceptId="genai-use-case-judgment" conceptName="Use-Case Judgment" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has use-case judgment. The last step is harder than it sounds: framing a workflow precisely enough that the implementation decisions become obvious." : "Rhea now has use-case judgment. The last step before building is framing the workflow clearly enough that every design decision has a clear answer."} />
+        {PMPrincipleBox({ principle: 'The model cannot produce what it does not have. Fix the context before you fix the prompt.' })}
+        <ApplyItBox prompt={track === 'tech' ? "Pick a production LLM call that produces inconsistent outputs. Inspect the context packet across good and bad cases. What fields are present in good runs but missing or malformed in poor ones? What does the context assembly layer need to fix?" : "Find a case where an AI tool gave you a surprisingly poor output. What was actually in the context it received? Was any important information missing, truncated, or in the wrong format? What would a complete context packet have looked like?"} />
+        <QuizEngine conceptId="genai-m1-context" conceptName="Context as Input" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the four fundamentals: what the model is, where it is reliable, how to specify tasks, and why context quality matters. The last question is: which task do you actually start with?" : "Rhea now has the four fundamentals. The last question is the most practical one: given everything you have learned, which use case do you actually build first?"} />
       </ChapterSection>
 
-      <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-preread-apply">
-        {chLabel('Apply It')}
-        {h2('Think from your role outward')}
+      <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-m1-apply">
+        {chLabel('Your First Use Case')}
+        {h2('Win clearly. Verify easily. Fail cheaply.')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
-            ? <>By the end of the session, Aarav does not have a clever script. He has something more useful: one workflow drawn with five labels. A webhook triggers the run. A database fetch pulls case context. A structured LLM call proposes category and urgency. A code node validates the output shape. Ambiguous cases route to a Human Reviewer via Slack. Runs are logged. That is the beginning of a real, inspectable system.</>
-            : <>By the end of the session, Rhea does not leave with a flashy agent demo. She leaves with something more valuable: one clearly framed workflow. An exception request enters through a webhook. Case context is fetched. AI proposes category and urgency. Ambiguous cases route to a Human Reviewer. The run is logged for the Business Process Owner and Risk / Compliance Reviewers. That is the beginning of a real system.</>}
+            ? <>Aarav has three candidates for a first AI integration. Option one: auto-approve routine claims exceptions based on pattern matching and AI scoring. Option two: classify inbound case requests by type and urgency, flagging uncertain cases for human review. Option three: build an autonomous agent that monitors the intake queue, routes requests, and takes action without human checkpoints. He applies the readiness criteria. Two candidates fail immediately. One is ready to build.</>
+            : <>Rhea has three candidates for a first AI workflow. Option one: draft responses to provider complaints using AI, sent directly without review. Option two: classify inbound escalations by category and urgency, with human review of low-confidence cases. Option three: automatically resolve routine exception requests based on AI confidence scores. She runs them through a simple filter. The answer is obvious once she knows what to look for.</>}
         </SituationCard>
-        {para('By the end of this pre-read, the goal is not that you memorize tool names. The goal is that you start seeing your work as a set of triggers, decisions, inputs, outputs, and approval loops. Once you can frame work that way, you can reason much more clearly about where AI belongs and where orchestration matters most.')}
-        {para('If you are a PM, this means identifying where AI can structure demand, triage work, or surface decision-ready context. If you are an Automation Engineer or Systems / Platform Engineer, it means thinking about interfaces, failure handling, and maintainable execution paths. If you are in ops, compliance, or business operations, it means spotting repetitive operational loops where AI can reduce cognitive drag without creating silent failure.')}
-        {para('The best learners in this program will not be the ones who memorize the most tools. They will be the ones who learn to describe a workflow clearly: what enters the system, what judgment happens, what the model is responsible for, what rules stay deterministic, and how the workflow behaves when something goes wrong.')}
+        {para('Choosing the right first AI use case is not about finding the most impressive one. It is about finding one where success is clear, failure is cheap, and the team learns as much as possible from running it. Most teams choose the wrong first use case — too ambitious, too irreversible, or too hard to verify — and their early AI experience produces expensive confusion instead of a foundation to build on.')}
+        {para('A strong first use case has five properties: the task is language-based (input and output are text, no live database queries required), the output is bounded (a category, a summary, a draft — not a final decision or an irreversible action), the output is easy to verify (a human can quickly assess whether the result is good), mistakes are recoverable (if the model is wrong, the error is caught before causing harm), and no live data is required (the task does not depend on current records the model cannot have).')}
+        {para('Classification with a human review gate is the archetype. The model reads an inbound request, assigns a category and urgency, and flags low-confidence cases for a human. The model does not update any record, send any message, or take any action. It suggests. A human confirms. The system learns where it fails. That is how you build trust before you extend autonomy.')}
+        {keyBox('First use case readiness criteria', [
+          'Language-based: text in, text out. No live database access needed.',
+          'Bounded output: category, summary, or draft — not a final action.',
+          'Easy to verify: a human can quickly check whether the output is right.',
+          'Recoverable: errors are caught before they cause harm.',
+          'No live data dependency: the task works on documents and text you already have.',
+        ], ACCENT)}
         <GenAIAvatar
           name="Anika"
           nameColor={ACCENT}
           borderColor={ACCENT}
-          conceptId="genai-system-framing"
-          content="If you can describe the workflow clearly enough, you are already halfway to building it."
-          expandedContent="A lot of learners think their blocker is technical. Often it is actually framing. They know the pain point, but cannot yet articulate the trigger, the context, the transformation, the output, and the review rule. Once that becomes clear, tool decisions get much easier."
-          question="What is the strongest sign that you understand a workflow well enough to start building?"
+          conceptId="genai-m1-use-case-readiness"
+          content="The purpose of the first use case is not efficiency. It is proof that your team can build, observe, and improve an AI system reliably."
+          expandedContent="Efficiency comes later, once the system has earned it. The first deployment should teach the team where the model fails, how to catch those failures, and what the context needs in order for the model to perform well. All of that learning requires a low-stakes, easy-to-verify workflow. Choose it deliberately."
+          question="Which candidate makes the best first AI use case?"
           options={[
-            { text: 'You know the names of the tools you want to use.', correct: false, feedback: 'Tool names are useful, but they do not prove workflow clarity.' },
-            { text: 'You can clearly explain the trigger, context, model step, control logic, and fallback.', correct: true, feedback: 'Exactly. Clear system framing is what makes implementation decisions coherent.' },
-            { text: 'You have a long prompt drafted before anything else.', correct: false, feedback: 'Prompts matter, but they are only one component inside the system.' },
+            { text: 'Auto-approve routine policy exceptions to cut manual review time', correct: false, feedback: 'Auto-approval is an irreversible action with high stakes. It does not meet the recoverable or bounded criteria for a first use case.' },
+            { text: 'Classify inbound requests and flag uncertain cases for human review', correct: true, feedback: 'Exactly. Bounded output, easy to verify, recoverable, no live data dependency. This is the archetype for a strong first use case.' },
+            { text: 'Build a fully autonomous intake agent to handle requests end-to-end', correct: false, feedback: 'Full autonomy at the start skips the trust-building stages. The team has not yet learned where the model fails.' },
           ]}
         />
-        {ApplyItBox({ prompt: track === 'tech' ? 'Pick one workflow you want to build in this program. Write the five-layer spec: trigger source, context payload, model instruction, output validation rule, and fallback path. Where does the design get blurry?' : 'Pick one workflow from your world. Who is the Business Process Owner? Who is the Human Reviewer? What should the AI do, and what must stay human-controlled — not because automation is impossible, but because the stakes are too high to skip the review?' })}
-        <QuizEngine conceptId="genai-system-framing" conceptName="System Framing" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
-        <NextChapterTeaser text={track === 'tech' ? "With the workflow framed, the next challenge is what you put inside it. Pre-Read 02 goes deep on prompt engineering and LLM reliability inside real automation systems." : "With the workflow framed, the next challenge is writing instructions the model can actually follow reliably. Pre-Read 02 covers prompt engineering and LLM reliability inside real workflows."} />
+        <GenAIAvatar
+          name="Kabir"
+          nameColor={ACCENT}
+          borderColor={ACCENT}
+          conceptId="genai-m1-use-case-readiness"
+          content="Teams that start with the most ambitious use case almost always end up doing less than teams that start with the most learnable one."
+          expandedContent="An ambitious first use case generates a lot of complexity and a lot of noise. The team cannot tell what is failing or why. A simple, bounded first use case generates clean signal: is the classification right? If not, which cases failed, and what did the context look like? That is the kind of learning that compounds. Start learnable. Scale to ambitious once you have the foundation."
+          question="A team argues that starting with a simple classification task is too modest. They want to build a full autonomous agent for their first deployment. What is the strongest counterargument?"
+          options={[
+            { text: 'Agents require too much technical infrastructure to start with', correct: false, feedback: 'Infrastructure complexity is a real concern, but it is not the strongest argument against starting with an agent.' },
+            { text: 'A full autonomous agent gives the team no way to learn where the model fails before it acts', correct: true, feedback: 'Exactly. Without a review gate, failures are invisible until they cause harm. A bounded first use case generates the learning needed to extend autonomy safely.' },
+            { text: 'Agents are only suitable for large enterprises with dedicated AI teams', correct: false, feedback: 'Agents can work at any scale. The issue is sequencing — earning autonomy before granting it.' },
+          ]}
+        />
+        {PMPrincipleBox({ principle: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.' })}
+        <ApplyItBox prompt={track === 'tech' ? "Name three AI integration candidates from your current team. Apply the five criteria: language-based, bounded output, easy to verify, recoverable, no live data required. Which candidate scores best? What does building it first unlock?" : "Name one AI workflow you have been considering. Run it through the five criteria. Where does it pass, and where does it fail? What would a simpler, lower-stakes version of the same idea look like that clears all five?"} />
+        <QuizEngine conceptId="genai-m1-use-case-readiness" conceptName="Use-Case Readiness" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the mental model, the capability map, the specification habit, the context discipline, and a first use case. Pre-Read 02 goes inside the model: how to write prompts that stay reliable under production conditions." : "Rhea now has everything she needs to think clearly about GenAI. Pre-Read 02 goes deeper: how to write prompts that produce consistent, reliable outputs when real, messy data is flowing through them."} />
       </ChapterSection>
     </>
   );
