@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SWETrack, SWELevel } from './sweTypes';
+import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
 
-const TRACK_LABEL: Record<SWETrack, { name: string; emoji: string; color: string; gradient: string }> = {
-  python: { name: 'Python', emoji: '🐍', color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
-  java:   { name: 'Java',   emoji: '☕', color: '#0369A1', gradient: 'linear-gradient(135deg, #0369A1, #7C3AED)' },
-  nodejs: { name: 'Node.js',emoji: '⚡', color: '#CA8A04', gradient: 'linear-gradient(135deg, #CA8A04, #16A34A)' },
+const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+  java:   { name: 'Java',    color: '#0369A1', gradient: 'linear-gradient(135deg, #0369A1, #7C3AED)' },
+  nodejs: { name: 'Node.js', color: '#CA8A04', gradient: 'linear-gradient(135deg, #CA8A04, #16A34A)' },
 };
+
+const TRACK_LOGOS = { python: PythonLogo, java: JavaLogo, nodejs: NodejsLogo };
 
 // 2 background + 4 scenario questions. Each option carries a score (0–2).
 // Total possible: 12. Threshold >= 7 → advanced.
@@ -137,8 +140,8 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
           ← Back
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: tMeta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>
-            {tMeta.emoji}
+          <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: tMeta.gradient, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '3px' }}>
+            {(() => { const Logo = TRACK_LOGOS[track]; return <Logo size={16} />; })()}
           </div>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
             {phase === 'background' ? 'ABOUT YOU' : phase === 'scenarios' ? 'LEVEL CHECK' : 'YOUR LEVEL'} · {tMeta.name.toUpperCase()}
@@ -164,7 +167,7 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
               <motion.div key={`bg-${bgIdx}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.25 }}>
                 <div style={{ marginBottom: '28px' }}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: tMeta.color, marginBottom: '10px' }}>
-                    LEVEL PLACEMENT · {tMeta.emoji} {tMeta.name} TRACK
+                    LEVEL PLACEMENT · {tMeta.name.toUpperCase()} TRACK
                   </div>
                   <h1 style={{ fontSize: 'clamp(20px, 2.8vw, 26px)', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '8px' }}>
                     Let&apos;s find the right starting point
@@ -205,7 +208,7 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
                     <div style={{ fontSize: '12px', color: 'var(--ed-ink2)' }}>What would you do here?</div>
                   </div>
                   <div style={{ padding: '4px 10px', borderRadius: '20px', flexShrink: 0, fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em', background: `${tMeta.color}14`, color: tMeta.color, border: `1px solid ${tMeta.color}30` }}>
-                    {tMeta.emoji} {tMeta.name}
+                    {tMeta.name}
                   </div>
                 </div>
 
@@ -260,7 +263,7 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
                     {level === 'advanced' ? '🚀' : '🌱'}
                   </div>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: level === 'advanced' ? tMeta.color : '#6366F1', marginBottom: '10px' }}>
-                    {tMeta.emoji} {tMeta.name.toUpperCase()} · YOUR LEVEL
+                    {tMeta.name.toUpperCase()} · YOUR LEVEL
                   </div>
                   <h2 style={{ fontSize: 'clamp(20px, 2.8vw, 26px)', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.3 }}>
                     {level === 'advanced' ? 'Advanced Track' : 'Beginner Track'}

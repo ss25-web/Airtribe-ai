@@ -2,10 +2,12 @@
 
 import { motion } from 'framer-motion';
 import type { SWETrack } from './sweTypes';
+import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+
+const TRACK_LOGOS = { python: PythonLogo, java: JavaLogo, nodejs: NodejsLogo };
 
 const TRACKS: {
   id: SWETrack;
-  emoji: string;
   name: string;
   tagline: string;
   desc: string;
@@ -19,7 +21,6 @@ const TRACKS: {
 }[] = [
   {
     id: 'python',
-    emoji: '🐍',
     name: 'Python',
     tagline: 'Simple syntax, powerful ecosystem',
     desc: 'Python is the language of data science, automation, and AI. Its clean, readable syntax makes it the easiest first language — and its ecosystem (pandas, FastAPI, PyTorch) makes it genuinely powerful for professional work.',
@@ -33,7 +34,6 @@ const TRACKS: {
   },
   {
     id: 'java',
-    emoji: '☕',
     name: 'Java',
     tagline: 'Strong types, enterprise-grade systems',
     desc: 'Java is the language of enterprise backends, fintech systems, and Android. Its strong type system and the Spring ecosystem teach you to build reliable, maintainable code at scale — the kind that runs for a decade.',
@@ -47,7 +47,6 @@ const TRACKS: {
   },
   {
     id: 'nodejs',
-    emoji: '⚡',
     name: 'Node.js',
     tagline: 'JavaScript everywhere — frontend to backend',
     desc: 'Node.js runs JavaScript on the server. If you already know or are learning JS for the web, you can reuse those skills on the backend. Its event loop excels at real-time features and high-concurrency APIs.',
@@ -147,7 +146,9 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
                     TRACK
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '26px' }}>{t.emoji}</span>
+                    <div style={{ flexShrink: 0, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
+                      {(() => { const Logo = TRACK_LOGOS[t.id]; return <Logo size={32} />; })()}
+                    </div>
                     <h2 style={{ fontFamily: "'Lora', serif", fontSize: '20px', fontWeight: 700, color: '#FFFFFF', lineHeight: 1.1 }}>{t.name}</h2>
                   </div>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{t.tagline}</div>
