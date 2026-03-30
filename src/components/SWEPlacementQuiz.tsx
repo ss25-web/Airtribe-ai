@@ -43,36 +43,36 @@ const SCENARIO_QS = [
     q: 'A program crashes with "index out of range" on a list operation. What is your instinct?',
     options: [
       { text: 'I would not know where to start', score: 0 },
+      { text: 'Check the loop bounds, verify list length at that point, and add a guard', score: 2 },
       { text: 'Try changing the number until it works', score: 0 },
       { text: 'Print the list length and check if the index I am using exceeds it', score: 1 },
-      { text: 'Check the loop bounds, verify list length at that point, and add a guard', score: 2 },
     ],
   },
   {
     q: 'You need to store a collection of user names and quickly look them up by ID. Which data structure fits?',
     options: [
-      { text: 'I am not familiar with data structures yet', score: 0 },
-      { text: 'A list — store them all in order', score: 0 },
       { text: 'A dictionary or map — keys are IDs, values are names', score: 2 },
+      { text: 'I am not familiar with data structures yet', score: 0 },
       { text: 'Depends on read vs write frequency and whether IDs are sequential', score: 2 },
+      { text: 'A list — store them all in order', score: 0 },
     ],
   },
   {
     q: 'What does it mean for a function to "return" a value?',
     options: [
-      { text: 'I am not sure yet', score: 0 },
       { text: 'It prints the result to the screen', score: 0 },
-      { text: 'It sends a result back to wherever the function was called from', score: 2 },
+      { text: 'I am not sure yet', score: 0 },
       { text: 'It gives a value back to the caller, which can be stored or used in an expression', score: 2 },
+      { text: 'It sends a result back to wherever the function was called from', score: 2 },
     ],
   },
   {
     q: 'You have written a function that works on small inputs but fails on large ones. What do you investigate first?',
     options: [
       { text: 'I would not know how to investigate that', score: 0 },
+      { text: 'Check for edge cases, measure how the time or memory use grows with input size', score: 2 },
       { text: 'Rewrite the function and hope it fixes itself', score: 0 },
       { text: 'Test with progressively larger inputs to find the breaking point', score: 1 },
-      { text: 'Check for edge cases, measure how the time or memory use grows with input size', score: 2 },
     ],
   },
 ];
@@ -112,16 +112,19 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
     }
   };
 
-  const handleScNext = () => {
-    if (selected === null) return;
-    const next = totalScore + SCENARIO_QS[scIdx].options[selected].score;
-    setTotalScore(next);
-    setSelected(null);
-    if (scIdx + 1 < SCENARIO_QS.length) {
-      setScIdx(i => i + 1);
-    } else {
-      setPhase('result');
-    }
+  const handleScSelect = (index: number) => {
+    if (selected !== null) return;
+    setSelected(index);
+    setTimeout(() => {
+      const next = totalScore + SCENARIO_QS[scIdx].options[index].score;
+      setTotalScore(next);
+      setSelected(null);
+      if (scIdx + 1 < SCENARIO_QS.length) {
+        setScIdx(i => i + 1);
+      } else {
+        setPhase('result');
+      }
+    }, 380);
   };
 
   const bgQ = BACKGROUND_QS[bgIdx];
@@ -224,8 +227,9 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
                         key={index}
                         whileHover={{ x: isSelected ? 0 : 3 }}
                         whileTap={{ scale: 0.99 }}
-                        onClick={() => setSelected(index)}
-                        style={{ textAlign: 'left', padding: '14px 18px', borderRadius: '10px', border: isSelected ? `2px solid ${tMeta.color}` : '1.5px solid var(--ed-rule)', background: isSelected ? `${tMeta.color}08` : 'var(--ed-card)', cursor: 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)', lineHeight: 1.6, transition: 'all 0.15s', fontFamily: 'inherit', display: 'flex', alignItems: 'flex-start', gap: '12px' }}
+                        onClick={() => handleScSelect(index)}
+                        disabled={selected !== null}
+                        style={{ textAlign: 'left', padding: '14px 18px', borderRadius: '10px', border: isSelected ? `2px solid ${tMeta.color}` : '1.5px solid var(--ed-rule)', background: isSelected ? `${tMeta.color}08` : 'var(--ed-card)', cursor: selected !== null ? 'default' : 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)', lineHeight: 1.6, transition: 'all 0.15s', fontFamily: 'inherit', display: 'flex', alignItems: 'flex-start', gap: '12px' }}
                       >
                         <span style={{ width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0, marginTop: '1px', border: isSelected ? `2px solid ${tMeta.color}` : '1.5px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: isSelected ? tMeta.color : 'var(--ed-ink3)', background: isSelected ? `${tMeta.color}12` : 'transparent' }}>
                           {String.fromCharCode(65 + index)}
@@ -236,17 +240,11 @@ export default function SWEPlacementQuiz({ track, onComplete, onBack }: Props) {
                   })}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)' }}>{selected === null ? 'Select an answer to continue' : ''}</div>
-                  <motion.button
-                    whileHover={{ scale: selected !== null ? 1.02 : 1 }}
-                    whileTap={{ scale: selected !== null ? 0.97 : 1 }}
-                    onClick={handleScNext}
-                    style={{ padding: '13px 28px', borderRadius: '8px', background: selected !== null ? tMeta.gradient : 'var(--ed-rule)', color: selected !== null ? '#fff' : 'var(--ed-ink3)', fontSize: '14px', fontWeight: 600, border: 'none', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}
-                  >
-                    {scIdx === SCENARIO_QS.length - 1 ? 'See my level →' : 'Next →'}
-                  </motion.button>
-                </div>
+                {selected === null && (
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' }}>
+                    Select an answer to continue
+                  </div>
+                )}
               </motion.div>
             )}
 

@@ -48,78 +48,78 @@ const SCENARIO_QS = [
     level: 'foundational',
     q: "A user messages you: \"I want a dark mode.\" What's your first move as a PM?",
     options: [
+      "Ask why they want it — understand what problem dark mode would solve for them",
       "Add it to the backlog — if users ask, it matters",
       "Survey all users to see if it's widely needed",
-      "Ask why they want it — understand what problem dark mode would solve for them",
       "Check whether your top competitors have it",
     ],
-    correct: 2,
+    correct: 0,
   },
   {
     level: 'foundational',
     q: "Your manager says \"the onboarding is broken\" but gives you no data. First move?",
     options: [
       "Start redesigning — broken onboarding usually means poor UX",
-      "Ask engineering to rebuild the flow from scratch",
       "Talk to 3–5 users who churned in week 1 — find out what \"broken\" actually means to them",
       "Schedule a design sprint with the team",
+      "Ask engineering to rebuild the flow from scratch",
     ],
-    correct: 2,
+    correct: 1,
   },
   {
     level: 'foundational',
     q: "You have 1 engineer and 2 weeks. Sales wants a CRM integration. CS wants better reporting. How do you choose?",
     options: [
       "Build whichever stakeholder asked first",
-      "Find out which business outcome needs to move most right now — then pick what drives it",
       "Do both at 50% quality to keep everyone happy",
       "Ask the CEO to break the tie",
+      "Find out which business outcome needs to move most right now — then pick what drives it",
     ],
-    correct: 1,
+    correct: 3,
   },
   {
     level: 'intermediate',
     q: "A feature shipped 2 weeks ago. How do you know if it worked?",
     options: [
-      "No complaints means it worked",
-      "The team is proud of how it shipped",
       "Check the success metric you defined before shipping — did user behaviour actually change?",
+      "No complaints means it worked",
       "Wait for the quarterly business review",
+      "The team is proud of how it shipped",
     ],
-    correct: 2,
+    correct: 0,
   },
   {
     level: 'intermediate',
     q: "Midway through a sprint, you realise the engineer built the feature differently than you intended. You:",
     options: [
-      "Wait until the retro to give feedback — don't disrupt the sprint",
-      "Clarify immediately — a 10-minute conversation now is cheaper than a week of rework at the end",
       "Write a more detailed spec for next time",
       "Escalate to the engineering manager",
+      "Wait until the retro to give feedback — don't disrupt the sprint",
+      "Clarify immediately — a 10-minute conversation now is cheaper than a week of rework at the end",
     ],
-    correct: 1,
+    correct: 3,
   },
   {
     level: 'advanced',
     q: "Retention drops 15%. Your CEO thinks it's pricing. Engineering blames tech debt. Design blames the UX. Your move?",
     options: [
+      "Find the one hypothesis that fits all three views, then run the cheapest test to decide",
       "Go with whoever is most senior — they have the most context and accountability for the outcome",
       "Launch parallel A/B tests on all three — pricing change, tech debt paydown, and a UX redesign",
-      "Find the one hypothesis that fits all three views, then run the cheapest test to decide",
       "Average all three perspectives into a balanced roadmap that addresses each concern proportionally",
     ],
-    correct: 2,
+    correct: 0,
   },
   {
     level: 'advanced',
     q: "Your north star (sessions/user) hits an all-time high. Meanwhile: NPS drops 8 pts, churn up 15%, support tickets up 40%. What do you do?",
     options: [
       "Trust the north star — it's the primary signal for good reason, guardrail dips are expected",
-      "Fix the support spike as a separate independent workstream so both tracks can run in parallel",
       "Investigate — a rising north star with falling guardrails means the metric has decoupled from real value",
+      "Fix the support spike as a separate independent workstream so both tracks can run in parallel",
       "This is normal growth-phase noise — track trends for another full quarter before acting",
     ],
-    correct: 2,
+    correct: 1,
   },
 ];
 
@@ -176,16 +176,19 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
     }
   };
 
-  const handleScNext = () => {
-    if (selected === null) return;
-    const next = [...scAnswers, selected];
-    setScAnswers(next);
-    setSelected(null);
-    if (scIdx + 1 < SCENARIO_QS.length) {
-      setScIdx(i => i + 1);
-    } else {
-      setPhase('result');
-    }
+  const handleScSelect = (index: number) => {
+    if (selected !== null) return;
+    setSelected(index);
+    setTimeout(() => {
+      const next = [...scAnswers, index];
+      setScAnswers(next);
+      setSelected(null);
+      if (scIdx + 1 < SCENARIO_QS.length) {
+        setScIdx(i => i + 1);
+      } else {
+        setPhase('result');
+      }
+    }, 380);
   };
 
   const bgQ = BACKGROUND_QS[bgIdx];
@@ -357,12 +360,13 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
                       <motion.button key={i}
                         whileHover={{ x: isSelected ? 0 : 3 }}
                         whileTap={{ scale: 0.99 }}
-                        onClick={() => setSelected(i)}
+                        onClick={() => handleScSelect(i)}
+                        disabled={selected !== null}
                         style={{
                           textAlign: 'left', padding: '16px 20px', borderRadius: '10px',
                           border: isSelected ? '2px solid var(--purple)' : '1.5px solid var(--ed-rule)',
                           background: isSelected ? 'rgba(120,67,238,0.07)' : 'var(--ed-card)',
-                          cursor: 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)',
+                          cursor: selected !== null ? 'default' : 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)',
                           lineHeight: 1.6, transition: 'all 0.15s', fontWeight: isSelected ? 500 : 400,
                           fontFamily: 'inherit',
                           display: 'flex', alignItems: 'flex-start', gap: '12px',
@@ -384,26 +388,11 @@ export default function PlacementQuiz({ onComplete, onBack }: Props) {
                   })}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)' }}>
-                    {selected === null ? 'Select an answer to continue' : ''}
+                {selected === null && (
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' }}>
+                    Select an answer to continue
                   </div>
-                  <motion.button
-                    whileHover={{ scale: selected !== null ? 1.02 : 1 }}
-                    whileTap={{ scale: selected !== null ? 0.97 : 1 }}
-                    onClick={handleScNext}
-                    style={{
-                      padding: '13px 28px', borderRadius: '8px',
-                      background: selected !== null ? 'linear-gradient(135deg, #4F46E5, #7843EE)' : 'var(--ed-rule)',
-                      color: selected !== null ? '#fff' : 'var(--ed-ink3)',
-                      fontSize: '14px', fontWeight: 600,
-                      border: 'none', cursor: selected !== null ? 'pointer' : 'not-allowed',
-                      transition: 'all 0.2s', fontFamily: 'inherit',
-                      boxShadow: selected !== null ? '0 4px 14px rgba(120,67,238,0.3)' : 'none',
-                    }}>
-                    {scIdx === SCENARIO_QS.length - 1 ? 'See my result →' : 'Next →'}
-                  </motion.button>
-                </div>
+                )}
               </motion.div>
             )}
 

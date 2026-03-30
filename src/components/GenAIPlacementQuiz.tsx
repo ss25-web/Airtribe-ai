@@ -43,23 +43,23 @@ const SCENARIO_QS = [
     q: 'A team wants an AI workflow for inbound requests. What should happen first?',
     options: [
       'Pick a model and start prompt testing immediately',
-      'Map the request types, review points, and failure consequences before implementation',
       'Connect as many tools as possible so the workflow feels complete',
       'Skip review logic until the team sees strong results',
+      'Map the request types, review points, and failure consequences before implementation',
     ],
-    correct: 1,
+    correct: 3,
     techBias: 0,
   },
   {
     level: 'implementation',
     q: 'A webhook sometimes sends incomplete fields and the workflow breaks downstream. What is the strongest next step?',
     options: [
-      'Hope the model can infer the missing values',
       'Add validation at the workflow boundary and route invalid payloads safely',
+      'Hope the model can infer the missing values',
       'Retry the same failing step until it works',
       'Remove the structured output requirement',
     ],
-    correct: 1,
+    correct: 0,
     techBias: 1,
   },
   {
@@ -67,23 +67,23 @@ const SCENARIO_QS = [
     q: 'Which early AI workflow is usually the best first bet?',
     options: [
       'Auto-approve sensitive exceptions with no human review',
-      'Classify requests and route ambiguous ones to a Human Reviewer',
       'Give an agent permission to update any system it can access',
+      'Classify requests and route ambiguous ones to a Human Reviewer',
       'Let the model write directly to the database as a first use case',
     ],
-    correct: 1,
+    correct: 2,
     techBias: 0,
   },
   {
     level: 'implementation',
     q: 'What best shows an implementation mindset for production workflows?',
     options: [
-      'Thinking about retries, output structure, idempotency, and observability early',
       'Optimizing the hero prompt before defining inputs',
       'Avoiding human review to keep the workflow simple',
       'Assuming a stronger model will remove the need for control logic',
+      'Thinking about retries, output structure, idempotency, and observability early',
     ],
-    correct: 0,
+    correct: 3,
     techBias: 1,
   },
   {
@@ -91,11 +91,11 @@ const SCENARIO_QS = [
     q: 'How should a non-technical operator usually frame an AI workflow first?',
     options: [
       'By choosing the LLM provider before defining the process',
-      'By describing trigger, context, decision, review, and outcome in plain language',
       'By skipping approvals until phase two',
+      'By describing trigger, context, decision, review, and outcome in plain language',
       'By focusing only on what the model can generate',
     ],
-    correct: 1,
+    correct: 2,
     techBias: 0,
   },
 ];
@@ -140,16 +140,19 @@ export default function GenAIPlacementQuiz({ onComplete, onBack }: Props) {
     }
   };
 
-  const handleScenarioNext = () => {
-    if (selected === null) return;
-    const next = [...scAnswers, selected];
-    setScAnswers(next);
-    setSelected(null);
-    if (scIdx + 1 < SCENARIO_QS.length) {
-      setScIdx((current) => current + 1);
-    } else {
-      setPhase('result');
-    }
+  const handleScenarioSelect = (index: number) => {
+    if (selected !== null) return;
+    setSelected(index);
+    setTimeout(() => {
+      const next = [...scAnswers, index];
+      setScAnswers(next);
+      setSelected(null);
+      if (scIdx + 1 < SCENARIO_QS.length) {
+        setScIdx((current) => current + 1);
+      } else {
+        setPhase('result');
+      }
+    }, 380);
   };
 
   const bgQ = BACKGROUND_QS[bgIdx];
@@ -249,8 +252,9 @@ export default function GenAIPlacementQuiz({ onComplete, onBack }: Props) {
                         key={index}
                         whileHover={{ x: isSelected ? 0 : 3 }}
                         whileTap={{ scale: 0.99 }}
-                        onClick={() => setSelected(index)}
-                        style={{ textAlign: 'left', padding: '16px 20px', borderRadius: '10px', border: isSelected ? '2px solid #7C3AED' : '1.5px solid var(--ed-rule)', background: isSelected ? 'rgba(124,58,237,0.06)' : 'var(--ed-card)', cursor: 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)', lineHeight: 1.6, transition: 'all 0.15s', fontFamily: 'inherit', display: 'flex', alignItems: 'flex-start', gap: '12px' }}
+                        onClick={() => handleScenarioSelect(index)}
+                        disabled={selected !== null}
+                        style={{ textAlign: 'left', padding: '16px 20px', borderRadius: '10px', border: isSelected ? '2px solid #7C3AED' : '1.5px solid var(--ed-rule)', background: isSelected ? 'rgba(124,58,237,0.06)' : 'var(--ed-card)', cursor: selected !== null ? 'default' : 'pointer', fontSize: '14px', color: isSelected ? 'var(--ed-ink)' : 'var(--ed-ink2)', lineHeight: 1.6, transition: 'all 0.15s', fontFamily: 'inherit', display: 'flex', alignItems: 'flex-start', gap: '12px' }}
                       >
                         <span style={{ width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0, marginTop: '1px', border: isSelected ? '2px solid #7C3AED' : '1.5px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: isSelected ? '#7C3AED' : 'var(--ed-ink3)', background: isSelected ? 'rgba(124,58,237,0.1)' : 'transparent' }}>
                           {String.fromCharCode(65 + index)}
@@ -261,17 +265,11 @@ export default function GenAIPlacementQuiz({ onComplete, onBack }: Props) {
                   })}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)' }}>{selected === null ? 'Select an answer to continue' : ''}</div>
-                  <motion.button
-                    whileHover={{ scale: selected !== null ? 1.02 : 1 }}
-                    whileTap={{ scale: selected !== null ? 0.97 : 1 }}
-                    onClick={handleScenarioNext}
-                    style={{ padding: '13px 28px', borderRadius: '8px', background: selected !== null ? 'linear-gradient(135deg, #7C3AED, #0F766E)' : 'var(--ed-rule)', color: selected !== null ? '#fff' : 'var(--ed-ink3)', fontSize: '14px', fontWeight: 600, border: 'none', cursor: selected !== null ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}
-                  >
-                    {scIdx === SCENARIO_QS.length - 1 ? 'See my track →' : 'Next →'}
-                  </motion.button>
-                </div>
+                {selected === null && (
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' }}>
+                    Select an answer to continue
+                  </div>
+                )}
               </motion.div>
             ) : null}
 
