@@ -403,10 +403,11 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
       </div>
 
       {/* 3-column layout */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '200px 1fr 220px', gap: '0', padding: '0 24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
         {/* Left nav */}
-        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '32px', paddingRight: '20px' }}>
+        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '0', paddingRight: '0' }}>
           <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px 14px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
             <div style={{ marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid var(--ed-rule)' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
@@ -433,7 +434,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
         </aside>
 
         {/* Main content */}
-        <div style={{ paddingTop: '40px', paddingBottom: '80px', borderLeft: '1px solid var(--ed-rule)', borderRight: '1px solid var(--ed-rule)', paddingLeft: '40px', paddingRight: '40px', minWidth: 0 }}>
+        <div style={{ paddingTop: '4px', paddingBottom: '80px', minWidth: 0 }}>
 
           {/* Hero */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '48px' }}>
@@ -890,6 +891,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
         </aside>
 
+      </div>
       </div>
     </div>
   );
