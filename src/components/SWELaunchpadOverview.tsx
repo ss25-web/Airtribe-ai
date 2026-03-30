@@ -138,11 +138,9 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: 'linear-gradient(135deg, #16A34A, #0369A1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-              <rect x="2" y="2" width="5" height="5" rx="1" fill="white" />
-              <rect x="9" y="2" width="5" height="5" rx="1" fill="white" />
-              <rect x="2" y="9" width="5" height="5" rx="1" fill="white" />
-              <rect x="9" y="9" width="5" height="5" rx="1" fill="white" />
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
