@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { SWETrack } from './sweTypes';
+import type { SWETrack, SWELevel } from './sweTypes';
 
 const MODULES = [
   {
@@ -104,12 +104,19 @@ const TRACK_META: Record<SWETrack, {
 
 interface Props {
   track: SWETrack;
+  level: SWELevel;
   onBack: () => void;
   onStartPreRead: () => void;
 }
 
-export default function SWELaunchpadOverview({ track, onBack, onStartPreRead }: Props) {
+const LEVEL_BADGE: Record<SWELevel, { label: string; color: string; bg: string }> = {
+  beginner: { label: 'Beginner', color: '#6366F1', bg: 'rgba(99,102,241,0.1)' },
+  advanced: { label: 'Advanced', color: '#0369A1', bg: 'rgba(3,105,161,0.1)' },
+};
+
+export default function SWELaunchpadOverview({ track, level, onBack, onStartPreRead }: Props) {
   const meta = TRACK_META[track];
+  const levelBadge = LEVEL_BADGE[level];
 
   const modules = MODULES.map(mod => ({
     ...mod,
@@ -163,7 +170,12 @@ export default function SWELaunchpadOverview({ track, onBack, onStartPreRead }: 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
               <span style={{ fontSize: '24px' }}>{meta.emoji}</span>
               <div>
-                <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", lineHeight: 1.2 }}>{meta.label}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", lineHeight: 1.2 }}>{meta.label}</div>
+                  <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em', background: levelBadge.bg, color: levelBadge.color, border: `1px solid ${levelBadge.color}30` }}>
+                    {level === 'advanced' ? '🚀' : '🌱'} {levelBadge.label.toUpperCase()}
+                  </span>
+                </div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: meta.color, letterSpacing: '0.06em', marginTop: '2px' }}>{meta.sublabel}</div>
               </div>
             </div>

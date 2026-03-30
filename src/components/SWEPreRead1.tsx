@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import type { SWETrack } from './sweTypes';
+import type { SWETrack, SWELevel } from './sweTypes';
 import {
   ApplyItBox,
   ChapterSection,
@@ -79,10 +79,11 @@ const QUIZ_XP = 100;
 
 interface Props {
   track: SWETrack;
+  level: SWELevel;
   onBack: () => void;
 }
 
-export default function SWEPreRead1({ track, onBack }: Props) {
+export default function SWEPreRead1({ track, level, onBack }: Props) {
   const meta = TRACK_META[track];
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<string>(SECTIONS[0].id);
@@ -146,7 +147,7 @@ export default function SWEPreRead1({ track, onBack }: Props) {
             </svg>
           </div>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', whiteSpace: 'nowrap' as const }}>
-            SWE · {meta.shortLabel.toUpperCase()} · PRE-READ 01
+            SWE · {meta.shortLabel.toUpperCase()} · {level === 'advanced' ? '🚀 ADVANCED' : '🌱 BEGINNER'} · PRE-READ 01
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>

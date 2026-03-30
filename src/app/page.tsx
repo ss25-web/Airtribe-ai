@@ -12,18 +12,20 @@ import UXDesignModule from '@/components/UXDesignModule';
 import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
+import SWETrackSelection from '@/components/SWETrackSelection';
 import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
 import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
 import SWEPreRead1 from '@/components/SWEPreRead1';
 import type { GenAITrack } from '@/components/genaiTypes';
-import type { SWETrack } from '@/components/sweTypes';
+import type { SWETrack, SWELevel } from '@/components/sweTypes';
 
-type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading' | 'swe-quiz' | 'swe' | 'swe-reading';
+type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading' | 'swe-select' | 'swe-quiz' | 'swe' | 'swe-reading';
 
 const LS_STAGE  = 'airtribe_stage';
 const LS_TRACK  = 'airtribe_track';
 const LS_GENAI_TRACK = 'airtribe_genai_track';
 const LS_SWE_TRACK = 'airtribe_swe_track';
+const LS_SWE_LEVEL = 'airtribe_swe_level';
 const LS_DARK   = 'airtribe_dark';
 const LS_MODULE = 'airtribe_module';
 
@@ -32,6 +34,7 @@ export default function Home() {
   const [assignedTrack, setAssignedTrack] = useState<Track | null>(null);
   const [genaiTrack, setGenaiTrack] = useState<GenAITrack | null>(null);
   const [sweTrack, setSweTrack] = useState<SWETrack | null>(null);
+  const [sweLevel, setSweLevel] = useState<SWELevel | null>(null);
   const [activeModule, setActiveModule] = useState<string>('01');
   const [darkMode, setDarkMode] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -57,16 +60,24 @@ export default function Home() {
     } else if (savedStage === 'genai-reading') {
       setStage('genai-reading');
       if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+    } else if (savedStage === 'swe-select') {
+      setStage('swe-select');
     } else if (savedStage === 'swe-quiz') {
       setStage('swe-quiz');
+      const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
     } else if (savedStage === 'swe') {
       setStage('swe');
       const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      const savedSWELevel = localStorage.getItem(LS_SWE_LEVEL) as SWELevel | null;
       if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
+      if (savedSWELevel === 'beginner' || savedSWELevel === 'advanced') setSweLevel(savedSWELevel);
     } else if (savedStage === 'swe-reading') {
       setStage('swe-reading');
       const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      const savedSWELevel = localStorage.getItem(LS_SWE_LEVEL) as SWELevel | null;
       if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
+      if (savedSWELevel === 'beginner' || savedSWELevel === 'advanced') setSweLevel(savedSWELevel);
     } else if (savedStage === 'quiz') {
       setStage('quiz');
     }
@@ -89,10 +100,12 @@ export default function Home() {
     setAssignedTrack(null);
     setGenaiTrack(null);
     setSweTrack(null);
+    setSweLevel(null);
     localStorage.setItem(LS_STAGE, 'home');
     localStorage.removeItem(LS_TRACK);
     localStorage.removeItem(LS_GENAI_TRACK);
     localStorage.removeItem(LS_SWE_TRACK);
+    localStorage.removeItem(LS_SWE_LEVEL);
   };
 
   const goQuiz = () => {
@@ -140,16 +153,23 @@ export default function Home() {
   };
 
   const goSWE = () => {
-    setStage('swe-quiz');
-    localStorage.setItem(LS_STAGE, 'swe-quiz');
+    setStage('swe-select');
+    localStorage.setItem(LS_STAGE, 'swe-select');
     localStorage.removeItem(LS_TRACK);
   };
 
-  const goSWEOverview = (track: SWETrack) => {
+  const goSWEQuiz = (track: SWETrack) => {
     setSweTrack(track);
+    setStage('swe-quiz');
+    localStorage.setItem(LS_STAGE, 'swe-quiz');
+    localStorage.setItem(LS_SWE_TRACK, track);
+  };
+
+  const goSWEOverview = (level: SWELevel) => {
+    setSweLevel(level);
     setStage('swe');
     localStorage.setItem(LS_STAGE, 'swe');
-    localStorage.setItem(LS_SWE_TRACK, track);
+    localStorage.setItem(LS_SWE_LEVEL, level);
   };
 
   const goSWEPreRead = () => {
@@ -160,6 +180,15 @@ export default function Home() {
   const goBackToSWEOverview = () => {
     setStage('swe');
     localStorage.setItem(LS_STAGE, 'swe');
+  };
+
+  const goBackToSWESelect = () => {
+    setStage('swe-select');
+    setSweTrack(null);
+    setSweLevel(null);
+    localStorage.setItem(LS_STAGE, 'swe-select');
+    localStorage.removeItem(LS_SWE_TRACK);
+    localStorage.removeItem(LS_SWE_LEVEL);
   };
 
   const toggleDark = () => setDarkMode(d => !d);
@@ -179,19 +208,20 @@ export default function Home() {
     );
   }
 
-  if (stage === 'swe-quiz') {
-    return <SWEPlacementQuiz onComplete={goSWEOverview} onBack={goHome} />;
+  if (stage === 'swe-select') {
+    return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
   }
 
-  if (stage === 'swe') {
-    if (!sweTrack) {
-      return <SWEPlacementQuiz onComplete={goSWEOverview} onBack={goHome} />;
-    }
-    return <SWELaunchpadOverview track={sweTrack} onBack={goHome} onStartPreRead={goSWEPreRead} />;
+  if (stage === 'swe-quiz' && sweTrack) {
+    return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
   }
 
-  if (stage === 'swe-reading' && sweTrack) {
-    return <SWEPreRead1 track={sweTrack} onBack={goBackToSWEOverview} />;
+  if (stage === 'swe' && sweTrack && sweLevel) {
+    return <SWELaunchpadOverview track={sweTrack} level={sweLevel} onBack={goHome} onStartPreRead={goSWEPreRead} />;
+  }
+
+  if (stage === 'swe-reading' && sweTrack && sweLevel) {
+    return <SWEPreRead1 track={sweTrack} level={sweLevel} onBack={goBackToSWEOverview} />;
   }
 
   if (stage === 'quiz') {
