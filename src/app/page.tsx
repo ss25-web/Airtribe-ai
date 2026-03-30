@@ -212,15 +212,20 @@ export default function Home() {
     return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
   }
 
-  if (stage === 'swe-quiz' && sweTrack) {
+  if (stage === 'swe-quiz') {
+    if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
     return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
   }
 
-  if (stage === 'swe' && sweTrack && sweLevel) {
+  if (stage === 'swe') {
+    if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
+    if (!sweLevel) return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
     return <SWELaunchpadOverview track={sweTrack} level={sweLevel} onBack={goHome} onStartPreRead={goSWEPreRead} />;
   }
 
-  if (stage === 'swe-reading' && sweTrack && sweLevel) {
+  if (stage === 'swe-reading') {
+    if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
+    if (!sweLevel) return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
     return <SWEPreRead1 track={sweTrack} level={sweLevel} onBack={goBackToSWEOverview} />;
   }
 
