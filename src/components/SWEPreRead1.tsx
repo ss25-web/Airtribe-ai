@@ -17,8 +17,8 @@ import {
   pullQuote,
 } from './pm-fundamentals/designSystem';
 
-const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
+const MODULE_TIME = '25 min · 4 parts';
 
 const TRACK_META: Record<SWETrack, {
   label: string;
@@ -67,15 +67,47 @@ const TRACK_META: Record<SWETrack, {
 };
 
 const SECTIONS = [
-  { id: 'swe-m1-how-code-runs', label: 'How Code Runs' },
-  { id: 'swe-m1-dev-environment', label: 'Your Dev Environment' },
+  { id: 'swe-m1-how-code-runs',      label: 'How Code Runs' },
+  { id: 'swe-m1-dev-environment',    label: 'Your Dev Environment' },
   { id: 'swe-m1-language-ecosystem', label: 'Your Language & Ecosystem' },
-  { id: 'swe-m1-reading-errors', label: 'Reading Errors & Debugging' },
+  { id: 'swe-m1-reading-errors',     label: 'Reading Errors & Debugging' },
 ];
 
 const CONCEPTS = ['swe-m1-execution', 'swe-m1-environment', 'swe-m1-ecosystem', 'swe-m1-debugging'];
-const SECTION_XP = 50;
-const QUIZ_XP = 100;
+
+const ACHIEVEMENTS = [
+  { id: 'swe-m1-how-code-runs',      icon: '⚙️', label: 'Executor',  desc: 'Understood how code becomes output' },
+  { id: 'swe-m1-dev-environment',    icon: '🛠️', label: 'Set Up',    desc: 'Mastered the dev environment' },
+  { id: 'swe-m1-language-ecosystem', icon: '🌐', label: 'Explorer',  desc: 'Explored the language ecosystem' },
+  { id: 'swe-m1-reading-errors',     icon: '🔍', label: 'Debugger',  desc: 'Learned to read errors and debug' },
+];
+
+const CONCEPT_DETAILS = [
+  { id: 'swe-m1-execution',   label: 'Execution Model',    color: '#16A34A' },
+  { id: 'swe-m1-environment', label: 'Dev Environment',    color: '#0369A1' },
+  { id: 'swe-m1-ecosystem',   label: 'Language Ecosystem', color: '#7C3AED' },
+  { id: 'swe-m1-debugging',   label: 'Debugging Mindset',  color: '#C85A40' },
+];
+
+const LEVELS = [
+  { min: 0,   label: 'Curious',      color: 'var(--ed-ink3)' },
+  { min: 150, label: 'Thinker',      color: '#0097A7' },
+  { min: 350, label: 'Practitioner', color: '#3A86FF' },
+  { min: 600, label: 'PM-Minded',    color: '#4F46E5' },
+  { min: 850, label: 'PM Thinker',   color: '#C85A40' },
+];
+function getLevel(xp: number) {
+  let lvl = LEVELS[0];
+  for (const l of LEVELS) { if (xp >= l.min) lvl = l; }
+  return lvl;
+}
+function getNextLevel(xp: number) {
+  const idx = LEVELS.findIndex(l => l.min > xp);
+  return idx === -1 ? null : LEVELS[idx];
+}
+
+const ROMAN = ['I', 'II', 'III', 'IV'];
+const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 interface Props {
   track: SWETrack;
@@ -89,12 +121,32 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
   const [activeSection, setActiveSection] = useState<string>(SECTIONS[0].id);
   const store = useLearnerStore();
 
+  const SECTION_XP = 50;
+  const QUIZ_XP = 100;
+
   const readingXP = completedSections.size * SECTION_XP;
-  const quizXP = CONCEPTS.reduce((sum, c) => {
-    const pKnow = store.conceptStates[c]?.pKnow ?? 0;
-    return sum + Math.round(pKnow * QUIZ_XP);
-  }, 0);
+  const quizXP = CONCEPTS.reduce((sum, c) => sum + Math.round((store.conceptStates[c]?.pKnow ?? 0) * QUIZ_XP), 0);
   const totalXP = readingXP + quizXP;
+
+  const [showGain, setShowGain] = useState(false);
+  const [gainAmt, setGainAmt] = useState(0);
+  const gainRef = useRef(0);
+
+  useEffect(() => {
+    const diff = totalXP - gainRef.current;
+    if (diff > 0) {
+      setGainAmt(diff);
+      setShowGain(true);
+      gainRef.current = totalXP;
+      const t = setTimeout(() => setShowGain(false), 1800);
+      return () => clearTimeout(t);
+    }
+  }, [totalXP]);
+
+  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
+  const xpLevel = getLevel(totalXP);
+  const nextLevel = getNextLevel(totalXP);
+  const levelPct = nextLevel ? Math.round(((totalXP - xpLevel.min) / (nextLevel.min - xpLevel.min)) * 100) : 100;
 
   useEffect(() => {
     store.initSession();
@@ -125,6 +177,11 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
+    borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+  };
+
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
 
@@ -140,10 +197,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
           <div style={{ flexShrink: 0, width: '20px', height: '20px', borderRadius: '4px', background: meta.accentGradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
-              <rect x="2" y="2" width="5" height="5" rx="1" fill="white" />
-              <rect x="9" y="2" width="5" height="5" rx="1" fill="white" />
-              <rect x="2" y="9" width="5" height="5" rx="1" fill="white" />
-              <rect x="9" y="9" width="5" height="5" rx="1" fill="white" />
+              <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', whiteSpace: 'nowrap' as const }}>
@@ -155,7 +210,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {totalXP} XP
           </div>
           <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'var(--ed-rule)', overflow: 'hidden' }}>
-            <motion.div animate={{ width: `${Math.min((completedSections.size / SECTIONS.length) * 100, 100)}%` }} style={{ height: '100%', background: meta.accentGradient, borderRadius: '2px' }} />
+            <motion.div animate={{ width: `${progressPct}%` }} style={{ height: '100%', background: meta.accentGradient, borderRadius: '2px' }} />
           </div>
         </div>
       </div>
@@ -164,28 +219,46 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '200px 1fr 220px', gap: '0', padding: '0 24px' }}>
 
         {/* Left nav */}
-        <div style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '40px', paddingRight: '24px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
-            Sections
-          </div>
-          {SECTIONS.map(s => (
-            <div
-              key={s.id}
-              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              style={{
-                padding: '7px 10px', borderRadius: '6px', marginBottom: '2px', cursor: 'pointer',
-                fontSize: '12px', lineHeight: 1.4,
-                color: activeSection === s.id ? meta.accentColor : 'var(--ed-ink3)',
-                background: activeSection === s.id ? `rgba(${ACCENT_RGB},0.08)` : 'transparent',
-                borderLeft: `2px solid ${activeSection === s.id ? meta.accentColor : 'transparent'}`,
-                fontWeight: activeSection === s.id ? 600 : 400,
-                transition: 'all 0.15s',
-              }}>
-              {completedSections.has(s.id) && <span style={{ marginRight: '4px', fontSize: '10px' }}>✓</span>}
-              {s.label}
+        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '32px', paddingRight: '20px' }}>
+          <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px 14px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+            <div style={{ marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid var(--ed-rule)' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
+              <div style={{ height: '2px', background: 'var(--ed-rule)', borderRadius: '1px', overflow: 'hidden' }}>
+                <motion.div style={{ height: '100%', background: meta.accentColor, borderRadius: '1px' }} animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
+              </div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{progressPct}% · {completedSections.size}/{SECTIONS.length} parts</div>
             </div>
-          ))}
-        </div>
+            <nav>
+              {SECTIONS.map((sec, idx) => {
+                const done = completedSections.has(sec.id);
+                const active = activeSection === sec.id && !done;
+                return (
+                  <motion.button
+                    key={sec.id}
+                    onClick={() => document.querySelector(`[data-section="${sec.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    whileHover={{ x: 2 }}
+                    style={{
+                      display: 'flex', alignItems: 'baseline', gap: '8px', width: '100%',
+                      background: 'none', border: 'none', cursor: 'pointer', padding: '5px 0',
+                      textAlign: 'left' as const,
+                      borderLeft: active ? `2px solid ${meta.accentColor}` : '2px solid transparent',
+                      paddingLeft: '8px', marginLeft: '-8px', transition: 'border-color 0.2s',
+                    }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: done ? meta.accentColor : active ? meta.accentColor : 'var(--ed-rule)', flexShrink: 0, minWidth: '18px', lineHeight: 1 }}>
+                      {toRoman(idx + 1)}.
+                    </span>
+                    <span style={{ fontSize: '11px', fontWeight: active ? 600 : 400, color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', lineHeight: 1.4, wordBreak: 'break-word' as const, transition: 'color 0.2s' }}>
+                      {sec.label}{done ? ' ✓' : ''}
+                    </span>
+                  </motion.button>
+                );
+              })}
+            </nav>
+            <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--ed-rule)' }}>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>Following {meta.protagonist.split(' ')[0]}&apos;s journey</div>
+            </div>
+          </div>
+        </aside>
 
         {/* Main content */}
         <div style={{ paddingTop: '40px', paddingBottom: '80px', borderLeft: '1px solid var(--ed-rule)', borderRight: '1px solid var(--ed-rule)', paddingLeft: '40px', paddingRight: '40px', minWidth: 0 }}>
@@ -537,12 +610,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             {track === 'python' && (
               <>
-                {para(<>Python error messages are called <strong>tracebacks</strong>. They show the call stack — the chain of function calls that led to the error — with the most recent call at the bottom. The bottom line is usually the most important. Read from bottom to top.</>)}
+                {para(<>Python tracebacks read from bottom to top. The last line is the actual error. The lines above it are the call chain — the sequence of function calls that led there. The line that matters most is the one in <em>your</em> code, not in a library you imported.</>)}
                 {keyBox('Reading a Python traceback', [
-                  'The last line tells you the error type (ValueError, TypeError, etc.) and what went wrong',
-                  'The second-to-last block tells you the exact file and line number where it broke',
-                  'Work up the stack only if you need to understand how you got there',
-                  'Search the exact error type + message if you don\'t recognise it — Stack Overflow will have it',
+                  'Traceback (most recent call last): — this is always the header, ignore it',
+                  'File "your_script.py", line 12 — this is where YOUR code caused the problem',
+                  'NameError: name \'x\' is not defined — error type + message on the final line',
+                  'Lines from site-packages/ are library code — look above them for your code',
                 ])}
               </>
             )}
@@ -614,33 +687,133 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
         </div>
 
         {/* Right sidebar */}
-        <div style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '40px', paddingLeft: '24px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
-            Progress
-          </div>
-          <div style={{ padding: '14px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '12px' }}>
-            <div style={{ fontSize: '22px', fontWeight: 700, color: meta.accentColor, fontFamily: "'JetBrains Mono', monospace" }}>{totalXP}</div>
-            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '2px' }}>XP earned</div>
-          </div>
-          <div style={{ padding: '14px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '20px' }}>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)' }}>{completedSections.size} / {SECTIONS.length}</div>
-            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Sections read</div>
+        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '32px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+          {/* XP + Level */}
+          <div style={{ ...cardStyle, borderTop: `3px solid ${meta.accentColor}`, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '2px' }}>Level</div>
+                <div style={{ fontSize: '14px', fontWeight: 800, color: xpLevel.color, whiteSpace: 'nowrap' as const }}>{xpLevel.label}</div>
+              </div>
+              <div style={{ textAlign: 'right' as const, position: 'relative', overflow: 'visible' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '2px' }}>XP</div>
+                <motion.div key={totalXP} animate={{ scale: [1.12, 1] }} transition={{ duration: 0.25 }}
+                  style={{ fontSize: '22px', fontWeight: 900, color: meta.accentColor, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>
+                  {totalXP}
+                </motion.div>
+                <AnimatePresence>
+                  {showGain && (
+                    <motion.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -20 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }}
+                      style={{ position: 'absolute', right: 0, top: '-6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: meta.accentColor, pointerEvents: 'none', whiteSpace: 'nowrap' as const }}>
+                      +{gainAmt}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+              {[
+                { label: 'Reading', val: readingXP, color: meta.accentColor },
+                { label: 'Quizzes', val: quizXP,   color: '#0D7A5A' },
+              ].map(b => (
+                <div key={b.label} style={{ flex: 1, padding: '5px 8px', borderRadius: '5px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' as const }}>{b.label}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: b.color }}>{b.val} xp</div>
+                </div>
+              ))}
+            </div>
+            {nextLevel ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{levelPct}% to {nextLevel.label}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{nextLevel.min - totalXP} xp</span>
+                </div>
+                <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <motion.div animate={{ width: `${levelPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: meta.accentColor, borderRadius: '2px' }} />
+                </div>
+              </>
+            ) : (
+              <div style={{ fontSize: '11px', color: meta.accentColor, fontWeight: 700 }}>✦ Max level reached</div>
+            )}
           </div>
 
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px', textTransform: 'uppercase' as const }}>
-            Key concepts
-          </div>
-          {[
-            track === 'python' ? 'CPython interpreter' : track === 'java' ? 'JVM + bytecode' : 'V8 engine',
-            track === 'python' ? 'Virtual environments' : track === 'java' ? 'JDK + Maven' : 'npm + package.json',
-            track === 'python' ? 'Python ecosystem' : track === 'java' ? 'Spring ecosystem' : 'Event loop',
-            'Debugging loop',
-          ].map(concept => (
-            <div key={concept} style={{ padding: '7px 10px', borderRadius: '6px', marginBottom: '4px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>
-              {concept}
+          {/* Module progress */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)' }}>Module Progress</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: meta.accentColor }}>{progressPct}%</span>
             </div>
-          ))}
-        </div>
+            <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+              <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: meta.accentColor, borderRadius: '2px' }} />
+            </div>
+            <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--ed-ink3)' }}>
+              {completedSections.size} of {SECTIONS.length} parts · {MODULE_TIME}
+            </div>
+          </div>
+
+          {/* Badges */}
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)' }}>Badges</div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{ACHIEVEMENTS.filter(a => completedSections.has(a.id)).length}/{ACHIEVEMENTS.length}</div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', padding: '2px' }}>
+              {ACHIEVEMENTS.map(a => {
+                const unlocked = completedSections.has(a.id);
+                return (
+                  <div key={a.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                    <motion.div whileHover={{ scale: 1.08 }}
+                      title={unlocked ? `${a.label}: ${a.desc}` : 'Locked'}
+                      style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? `rgba(${ACCENT_RGB},0.12)` : 'var(--ed-cream)', border: `1px solid ${unlocked ? `rgba(${ACCENT_RGB},0.3)` : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', filter: unlocked ? 'none' : 'grayscale(1) opacity(0.3)', transition: 'all 0.3s', cursor: 'default' }}>
+                      {a.icon}
+                    </motion.div>
+                    <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center' as const, maxWidth: '40px', lineHeight: 1.2, wordBreak: 'break-word' as const }}>
+                      {a.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Concept Mastery */}
+          <div style={{ ...cardStyle, borderLeft: `3px solid ${meta.accentColor}` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '10px' }}>Concept Mastery</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+              {CONCEPT_DETAILS.map(c => {
+                const state = store.conceptStates[c.id];
+                const pct = state ? Math.round(state.pKnow * 100) : 0;
+                return (
+                  <div key={c.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '4px' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--ed-ink2)', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{c.label}</span>
+                      <span style={{ fontSize: '10px', color: pct > 0 ? c.color : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, flexShrink: 0 }}>{pct}%</span>
+                    </div>
+                    <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                      <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: c.color, borderRadius: '2px' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes to raise mastery scores</div>
+          </div>
+
+          {/* Streak */}
+          {store.streakDays > 0 && (
+            <div style={{ ...cardStyle, borderLeft: '3px solid #C85A40' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <motion.span animate={{ scale: [1, 1.12, 1] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ fontSize: '20px', flexShrink: 0 }}>🔥</motion.span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '15px', fontWeight: 800, color: '#C85A40', lineHeight: 1 }}>{store.streakDays} day{store.streakDays !== 1 ? 's' : ''}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '2px' }}>learning streak</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </aside>
 
       </div>
     </div>
