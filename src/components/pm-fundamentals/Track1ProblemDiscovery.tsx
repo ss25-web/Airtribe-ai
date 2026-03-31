@@ -49,210 +49,439 @@ const TiltCard = ({ children, style }: { children: React.ReactNode; style?: Reac
 };
 
 // ─────────────────────────────────────────
-// NOTION TEMPLATE MOCKUP
+// NOTION AFFINITY BOARD
 // ─────────────────────────────────────────
-const NotionTemplateMockup = () => (
-  <TiltCard style={{ margin: '24px 0' }}>
-  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', background: '#fff' }}>
-    {/* Window chrome */}
-    <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
-      </div>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace', background: '#EDEDEC', padding: '3px 12px', borderRadius: '5px' }}>
-          📄 discovery-sprint-template.notion
-        </div>
-      </div>
-    </div>
-    {/* Notion sidebar + content */}
-    <div style={{ display: 'flex', minHeight: '280px' }}>
-      {/* Left sidebar */}
-      <div style={{ width: '180px', background: '#F7F6F3', borderRight: '1px solid #E0D9D0', padding: '14px 0', flexShrink: 0 }}>
-        <div style={{ padding: '0 12px', marginBottom: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#37352F', marginBottom: '4px' }}>🔭 Discovery Sprint</div>
-          <div style={{ fontSize: '11px', color: '#999', marginBottom: '2px' }}>Priya Sharma</div>
-        </div>
-        <div style={{ height: '1px', background: '#E0D9D0', margin: '8px 0' }} />
-        {[
-          { icon: '📋', label: 'Interview Template', active: true },
-          { icon: '👤', label: 'Interview 1 — Rahul' },
-          { icon: '👤', label: 'Interview 2 — Kavita' },
-          { icon: '🗂️', label: 'Affinity Map' },
-          { icon: '📄', label: 'Discovery Brief' },
-        ].map(item => (
-          <div key={item.label} style={{ padding: '5px 12px', display: 'flex', alignItems: 'center', gap: '7px', background: item.active ? '#EDEDEC' : 'transparent', borderRadius: '4px', margin: '1px 4px' }}>
-            <span style={{ fontSize: '12px' }}>{item.icon}</span>
-            <span style={{ fontSize: '11px', color: item.active ? '#37352F' : '#888', fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
-          </div>
-        ))}
-      </div>
-      {/* Main content */}
-      <div style={{ flex: 1, padding: '20px 28px', background: '#fff', overflow: 'hidden' }}>
-        <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#999', letterSpacing: '0.1em', marginBottom: '6px' }}>TEMPLATE · SHARED BY ASHA</div>
-        <div style={{ fontSize: '18px', fontWeight: 700, color: '#37352F', marginBottom: '16px' }}>📋 Interview Notes Template</div>
-        {[
-          { label: 'Participant', value: 'Rahul Shah · Sales Manager · 12-person team', color: '#0097A7' },
-          { label: 'Date', value: 'Tuesday 11:00 AM · 30 min call', color: '#4F46E5' },
-          { label: 'Research Q', value: 'Why do managers not add a recording in first 24h?', color: '#C85A40' },
-        ].map(row => (
-          <div key={row.label} style={{ display: 'flex', gap: '12px', alignItems: 'baseline', marginBottom: '8px' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: row.color, fontWeight: 700, letterSpacing: '0.08em', width: '80px', flexShrink: 0 }}>{row.label}</div>
-            <div style={{ fontSize: '12px', color: '#37352F' }}>{row.value}</div>
-          </div>
-        ))}
-        <div style={{ height: '1px', background: '#E0D9D0', margin: '14px 0' }} />
-        <div style={{ fontSize: '11px', fontWeight: 700, color: '#37352F', marginBottom: '8px' }}>Opening question</div>
-        <div style={{ fontSize: '12px', color: '#555', fontStyle: 'italic', lineHeight: 1.7, padding: '10px 14px', background: '#F7F6F3', borderRadius: '6px', borderLeft: '3px solid #0097A7', marginBottom: '12px' }}>
-          &ldquo;Tell me what happened when you first signed up for EdSpark.&rdquo;
-        </div>
-        <div style={{ fontSize: '11px', fontWeight: 700, color: '#37352F', marginBottom: '6px' }}>Key observations</div>
-        {['Completed setup in ~20 min — no friction', 'Opened dashboard, didn\'t know next step', 'Said: "I didn\'t know what I was supposed to do with recordings"'].map((note, i) => (
-          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '5px' }}>
-            <span style={{ color: '#0097A7', fontWeight: 700, flexShrink: 0 }}>→</span>
-            <span style={{ fontSize: '12px', color: '#555', lineHeight: 1.5 }}>{note}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-  </TiltCard>
-);
-
-// ─────────────────────────────────────────
-// KRAFTFUL DASHBOARD MOCKUP
-// ─────────────────────────────────────────
-const KraftfulDashboardMockup = () => {
-  const clusters = [
-    { label: 'Not knowing where to start', pct: 34, color: '#00BCD4', tickets: '127 tickets' },
-    { label: 'Confused about feature differences', pct: 28, color: '#4F46E5', tickets: '104 tickets' },
-    { label: 'Other / mixed feedback', pct: 20, color: '#8A8580', tickets: '75 tickets' },
-    { label: 'Technical / billing issues', pct: 18, color: '#C85A40', tickets: '67 tickets' },
+const NotionAffinityBoard = () => {
+  type ThemeId = 'no-next-step' | 'no-good-looks' | 'prove-value';
+  const notes = [
+    { id: 'n1', text: 'Completed setup fine — no friction with onboarding' },
+    { id: 'n2', text: 'Opened dashboard, did not know what to do next' },
+    { id: 'n3', text: '"I did not know what I was supposed to do with the recordings"' },
+    { id: 'n4', text: 'No feedback on whether coaching sessions were working' },
+    { id: 'n5', text: '"I could not tell if 7 out of 10 was good or not"' },
+    { id: 'n6', text: 'Director asks every quarter if coaching is worth the investment' },
+    { id: 'n7', text: '"I churned because I was flying blind the whole time"' },
+    { id: 'n8', text: 'Wanted the product to show them what good looks like' },
   ];
+  const themes: { id: ThemeId; label: string; color: string }[] = [
+    { id: 'no-next-step', label: 'No clear next step', color: '#0097A7' },
+    { id: 'no-good-looks', label: "Doesn't know what good looks like", color: '#7C3AED' },
+    { id: 'prove-value', label: 'Job: prove coaching works', color: '#C85A40' },
+  ];
+  const [assignments, setAssignments] = useState<Record<string, ThemeId>>({});
+  const [selected, setSelected] = useState<string | null>(null);
+  const unassigned = notes.filter(n => !assignments[n.id]);
   return (
-    <TiltCard style={{ margin: '24px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
-      {/* Header bar */}
-      <div style={{ background: '#0D1F24', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <TiltCard style={{ margin: '24px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', background: '#fff' }}>
+        <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#00BCD4', letterSpacing: '0.1em' }}>KRAFTFUL</div>
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark · Support Tickets · Last 90 days</div>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace', background: '#EDEDEC', padding: '3px 12px', borderRadius: '5px' }}>
+              affinity-map.notion · EdSpark Manager Research
+            </div>
+          </div>
+          <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#0097A7' }}>{Object.keys(assignments).length}/{notes.length} placed</div>
         </div>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>373 tickets analyzed · AI clustered</div>
-      </div>
-      {/* Content */}
-      <div style={{ background: '#111C1F', padding: '20px 24px' }}>
-        <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: '16px' }}>THEME CLUSTERS</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {clusters.map((c, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1, duration: 0.35 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: i === 0 ? 600 : 400 }}>{c.label}</span>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>{c.tickets}</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: c.color, minWidth: '32px', textAlign: 'right' }}>{c.pct}%</span>
+        <div style={{ padding: '8px 18px', background: 'rgba(0,151,167,0.05)', borderBottom: '1px solid #E0D9D0', fontSize: '11px', color: '#0097A7' }}>
+          Select an observation, then assign it to a theme. This is how Priya groups findings after interviews in Notion.
+        </div>
+        <div style={{ display: 'flex', minHeight: '320px' }}>
+          <div style={{ width: '230px', borderRight: '1px solid #E0D9D0', padding: '14px 12px', flexShrink: 0, background: '#FAFAFA' }}>
+            <div style={{ fontSize: '8px', fontFamily: 'monospace', color: '#999', letterSpacing: '0.1em', marginBottom: '10px', display: 'flex', justifyContent: 'space-between' }}>
+              <span>INTERVIEW NOTES</span>
+              <span>{unassigned.length} remaining</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {unassigned.map(note => (
+                <button
+                  key={note.id}
+                  onClick={() => setSelected(selected === note.id ? null : note.id)}
+                  style={{
+                    padding: '9px 11px', borderRadius: '6px', textAlign: 'left',
+                    background: selected === note.id ? 'rgba(0,151,167,0.1)' : '#fff',
+                    border: `1.5px solid ${selected === note.id ? '#0097A7' : '#E0D9D0'}`,
+                    cursor: 'pointer', fontSize: '11px', color: '#37352F', lineHeight: 1.5,
+                    boxShadow: selected === note.id ? '0 2px 8px rgba(0,151,167,0.2)' : '0 1px 3px rgba(0,0,0,0.06)',
+                  }}
+                >
+                  {note.text}
+                </button>
+              ))}
+              {unassigned.length === 0 && (
+                <div style={{ fontSize: '11px', color: '#0097A7', fontStyle: 'italic', textAlign: 'center', padding: '16px 0' }}>All observations placed</div>
+              )}
+            </div>
+            <AnimatePresence>
+              {selected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', background: '#fff', border: '1.5px solid #0097A7' }}
+                >
+                  <div style={{ fontSize: '8px', fontFamily: 'monospace', color: '#0097A7', letterSpacing: '0.1em', marginBottom: '8px' }}>ASSIGN TO THEME</div>
+                  {themes.map(theme => (
+                    <motion.button
+                      key={theme.id}
+                      whileHover={{ x: 3 }}
+                      onClick={() => {
+                        const sel = selected;
+                        if (sel) { setAssignments(prev => ({ ...prev, [sel]: theme.id })); setSelected(null); }
+                      }}
+                      style={{ display: 'block', width: '100%', padding: '7px 10px', marginBottom: '4px', borderRadius: '5px', border: 'none', background: `${theme.color}18`, cursor: 'pointer', textAlign: 'left', fontSize: '10px', fontWeight: 600, color: theme.color }}
+                    >
+                      {'→'} {theme.label}
+                    </motion.button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            {themes.map((theme, ti) => {
+              const themeNotes = notes.filter(n => assignments[n.id] === theme.id);
+              const isFinding = themeNotes.length >= 3;
+              return (
+                <div key={theme.id} style={{ borderRight: ti < 2 ? '1px solid #E0D9D0' : 'none', padding: '12px', background: themeNotes.length > 0 ? `${theme.color}06` : '#fff' }}>
+                  <div style={{ marginBottom: '10px' }}>
+                    <div style={{ fontSize: '9px', fontFamily: 'monospace', fontWeight: 700, color: theme.color, letterSpacing: '0.06em', marginBottom: '4px' }}>{theme.label.toUpperCase()}</div>
+                    {isFinding && (
+                      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ fontSize: '8px', background: theme.color, color: '#fff', padding: '2px 6px', borderRadius: '3px', display: 'inline-block', fontWeight: 700 }}>
+                        FINDING &middot; {themeNotes.length}
+                      </motion.div>
+                    )}
+                  </div>
+                  <AnimatePresence>
+                    {themeNotes.map(note => (
+                      <motion.div key={note.id} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ padding: '8px 10px', borderRadius: '6px', background: '#fff', border: `1px solid ${theme.color}33`, marginBottom: '6px', fontSize: '10px', color: '#37352F', lineHeight: 1.5, boxShadow: `0 1px 4px ${theme.color}15` }}>
+                        {note.text}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  {themeNotes.length === 0 && (
+                    <div style={{ height: '50px', borderRadius: '6px', border: `1.5px dashed ${theme.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', color: `${theme.color}70` }}>
+                      place notes here
+                    </div>
+                  )}
                 </div>
-              </div>
-              <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                <motion.div initial={{ width: 0 }} animate={{ width: `${c.pct}%` }} transition={{ delay: i * 0.1 + 0.2, duration: 0.7, ease: 'easeOut' }} style={{ height: '100%', background: c.color, borderRadius: '3px', opacity: 0.85 }} />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <div style={{ marginTop: '16px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,188,212,0.08)', border: '1px solid rgba(0,188,212,0.2)' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00BCD4', letterSpacing: '0.1em', marginBottom: '4px' }}>KIRAN&apos;S NOTE</div>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-            34% clustering on &ldquo;not knowing where to start&rdquo; is strong signal — but these are users who cared enough to write in. Silent churners may tell a different story. Use this to sharpen interview questions, not replace them.
+              );
+            })}
           </div>
         </div>
       </div>
-    </div></TiltCard>
+    </TiltCard>
   );
 };
 
 // ─────────────────────────────────────────
-// DOVETAIL TAGGING MOCKUP
+// KRAFTFUL ANALYZER
 // ─────────────────────────────────────────
-const DovetailTaggingMockup = () => {
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-  const interviews = [
-    { name: 'Rahul Shah', tags: ["doesn't know what good looks like", 'job: prove value to director', 'completed setup fine'] },
-    { name: 'Kavita R.', tags: ["doesn't know what good looks like", 'no frame of reference', 'opened recording, got stuck'] },
-    { name: 'Sanjay M.', tags: ["doesn't know what good looks like", 'wanted product to guide them', 'churned day 5'] },
-    { name: 'Deepa P.', tags: ["doesn't know what good looks like", 'job: prove value to director', 'no progress signal'] },
-    { name: 'Arjun K.', tags: ["doesn't know what good looks like", 'job: prove value to director', 'no progress signal'] },
-    { name: 'Mihir S.', tags: ['billing issue day 2', 'different problem — separate track'] },
+const KraftfulAnalyzer = () => {
+  const [phase, setPhase] = useState<'raw' | 'loading' | 'clustered'>('raw');
+  const [loadingPct, setLoadingPct] = useState(0);
+  const [expandedCluster, setExpandedCluster] = useState<number | null>(null);
+  const tickets = [
+    { id: 1, text: 'Setup was fine, but I opened the dashboard and just sat there. What was I supposed to do?', from: 'Rahul S. · Sales Manager' },
+    { id: 2, text: 'I uploaded 3 recordings. Nothing changed. I have no idea if the AI is analysing them or if I did something wrong.', from: 'Support #4821' },
+    { id: 3, text: 'Is there a way to see if coaching is actually improving? I cannot tell if the number going up means anything real.', from: 'Support #5103' },
+    { id: 4, text: 'I got charged twice this month. Please refund one payment.', from: 'Support #4996' },
+    { id: 5, text: 'I do not know what a good coaching score looks like. Is 7 out of 10 good? What should I be aiming for?', from: 'Kavita R. · Sales Director' },
+    { id: 6, text: 'I invited 4 reps last week. None of them have uploaded anything yet. How do I get them started?', from: 'Support #5267' },
+    { id: 7, text: 'I cannot figure out how to export data to Excel. Is that on the roadmap?', from: 'Support #5312' },
+    { id: 8, text: 'My director asked me to show the ROI of this tool. I have no idea where to find that number.', from: 'Support #5089' },
   ];
-  const allTags = Array.from(new Set(interviews.flatMap(i => i.tags)));
-  const tagCounts = allTags.reduce((acc, tag) => {
-    acc[tag] = interviews.filter(i => i.tags.includes(tag)).length;
-    return acc;
-  }, {} as Record<string, number>);
-  const sortedTags = allTags.sort((a, b) => tagCounts[b] - tagCounts[a]);
-
+  const clusters = [
+    {
+      label: 'No sense of progress or proof',
+      color: '#00BCD4', pct: 50, ticketIds: [2, 3, 5, 8],
+      summary: 'Users complete setup but cannot tell if the product is working. No progress signal, no benchmark, no ROI view.',
+    },
+    {
+      label: "Doesn't know what to do next",
+      color: '#7C3AED', pct: 25, ticketIds: [1, 6],
+      summary: 'After onboarding, users stall at the dashboard. No clear first action is surfaced.',
+    },
+    {
+      label: 'Billing and feature requests',
+      color: '#8A8580', pct: 25, ticketIds: [4, 7],
+      summary: 'Billing error and missing export feature. Different investigation tracks from the core churn problem.',
+    },
+  ];
+  const handleAnalyze = () => {
+    setPhase('loading');
+    setLoadingPct(0);
+    const steps = [12, 28, 44, 60, 73, 83, 91, 97, 100];
+    steps.forEach((pct, i) => {
+      setTimeout(() => {
+        setLoadingPct(pct);
+        if (pct === 100) setTimeout(() => setPhase('clustered'), 350);
+      }, i * 160 + 80);
+    });
+  };
   return (
-    <TiltCard style={{ margin: '24px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
-      {/* Header */}
-      <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
-        </div>
-        <div style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.1em' }}>DOVETAIL</div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>/ EdSpark Manager Research · 6 interviews</div>
-      </div>
-      <div style={{ display: 'flex', background: '#FAFAFA' }}>
-        {/* Tag panel */}
-        <div style={{ width: '220px', borderRight: '1px solid #E0D9D0', padding: '14px 12px', flexShrink: 0 }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '10px' }}>TAGS · click to highlight</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {sortedTags.map(tag => {
-              const count = tagCounts[tag];
-              const isActive = activeTag === tag;
-              const isPrimary = count >= 4;
-              return (
-                <motion.button key={tag} whileHover={{ x: 2 }} onClick={() => setActiveTag(isActive ? null : tag)}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', borderRadius: '6px', border: `1px solid ${isActive ? '#7C3AED' : '#E0D9D0'}`, background: isActive ? 'rgba(124,58,237,0.08)' : isPrimary ? 'rgba(0,188,212,0.05)' : '#fff', cursor: 'pointer', textAlign: 'left' }}>
-                  <span style={{ fontSize: '10px', color: isActive ? '#7C3AED' : isPrimary ? '#0097A7' : '#888', fontWeight: isPrimary ? 600 : 400, lineHeight: 1.4 }}>{tag}</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: '10px', fontWeight: 700, color: isPrimary ? '#0097A7' : '#999', marginLeft: '6px', flexShrink: 0 }}>{count}/6</span>
-                </motion.button>
-              );
-            })}
+    <TiltCard style={{ margin: '24px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 24px 64px rgba(0,0,0,0.35)' }}>
+        <div style={{ background: '#0D1F24', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#00BCD4', letterSpacing: '0.1em' }}>KRAFTFUL</div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark &middot; Support tickets &middot; Last 90 days</div>
           </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>8 tickets loaded</div>
         </div>
-        {/* Interview grid */}
-        <div style={{ flex: 1, padding: '14px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '10px' }}>INTERVIEWS</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {interviews.map((interview, i) => {
-              const highlighted = activeTag ? interview.tags.includes(activeTag) : false;
-              return (
-                <motion.div key={i} animate={{ opacity: activeTag ? (highlighted ? 1 : 0.35) : 1 }} transition={{ duration: 0.2 }}
-                  style={{ padding: '10px 14px', borderRadius: '8px', background: highlighted ? 'rgba(124,58,237,0.06)' : '#fff', border: `1px solid ${highlighted ? '#7C3AED' : '#E0D9D0'}` }}>
-                  <div style={{ fontSize: '11px', fontWeight: 600, color: '#37352F', marginBottom: '6px' }}>{interview.name}</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                    {interview.tags.map(tag => {
-                      const isHl = activeTag === tag;
-                      return (
-                        <span key={tag} style={{ fontSize: '9px', padding: '2px 7px', borderRadius: '10px', background: isHl ? 'rgba(124,58,237,0.15)' : 'rgba(0,0,0,0.05)', color: isHl ? '#7C3AED' : '#666', border: `1px solid ${isHl ? '#7C3AED' : 'transparent'}`, fontWeight: isHl ? 700 : 400 }}>
-                          {tag}
-                        </span>
-                      );
-                    })}
+        <div style={{ background: '#111C1F', padding: '20px 24px' }}>
+          <AnimatePresence mode="wait">
+            {phase === 'raw' && (
+              <motion.div key="raw" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', marginBottom: '14px' }}>RAW TICKETS &middot; UNANALYSED &middot; 8 total</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+                  {tickets.map(t => (
+                    <div key={t.id} style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, marginBottom: '4px' }}>{t.text}</div>
+                      <div style={{ fontSize: '9px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.25)' }}>{t.from}</div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleAnalyze}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'linear-gradient(135deg, #00BCD4, #0097A7)', border: 'none', cursor: 'pointer', color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em' }}
+                >
+                  CLUSTER WITH AI
+                </button>
+              </motion.div>
+            )}
+            {phase === 'loading' && (
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#00BCD4', marginBottom: '20px', letterSpacing: '0.08em' }}>Analysing patterns across feedback...</div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden', marginBottom: '12px' }}>
+                    <motion.div animate={{ width: `${loadingPct}%` }} transition={{ duration: 0.15 }} style={{ height: '100%', background: '#00BCD4', borderRadius: '2px' }} />
                   </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>{loadingPct}% &middot; identifying theme clusters</div>
+                </div>
+              </motion.div>
+            )}
+            {phase === 'clustered' && (
+              <motion.div key="clustered" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>THEME CLUSTERS &middot; click to see raw tickets</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00BCD4' }}>8 tickets &middot; 3 clusters</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px' }}>
+                  {clusters.map((c, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.12 }}>
+                      <button
+                        onClick={() => setExpandedCluster(expandedCluster === i ? null : i)}
+                        style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        <div style={{ padding: '12px 16px', borderRadius: expandedCluster === i ? '8px 8px 0 0' : '8px', background: expandedCluster === i ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${expandedCluster === i ? c.color + '55' : 'rgba(255,255,255,0.08)'}` }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', fontWeight: i === 0 ? 600 : 400 }}>{c.label}</span>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>{c.ticketIds.length} tickets</span>
+                              <span style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: c.color }}>{c.pct}%</span>
+                              <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>{expandedCluster === i ? '▲' : '▼'}</span>
+                            </div>
+                          </div>
+                          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${c.pct}%`, background: c.color, borderRadius: '2px', opacity: 0.85 }} />
+                          </div>
+                        </div>
+                      </button>
+                      <AnimatePresence>
+                        {expandedCluster === i && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                            <div style={{ padding: '12px 16px 14px', borderRadius: '0 0 8px 8px', background: 'rgba(255,255,255,0.025)', border: `1px solid ${c.color}40`, borderTop: 'none' }}>
+                              <div style={{ fontSize: '9px', fontFamily: 'monospace', color: c.color, letterSpacing: '0.08em', marginBottom: '6px' }}>CLUSTER SUMMARY</div>
+                              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: '12px' }}>{c.summary}</div>
+                              <div style={{ fontSize: '9px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', marginBottom: '6px' }}>RAW TICKETS</div>
+                              {c.ticketIds.map(tid => {
+                                const t = tickets.find(tk => tk.id === tid);
+                                if (!t) return null;
+                                return (
+                                  <div key={tid} style={{ padding: '8px 10px', borderRadius: '6px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
+                                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: '2px' }}>{t.text}</div>
+                                    <div style={{ fontSize: '8px', fontFamily: 'monospace', color: 'rgba(255,255,255,0.2)' }}>{t.from}</div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </div>
+                <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,188,212,0.08)', border: '1px solid rgba(0,188,212,0.2)' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#00BCD4', letterSpacing: '0.1em', marginBottom: '4px' }}>KIRAN&apos;S NOTE</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
+                    These are users who cared enough to write in. Silent churners have the same problems but you are not seeing them here. Use these clusters to sharpen interview hypotheses, not to replace talking to users.
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-      <div style={{ background: '#F7F3FF', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
-        <span style={{ fontSize: '11px', color: '#7C3AED', fontWeight: 600 }}>
-          {activeTag ? `"${activeTag}" appears in ${tagCounts[activeTag]}/6 interviews${tagCounts[activeTag] >= 4 ? ' — this is your primary finding' : ''}` : 'Click a tag to see which interviews match'}
-        </span>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// DOVETAIL TAGGING SESSION
+// ─────────────────────────────────────────
+const DovetailTaggingSession = () => {
+  const transcript = [
+    { id: 0, speaker: 'Priya', text: 'Tell me what happened when you first signed up for EdSpark.', isQuestion: true },
+    { id: 1, speaker: 'Rahul', text: 'Setup was quick — maybe 20 minutes. Uploaded my first session recording. No problems there.', isQuestion: false },
+    { id: 2, speaker: 'Rahul', text: 'But then I opened the dashboard and I just... sat there. I did not know what I was supposed to do next.', isQuestion: false },
+    { id: 3, speaker: 'Priya', text: 'What were you hoping to see?', isQuestion: true },
+    { id: 4, speaker: 'Rahul', text: 'I wanted to know if my coaching was actually improving. Was it working? I had no way to tell.', isQuestion: false },
+    { id: 5, speaker: 'Priya', text: 'Why does that matter to you?', isQuestion: true },
+    { id: 6, speaker: 'Rahul', text: 'My director asks every quarter if the coaching programme is worth the investment. I need to be able to answer that.', isQuestion: false },
+    { id: 7, speaker: 'Rahul', text: 'I cancelled after about a week. I felt like I was flying blind the whole time.', isQuestion: false },
+  ];
+  const TAGS = [
+    { id: 'no-next-step', label: 'no clear next step', color: '#0097A7' },
+    { id: 'no-progress', label: 'no progress signal', color: '#7C3AED' },
+    { id: 'prove-value', label: 'job: prove value', color: '#C85A40' },
+    { id: 'setup-fine', label: 'setup was fine', color: '#158158' },
+    { id: 'churn', label: 'decision to churn', color: '#DC2626' },
+  ];
+  const [selected, setSelected] = useState<number | null>(null);
+  const [tagged, setTagged] = useState<Record<number, string>>({});
+  const taggableCount = transcript.filter(s => !s.isQuestion).length;
+  const taggedCount = Object.keys(tagged).length;
+  return (
+    <TiltCard style={{ margin: '24px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
+        <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.1em' }}>DOVETAIL</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>/ Interview 01 &mdash; Rahul Shah &middot; Sales Manager</div>
+          <div style={{ marginLeft: 'auto', fontSize: '9px', fontFamily: 'monospace', color: taggedCount >= 4 ? '#00C781' : 'rgba(255,255,255,0.3)' }}>
+            {taggedCount}/{taggableCount} tagged
+          </div>
+        </div>
+        <div style={{ display: 'flex', background: '#FAFAFA', minHeight: '380px' }}>
+          <div style={{ flex: 1.4, padding: '16px 18px', borderRight: '1px solid #E0D9D0' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '12px' }}>TRANSCRIPT &middot; click a response to tag it</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {transcript.map(seg => {
+                const tagId = tagged[seg.id];
+                const tagDef = TAGS.find(t => t.id === tagId);
+                const isSelected = selected === seg.id;
+                const isTagged = !!tagId;
+                return (
+                  <div key={seg.id}>
+                    <div style={{ fontSize: '8px', fontFamily: 'monospace', color: seg.isQuestion ? '#0097A7' : '#888', letterSpacing: '0.06em', marginBottom: '3px', fontWeight: 600 }}>
+                      {seg.speaker.toUpperCase()}
+                    </div>
+                    <div
+                      onClick={!seg.isQuestion ? () => setSelected(isSelected ? null : seg.id) : undefined}
+                      style={{
+                        padding: '8px 12px', borderRadius: '8px', fontSize: '12px', color: '#37352F', lineHeight: 1.65,
+                        border: `1px solid ${isTagged && tagDef ? tagDef.color + '55' : isSelected ? '#0097A7' : '#E0D9D0'}`,
+                        background: isTagged && tagDef ? `${tagDef.color}10` : seg.isQuestion ? '#F0FAFB' : isSelected ? 'rgba(0,151,167,0.07)' : '#fff',
+                        cursor: seg.isQuestion ? 'default' : 'pointer',
+                        fontStyle: seg.isQuestion ? 'italic' : 'normal',
+                      }}
+                    >
+                      {seg.text}
+                      {isTagged && tagDef && (
+                        <span style={{ marginLeft: '8px', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', background: tagDef.color, color: '#fff', fontFamily: 'monospace', fontWeight: 700 }}>
+                          {tagDef.label}
+                        </span>
+                      )}
+                    </div>
+                    <AnimatePresence>
+                      {isSelected && !isTagged && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={{ padding: '8px 10px', background: '#F0FAFB', borderRadius: '0 0 8px 8px', border: '1px solid #0097A7', borderTop: 'none', display: 'flex', gap: '6px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                            <span style={{ fontSize: '8px', fontFamily: 'monospace', color: '#0097A7', letterSpacing: '0.08em', marginRight: '4px' }}>TAG AS:</span>
+                            {TAGS.map(tag => (
+                              <button
+                                key={tag.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setTagged(prev => ({ ...prev, [seg.id]: tag.id }));
+                                  setSelected(null);
+                                }}
+                                style={{ padding: '4px 10px', borderRadius: '12px', background: `${tag.color}18`, border: `1px solid ${tag.color}55`, cursor: 'pointer', fontSize: '10px', fontWeight: 600, color: tag.color }}
+                              >
+                                {tag.label}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ width: '210px', padding: '14px', flexShrink: 0 }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '12px' }}>OBSERVATIONS</div>
+            <div style={{ marginBottom: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {TAGS.map(tag => {
+                const count = Object.values(tagged).filter(t => t === tag.id).length;
+                if (count === 0) return null;
+                return (
+                  <div key={tag.id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '9px', color: tag.color, fontWeight: 600 }}>{tag.label}</span>
+                      <span style={{ fontSize: '9px', fontFamily: 'monospace', color: tag.color, fontWeight: 700 }}>{count}</span>
+                    </div>
+                    <div style={{ height: '3px', background: '#E0D9D0', borderRadius: '2px', overflow: 'hidden' }}>
+                      <motion.div animate={{ width: `${(count / taggableCount) * 100}%` }} transition={{ duration: 0.4 }} style={{ height: '100%', background: tag.color, borderRadius: '2px' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <AnimatePresence>
+              {(Object.entries(tagged) as [string, string][]).map(([segIdStr, tagId]) => {
+                const segId = parseInt(segIdStr);
+                const seg = transcript.find(s => s.id === segId);
+                const tagDef = TAGS.find(t => t.id === tagId);
+                if (!seg || !tagDef) return null;
+                return (
+                  <motion.div key={segId} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} style={{ padding: '8px 10px', borderRadius: '7px', background: `${tagDef.color}10`, border: `1px solid ${tagDef.color}30`, marginBottom: '6px' }}>
+                    <div style={{ fontSize: '8px', fontWeight: 700, color: tagDef.color, fontFamily: 'monospace', marginBottom: '4px', letterSpacing: '0.06em' }}>{tagDef.label.toUpperCase()}</div>
+                    <div style={{ fontSize: '10px', color: '#37352F', lineHeight: 1.5, fontStyle: 'italic' }}>
+                      &ldquo;{seg.text.length > 65 ? seg.text.slice(0, 65) + '...' : seg.text}&rdquo;
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+            {taggedCount === 0 && (
+              <div style={{ fontSize: '11px', color: '#999', fontStyle: 'italic', textAlign: 'center', padding: '20px 0' }}>
+                Tag quotes to build your observations
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{ background: '#F7F3FF', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
+          <span style={{ fontSize: '11px', color: '#7C3AED', fontWeight: 600 }}>
+            {taggedCount === 0
+              ? 'Click any response to start tagging observations'
+              : taggedCount < 3
+              ? `${taggedCount} observation${taggedCount > 1 ? 's' : ''} tagged — keep going to see patterns form`
+              : 'Patterns forming — observations with the same tag build your synthesis'}
+          </span>
+        </div>
       </div>
-    </div></TiltCard>
+    </TiltCard>
   );
 };
 
@@ -881,7 +1110,7 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
-          <NotionTemplateMockup />
+          <NotionAffinityBoard />
 
           <QuizEngine conceptId="user-research" conceptName="User Research" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[0]} />
 
@@ -1001,7 +1230,7 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
-          <KraftfulDashboardMockup />
+          <KraftfulAnalyzer />
 
           <QuizEngine conceptId="research-methods" conceptName="Research Methods" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[2]} />
 
@@ -1154,7 +1383,7 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
-          <DovetailTaggingMockup />
+          <DovetailTaggingSession />
 
           {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
 
