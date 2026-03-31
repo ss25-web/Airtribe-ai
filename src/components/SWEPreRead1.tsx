@@ -385,29 +385,44 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
 
-      {/* Top nav */}
-      <div className="screen-topbar" style={{ position: 'sticky', top: 0, zIndex: 20, background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>← Back</button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-          <div style={{ flexShrink: 0, width: '20px', height: '20px', borderRadius: '4px', background: meta.accentGradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" /><path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
-          </div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', whiteSpace: 'nowrap' as const }}>SWE · {meta.shortLabel.toUpperCase()} · {level === 'advanced' ? '🚀 ADVANCED' : '🌱 BEGINNER'} · PRE-READ 01</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: meta.accentColor, fontWeight: 700 }}>{totalXP} XP</div>
-          <div style={{ width: '80px', height: '4px', borderRadius: '2px', background: 'var(--ed-rule)', overflow: 'hidden' }}>
-            <motion.div animate={{ width: `${progressPct}%` }} style={{ height: '100%', background: meta.accentGradient, borderRadius: '2px' }} />
+      {/* Top nav — matches PMFundamentalsModule structure exactly */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', backdropFilter: 'blur(12px)', transition: 'background 0.4s' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+              <motion.button whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }} onClick={onBack}
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}>
+                <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
+              </motion.button>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ width: '20px', height: '20px', borderRadius: '4px', background: meta.accentGradient, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" /><path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              </div>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>SWE Launchpad</span>
+                <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{meta.shortLabel} · Pre-Read 01</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
+              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: meta.accentColor, borderRadius: '2px' }} />
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: meta.accentColor, flexShrink: 0 }}>{progressPct}%</span>
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: meta.accentColor, flexShrink: 0 }}>{totalXP} XP</div>
           </div>
         </div>
       </div>
 
-      {/* 3-column layout */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
+      {/* 3-column layout — matches PMFundamentalsModule exactly */}
+      <div className="three-col-wrap" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+      <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
         {/* Left nav */}
-        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '0', paddingRight: '0' }}>
+        <aside className="left-col" style={{ position: 'sticky', top: '57px', height: 'fit-content' }}>
           <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px 14px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
             <div style={{ marginBottom: '12px', paddingBottom: '10px', borderBottom: '1px solid var(--ed-rule)' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
@@ -797,7 +812,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
         </div>{/* end main content */}
 
         {/* Right sidebar */}
-        <aside style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '32px', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <aside className="right-col" style={{ position: 'sticky', top: '57px', height: 'fit-content', paddingTop: '0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
           <div style={{ ...cardStyle, borderTop: `3px solid ${meta.accentColor}`, position: 'relative', overflow: 'hidden' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
