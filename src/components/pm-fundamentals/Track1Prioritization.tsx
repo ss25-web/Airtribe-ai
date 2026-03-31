@@ -39,71 +39,164 @@ const TiltCard = ({ children, style }: { children: React.ReactNode; style?: Reac
 };
 
 // ─────────────────────────────────────────
-// LOCAL: BACKLOG INPUTS MOCKUP (Jira-style)
+// LOCAL: JIRA BACKLOG TRIAGE
 // ─────────────────────────────────────────
-const BacklogInputsMockup = () => {
-  const items = [
-    { key: 'EDU-412', title: 'CRM Integration', requester: 'Marcus · Sales', priority: 'HIGH', status: 'To Do', statusColor: '#0052CC', priorityColor: '#FF5630', age: '3d' },
-    { key: 'EDU-398', title: 'Referral Feature', requester: 'Divya · Marketing', priority: 'MEDIUM', status: 'Backlog', statusColor: '#6554C0', priorityColor: '#FF8B00', age: '1w' },
-    { key: 'EDU-371', title: 'Improve Search', requester: '12 users · Helpdesk', priority: 'MEDIUM', status: 'Backlog', statusColor: '#6554C0', priorityColor: '#FF8B00', age: '2w' },
-    { key: 'EDU-305', title: 'Fix Onboarding', requester: 'Churn data · Kiran', priority: 'HIGH', status: 'To Do', statusColor: '#0052CC', priorityColor: '#FF5630', age: '4w' },
+const JiraBacklogTriage = () => {
+  type TicketKey = 'EDU-412' | 'EDU-398' | 'EDU-371' | 'EDU-305';
+  const tickets: { key: TicketKey; title: string; requester: string; priority: string; priorityColor: string; age: string; options: string[]; correctIdx: number; feedback: string[] }[] = [
+    {
+      key: 'EDU-412', title: 'CRM Integration', requester: 'Marcus · Sales', priority: 'HIGH', priorityColor: '#FF5630', age: '3d',
+      options: [
+        'Sales team is asking for CRM sync',
+        'Sales reps lose deal context when EdSpark activity does not sync to their CRM, risking 3 active accounts',
+        'CRM integration would help close enterprise deals faster',
+      ],
+      correctIdx: 1,
+      feedback: [
+        'Too vague — this just repeats the request. Who is affected? What breaks? What is the cost?',
+        'Correct. Named the user (sales reps), the broken behaviour (context lost), and the consequence (3 at-risk accounts).',
+        'This is a solution hypothesis, not a problem statement. It describes an outcome, not what is currently broken.',
+      ],
+    },
+    {
+      key: 'EDU-398', title: 'Referral Feature', requester: 'Divya · Marketing', priority: 'MEDIUM', priorityColor: '#FF8B00', age: '1w',
+      options: [
+        'Marketing wants a referral feature to drive growth',
+        'Users who want to invite teammates have no in-product path, so invitations happen over email and frequently get lost',
+        'Referral flow should be added to the onboarding screen',
+      ],
+      correctIdx: 1,
+      feedback: [
+        'This describes who wants it, not what is broken for users. The problem is not the same as the stakeholder request.',
+        'Correct. Named the users, what they are trying to do, and how the current gap causes failure.',
+        'This is a solution, not a problem statement. It tells you where to put the feature, not why the feature is needed.',
+      ],
+    },
+    {
+      key: 'EDU-371', title: 'Improve Search', requester: '12 users · Helpdesk', priority: 'MEDIUM', priorityColor: '#FF8B00', age: '2w',
+      options: [
+        'Users can not find recordings quickly, so they stop using playback review after one failed attempt',
+        '12 helpdesk tickets have mentioned search issues over two weeks',
+        'Search needs better filters and a smarter algorithm',
+      ],
+      correctIdx: 0,
+      feedback: [
+        'Correct. Describes who is affected, the broken action, and the behavioural consequence (abandonment).',
+        'This is evidence, not a problem statement. Volume of tickets tells you signal strength, not what is broken.',
+        'This jumps to solution. The problem statement should not mention filters or algorithms.',
+      ],
+    },
+    {
+      key: 'EDU-305', title: 'Fix Onboarding', requester: 'Churn data · Kiran', priority: 'HIGH', priorityColor: '#FF5630', age: '4w',
+      options: [
+        'Onboarding is broken and needs to be redesigned',
+        'New managers complete setup but see no indication of what to do next, so 40% churn before week 2',
+        'Users do not understand the product well enough in the first session',
+      ],
+      correctIdx: 1,
+      feedback: [
+        'Too vague. What is broken? Who does it affect? What is the measurable impact?',
+        'Correct. Segment named (new managers), behaviour described (no next step), outcome quantified (40% churn).',
+        'Blaming user comprehension rather than product clarity. A good problem statement names what the product fails to do.',
+      ],
+    },
   ];
-
+  const [expanded, setExpanded] = useState<TicketKey | null>(null);
+  const [chosen, setChosen] = useState<Partial<Record<TicketKey, number>>>({});
+  const framedCount = Object.keys(chosen).length;
   return (
-    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
-      {/* Jira-style header bar */}
-      <div style={{ background: '#172B4D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-            <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.18)' }}>
+        <div style={{ background: '#172B4D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, letterSpacing: '0.06em' }}>EdSpark &middot; Backlog Triage</div>
+          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: framedCount > 0 ? '#28C840' : 'rgba(255,255,255,0.35)' }}>
+            {framedCount}/4 framed
+          </div>
+        </div>
+        <div style={{ background: '#F4F5F7', borderBottom: '2px solid #DFE1E6', padding: '7px 16px', display: 'flex', alignItems: 'center' }}>
+          {['KEY', 'SUMMARY', 'REQUESTER', 'PRIORITY', 'AGE', 'STATUS'].map((col, i) => (
+            <div key={col} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#5E6C84', letterSpacing: '0.1em', flex: i === 1 ? 3 : i === 2 ? 2 : 1 }}>{col}</div>
           ))}
         </div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, letterSpacing: '0.06em' }}>
-          EdSpark &middot; Sprint Planning Board
-        </div>
-        <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>4 open &middot; 0 prioritized</div>
-      </div>
-      {/* Column headers */}
-      <div style={{ background: '#F4F5F7', borderBottom: '2px solid #DFE1E6', padding: '8px 16px', display: 'flex', gap: '0', alignItems: 'center' }}>
-        {['KEY', 'SUMMARY', 'REQUESTER', 'PRIORITY', 'STATUS', 'AGE'].map((col, i) => (
-          <div key={col} style={{
-            fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
-            color: '#5E6C84', letterSpacing: '0.1em',
-            flex: i === 1 ? 3 : i === 2 ? 2 : 1,
-          }}>{col}</div>
-        ))}
-      </div>
-      {/* Rows */}
-      {items.map((item, idx) => (
-        <div key={item.key} style={{
-          background: '#FFFFFF',
-          borderBottom: idx < items.length - 1 ? '1px solid #F4F5F7' : 'none',
-          padding: '12px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0',
-        }}>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: '#0052CC', fontWeight: 600 }}>{item.key}</div>
-          <div style={{ flex: 3, fontSize: '13px', color: '#172B4D', fontWeight: 500 }}>
-            {item.title}
-            <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '8px', color: '#FF5630', background: '#FFEBE6', padding: '2px 6px', borderRadius: '3px', fontWeight: 700, letterSpacing: '0.06em' }}>REQUEST</span>
+        {tickets.map((ticket, idx) => {
+          const isExpanded = expanded === ticket.key;
+          const picked = chosen[ticket.key];
+          const isFramed = picked !== undefined;
+          const isCorrect = picked === ticket.correctIdx;
+          return (
+            <div key={ticket.key} style={{ borderBottom: idx < tickets.length - 1 ? '1px solid #F0EDE8' : 'none', borderLeft: isFramed ? `3px solid ${isCorrect ? '#0D7A5A' : '#FF5630'}` : '3px solid transparent' }}>
+              <button
+                onClick={() => setExpanded(isExpanded ? null : ticket.key)}
+                style={{ width: '100%', background: isExpanded ? '#FFFAE6' : '#fff', padding: '12px 16px', display: 'flex', alignItems: 'center', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+              >
+                <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: '#0052CC', fontWeight: 600 }}>{ticket.key}</div>
+                <div style={{ flex: 3, fontSize: '13px', color: '#172B4D', fontWeight: 500 }}>{ticket.title}</div>
+                <div style={{ flex: 2, fontSize: '11px', color: '#5E6C84', fontFamily: 'monospace' }}>{ticket.requester}</div>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ticket.priorityColor, background: `${ticket.priorityColor}18`, padding: '2px 6px', borderRadius: '3px' }}>{ticket.priority}</span>
+                </div>
+                <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: '#97A0AF' }}>{ticket.age}</div>
+                <div style={{ flex: 1 }}>
+                  {isFramed
+                    ? <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: isCorrect ? '#0D7A5A' : '#FF5630', background: isCorrect ? 'rgba(13,122,90,0.1)' : '#FFEBE6', padding: '2px 6px', borderRadius: '3px' }}>{isCorrect ? 'FRAMED' : 'RETRY'}</span>
+                    : <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#FF5630', background: '#FFEBE6', padding: '2px 6px', borderRadius: '3px' }}>REQUEST</span>
+                  }
+                </div>
+              </button>
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                    <div style={{ padding: '12px 16px 16px', background: '#FFFAE6', borderTop: '1px solid #F0EDE8' }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em', marginBottom: '10px' }}>CHOOSE THE PROBLEM STATEMENT FOR THIS TICKET</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {ticket.options.map((opt, oi) => {
+                          const isPicked = picked === oi;
+                          const optCorrect = oi === ticket.correctIdx;
+                          const showFeedback = isPicked;
+                          return (
+                            <div key={oi}>
+                              <button
+                                onClick={() => setChosen(prev => ({ ...prev, [ticket.key]: oi }))}
+                                style={{
+                                  width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
+                                  border: `1.5px solid ${isPicked ? (optCorrect ? '#0D7A5A' : '#FF5630') : '#DFE1E6'}`,
+                                  background: isPicked ? (optCorrect ? 'rgba(13,122,90,0.07)' : '#FFEBE6') : '#fff',
+                                  fontSize: '12px', color: '#172B4D', lineHeight: 1.5,
+                                }}
+                              >
+                                <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#5E6C84', marginRight: '8px' }}>{String.fromCharCode(65 + oi)}.</span>
+                                {opt}
+                              </button>
+                              <AnimatePresence>
+                                {showFeedback && (
+                                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                                    <div style={{ padding: '8px 14px', borderRadius: '0 0 7px 7px', background: optCorrect ? 'rgba(13,122,90,0.05)' : '#FFF0EE', borderTop: 'none', fontSize: '11px', color: optCorrect ? '#0D7A5A' : '#C85A40', lineHeight: 1.6 }}>
+                                      {optCorrect ? '✓ ' : '✗ '}{ticket.feedback[oi]}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+        <div style={{ background: '#F4F5F7', borderTop: '1px solid #DFE1E6', padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: framedCount >= 3 ? '#0D7A5A' : '#5E6C84' }}>
+            {framedCount >= 3 ? '✓ Tickets framed — ready for RICE scoring' : `Click each ticket to write its problem statement before RICE scoring (${framedCount}/4 done)`}
           </div>
-          <div style={{ flex: 2, fontSize: '11px', color: '#5E6C84', fontFamily: 'monospace' }}>{item.requester}</div>
-          <div style={{ flex: 1 }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: item.priorityColor, background: `${item.priorityColor}18`, padding: '2px 7px', borderRadius: '3px', letterSpacing: '0.06em' }}>{item.priority}</span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: item.statusColor, background: `${item.statusColor}18`, padding: '2px 7px', borderRadius: '3px', letterSpacing: '0.06em' }}>{item.status}</span>
-          </div>
-          <div style={{ flex: 1, fontSize: '11px', color: '#97A0AF', fontFamily: 'monospace' }}>{item.age}</div>
-        </div>
-      ))}
-      <div style={{ background: '#F4F5F7', borderTop: '1px solid #DFE1E6', padding: '8px 16px' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-          &#9888; All items marked &ldquo;REQUEST&rdquo; &mdash; no problem statements defined. RICE score: N/A. Estimated effort: unknown.
         </div>
       </div>
-    </div></TiltCard>
+    </TiltCard>
   );
 };
 
@@ -222,231 +315,323 @@ const ReframingExercise = () => {
 };
 
 // ─────────────────────────────────────────
-// LOCAL: KIRAN DATA MOCKUP (Amplitude-style)
+// LOCAL: AMPLITUDE FUNNEL EXPLORER
 // ─────────────────────────────────────────
-const KiranDataMockup = () => {
-  const metrics = [
-    {
-      label: 'Week-1 Churn Rate',
-      value: '40%',
-      trend: '&#8593; up',
-      trendBad: true,
-      note: 'vs 34% last quarter',
-      color: ACCENT,
-      borderColor: `rgba(${ACCENT_RGB},0.2)`,
-    },
-    {
-      label: 'CRM Feature Requests',
-      value: '3',
-      trend: 'customers',
-      trendBad: false,
-      note: '0.8% of active users',
-      color: '#0D7A5A',
-      borderColor: 'rgba(13,122,90,0.2)',
-    },
-    {
-      label: 'Onboarding Complete',
-      value: '58%',
-      trend: '&#8595; down',
-      trendBad: true,
-      note: 'vs 67% last quarter',
-      color: '#B5720A',
-      borderColor: 'rgba(181,114,10,0.2)',
-    },
-  ];
-
+const AmplitudeFunnelExplorer = () => {
+  type Seg = 'all' | 'new' | 'experienced';
+  const [segment, setSegment] = useState<Seg>('all');
+  const funnelData: Record<Seg, { step: string; pct: number; note?: string }[]> = {
+    all: [
+      { step: 'Signed Up', pct: 100 },
+      { step: 'Completed Setup', pct: 92 },
+      { step: 'Uploaded First Recording', pct: 76 },
+      { step: 'Saw a Progress Indicator', pct: 41, note: '35pt drop' },
+      { step: 'Active at Day 14', pct: 32 },
+    ],
+    new: [
+      { step: 'Signed Up', pct: 100 },
+      { step: 'Completed Setup', pct: 90 },
+      { step: 'Uploaded First Recording', pct: 71 },
+      { step: 'Saw a Progress Indicator', pct: 29, note: '42pt drop' },
+      { step: 'Active at Day 14', pct: 21 },
+    ],
+    experienced: [
+      { step: 'Signed Up', pct: 100 },
+      { step: 'Completed Setup', pct: 94 },
+      { step: 'Uploaded First Recording', pct: 82 },
+      { step: 'Saw a Progress Indicator', pct: 67, note: '15pt drop' },
+      { step: 'Active at Day 14', pct: 58 },
+    ],
+  };
+  const segLabels: Record<Seg, string> = { all: 'All Users', new: 'New Managers', experienced: 'Experienced Managers' };
+  const insights: Record<Seg, string> = {
+    all: '40% drop-off between "Uploaded Recording" and "Saw Progress" — something breaks at the progress-visibility step.',
+    new: 'New managers lose 42 points at "Saw Progress" — they upload but cannot tell if anything is working. This is the churn driver.',
+    experienced: 'Experienced managers show only a 15-point drop at the same step. Same product, different outcome. The problem is specific to new managers.',
+  };
+  const steps = funnelData[segment];
+  const dropStep = steps.reduce((maxIdx, s, i) => {
+    if (i === 0) return maxIdx;
+    const drop = steps[i - 1].pct - s.pct;
+    return drop > (steps[maxIdx].pct - (maxIdx > 0 ? steps[maxIdx - 1].pct : 0)) ? i : maxIdx;
+  }, 1);
   return (
-    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #2C3E60', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
-      <div style={{ background: '#1B2A47', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-            <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />
-          ))}
-        </div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#7FBAFF', fontWeight: 700, letterSpacing: '0.1em' }}>
-          AMPLITUDE
-        </div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
-          / EdSpark &middot; Product Analytics &middot; Kiran&apos;s dashboard
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', boxShadow: '0 0 6px #28C840' }} />
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Live &middot; Q1 2024</div>
-        </div>
-      </div>
-      <div style={{ background: '#F8F9FC', padding: '24px', display: 'flex', gap: '16px', flexWrap: 'wrap' as const }}>
-        {metrics.map((m) => (
-          <div key={m.label} style={{
-            flex: '1', minWidth: '160px', background: '#FFFFFF',
-            borderRadius: '10px', padding: '20px 18px',
-            border: `1px solid ${m.borderColor}`,
-            borderTop: `3px solid ${m.color}`,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>{m.label}</div>
-            <div style={{ fontSize: '36px', fontWeight: 800, color: m.color, lineHeight: 1, fontFamily: "'JetBrains Mono', monospace", marginBottom: '6px' }}>{m.value}</div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', fontWeight: 700, color: m.trendBad ? ACCENT : '#0D7A5A' }} dangerouslySetInnerHTML={{ __html: m.trend }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)' }}>{m.note}</span>
-            </div>
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #2C3E60', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
+        <div style={{ background: '#1B2A47', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
           </div>
-        ))}
-      </div>
-      <div style={{ background: '#F8F9FC', borderTop: '1px solid #E8EAF0', padding: '10px 24px' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
-          &#10022; Kiran&apos;s note: 3 CRM requests vs. 40% of all users churning in week 1. The data is not ambiguous.
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#7FBAFF', fontWeight: 700, letterSpacing: '0.1em' }}>AMPLITUDE</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>/ EdSpark &middot; User Funnel &middot; Kiran&apos;s dashboard</div>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', boxShadow: '0 0 6px #28C840' }} />
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Live &middot; Q1 2024</div>
+          </div>
+        </div>
+        <div style={{ background: '#F8F9FC' }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #E8EAF0', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em' }}>SEGMENT:</span>
+            {(['all', 'new', 'experienced'] as Seg[]).map(s => (
+              <button
+                key={s}
+                onClick={() => setSegment(s)}
+                style={{ padding: '5px 12px', borderRadius: '6px', border: `1.5px solid ${segment === s ? '#4F46E5' : '#DFE1E6'}`, background: segment === s ? 'rgba(79,70,229,0.08)' : '#fff', cursor: 'pointer', fontFamily: 'monospace', fontSize: '10px', fontWeight: segment === s ? 700 : 400, color: segment === s ? '#4F46E5' : '#5E6C84' }}
+              >
+                {segLabels[s]}
+              </button>
+            ))}
+          </div>
+          <div style={{ padding: '20px 24px' }}>
+            {steps.map((step, i) => {
+              const isBigDrop = i === dropStep;
+              const drop = i > 0 ? steps[i - 1].pct - step.pct : 0;
+              return (
+                <div key={step.step} style={{ marginBottom: i < steps.length - 1 ? '4px' : 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                    <div style={{ width: '140px', fontSize: '11px', color: '#172B4D', flexShrink: 0, fontWeight: isBigDrop ? 600 : 400 }}>{step.step}</div>
+                    <div style={{ flex: 1, height: '24px', background: '#E8EAF0', borderRadius: '4px', overflow: 'hidden', position: 'relative' }}>
+                      <motion.div
+                        animate={{ width: `${step.pct}%` }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
+                        style={{ height: '100%', background: isBigDrop ? `${ACCENT}` : '#4F46E5', borderRadius: '4px', opacity: 0.8 }}
+                      />
+                    </div>
+                    <div style={{ width: '38px', fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: isBigDrop ? ACCENT : '#172B4D', textAlign: 'right' as const }}>{step.pct}%</div>
+                    {isBigDrop && drop > 0 && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontFamily: 'monospace', fontSize: '9px', color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', fontWeight: 700, whiteSpace: 'nowrap' as const }}>
+                        -{drop}pt drop
+                      </motion.div>
+                    )}
+                  </div>
+                  {i < steps.length - 1 && (
+                    <div style={{ marginLeft: '140px', paddingLeft: '12px', height: '12px', borderLeft: `1.5px dashed ${isBigDrop ? ACCENT + '50' : '#DFE1E6'}` }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ padding: '10px 20px', borderTop: '1px solid #E8EAF0', background: 'rgba(79,70,229,0.04)' }}>
+            <motion.div key={segment} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontFamily: 'monospace', fontSize: '10px', color: '#4F46E5', lineHeight: 1.6 }}>
+              &#10022; {insights[segment]}
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div></TiltCard>
+    </TiltCard>
   );
 };
 
 // ─────────────────────────────────────────
-// LOCAL: RICE CALCULATOR MOCKUP
+// LOCAL: RICE LIVE CALCULATOR
 // ─────────────────────────────────────────
-const RICECalculatorMockup = () => {
-  const rows = [
-    { problem: 'Onboarding gap', reach: 500, impact: 2, confidence: 80, effort: 1, score: 800, winner: true },
-    { problem: 'Search improvements', reach: 200, impact: 1, confidence: 60, effort: 2, score: 60, winner: false },
-    { problem: 'CRM Integration', reach: 50, impact: 2, confidence: 50, effort: 4, score: 12.5, winner: false },
-    { problem: 'Referral feature', reach: 150, impact: 1, confidence: 50, effort: 3, score: 25, winner: false },
-  ];
-
-  const cols = ['Problem', 'Reach', 'Impact', 'Confidence', 'Effort', 'RICE Score'];
-
-  return (
-    <TiltCard style={{ margin: '32px 0' }}><div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
-      <div style={{ background: `rgba(${ACCENT_RGB},0.9)`, padding: '10px 16px', display: 'flex', alignItems: 'center' }}>
-        {cols.map((col, i) => (
-          <div key={col} style={{
-            flex: i === 0 ? 3 : 1,
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '9px', fontWeight: 700,
-            color: 'rgba(255,255,255,0.9)', letterSpacing: '0.1em',
-            textTransform: 'uppercase' as const,
-          }}>{col}</div>
-        ))}
-        <div style={{ width: '80px' }} />
-      </div>
-      {rows.map((row, idx) => (
-        <div key={row.problem} style={{
-          background: row.winner ? 'rgba(13,122,90,0.06)' : idx % 2 === 0 ? '#FFFFFF' : '#FAFAFA',
-          borderBottom: idx < rows.length - 1 ? '1px solid #F0EDE8' : 'none',
-          borderLeft: row.winner ? '4px solid #0D7A5A' : '4px solid transparent',
-          padding: '14px 16px',
-          display: 'flex',
-          alignItems: 'center',
-        }}>
-          <div style={{ flex: 3 }}>
-            <span style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: row.winner ? 700 : 500 }}>{row.problem}</span>
-          </div>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px', color: 'var(--ed-ink2)' }}>{row.reach}</div>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px', color: 'var(--ed-ink2)' }}>{row.impact}</div>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px', color: 'var(--ed-ink2)' }}>{row.confidence}%</div>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '13px', color: 'var(--ed-ink2)' }}>{row.effort}</div>
-          <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '15px', fontWeight: 800, color: row.winner ? '#0D7A5A' : ACCENT }}>{row.score}</div>
-          <div style={{ width: '80px', textAlign: 'right' as const }}>
-            {row.winner && (
-              <motion.span
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                style={{
-                  display: 'inline-block',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '8px', fontWeight: 700,
-                  color: '#0D7A5A', background: 'rgba(13,122,90,0.12)',
-                  padding: '3px 8px', borderRadius: '4px', letterSpacing: '0.08em',
-                }}>&#10003; PRIORITY</motion.span>
-            )}
-          </div>
+const RICELiveCalculator = () => {
+  type ItemKey = 'onboarding' | 'crm';
+  type RiceItem = { label: string; color: string; reach: number; impact: number; confidence: number; effort: number };
+  const defaults: Record<ItemKey, RiceItem> = {
+    onboarding: { label: 'Onboarding gap', color: '#0D7A5A', reach: 500, impact: 2, confidence: 80, effort: 1 },
+    crm: { label: 'CRM Integration', color: ACCENT, reach: 50, impact: 2, confidence: 50, effort: 4 },
+  };
+  const [vals, setVals] = useState<Record<ItemKey, RiceItem>>(defaults);
+  const score = (v: RiceItem) => Math.round((v.reach * v.impact * (v.confidence / 100)) / v.effort);
+  const adj = (key: ItemKey, field: keyof Omit<RiceItem, 'label' | 'color'>, delta: number) => {
+    setVals(prev => {
+      const next = { ...prev[key], [field]: Math.max(field === 'confidence' ? 10 : 1, Math.min(field === 'reach' ? 2000 : field === 'confidence' ? 100 : field === 'effort' ? 20 : 3, prev[key][field] + delta)) };
+      return { ...prev, [key]: next };
+    });
+  };
+  const sA = score(vals.onboarding);
+  const sB = score(vals.crm);
+  const winner: ItemKey = sA >= sB ? 'onboarding' : 'crm';
+  const maxScore = Math.max(sA, sB, 1);
+  const Stepper = ({ k, field, step, label }: { k: ItemKey; field: keyof Omit<RiceItem, 'label' | 'color'>; step: number; label: string }) => (
+    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px' }}>
+      <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#5E6C84', letterSpacing: '0.08em', textAlign: 'center' as const }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <button onClick={() => adj(k, field, -step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: '#5E6C84', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+        <div style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 700, color: vals[k].color, minWidth: '44px', textAlign: 'center' as const }}>
+          {field === 'confidence' ? `${vals[k][field]}%` : vals[k][field]}
         </div>
-      ))}
-      <div style={{ background: '#F8F6F2', borderTop: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' as const }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
-          RICE Score = (Reach &times; Impact &times; Confidence) &divide; Effort
-        </div>
-        <div style={{ fontFamily: 'monospace', fontSize: '10px', color: `rgba(${ACCENT_RGB},0.7)` }}>
-          e.g. Onboarding: (500 &times; 2 &times; 0.80) &divide; 1 = 800
-        </div>
+        <button onClick={() => adj(k, field, step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: '#5E6C84', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
       </div>
-    </div></TiltCard>
-  );
-};
-
-// ─────────────────────────────────────────
-// LOCAL: STAKEHOLDER REPLY MOCKUP (Slack-style)
-// ─────────────────────────────────────────
-const StakeholderReplyMockup = () => (
-  <TiltCard style={{ margin: '32px 0' }}>
-  <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1A1D21', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
-    <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-          <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />
-        ))}
-      </div>
-      <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>#</span>
-      <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>product-team</span>
     </div>
-    <div style={{ background: '#FFFFFF', padding: '20px 20px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
-      {/* Marcus message */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#FF5630', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>M</span>
+  );
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.15)' }}>
+        <div style={{ background: `rgba(${ACCENT_RGB},0.9)`, padding: '10px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#fff', letterSpacing: '0.1em' }}>RICE CALCULATOR</div>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.6)' }}>Score = (Reach &times; Impact &times; Confidence) &divide; Effort</div>
         </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '5px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D1C1D' }}>Marcus</span>
-            <span style={{ fontSize: '10px', color: '#616061', fontFamily: 'monospace' }}>4:02 PM</span>
-          </div>
-          <div style={{
-            padding: '12px 14px', borderRadius: '8px',
-            background: '#FFF2F0', border: '1px solid #FFD9D4',
-            borderLeft: `3px solid ${ACCENT}`,
-            fontSize: '13px', color: '#1D1C1D', lineHeight: 1.7,
-          }}>
-            hey @priya &mdash; just got off a call with Meridian. they&apos;re asking about CRM sync again. if we don&apos;t have something to show them by next sprint i think we&apos;re going to lose the deal. this is blocking us from closing. can we move it up? &#128308;
+        <div style={{ background: '#fff', padding: '20px 24px', display: 'flex', gap: '20px' }}>
+          {(['onboarding', 'crm'] as ItemKey[]).map(k => {
+            const v = vals[k];
+            const s = score(v);
+            const isWinner = winner === k;
+            return (
+              <div key={k} style={{ flex: 1, padding: '16px 18px', borderRadius: '10px', border: `2px solid ${isWinner ? v.color : '#E0D9D0'}`, background: isWinner ? `${v.color}06` : '#FAFAFA' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '13px', color: v.color }}>{v.label}</div>
+                  {isWinner && <span style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: v.color, background: `${v.color}18`, padding: '2px 7px', borderRadius: '3px' }}>PRIORITY</span>}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
+                  <Stepper k={k} field="reach" step={50} label="REACH (users/qtr)" />
+                  <Stepper k={k} field="impact" step={1} label="IMPACT (1–3)" />
+                  <Stepper k={k} field="confidence" step={10} label="CONFIDENCE %" />
+                  <Stepper k={k} field="effort" step={1} label="EFFORT (weeks)" />
+                </div>
+                <div style={{ height: '6px', background: '#E8EAF0', borderRadius: '3px', overflow: 'hidden', marginBottom: '8px' }}>
+                  <motion.div animate={{ width: `${Math.min((s / maxScore) * 100, 100)}%` }} transition={{ duration: 0.3 }} style={{ height: '100%', background: v.color, borderRadius: '3px' }} />
+                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '22px', fontWeight: 900, color: v.color }}>{s}</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#97A0AF', marginTop: '2px' }}>({v.reach} &times; {v.impact} &times; {v.confidence / 100}) &divide; {v.effort}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ background: '#F8F6F2', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84', lineHeight: 1.6 }}>
+            Try adjusting CRM confidence to 90% or onboarding effort to 6 &mdash; does the winner change? RICE forces you to make assumptions explicit, not just to get a number.
           </div>
         </div>
       </div>
-      {/* Priya reply */}
-      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>P</span>
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '5px' }}>
-            <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D1C1D' }}>Priya</span>
-            <span style={{ fontSize: '10px', color: '#616061', fontFamily: 'monospace' }}>4:18 PM</span>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// LOCAL: SLACK RESPONSE COMPOSER (interactive)
+// ─────────────────────────────────────────
+const SlackResponseComposer = () => {
+  const [chosen, setChosen] = useState<number | null>(null);
+  const [showFull, setShowFull] = useState(false);
+
+  const drafts: { label: string; preview: string; feedback: string; correct: boolean }[] = [
+    {
+      label: 'Capitulate',
+      preview: 'Sure Marcus, I understand the pressure. I\'ll move CRM up to next sprint.',
+      feedback: 'This caves to urgency without evidence. You\'ve abandoned the prioritization process the moment it became uncomfortable. Marcus won\'t trust a PM who folds that easily either.',
+      correct: false,
+    },
+    {
+      label: 'Data-correct but dismissive',
+      preview: 'Hi Marcus. The RICE score for CRM is 12.5. It doesn\'t make the cut this sprint.',
+      feedback: 'Accurate but cold. You\'ve shared the number without context, acknowledged nothing Marcus cares about, and offered no path forward. He\'ll escalate to Rohan within the hour.',
+      correct: false,
+    },
+    {
+      label: 'Acknowledge, share data, give a path',
+      preview: 'Hey Marcus - I hear you on Meridian. Let me share where the numbers land...',
+      feedback: 'This is the PM move. You acknowledged the business concern, showed your reasoning, quantified the tradeoff, committed to a future sprint slot, and invited Marcus to update your model with new data. No one is blindsided.',
+      correct: true,
+    },
+  ];
+
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #1A1D21', boxShadow: '0 24px 64px rgba(0,0,0,0.32)' }}>
+        <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
+              <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />
+            ))}
           </div>
-          <div style={{
-            padding: '14px 16px', borderRadius: '8px',
-            background: '#FFFFFF', border: '1px solid #E8E8E8',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
-            fontSize: '13px', color: '#1D1C1D', lineHeight: 1.8,
-          }}>
-            <div style={{ marginBottom: '10px' }}>Hey Marcus &mdash; I hear you, and I know Meridian matters. Here&apos;s where I landed after running the numbers:</div>
-            <div style={{ padding: '10px 14px', borderRadius: '6px', background: '#F8F9FC', border: '1px solid #E0E4ED', marginBottom: '10px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#4F46E5', letterSpacing: '0.1em', marginBottom: '6px' }}>RICE ANALYSIS</div>
-              <div style={{ fontSize: '12px', color: '#5E6C84', lineHeight: 1.7 }}>
-                CRM Integration: Reach=50 users &middot; Impact=2 &middot; Confidence=50% &middot; Effort=4 &rarr; <strong style={{ color: ACCENT }}>Score: 12.5</strong><br />
-                Onboarding fix: Reach=500 users &middot; Impact=2 &middot; Confidence=80% &middot; Effort=1 &rarr; <strong style={{ color: '#0D7A5A' }}>Score: 800</strong>
+          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>#</span>
+          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>product-team</span>
+          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: chosen !== null && drafts[chosen].correct ? '#28C840' : 'rgba(255,255,255,0.3)' }}>
+            {chosen === null ? 'Choose Priya\'s reply' : drafts[chosen].correct ? '✓ Reply sent' : 'Try a different reply'}
+          </div>
+        </div>
+        <div style={{ background: '#FFFFFF', padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+          {/* Marcus message */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#FF5630', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>M</span>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '5px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D1C1D' }}>Marcus</span>
+                <span style={{ fontSize: '10px', color: '#616061', fontFamily: 'monospace' }}>4:02 PM</span>
+              </div>
+              <div style={{ padding: '12px 14px', borderRadius: '8px', background: '#FFF2F0', border: '1px solid #FFD9D4', borderLeft: `3px solid ${ACCENT}`, fontSize: '13px', color: '#1D1C1D', lineHeight: 1.7 }}>
+                hey @priya &mdash; just got off a call with Meridian. they&apos;re asking about CRM sync again. if we don&apos;t have something to show them by next sprint i think we&apos;re going to lose the deal. this is blocking us from closing. can we move it up? &#128308;
               </div>
             </div>
-            <div style={{ marginBottom: '10px' }}>
-              Week-1 churn is at 40%. That&apos;s roughly <strong>200 users leaving every month</strong> before they see value. If we don&apos;t stop that leak, we won&apos;t have users to sell CRM sync to.
-            </div>
-            <div style={{ padding: '10px 14px', borderRadius: '6px', background: 'rgba(13,122,90,0.07)', border: '1px solid rgba(13,122,90,0.18)', marginBottom: '10px', fontStyle: 'italic' as const }}>
-              This sprint: Onboarding. Q2: CRM integration &mdash; I&apos;ll flag it for sprint planning then with the Meridian context attached.
-            </div>
-            <div>If you have data that changes the picture on Meridian&apos;s ARR relative to our base, share it and I&apos;ll rerun the model. Happy to jump on a 15-min call before EOD. &#128591;</div>
           </div>
+
+          {/* Draft picker */}
+          <div style={{ padding: '12px 14px', borderRadius: '8px', background: '#F8F8F8', border: '1px solid #E0E0E0' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em', marginBottom: '10px' }}>PRIYA IS TYPING... CHOOSE HER REPLY:</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+              {drafts.map((d, i) => {
+                const isPicked = chosen === i;
+                return (
+                  <div key={i}>
+                    <button
+                      onClick={() => { setChosen(i); setShowFull(false); }}
+                      style={{
+                        width: '100%', textAlign: 'left', padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
+                        border: `1.5px solid ${isPicked ? (d.correct ? '#0D7A5A' : ACCENT) : '#DFE1E6'}`,
+                        background: isPicked ? (d.correct ? 'rgba(13,122,90,0.06)' : `rgba(${ACCENT_RGB},0.06)`) : '#fff',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: isPicked ? (d.correct ? '#0D7A5A' : ACCENT) : '#5E6C84', letterSpacing: '0.1em', marginBottom: '4px' }}>{String.fromCharCode(65 + i)}. {d.label.toUpperCase()}</div>
+                      <div style={{ fontSize: '12px', color: '#1D1C1D', lineHeight: 1.55, fontStyle: 'italic' as const }}>&ldquo;{d.preview}&rdquo;</div>
+                    </button>
+                    <AnimatePresence>
+                      {isPicked && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                          <div style={{ padding: '8px 14px', fontSize: '11px', color: d.correct ? '#0D7A5A' : ACCENT, background: d.correct ? 'rgba(13,122,90,0.05)' : `rgba(${ACCENT_RGB},0.05)`, borderRadius: '0 0 7px 7px', lineHeight: 1.6 }}>
+                            {d.correct ? '✓ ' : '✗ '}{d.feedback}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Priya full reply — revealed only after correct choice */}
+          <AnimatePresence>
+            {chosen !== null && drafts[chosen].correct && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: '#fff' }}>P</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '5px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#1D1C1D' }}>Priya</span>
+                      <span style={{ fontSize: '10px', color: '#616061', fontFamily: 'monospace' }}>4:18 PM</span>
+                    </div>
+                    <div style={{ padding: '14px 16px', borderRadius: '8px', background: '#FFFFFF', border: '1px solid #E8E8E8', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', fontSize: '13px', color: '#1D1C1D', lineHeight: 1.8 }}>
+                      <div style={{ marginBottom: '10px' }}>Hey Marcus &mdash; I hear you, and I know Meridian matters. Here&apos;s where I landed after running the numbers:</div>
+                      <div style={{ padding: '10px 14px', borderRadius: '6px', background: '#F8F9FC', border: '1px solid #E0E4ED', marginBottom: '10px' }}>
+                        <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#4F46E5', letterSpacing: '0.1em', marginBottom: '6px' }}>RICE ANALYSIS</div>
+                        <div style={{ fontSize: '12px', color: '#5E6C84', lineHeight: 1.7 }}>
+                          CRM Integration: Reach=50 &middot; Impact=2 &middot; Confidence=50% &middot; Effort=4 &rarr; <strong style={{ color: ACCENT }}>Score 12.5</strong><br />
+                          Onboarding fix: Reach=500 &middot; Impact=2 &middot; Confidence=80% &middot; Effort=1 &rarr; <strong style={{ color: '#0D7A5A' }}>Score 800</strong>
+                        </div>
+                      </div>
+                      <div style={{ marginBottom: '10px' }}>Week-1 churn is at 40% &mdash; roughly <strong>200 users leaving monthly</strong> before they see value. If we don&apos;t stop that leak, we won&apos;t have users to sell CRM sync to.</div>
+                      <div style={{ padding: '10px 14px', borderRadius: '6px', background: 'rgba(13,122,90,0.07)', border: '1px solid rgba(13,122,90,0.18)', marginBottom: '10px', fontStyle: 'italic' as const }}>
+                        This sprint: Onboarding fix. Q2: CRM integration &mdash; I&apos;ll flag it for sprint planning with the Meridian context attached.
+                      </div>
+                      <div>If you have data that changes the picture on Meridian&apos;s ARR vs our base, share it and I&apos;ll rerun the model. Happy to jump on a 15-min call before EOD. &#128591;</div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </div>
-  </div>
-  </TiltCard>
-);
+    </TiltCard>
+  );
+};
 
 // ─────────────────────────────────────────
 // LOCAL: PRIORITIZATION CHEAT SHEET
@@ -811,7 +996,7 @@ export default function Track1Prioritization() {
           leaves room for you to find the best way to fix it. That gap is where good PM thinking lives.
         </>)}
 
-        <BacklogInputsMockup />
+        <JiraBacklogTriage />
 
         {para(<>
           Look at that backlog. Four items, four requesters, zero problem statements. The items are not wrong &mdash;
@@ -923,7 +1108,7 @@ export default function Track1Prioritization() {
           and feels the picture shift.
         </>)}
 
-        <KiranDataMockup />
+        <AmplitudeFunnelExplorer />
 
         {para(<>
           The CRM request came from three customers. The onboarding problem is hitting 40% of every single
@@ -1002,7 +1187,7 @@ export default function Track1Prioritization() {
           </div>
         </div>
 
-        <RICECalculatorMockup />
+        <RICELiveCalculator />
 
         {para(<>
           The numbers tell a clear story. The onboarding gap scores 800. The next closest is search improvements
@@ -1058,7 +1243,7 @@ export default function Track1Prioritization() {
           apologizing for the decision.
         </>)}
 
-        <StakeholderReplyMockup />
+        <SlackResponseComposer />
 
         {para(<>
           Read Priya&apos;s reply again. She does not say &ldquo;sorry, but.&rdquo; She does not say &ldquo;I&apos;ll think about it.&rdquo;
