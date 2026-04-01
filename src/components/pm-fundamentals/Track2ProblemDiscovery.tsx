@@ -19,269 +19,393 @@ const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; a
 );
 
 // ─────────────────────────────────────────
-// NOTION: RESEARCH REPO MOCKUP
+// TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
-const NotionResearchRepoMockup = () => (
-  <div style={{ margin: '32px 0', perspective: '1200px' }}>
-  <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08)', background: '#fff', transform: 'perspective(1200px) rotateX(1.5deg) rotateY(-0.5deg)', transition: 'transform 0.4s ease' }}>
-    <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ display: 'flex', gap: '5px' }}>
-        {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
-      </div>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace', background: '#EDEDEC', padding: '3px 12px', borderRadius: '5px' }}>
-          📚 EdSpark · PM Research Repository
-        </div>
-      </div>
-    </div>
-    <div style={{ display: 'flex', minHeight: '300px' }}>
-      <div style={{ width: '200px', background: '#F7F6F3', borderRight: '1px solid #E0D9D0', padding: '14px 0', flexShrink: 0 }}>
-        <div style={{ padding: '0 12px', marginBottom: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#37352F', marginBottom: '2px' }}>🔭 Research Hub</div>
-          <div style={{ fontSize: '10px', color: '#999' }}>Priya Sharma · PM Team</div>
-        </div>
-        {[
-          { icon: '📋', label: 'Research Template', active: false },
-          { icon: '🗂️', label: 'Insight Repository', active: true },
-          { icon: '📊', label: 'Onboarding Studies', active: false },
-          { icon: '📊', label: 'Retention Studies', active: false },
-          { icon: '📄', label: '→ Q1 Churn Brief', active: false },
-          { icon: '📄', label: '→ Manager JTBD', active: false },
-          { icon: '📄', label: '→ Setup Drop-off', active: false },
-        ].map(item => (
-          <div key={item.label} style={{ padding: '5px 12px', display: 'flex', alignItems: 'center', gap: '7px', background: item.active ? '#EDEDEC' : 'transparent', borderRadius: '4px', margin: '1px 4px' }}>
-            <span style={{ fontSize: '12px' }}>{item.icon}</span>
-            <span style={{ fontSize: '11px', color: item.active ? '#37352F' : '#888', fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ flex: 1, padding: '20px 28px', background: '#fff', overflow: 'hidden' }}>
-        <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#999', letterSpacing: '0.1em', marginBottom: '6px' }}>SHARED REPOSITORY · LAST UPDATED TODAY</div>
-        <div style={{ fontSize: '18px', fontWeight: 700, color: '#37352F', marginBottom: '4px' }}>🗂️ Insight Repository</div>
-        <div style={{ fontSize: '11px', color: '#999', marginBottom: '16px' }}>16 studies · 89 tagged insights · 4 open research questions</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-          {[
-            { tag: 'Managers need to prove ROI to leadership', studies: '4 studies', strength: 'Strong', color: '#0097A7', bg: 'rgba(0,151,167,0.05)' },
-            { tag: 'No feedback loop after recording upload', studies: '3 studies', strength: 'Strong', color: '#0097A7', bg: 'rgba(0,151,167,0.05)' },
-            { tag: 'Setup friction under-reported vs churn signal', studies: '2 studies', strength: 'Emerging', color: '#B5720A', bg: 'rgba(181,114,10,0.05)' },
-            { tag: 'Reps adoption driven by manager mandate', studies: '2 studies', strength: 'Emerging', color: '#B5720A', bg: 'rgba(181,114,10,0.05)' },
-          ].map(row => (
-            <div key={row.tag} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '7px', background: row.bg, border: `1px solid ${row.color}30`, borderLeft: `3px solid ${row.color}` }}>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <span style={{ fontSize: '12px', color: '#37352F', lineHeight: 1.4 }}>{row.tag}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px', flexShrink: 0 }}>
-                <span style={{ fontSize: '8px', fontWeight: 800, color: row.color, fontFamily: 'monospace', letterSpacing: '0.06em', background: `${row.color}15`, padding: '2px 6px', borderRadius: '3px' }}>{row.strength.toUpperCase()}</span>
-                <span style={{ fontSize: '9px', color: '#999', fontFamily: 'monospace' }}>{row.studies}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '6px', background: 'rgba(0,151,167,0.07)', border: '1px solid rgba(0,151,167,0.2)' }}>
-          <div style={{ fontSize: '9px', fontFamily: 'monospace', color: '#0097A7', letterSpacing: '0.1em', marginBottom: '4px' }}>PRIYA&apos;S NOTE</div>
-          <div style={{ fontSize: '11px', color: '#555', lineHeight: 1.7 }}>
-            Before starting any study: check the repo. 40% of what stakeholders call &ldquo;new research questions&rdquo; already have partial answers here. This is how you avoid re-interviewing the same users with the same questions.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div>
-);
-
-// ─────────────────────────────────────────
-// KRAFTFUL: TREND ANALYSIS MOCKUP
-// ─────────────────────────────────────────
-const KraftfulTrendMockup = () => {
-  // Each month: two side-by-side bars (onboarding, value)
-  const months = [
-    { month: 'Oct', onboarding: 38, value: 21 },
-    { month: 'Nov', onboarding: 36, value: 29 },
-    { month: 'Dec', onboarding: 31, value: 38 },
-    { month: 'Jan', onboarding: 28, value: 41 },
-  ];
-  const maxH = 110; // px height for 100%
-  const series = [
-    { key: 'onboarding' as const, label: 'Onboarding confusion', color: '#00BCD4', glow: 'rgba(0,188,212,0.35)' },
-    { key: 'value' as const,      label: 'Value visibility gap', color: '#B794F4', glow: 'rgba(183,148,244,0.35)' },
-  ];
-
+const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
+  };
   return (
-    <div style={{ margin: '24px 0', borderRadius: '14px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 12px 48px rgba(0,0,0,0.4)' }}>
-      {/* Title bar */}
-      <div style={{ background: 'linear-gradient(90deg,#0D1F24 0%,#0A1A1F 100%)', padding: '13px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}55` }} />)}
-          </div>
-          <div style={{ width: '1px', height: '16px', background: 'rgba(255,255,255,0.1)' }} />
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 800, color: '#00BCD4', letterSpacing: '0.12em', textShadow: '0 0 12px rgba(0,188,212,0.5)' }}>KRAFTFUL</div>
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark · Ticket Themes · Oct–Jan</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', boxShadow: '0 0 6px #28C840' }} />
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>1,240 tickets · AI analysis</div>
-        </div>
-      </div>
-
-      <div style={{ background: 'linear-gradient(180deg,#111C1F 0%,#0D1619 100%)', padding: '24px 28px' }}>
-        {/* Legend */}
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-          {series.map(s => (
-            <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-              <div style={{ width: '12px', height: '4px', borderRadius: '2px', background: s.color, boxShadow: `0 0 6px ${s.glow}` }} />
-              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontFamily: 'monospace' }}>{s.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Chart */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '24px', height: `${maxH + 24}px`, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', marginBottom: '8px' }}>
-          {/* Y-axis labels */}
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: `${maxH}px`, marginBottom: '16px', flexShrink: 0 }}>
-            {[40, 30, 20, 10].map(v => (
-              <div key={v} style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', lineHeight: 1 }}>{v}%</div>
-            ))}
-          </div>
-          {/* Grid lines + bars */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', gap: '20px', position: 'relative' }}>
-            {/* Horizontal grid lines */}
-            {[0.25, 0.5, 0.75, 1].map(f => (
-              <div key={f} style={{ position: 'absolute', left: 0, right: 0, bottom: `${f * maxH}px`, borderTop: '1px dashed rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-            ))}
-            {months.map((d, i) => (
-              <div key={d.month} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0' }}>
-                {/* Two bars side by side */}
-                <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', width: '100%' }}>
-                  {series.map((s, si) => {
-                    const pct = d[s.key] / 50;
-                    const h = Math.round(pct * maxH);
-                    return (
-                      <div key={s.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                        {/* Value label */}
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: i * 0.12 + si * 0.06 + 0.5, duration: 0.3 }}
-                          style={{ fontSize: '9px', fontFamily: 'monospace', fontWeight: 700, color: s.color, lineHeight: 1 }}
-                        >
-                          {d[s.key]}%
-                        </motion.div>
-                        {/* Bar */}
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: `${h}px`, opacity: 1 }}
-                          transition={{ delay: i * 0.12 + si * 0.06, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                          style={{
-                            width: '100%',
-                            background: `linear-gradient(180deg, ${s.color} 0%, ${s.color}99 100%)`,
-                            borderRadius: '4px 4px 1px 1px',
-                            boxShadow: `0 -2px 12px ${s.glow}, inset 0 1px 0 rgba(255,255,255,0.15)`,
-                          }}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', marginTop: '6px', letterSpacing: '0.06em' }}>{d.month}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* AI Insight callout */}
-        <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '10px', background: 'linear-gradient(135deg, rgba(183,148,244,0.1) 0%, rgba(0,188,212,0.06) 100%)', border: '1px solid rgba(183,148,244,0.25)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <div style={{ fontSize: '18px', flexShrink: 0, lineHeight: 1, marginTop: '2px' }}>✦</div>
-          <div>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.12em', marginBottom: '5px' }}>AI INSIGHT</div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75 }}>
-              &ldquo;Onboarding confusion&rdquo; tickets are <span style={{ color: '#00BCD4', fontWeight: 600 }}>declining ↓26%</span>. &ldquo;Value visibility&rdquo; is <span style={{ color: '#B794F4', fontWeight: 600 }}>rising ↑95%</span> in 4 months. The problem may have shifted. If you&apos;re still optimising onboarding, you&apos;re solving yesterday&apos;s problem.
-            </div>
-          </div>
-        </div>
-      </div>
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
+      style={{
+        transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`,
+        transition: 'transform 0.18s ease',
+        willChange: 'transform',
+        ...style,
+      }}
+    >
+      {children}
     </div>
   );
 };
 
 // ─────────────────────────────────────────
-// DOVETAIL: INSIGHT CLUSTERS MOCKUP
+// NOTION: RESEARCH REPO SEARCH (interactive)
 // ─────────────────────────────────────────
-const DovetailClustersMockup = () => {
-  const [expanded, setExpanded] = useState<number | null>(null);
-  const clusters = [
+const NotionRepoSearch = () => {
+  const [query, setQuery] = useState('');
+  const [searched, setSearched] = useState(false);
+  const [decision, setDecision] = useState<number | null>(null);
+
+  const existingStudy = {
+    title: 'Manager Churn — Exit Interview Study',
+    date: '3 months ago',
+    interviews: 12,
+    finding: 'Managers churn when they cannot demonstrate EdSpark\'s ROI to their own leadership. Of 12 churned managers, 9 cited inability to "show results" as their primary reason for stopping.',
+    status: 'No major product changes shipped since this study that would affect the root cause.',
+  };
+
+  const decisions = [
     {
-      theme: 'Managers need proof of ROI',
-      count: 11, total: 14,
-      quotes: [
-        '"My director asked me last week if this is worth the cost." — Divya T.',
-        '"I signed up to show my team I take development seriously — but I can\'t show that it\'s working." — Rahul S.',
-        '"I want to walk into my next 1:1 with a number." — Sanjay M.',
-      ],
-      insight: 'This is a job, not a feature request. Managers need to justify EdSpark to their own managers. The product must surface visible evidence of impact — not just record calls.',
+      label: 'Start fresh — 3-month-old data is too stale to trust',
+      correct: false,
+      feedback: 'Starting fresh costs 2 weeks and 12+ interviews — and often produces the same finding. Before re-running, validate whether anything has changed. If the product shipped nothing relevant in 3 months, the insight likely still holds.',
     },
     {
-      theme: 'No feedback loop after recording upload',
-      count: 9, total: 14,
-      quotes: [
-        '"I upload a recording, and then... nothing. I don\'t know what to do with it." — Kavita R.',
-        '"I expected some kind of summary or score. It just sits there." — Mihir P.',
-      ],
-      insight: 'Users complete setup but have no model for what "using EdSpark" looks like afterward. The product has no native feedback loop post-upload.',
+      label: 'Validate the core finding and scope new research only for what may have changed',
+      correct: true,
+      feedback: 'This is research ops maturity. You build on what you already know instead of starting from zero. Run 4–5 targeted interviews to validate the 3-month-old finding, then focus new effort on any areas where the product has shipped changes since. Faster delivery, compounding team knowledge.',
     },
     {
-      theme: 'Onboarding friction (legacy finding)',
-      count: 4, total: 14,
-      quotes: ['"I got confused during setup on step 3." — Arjun K.'],
-      insight: 'Still present but declining in frequency. This was the dominant signal in earlier cohorts. More recent users are finding setup easier — but churning for different reasons.',
+      label: 'Accept the existing study as current — no new research needed',
+      correct: false,
+      feedback: 'Dangerous without validation. The product may have shipped something since this study that shifts the root cause. Research has a shelf life. Validate before you assume it is still current — especially before bringing it to a cross-functional meeting.',
     },
   ];
+
   return (
-    <div style={{ margin: '32px 0', perspective: '1200px' }}>
-    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 24px 64px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12)', transform: 'perspective(1200px) rotateX(1.5deg) rotateY(0.5deg)', transition: 'transform 0.4s ease' }}>
-      <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.14)' }}>
+        <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontSize: '11px', color: '#999', fontFamily: 'monospace', background: '#EDEDEC', padding: '3px 12px', borderRadius: '5px' }}>
+              📚 EdSpark &middot; PM Research Repository
+            </div>
+          </div>
         </div>
-        <div style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.1em' }}>DOVETAIL</div>
-        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>/ EdSpark Research · Manager Cohort · 14 interviews</div>
-      </div>
-      <div style={{ background: '#F9F8FF', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#999', letterSpacing: '0.12em', marginBottom: '4px' }}>CLUSTERED THEMES · click to expand</div>
-        {clusters.map((c, i) => (
-          <motion.div key={i} layout style={{ borderRadius: '10px', overflow: 'hidden', border: `1px solid ${expanded === i ? '#7C3AED' : '#E0D9D0'}`, background: '#fff' }}>
-            <button
-              onClick={() => setExpanded(expanded === i ? null : i)}
-              style={{ width: '100%', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '36px', height: '6px', borderRadius: '3px', background: '#E0D9D0', overflow: 'hidden', flexShrink: 0 }}>
-                </div>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#1A1523' }}>{c.theme}</span>
+
+        <div style={{ display: 'flex', minHeight: '360px' }}>
+          <div style={{ width: '190px', background: '#F7F6F3', borderRight: '1px solid #E0D9D0', padding: '14px 0', flexShrink: 0 }}>
+            <div style={{ padding: '0 12px', marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#37352F' }}>🔭 Research Hub</div>
+            </div>
+            {[
+              { icon: '🗂️', label: 'Insight Repository', active: false },
+              { icon: '📊', label: 'Onboarding Studies', active: false },
+              { icon: '📊', label: 'Retention Studies', active: true },
+              { icon: '📄', label: '→ Manager Churn', active: false },
+              { icon: '📄', label: '→ Onboarding Drop', active: false },
+              { icon: '❓', label: 'Open Questions', active: false },
+            ].map(item => (
+              <div key={item.label} style={{ padding: '5px 12px', display: 'flex', alignItems: 'center', gap: '7px', background: item.active ? '#EDEDEC' : 'transparent', borderRadius: '4px', margin: '1px 4px' }}>
+                <span style={{ fontSize: '12px' }}>{item.icon}</span>
+                <span style={{ fontSize: '11px', color: item.active ? '#37352F' : '#888', fontWeight: item.active ? 600 : 400 }}>{item.label}</span>
               </div>
-              <span style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#7C3AED', flexShrink: 0, marginLeft: '8px' }}>{c.count}/{c.total}</span>
-            </button>
+            ))}
+          </div>
+
+          <div style={{ flex: 1, padding: '20px 24px', background: '#fff' }}>
+            <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,151,167,0.07)', border: '1px solid rgba(0,151,167,0.2)', marginBottom: '16px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#0097A7', letterSpacing: '0.1em', marginBottom: '4px' }}>NEW RESEARCH REQUEST &middot; FROM ROHAN</div>
+              <div style={{ fontSize: '13px', color: '#37352F', fontStyle: 'italic' as const }}>&ldquo;Understand why managers are churning from EdSpark.&rdquo;</div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999', letterSpacing: '0.08em', marginBottom: '6px' }}>BEFORE STARTING NEW RESEARCH &mdash; SEARCH THE REPO FIRST</div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && query.trim()) setSearched(true); }}
+                  placeholder='Try "manager churn" or "retention"...'
+                  style={{ flex: 1, padding: '8px 12px', borderRadius: '6px', border: '1.5px solid #E0D9D0', fontSize: '12px', fontFamily: 'monospace', outline: 'none', background: '#FAFAF9' }}
+                />
+                <button
+                  onClick={() => { if (query.trim()) setSearched(true); }}
+                  style={{ padding: '8px 16px', borderRadius: '6px', background: '#37352F', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'monospace', fontSize: '11px', fontWeight: 700 }}
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+
             <AnimatePresence>
-              {expanded === i && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
-                  style={{ borderTop: '1px solid #E0D9D0', padding: '14px 16px', background: '#FDFCFF' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
-                    {c.quotes.map((q, qi) => (
-                      <div key={qi} style={{ fontSize: '12px', fontStyle: 'italic', color: '#555', padding: '8px 12px', borderRadius: '6px', background: 'rgba(124,58,237,0.05)', borderLeft: '3px solid #B794F4' }}>&ldquo;{q}&rdquo;</div>
-                    ))}
+              {searched && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999', letterSpacing: '0.08em', marginBottom: '8px' }}>1 RESULT FOUND</div>
+                  <div style={{ padding: '14px 16px', borderRadius: '8px', border: '1.5px solid #0097A7', background: 'rgba(0,151,167,0.04)', marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#37352F' }}>{existingStudy.title}</div>
+                      <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999' }}>{existingStudy.date}</span>
+                    </div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#0097A7', marginBottom: '8px' }}>{existingStudy.interviews} interviews</div>
+                    <div style={{ fontSize: '12px', color: '#555', lineHeight: 1.7, marginBottom: '8px' }}><strong>Finding:</strong> {existingStudy.finding}</div>
+                    <div style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' as const }}>{existingStudy.status}</div>
                   </div>
-                  <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(124,58,237,0.07)', border: '1px solid rgba(124,58,237,0.2)' }}>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '5px' }}>INSIGHT</div>
-                    <div style={{ fontSize: '12px', color: '#37352F', lineHeight: 1.7 }}>{c.insight}</div>
+
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.08em', marginBottom: '8px' }}>THIS STUDY IS 3 MONTHS OLD. WHAT DO YOU RECOMMEND?</div>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
+                    {decisions.map((d, i) => {
+                      const isPicked = decision === i;
+                      return (
+                        <div key={i}>
+                          <button
+                            onClick={() => setDecision(i)}
+                            style={{
+                              width: '100%', textAlign: 'left' as const, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
+                              border: `1.5px solid ${isPicked ? (d.correct ? '#0D7A5A' : '#FF5630') : '#E0D9D0'}`,
+                              background: isPicked ? (d.correct ? 'rgba(13,122,90,0.06)' : 'rgba(255,86,48,0.05)') : '#FAFAF9',
+                              fontSize: '12px', color: '#37352F', lineHeight: 1.5,
+                            }}
+                          >
+                            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999', marginRight: '6px' }}>{String.fromCharCode(65 + i)}.</span>
+                            {d.label}
+                          </button>
+                          <AnimatePresence>
+                            {isPicked && (
+                              <motion.div key="feedback" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                                <div style={{ padding: '8px 14px', fontSize: '11px', color: d.correct ? '#0D7A5A' : '#C85A40', background: d.correct ? 'rgba(13,122,90,0.05)' : 'rgba(200,90,64,0.05)', borderRadius: '0 0 7px 7px', lineHeight: 1.6 }}>
+                                  {d.correct ? '✓ ' : '✗ '}{d.feedback}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
-        ))}
+          </div>
+        </div>
       </div>
-    </div>
-    </div>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// KRAFTFUL: HYPOTHESIS TESTER (interactive)
+// ─────────────────────────────────────────
+const KraftfulHypothesisTester = () => {
+  type Hyp = 'ceo' | 'priya';
+  const [active, setActive] = useState<Hyp>('ceo');
+  const [seenPriya, setSeenPriya] = useState(false);
+  const bothSeen = seenPriya;
+  const months = ['Oct', 'Nov', 'Dec', 'Jan'];
+  const hyps: Record<Hyp, { label: string; color: string; values: number[]; trend: string; insight: string; verdict: string }> = {
+    ceo: {
+      label: 'Onboarding confusion tickets',
+      color: '#00BCD4',
+      values: [38, 36, 31, 28],
+      trend: '-26%',
+      insight: 'Onboarding-related tickets declined 26% over 4 months. The three onboarding improvements shipped last quarter are working. This problem is resolving.',
+      verdict: "CEO's hypothesis is built on stale data. Onboarding is improving, not worsening.",
+    },
+    priya: {
+      label: 'Value visibility gap tickets',
+      color: '#B794F4',
+      values: [21, 29, 38, 41],
+      trend: '+95%',
+      insight: 'Value visibility tickets have nearly doubled in 4 months. Users report they cannot tell if EdSpark is producing results. This is accelerating.',
+      verdict: "This is the growing problem. Optimising onboarding now means solving yesterday's issue.",
+    },
+  };
+  const d = hyps[active];
+  const maxVal = 45;
+  const handleTab = (h: Hyp) => { setActive(h); if (h === 'priya') setSeenPriya(true); };
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid #1E3A3F', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}>
+        <div style={{ background: 'linear-gradient(90deg,#0D1F24 0%,#0A1A1F 100%)', padding: '13px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c, boxShadow: `0 0 4px ${c}55` }} />)}
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 800, color: '#00BCD4', letterSpacing: '0.12em', textShadow: '0 0 12px rgba(0,188,212,0.5)' }}>KRAFTFUL</div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>/ EdSpark &middot; Ticket Trends &middot; Hypothesis Tester</div>
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: bothSeen ? '#28C840' : 'rgba(255,255,255,0.3)' }}>
+            {bothSeen ? '✓ both hypotheses reviewed' : 'view both to compare'}
+          </div>
+        </div>
+        <div style={{ background: '#111C1F', padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', paddingTop: '1px' }}>HYPOTHESIS:</div>
+          {(['ceo', 'priya'] as Hyp[]).map(h => (
+            <button key={h} onClick={() => handleTab(h)} style={{ padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontFamily: 'monospace', fontSize: '10px', fontWeight: active === h ? 700 : 400, border: `1.5px solid ${active === h ? hyps[h].color : 'rgba(255,255,255,0.12)'}`, background: active === h ? `${hyps[h].color}18` : 'transparent', color: active === h ? hyps[h].color : 'rgba(255,255,255,0.45)' }}>
+              {h === 'ceo' ? 'CEO: Onboarding is broken' : 'Priya: Value visibility gap'}
+            </button>
+          ))}
+        </div>
+        <div style={{ background: 'linear-gradient(180deg,#111C1F 0%,#0D1619 100%)', padding: '24px 28px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: d.color, letterSpacing: '0.1em', marginBottom: '16px', fontWeight: 700 }}>
+            {d.label} &mdash; Oct to Jan &mdash; <span style={{ fontSize: '13px' }}>{d.trend}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px', marginBottom: '20px' }}>
+            {months.map((month, i) => (
+              <div key={month} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '28px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', flexShrink: 0 }}>{month}</div>
+                <div style={{ flex: 1, height: '22px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <motion.div
+                    key={`${active}-${i}`}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(d.values[i] / maxVal) * 100}%` }}
+                    transition={{ duration: 0.45, ease: 'easeOut', delay: i * 0.07 }}
+                    style={{ height: '100%', background: `linear-gradient(90deg, ${d.color} 0%, ${d.color}88 100%)`, borderRadius: '4px', boxShadow: `0 0 8px ${d.color}44` }}
+                  />
+                </div>
+                <div style={{ width: '32px', fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: d.color, textAlign: 'right' as const }}>{d.values[i]}%</div>
+              </div>
+            ))}
+          </div>
+          <motion.div key={active} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ padding: '12px 16px', borderRadius: '10px', background: `${d.color}12`, border: `1px solid ${d.color}35`, display: 'flex', gap: '10px' }}>
+            <div style={{ fontSize: '16px', flexShrink: 0, lineHeight: 1.4 }}>✦</div>
+            <div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: d.color, letterSpacing: '0.12em', marginBottom: '5px' }}>AI INSIGHT</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.75 }}>{d.insight}</div>
+              {bothSeen && <div style={{ marginTop: '8px', fontSize: '11px', fontWeight: 600, color: d.color }}>{d.verdict}</div>}
+            </div>
+          </motion.div>
+        </div>
+        <AnimatePresence>
+          {bothSeen && (
+            <motion.div key="verdict" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ overflow: 'hidden' }}>
+              <div style={{ background: '#0D1F24', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 20px' }}>
+                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#28C840', lineHeight: 1.6 }}>
+                  ✓ Both hypotheses reviewed &mdash; onboarding is declining while value visibility is rising. The problem has shifted. This is Priya&apos;s case to Rohan.
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </TiltCard>
+  );
+};
+
+// ─────────────────────────────────────────
+// DOVETAIL: SYNTHESIS BOARD (interactive)
+// ─────────────────────────────────────────
+const DovetailSynthesisBoard = () => {
+  type Tag = 'loop' | 'roi';
+  const quotes = [
+    { text: 'I upload a recording and then nothing. I do not know what to do with it.' },
+    { text: 'My director asked me last week if this is worth the cost.' },
+    { text: 'I expected some kind of summary or score. It just sits there.' },
+    { text: 'I signed up to show my team I take development seriously, but I cannot show it is working.' },
+    { text: 'I want to walk into my next 1:1 with a number.' },
+    { text: 'There is no signal. I do not know if EdSpark is doing anything useful.' },
+  ];
+  const [tags, setTags] = useState<Partial<Record<number, Tag>>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [problemChoice, setProblemChoice] = useState<number | null>(null);
+  const allTagged = Object.keys(tags).length === quotes.length;
+  const tagColors: Record<Tag, string> = { loop: '#0097A7', roi: '#7C3AED' };
+  const problems = [
+    { text: 'EdSpark onboarding is confusing — new managers do not know what to do after signing up.', correct: false, type: 'Symptom', feedback: 'Onboarding confusion is a surface signal that is actually declining in frequency. None of these 6 quotes mention onboarding. You have the wrong frame for this data.' },
+    { text: 'Sales managers cannot see evidence that EdSpark is working — for themselves or their leadership.', correct: true, type: 'Root cause', feedback: 'This is the synthesis. Both "no feedback loop" and "cannot show ROI" are expressions of the same gap: the product never shows managers it is working. One sentence covers both clusters and gives the team a single, clear target.' },
+    { text: 'EdSpark needs better reporting features and a manager-facing dashboard.', correct: false, type: 'Solution in disguise', feedback: 'This is already a solution. You skipped the "why" and went to "what." The team will debate dashboard designs instead of the real problem. Problem statements must never name a feature.' },
+  ];
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}>
+        <div style={{ background: '#1A1523', padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#B794F4', letterSpacing: '0.1em' }}>DOVETAIL</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.35)' }}>/ Synthesis Board &middot; 14 interviews &middot; 94 tagged moments</div>
+          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: allTagged ? '#28C840' : 'rgba(255,255,255,0.3)' }}>
+            {Object.keys(tags).length}/{quotes.length} tagged
+          </div>
+        </div>
+        <div style={{ background: '#F9F8FF', padding: '16px 20px' }}>
+          {!submitted ? (
+            <>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '12px' }}>TAG EACH QUOTE &mdash; WHICH THEME DOES IT BELONG TO?</div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                {(['loop', 'roi'] as Tag[]).map(t => (
+                  <div key={t} style={{ padding: '4px 10px', borderRadius: '5px', background: `${tagColors[t]}12`, border: `1px solid ${tagColors[t]}30`, fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: tagColors[t], letterSpacing: '0.06em' }}>
+                    {t === 'loop' ? 'Feedback Loop' : 'ROI Visibility'}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px', marginBottom: '14px' }}>
+                {quotes.map((q, i) => {
+                  const assigned = tags[i];
+                  return (
+                    <div key={i} style={{ padding: '10px 14px', borderRadius: '8px', background: '#fff', border: `1.5px solid ${assigned ? tagColors[assigned] : '#E0D9D0'}`, display: 'flex', gap: '12px', alignItems: 'center' }}>
+                      <div style={{ fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', flex: 1, lineHeight: 1.55 }}>&ldquo;{q.text}&rdquo;</div>
+                      <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
+                        {(['loop', 'roi'] as Tag[]).map(t => (
+                          <button key={t} onClick={() => setTags(prev => ({ ...prev, [i]: t }))} style={{ padding: '4px 8px', borderRadius: '5px', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, border: `1.5px solid ${assigned === t ? tagColors[t] : '#E0D9D0'}`, background: assigned === t ? `${tagColors[t]}18` : '#F9F8FF', color: assigned === t ? tagColors[t] : '#999' }}>
+                            {t === 'loop' ? 'Loop' : 'ROI'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <AnimatePresence>
+                {allTagged && (
+                  <motion.div key="syn-btn" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <button onClick={() => setSubmitted(true)} style={{ width: '100%', padding: '10px', borderRadius: '8px', background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em' }}>
+                      SYNTHESISE &rarr;
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          ) : (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+              <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', marginBottom: '14px' }}>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '6px' }}>SYNTHESIS INSIGHT</div>
+                <div style={{ fontSize: '13px', color: '#37352F', lineHeight: 1.7 }}>
+                  Both clusters &mdash; &ldquo;feedback loop&rdquo; and &ldquo;ROI visibility&rdquo; &mdash; describe the same underlying gap: <strong>the product never shows managers that it is working.</strong> Two themes on the surface. One root cause underneath.
+                </div>
+              </div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.08em', marginBottom: '8px' }}>NOW WRITE THE PROBLEM STATEMENT &mdash; WHICH FRAMING CAPTURES THE ROOT CAUSE?</div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
+                {problems.map((p, i) => {
+                  const isPicked = problemChoice === i;
+                  return (
+                    <div key={i}>
+                      <button onClick={() => setProblemChoice(i)} style={{ width: '100%', textAlign: 'left' as const, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer', border: `1.5px solid ${isPicked ? (p.correct ? '#0D7A5A' : '#FF5630') : '#E0D9D0'}`, background: isPicked ? (p.correct ? 'rgba(13,122,90,0.06)' : 'rgba(255,86,48,0.05)') : '#fff', fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', lineHeight: 1.5 }}>
+                        &ldquo;{p.text}&rdquo;
+                        {isPicked && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, fontStyle: 'normal' as const, color: p.correct ? '#0D7A5A' : '#FF5630' }}>{p.type.toUpperCase()}</span>}
+                      </button>
+                      <AnimatePresence>
+                        {isPicked && (
+                          <motion.div key="ps-fb" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                            <div style={{ padding: '8px 14px', fontSize: '11px', color: p.correct ? '#0D7A5A' : '#C85A40', background: p.correct ? 'rgba(13,122,90,0.05)' : 'rgba(200,90,64,0.05)', borderRadius: '0 0 7px 7px', lineHeight: 1.6 }}>
+                              {p.correct ? '✓ ' : '✗ '}{p.feedback}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+              </div>
+              <button onClick={() => { setSubmitted(false); setTags({}); setProblemChoice(null); }} style={{ marginTop: '12px', fontSize: '11px', fontFamily: 'monospace', color: '#7C3AED', background: 'none', border: '1px solid rgba(124,58,237,0.3)', padding: '5px 12px', borderRadius: '6px', cursor: 'pointer' }}>
+                Reset &rarr;
+              </button>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </TiltCard>
   );
 };
 
@@ -665,7 +789,7 @@ export default function Track2ProblemDiscovery() {
           Onboarding-related tickets were <em>down</em> 26%. But a different cluster — tickets about not being able to show that EdSpark was working — had almost tripled.
         </p>
 
-        <KraftfulTrendMockup />
+        <KraftfulHypothesisTester />
 
         <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
           She had two options. Nod along and run another onboarding study. Or bring the data and risk the conversation. She chose the data.
@@ -733,7 +857,7 @@ export default function Track2ProblemDiscovery() {
           This was a test Priya was ready for. Three months ago, when she first joined as APM, she had set up a research repository in Notion. Every study, every insight, every tagged interview quote — all in one place. She opened it now.
         </p>
 
-        <NotionResearchRepoMockup />
+        <NotionRepoSearch />
 
         <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
           The repo showed 16 studies, 89 tagged insights, and — relevant right now — a 3-month-old manager churn study with 12 interviews. The top finding: <strong>managers churn when they can&apos;t demonstrate EdSpark&apos;s ROI to their own leadership.</strong>
@@ -902,7 +1026,7 @@ export default function Track2ProblemDiscovery() {
           &ldquo;I didn&apos;t know if EdSpark was working&rdquo; (no feedback loop) and &ldquo;I couldn&apos;t show my director the results&rdquo; (ROI visibility) — these were two surface expressions of the <strong>same underlying job</strong>: managers needed evidence that their investment in EdSpark was producing results.
         </p>
 
-        <DovetailClustersMockup />
+        <DovetailSynthesisBoard />
 
         {pullQuote("Synthesis is about reducing. You start with 94 tagged moments and end with one sentence that explains all of them.")}
 
