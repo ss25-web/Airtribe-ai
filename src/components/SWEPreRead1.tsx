@@ -327,6 +327,371 @@ KeyError: 'value'`,
   );
 };
 
+// ─── Interactive: LiveCodeSandbox — Write It Yourself (Section 01) ────────────
+
+const LiveCodeSandbox = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const [b1, setB1] = useState('');
+  const [b2, setB2] = useState('');
+  const [output, setOutput] = useState<string | null>(null);
+
+  const data = track === 'python' ? {
+    title: 'Filter a CSV dataset',
+    intro: "Aisha's first real task. Two lines are missing — fill them in, then run.",
+    lines: [
+      'import csv, io',
+      '',
+      'records = """id,name,status',
+      '1,Alice,active  2,Bob,inactive',
+      '3,Charlie,active  4,David,active',
+      '5,Eve,pending"""',
+      '',
+      'def count_active(csv_data):',
+      '    count = 0',
+      '    for row in csv.DictReader(io.StringIO(csv_data)):',
+      "        if [BLANK_1]:          ← fill in",
+      '            count += 1',
+      '    return count',
+      '',
+      'total = count_active(records)',
+      '[BLANK_2]                     ← fill in',
+    ],
+    blanks: [
+      { label: "Blank 1 — the filter condition (line 11)", placeholder: "row['status'] == 'active'", solutions: ["row['status'] == 'active'", "row[\"status\"] == \"active\"", "row['status']=='active'"], hint: "Access the 'status' key of each row dict and compare to 'active'" },
+      { label: 'Blank 2 — the print statement (line 16)', placeholder: "print(f'Found {total} active records.')", solutions: ["print(f'Found {total} active records.')", 'print(f"Found {total} active records.")', 'print(total)'], hint: 'Use print() with an f-string to embed the count' },
+    ],
+    correct: '$ python pipeline.py\n> Found 3 active records.',
+    wrong: "$ python pipeline.py\n> SyntaxError or NameError\n  Hint: strings need quotes, dict access uses row['key']",
+  } : track === 'java' ? {
+    title: 'Filter a list with streams',
+    intro: "Vikram's first Java task. Complete the stream pipeline and the print statement.",
+    lines: [
+      'import java.util.Arrays;',
+      'import java.util.List;',
+      '',
+      'public class Main {',
+      '  public static void main(String[] args) {',
+      '    List<Integer> nums = Arrays.asList(10, -5, 20, -15, 30, -3);',
+      '    int sum = nums.stream()',
+      '               .[BLANK_1]        ← fill in',
+      '               .mapToInt(Integer::intValue).sum();',
+      '    [BLANK_2]                    ← fill in',
+      '  }',
+      '}',
+    ],
+    blanks: [
+      { label: 'Blank 1 — stream filter expression (line 8)', placeholder: 'filter(n -> n >= 0)', solutions: ['filter(n -> n >= 0)', 'filter(n->n>=0)', 'filter(n -> n > -1)'], hint: 'Use filter() with a lambda: n -> condition' },
+      { label: 'Blank 2 — print the sum (line 10)', placeholder: 'System.out.println("Sum: " + sum);', solutions: ['System.out.println("Sum: " + sum);', 'System.out.println(sum);'], hint: 'Java uses System.out.println() for console output' },
+    ],
+    correct: '> javac Main.java\n> java Main\nSum: 60',
+    wrong: '> javac Main.java\nMain.java:8: error: cannot find symbol\n  Check your method name — streams use filter(n -> condition)',
+  } : {
+    title: 'Validate a POST request',
+    intro: "Leo's first Express task. Add the validation check and the success response.",
+    lines: [
+      "const express = require('express');",
+      'const app = express();',
+      'app.use(express.json());',
+      '',
+      "app.post('/register', (req, res) => {",
+      '  const { name, email } = req.body;',
+      '',
+      '  if ([BLANK_1]) {           ← validation',
+      "    return res.status(400).json({ error: 'Missing fields' });",
+      '  }',
+      '',
+      '  const id = Date.now().toString(36);',
+      '  [BLANK_2]                  ← success response',
+      '});',
+    ],
+    blanks: [
+      { label: 'Blank 1 — the validation condition (line 8)', placeholder: '!name || !email', solutions: ['!name || !email', '!name || !email ', '!req.body.name || !req.body.email'], hint: 'Check if name OR email is falsy — use ! and ||' },
+      { label: 'Blank 2 — success response (line 13)', placeholder: 'res.status(201).json({ success: true, id });', solutions: ['res.status(201).json({ success: true, id });', 'res.json({ success: true, id })', 'res.status(201).json({ success: true, id: id });'], hint: 'Use res.status(201).json() to send a 201 Created response' },
+    ],
+    correct: '$ node app.js\n> POST /register\n< 201 { success: true, id: "lk3m2n" }',
+    wrong: "$ node app.js\n> SyntaxError or ReferenceError\n  Check: !name || !email for condition, res.status(201).json({...}) for response",
+  };
+
+  const checkAnswers = () => {
+    const norm = (s: string) => s.trim().replace(/\s+/g, ' ');
+    const ok1 = data.blanks[0].solutions.some(s => norm(b1) === norm(s));
+    const ok2 = data.blanks[1].solutions.some(s => norm(b2) === norm(s));
+    setOutput((ok1 && ok2) ? data.correct : data.wrong);
+  };
+
+  const isCorrect = output === data.correct;
+
+  return (
+    <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px 22px', margin: '28px 0' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: accentColor, marginBottom: '4px' }}>INTERACTIVE · WRITE IT YOURSELF</div>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ed-ink)', marginBottom: '4px' }}>{data.title}</div>
+      <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginBottom: '16px' }}>{data.intro}</div>
+      <div style={{ padding: '14px 16px', borderRadius: '8px', background: '#1C1814', border: '1px solid #332D24', marginBottom: '16px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', lineHeight: 1.75 }}>
+        {data.lines.map((line, i) => (
+          <div key={i} style={{ display: 'flex', gap: '14px' }}>
+            <span style={{ color: '#554D40', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const, fontSize: '9px' }}>{i + 1}</span>
+            <span style={{ color: line.includes('[BLANK') ? accentColor : '#EDE5D5' }}>{line.replace('[BLANK_1]', '___').replace('[BLANK_2]', '___') || ' '}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px', marginBottom: '16px' }}>
+        {data.blanks.map((blank, i) => (
+          <div key={i}>
+            <div style={{ fontSize: '10px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '4px' }}>{blank.label}</div>
+            <input value={i === 0 ? b1 : b2} onChange={e => i === 0 ? setB1(e.target.value) : setB2(e.target.value)}
+              placeholder={blank.placeholder}
+              style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--ed-rule)', background: 'var(--ed-cream)', fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: 'var(--ed-ink)', outline: 'none', boxSizing: 'border-box' as const }} />
+            {output && !isCorrect && <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '4px', fontStyle: 'italic' as const }}>Hint: {blank.hint}</div>}
+          </div>
+        ))}
+      </div>
+      <button onClick={checkAnswers} style={{ padding: '9px 24px', borderRadius: '7px', background: accentColor, color: '#fff', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700, fontFamily: 'inherit', marginBottom: output ? '16px' : '0' }}>
+        ▶ Run
+      </button>
+      <AnimatePresence mode="wait">
+        {output && (
+          <motion.div key={output} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div style={{ padding: '14px 16px', borderRadius: '8px', background: '#1C1814', border: `1px solid ${isCorrect ? '#16A34A' : '#DC2626'}40`, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: isCorrect ? '#86EFAC' : '#FCA5A5', lineHeight: 1.7, whiteSpace: 'pre' as const }}>
+              {output}
+            </div>
+            {isCorrect && <div style={{ marginTop: '10px', padding: '10px 14px', borderRadius: '6px', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', fontSize: '12px', color: '#16A34A', fontWeight: 600 }}>✓ Correct — you just wrote real production-quality logic.</div>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ─── Interactive: BugHunter — Click the Buggy Line (Section 04) ───────────────
+
+const BugHunter = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [clickedLine, setClickedLine] = useState<number | null>(null);
+  const [wrongLine, setWrongLine] = useState<number | null>(null);
+  const [shake, setShake] = useState(false);
+
+  const allBugs: Record<SWETrack, Record<'easy' | 'medium' | 'hard', { lines: string[]; bugLine: number; explanation: string; fix: string; hint: string }>> = {
+    python: {
+      easy: {
+        lines: ['def process_data():', "    user_ids = (101, 102, 103)", '    print(f"Initial: {user_ids}")', '    new_id = 104', '    # Add the new ID to the list', '    user_ids.append(new_id)', '    return user_ids', '', 'result = process_data()', 'print(result)'],
+        bugLine: 6,
+        explanation: "Tuples are immutable — they have no append() method. The parentheses on line 2 create a tuple, not a list. You can't modify a tuple after creation.",
+        fix: 'user_ids = [101, 102, 103]  # Square brackets make a list',
+        hint: 'Look at what type user_ids is on line 2. Can that type be modified?',
+      },
+      medium: {
+        lines: ['def print_pairs(users):', '    print("Consecutive pairs:")', '    for i in range(len(users)):', '        current = users[i]', '        next_user = users[i + 1]', '        print(f"  {current} + {next_user}")', '', 'team = ["Alice", "Bob", "Charlie"]', 'print_pairs(team)'],
+        bugLine: 5,
+        explanation: "When i reaches the last index, users[i+1] is out of bounds. range(len(users)) goes up to and including the last index, but there's no element after it.",
+        fix: 'for i in range(len(users) - 1):  # Stop one index short',
+        hint: 'Trace the last iteration. What is i when users[i+1] is accessed?',
+      },
+      hard: {
+        lines: ['def count_items(items):', '    counts = {}', '    for item in items:', '        counts[item] += 1', '    return counts', '', 'data = ["apple", "banana", "apple"]', 'print(count_items(data))'],
+        bugLine: 4,
+        explanation: "The first time an item is seen, counts[item] raises KeyError because the key doesn't exist yet — you can't add 1 to a value that isn't there.",
+        fix: 'counts[item] = counts.get(item, 0) + 1',
+        hint: "What happens the very first time a new item appears? Does it have a starting value in counts?",
+      },
+    },
+    java: {
+      easy: {
+        lines: ['public class StatusCheck {', '  public static void main(String[] args) {', '    String status = "active";', '    String target = "active";', '    // Check if status matches', '    if (status == target) {', '      System.out.println("Approved");', '    } else {', '      System.out.println("Denied");', '    }', '  }', '}'],
+        bugLine: 6,
+        explanation: '== in Java compares object references, not string content. Two String variables can have identical text but reference different objects, making == return false unexpectedly.',
+        fix: 'if (status.equals(target)) {  // .equals() compares content',
+        hint: 'How do you compare the actual content of two String objects in Java?',
+      },
+      medium: {
+        lines: ['class User {', '    String name;', '    User(String n) { this.name = n; }', '}', 'public class Processor {', '  public static void main(String[] args) {', '    User active = new User("Alice");', '    User deleted = null;', '    int len = deleted.name.length();', '    System.out.println(len);', '  }', '}'],
+        bugLine: 9,
+        explanation: 'deleted is null — calling .name on null throws a NullPointerException. The JVM cannot access any field or method on a null reference.',
+        fix: 'int len = (deleted != null) ? deleted.name.length() : 0;',
+        hint: 'What is the value of deleted when .name is accessed?',
+      },
+      hard: {
+        lines: ['public class FinancialCalc {', '  public static void main(String[] args) {', '    int txCents   = 1_500_000_000;', '    int bonusCents = 1_000_000_000;', '    // Sum should be 2.5 billion', '    int total = txCents + bonusCents;', '    System.out.println("Total: " + total);', '    // Expected: 2500000000', '  }', '}'],
+        bugLine: 6,
+        explanation: 'int holds a max of ~2.1 billion. 1.5B + 1B = 2.5B overflows silently, wrapping to a negative number. Financial code with large values must use long.',
+        fix: 'long total = (long)txCents + bonusCents;',
+        hint: 'What is the maximum value int can hold in Java? Does this sum exceed it?',
+      },
+    },
+    nodejs: {
+      easy: {
+        lines: ['// data.json contains: {"users": []}', "const data = require('./data.json');", '', 'function addUser(user) {', '  console.log("Before:", JSON.stringify(data));', '  data.push(user);', '  console.log("After:", JSON.stringify(data));', '}', '', 'addUser({ id: 1, name: "Alice" });'],
+        bugLine: 6,
+        explanation: "data is a plain object { users: [] }, not an array. Objects don't have a push() method — that's an Array method. This throws TypeError: data.push is not a function.",
+        fix: 'data.users.push(user);  // push onto the array inside the object',
+        hint: 'What does data.json return? Is data an array or an object containing an array?',
+      },
+      medium: {
+        lines: ["const db = require('./db');", '', 'async function getUser(req, res) {', '  const { id } = req.params;', '  const user = db.findUser(id);', '  if (!user) {', '    return res.status(404).json({ error: "Not found" });', '  }', '  res.json({ name: user.name, email: user.email });', '}', '', 'module.exports = { getUser };'],
+        bugLine: 5,
+        explanation: 'db.findUser() is async and returns a Promise. Without await, user is a Promise object — always truthy, so the not-found check never fires and user.name crashes.',
+        fix: 'const user = await db.findUser(id);  // await the Promise',
+        hint: 'db.findUser() is an async function. What does it return without await?',
+      },
+      hard: {
+        lines: ["app.get('/users', async (req, res) => {", '  try {', '    const users = await db.getAll();', '    res.json(users);', '    res.status(200);', '  } catch (err) {', '    res.status(500).json({ error: err.message });', '  }', '});'],
+        bugLine: 5,
+        explanation: "res.json() sends the response and closes the connection. Calling res.status() after the response is already sent throws: 'Cannot set headers after they are sent to the client'.",
+        fix: 'res.status(200).json(users);  // chain status before json()',
+        hint: 'When does res.json() actually send the HTTP response? What happens if you touch res after that?',
+      },
+    },
+  };
+
+  const bug = allBugs[track][difficulty];
+
+  const handleClick = (lineNum: number) => {
+    if (clickedLine !== null || !bug.lines[lineNum - 1].trim()) return;
+    if (lineNum === bug.bugLine) {
+      setClickedLine(lineNum); setWrongLine(null);
+    } else {
+      setWrongLine(lineNum); setShake(true); setTimeout(() => setShake(false), 380);
+    }
+  };
+
+  const solved = clickedLine === bug.bugLine;
+
+  return (
+    <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px 22px', margin: '28px 0' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: accentColor, marginBottom: '6px' }}>INTERACTIVE · BUG HUNTER</div>
+      <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', marginBottom: '16px' }}>Find the bug. Click the exact line that contains the error.</div>
+      <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
+        {(['easy', 'medium', 'hard'] as const).map(d => (
+          <button key={d} onClick={() => { setDifficulty(d); setClickedLine(null); setWrongLine(null); }}
+            style={{ padding: '5px 14px', borderRadius: '20px', border: `1.5px solid ${d === difficulty ? accentColor : 'var(--ed-rule)'}`, background: d === difficulty ? `${accentColor}12` : 'var(--ed-cream)', cursor: 'pointer', fontSize: '11px', fontWeight: d === difficulty ? 700 : 400, color: d === difficulty ? accentColor : 'var(--ed-ink3)', fontFamily: 'inherit', textTransform: 'capitalize' as const }}>
+            {d === 'easy' ? '🟢' : d === 'medium' ? '🟡' : '🔴'} {d}
+          </button>
+        ))}
+      </div>
+      <motion.div animate={shake ? { x: [-4, 4, -3, 3, 0] } : {}} transition={{ duration: 0.35 }}>
+        <div style={{ borderRadius: '8px', background: '#1C1814', border: '1px solid #332D24', overflow: 'hidden', marginBottom: '12px' }}>
+          {bug.lines.map((line, i) => {
+            const ln = i + 1;
+            const isClicked = clickedLine === ln;
+            const isWrong = wrongLine === ln;
+            const isEmpty = !line.trim();
+            return (
+              <div key={`${difficulty}-${i}`} onClick={() => !isEmpty && !solved && handleClick(ln)}
+                style={{ display: 'flex', gap: '14px', padding: '2px 14px', cursor: isEmpty || solved ? 'default' : 'pointer', background: isClicked ? 'rgba(234,179,8,0.15)' : isWrong ? 'rgba(220,38,38,0.10)' : 'transparent', borderLeft: isClicked ? '3px solid #EAB308' : isWrong ? '3px solid #DC2626' : '3px solid transparent', transition: 'background 0.12s' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#554D40', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const, paddingTop: '2px' }}>{ln}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: isClicked ? '#EAB308' : isWrong ? '#FCA5A5' : '#EDE5D5', lineHeight: 1.7, flex: 1 }}>{line || ' '}</span>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
+      <AnimatePresence>
+        {solved && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div style={{ padding: '14px 18px', borderRadius: '8px', background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)', marginBottom: '10px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: '#CA8A04', marginBottom: '8px' }}>✓ LINE {bug.bugLine} — BUG FOUND</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75, marginBottom: '10px' }}>{bug.explanation}</div>
+              <div style={{ padding: '8px 12px', borderRadius: '6px', background: '#1C1814', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#86EFAC' }}>Fix: {bug.fix}</div>
+            </div>
+          </motion.div>
+        )}
+        {wrongLine !== null && !solved && (
+          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div style={{ padding: '10px 14px', borderRadius: '6px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.18)', fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic' as const }}>
+              Not that line. Hint: {bug.hint}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// ─── Interactive: CodeAnatomy — Click Any Part (Section 03) ──────────────────
+
+const CodeAnatomy = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const [active, setActive] = useState<number | null>(null);
+
+  const content = track === 'python' ? {
+    title: 'Anatomy of a production Python script',
+    subtitle: "The kind of file you'll encounter in your first PR review.",
+    lines: ['#!/usr/bin/env python3', '"""Pipeline: extract active users from CSV."""', 'import csv, logging, sys', 'from pathlib import Path', '', 'logging.basicConfig(level=logging.INFO)', 'log = logging.getLogger(__name__)', '', 'def load_users(filepath: Path) -> list[dict]:', '    """Load all rows from the CSV."""', '    with open(filepath, newline="") as fh:', '        return list(csv.DictReader(fh))', '', 'def filter_active(users: list[dict]) -> list[dict]:', '    return [u for u in users if u["status"] == "active"]', '', 'if __name__ == "__main__":', '    path = Path(sys.argv[1])', '    users = load_users(path)', '    active = filter_active(users)', '    log.info("Active users: %d", len(active))'],
+    hotspots: [
+      { lines: [1], label: 'Shebang', explanation: "Tells the OS which interpreter runs this file when executed directly (./script.py). Pins the Python binary so the right version is used on servers.", why: "Without it, you must type python3 explicitly. With it, the file becomes directly executable.", remove: "Still runs with python3 script.py but loses standalone execution capability." },
+      { lines: [2], label: 'Module docstring', explanation: "Module-level documentation. IDEs, linters, and pydoc display this. It's the one-line contract for what this file does.", why: "Team members and future you need to understand this module's purpose at a glance.", remove: "Code runs fine, but tooling and teammates lose their first hint about intent." },
+      { lines: [6, 7], label: 'Logging setup', explanation: "Configures the logging module at INFO level. log = logging.getLogger(__name__) creates a named logger — log entries show exactly which module they came from.", why: "print() doesn't appear in log aggregators. Structured logging is observable, filterable, and persistent.", remove: "You lose production observability. print() works locally but disappears in cloud log systems." },
+      { lines: [11, 12], label: 'Context manager', explanation: "with open(...) as fh: automatically closes the file when the block exits — even if an exception is raised inside.", why: "Prevents file descriptor leaks. Manually calling fh.close() is error-prone; the context manager makes it automatic.", remove: "If an exception occurs inside, the file may stay open until the garbage collector decides to close it." },
+      { lines: [15], label: 'List comprehension', explanation: "[u for u in users if condition] filters the list in one readable line. It's idiomatic Python — cleaner and slightly faster than an explicit for-append loop.", why: "Equivalent to a filter loop but more readable. Most Python codebases prefer the comprehension.", remove: "Fine if replaced by a loop, but the comprehension is what reviewers will expect to see." },
+      { lines: [17], label: '__main__ guard', explanation: "Prevents this code from running when the file is imported as a module. The block only executes when the script is run directly.", why: "If another module imports load_users(), you don't want the entire pipeline to fire as a side effect.", remove: "The pipeline runs every time this module is imported anywhere — a silent, destructive side effect." },
+    ],
+  } : track === 'java' ? {
+    title: 'Anatomy of a Spring Boot REST controller',
+    subtitle: "The pattern you'll write and review hundreds of times in a Java backend.",
+    lines: ['package com.finova.users;', '', 'import org.springframework.web.bind.annotation.*;', 'import org.springframework.http.ResponseEntity;', 'import java.util.Optional;', '', '@RestController', '@RequestMapping("/api/users")', 'public class UserController {', '', '    @Autowired', '    private UserService userService;', '', '    @GetMapping("/{id}")', '    public ResponseEntity<User> getUser(@PathVariable Long id) {', '        Optional<User> user = userService.findById(id);', '        return user', '            .map(ResponseEntity::ok)', '            .orElseThrow(() -> new UserNotFoundException(id));', '    }', '}'],
+    hotspots: [
+      { lines: [1], label: 'Package declaration', explanation: "Declares the namespace this class belongs to. Java uses reverse-domain notation (com.finova.users) to prevent naming collisions across libraries and modules.", why: "Without packages, every class name would need to be globally unique. At scale, that's impossible.", remove: "Unnamed package — compiles for tiny programs, but breaks any multi-module project or framework." },
+      { lines: [7, 8], label: '@RestController + @RequestMapping', explanation: "@RestController combines @Controller and @ResponseBody — every method in this class returns JSON directly. @RequestMapping sets /api/users as the URL prefix for all routes here.", why: "Spring reads these annotations at startup to register this class as an HTTP request handler.", remove: "Spring ignores this class entirely — no routes would be registered." },
+      { lines: [11, 12], label: '@Autowired', explanation: "Tells Spring to inject a UserService instance. Spring creates the service, manages its lifecycle, and injects it here automatically.", why: "You never call new UserService(). Spring controls the dependency — this is Inversion of Control.", remove: "NullPointerException at runtime — userService is never assigned." },
+      { lines: [14, 15], label: '@GetMapping + @PathVariable', explanation: "@GetMapping(\"/{id}\") registers this method for GET /api/users/{id}. @PathVariable binds the {id} URL segment to the id parameter automatically.", why: "This is how Spring maps incoming HTTP requests to specific handler methods.", remove: "GET /api/users/42 returns 404 — the endpoint doesn't exist." },
+      { lines: [16], label: 'Optional<User>', explanation: "findById returns Optional<User> — either a user exists or it doesn't. Optional forces you to handle the 'not found' case explicitly rather than returning null.", why: "Returning null and hoping callers check is how NullPointerExceptions happen. Optional makes absence a first-class concern.", remove: "You'd return a nullable User — and NPEs would scatter wherever the result is used." },
+      { lines: [17, 18, 19], label: 'map + orElseThrow', explanation: "If the user exists, map() wraps it in a 200 OK ResponseEntity. If absent, orElseThrow() throws an exception that Spring maps to a 404 Not Found response.", why: "Functional chaining is cleaner than if/else null checks and delegates exception translation to the framework.", remove: "You'd need explicit if/else with null checks — more code, same behavior, more error-prone." },
+    ],
+  } : {
+    title: 'Anatomy of a production Express route file',
+    subtitle: "The structure you'll see in every Node.js backend codebase.",
+    lines: ["const express = require('express');", 'const router = express.Router();', "const { validate } = require('../middleware/validate');", "const db = require('../db');", '', 'const userSchema = {', "    name:  { type: 'string', required: true },", "    email: { type: 'string', required: true },", '};', '', 'router.post("/", validate(userSchema), async (req, res, next) => {', '    try {', '        const user = await db.users.create(req.body);', '        res.status(201).json(user);', '    } catch (err) {', '        next(err);', '    }', '});', '', 'module.exports = router;'],
+    hotspots: [
+      { lines: [1, 2], label: 'Router setup', explanation: "express.Router() creates a mini Express app — a modular set of routes for one resource. This file handles /users/* without app.js knowing the details.", why: "Keeps each resource's routes in its own file instead of one monolithic app.js.", remove: "You'd attach routes directly to the main app — fine for three routes, unmanageable at thirty." },
+      { lines: [3], label: 'Middleware import', explanation: "validate() is a reusable middleware function. It runs before the route handler and rejects invalid requests before they reach the database.", why: "Validation logic shouldn't live inside every handler — extract it once, reuse everywhere consistently.", remove: "Every route would need inline validation — duplicated code with inevitably inconsistent rules." },
+      { lines: [6, 7, 8, 9], label: 'Schema definition', explanation: "Defines the shape of a valid request body. The validate middleware checks incoming requests against this schema before the handler runs.", why: "Centralise the definition of valid data. Change validation in one place, not scattered across ten handlers.", remove: "Invalid requests reach your DB call — any shape of garbage body could be persisted." },
+      { lines: [11], label: 'Route + middleware chain', explanation: "POST / maps to this handler. validate(userSchema) runs first — if it rejects the request, the async handler never executes.", why: "Middleware chains are how Express composes behaviour: auth → validate → handle. Order matters.", remove: "Unvalidated requests reach the handler — any body shape, including missing required fields, hits the DB." },
+      { lines: [12, 15, 16, 17], label: 'try/catch + next(err)', explanation: "Async DB calls can throw. The catch block calls next(err), passing the error to Express's centralized error handler middleware.", why: "Without this, unhandled promise rejections either crash the Node process or silently hang the request.", remove: "An unhandled rejection crashes the process or freezes the connection — no error response sent to the client." },
+      { lines: [14], label: 'res.status(201)', explanation: "201 Created is the correct HTTP status for a successful POST that creates a resource. 200 OK means success but doesn't communicate that a new resource was created.", why: "HTTP status codes communicate intent to clients and tools without parsing the response body.", remove: "Sending 200 for creation works but violates REST semantics — API clients following HTTP spec would behave incorrectly." },
+      { lines: [20], label: 'module.exports', explanation: "Exports the router for app.js to mount with app.use('/users', userRouter). Without this, nothing outside this file can use the router.", why: "CommonJS module system — the explicit export mechanism for Node.js files.", remove: "The file exists but is invisible to the rest of the app — like defining a function and never calling it." },
+    ],
+  };
+
+  const hs = active !== null ? content.hotspots[active] : null;
+
+  return (
+    <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px 22px', margin: '28px 0' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: accentColor, marginBottom: '4px' }}>INTERACTIVE · CODE ANATOMY</div>
+      <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ed-ink)', marginBottom: '4px' }}>{content.title}</div>
+      <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginBottom: '16px' }}>{content.subtitle} Click a numbered marker to understand that part.</div>
+      <div style={{ display: 'grid', gridTemplateColumns: hs ? '1fr 1fr' : '1fr', gap: '16px', alignItems: 'start' }}>
+        <div style={{ padding: '14px 16px', borderRadius: '8px', background: '#1C1814', border: '1px solid #332D24', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', lineHeight: 1.75 }}>
+          {content.lines.map((line, i) => {
+            const ln = i + 1;
+            const hsIdx = content.hotspots.findIndex(h => h.lines.includes(ln));
+            const isHs = hsIdx !== -1;
+            const isAct = isHs && active === hsIdx;
+            return (
+              <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'center', background: isAct ? `${accentColor}18` : 'transparent', borderRadius: '3px', paddingRight: '6px' }}>
+                <span style={{ color: '#554D40', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const, fontSize: '9px', flexShrink: 0 }}>{ln}</span>
+                <span style={{ flex: 1, color: '#EDE5D5' }}>{line || ' '}</span>
+                {isHs && (
+                  <button onClick={() => setActive(active === hsIdx ? null : hsIdx)}
+                    style={{ flexShrink: 0, width: '18px', height: '18px', borderRadius: '50%', background: isAct ? accentColor : `${accentColor}28`, border: `1.5px solid ${accentColor}60`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', fontWeight: 800, color: isAct ? '#fff' : accentColor, transition: 'all 0.15s', padding: 0, lineHeight: 1 }}>
+                    {hsIdx + 1}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <AnimatePresence>
+          {hs && (
+            <motion.div key={active} initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 14 }} transition={{ duration: 0.2 }} style={{ padding: '16px', borderRadius: '8px', background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: accentColor, marginBottom: '8px', letterSpacing: '0.1em' }}>⬡ {hs.label.toUpperCase()}</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75, marginBottom: '10px' }}>{hs.explanation}</div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.65, padding: '8px 12px', background: 'var(--ed-cream)', borderRadius: '6px', marginBottom: '8px' }}><strong style={{ color: 'var(--ed-ink2)' }}>Why it exists: </strong>{hs.why}</div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}><strong style={{ color: 'var(--ed-ink2)' }}>If removed: </strong>{hs.remove}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
@@ -472,9 +837,9 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {h2(<>When you run a program, what actually happens?</>)}
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === 'python' && <>Aisha opens her terminal for the first time since joining Mosaic Analytics and types <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>python pipeline.py</code>. Something prints. The script runs. She has no idea what just happened between pressing Enter and seeing the output — it feels like magic, and she knows that is a problem.</>}
-              {track === 'java' && <>Vikram sits at his desk on his first day at Finova Systems, staring at two commands he has to run to execute one Java file: <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>javac Main.java</code> then <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>java Main</code>. His onboarding doc just says &ldquo;compile then run.&rdquo; He writes down his question for Kavya: <em>why two commands?</em></>}
-              {track === 'nodejs' && <>Leo has been writing JavaScript for six months — buttons, forms, DOM manipulation. His first task at Launchly is to add a field to the backend API. He opens the file. It is JavaScript. But there is no HTML anywhere, no document.getElementById, nothing he recognises from the browser. He runs <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node app.js</code> and a server starts. He messages Mei: &ldquo;How is this JavaScript?&rdquo;</>}
+              {track === 'python' && <>The terminal cursor blinks. Day one at Mosaic Analytics. Aisha types <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>python main.py</code> and presses Enter. A torrent of red text erupts, burying her screen: <em>ModuleNotFoundError: No module named &apos;pandas&apos;</em> — then a cascade of <em>Traceback (most recent call last):</em> lines, each one a foreign language. Her stomach drops. This is nothing like the clean, cell-by-cell Jupyter notebooks from university. This is raw code, failing spectacularly, and she has no idea where to begin. Riya leans over her shoulder: &ldquo;Read the last line first. It always tells you exactly what broke.&rdquo;</>}
+              {track === 'java' && <>Vikram&apos;s first PR at Finova Systems looked clean. The feature compiled, the endpoint returned 200 OK in Postman, and his local tests all passed. Then he pushed and watched the CI pipeline. Green. Green. Green. Then — a sudden <em>BUILD FAILED</em> in red. A wall of Java stack traces appeared, starting with <em>java.lang.NoClassDefFoundError</em>. He stared at it, mystified. &ldquo;It works on my machine,&rdquo; he typed to Kavya. She replied immediately: &ldquo;JavaScript runs when it reads. Java runs after it&apos;s built. That&apos;s why CI is different.&rdquo;</>}
+              {track === 'nodejs' && <>Leo had been writing JavaScript for six months — buttons, event listeners, DOM manipulation. His first task at Launchly was to add a field to the notifications service. He opened the file. JavaScript. But no HTML, no <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>document</code>, no <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>window</code>. He ran <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node server.js</code> and a server started — listening on port 3000, handling real HTTP requests. He messaged Mei: &ldquo;Is this even still JavaScript?&rdquo; She replied: &ldquo;Same language. Different host. V8 doesn&apos;t care where it runs.&rdquo;</>}
             </StoryCard>
 
             {para(<>Your source code — the text you write in your editor — is not what the computer runs. The computer runs machine code: sequences of ones and zeros that tell the CPU exactly what to do. Everything in between is translation. What makes languages different is <em>when and how</em> that translation happens.</>)}
@@ -487,10 +852,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <ExecutionFlow track={track} accentColor={meta.accentColor} />
 
+            <LiveCodeSandbox track={track} accentColor={meta.accentColor} />
+
             <MentorCard name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}>
-              {track === 'python' && <>&ldquo;When you hit a confusing bug six months from now — one that only appears in production, or only on specific data — you will come back to this. The execution model tells you <em>where</em> errors can hide. In Python, they hide in branches you never test. Write tests from the start.&rdquo;</>}
-              {track === 'java' && <>&ldquo;New engineers always find the two-step annoying at first. But once you have shipped a system that runs for three years without a type-related bug, you understand why we take the compile step. The compiler is your first reviewer — and it works for free.&rdquo;</>}
-              {track === 'nodejs' && <>&ldquo;The V8 engine doesn&apos;t care if you call it from a browser or a terminal. It just compiles and runs JavaScript. What makes Node.js powerful isn&apos;t the language — it&apos;s everything Node wraps around V8. The file system, the event loop, the HTTP module. Learn what Node adds. That&apos;s where the real work happens.&rdquo;</>}
+              {track === 'python' && <>&ldquo;Jupyter was hiding the machine from you. The terminal forces you to understand its language. That ModuleNotFoundError on day one? That&apos;s the environment telling you exactly what it needs. Learn to read those messages — they&apos;re always precise. The interpreter is a meticulous librarian. It tells you <em>exactly</em> when a book isn&apos;t on its shelf.&rdquo;</>}
+              {track === 'java' && <>&ldquo;JavaScript runs when it reads. Java runs after it&apos;s built. That difference is the whole story. Compilation isn&apos;t an inconvenience — it&apos;s your first line of defense. When a refactor touches 200 files, the compiler tells you every place that broke before you ship a single byte to production.&rdquo;</>}
+              {track === 'nodejs' && <>&ldquo;V8 doesn&apos;t care if you call it from Chrome or a terminal — it just compiles and runs JavaScript. What makes Node different isn&apos;t the language. It&apos;s what Node wraps around V8: the file system, the event loop, the HTTP module. Learn what Node <em>adds</em>. That&apos;s where the real work is.&rdquo;</>}
             </MentorCard>
 
             {track === 'java' && keyBox('The JVM Promise', [
@@ -695,6 +1062,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <LibraryMatcher track={track} accentColor={meta.accentColor} />
 
+            <CodeAnatomy track={track} accentColor={meta.accentColor} />
+
             {pullQuote(
               track === 'python' ? 'In Python, there is almost always a library for what you need. The skill is knowing which one to trust — and when to reach for it versus writing it yourself.' :
               track === 'java' ? 'Java verbosity is a feature at scale. When six engineers are modifying the same service, explicit types and structure prevent the codebase from becoming incomprehensible.' :
@@ -730,9 +1099,9 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {h2(<>Reading errors like a senior engineer</>)}
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === 'python' && <>On her third day, Aisha runs the data pipeline and sees a wall of red text. Her first instinct is to copy the whole thing into a Google search. She pastes it into Slack instead, adding: &ldquo;I don&apos;t understand what this means.&rdquo; Riya sends back three words: &ldquo;Read the last line.&rdquo;</>}
-              {track === 'java' && <>Vikram is refactoring the user service when a NullPointerException appears. He stares at the stack trace — fifteen lines of text, most of them starting with <code style={{ fontFamily: 'monospace', fontSize: '12px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>at org.springframework</code>. He feels completely lost. He asks Kavya to come look. She glances at the screen for three seconds and points: &ldquo;Line 42, UserService. That is your code. Start there.&rdquo;</>}
-              {track === 'nodejs' && <>Leo pushes a small change to the users route and the whole API crashes. The terminal shows a TypeError with a 12-line stack trace. He immediately opens Google. Mei walks past his desk: &ldquo;Did you read the error?&rdquo; He pauses. He had not. He had just seen red text and panicked.</>}
+              {track === 'python' && <>The pipeline crashes again — <em>KeyError: &apos;client_id&apos;</em>. Aisha&apos;s hand moves toward a Google search. Then she stops. Riya&apos;s voice from this morning: &ldquo;Read the last line.&rdquo; She scrolls. The error is at the bottom: a dictionary lookup on a key that isn&apos;t there. She scrolls up two lines: <em>pipeline.py, line 73</em> — her file, her code. She looks at line 73. She finds it. She fixes it herself. The pipeline runs. She understands, for the first time, that error messages are not scoldings — they are maps.</>}
+              {track === 'java' && <>The NullPointerException appeared on a Tuesday afternoon. Vikram stared at the stack trace — fifteen lines, most of them <em>at org.springframework.*</em>. He felt completely lost and asked Kavya to look. She scanned the screen for three seconds and pointed: &ldquo;Line 42, UserService. That is your code. Everything above it is just the path the exception took through the framework. Ignore Spring&apos;s frames, find yours — that&apos;s where the bug lives.&rdquo; He looked. Line 42: <em>loan.getStatus().toUpperCase()</em>. The status was null. The fix took four seconds.</>}
+              {track === 'nodejs' && <>Leo merged a small change to the users route on a Friday afternoon. The API crashed immediately. Twelve lines of red text in the terminal. His first instinct was Google. Mei walked past: &ldquo;Did you read the error?&rdquo; He hadn&apos;t. He&apos;d seen <em>TypeError</em> and panicked. She pointed: &ldquo;Line one. The type. Line two. The message. Skip node_modules frames. Find your file. That&apos;s it.&rdquo; He found <em>users.js:34</em>. A missing await. A promise object being treated as a user. Two words he needed to add, and he would have found them in thirty seconds if he&apos;d started by reading instead of searching.</>}
             </StoryCard>
 
             {para(<>The single largest productivity gap between a junior and senior engineer is not syntax knowledge. It is how fast they go from &ldquo;something is broken&rdquo; to &ldquo;I know exactly what is broken and why.&rdquo; Senior engineers are fast at debugging not because they have seen every error — it is because they read errors before doing anything else.</>)}
@@ -768,6 +1137,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             </>)}
 
             <TracebackReader track={track} accentColor={meta.accentColor} />
+
+            <BugHunter track={track} accentColor={meta.accentColor} />
 
             <MentorCard name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}>
               {track === 'python' && <>&ldquo;When you get an error, your job for the next 60 seconds is to be a detective, not a fixer. Read the type. Read the message. Read the line number. Form one hypothesis before you touch the keyboard. If you skip this step and start changing things randomly, you will fix the wrong thing — or break something else trying to fix the first thing.&rdquo;</>}
