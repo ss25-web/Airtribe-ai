@@ -82,19 +82,134 @@ const StoryCard = ({ protagonist, accentColor, children }: { protagonist: string
   </div>
 );
 
-const MentorCard = ({ name, role, color, children }: { name: string; role: string; color: string; children: React.ReactNode }) => (
-  <div style={{ background: 'var(--ed-card)', border: `1px solid var(--ed-rule)`, borderLeft: `4px solid ${color}`, borderRadius: '8px', padding: '18px 20px', margin: '24px 0' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>{name[0]}</div>
-      <div>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1 }}>{name}</div>
-        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginTop: '2px' }}>{role}</div>
+// ─── SWEMentorFace ────────────────────────────────────────────────────────────
+const SWEMentorFace = ({ name, color, size = 66 }: { name: string; color: string; size?: number }) => {
+  const [blink, setBlink] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => { setBlink(false); schedule(); }, 120);
+      }, 2800 + Math.random() * 2400);
+    };
+    schedule();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+  const initials = name.split(' ').map((w: string) => w[0]).join('');
+  return (
+    <motion.div
+      animate={{ y: [0, -2, 0] }}
+      transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+      style={{
+        width: size, height: size, borderRadius: '16px', flexShrink: 0,
+        background: `linear-gradient(135deg, ${color} 0%, ${color}BB 100%)`,
+        border: `2px solid ${color}`,
+        boxShadow: `0 0 20px ${color}35`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'opacity 0.08s', opacity: blink ? 0.5 : 1,
+      }}>
+      <span style={{ fontSize: size * 0.32, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em', fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1 }}>
+        {initials}
+      </span>
+    </motion.div>
+  );
+};
+
+// ─── SWEAvatar — interactive mentor card with face + question ────────────────
+const SWEAvatar = ({ name, role, color, content, expandedContent, question, options, conceptId }: {
+  name: string; role: string; color: string;
+  content: React.ReactNode;
+  expandedContent?: React.ReactNode;
+  question?: string;
+  options?: { text: string; correct: boolean; feedback: string }[];
+  conceptId?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const store = useLearnerStore();
+  const answered = selectedIdx !== null;
+  const isCorrect = answered && options ? options[selectedIdx].correct : false;
+  const handleAnswer = (i: number) => {
+    if (answered) return;
+    setSelectedIdx(i);
+    if (conceptId && options) store.recordQuizAttempt(conceptId, options[i].correct);
+  };
+  return (
+    <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
+      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      {/* Header */}
+      <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, display: 'inline-block' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color }}>Mentor</span>
+          {question && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.06em', marginLeft: '4px' }}>· has a question for you</span>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {question && answered && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: isCorrect ? '#0D7A5A' : '#C85A40', letterSpacing: '0.06em' }}>{isCorrect ? '✓ right track' : '✗ revisit'}</span>}
+          <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25 }} style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>▼</motion.span>
+        </div>
       </div>
-      <div style={{ marginLeft: 'auto', padding: '2px 8px', borderRadius: '20px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, background: `${color}14`, color, border: `1px solid ${color}30` }}>Mentor</div>
-    </div>
-    <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.8, fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif" }}>{children}</div>
-  </div>
-);
+      {/* Body */}
+      <div style={{ padding: '18px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        <SWEMentorFace name={name} color={color} size={66} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '1px' }}>{name}</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px', letterSpacing: '0.04em' }}>{role}</div>
+          <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.82 }}>{content}</div>
+        </div>
+      </div>
+      {/* Expanded */}
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+            {expandedContent && (
+              <div style={{ padding: '16px 18px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream)', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                <div style={{ width: '3px', flexShrink: 0, background: color, borderRadius: '2px', alignSelf: 'stretch', opacity: 0.35 }} />
+                <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.9 }}>{expandedContent}</div>
+              </div>
+            )}
+            {question && options && (
+              <div style={{ padding: '18px 20px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, color: '#fff' }}>{name[0]}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em' }}>{name.toUpperCase().split(' ')[0]} ASKS</div>
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ed-ink)', lineHeight: 1.55, marginBottom: '14px', fontFamily: "'Lora', serif" }}>{question}</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                  {options.map((opt, i) => {
+                    const isSelected = selectedIdx === i;
+                    const showResult = answered && isSelected;
+                    const rc = opt.correct ? '#0D7A5A' : '#C85A40';
+                    return (
+                      <motion.button key={i} whileHover={!answered ? { x: 3 } : {}} whileTap={!answered ? { scale: 0.99 } : {}} onClick={() => handleAnswer(i)}
+                        style={{ textAlign: 'left' as const, padding: '12px 16px', borderRadius: '8px', border: showResult ? `2px solid ${rc}` : isSelected ? `2px solid ${color}` : '1.5px solid var(--ed-rule)', background: showResult ? (opt.correct ? 'rgba(13,122,90,0.06)' : 'rgba(200,90,64,0.06)') : isSelected ? `${color}08` : 'var(--ed-card)', cursor: answered ? 'default' : 'pointer', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.55, fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', alignItems: 'flex-start', gap: '10px', opacity: answered && !isSelected ? 0.5 : 1 }}>
+                        <span style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, border: showResult ? `1.5px solid ${rc}` : '1.5px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: showResult ? rc : 'var(--ed-ink3)', background: showResult ? (opt.correct ? 'rgba(13,122,90,0.06)' : 'rgba(200,90,64,0.06)') : 'transparent', transition: 'all 0.15s' }}>
+                          {showResult ? (opt.correct ? '✓' : '✗') : String.fromCharCode(65 + i)}
+                        </span>
+                        {opt.text}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                <AnimatePresence>
+                  {answered && (
+                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+                      style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '8px', background: isCorrect ? 'rgba(13,122,90,0.06)' : 'rgba(181,114,10,0.06)', border: `1px solid ${isCorrect ? 'rgba(13,122,90,0.2)' : 'rgba(181,114,10,0.2)'}` }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', color: isCorrect ? '#0D7A5A' : '#B5720A', marginBottom: '5px' }}>{isCorrect ? '✓ RIGHT TRACK' : '→ THINK AGAIN'}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{options[selectedIdx!].feedback}</div>
+                      {conceptId && <div style={{ marginTop: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.08em' }}>{isCorrect ? '↑ concept mastery updated' : '· try the section quiz for more practice'}</div>}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 // ─── Interactive: Execution Flow (Section 01) ─────────────────────────────
 
@@ -854,11 +969,41 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <LiveCodeSandbox track={track} accentColor={meta.accentColor} />
 
-            <MentorCard name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}>
-              {track === 'python' && <>&ldquo;Jupyter was hiding the machine from you. The terminal forces you to understand its language. That ModuleNotFoundError on day one? That&apos;s the environment telling you exactly what it needs. Learn to read those messages — they&apos;re always precise. The interpreter is a meticulous librarian. It tells you <em>exactly</em> when a book isn&apos;t on its shelf.&rdquo;</>}
-              {track === 'java' && <>&ldquo;JavaScript runs when it reads. Java runs after it&apos;s built. That difference is the whole story. Compilation isn&apos;t an inconvenience — it&apos;s your first line of defense. When a refactor touches 200 files, the compiler tells you every place that broke before you ship a single byte to production.&rdquo;</>}
-              {track === 'nodejs' && <>&ldquo;V8 doesn&apos;t care if you call it from Chrome or a terminal — it just compiles and runs JavaScript. What makes Node different isn&apos;t the language. It&apos;s what Node wraps around V8: the file system, the event loop, the HTTP module. Learn what Node <em>adds</em>. That&apos;s where the real work is.&rdquo;</>}
-            </MentorCard>
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-execution"
+              content={
+                track === 'python' ? <>&ldquo;Jupyter was hiding the machine from you. The terminal forces you to understand its language. That <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>ModuleNotFoundError</code> on day one? That&apos;s the environment telling you exactly what it needs. The interpreter is a meticulous librarian — it tells you <em>exactly</em> when a book isn&apos;t on its shelf.&rdquo;</> :
+                track === 'java' ? <>&ldquo;JavaScript runs when it reads. Java runs after it&apos;s built. That difference is the whole story. Compilation isn&apos;t an inconvenience — it&apos;s your first reviewer, and it works for free. When a refactor touches 200 files, the compiler tells you every place that broke before you ship a single byte to production.&rdquo;</> :
+                <>&ldquo;V8 doesn&apos;t care if you call it from Chrome or a terminal — it just compiles and runs JavaScript. What makes Node different isn&apos;t the language. It&apos;s what Node wraps around V8: the file system, the event loop, the HTTP module. Learn what Node <em>adds</em>. That&apos;s where the real work is.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>In Python, errors only appear when a line actually runs. A script can have a bug on line 47 that nobody sees for weeks because that code path is never triggered in testing. This is why you write tests for every branch — not because the code looks wrong, but because the interpreter won&apos;t warn you ahead of time. In production, you&apos;ll encounter data you never anticipated. The only defence is coverage that exercises every path before it gets there.</> :
+                track === 'java' ? <>The compile step is a conversation between you and the compiler. It will flag type mismatches, missing methods, and incorrect interfaces — before a single line runs. New engineers find it annoying. Senior engineers find it reassuring. When you&apos;re touching 200 files in a refactor, the compiler tells you every callsite that broke. No runtime surprises, no regression you discover three days after merging. The strictness is the feature.</> :
+                <>Developers who come to Node from browser JavaScript hit the same wall: they expect the environment to behave like the browser. It doesn&apos;t. No DOM, no window. But you get <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>fs</code>, <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>net</code>, <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>http</code>, <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>process</code>, and an event loop designed for server workloads. The mental shift isn&apos;t about JavaScript — it&apos;s about what the host environment offers.</>
+              }
+              question={
+                track === 'python' ? 'Your Python pipeline ran fine in testing but crashes in production on a specific data file. Riya asks: what is your first hypothesis?' :
+                track === 'java' ? 'Your Java code compiles cleanly but throws a NullPointerException at runtime. Kavya asks: what does this tell you about Java\'s execution model?' :
+                'A colleague says Node.js is slow because JavaScript is interpreted. Mei looks at you. How do you respond?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: 'The production server is running a different Python version', correct: false, feedback: 'Version mismatch is possible but rarely the root cause on the first crash. More likely: a code path the test data never triggered — an untested branch that only fires on specific real-world inputs.' },
+                  { text: 'A code path was never exercised by test data — the production input triggered an untested branch', correct: true, feedback: 'Exactly. Python only evaluates code when that line runs. A branch your test data never touched has never been validated. This is precisely why test coverage matters — the interpreter will not warn you about logic errors in unreached code.' },
+                  { text: 'There is a syntax error that only appears on certain operating systems', correct: false, feedback: 'Syntax errors are caught at parse time and cause immediate failure every run, regardless of data. If it ran fine in testing, syntax is ruled out.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'The compiler missed a bug it should have caught — this means javac is unreliable', correct: false, feedback: 'javac is extremely reliable at what it checks: types, syntax, and structure. But NullPointerException is a runtime condition — the compiler cannot know whether a reference will be null when that line actually executes.' },
+                  { text: 'The compiler only checks types and syntax — it cannot guarantee all object references are non-null at runtime', correct: true, feedback: 'Correct. Compile-time safety and runtime safety are different guarantees. javac ensures your code is structurally valid. What lives in memory when the code runs is the JVM\'s domain — and a null reference is a valid object state that only reveals itself when you try to use it.' },
+                  { text: 'This means Java\'s type system is not actually safe', correct: false, feedback: 'Java\'s type system is strong — it ensures a String variable holds a String, not an int. That\'s a different concern from null safety. Java 17+ has records and sealed classes to reduce nullability, but the distinction between compile-time and runtime guarantees remains.' },
+                ] : [
+                  { text: 'They\'re partially right — Node.js is slower than compiled languages and should not be used for performance-critical APIs', correct: false, feedback: "Node's event loop handles I/O-intensive workloads extremely well — Netflix, LinkedIn, and Uber use it for exactly this reason. The 'interpreted' claim hasn't been accurate since V8 started JIT-compiling JavaScript to native machine code." },
+                  { text: 'V8 JIT-compiles JavaScript to native machine code — calling it interpreted hasn\'t been accurate for over a decade', correct: true, feedback: 'V8 uses just-in-time compilation to translate JavaScript to optimized native code at runtime. The bottleneck in most web APIs is network and database I/O, not compute — and Node\'s event loop is exceptionally efficient at I/O-heavy concurrency.' },
+                  { text: 'It depends on whether you use TypeScript — TypeScript is compiled so it\'s faster', correct: false, feedback: 'TypeScript compiles to JavaScript, which then runs on V8. TypeScript\'s compilation step is for type-checking and transpilation, not performance. The runtime performance of TypeScript and JavaScript on V8 is identical.' },
+                ]
+              }
+            />
 
             {track === 'java' && keyBox('The JVM Promise', [
               'Write once, run anywhere — the same .class files run on any OS with a JVM installed',
@@ -970,11 +1115,41 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <EnvMistakes track={track} accentColor={meta.accentColor} />
 
-            <MentorCard name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}>
-              {track === 'python' && <>&ldquo;Every Python developer has lost hours to the venv confusion. Once. You do it once, you understand, and you never forget to activate it again. The thing to internalise is: your environment IS part of your code. A script that only works in one specific setup is not a reliable script.&rdquo;</>}
-              {track === 'java' && <>&ldquo;Maven is verbose and the XML is ugly, but it solves a real problem: reproducible builds. Your machine, my machine, the CI server, and production should all build the same thing from the same pom.xml. When they do not, the build tool is usually why. Learn to read pom.xml early.&rdquo;</>}
-              {track === 'nodejs' && <>&ldquo;The first rule of joining any Node.js project: npm install. The second rule: commit package-lock.json. Without the lock file, two developers can run npm install on the same package.json and get different versions of a transitive dependency. That is how &apos;it works on my machine&apos; bugs are born.&rdquo;</>}
-            </MentorCard>
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-environment"
+              content={
+                track === 'python' ? <>&ldquo;Every Python developer loses hours to the venv confusion. Once. You do it once, you understand, and you never forget to activate it again. The thing to internalise: your environment <em>is</em> part of your code. A script that only works in one specific setup is not a reliable script — it&apos;s a script that happens to work on your machine.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Maven&apos;s XML is ugly and verbose. I know. But it solves a real problem: reproducible builds. Your machine, my machine, the CI server, and production should all build the exact same thing from the same pom.xml. When they don&apos;t, the build tool is almost always why. Learn to read pom.xml early — it&apos;s the contract for how the project is built.&rdquo;</> :
+                <>&ldquo;First rule of joining any Node.js project: <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code>. Second rule: commit <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>package-lock.json</code>. Without the lock file, two developers can run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code> on the same package.json and get different versions of a transitive dependency. That is how &apos;it works on my machine&apos; bugs are born.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>Here is the practical test: if another engineer clones your repo and runs your script without any instructions and it fails, your environment setup is broken. requirements.txt solves this. A venv per project solves this. The goal is that anyone can reproduce your work from just the code and the requirements file. If that&apos;s true, you have a reliable setup. If it&apos;s not, you have a local script that happens to work for you.</> :
+                track === 'java' ? <>The Maven wrapper — the mvnw file you see in most Java repos — guarantees everyone uses the same Maven version. No &ldquo;it builds on my machine&rdquo; because Maven is different. The pom.xml declares the Java version too. If you set <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>java.version</code> to 17, anyone building with Java 21 will be warned. Your CI enforces these constraints automatically. That&apos;s reproducibility.</> :
+                <>The difference between <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> and <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> matters on a team. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> may update package-lock.json. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> installs exactly what is in the lock file and fails if anything drifts. Use <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> in CI pipelines and on new clones — it is faster and deterministic.</>
+              }
+              question={
+                track === 'python' ? 'A new engineer clones the repo and runs the pipeline. It crashes with ModuleNotFoundError. Riya asks you to diagnose it before she looks. What do you say?' :
+                track === 'java' ? 'A junior asks whether they should download the required library JAR manually from Maven Central. What do you tell them?' :
+                'You just cloned the notifications repo. You try node server.js and get "Cannot find module \'express\'". Before asking anyone — what is your move?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: 'There is probably a bug in the pipeline code causing the crash', correct: false, feedback: "ModuleNotFoundError means a package isn't installed in the active Python environment — it's not a logic error in the code. The fix is environment setup, not code changes." },
+                  { text: "They haven't activated the project's virtual environment or run pip install -r requirements.txt", correct: true, feedback: "Correct. Every new clone needs the environment set up first. The virtual environment isn't committed to git — they need to create it, activate it, and install the packages listed in requirements.txt." },
+                  { text: 'Their Python version is too old — they need to upgrade', correct: false, feedback: "Version mismatch would produce a different error, usually a syntax error or DeprecationWarning. ModuleNotFoundError points specifically to missing packages in the active environment." },
+                ] :
+                track === 'java' ? [
+                  { text: 'Yes, download from Maven Central and add it to a /lib folder in the project', correct: false, feedback: "This is exactly the problem Maven was designed to solve. Manually managed JARs lead to version conflicts, bloated repos, and no automated consistency across machines. Always use pom.xml." },
+                  { text: 'No — declare the dependency in pom.xml and Maven downloads it automatically on the next build', correct: true, feedback: "Exactly. pom.xml is the single source of truth for what the project needs. Maven downloads, caches, and manages every declared dependency. The whole team gets the same versions, automatically." },
+                  { text: 'Ask the tech lead first — dependency decisions need approval', correct: false, feedback: "Escalating a basic dependency question is a sign of uncertainty, not caution. The process is clear: declare in pom.xml, let Maven handle it. You can confirm the choice in a PR review." },
+                ] : [
+                  { text: "Check if Node.js is installed correctly — it might be a PATH issue", correct: false, feedback: "If Node.js wasn't installed or was misconfigured, you wouldn't be able to run node at all. The error 'Cannot find module express' tells you Node is fine — it just can't find a specific package." },
+                  { text: "Run npm install — node_modules is never committed to the repo, so packages need to be installed after every fresh clone", correct: true, feedback: "Correct. node_modules is in .gitignore by convention — it's large, reproducible, and platform-specific. npm install reads package.json and restores everything. This is the first step after cloning any Node.js project." },
+                  { text: "Edit package.json to add express manually", correct: false, feedback: "If express is already in package.json (which it is — it's listed as a dependency), the fix isn't to edit the file. It's to install what's already declared. npm install is all you need." },
+                ]
+              }
+            />
 
             {h2(<>Version Control: Git</>)}
             {para(<>Git is not optional. Every professional engineering team uses version control. Git lets you save checkpoints of your code, experiment in branches without fear, and collaborate through pull requests. Your first day on any team involves cloning a git repository.</>)}
@@ -1064,6 +1239,42 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <CodeAnatomy track={track} accentColor={meta.accentColor} />
 
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-ecosystem"
+              content={
+                track === 'python' ? <>&ldquo;Riya&apos;s question — &lsquo;faster at what?&rsquo; — is the question that ends most &lsquo;let&apos;s rewrite in a faster language&apos; conversations. Python is slow at CPU computation. For most data pipelines, the bottleneck is waiting for I/O: database queries, network calls, file reads. A 10× faster language on a workload that is 90% waiting makes no measurable difference.&rdquo;</> :
+                track === 'java' ? <>&ldquo;The friend who texted &lsquo;nobody builds new things in Java&apos; has never worked in fintech. Java&apos;s type system catches an entire class of bugs before they reach production — bugs that surface in dynamic languages after a refactor, often in a code path nobody thought to test. At scale, with compliance requirements, that matters more than the syntax preferences of a startup.&rdquo;</> :
+                <>&ldquo;Your professor was half right — JavaScript was a frontend toy in 1996. Then V8 happened, then Node, then a decade of production usage at Netflix, LinkedIn, and Uber. The mental model of &lsquo;JavaScript is for browsers&apos; is as outdated as &lsquo;SQL is only for reporting&apos;. The runtime matters more than the language&apos;s original purpose.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>The ecosystem is where Python wins. pandas, NumPy, scikit-learn, PyTorch, FastAPI — this combination has no close equivalent in any other language. When your bottleneck is a database query or an API call, language speed is irrelevant. When you need to iterate fast on data analysis and ML experiments, Python&apos;s libraries are unmatched. Mosaic Analytics runs Python because it is the best tool for the actual work they do — not because it&apos;s fast at computation.</> :
+                track === 'java' ? <>Spring Boot&apos;s auto-configuration means you write business logic, not infrastructure. Dependency injection, connection pooling, transaction management, security, observability — all configured with sensible defaults, all overridable. When a new engineer joins the team, they see the same patterns everywhere because Spring enforces consistency. That predictability compounds over time into a codebase that 40 engineers can work in simultaneously without stepping on each other.</> :
+                <>Express is where you learn Node.js. NestJS is where you scale it. The jump between them is the jump from understanding HTTP to understanding architecture — modules, dependency injection, typed controllers. Knowing where you are on that spectrum is important. Most startups start with Express and migrate to NestJS when the codebase becomes hard to navigate. Knowing both gives you the judgment to make that call.</>
+              }
+              question={
+                track === 'python' ? 'The data pipeline is slow on 50M rows. A teammate suggests rewriting it in Rust. Riya looks at you. What do you say first?' :
+                track === 'java' ? 'A recruiter describes your team as "behind the times" for using Java. Kavya asks you to respond. What is the strongest answer?' :
+                'The API handles 10k req/s fine. You add a PDF generation route and response times spike badly. Mei asks: why specifically Node, and why specifically this task?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: 'Agree — Python is too slow for data at this scale and Rust is the right call', correct: false, feedback: "Suggesting a language rewrite without profiling first is almost always wrong. You don't know what's slow yet. Most pipeline slowness is I/O, an N+1 query, or a pandas operation on unfiltered data — not Python's interpreter." },
+                  { text: "Profile first — the bottleneck is almost certainly I/O or an inefficient query, not Python's interpreter speed", correct: true, feedback: "Correct. The rule is: measure before you rewrite. Instagram and Dropbox run Python backends at scale. Slowness in a data pipeline is almost always a database query, a missing index, or loading data you don't need — fix that first." },
+                  { text: 'Switch to a newer Python version — Python 3.12 is significantly faster', correct: false, feedback: "Python 3.12 does have performance improvements, but they're unlikely to address 50M row pipeline slowness. The root cause is almost always algorithmic or I/O-related, not interpreter overhead." },
+                ] :
+                track === 'java' ? [
+                  { text: 'Agree — Java is legacy and the team should start planning a migration to Node.js or Go', correct: false, feedback: "Agreeing with an uninformed opinion without context is not the right response. Java's continued dominance in fintech, banking, and enterprise isn't inertia — it's a deliberate choice based on type safety, ecosystem maturity, and compliance tooling." },
+                  { text: "Java's type system and Spring's maturity give compile-time safety and battle-tested patterns — critical for fintech compliance and multi-engineer codebases at scale", correct: true, feedback: "Exactly. The type system catches entire classes of bugs before production. At Finova's scale and compliance requirements, that matters more than language trendiness. Java 17+ is also significantly more modern than the stereotype suggests." },
+                  { text: 'Java is faster than everything else — performance is why we use it', correct: false, feedback: "Java is fast, but 'faster than everything' isn't accurate, and performance isn't the primary reason fintech uses it. The real reasons are type safety, ecosystem maturity, compliance tooling, and the ability to scale codebases across large engineering teams." },
+                ] : [
+                  { text: "Node can't handle high request volumes — 10k req/s is near its ceiling", correct: false, feedback: "Node handles high I/O concurrency very well — 10k req/s of JSON queries is well within its range. The problem is task type, not volume. I/O-bound work and CPU-bound work are fundamentally different on Node's architecture." },
+                  { text: "PDF generation is CPU-intensive — it blocks Node's single-threaded event loop, starving all concurrent requests", correct: true, feedback: "Exactly. Node's event loop handles I/O concurrency by registering callbacks and moving on while waiting. CPU-intensive work can't be delegated — it occupies the single thread and blocks everything else. The fix is worker_threads or offloading to a separate service." },
+                  { text: 'The PDF library has a memory leak that degrades performance under load', correct: false, feedback: "Memory leaks cause gradual degradation over time, not immediate spikes. A sudden performance spike when adding a new operation type points to the operation itself blocking the event loop — which is the CPU-intensity problem." },
+                ]
+              }
+            />
+
             {pullQuote(
               track === 'python' ? 'In Python, there is almost always a library for what you need. The skill is knowing which one to trust — and when to reach for it versus writing it yourself.' :
               track === 'java' ? 'Java verbosity is a feature at scale. When six engineers are modifying the same service, explicit types and structure prevent the codebase from becoming incomprehensible.' :
@@ -1140,11 +1351,41 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <BugHunter track={track} accentColor={meta.accentColor} />
 
-            <MentorCard name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}>
-              {track === 'python' && <>&ldquo;When you get an error, your job for the next 60 seconds is to be a detective, not a fixer. Read the type. Read the message. Read the line number. Form one hypothesis before you touch the keyboard. If you skip this step and start changing things randomly, you will fix the wrong thing — or break something else trying to fix the first thing.&rdquo;</>}
-              {track === 'java' && <>&ldquo;The mistake junior engineers make is trying to understand every line of a stack trace. You do not need to. You need to find YOUR code in it. Library frames are just noise — they tell you the path the exception took through the framework. Your frames tell you what you did wrong.&rdquo;</>}
-              {track === 'nodejs' && <>&ldquo;The error message is telling you something specific. TypeError: Cannot read properties of undefined — someone is calling a method on a value that turned out to be undefined. That is actionable. The message tells you the type. The stack trace tells you the location. You have everything you need before you search for anything.&rdquo;</>}
-            </MentorCard>
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-debugging"
+              content={
+                track === 'python' ? <>&ldquo;Your job for the next 60 seconds after an error is to be a detective, not a fixer. Read the type. Read the message. Read the line number. Form one hypothesis before you touch the keyboard. If you skip this and start changing things randomly, you will either fix the wrong thing or break something else trying to fix the first.&rdquo;</> :
+                track === 'java' ? <>&ldquo;The mistake junior engineers make is trying to understand every line of a stack trace. You don&apos;t need to. You need to find <em>your</em> code in it. Library frames are noise — they tell you the path the exception took through the framework. Your frames tell you what you did wrong. Start there.&rdquo;</> :
+                <>&ldquo;The error message is telling you something specific. <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>TypeError: Cannot read properties of undefined</code> — someone is calling a method on a value that turned out to be undefined. The message tells you the type. The stack trace tells you the location. You have everything you need before you open a search engine.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>Here is the test for whether someone has debugging instincts: given an error, can they form a hypothesis about the root cause in 30 seconds, based only on the error type, message, and line number? If yes, they are faster than 80% of engineers. The Traceback you saw on day one had everything you needed: KeyError on line 73, file pipeline.py. That is &ldquo;dictionary key doesn&apos;t exist at this specific line.&rdquo; That is your hypothesis. That is where you look.</> :
+                track === 'java' ? <>The NullPointerException you saw was 15 lines long, but 13 of them were Spring framework frames. Those lines tell you the path the exception travelled through Spring&apos;s machinery — not useful for finding your bug. The two frames from com.finova.* are yours. Line 42 of UserService. That is where the null reference was used. Everything else is context you don&apos;t need yet. Find your code first. Understand the framework paths after.</> :
+                <>Async stack traces in Node.js are occasionally misleading — Promise chains can truncate or reorder frames. When that happens, look for your files specifically: anything pointing to your project root, not node_modules. The error type and the first file path that is yours gives you your starting point. 90% of the time, reading just those two pieces of information is enough to form the right hypothesis.</>
+              }
+              question={
+                track === 'python' ? 'Aisha gets a KeyError and immediately pastes the full traceback into Slack. Riya responds with one question before helping. Which question makes Aisha a better engineer?' :
+                track === 'java' ? 'Vikram gets a 20-line NullPointerException — mostly Spring framework frames. Kavya gives him 60 seconds to find the bug himself. What is his most efficient first move?' :
+                'Leo has a TypeError in a route. Before Mei looks at it, she asks him one question. Which question is she expecting him to be able to answer?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: "'Have you tried restarting the Python interpreter?'", correct: false, feedback: "Restarting is sometimes useful but it's not a debugging skill. It teaches nothing and doesn't help Aisha understand why the error occurred or how to prevent it." },
+                  { text: "'Read the last line of the traceback — what is the error type, and what file and line number is it pointing to in your code?'", correct: true, feedback: "Exactly. This question forces Aisha to use the traceback as the tool it is. The error type and line number are almost always enough to form a hypothesis — no searching required. Teaching this question teaches the habit." },
+                  { text: "'Can you share the input data that caused the error?'", correct: false, feedback: "Data is relevant but it's the second step, not the first. Before looking at the data, you need to know exactly which line failed and why — the traceback tells you that without any data needed." },
+                ] :
+                track === 'java' ? [
+                  { text: 'Read every line of the stack trace from top to bottom, carefully', correct: false, feedback: "Reading every line of a 20-line stack trace methodically is slow and most of it is irrelevant. 13 of those lines are Spring internals — they show the path through the framework, not the location of the bug." },
+                  { text: 'Scan for the first line that references his package (com.finova.*) — everything above it is framework noise', correct: true, feedback: "Correct. The first frame from your own package is where the exception first entered your code. Everything above it is the framework path — informative eventually, but not for finding the bug. com.finova.UserService:42 is the starting point." },
+                  { text: 'Google \"NullPointerException\" to understand what the error means before looking at the trace', correct: false, feedback: "At this stage, NullPointerException means one thing: a method was called on a null reference. You already know what it means. The trace tells you where. Looking it up before reading the trace is backwards." },
+                ] : [
+                  { text: "'What did you last change before this started happening?'", correct: false, feedback: "Change history is useful context, but it's the second question — not the first. Mei's first concern is whether Leo can read the error. If he can, they can fix it in 30 seconds without needing change history." },
+                  { text: "'What file and line number does the stack trace point to in your code — not in node_modules?'", correct: true, feedback: "Exactly. This is the question that tests whether Leo can navigate a stack trace. If he can identify his file and the line number, he has the bug location. Everything else follows from there. Mei knows: if he can answer this, he can debug." },
+                  { text: "'Is this happening in production or in development?'", correct: false, feedback: "Environment matters eventually, but it's not the first question. Understanding the error — its type and location — is always the first step, regardless of which environment it appeared in." },
+                ]
+              }
+            />
 
             {h2(<>The debugging loop</>)}
             {para(<>Professional debugging is hypothesis-driven. You read the error, form a theory about what caused it at that specific line, test that theory with a print statement or breakpoint, and revise. Jumping straight to Google before doing this step adds noise and slows you down.</>)}
