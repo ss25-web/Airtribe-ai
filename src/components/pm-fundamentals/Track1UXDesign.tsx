@@ -1048,50 +1048,129 @@ const LovableAIMockup = () => {
 };
 
 // ─────────────────────────────────────────
-// CUSTOM MENTOR CARDS
+// SLACK STAKEHOLDER UPDATE MOCKUP
 // ─────────────────────────────────────────
-// ─────────────────────────────────────────
-// CHARACTER QUOTE — avatar + speech bubble
-// ─────────────────────────────────────────
-const CharacterQuote = ({ initial, name, role, color, quote }: {
-  initial: string; name: string; role: string; color: string; quote: string;
-}) => (
-  <div style={{ margin: '24px 0', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
-    <div style={{
-      width: '42px', height: '42px', borderRadius: '50%', flexShrink: 0, marginTop: '2px',
-      background: `${color}1A`, border: `2px solid ${color}`,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontWeight: 800, fontSize: '16px', color, fontFamily: "'Lora', Georgia, serif",
-    }}>
-      {initial}
-    </div>
-    <div style={{ flex: 1 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '7px' }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color }}>{name}</span>
-        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>{role}</span>
-      </div>
-      <div style={{
-        background: 'var(--ed-card)', borderRadius: '2px 10px 10px 10px',
-        border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${color}`,
-        padding: '14px 18px',
-        fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.8,
-        fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif",
-      }}>
-        &ldquo;{quote}&rdquo;
-      </div>
-    </div>
-  </div>
-);
+const SlackUpdateMockup = () => {
+  const [chosen, setChosen] = useState<number | null>(null);
+  const drafts = [
+    {
+      label: 'Over-claims the outcome',
+      text: "Great news! We fixed the onboarding issue. Completion is now at 58% — the team did amazing work! 🎉",
+      feedback: "This reads like a victory lap, not a PM update. 'Fixed the issue' implies done — but you're still 28 points from target. Rohan will ask 'so we're good now?' and you'll have to walk it back.",
+      correct: false,
+    },
+    {
+      label: 'Data-correct, but no insight',
+      text: "Update: completion rate moved from 30% → 58% after the loading state fix. Fix time: 1 afternoon. Remaining gap: 42% non-completers.",
+      feedback: "All the numbers are right, but there's no insight. A CEO doesn't want a log entry — they want to know what you learned and what's next. This message answers neither.",
+      correct: false,
+    },
+    {
+      label: 'Insight + result + next step',
+      text: "Found a specific UX failure — users abandoned because they saw silence, not progress. Loading state fix moved completion from 30% to 58% in one week. Still 28 points short — running the same diagnostic on the remaining drop-off now.",
+      feedback: "This is what a strong PM update looks like: what you found, what you changed, the result, and what's next. Rohan now has everything he needs to trust the process is continuing.",
+      correct: true,
+    },
+  ];
 
-const KiranCard = ({ quote }: { quote: string }) => (
-  <CharacterQuote initial="K" name="Kiran" role="Data Analyst · EdSpark" color="#3A86FF" quote={quote} />
-);
-const MayaCard = ({ quote }: { quote: string }) => (
-  <CharacterQuote initial="M" name="Maya" role="Designer · EdSpark" color="#C85A40" quote={quote} />
-);
-const DevCard = ({ quote }: { quote: string }) => (
-  <CharacterQuote initial="D" name="Dev" role="Engineer · EdSpark" color="#6E7681" quote={quote} />
-);
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #222', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}>
+        <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #2D2D2D' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {(['#FF5F57','#FFBD2E','#28C840'] as const).map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)', flex: 1 }}>
+            Slack · #leadership-updates · EdSpark
+          </div>
+        </div>
+        <div style={{ display: 'flex', background: '#1A1D21' }}>
+          {/* Sidebar */}
+          <div style={{ width: '180px', background: '#19171D', borderRight: '1px solid #2D2D2D', padding: '12px 0', flexShrink: 0 }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', padding: '0 14px', marginBottom: '8px', letterSpacing: '0.1em' }}>CHANNELS</div>
+            {['#general', '#product', '#leadership-updates', '#eng'].map((ch, i) => (
+              <div key={ch} style={{ padding: '5px 14px', fontFamily: 'monospace', fontSize: '11px', color: i === 2 ? '#fff' : 'rgba(255,255,255,0.38)', background: i === 2 ? 'rgba(255,255,255,0.08)' : 'transparent' }}>{ch}</div>
+            ))}
+            <div style={{ margin: '10px 0', borderTop: '1px solid #2D2D2D' }} />
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', padding: '0 14px', marginBottom: '6px', letterSpacing: '0.1em' }}>DIRECT MESSAGES</div>
+            {['Rohan', 'Maya', 'Kiran'].map(name => (
+              <div key={name} style={{ padding: '5px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#28C840', flexShrink: 0 }} />
+                <span style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.38)' }}>{name}</span>
+              </div>
+            ))}
+          </div>
+          {/* Message area */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const }}>
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid #2D2D2D', fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>
+              # leadership-updates
+            </div>
+            {/* Rohan's message */}
+            <div style={{ padding: '14px 16px', display: 'flex', gap: '10px', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', color: '#fff', flexShrink: 0 }}>R</div>
+              <div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', marginBottom: '4px' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#7C83E5' }}>Rohan</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>Today at 9:14 AM</span>
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+                  Any update on onboarding completion after last week&apos;s fix?
+                </div>
+              </div>
+            </div>
+            {/* Draft choices */}
+            <div style={{ padding: '12px 16px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.28)', marginBottom: '10px', letterSpacing: '0.1em' }}>
+                PRIYA&apos;S DRAFT — CHOOSE THE RIGHT REPLY:
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                {drafts.map((draft, i) => (
+                  <div key={i}>
+                    <div
+                      onClick={() => setChosen(i)}
+                      style={{
+                        padding: '10px 12px', borderRadius: '8px', cursor: 'pointer',
+                        background: chosen === i ? (draft.correct ? 'rgba(40,200,64,0.1)' : 'rgba(224,122,95,0.1)') : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${chosen === i ? (draft.correct ? 'rgba(40,200,64,0.4)' : 'rgba(224,122,95,0.35)') : 'rgba(255,255,255,0.1)'}`,
+                        transition: 'all 0.18s ease',
+                      }}
+                    >
+                      <div style={{ fontFamily: 'monospace', fontSize: '9px', letterSpacing: '0.08em', marginBottom: '5px', color: chosen === i ? (draft.correct ? '#28C840' : '#E07A5F') : 'rgba(255,255,255,0.3)' }}>
+                        {draft.label.toUpperCase()}
+                      </div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+                        {draft.text}
+                      </div>
+                    </div>
+                    <AnimatePresence>
+                      {chosen === i && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <div style={{
+                            margin: '4px 0 0', padding: '10px 12px', borderRadius: '6px',
+                            background: draft.correct ? 'rgba(40,200,64,0.06)' : 'rgba(224,122,95,0.06)',
+                            border: `1px solid ${draft.correct ? 'rgba(40,200,64,0.2)' : 'rgba(224,122,95,0.2)'}`,
+                            fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6,
+                          }}>
+                            {draft.correct ? '✓ ' : '✗ '}{draft.feedback}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </TiltCard>
+  );
+};
 
 // ─────────────────────────────────────────
 // DEFAULT EXPORT
@@ -1187,7 +1266,21 @@ export default function Track1UXDesign() {
 
         <MetricsDashboardMockup />
 
-        <KiranCard quote="Same users. Same drop-off. We shipped something — that's not the same as solving something." />
+        <Avatar
+          name="Kiran"
+          nameColor="#3A86FF"
+          borderColor="#3A86FF"
+          content={<>Same users. Same drop-off. We shipped something &mdash; that&apos;s not the same as solving something.</>}
+          expandedContent="When a metric moves but underperforms target, that gap is information. It tells you the root cause is still present — you've touched a symptom, not the system. Before proposing solutions, ask: what specifically didn't change for the users who still aren't completing?"
+          conceptId="ux-metric-communication"
+          question="Kiran shows you this chart. Completion is 30%, target is 60%. You have a check-in with Rohan in an hour. What do you tell him?"
+          options={[
+            { text: "Onboarding completion improved after the sprint — we're trending in the right direction.", correct: false, feedback: "Technically true and practically misleading. 2 points against a 30-point gap isn't trending in any meaningful sense. Rohan will ask the right follow-up and you'll have nothing." },
+            { text: "We're 30 points below target and don't yet understand why — I'm digging in with Kiran now.", correct: true, feedback: "This is honest and forward-looking. You own the gap, name the unknown, and tell Rohan what's happening next. That's what leadership needs from a PM in this moment." },
+            { text: "The original target of 60% was likely too aggressive for a first launch of this type.", correct: false, feedback: "Adjusting the standard before investigating the gap is avoidance. Kiran has the same data and will push back immediately if you don't have an analytical basis for this claim." },
+            { text: "I'll have a full analysis ready next sprint — need more data before drawing conclusions.", correct: false, feedback: "You already have data. Asking for more time without naming what you'll investigate reads as hesitation, not rigour. The investigation starts now, not next sprint." },
+          ]}
+        />
 
         <Avatar
           name="Asha"
@@ -1236,7 +1329,21 @@ export default function Track1UXDesign() {
 
         <SessionRecordingMockup />
 
-        <MayaCard quote="I didn't say the system wasn't working. I said watch what the user does." />
+        <Avatar
+          name="Maya"
+          nameColor="#C85A40"
+          borderColor="#C85A40"
+          content={<>I didn&apos;t say the system wasn&apos;t working. I said watch what the user does.</>}
+          expandedContent="A session recording is not a bug report — it's a window into the user's mental model. When you watch a user interact, you see the exact moment their model of 'what should happen' collides with the product's model of 'what actually happens.' That collision is where UX problems live, and it's invisible in any metric."
+          conceptId="ux-designer-collaboration"
+          question="Maya asks for two hours next week to review session recordings together. Rohan says the priority is shipping the next feature. Who do you side with?"
+          options={[
+            { text: "Rohan — the team needs shipping velocity, especially during an onboarding dip.", correct: false, feedback: "Shipping more features into a broken onboarding will not fix the broken onboarding. You'll have more features for fewer people to discover." },
+            { text: "Maya — two hours of session analysis now could prevent a month of wrong fixes later.", correct: true, feedback: "Maya isn't asking for a redesign project — she's asking for enough information to diagnose before prescribing. That investment pays off in targeted fixes, not guesses." },
+            { text: "Neither — propose a 30-minute session to balance analysis with velocity.", correct: false, feedback: "Session reviews need enough depth to find patterns across users. Cutting to 30 minutes optimises for the feeling of progress, not actual progress." },
+            { text: "Maya — but only if she commits to having a design ready by end of the sprint.", correct: false, feedback: "You've turned analysis into a deliverable commitment. Maya can't promise a fix before the analysis is done — that's precisely the point of doing the analysis first." },
+          ]}
+        />
 
         {para(<>
           Systems can be functionally correct and experientially broken. The user&apos;s mental model doesn&apos;t
@@ -1305,9 +1412,36 @@ export default function Track1UXDesign() {
           this is broken, therefore I&apos;m leaving. That&apos;s not impatience. That&apos;s logic.
         </>)}
 
-        <KiranCard quote="The drop-off isn't about patience. It's about information. At 12 seconds they have none." />
+        <Avatar
+          name="Kiran"
+          nameColor="#3A86FF"
+          borderColor="#3A86FF"
+          content={<>The drop-off isn&apos;t about patience. It&apos;s about information. At 12 seconds they have none.</>}
+          conceptId="ux-data-to-requirement"
+          question="Kiran's data: 67% of abandoning users leave within 15 seconds. Average processing time: 45 seconds. What product requirement does this create?"
+          options={[
+            { text: "Reduce backend processing time to under 15 seconds so users don't hit the drop-off window.", correct: false, feedback: "The backend isn't the problem — the silence is. Users will wait 45 seconds for something they can see working. They won't wait 3 seconds for something that looks broken." },
+            { text: "Provide the user with visible progress feedback before 12 seconds have elapsed.", correct: true, feedback: "Correct translation. The 12-second number isn't a performance target — it's a feedback deadline. Your spec needs to say: show meaningful progress within 5 seconds of user action." },
+            { text: "Display a notice before the step begins: 'This analysis takes approximately 45 seconds.'", correct: false, feedback: "Pre-warnings help, but don't solve the real problem. Once the process starts and nothing changes on screen, users discount the warning. You need real-time feedback during the wait, not before it." },
+            { text: "Show a loading skeleton so users see visual activity start immediately on click.", correct: false, feedback: "A skeleton is better than nothing, but it doesn't communicate duration or progress. Users will still reach the 12-second decision point without knowing how much longer they need to wait." },
+          ]}
+        />
 
-        <MayaCard quote="They don't know they should wait. 'Analyzing' isn't a state. It's a word." />
+        <Avatar
+          name="Maya"
+          nameColor="#C85A40"
+          borderColor="#C85A40"
+          content={<>They don&apos;t know they should wait. &ldquo;Analyzing&rdquo; isn&apos;t a state. It&apos;s a word.</>}
+          expandedContent="A UI state needs to answer three questions: what is happening, how long will it take, and what comes next. 'Analyzing' answers none of them. It's a label pasted over a silence. A real loading state is a system communicating with a user — progress bar, time estimate, context-specific message. That's what makes waiting feel intentional rather than broken."
+          conceptId="ux-state-design"
+          question="You're writing the spec for the loading state to hand to Maya. What's the minimum your spec must describe?"
+          options={[
+            { text: "Replace the button label with 'Analyzing your recording…' to confirm the action started.", correct: false, feedback: "Better copy helps, but it doesn't answer 'how long?' or 'what's happening inside?' Users still hit the same uncertainty wall — just with slightly friendlier text on the button." },
+            { text: "A progress indicator showing advancement, an estimated duration, and a context-specific label.", correct: true, feedback: "Three elements: confirmation work is happening, when it will end, and what work is being done. Maya can design this in 20 minutes — but only if the spec is this specific about all three." },
+            { text: "A spinner animation on the button and removal of the static label while processing.", correct: false, feedback: "A spinner answers 'is it loading?' but nothing else. Duration uncertainty is still there. Maya needs all three spec elements to build something that actually reduces abandonment." },
+            { text: "An animated pulse effect on the button so users see visual confirmation of their click.", correct: false, feedback: "Animation confirms the click landed, but doesn't communicate duration or context. The spec Maya needs from you must describe three distinct elements — not just a visual style." },
+          ]}
+        />
 
         <Avatar
           name="Asha"
@@ -1357,7 +1491,21 @@ export default function Track1UXDesign() {
 
         <SpecComparisonMockup />
 
-        <DevCard quote="I built what was written. No loading state was specified. I assumed the system feedback was handled elsewhere." />
+        <Avatar
+          name="Dev"
+          nameColor="#6E7681"
+          borderColor="#6E7681"
+          content={<>I built what was written. No loading state was specified. I assumed the system feedback was handled elsewhere.</>}
+          expandedContent="Engineers build to spec — this isn't a gap in their process, it's a feature of it. When an engineer fills in something not in the spec, they're patching a gap the PM created. The loading state wasn't forgotten — it was never considered. That's a different problem requiring a different fix."
+          conceptId="ux-pm-engineer-spec"
+          question="Dev says this in the retrospective. What's the most constructive PM response in this moment?"
+          options={[
+            { text: "Apologise for the oversight and commit to writing more complete specs going forward.", correct: false, feedback: "Apologies are fine but vague. 'More complete specs' isn't a process — it's a hope. Dev needs something concrete about what will actually change, not a promise to try harder." },
+            { text: "Acknowledge the spec gap and ask Dev to flag unclear UI states during sprint planning review.", correct: true, feedback: "You own the gap, and you've proposed a structural fix: Dev becomes an early reviewer of spec completeness. That's a real process change — not a promise, but a loop that catches gaps before code starts." },
+            { text: "Ask why Dev didn't flag the missing loading state before beginning development on the feature.", correct: false, feedback: "You're shifting accountability onto Dev for a gap in your spec. Dev's job is to build — flagging design gaps is a courtesy, not a responsibility. This response will damage the relationship." },
+            { text: "Propose a new rule: all specs require Design sign-off before Dev is allowed to start coding.", correct: false, feedback: "Design sign-off helps visual quality, but doesn't solve the problem. The spec was incomplete — adding a reviewer doesn't fix what you give the reviewer to review in the first place." },
+          ]}
+        />
 
         {para(<>
           This is the moment Priya understands something important. The engineer didn&apos;t make a mistake.
@@ -1508,7 +1656,23 @@ export default function Track1UXDesign() {
           in a spec. One afternoon of work. Twenty-eight points.
         </>)}
 
-        <MayaCard quote="You fixed the experience. The feature was always fine." />
+        <SlackUpdateMockup />
+
+        <Avatar
+          name="Maya"
+          nameColor="#C85A40"
+          borderColor="#C85A40"
+          content={<>You fixed the experience. The feature was always fine.</>}
+          expandedContent="This distinction matters for everything that comes next. When you see a metric underperform, the first question should always be: is this a feature failure or an experience failure? Feature failures need roadmap changes. Experience failures need design changes. Confusing the two is how teams ship new features into broken experiences."
+          conceptId="ux-feature-vs-experience"
+          question="Completion is now 58%. Rohan asks: 'Should we redesign the full onboarding flow to close the remaining gap?' What's your answer?"
+          options={[
+            { text: "Yes — we're still 22 points short of target and need a more significant intervention.", correct: false, feedback: "A redesign solves a feature problem. You don't know yet if the remaining gap is a feature problem. You fixed one friction point — there may be others. Diagnose before prescribing." },
+            { text: "Not yet — let's identify what's driving the remaining 42% to drop off before redesigning.", correct: true, feedback: "Exactly right. You found one experience failure and fixed it. There may be more specific ones. A full redesign risks removing what's working to solve a problem you haven't diagnosed yet." },
+            { text: "No — onboarding redesigns rarely produce significant metric movement on their own.", correct: false, feedback: "This is an opinion without analytical grounding. It might be right, but it won't persuade Rohan — and it shuts down a legitimate question without offering a better path forward." },
+            { text: "Yes — users need a fundamentally better onboarding experience, not incremental improvements.", correct: false, feedback: "This assumes the remaining 42% gap is structural, not specific. You have no evidence of that yet. The loading state fix worked precisely because you found the specific friction point first." },
+          ]}
+        />
 
         {pullQuote('Users don\'t experience features. They experience what happens between actions.')}
 
