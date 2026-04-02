@@ -12,6 +12,7 @@ import UXDesignModule from '@/components/UXDesignModule';
 import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
+import GenAIPreRead2 from '@/components/GenAIPreRead2';
 import SWETrackSelection from '@/components/SWETrackSelection';
 import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
 import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
@@ -36,6 +37,7 @@ export default function Home() {
   const [sweTrack, setSweTrack] = useState<SWETrack | null>(null);
   const [sweLevel, setSweLevel] = useState<SWELevel | null>(null);
   const [activeModule, setActiveModule] = useState<string>('01');
+  const [genaiModule, setGenaiModule] = useState<string>('01');
   const [darkMode, setDarkMode] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -60,6 +62,7 @@ export default function Home() {
     } else if (savedStage === 'genai-reading') {
       setStage('genai-reading');
       if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+      setGenaiModule(localStorage.getItem('airtribe_genai_module') ?? '01');
     } else if (savedStage === 'swe-select') {
       setStage('swe-select');
     } else if (savedStage === 'swe-quiz') {
@@ -127,9 +130,11 @@ export default function Home() {
     localStorage.removeItem(LS_TRACK);
   };
 
-  const goGenAIPreRead = () => {
+  const goGenAIPreRead = (num: string = '01') => {
+    setGenaiModule(num);
     setStage('genai-reading');
     localStorage.setItem(LS_STAGE, 'genai-reading');
+    localStorage.setItem('airtribe_genai_module', num);
     localStorage.removeItem(LS_TRACK);
   };
 
@@ -242,7 +247,7 @@ export default function Home() {
     if (!genaiTrack) {
       return <GenAIPlacementQuiz onComplete={goGenAIOverview} onBack={goHome} />;
     }
-    return <GenAILaunchpadOverview track={genaiTrack} onBack={goHome} onStartPreRead={goGenAIPreRead} />;
+    return <GenAILaunchpadOverview track={genaiTrack} onBack={goHome} onStartModule={goGenAIPreRead} />;
   }
 
   if (stage === 'genai-quiz') {
@@ -250,6 +255,7 @@ export default function Home() {
   }
 
   if (stage === 'genai-reading' && genaiTrack) {
+    if (genaiModule === '02') return <GenAIPreRead2 track={genaiTrack} onBack={goBackToGenAIOverview} />;
     return <GenAIPreRead1 track={genaiTrack} onBack={goBackToGenAIOverview} />;
   }
 

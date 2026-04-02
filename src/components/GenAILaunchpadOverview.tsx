@@ -21,7 +21,7 @@ const MODULES = [
     desc: 'Crispy Framework for prompt structure, zero-shot vs few-shot, context window management, cost-efficient model selection, and recursive prompt refinement.',
     duration: 'Live sessions · 2',
     tools: ['OpenAI Playground', 'Claude', 'Zapier'],
-    available: false,
+    available: true,
     accent: '#2563EB',
   },
   {
@@ -165,7 +165,7 @@ const DIFFERENTIATORS = [
 interface Props {
   track: GenAITrack;
   onBack: () => void;
-  onStartPreRead: () => void;
+  onStartModule: (num: string) => void;
 }
 
 const TRACK_META: Record<GenAITrack, {
@@ -203,7 +203,7 @@ const TRACK_META: Record<GenAITrack, {
   },
 };
 
-export default function GenAILaunchpadOverview({ track, onBack, onStartPreRead }: Props) {
+export default function GenAILaunchpadOverview({ track, onBack, onStartModule }: Props) {
   const meta = TRACK_META[track];
   const modules = MODULES.map((module) =>
     module.num === '01'
@@ -279,10 +279,10 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartPreRead }
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-read 01 is available now. More modules unlock week by week as the cohort progresses.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-reads 01 and 02 are available now. More modules unlock week by week as the cohort progresses.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            1 of 6 available
+            2 of 6 available
           </div>
         </div>
 
@@ -294,7 +294,7 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartPreRead }
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
-              onClick={mod.available ? onStartPreRead : undefined}
+              onClick={mod.available ? () => onStartModule(mod.num) : undefined}
               style={{
                 borderRadius: '10px', padding: '18px 20px',
                 background: 'var(--ed-card)',

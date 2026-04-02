@@ -1,0 +1,1655 @@
+'use client';
+import React, { useEffect, useRef, useState, CSSProperties, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
+import QuizEngine from './QuizEngine';
+import GenAIAvatar, { GenAIMentorFace } from './GenAIAvatar';
+import type { GenAIMentorId } from './GenAIAvatar';
+import type { GenAITrack } from './genaiTypes';
+import {
+  ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
+  chLabel, h2, keyBox, para, pullQuote,
+} from './pm-fundamentals/designSystem';
+
+const ACCENT = '#2563EB';
+const ACCENT_RGB = '37,99,235';
+const MODULE_NUM = '02';
+
+// --- Data Arrays & Constants ---
+
+const CONCEPTS = [
+  { id: 'genai-m2-anatomy', label: 'Prompt Anatomy', color: '#2563EB' },
+  { id: 'genai-m2-fewshot', label: 'Zero-Shot vs Few-Shot', color: '#0F766E' },
+  { id: 'genai-m2-context', label: 'Context Window', color: '#7C3AED' },
+  { id: 'genai-m2-models', label: 'Model Selection', color: '#C2410C' },
+  { id: 'genai-m2-refine', label: 'The Refinement Loop', color: '#DB2777' },
+];
+
+const SECTIONS = [
+  { id: 'genai-m2-anatomy', label: '1. The Anatomy of a Prompt' },
+  { id: 'genai-m2-fewshot', label: '2. Zero-Shot vs Few-Shot' },
+  { id: 'genai-m2-context', label: '3. Context Window: What Goes In Matters' },
+  { id: 'genai-m2-models', label: '4. Model Selection & Cost' },
+  { id: 'genai-m2-refine', label: '5. The Refinement Loop' },
+];
+
+const QUIZZES = [
+  {
+    conceptId: 'genai-m2-anatomy',
+    question: {
+      'non-tech': "Rhea's discharge summary prompt gives inconsistent tone — formal sometimes, casual others. What's the most targeted fix?",
+      'tech': "Aarav's entity extraction returns incomplete JSON sometimes. What's the most targeted first fix?",
+    },
+    options: {
+      'non-tech': [
+        "A) Add 'be professional'",
+        "B) Specify role: 'You are a clinical documentation assistant'",
+        "C) Add more patient context",
+        "D) Use a different model",
+      ],
+      'tech': [
+        "A) Increase temperature",
+        "B) Add more examples",
+        "C) Define output schema in response_format",
+        "D) Switch to GPT-4o",
+      ],
+    },
+    correctIndex: { 'non-tech': 1, 'tech': 2 },
+    explanation: {
+      'non-tech': "Specifying the model's role provides a clear persona and tone, guiding its output more consistently than a vague instruction like 'be professional'.",
+      'tech': "For structured outputs like JSON, explicitly defining the schema in the `response_format` parameter (or system message for older APIs) is crucial for consistency and completeness.",
+    },
+    keyInsight: "A clear role and output format are foundational for consistent prompt results.",
+  },
+  {
+    conceptId: 'genai-m2-fewshot',
+    question: {
+      'non-tech': "Slightly critical feedback keeps classifying as Neutral instead of Negative. Best fix?",
+      'tech': "Network connectivity tickets misclassify despite 5 examples. Most impactful fix?",
+    },
+    options: {
+      'non-tech': [
+        "A) Add more Neutral examples",
+        "B) Add examples of borderline-negative labeled as Negative",
+        "C) Tell the model to be stricter",
+        "D) Ask model to explain its reasoning",
+      ],
+      'tech': [
+        "A) Add more diverse examples for that category",
+        "B) Fine-tune the model",
+        "C) Implement RAG",
+        "D) Add confidence threshold",
+      ],
+    },
+    correctIndex: { 'non-tech': 1, 'tech': 0 },
+    explanation: {
+      'non-tech': "Few-shot examples are most effective when they clarify ambiguous cases. Providing examples of what *should* be negative, especially borderline ones, helps the model learn the nuanced boundary.",
+      'tech': "If examples aren't working, it often means the examples themselves aren't representative enough of the real-world variations. Adding more diverse examples helps the model generalize better.",
+    },
+    keyInsight: "Few-shot examples teach nuance and edge cases, improving model accuracy on specific domain data.",
+  },
+  {
+    conceptId: 'genai-m2-context',
+    question: {
+      'non-tech': "Summarizing hundreds of pages for specialist referral gives generic output. Best first step?",
+      'tech': "RAG chatbot hallucinating with 5-7 large docs in context. Best fix?",
+    },
+    options: {
+      'non-tech': [
+        "A) Tell model to be more detailed",
+        "B) Manually extract relevant sections then summarize those",
+        "C) Chunk into 10-page pieces",
+        "D) Request bigger context window",
+      ],
+      'tech': [
+        "A) Summarize each retrieved doc first, then answer from summaries",
+        "B) Add more docs",
+        "C) Switch to GPT-4o",
+        "D) Add system message saying 'only use provided context'",
+      ],
+    },
+    correctIndex: { 'non-tech': 1, 'tech': 0 },
+    explanation: {
+      'non-tech': "LLMs struggle with very long contexts, often missing details in the middle. Pre-processing to extract and prioritize key information reduces noise and ensures critical details are seen.",
+      'tech': "Large documents can overwhelm the context window, leading to 'lost in the middle' issues or hallucinations. Summarizing each retrieved document before feeding it to the main LLM reduces token count and improves focus.",
+    },
+    keyInsight: "Context window management is about strategic information delivery, not just dumping data.",
+  },
+  {
+    conceptId: 'genai-m2-models',
+    question: {
+      'non-tech': "Two workflows: high-volume simple emails + low-volume complex referrals. Which model strategy?",
+      'tech': "Daily reports (medium complexity, 100/day) + weekly insights (high complexity, 5/week). Budget constrained. Strategy?",
+    },
+    options: {
+      'non-tech': [
+        "A) GPT-4o for both",
+        "B) Haiku for both",
+        "C) Haiku for emails, GPT-4o for referrals",
+        "D) Gemini Flash for both",
+      ],
+      'tech': [
+        "A) GPT-4o for both",
+        "B) GPT-3.5-turbo for daily, GPT-4o for weekly",
+        "C) Haiku for both",
+        "D) Gemini Flash for both",
+      ],
+    },
+    correctIndex: { 'non-tech': 2, 'tech': 1 },
+    explanation: {
+      'non-tech': "Matching model capabilities to task complexity and volume is key. Haiku is cost-effective and fast for simple, high-volume tasks, while GPT-4o excels at complex reasoning for critical, lower-volume tasks.",
+      'tech': "A hybrid strategy optimizes for both cost and quality. Use a more powerful model for high-value, complex tasks and a more economical model for routine, medium-complexity tasks.",
+    },
+    keyInsight: "Model selection is a strategic decision balancing cost, speed, and quality for specific tasks.",
+  },
+  {
+    conceptId: 'genai-m2-refine',
+    question: {
+      'non-tech': "V3 consent form prompt is more concise but now omits a legal disclaimer that V1 always included. Next step?",
+      'tech': "V2 improved summaries for most cases but introduced a regression for edge cases. Before deploying V3 to prod, what's critical?",
+    },
+    options: {
+      'non-tech': [
+        "A) Revert to V1",
+        "B) Compare V1 and V3, identify the change, add explicit constraint",
+        "C) Add 'include all legal disclaimers'",
+        "D) Ask legal to simplify the disclaimer",
+      ],
+      'tech': [
+        "A) A/B test with internal users",
+        "B) Run V3 against golden dataset, compare metrics vs V1+V2",
+        "C) Manually review 10-20 outputs",
+        "D) Commit and push to git",
+      ],
+    },
+    correctIndex: { 'non-tech': 1, 'tech': 1 },
+    explanation: {
+      'non-tech': "The refinement loop requires systematic comparison. Identifying the specific change that caused the regression allows for a targeted fix, ensuring the desired conciseness is kept while restoring the disclaimer.",
+      'tech': "A golden dataset is crucial for detecting regressions. Running V3 against it and comparing performance metrics to previous versions ensures that improvements haven't come at the cost of new errors, especially for edge cases.",
+    },
+    keyInsight: "Prompt refinement is an iterative, data-driven process requiring version control and robust testing.",
+  },
+];
+
+const BADGES = [
+  { id: 'prompt-architect', icon: '✍️', label: 'Prompt Architect', color: '#2563EB', bg: 'rgba(37,99,235,0.1)', border: '#2563EB' },
+  { id: 'few-shot-master', icon: '🎯', label: 'Few-Shot Master', color: '#0F766E', bg: 'rgba(15,118,110,0.1)', border: '#0F766E' },
+  { id: 'context-navigator', icon: '🗺️', label: 'Context Navigator', color: '#7C3AED', bg: 'rgba(124,58,237,0.1)', border: '#7C3AED' },
+  { id: 'model-strategist', icon: '🧠', label: 'Model Strategist', color: '#C2410C', bg: 'rgba(194,65,12,0.1)', border: '#C2410C' },
+  { id: 'refinement-expert', icon: '🔬', label: 'Refinement Expert', color: '#DB2777', bg: 'rgba(219,39,119,0.1)', border: '#DB2777' },
+];
+
+const SECTION_XP = 50;
+const MAX_QUIZ_XP_PER_CONCEPT = 100;
+
+function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
+  const readingXP = completedSections.size * SECTION_XP;
+  const quizXP = Object.values(conceptStates).reduce((sum, state) => sum + Math.round(state.pKnow * MAX_QUIZ_XP_PER_CONCEPT), 0);
+  return { readingXP, quizXP, total: readingXP + quizXP };
+}
+
+function getLevel(total: number) {
+  if (total >= 600) return { label: 'Builder', color: '#2563EB', min: 600 };
+  if (total >= 350) return { label: 'Operator', color: '#0F766E', min: 350 };
+  if (total >= 150) return { label: 'Explorer', color: '#7C3AED', min: 150 };
+  return { label: 'Curious', color: 'var(--ed-ink3)', min: 0 };
+}
+
+function getNextLevel(total: number) {
+  if (total < 150) return { label: 'Explorer', min: 150 };
+  if (total < 350) return { label: 'Operator', min: 350 };
+  if (total < 600) return { label: 'Builder', min: 600 };
+  return null;
+}
+
+// --- Shared Components ---
+
+const AirtribeLogo: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="20" height="20" rx="4" fill="#2563EB" />
+    <path d="M7 17L12 7L17 17H15L12 11L9 17H7Z" fill="white" />
+  </svg>
+);
+
+const TiltCard: React.FC<{ children: React.ReactNode; style?: CSSProperties }> = ({ children, style }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width; // 0 to 1
+    const y = (e.clientY - top) / height; // 0 to 1
+    setMousePosition({ x, y });
+  }, []);
+
+  const transform = isHovered
+    ? `perspective(1000px) rotateX(${(mousePosition.y - 0.5) * 20}deg) rotateY(${(0.5 - mousePosition.x) * 20}deg) scale3d(1.015, 1.015, 1.015)`
+    : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        transformStyle: 'preserve-3d',
+        transition: 'transform 0.18s ease-out',
+        ...style,
+      }}
+      initial={false}
+      animate={{ transform }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// --- Interactive Tool Components ---
+
+const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  const [activeChips, setActiveChips] = useState<{ [key: string]: boolean }>({
+    Role: false,
+    Task: false,
+    Context: false,
+    Format: false,
+    Constraints: false,
+  });
+
+  const toggleChip = (chip: string) => {
+    setActiveChips((prev) => ({ ...prev, [chip]: !prev[chip] }));
+  };
+
+  const chips = ['Role', 'Task', 'Context', 'Format', 'Constraints'];
+
+  const assembledPrompt = chips
+    .filter((chip) => activeChips[chip])
+    .map((chip) => {
+      if (track === 'non-tech') {
+        switch (chip) {
+          case 'Role': return 'You are a clinical documentation assistant.';
+          case 'Task': return 'Summarize the patient\'s discharge plan.';
+          case 'Context': return 'Use only the provided care notes from the last 7 days.';
+          case 'Format': return 'Output a bulleted list of key actions for home care.';
+          case 'Constraints': return 'Ensure a professional, empathetic tone. Do not include PHI directly.';
+          default: return '';
+        }
+      } else { // tech track
+        switch (chip) {
+          case 'Role': return 'System: You are an API endpoint for generating code snippets.';
+          case 'Task': return 'User: Generate a Python function to parse CSV data.';
+          case 'Context': return 'System: The CSV has headers. Use the `csv` module. User: Data: [CSV_DATA_HERE]';
+          case 'Format': return 'System: Output only the Python code block, no explanations. User: Format: JSON with `code` field.';
+          case 'Constraints': return 'System: Ensure the function handles missing values gracefully. User: Max 100 lines of code.';
+          default: return '';
+        }
+      }
+    })
+    .join('\n\n');
+
+  const qualityScore = Object.values(activeChips).filter(Boolean).length * 20;
+  const qualityColor = qualityScore === 100 ? '#22C55E' : '#EAB308';
+
+  const chipStyle: CSSProperties = {
+    padding: '10px 15px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginBottom: '8px',
+    transition: 'background-color 0.2s ease, border-color 0.2s ease',
+    display: 'inline-block',
+    marginRight: '10px',
+    fontWeight: 600,
+    fontSize: '14px',
+  };
+
+  return (
+    <TiltCard style={{
+      background: '#0F172A',
+      borderRadius: '12px',
+      padding: '20px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+      color: '#E2E8F0',
+      maxWidth: '700px',
+      margin: '0 auto',
+    }}>
+      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
+        Assemble Your Prompt
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+        {chips.map((chip) => (
+          <div
+            key={chip}
+            onClick={() => toggleChip(chip)}
+            style={{
+              ...chipStyle,
+              backgroundColor: activeChips[chip] ? ACCENT : '#1E293B',
+              border: `1px solid ${activeChips[chip] ? ACCENT : '#475569'}`,
+              color: activeChips[chip] ? 'white' : '#CBD5E1',
+            }}
+          >
+            {chip}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Assembled Prompt:</div>
+        <div style={{
+          backgroundColor: '#1E293B',
+          border: '1px solid #475569',
+          borderRadius: '8px',
+          padding: '15px',
+          minHeight: '120px',
+          whiteSpace: 'pre-wrap',
+          fontFamily: 'monospace',
+          fontSize: '13px',
+          color: '#E2E8F0',
+        }}>
+          {assembledPrompt || 'Click chips above to build your prompt...'}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8' }}>Output Quality:</div>
+        <motion.div
+          key={qualityScore}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: qualityColor,
+            minWidth: '60px',
+            textAlign: 'right',
+          }}
+        >
+          {qualityScore}%
+        </motion.div>
+      </div>
+    </TiltCard>
+  );
+};
+
+const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  const examples = [
+    {
+      id: 1,
+      text: track === 'non-tech'
+        ? "Patient's procedure was pre-authorized, but the claim was denied due to 'lack of medical necessity' by the reviewer."
+        : "User reported 'cannot connect to VPN', but logs show successful authentication. Suspect local network issue.",
+      label: '',
+      correctLabel: track === 'non-tech' ? 'Pre-Auth - Medical Necessity' : 'Network - Local',
+    },
+    {
+      id: 2,
+      text: track === 'non-tech'
+        ? "Claim for physical therapy denied as 'exceeds coverage limits' despite clear physician order for 12 sessions."
+        : "Database query performance is degrading. Index rebuilds didn't help. Looking at slow query logs.",
+      label: '',
+      correctLabel: track === 'non-tech' ? 'Coverage Limit' : 'Database - Performance',
+    },
+    {
+      id: 3,
+      text: track === 'non-tech'
+        ? "Emergency room visit for severe abdominal pain, but insurance states 'non-emergent' and denied claim."
+        : "Server X is unresponsive. Ping fails. Checked power, network cable. Suspect hardware failure.",
+      label: '',
+      correctLabel: track === 'non-tech' ? 'Non-Emergent Denial' : 'Server - Hardware',
+    },
+  ];
+
+  const labels = track === 'non-tech'
+    ? ['Pre-Auth - Medical Necessity', 'Coverage Limit', 'Non-Emergent Denial', 'Billing Error']
+    : ['Network - Local', 'Database - Performance', 'Server - Hardware', 'Application - Bug'];
+
+  const [exampleStates, setExampleStates] = useState(examples);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleLabelChange = (id: number, newLabel: string) => {
+    setExampleStates((prev) =>
+      prev.map((ex) => (ex.id === id ? { ...ex, label: newLabel } : ex))
+    );
+    setAccuracy(null);
+    setShowResults(false);
+  };
+
+  const runClassification = () => {
+    const correctCount = exampleStates.filter((ex) => ex.label === ex.correctLabel).length;
+    const newAccuracy = (correctCount / examples.length) * 100;
+    setAccuracy(newAccuracy);
+    setShowResults(true);
+  };
+
+  const zeroShotAccuracy = 62; // Baseline
+
+  const containerStyle: CSSProperties = {
+    background: '#0F172A',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+    color: '#E2E8F0',
+    maxWidth: '700px',
+    margin: '0 auto',
+  };
+
+  const exampleCardStyle: CSSProperties = {
+    backgroundColor: '#1E293B',
+    border: '1px solid #475569',
+    borderRadius: '8px',
+    padding: '15px',
+    marginBottom: '15px',
+    fontSize: '14px',
+    color: '#CBD5E1',
+  };
+
+  const labelSelectStyle: CSSProperties = {
+    width: '100%',
+    padding: '8px',
+    borderRadius: '6px',
+    border: '1px solid #475569',
+    backgroundColor: '#334155',
+    color: '#E2E8F0',
+    marginTop: '10px',
+    fontSize: '14px',
+  };
+
+  const buttonStyle: CSSProperties = {
+    backgroundColor: ACCENT,
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '8px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: 600,
+    marginTop: '15px',
+    transition: 'background-color 0.2s ease',
+  };
+
+  return (
+    <TiltCard style={containerStyle}>
+      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
+        Few-Shot Classification
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Unlabeled Examples:</div>
+        {exampleStates.map((ex) => (
+          <div key={ex.id} style={exampleCardStyle}>
+            <p>{ex.text}</p>
+            <select
+              value={ex.label}
+              onChange={(e) => handleLabelChange(ex.id, e.target.value)}
+              style={labelSelectStyle}
+            >
+              <option value="">Select a label</option>
+              {labels.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={runClassification}
+        disabled={exampleStates.some(ex => !ex.label)}
+        style={{
+          ...buttonStyle,
+          opacity: exampleStates.some(ex => !ex.label) ? 0.6 : 1,
+          cursor: exampleStates.some(ex => !ex.label) ? 'not-allowed' : 'pointer',
+        }}
+      >
+        Run Classification
+      </button>
+
+      <AnimatePresence>
+        {showResults && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #475569' }}
+          >
+            <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '10px' }}>Classification Results:</div>
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '14px', color: '#94A3B8' }}>Zero-Shot Baseline</div>
+                <div style={{ fontSize: '28px', fontWeight: 700, color: '#EAB308' }}>{zeroShotAccuracy}%</div>
+              </div>
+              <div style={{ fontSize: '30px', color: '#94A3B8' }}>→</div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '14px', color: '#94A3B8' }}>With Your Examples</div>
+                <motion.div
+                  key={accuracy}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  style={{ fontSize: '28px', fontWeight: 700, color: accuracy && accuracy > zeroShotAccuracy ? '#22C55E' : '#EAB308' }}
+                >
+                  {accuracy !== null ? `${accuracy}%` : '-'}
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </TiltCard>
+  );
+};
+
+const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  const segmentsData = [
+    { id: 's1', label: 'Intro & Patient Demographics', tokens: 200, content: track === 'non-tech' ? 'Patient: Jane Doe, 68 y.o. Admitted 2023-10-26 with pneumonia.' : 'Incident: DB outage. Server: DB01. Time: 2023-10-26 14:00 UTC.' },
+    { id: 's2', label: 'Admission Notes & History', tokens: 200, content: track === 'non-tech' ? 'History of COPD, hypertension. Presented with cough, fever, dyspnea.' : 'Root cause: High CPU on DB01. Initial diagnosis: runaway query.' },
+    { id: 's3', label: 'Treatment & Progress', tokens: 200, content: track === 'non-tech' ? 'Started on Azithromycin, O2 therapy. Improved respiratory status by day 3.' : 'Actions: Killed PID 12345. DB service restarted. Monitoring metrics.' },
+    { id: 's4', label: 'Critical Event / Key Finding', tokens: 200, content: track === 'non-tech' ? 'NOTE: Developed acute kidney injury on day 4 due to suspected drug interaction with ACE inhibitor. ACE stopped, renal function improving.' : 'CRITICAL: During restart, data corruption detected in `user_sessions` table. Recovery from backup initiated.' },
+    { id: 's5', label: 'Discharge Plan / Resolution', tokens: 200, content: track === 'non-tech' ? 'Discharge planned for 2023-11-02. Follow-up with nephrology. Home care instructions provided.' : 'Resolution: `user_sessions` restored. Service fully operational by 16:30 UTC. Post-mortem scheduled.' },
+  ];
+
+  const [includedSegments, setIncludedSegments] = useState<string[]>(segmentsData.map(s => s.id));
+
+  const toggleSegment = (id: string) => {
+    setIncludedSegments((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
+
+  const totalTokens = includedSegments.reduce((sum, id) => {
+    const segment = segmentsData.find(s => s.id === id);
+    return sum + (segment?.tokens || 0);
+  }, 0);
+
+  const maxTokens = 1000;
+
+  const missedInfo = segmentsData
+    .filter(s => !includedSegments.includes(s.id))
+    .map(s => s.content);
+
+  const containerStyle: CSSProperties = {
+    background: '#0F172A',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+    color: '#E2E8F0',
+    maxWidth: '700px',
+    margin: '0 auto',
+  };
+
+  const segmentChipStyle: CSSProperties = {
+    padding: '8px 12px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    marginBottom: '8px',
+    transition: 'background-color 0.2s ease, border-color 0.2s ease',
+    display: 'inline-block',
+    marginRight: '10px',
+    fontSize: '13px',
+    fontWeight: 500,
+  };
+
+  const outputPanelStyle: CSSProperties = {
+    backgroundColor: '#1E293B',
+    border: '1px solid #475569',
+    borderRadius: '8px',
+    padding: '15px',
+    minHeight: '100px',
+    whiteSpace: 'pre-wrap',
+    fontFamily: 'monospace',
+    fontSize: '13px',
+    color: '#E2E8F0',
+    marginTop: '15px',
+  };
+
+  return (
+    <TiltCard style={containerStyle}>
+      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
+        Context Window Inspector
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Document Segments:</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {segmentsData.map((segment) => (
+            <div
+              key={segment.id}
+              onClick={() => toggleSegment(segment.id)}
+              style={{
+                ...segmentChipStyle,
+                backgroundColor: includedSegments.includes(segment.id) ? ACCENT : '#1E293B',
+                border: `1px solid ${includedSegments.includes(segment.id) ? ACCENT : '#475569'}`,
+                color: includedSegments.includes(segment.id) ? 'white' : '#CBD5E1',
+              }}
+            >
+              {segment.label} ({segment.tokens} tokens)
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', paddingTop: '10px', borderTop: '1px solid #475569' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8' }}>Tokens in Context:</div>
+        <motion.div
+          key={totalTokens}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: totalTokens > maxTokens ? '#EF4444' : '#22C55E',
+          }}
+        >
+          {totalTokens} / {maxTokens}
+        </motion.div>
+      </div>
+
+      <div>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>
+          What the Model Might Miss (Excluded Context):
+        </div>
+        <div style={outputPanelStyle}>
+          <AnimatePresence mode="wait">
+            {missedInfo.length > 0 ? (
+              <motion.div
+                key="missed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {missedInfo.map((info, i) => (
+                  <p key={i} style={{ marginBottom: '8px' }}>
+                    <span style={{ color: '#EF4444', fontWeight: 600 }}>[MISSED]</span> {info}
+                  </p>
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="all-included"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                style={{ color: '#22C55E' }}
+              >
+                All relevant context is included.
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </TiltCard>
+  );
+};
+
+const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  type Model = 'GPT-4o' | 'Claude Haiku' | 'Gemini Flash';
+  type TaskType = 'summarization' | 'classification' | 'complex_reasoning';
+
+  const models = {
+    'GPT-4o': { cost: 5, speed: 'Fast', quality: { summarization: 90, classification: 95, complex_reasoning: 98 } }, // per 1M tokens
+    'Claude Haiku': { cost: 0.25, speed: 'Very Fast', quality: { summarization: 85, classification: 92, complex_reasoning: 80 } },
+    'Gemini Flash': { cost: 0.35, speed: 'Very Fast', quality: { summarization: 88, classification: 90, complex_reasoning: 85 } },
+  };
+
+  const tasks: { id: string; label: string; type: TaskType; volume: number; optimalModel: Model }[] = [
+    {
+      id: 'task1',
+      label: track === 'non-tech' ? 'High-volume intake form summarization' : 'Daily log anomaly detection',
+      type: 'summarization',
+      volume: 200, // per day
+      optimalModel: 'Claude Haiku',
+    },
+    {
+      id: 'task2',
+      label: track === 'non-tech' ? 'Insurance exception classification' : 'IT ticket routing',
+      type: 'classification',
+      volume: 100, // per day
+      optimalModel: 'Claude Haiku',
+    },
+    {
+      id: 'task3',
+      label: track === 'non-tech' ? 'Complex patient care plan generation' : 'Root cause analysis for critical incidents',
+      type: 'complex_reasoning',
+      volume: 5, // per day
+      optimalModel: 'GPT-4o',
+    },
+  ];
+
+  const [selectedModels, setSelectedModels] = useState<{ [key: string]: Model }>(
+    Object.fromEntries(tasks.map(task => [task.id, 'GPT-4o']))
+  );
+
+  const handleModelChange = (taskId: string, model: Model) => {
+    setSelectedModels((prev) => ({ ...prev, [taskId]: model }));
+  };
+
+  const calculateMonthlyCost = () => {
+    let totalCost = 0;
+    tasks.forEach(task => {
+      const model = selectedModels[task.id];
+      const modelCostPer1M = models[model].cost; // Cost per 1M tokens
+      const dailyVolume = task.volume;
+      // Assuming average 2k tokens per interaction (input+output) for simplicity
+      // 2k tokens * dailyVolume * 30 days / 1,000,000 tokens * modelCostPer1M
+      totalCost += (2000 * dailyVolume * 30 / 1_000_000) * modelCostPer1M;
+    });
+    return totalCost;
+  };
+
+  const totalMonthlyCost = calculateMonthlyCost();
+
+  const containerStyle: CSSProperties = {
+    background: '#0F172A',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+    color: '#E2E8F0',
+    maxWidth: '700px',
+    margin: '0 auto',
+  };
+
+  const taskCardStyle: CSSProperties = {
+    backgroundColor: '#1E293B',
+    border: '1px solid #475569',
+    borderRadius: '8px',
+    padding: '15px',
+    marginBottom: '15px',
+  };
+
+  const selectStyle: CSSProperties = {
+    width: '100%',
+    padding: '8px',
+    borderRadius: '6px',
+    border: '1px solid #475569',
+    backgroundColor: '#334155',
+    color: '#E2E8F0',
+    marginTop: '10px',
+    fontSize: '14px',
+  };
+
+  const modelInfoStyle: CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '12px',
+    color: '#94A3B8',
+    marginTop: '5px',
+  };
+
+  return (
+    <TiltCard style={containerStyle}>
+      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
+        Model Selection & Cost Estimator
+      </div>
+
+      {tasks.map((task) => {
+        const selectedModel = selectedModels[task.id];
+        const modelData = models[selectedModel];
+        const isOptimal = selectedModel === task.optimalModel;
+
+        return (
+          <div key={task.id} style={taskCardStyle}>
+            <div style={{ fontSize: '15px', fontWeight: 600, color: '#CBD5E1', marginBottom: '8px' }}>
+              {task.label} <span style={{ fontSize: '12px', color: '#94A3B8' }}>({task.volume}/day)</span>
+            </div>
+            <select
+              value={selectedModel}
+              onChange={(e) => handleModelChange(task.id, e.target.value as Model)}
+              style={selectStyle}
+            >
+              {Object.keys(models).map((modelName) => (
+                <option key={modelName} value={modelName}>
+                  {modelName}
+                </option>
+              ))}
+            </select>
+            <div style={modelInfoStyle}>
+              <span>Cost: ~${modelData.cost.toFixed(2)}/1M tokens</span>
+              <span>Speed: {modelData.speed}</span>
+              <span>Quality: {modelData.quality[task.type]}%</span>
+            </div>
+            {isOptimal && (
+              <div style={{ fontSize: '12px', color: '#22C55E', marginTop: '5px', fontWeight: 600 }}>
+                Optimal choice for this task!
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      <div style={{
+        marginTop: '20px',
+        paddingTop: '20px',
+        borderTop: '1px solid #475569',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{ fontSize: '16px', fontWeight: 600, color: '#CBD5E1' }}>Estimated Monthly Cost:</div>
+        <motion.div
+          key={totalMonthlyCost}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          style={{ fontSize: '28px', fontWeight: 700, color: totalMonthlyCost < 1000 ? '#22C55E' : '#EAB308' }}
+        >
+          ${totalMonthlyCost.toFixed(2)}
+        </motion.div>
+      </div>
+    </TiltCard>
+  );
+};
+
+const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  const [version, setVersion] = useState(1);
+
+  const prompts = {
+    v1: {
+      text: track === 'non-tech'
+        ? "Write a discharge summary for this patient."
+        : "Summarize incident report.",
+      output: track === 'non-tech'
+        ? "Patient was discharged. They should follow up with their doctor. Take medications as prescribed. (Vague, misses key details)"
+        : "The system had an issue. It was fixed. (Generic, lacks specifics)",
+    },
+    v2: {
+      text: track === 'non-tech'
+        ? `You are a clinical documentation assistant. Summarize the patient's discharge plan from the provided care notes. Output a bulleted list of key actions for home care. Ensure a professional, empathetic tone.`
+        : `System: You are an API endpoint for generating structured summaries.
+User: Summarize the incident report.
+System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact'.`,
+      output: track === 'non-tech'
+        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks.\n• Continue Azithromycin for 5 days. (Better, but still misses AKI context)"
+        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service"], "impact": "Partial service degradation for 2.5 hours." } (Structured, but misses data corruption detail)`,
+    },
+    v3: {
+      text: track === 'non-tech'
+        ? `You are a clinical documentation assistant. Summarize the patient's discharge plan from the provided care notes (last 7 days only). Output a bulleted list of key actions for home care. Ensure a professional, empathetic tone.
+Example: For a patient with AKI, include specific dietary restrictions and follow-up with nephrology.`
+        : `System: You are an API endpoint for generating structured summaries.
+User: Summarize the incident report.
+System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact', 'data_integrity_status'.
+Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromised, restored from backup'.`,
+      output: track === 'non-tech'
+        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks for AKI management.\n• Continue Azithromycin for 5 days.\n• Dietary restrictions: low sodium, monitor fluid intake. (Comprehensive, includes AKI specifics)"
+        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service", "Restored user_sessions table"], "impact": "Partial service degradation for 2.5 hours.", "data_integrity_status": "Compromised, restored from backup" } (Complete, includes critical data integrity info)`,
+    },
+  };
+
+  const currentPrompt = prompts[`v${version}` as keyof typeof prompts].text;
+  const currentOutput = prompts[`v${version}` as keyof typeof prompts].output;
+
+  const getDiff = (prev: string, current: string) => {
+    const prevLines = prev.split('\n');
+    const currentLines = current.split('\n');
+    const diff: { type: 'added' | 'removed' | 'unchanged'; text: string }[] = [];
+
+    // Simple line-by-line diff for illustration
+    const maxLength = Math.max(prevLines.length, currentLines.length);
+    for (let i = 0; i < maxLength; i++) {
+      const prevLine = prevLines[i];
+      const currentLine = currentLines[i];
+
+      if (prevLine === currentLine) {
+        diff.push({ type: 'unchanged', text: currentLine });
+      } else {
+        if (prevLine !== undefined && !currentLines.includes(prevLine)) {
+          diff.push({ type: 'removed', text: prevLine });
+        }
+        if (currentLine !== undefined && !prevLines.includes(currentLine)) {
+          diff.push({ type: 'added', text: currentLine });
+        } else if (currentLine !== undefined && prevLines.includes(currentLine) && prevLine !== currentLine) {
+          // If line changed but exists in both, treat as changed (simplified)
+          diff.push({ type: 'unchanged', text: currentLine });
+        }
+      }
+    }
+    return diff.filter(d => d.text !== undefined);
+  };
+
+  const diffOutput = version > 1 ? getDiff(prompts[`v${version - 1}` as keyof typeof prompts].text, currentPrompt) : [{ type: 'unchanged', text: currentPrompt }];
+
+  const containerStyle: CSSProperties = {
+    background: '#0F172A',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+    color: '#E2E8F0',
+    maxWidth: '700px',
+    margin: '0 auto',
+  };
+
+  const promptBoxStyle: CSSProperties = {
+    backgroundColor: '#1E293B',
+    border: '1px solid #475569',
+    borderRadius: '8px',
+    padding: '15px',
+    minHeight: '150px',
+    whiteSpace: 'pre-wrap',
+    fontFamily: 'monospace',
+    fontSize: '13px',
+    color: '#E2E8F0',
+    marginBottom: '15px',
+  };
+
+  const outputBoxStyle: CSSProperties = {
+    ...promptBoxStyle,
+    minHeight: '100px',
+    backgroundColor: '#1E293B',
+  };
+
+  const buttonStyle: CSSProperties = {
+    backgroundColor: ACCENT,
+    color: 'white',
+    padding: '8px 15px',
+    borderRadius: '6px',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 600,
+    margin: '0 5px',
+    transition: 'background-color 0.2s ease',
+  };
+
+  return (
+    <TiltCard style={containerStyle}>
+      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
+        Prompt Refinement Loop
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <button
+          onClick={() => setVersion(1)}
+          style={{ ...buttonStyle, backgroundColor: version === 1 ? ACCENT : '#334155' }}
+        >
+          Version 1
+        </button>
+        <button
+          onClick={() => setVersion(2)}
+          style={{ ...buttonStyle, backgroundColor: version === 2 ? ACCENT : '#334155' }}
+        >
+          Version 2
+        </button>
+        <button
+          onClick={() => setVersion(3)}
+          style={{ ...buttonStyle, backgroundColor: version === 3 ? ACCENT : '#334155' }}
+        >
+          Version 3
+        </button>
+      </div>
+
+      <div style={{ marginBottom: '15px' }}>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Current Prompt (v{version}):</div>
+        <div style={promptBoxStyle}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={version}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {diffOutput.map((line, i) => (
+                <span key={i} style={{
+                  color: line.type === 'added' ? '#22C55E' : (line.type === 'removed' ? '#EF4444' : '#E2E8F0'),
+                  textDecoration: line.type === 'removed' ? 'line-through' : 'none',
+                  display: 'block',
+                }}>
+                  {line.text}
+                </span>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      <div>
+        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Model Output:</div>
+        <div style={outputBoxStyle}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`output-${version}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {currentOutput}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </TiltCard>
+  );
+};
+
+// --- Track Meta ---
+
+const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; moduleContext: string }> = {
+  'non-tech': {
+    label: 'Workflow & Operator Track',
+    introTitle: 'Prompt Engineering · Operator Lens',
+    moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 02 · Prompt Engineering & LLM Foundations. Follows Rhea, an operations lead at Northstar Health, as she moves from inconsistent AI outputs to reliable, structured prompts — mastering prompt anatomy, few-shot examples, context management, model selection, and iterative refinement.`,
+  },
+  tech: {
+    label: 'Tech Builder Track',
+    introTitle: 'Prompt Engineering · Builder Lens',
+    moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 02 · Prompt Engineering & LLM Foundations. Follows Aarav, a platform engineer at Northstar Health, as he moves from unpredictable API responses to production-grade prompt engineering — covering system messages, response_format constraints, token budgets, model routing, and prompt versioning.`,
+  },
+};
+
+// --- Left Nav ---
+
+function LeftNav({ completedSections, activeSection, track }: { completedSections: Set<string>; activeSection: string | null; track: GenAITrack }) {
+  const donePct = Math.round((completedSections.size / SECTIONS.length) * 100);
+  return (
+    <aside style={{ position: 'sticky', top: '80px' }}>
+      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '18px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+        <div style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid var(--ed-rule)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
+          <div style={{ height: '2px', background: 'var(--ed-rule)', borderRadius: '1px', overflow: 'hidden' }}>
+            <motion.div style={{ height: '100%', background: ACCENT }} animate={{ width: `${donePct}%` }} transition={{ duration: 0.5 }} />
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{donePct}% · {completedSections.size}/{SECTIONS.length} parts</div>
+        </div>
+        <nav>
+          {SECTIONS.map((section, idx) => {
+            const done = completedSections.has(section.id);
+            const active = activeSection === section.id && !done;
+            return (
+              <motion.button
+                key={section.id}
+                onClick={() => document.querySelector(`[data-section="${section.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                whileHover={{ x: 2 }}
+                style={{ display: 'flex', alignItems: 'baseline', gap: '10px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', textAlign: 'left', borderLeft: active ? `2px solid ${ACCENT}` : '2px solid transparent', paddingLeft: '8px', marginLeft: '-8px' }}
+              >
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: done || active ? ACCENT : 'var(--ed-rule)', minWidth: '20px' }}>{String(idx + 1).padStart(2, '0')}.</span>
+                <span style={{ fontSize: '12px', fontWeight: active ? 600 : 400, color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', lineHeight: 1.4 }}>{section.label}{done ? ' ✓' : ''}</span>
+              </motion.button>
+            );
+          })}
+        </nav>
+        <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--ed-rule)', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>
+          Week 0 pre-read · {TRACK_META[track].label}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+// --- Sidebar ---
+
+function Sidebar({ completedSections, progressPct, prevXp }: { completedSections: Set<string>; progressPct: number; prevXp: number }) {
+  const store = useLearnerStore();
+  const xp = computeXP(completedSections, store.conceptStates);
+  const total = xp.total;
+  const level = getLevel(total);
+  const nextLvl = getNextLevel(total);
+  const levelPct = nextLvl ? Math.round(((total - level.min) / (nextLvl.min - level.min)) * 100) : 100;
+  const [showGain, setShowGain] = useState(false);
+  const [gainAmt, setGainAmt] = useState(0);
+  const gainRef = useRef(prevXp);
+
+  useEffect(() => {
+    const diff = total - gainRef.current;
+    if (diff > 0) {
+      setGainAmt(diff);
+      setShowGain(true);
+      gainRef.current = total;
+      const timer = setTimeout(() => setShowGain(false), 1800);
+      return () => clearTimeout(timer);
+    }
+  }, [total]);
+
+  return (
+    <aside style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column', gap: '10px', minWidth: 0 }}>
+      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderTop: `3px solid ${ACCENT}`, borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '2px' }}>Level</div>
+            <div style={{ fontSize: '14px', fontWeight: 800, color: level.color }}>{level.label}</div>
+          </div>
+          <div style={{ textAlign: 'right', position: 'relative' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '2px' }}>XP</div>
+            <motion.div key={total} animate={{ scale: [1.12, 1] }} transition={{ duration: 0.25 }} style={{ fontSize: '22px', fontWeight: 900, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{total}</motion.div>
+            <AnimatePresence>{showGain ? <motion.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -20 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }} style={{ position: 'absolute', right: 0, top: '-6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: '#0D7A5A' }}>+{gainAmt}</motion.div> : null}</AnimatePresence>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
+          <div style={{ flex: 1, padding: '5px 8px', borderRadius: '5px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' }}>Reading</div>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: ACCENT }}>{xp.readingXP} xp</div>
+          </div>
+          <div style={{ flex: 1, padding: '5px 8px', borderRadius: '5px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' }}>Quizzes</div>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0D7A5A' }}>{xp.quizXP} xp</div>
+          </div>
+        </div>
+        {nextLvl ? (
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+              <span style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{levelPct}% to {nextLvl.label}</span>
+              <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{nextLvl.min - total} xp</span>
+            </div>
+            <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+              <motion.div animate={{ width: `${levelPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
+            </div>
+          </>
+        ) : <div style={{ fontSize: '11px', color: ACCENT, fontWeight: 700 }}>✦ Max level reached</div>}
+      </div>
+
+      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)' }}>Module Progress</div>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: ACCENT }}>{progressPct}%</span>
+        </div>
+        <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+          <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
+        </div>
+        <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--ed-ink3)' }}>{completedSections.size} of {SECTIONS.length} parts · 20 min</div>
+      </div>
+
+      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)' }}>Badges</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{completedSections.size}/{BADGES.length}</div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+          {BADGES.map((badge) => {
+            const unlocked = completedSections.has(badge.id);
+            return (
+              <div key={badge.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-cream)', border: `1px solid ${unlocked ? badge.border : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: unlocked ? badge.color : 'var(--ed-ink3)', filter: unlocked ? 'none' : 'grayscale(1) opacity(0.35)', boxShadow: unlocked ? `0 6px 16px ${badge.color}22` : 'none' }}>{badge.icon}</div>
+                <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center', maxWidth: '40px', lineHeight: 1.2 }}>{badge.label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}`, borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: ACCENT, marginBottom: '10px' }}>Concept Mastery</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+          {CONCEPTS.map((concept) => {
+            const state = store.conceptStates[concept.id];
+            const pct = state ? Math.round(state.pKnow * 100) : 0;
+            return (
+              <div key={concept.id}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '4px' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--ed-ink2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept.label}</span>
+                  <span style={{ fontSize: '10px', color: pct > 0 ? concept.color : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{pct}%</span>
+                </div>
+                <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: concept.color, borderRadius: '2px' }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery</div>
+      </div>
+    </aside>
+  );
+}
+
+// --- Main Content Component ---
+
+function CoreContent({ track }: { track: GenAITrack }) {
+  const moduleContext = TRACK_META[track].moduleContext;
+
+
+  return (
+    <>
+      {/* Module Hero */}
+      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
+        <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "\'Lora\',\'Georgia\',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>02</div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 02</div>
+          <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "\'Lora\', Georgia, serif" }}>Getting the Model to Do What You Mean</h1>
+          <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "\'Lora\', Georgia, serif", marginBottom: '28px' }}>&ldquo;A prompt is a specification. Vague specs produce vague outputs.&rdquo;</p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
+            <div style={{ background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                <GenAIMentorFace mentor={track === 'tech' ? 'kabir' : 'anika'} size={44} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{track === 'tech' ? 'Aarav' : 'Rhea'}</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health'}</div>
+                </div>
+                <div style={{ marginLeft: 'auto', fontFamily: "\'JetBrains Mono\', monospace", fontSize: '8px', fontWeight: 700, color: track === 'tech' ? '#0F766E' : ACCENT, background: track === 'tech' ? 'rgba(15,118,110,0.1)' : `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em' }}>PROTAGONIST</div>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{track === 'tech' ? "LLM integration is working in dev \u2014 unpredictable in staging. Time to treat prompts like code." : "Discharge summaries are good half the time. She needs to understand why, and fix it."}</div>
+            </div>
+            {([
+              { name: 'Anika', role: 'AI Workflow Strategist', desc: 'Asks what spec the model was given before debugging the model.', color: '#7C3AED', mentorId: 'anika' as const },
+              { name: 'Kabir', role: 'Operations Intelligence', desc: 'Distinguishes what few-shot examples teach vs what you think they teach.', color: '#0F766E', mentorId: 'kabir' as const },
+              { name: 'Leela', role: 'Risk & Compliance', desc: 'First to flag when a prompt refinement introduces a safety regression.', color: '#C2410C', mentorId: 'leela' as const },
+            ] as const).map(m => (
+              <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <GenAIMentorFace mentor={m.mentorId} size={34} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
+            {[
+              'Understand the five anatomy components of a reliable prompt',
+              'Use zero-shot and few-shot examples to inject domain knowledge',
+              'Manage context windows so critical information reaches the model',
+              'Select models based on task complexity, volume, and cost',
+              'Build an iterative refinement loop with version control and regression testing',
+            ].map((obj, i) => (
+              <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 4 ? '8px' : 0, alignItems: 'flex-start' }}>
+                <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', fontFamily: "\'JetBrains Mono\', monospace", marginTop: '2px' }}>0{i + 1}</span>
+                <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{obj}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : `rgba(${ACCENT_RGB},0.18)`}` }}>
+        <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: track === 'tech' ? '#0F766E' : ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
+        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you write prompts that behave like production code \u2014 predictable, testable, safe to iterate on?" : "Your lens: how do you translate a fuzzy operational requirement into a prompt that gives consistent, trustworthy outputs every time?"}</div>
+      </div>
+
+      <ChapterSection id="genai-m2-anatomy" num="01" accentRgb={ACCENT_RGB} first>
+        {chLabel('Prompt Engineering & LLM Foundations')}
+        {h2("The Anatomy of a Prompt")}
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+          {track === 'non-tech'
+            ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent \u2014 sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
+            : <>Aarav&apos;s first API call for entity extraction: just the raw user message, no system prompt, no output format. The result is verbose, occasionally hallucinated, and unpredictable in structure. He runs it again with the same input and gets a different response. Rohan points to the missing output contract instead.</>}
+        </SituationCard>
+        {para(track === 'non-tech'
+          ? "A prompt is not a question \u2014 it is a specification. When Rhea writes 'Write a discharge summary', she has specified nothing. The model fills every unspecified dimension with its own defaults: tone, length, what to include."
+          : "Without a system message, the model has no persona, no role constraints, no output contract. It behaves like a general-purpose chatbot. Aarav's extraction task needs the model to behave like a structured API endpoint \u2014 that requires an explicit specification."
+        )}
+        {para(track === 'non-tech'
+          ? "The five anatomy components: Role (who the model should act as), Task (what it needs to do), Context (what information to use), Format (how the output should be structured), Constraints (rules, tone, exclusions). Each component eliminates a dimension of variance."
+          : "The five components map to API parameters: System Message (role, scope, instructions), User Message (specific task + input data), Context Payload, Response Format (JSON schema, markdown), Parameters (temperature, max_tokens). Together they define a deterministic contract."
+        )}
+        {pullQuote("A vague brief produces a vague output. The model is not failing \u2014 you are underspecifying.")}
+        <PromptBuilderTool track={track} />
+        <GenAIAvatar
+          name={track === 'non-tech' ? 'Anika' : 'Rohan'}
+          nameColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
+          borderColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
+          conceptId="genai-m2-anatomy"
+          content={<>{track === 'non-tech' ? "Before reaching for a different model, ask: what exactly was specified, and what was left open?" : "Every prompt you write is an API contract. If you wouldn't ship an API without a response schema, don't ship a prompt without an output format."}</>}
+          expandedContent={track === 'non-tech' ? "Consistency isn't a model capability \u2014 it's a prompt property. A well-specified prompt will outperform a vague prompt on a much stronger model." : "System messages are your configuration layer. Treat them with the same discipline as service configuration \u2014 version-controlled, reviewed, tested."}
+          question={track === 'non-tech' ? "Rhea\u2019s discharge summaries vary wildly in tone. What single prompt change has the most impact?" : "Aarav\u2019s entity extraction returns incomplete JSON on 1 in 4 calls. Best targeted fix?"}
+          options={track === 'non-tech' ? [
+            { text: "Add \u2018use professional language\u2019 at the end of the prompt", correct: false, feedback: "Vague style instructions don\u2019t anchor tone \u2014 the model interprets them differently each run." },
+            { text: "Open with \u2018You are a clinical documentation assistant\u2019", correct: true, feedback: "A role declaration anchors persona, tone, and vocabulary. It\u2019s the highest-leverage single change." },
+            { text: "Add five example sentences showing the preferred tone", correct: false, feedback: "Examples help, but a role declaration is a higher-leverage starting point." },
+          ] : [
+            { text: "Increase temperature to get more varied outputs to choose from", correct: false, feedback: "Higher temperature increases randomness \u2014 the opposite of what structured extraction needs." },
+            { text: "Define the output schema in response_format or the system message", correct: true, feedback: "An explicit schema tells the model exactly what fields to populate, eliminating structural guesswork." },
+            { text: "Add a retry loop to discard malformed responses", correct: false, feedback: "Retries treat the symptom, not the cause. Define the output contract instead." },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Look at your last LLM API call. Which of the five anatomy components are missing? Add a system message with role + output format constraint and compare the output." : "Find a prompt your team uses that gives inconsistent results. Identify the missing anatomy components and add them one at a time."} />
+        <QuizEngine
+          conceptId="genai-m2-anatomy"
+          conceptName="Prompt Anatomy"
+          moduleContext={moduleContext}
+          staticQuiz={{
+            conceptId: 'genai-m2-anatomy',
+            question: QUIZZES[0].question[track],
+            options: QUIZZES[0].options[track],
+            correctIndex: QUIZZES[0].correctIndex[track],
+            explanation: QUIZZES[0].explanation[track],
+            keyInsight: QUIZZES[0].keyInsight,
+          }}
+        />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has a structured prompt. But the model still lacks Northstar\u2019s domain knowledge. Next: how to transfer that knowledge without fine-tuning." : "Rhea\u2019s prompts are now structured. But the model still misclassifies her domain-specific insurance categories. Next: how to teach it her domain."} />
+      </ChapterSection>
+
+      <ChapterSection id="genai-m2-fewshot" num="02" accentRgb={ACCENT_RGB}>
+        {chLabel('Zero-Shot vs Few-Shot')}
+        {h2("Examples don\u2019t clarify \u2014 they transfer domain knowledge.")}
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+          {track === 'non-tech'
+            ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization \u2014 Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; \u2014 a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
+            : <>Aarav\u2019s IT ticket classifier runs at 70% accuracy. Network connectivity tickets involving VPN authentication failures keep routing to the wrong team. The categories exist in the prompt. The problem is the model has never seen Northstar\u2019s specific failure patterns.</>}
+        </SituationCard>
+        {para(track === 'non-tech'
+          ? "Zero-shot prompting relies on the model's pre-trained knowledge. When your categories have internal meanings not aligned with general language use, the model has no way to learn the distinction from a label alone."
+          : "The model's training data doesn't include Northstar's internal ticket taxonomy. Without domain-specific examples, it applies general IT knowledge. For a routing system, 'close' means misrouted tickets."
+        )}
+        {para(track === 'non-tech'
+          ? "Three labeled examples of the ambiguous boundary \u2014 showing exactly what distinguishes a 'Pre-Authorization' denial from a 'Coverage Limit' denial in Northstar's context \u2014 can move accuracy from 68% to 91% with no other changes."
+          : "Adding three to five labeled examples per problematic category transfers the classification logic directly. The model learns the boundary you care about, not the one it guessed."
+        )}
+        {keyBox('Two modes of example usage', [
+          'Task exemplars: show the model a correct input-output pair for the whole task',
+          'Boundary examples: show the model where hard-to-distinguish cases land',
+          'Edge cases: show the model what should NOT be classified as a given label',
+        ], '#0F766E')}
+        <FewShotLabeler track={track} />
+        <GenAIAvatar
+          name="Kabir"
+          nameColor="#0F766E"
+          borderColor="#0F766E"
+          conceptId="genai-m2-fewshot"
+          content={<>The question to ask about a few-shot example isn&apos;t &ldquo;is it correct?&rdquo; \u2014 it&apos;s &ldquo;does it show the model the boundary it keeps getting wrong?&rdquo;</>}
+          expandedContent="Most teams add examples of the most common case. Classification errors almost always happen on the most ambiguous cases. Examples are most valuable where the model's prior is weakest."
+          question={track === 'non-tech' ? "Slightly critical feedback keeps classifying as Neutral. What kind of example helps most?" : "Network tickets misclassify despite 5 examples. Most impactful fix?"}
+          options={track === 'non-tech' ? [
+            { text: "More clearly positive examples to anchor the Positive end", correct: false, feedback: "The unclear boundary is Neutral vs Negative \u2014 not Positive vs Neutral." },
+            { text: "Borderline-negative examples explicitly labelled as Negative", correct: true, feedback: "Edge-case examples teach exactly where the ambiguous boundary sits." },
+            { text: "A longer instruction explaining what Negative means", correct: false, feedback: "Instructions describe; examples demonstrate. For subtle boundaries, demonstration wins." },
+          ] : [
+            { text: "Fine-tune the model on Northstar\u2019s full ticket history", correct: false, feedback: "Fine-tuning is expensive and a last resort. More representative few-shot examples come first." },
+            { text: "Add more varied examples covering different connectivity failure scenarios", correct: true, feedback: "Low accuracy with examples usually means they aren\u2019t representative of real-world variance." },
+            { text: "Switch to a more powerful model and use the same examples", correct: false, feedback: "A stronger model won\u2019t compensate for unrepresentative examples \u2014 it\u2019ll just fail more confidently." },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Find a classification endpoint. How many labeled examples per class? For the three most-confused categories, write one boundary example each and measure accuracy." : "Think of an AI task where your team has complained about wrong categories. Write three labeled examples for the most-confused category and add them to the prompt."} />
+        <QuizEngine
+          conceptId="genai-m2-fewshot"
+          conceptName="Zero-Shot vs Few-Shot"
+          moduleContext={moduleContext}
+          staticQuiz={{
+            conceptId: 'genai-m2-fewshot',
+            question: QUIZZES[1].question[track],
+            options: QUIZZES[1].options[track],
+            correctIndex: QUIZZES[1].correctIndex[track],
+            explanation: QUIZZES[1].explanation[track],
+            keyInsight: QUIZZES[1].keyInsight,
+          }}
+        />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has structured prompts and domain examples. But his chatbot forgets context after a few turns. Next: what actually reaches the model \u2014 and what gets silently dropped." : "Rhea\u2019s prompts are well-structured with the right examples. But her summarizer still misses a critical finding on page 7. Next: what the model can actually see."} />
+      </ChapterSection>
+
+      <ChapterSection id="genai-m2-context" num="03" accentRgb={ACCENT_RGB}>
+        {chLabel('Context Window: What Goes In Matters')}
+        {h2("The context window is a spotlight, not a searchlight.")}
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+          {track === 'non-tech'
+            ? <>Rhea feeds 10 pages of patient notes into her summarizer. The output is &ldquo;generally fine&rdquo; until a pharmacist flags a critical drug interaction on page 7 was not in the summary. The model processed the full document and still missed it. This is a context management problem.</>
+            : <>Aarav\u2019s internal support chatbot forgets user instructions after 5\u20136 turns. He checks the API logs: the cumulative message history silently exceeds the model\u2019s 16k token limit. Older messages are dropped without any error.</>}
+        </SituationCard>
+        {para(track === 'non-tech'
+          ? "LLMs process everything within a fixed context window. When content is long, attention distributes unevenly: information in the middle of a large context is systematically less likely to appear in the output \u2014 the 'lost in the middle' phenomenon."
+          : "Every token in the API request counts toward the context window limit. Once that limit is reached, oldest content is silently truncated. The model never receives it, returns no error, and produces degraded outputs."
+        )}
+        {para(track === 'non-tech'
+          ? "The fix isn\u2019t a bigger context window \u2014 it\u2019s intelligent pre-processing: extract critical flags first (adverse drug reactions, key diagnoses), place them at the beginning of the prompt, then include only the relevant sections."
+          : "The fix is explicit context budget management: monitor prompt_tokens in the API response, implement a sliding window retaining only the most recent N turns, and periodically summarize older conversation into a compressed context block."
+        )}
+        <ContextWindowInspector track={track} />
+        <GenAIAvatar
+          name="Anika"
+          nameColor="#7C3AED"
+          borderColor="#7C3AED"
+          conceptId="genai-m2-context"
+          content={<>The model can only use what&apos;s in front of it. If the most critical information is buried in the middle of a large context, it has the same effect as if you never included it.</>}
+          expandedContent="Researchers have documented the 'lost in the middle' effect: critical information in the middle of a long context has lower retrieval accuracy than information at the start or end. Front-load what matters most."
+          question={track === 'non-tech' ? "Rhea\u2019s summarizer misses a critical drug reaction buried on page 7 of 10. Best fix?" : "Aarav\u2019s chatbot forgets instructions after 6 turns. Root cause?"}
+          options={track === 'non-tech' ? [
+            { text: "Request a model with a larger context window", correct: false, feedback: "A bigger window doesn\u2019t fix \u2018lost in the middle\u2019 \u2014 it can make it worse by adding more surrounding filler." },
+            { text: "Pre-extract critical flags and place them at the top of the prompt", correct: true, feedback: "The model prioritizes context at the start. Front-loading critical information ensures it\u2019s seen and included." },
+            { text: "Break the document into chunks and summarize each separately", correct: false, feedback: "Chunking can fragment relationships across sections and may miss the critical finding entirely." },
+          ] : [
+            { text: "Model weights decay during long sessions, losing earlier instructions", correct: false, feedback: "Model weights don\u2019t change during inference. The context window is the only memory in a session." },
+            { text: "Cumulative chat history silently exceeds the token limit, dropping old messages", correct: true, feedback: "Once the context window fills, oldest content is truncated with no error. Monitor prompt_tokens in API responses." },
+            { text: "System message instructions get overridden by user messages over time", correct: false, feedback: "System messages persist but still consume tokens. The issue is budget exhaustion, not override logic." },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Check your most-used LLM call\u2019s token count in the API response. Where is the critical information in the prompt? What would happen if you moved it to the top?" : "Think of an AI summary that missed something important. Where was that information in the source document? What would pre-extraction have looked like?"} />
+        <QuizEngine
+          conceptId="genai-m2-context"
+          conceptName="Context Window"
+          moduleContext={moduleContext}
+          staticQuiz={{
+            conceptId: 'genai-m2-context',
+            question: QUIZZES[2].question[track],
+            options: QUIZZES[2].options[track],
+            correctIndex: QUIZZES[2].correctIndex[track],
+            explanation: QUIZZES[2].explanation[track],
+            keyInsight: QUIZZES[2].keyInsight,
+          }}
+        />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav\u2019s prompts are structured, domain-aware, and context-managed. Now he\u2019s running $12k/month on GPT-4o for tasks that don\u2019t need it. Next: how to select the right model for each task." : "Rhea\u2019s prompts are working reliably. Now Anika asks: is she using the right model for each task, or paying for capability she doesn\u2019t need?"} />
+      </ChapterSection>
+
+      <ChapterSection id="genai-m2-models" num="04" accentRgb={ACCENT_RGB}>
+        {chLabel('Model Selection & Cost')}
+        {h2("The best model for a task is the smallest one that meets the quality bar.")}
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+          {track === 'non-tech'
+            ? <>Rhea assumes GPT-4o is right for everything. She runs it on 200 intake form summaries per day and 5 complex referral letters. Anika points out that for structured summarization at high volume, Claude Haiku produces nearly identical quality at a fraction of the cost.</>
+            : <>Aarav\u2019s ticket classifier costs $12,000/month on GPT-4o. Rohan flags this as unsustainable. The task is classification with 7 categories and 5 few-shot examples per category. It doesn\u2019t require frontier reasoning.</>}
+        </SituationCard>
+        {para(track === 'non-tech'
+          ? "Model selection is a cost-quality tradeoff. GPT-4o excels at complex reasoning and nuanced writing. For Rhea\u2019s structured intake summaries \u2014 consistent inputs producing bulleted outputs \u2014 a smaller model delivers the same quality at 20\u00d7 lower cost."
+          : "Model capability scales with cost, but not linearly. For classification with clear categories and domain examples, the performance delta between GPT-4o and Claude Haiku is small. The cost delta is not. A hybrid strategy is almost always the right architecture."
+        )}
+        {para(track === 'non-tech'
+          ? "GPT-4o is for frontier reasoning: open-ended generation, multi-step analysis, tasks where quality variance has high consequences. For structured, high-volume language tasks with clear success criteria, a smaller model is the engineering-correct choice."
+          : "Aarav\u2019s team finds Haiku achieves 92% accuracy vs GPT-4o\u2019s 95% at 1/20th the cost. Hybrid: route clear-cut tickets to Haiku, ambiguous ones to GPT-4o. Result: effective 94.7% accuracy at $2.4k/month."
+        )}
+        <ModelSelectorTool track={track} />
+        <GenAIAvatar
+          name="Kabir"
+          nameColor="#0F766E"
+          borderColor="#0F766E"
+          conceptId="genai-m2-models"
+          content={<>Before choosing a model, define the minimum quality bar. Then find the cheapest model that clears it. Never start from the top down.</>}
+          expandedContent="'What\u2019s the best model?' is the wrong question. 'What\u2019s the minimum capability required?' is the right one. This leads to hybrid architectures that are both cost-efficient and reliable."
+          question={track === 'non-tech' ? "Rhea has 200 structured summaries/day and 5 complex referrals/day. Best model strategy?" : "Daily reports at 100/day (medium complexity) and weekly insights at 5/week (high complexity). Budget is tight. Best strategy?"}
+          options={track === 'non-tech' ? [
+            { text: "GPT-4o for everything \u2014 quality matters most in healthcare", correct: false, feedback: "GPT-4o at 200/day is expensive overkill for structured summarization. Quality gaps are marginal; cost gaps are not." },
+            { text: "Haiku for high-volume summaries, GPT-4o for complex referrals", correct: true, feedback: "Match model capability to task complexity. Small models at scale, frontier models for irreducible complexity." },
+            { text: "Gemini Flash for everything \u2014 it\u2019s the cheapest per token", correct: false, feedback: "Cheapest per token isn\u2019t always cheapest overall. Complex referrals may need multiple retries on a weaker model." },
+          ] : [
+            { text: "GPT-4o for both to ensure consistent quality", correct: false, feedback: "Running GPT-4o on 100 daily medium-complexity reports is ~10\u00d7 more expensive than necessary." },
+            { text: "GPT-3.5-turbo or Haiku for daily reports, GPT-4o for weekly insights", correct: true, feedback: "Hybrid routing optimizes cost per task tier. Most savings come from the high-volume medium-complexity work." },
+            { text: "Haiku for both to minimize total monthly cost", correct: false, feedback: "Haiku may underperform on high-complexity weekly insights where multi-step reasoning is required." },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Map your team\u2019s LLM API calls by volume and task complexity. Which high-volume calls could move to a smaller model? Estimate the monthly cost difference." : "List two AI tasks your team uses. Look up cost per 1M tokens for the current model vs the tier below. What\u2019s the monthly delta at your current volume?"} />
+        <QuizEngine
+          conceptId="genai-m2-models"
+          conceptName="Model Selection"
+          moduleContext={moduleContext}
+          staticQuiz={{
+            conceptId: 'genai-m2-models',
+            question: QUIZZES[3].question[track],
+            options: QUIZZES[3].options[track],
+            correctIndex: QUIZZES[3].correctIndex[track],
+            explanation: QUIZZES[3].explanation[track],
+            keyInsight: QUIZZES[3].keyInsight,
+          }}
+        />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has structure, examples, context management, and model routing. But prompt changes are unversioned. The last question: how to iterate safely." : "Rhea has reliable prompts for every task tier. But she\u2019s been making changes by trial and error with no way to detect regressions. Last question: how to improve without breaking what works."} />
+      </ChapterSection>
+
+      <ChapterSection id="genai-m2-refine" num="05" accentRgb={ACCENT_RGB}>
+        {chLabel('The Refinement Loop')}
+        {h2("Prompts are code. They need versioning, testing, and regression checks.")}
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+          {track === 'non-tech'
+            ? <>Rhea has improved her discharge summary prompt across three versions. V3 is more concise. But a compliance auditor flags a legal disclaimer always present in V1 is now missing. She has no record of what changed and no way to know which edit caused the regression.</>
+            : <>Aarav deploys a prompt update (V2) that improves summary quality for most cases. Two days later, a team lead flags edge-case incident reports are missing the resolution step. No golden dataset, no version diff, no automated way to detect this regression before production.</>}
+        </SituationCard>
+        {para(track === 'non-tech'
+          ? "A prompt is a living document governing critical outputs. When you change it without tracking what changed, you\u2019re deploying code without version control. The first time you introduce a regression that reaches a patient or regulator, the absence of a refinement loop becomes a liability."
+          : "Prompt engineering without a testing framework is technical debt at the application layer. Every untracked change is a potential regression. Production AI systems need the same discipline as production code."
+        )}
+        {para(track === 'non-tech'
+          ? "Rhea\u2019s refinement loop: store each version with a changelog. Maintain 'golden cases' \u2014 inputs where you know exactly what the correct output looks like. Before replacing V2 with V3, verify V3 passes all golden cases."
+          : "Aarav\u2019s workflow: store prompts in a prompts/ directory in git. Build a golden dataset of 50\u2013100 labeled examples covering normal cases, edge cases, and previously seen failures. Automate evaluation on every PR."
+        )}
+        {pullQuote("You cannot improve a prompt safely without knowing what it does consistently right.")}
+        <PromptDiffViewer track={track} />
+        <GenAIAvatar
+          name="Leela"
+          nameColor="#C2410C"
+          borderColor="#C2410C"
+          conceptId="genai-m2-refine"
+          content={<>Every prompt change is a hypothesis. Before you test it on production, you need to know what it might break \u2014 not just what it might improve.</>}
+          expandedContent="From a compliance perspective, an undocumented prompt change that removes a safety instruction is indistinguishable from a silent code change that introduces a compliance violation. Treat prompts with the same governance as any production artifact."
+          question={track === 'non-tech' ? "V3 consent form prompt omits a legal disclaimer that V1 always included. Next step?" : "V2 improved summaries for most cases but introduced edge-case regressions. Before shipping V3, what\u2019s critical?"}
+          options={track === 'non-tech' ? [
+            { text: "Revert to V1 \u2014 safety and compliance take precedence", correct: false, feedback: "Reverting discards valid improvements. Diagnose the specific change that caused the regression and fix it surgically." },
+            { text: "Diff V1 and V3, identify what dropped the disclaimer, add an explicit constraint", correct: true, feedback: "Systematic comparison lets you preserve the improvement while restoring the requirement. That\u2019s the refinement loop." },
+            { text: "Ask legal to simplify the disclaimer to fit the concise format", correct: false, feedback: "That changes the requirement, not the prompt. The problem is prompt regression." },
+          ] : [
+            { text: "A/B test V3 with 10% of production traffic", correct: false, feedback: "Production A/B testing is risky when regressions are already known. Verify against a golden dataset first." },
+            { text: "Run V3 against the golden dataset and compare metrics against V1 and V2", correct: true, feedback: "A golden dataset is your regression test suite for prompts. No deployment without it." },
+            { text: "Manually review 10\u201320 outputs and use judgment", correct: false, feedback: "Manual spot-checks miss systematic failures. A golden dataset scales verification beyond human review." },
+          ]}
+        />
+        <ApplyItBox prompt={track === 'tech' ? "Does your team have a golden dataset for your most-used prompt? If not, identify 20 representative test cases and store them with expected outputs \u2014 that\u2019s your regression baseline." : "Think of the last time an AI tool gave different outputs from before. What would a golden case set look like for that task? Write down 5 representative inputs and expected outputs."} />
+        <QuizEngine
+          conceptId="genai-m2-refine"
+          conceptName="Refinement Loop"
+          moduleContext={moduleContext}
+          staticQuiz={{
+            conceptId: 'genai-m2-refine',
+            question: QUIZZES[4].question[track],
+            options: QUIZZES[4].options[track],
+            correctIndex: QUIZZES[4].correctIndex[track],
+            explanation: QUIZZES[4].explanation[track],
+            keyInsight: QUIZZES[4].keyInsight,
+          }}
+        />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the full prompt engineering stack: anatomy, few-shot transfer, context management, model routing, and safe iteration. Pre-Read 03 goes further: retrieval-augmented generation." : "Rhea now has everything she needs: structured prompts, domain examples, context management, the right model, and a safe way to improve. Pre-Read 03 goes deeper: connecting AI to live data through retrieval."} />
+      </ChapterSection>
+    </>
+  );
+}
+
+// --- Default Export ---
+
+interface Props {
+  track: GenAITrack;
+  onBack: () => void;
+}
+
+export default function GenAIPreRead2({ track, onBack }: Props) {
+  const store = useLearnerStore();
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const prevXpRef = useRef(0);
+
+  useEffect(() => {
+    store.initSession();
+    CONCEPTS.forEach((concept) => store.ensureConceptState(concept.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const sectionId = entry.target.getAttribute('data-section');
+        if (!sectionId) return;
+        if (entry.isIntersecting) {
+          if (entry.intersectionRatio >= 0.1) setActiveSection(sectionId);
+          if (entry.intersectionRatio >= 0.25) {
+            setCompletedSections((prev) => new Set([...prev, sectionId]));
+            store.markSectionViewed(sectionId);
+          }
+        }
+      });
+    }, { threshold: [0.1, 0.25, 0.5] });
+
+    const timer = setTimeout(() => {
+      document.querySelectorAll('[data-section]').forEach((element) => sectionObserver.observe(element));
+    }, 150);
+
+    return () => {
+      clearTimeout(timer);
+      sectionObserver.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
+
+  return (
+    <div className="editorial" style={{ background: 'var(--ed-cream)', minHeight: '100vh' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', backdropFilter: 'blur(12px)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+              <motion.button whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }} onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}>
+                <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>&larr;</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "\'JetBrains Mono\', monospace" }}>Back</span>
+              </motion.button>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: `linear-gradient(135deg, ${ACCENT} 0%, #1D4ED8 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 2px 8px rgba(${ACCENT_RGB},0.3)` }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "\'Plus Jakarta Sans\', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1 }}>Airtribe</div>
+                  <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Learn</div>
+                </div>
+              </div>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                <span style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>GenAI Launchpad</span>
+                <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>&rsaquo;</span>
+                <span style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{TRACK_META[track].introTitle}</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
+              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
+              </div>
+              <span style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
+            </div>
+            <div style={{ width: '80px', flexShrink: 0 }} />
+          </motion.div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
+          <div style={{ alignSelf: 'stretch' }}>
+            <LeftNav completedSections={completedSections} activeSection={activeSection} track={track} />
+          </div>
+          <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
+            <CoreContent track={track} />
+            <AnimatePresence>
+              {progressPct >= 80 ? (
+                <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center', position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
+                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>&#9678;</motion.div>
+                  <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "\'Lora\', \'Georgia\', serif" }}>Pre-Read 02 Complete</h3>
+                  <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '430px', margin: '0 auto 24px' }}>
+                    {track === 'tech' ? 'You now have the core prompt engineering toolkit: anatomy, few-shot transfer, context budgeting, model routing, and safe iteration with regression testing.' : 'You now know how to write prompts that work reliably: structured anatomy, domain examples, context management, the right model, and a safe refinement process.'}
+                  </p>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            <div style={{ height: '60px' }} />
+          </motion.main>
+          <div style={{ alignSelf: 'stretch' }}>
+            <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
