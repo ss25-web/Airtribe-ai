@@ -511,50 +511,73 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2('It does not look things up. It generates what probably comes next.')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
-            ? <>Aarav is a platform engineer at Northstar Health. His team needs to check edge-case coverage rates during claims triage. Someone adds an LLM call that returns the rates — confidently, professionally, in bullet points. The numbers look right. They are not. They are plausible extrapolations from training data, not from Northstar&apos;s actual policy database. Aarav realises the team has built a retrieval problem, not a model problem. The model was never broken. It was being asked to do something fundamentally different from what it actually does.</>
-            : <>Rhea leads operations at Northstar Health. Her team starts using an AI assistant for policy questions. Someone asks it for the escalation procedure. It responds with a confident, well-formatted answer. Wrong procedure. When she asks the vendor, they say: &ldquo;The model does not have access to your systems. It responds based on training data.&rdquo; That sentence changes how Rhea thinks about every AI tool her team will ever use. The model was not broken. She had been asking it the wrong kind of question.</>}
+            ? <>Aarav&apos;s team shipped an LLM call that returns coverage rates during claims triage. Three days after demo, the data team flags it: the numbers look right but aren&apos;t. No one panics — it was a prototype. But Aarav pulls the API call apart looking for the bug. There is no bug. The model returned plausible rates because plausible rates are what the training data looked like. There is no claim system in the call. No policy database. Just a question and a model that answered it. He messages Rohan: <em>&ldquo;I think I fundamentally misunderstood what this thing actually does.&rdquo;</em></>
+            : <>Rhea&apos;s team has been using an AI assistant for policy questions for three weeks. Good adoption, saves time. Then someone follows an AI-generated escalation procedure that turns out to be wrong. Rhea calls the vendor. The support rep says: <em>&ldquo;The model doesn&apos;t have access to your internal systems. It responds based on training data.&rdquo;</em> She sits with that for a while. They had been asking it questions as if it were a well-informed colleague who had read the Northstar handbook. It hadn&apos;t. It had read everything else. She messages Anika.</>}
         </SituationCard>
-        {para('Generative AI models are not databases. They are not search engines. They are completion systems: given an input sequence, they generate the most statistically plausible continuation. The model has no live connection to the world. It has weights — billions of numerical parameters trained on text — and when you send it a prompt, it uses those weights to produce a response that fits.')}
-        {para('That sounds abstract until you feel the implications. The model can sound completely certain about things it is factually wrong about, because certainty is a stylistic property of the text, not a function of truth. It cannot tell you current information without retrieval infrastructure. It cannot access your databases, check your live systems, or verify that its answer matches your specific context. It generates — it does not look up.')}
-        {para('This is not a flaw to be fixed in a future version. It is the fundamental architecture. An LLM trained on general text will always need external infrastructure to interact with specific, live, or proprietary data. Understanding this is what separates people who get disappointed by AI from people who build things that actually work.')}
-        {pullQuote('The model is finishing your sentence, not consulting your database.')}
-        {keyBox('Three things GenAI is', [
-          'A probabilistic text completion system trained on large corpora.',
-          'Extremely capable at language tasks: summarising, classifying, drafting, transforming.',
-          'Disconnected from live data — outputs reflect training patterns, not current reality.',
-        ], ACCENT)}
         <GenAIAvatar
-          name="Anika"
+          name={track === 'tech' ? 'Rohan' : 'Anika'}
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-what-it-is"
-          content="When a model returns wrong information confidently, teams usually say the model hallucinated. That framing leads to the wrong fix."
-          expandedContent="Hallucination is the symptom. The cause is usually a mismatch between what the model can do and what it was asked to do. If you ask a completion system for specific factual data it was never trained on, you are not using the wrong model — you are using the wrong architecture. The fix is a retrieval layer, not a stronger model."
-          question="Your team&apos;s AI assistant returns incorrect policy details. A colleague says the model is too weak. What is the stronger diagnosis?"
-          options={[
-            { text: 'Agree — this type of factual task needs a model trained on more recent data', correct: false, feedback: 'Model recency rarely solves policy-accuracy problems. The model cannot access your live policy database regardless of its training date.' },
-            { text: 'The task requires live data the model does not have — this is a retrieval gap, not a model weakness', correct: true, feedback: 'Exactly. Policy details require specific, current information the model cannot hold in weights. The fix is infrastructure, not a stronger model.' },
-            { text: 'Write much more detailed prompts that include the full policy text each time', correct: false, feedback: 'Pasting policy text into the prompt is a workaround that does not scale and introduces context window constraints.' },
-          ]}
+          content={track === 'tech'
+            ? "Walk me through the API call. When the model returned coverage rates — where did those numbers actually come from?"
+            : "Tell me exactly what you asked it. Not what you wanted to know — what did you literally type into the prompt?"}
+          expandedContent={track === 'tech'
+            ? "There's no claims system in your call. No policy database. So the model did what it always does: it generated the most statistically plausible continuation of the text you gave it. Rates in the right format, right range, right level of precision — because that's what coverage rate responses look like in the training data. The model has no way to know what Northstar's actual rates are. You didn't give it Northstar's rates. This isn't a hallucination bug to fix. It's an architecture question: you were asking a completion system to do retrieval. Those are different jobs."
+            : "The model gave you the most plausible escalation procedure it could construct from everything it's been trained on — general healthcare operations, compliance docs, whatever made it into the pretraining set. That's not a malfunction. That's what it does. It generates the most likely continuation of the text you gave it. It has no idea what Northstar's actual procedure is unless you put it in the conversation yourself. No model does — not this one, not a newer one. What broke wasn't the model's reliability. It was the assumption underneath the question."}
+          question={track === 'tech'
+            ? "The data team wants to upgrade to a larger, newer model to fix the accuracy issue. What would you tell them?"
+            : "Your colleague says the model is just not reliable enough for policy questions yet. What's the stronger diagnosis?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Agree — a model trained on more recent healthcare data would return accurate rates', correct: false, feedback: 'No version of this model has Northstar\'s specific rates in its weights. A newer model would generate equally plausible but equally wrong numbers.' },
+                { text: 'The model is doing its job — the call needs a retrieval layer to pull actual rates from the claims system', correct: true, feedback: 'Exactly. The fix is architecture, not model quality. The model handles the language work. A retrieval layer connects it to live data.' },
+                { text: 'Fine-tune the model on Northstar\'s historical claims data to improve accuracy', correct: false, feedback: 'Fine-tuning on historical data improves pattern matching, not real-time accuracy. It still won\'t have current rates.' },
+              ]
+            : [
+                { text: 'Agree — policy compliance tasks need a model trained on more recent regulatory data', correct: false, feedback: 'Training recency doesn\'t change the fundamental issue. No model has Northstar\'s internal procedures unless you give them as input.' },
+                { text: 'The model is working as designed — it was being asked for specific data it cannot have without retrieval', correct: true, feedback: 'Yes. Policy procedures exist in specific documents, not in training patterns. The fix is putting those documents in the context, not finding a better model.' },
+                { text: 'Write longer prompts that include more context about what Northstar does', correct: false, feedback: 'More context helps, but if the actual procedure document isn\'t in the prompt, no amount of background context produces the correct procedure.' },
+              ]}
         />
+        {para(track === 'tech'
+          ? 'Generative AI models are completion systems. Given a sequence of text, they generate the most statistically plausible continuation based on patterns in training data. They have no live connection to the world — no access to your databases, no ability to check current state, no memory between calls. They generate. They do not retrieve. That distinction is not a limitation to be patched. It is the architecture.'
+          : 'Generative AI models are completion systems. They generate the most plausible continuation of whatever text they receive. They have no connection to live systems, no access to internal documents they weren\'t given, and no ability to flag when they don\'t actually know something. Certainty is a text style — the model can sound completely confident about things it is factually wrong about, because confidence is in the training data too.')}
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-what-it-is"
-          content="The most useful question when evaluating an AI use case is: does this task require specific facts the model cannot have in its weights?"
-          expandedContent="If the answer is yes — live data, proprietary records, current state — you are in retrieval territory. That is not bad news. It is just an architecture decision. You build the retrieval layer. The model does the language work. Those are two different problems with two different solutions."
-          question="Which of these is purely a language task that needs no retrieval layer?"
-          options={[
-            { text: 'Return the current premium for a given policy and coverage tier', correct: false, feedback: 'That requires live system data. The model cannot produce accurate current rates without retrieval.' },
-            { text: 'Rewrite a dense claims summary into plain language for a patient letter', correct: true, feedback: 'That is a language transformation task. The model has everything it needs in the input — no external data required.' },
-            { text: 'Check whether an exception was resolved within the 48-hour SLA window', correct: false, feedback: 'SLA compliance requires a timestamp lookup. That is a data query, not a language task.' },
-          ]}
+          content={track === 'tech'
+            ? "Before you redesign anything — what kind of task was the coverage rate lookup, at its core? Language task or data lookup?"
+            : "Rhea, before you update your team's guidelines — I want to ask you one question. The escalation procedure task: was that a language problem or an information lookup?"}
+          expandedContent={track === 'tech'
+            ? "That's the filter I use first. Language task: the input is text, the output is text, and you don't need anything from an external system to answer correctly. Data lookup: the correct answer lives in a specific record somewhere. Coverage rates are a lookup — they live in a claims system. The model is genuinely excellent at language tasks. It is not a database. Once you separate those two categories, most of the confusion about when to use AI and when not to dissolves immediately."
+            : "Those are two different jobs. Language task: rewrite this, summarise that, draft a response — the model works from what's in the prompt and its training. Information lookup: tell me the current escalation procedure, pull the right premium for this tier — the correct answer lives in a specific document or system. The model is very good at language work. It is not a retrieval system. The moment you ask it to look something up that isn't in the context, you've crossed from one category to the other. Most AI failures I've seen come from that exact crossing."}
+          question={track === 'tech'
+            ? "Which of these is a pure language task that works without a retrieval layer?"
+            : "Your team wants to use AI for two tasks: drafting responses to provider complaints, and checking whether claims were processed within SLA. Which one fits the language task category?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Return the current deductible for a given plan and coverage tier', correct: false, feedback: 'Current deductibles live in a plan database. That\'s a data lookup — the model needs retrieval to answer correctly.' },
+                { text: 'Rewrite a dense case note into plain language for a patient communication', correct: true, feedback: 'The input is the case note. The output is a rewritten version. Nothing from an external system is required. That\'s a language task the model can do directly.' },
+                { text: 'Check whether an exception request was resolved within the 48-hour SLA window', correct: false, feedback: 'SLA compliance requires a timestamp lookup from your case management system. Data lookup, not language task.' },
+              ]
+            : [
+                { text: 'SLA checking — that\'s a pattern-matching task LLMs handle well', correct: false, feedback: 'SLA checking requires live timestamp data from your claims system. The model can\'t look that up without retrieval infrastructure.' },
+                { text: 'Drafting complaint responses — the model only needs what\'s in the prompt, no live data required', correct: true, feedback: 'Yes. A good complaint response requires understanding the situation and writing well — both language work. The draft goes to a human before sending anyway.' },
+                { text: 'Both work — modern LLMs are capable enough for both categories', correct: false, feedback: 'Capability isn\'t the issue. Architecture is. SLA checking requires current data the model simply doesn\'t have without a retrieval layer.' },
+              ]}
         />
-        {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs.' })}
-        <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. What was the model actually doing: completing language, or implicitly expected to know live facts? If the latter, where should the retrieval layer sit?" : "Think of one thing your team asked an AI tool to do that gave a wrong or unreliable answer. Was the task a language problem (the right tool) or a data-lookup problem (the wrong tool)? What would the right design have looked like?"} />
+        {keyBox('What GenAI actually is', [
+          'A probabilistic completion system — it generates the most plausible next text, not the most accurate.',
+          'Excellent at language work: summarise, classify, draft, rewrite, extract from documents you provide.',
+          'Disconnected from live data — it needs retrieval infrastructure for anything that requires current or proprietary facts.',
+        ], ACCENT)}
+        {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs to answer correctly.' })}
+        <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. Was the model doing language work (completing, transforming, classifying text you gave it) or implicitly expected to know live facts? If the latter — where would the retrieval layer need to sit?" : "Think of one task your team has tried with AI that gave unreliable results. Was it a language task or an information lookup? If it was a lookup — what would a correct design have looked like?"} />
         <QuizEngine conceptId="genai-m1-what-it-is" conceptName="What GenAI Is" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now knows what the model is. The next question is where it is reliable — and where even the best model consistently fails. Those boundaries matter more than model quality." : "Rhea now knows what the model is. The next question is where it is genuinely useful and where it is reliably wrong — and that boundary has very little to do with which tool you choose."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav knows what the model is now. The next question is which tasks it's reliable on — and where even the most capable model consistently fails. That boundary matters more than model quality." : "Rhea knows what the model is now. The next question is which tasks it genuinely helps with and where it's reliably wrong — and that line has almost nothing to do with which tool you pick."} />
       </ChapterSection>
 
       <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-m1-capabilities">
@@ -562,49 +585,72 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2('Every model has a reliable zone. Most teams use it outside that zone.')}
         <SituationCard accent="#2563EB" accentRgb="37,99,235">
           {track === 'tech'
-            ? <>Aarav maps the team&apos;s attempted LLM use cases on a whiteboard. Classification of inbound request types: works reliably. Summarising long case notes: works well. Extracting structured fields from free-text forms: mostly works. Performing arithmetic on claim amounts: unreliable. Answering questions about current patient records: fails without retrieval. Generating legally precise contract language: too risky without review. The pattern becomes obvious. The model is powerful inside a specific zone, and brittle outside it.</>
-            : <>Rhea lists every AI experiment her team has run in the last two months. She puts them in three columns: worked well, sometimes worked, failed or caused problems. The pattern is clear. When the task was language — drafting an email, summarising a case, rewriting a form — AI helped. When the task needed specific facts, live data, or precise calculations — it consistently failed. No one had drawn this map before. They had been treating AI as uniformly capable or uniformly unreliable.</>}
+            ? <>Aarav takes a whiteboard and maps everything his team has tried with LLMs in the last quarter. Left side: worked reliably. Right side: failed or got flagged. Middle: inconsistent. He stares at the left side — classification, summarisation, extraction from forms, rewriting dense notes. He stares at the right side — arithmetic on claim amounts, questions about current patient records, contract language that had to be legally exact. The pattern is uncomfortable because it was obvious in retrospect. The model wasn&apos;t bad at some things and good at others randomly. It had a zone. Nobody had looked for it. He calls Rohan.</>
+            : <>Rhea makes a list. Every AI experiment her team has run in the last two months — she writes them on a whiteboard and draws three columns. The left column fills quickly: draft an email, summarise a case note, reformat a form for a different audience. All of them language, no single right answer, easy for a human to review. The right column is slower but the pattern is just as clear: check an SLA window, look up a current premium, verify a policy was filed. All of them needing live data, all of them silently wrong when the model tried. She had never made this map before. She had been treating AI as either magic or useless. She calls Rohan.</>}
         </SituationCard>
-        {para('LLMs have a clear zone of reliable performance: language tasks where the input and output are both text, no live data is required, and quality can be assessed quickly by a reader. Summarisation, classification, drafting, explanation, rewriting, extraction from documents — these sit firmly in the reliable zone.')}
-        {para('Beyond that zone, there is an extended zone where LLMs can perform well with the right infrastructure: retrieval-augmented tasks where the model reasons over documents you provide, structured outputs where the format is tightly controlled, or tool-augmented tasks where the model calls external systems. These work, but they require design effort.')}
-        {para('Then there is the unreliable zone. Precise arithmetic on novel numbers. Accurate recall of specific facts from training data. Real-time information without retrieval. Legally or clinically sensitive outputs where every word matters. Tasks with no objective verifiable answer. The model will attempt these confidently. It will often be wrong.')}
-        {para('Teams that understand this map stop over-expecting from the reliable zone and under-investing in the extended zone. They stop being surprised by failures and start designing around boundaries instead.')}
-        {keyBox('The three zones', [
-          'Reliable: summarise, classify, draft, explain, extract, reformat. Language in, language out.',
-          'Extended: retrieval-augmented Q&A, structured outputs, tool-augmented workflows. Needs infrastructure.',
-          'Unreliable: real-time data, precise calculations, sensitive factual claims, novel edge cases.',
-        ], '#2563EB')}
         <GenAIAvatar
           name="Rohan"
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m1-capabilities"
-          content="Most LLM disappointments come from tasks in the unreliable zone being treated as if they were in the reliable zone."
-          expandedContent="The model does not announce when it crosses into uncertain territory. It continues generating with the same fluency. That is what makes capability mapping critical — the model looks equally confident everywhere. You have to know the zones before you assign the tasks."
-          question="A team wants to use an LLM to auto-check whether submitted forms contain all required fields. Which zone does this sit in?"
-          options={[
-            { text: 'Unreliable — the model cannot do structured validation consistently', correct: false, feedback: 'Extraction and structured checking from documents is actually a reliable-zone task for modern LLMs, especially with a well-defined schema.' },
-            { text: 'Reliable — extracting structured data from free-text forms is a core language task', correct: true, feedback: 'Exactly. Given a clear schema and consistent input format, LLMs are very good at extracting and validating structure from text.' },
-            { text: 'Extended — this requires retrieval infrastructure to work at all', correct: false, feedback: 'If the form is in the prompt, no retrieval is needed. Extraction from provided text is in the reliable zone.' },
-          ]}
+          content={track === 'tech'
+            ? "Good map. What does the left side have in common that the right side doesn't?"
+            : "Good map. Now look at the right column — the failures. Were any of those still running when they failed?"}
+          expandedContent={track === 'tech'
+            ? "The left side is language work. Text in, text out, everything the model needs is in the prompt. The right side is either data lookups or precision tasks where being 95% right is a liability. That's the reliable zone — language tasks where the model works from what you've given it and errors are catchable before they cause harm. Outside that zone, the model doesn't warn you. It keeps generating with exactly the same confidence. Classification works. Arithmetic on novel numbers does not. The model looks equally certain in both cases. You have to know the zones before you assign the tasks, because the model won't tell you when it's out of its depth."
+            : "That's the question that matters. A model being wrong in a demo is an interesting finding. A model being wrong in a deployed workflow, on real cases, before anyone checks — that's a different problem. The capability map isn't just about what the model can do. It's about where errors are catchable. In your left column, a human reads the draft before anything happens. In your right column, the model gives a wrong number or a wrong status check and it might act on it before you see it. The zone a task lives in tells you what verification you need to build around it."}
+          question={track === 'tech'
+            ? "Your team wants to use AI to extract structured fields from free-text intake forms — category, urgency, callback needed. What zone does that sit in?"
+            : "You want to use AI to flag inbound escalations that need same-day response. What zone does that sit in?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Unreliable — structured extraction needs deterministic parsing logic, not AI', correct: false, feedback: 'Extraction from free text is a core LLM strength. Given a clear schema, they reliably pull structured fields from unstructured input.' },
+                { text: 'Reliable — extracting defined fields from text you provide is a language task with no live data dependency', correct: true, feedback: 'Yes. The form is in the context window, the schema is specified, no external system required. Reliable zone.' },
+                { text: 'Extended — you\'d need retrieval infrastructure to make this work consistently', correct: false, feedback: 'Retrieval is for when you need to look things up from external systems. If the form is in the prompt, you already have what the model needs.' },
+              ]
+            : [
+                { text: 'Unreliable — urgency flagging requires clinical judgment the model can\'t make', correct: false, feedback: 'Classifying from a text description is a language task. It doesn\'t require clinical judgment — it requires reading the description and applying defined criteria.' },
+                { text: 'Reliable — reading a case description and flagging urgency is a language task, as long as a human reviews before action', correct: true, feedback: 'Right. The model reads text and assigns a category. No live data required. And with a review step, errors are caught before they affect the case.' },
+                { text: 'Extended — you\'d need retrieval of the patient\'s history to flag urgency accurately', correct: false, feedback: 'For a first pass on inbound escalations, the description itself is often enough to flag urgency. Retrieval can be added later, but it\'s not the baseline requirement.' },
+              ]}
         />
+        {para(track === 'tech'
+          ? 'The zones are: reliable (language in, language out, no live data required), extended (retrieval-augmented or tool-augmented tasks that work with the right infrastructure), and unreliable (precise calculations on real numbers, real-time data without retrieval, legally exact outputs). The model generates equally fluently in all three. Only the first zone doesn\'t require you to build around its failures.'
+          : 'The zones are: reliable (language work — summarise, classify, draft, extract — where the model works from what you give it), extended (tasks that need retrieval or tools to work correctly), and unreliable (precise arithmetic, live data without retrieval, legally exact claims). A map like the one on your whiteboard is more useful than any benchmark score.')}
         <GenAIAvatar
           name="Leela"
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m1-capabilities"
-          content="I think about capability zones in terms of where errors are acceptable versus where they are costly. That determines how much verification a task needs."
-          expandedContent="A draft email that is 90% right saves time even if a human edits it. A premium calculation that is 90% right is a liability. The capability zone tells you what the model can produce. Risk assessment tells you whether that is good enough. Both questions matter before you assign a task."
-          question="Which capability zone concern is most operationally serious?"
-          options={[
-            { text: 'The model is inconsistent about tone in customer-facing draft emails', correct: false, feedback: 'Tone inconsistency in drafts is a quality issue, but easily caught in human review before sending.' },
-            { text: 'The model is used to compute claim payment amounts directly from submitted figures', correct: true, feedback: 'Arithmetic on real financial figures is in the unreliable zone. Errors here are both likely and consequential.' },
-            { text: 'The model sometimes formats summaries differently across runs', correct: false, feedback: 'Format variance in summaries is annoying but low-risk — the information is still there and reviewable.' },
-          ]}
+          content={track === 'tech'
+            ? "Aarav, the arithmetic thing on your whiteboard — claim amounts — is that in production right now?"
+            : "Rhea, I want to ask you about the middle column. The inconsistent ones. When they worked, who was checking the output before anything happened with it?"}
+          expandedContent={track === 'tech'
+            ? "Because that's the one I'd pull immediately. Arithmetic on real financial figures is in the unreliable zone, and the failure mode isn't 'obviously broken output' — it's 'plausibly formatted but wrong number.' Nobody flags a number that's off by 4%. It passes review. It processes. The pattern I look for is: what does a wrong output look like, and would anyone notice before it has an effect? Unreliable zone tasks with invisible failure modes are the most dangerous thing on that whiteboard."
+            : "That's the pattern I always look for. When AI output has a human in the review loop, errors get caught — you learn something, you fix something, and the person affected doesn't get hurt. When AI output acts directly on something, a wrong output and a right output look the same until something downstream breaks. Your middle column is worth examining: for each one, ask whether a wrong output was catchable or whether it just proceeded. That answer tells you a lot about how to redesign those workflows."}
+          question={track === 'tech'
+            ? "Your team is debating whether to add AI to two more tasks: auto-formatting outgoing case correspondence, and automatically calculating and applying claim adjustments. Which is most operationally safe to proceed with?"
+            : "Two tasks are up for discussion: AI-drafted summaries that go to case workers for review, and AI-generated urgency flags that auto-route cases with no human check. What's the key difference?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Both — AI accuracy is high enough that the risk difference is minimal', correct: false, feedback: 'Accuracy rates are averages. Claim adjustments that are wrong 2% of the time, undetected, are a financial and compliance liability. Format errors in correspondence are caught in review.' },
+                { text: 'Formatting correspondence — errors are visible and low-stakes. Claim calculations are in the unreliable zone with consequential, potentially invisible errors', correct: true, feedback: 'Exactly. Formatting is a reliable-zone task with easy verification. Arithmetic on real claim amounts is unreliable, and wrong outputs in financial calculation can pass unnoticed.' },
+                { text: 'Claim adjustments — more value, and accuracy rates on structured tasks are high enough to proceed', correct: false, feedback: 'Value doesn\'t determine safety. Arithmetic on novel numbers in the unreliable zone produces errors that look exactly like correct outputs.' },
+              ]
+            : [
+                { text: 'Auto-routing is more efficient — it removes a bottleneck from the review process', correct: false, feedback: 'Efficiency is the right goal eventually. But removing the human checkpoint means the model\'s errors act on real cases before anyone sees them.' },
+                { text: 'Auto-routing removes the human checkpoint — a wrong urgency flag routes a case incorrectly with no one noticing until something downstream breaks', correct: true, feedback: 'Yes. In the first workflow, a wrong summary goes to a case worker who catches it. In the second, a wrong flag routes a case — and the affected person may not know until it\'s too late.' },
+                { text: 'Both are equivalent — the model\'s accuracy on urgency flagging is high enough to proceed without review', correct: false, feedback: 'Accuracy rates don\'t address what happens in the failures. The question is whether errors are catchable, not just rare.' },
+              ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Map your last three LLM integration attempts across the three zones: reliable, extended, unreliable. For any that failed, which zone were they actually in? What would the right infrastructure have been?" : "List three AI tasks your team has tried. Label each: reliable zone, extended zone (needs retrieval/tools), or unreliable zone (should not rely on the model alone). What does that map tell you about where to invest next?"} />
+        {keyBox('The three zones', [
+          'Reliable: summarise, classify, draft, explain, extract, reformat. Language in, language out — no live data.',
+          'Extended: retrieval-augmented Q&A, structured outputs, tool-augmented workflows. Works with the right infrastructure.',
+          'Unreliable: real-time data lookups, precise arithmetic, legally exact claims, novel edge cases.',
+        ], '#2563EB')}
+        <ApplyItBox prompt={track === 'tech' ? "Map your last three LLM integration attempts across the three zones. For the failures — which zone were they actually in, and what was the failure mode? Visible or invisible?" : "Take your whiteboard map and add one column: for each task, who sees the output before it affects anything? That column tells you which tasks need redesigning."} />
         <QuizEngine conceptId="genai-m1-capabilities" conceptName="Capability Map" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has the capability map. But knowing the zones does not tell you how to assign tasks well. That requires a shift in how you think about what you are giving the model — from question to specification." : "Rhea has the capability map. But knowing where AI is reliable does not mean her team will use it well. That depends on a different shift: from asking questions to writing specifications."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the capability map. But knowing the zones doesn't tell you how to assign tasks reliably. That takes a different shift — from the way you've been thinking about prompts." : "Rhea has the capability map. But knowing where AI is reliable doesn't automatically mean her team will use it well. That depends on something about how they're communicating with it."} />
       </ChapterSection>
 
       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-m1-mental-model">
@@ -612,52 +658,76 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2('You are not asking a question. You are specifying a task.')}
         <SituationCard accent="#0F766E" accentRgb="15,118,110">
           {track === 'tech'
-            ? <>Aarav notices a pattern in how his team writes prompts. They ask: &ldquo;Can you summarise this case?&rdquo; The model returns something. Sometimes it is one paragraph, sometimes six. Sometimes it includes risk flags, sometimes it ignores them. The frustration is real. But when he rewrites the same prompt as a specification — role, output format, required fields, length constraint, what to exclude — the variance collapses. Same model. Same task. Completely different reliability.</>
-            : <>Rhea watches her team use the AI assistant for a week. She notices that the people getting useful results are writing very different kinds of prompts from the people getting frustrating ones. The useful prompts are long and specific: what the task is, what format the output should take, what to include and what to skip. The frustrating ones are short questions: &ldquo;Summarise this.&rdquo; &ldquo;What should I do?&rdquo; She realises this is not a model quality problem. It is a communication problem.</>}
+            ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Priya&apos;s prompts. The bad ones came from Dev&apos;s. The model is the same. The prompts are not. Priya&apos;s specify a role, output format, required fields, and length. Dev&apos;s are three words followed by a case note. He messages Anika.</>
+            : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Priya&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Dev&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Priya has some intuition Dev hasn&apos;t developed. She messages Anika to check.</>}
         </SituationCard>
-        {para('Most people approach LLMs the way they approach a search engine: type a question, expect an answer. That mental model produces inconsistent results because search engines retrieve; LLMs complete. When you type a vague question, the model fills every unspecified dimension — format, length, perspective, tone, level of detail — with plausible defaults from its training. Those defaults may not match what you need.')}
-        {para('The shift is from asking to specifying. A well-specified task tells the model: what role to take, what the input is, what the output format must be, what constraints apply, and what success looks like. When those dimensions are defined, the model stops choosing them. Variance drops. Quality improves. Not because the model got better — because the brief got clearer.')}
-        {para('This is the most immediately actionable insight in this entire module. You do not need new tools, new models, or new infrastructure to experience it. Write a vague prompt, note the output. Write the same task as a specification, note the output. The difference is usually dramatic.')}
-        {pullQuote('Vague brief, model chooses. Specific brief, you choose. The model executes either way.')}
-        {keyBox('Elements of a clear task specification', [
-          'Role: who the model should behave as ("You are a claims triage analyst").',
-          'Task: what to do, precisely ("Classify this request into one of five categories").',
-          'Format: what the output must look like ("Return JSON with fields: category, confidence, rationale").',
-          'Constraints: what to include, exclude, or prioritise.',
-          'Examples: one or two demonstrations anchor style and level of detail.',
-        ], '#0F766E')}
         <GenAIAvatar
           name="Anika"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
-          content="When outputs are inconsistent across runs, teams usually blame the model. The brief is almost always the real variable."
-          expandedContent="I ask teams to run a simple experiment: take their worst-performing prompt and add format, length, and constraint specifications without changing anything else. The improvement rate is very high. Inconsistency is almost always a symptom of an underspecified brief — the model fills the gaps differently each time. Define the gaps, and the variance disappears."
-          question="A summarisation task gives excellent output sometimes and generic output other times. Most likely cause?"
-          options={[
-            { text: 'High variance is a fundamental limitation of probabilistic models', correct: false, feedback: 'Variance is real, but it is dramatically reduced when format, length, and structure are specified explicitly.' },
-            { text: 'The brief is missing format, length, or structure constraints', correct: true, feedback: 'Yes. When those dimensions are unspecified, the model fills them differently each run. Define them once, and variance collapses.' },
-            { text: 'The model needs domain-specific fine-tuning to stabilise for this task', correct: false, feedback: 'Fine-tuning can help, but it is rarely the right first fix for variance caused by an underspecified brief.' },
-          ]}
+          content={track === 'tech'
+            ? "Read me one of Dev's prompts and one of Priya's. Exactly as written."
+            : "It's not a skill gap. Priya is specifying a task. Dev is asking a question. Those are not the same thing."}
+          expandedContent={track === 'tech'
+            ? "There it is. Dev's prompt has one dimension specified: the task. Priya's has five: role, task, format, length, and constraints. Every dimension that's unspecified in a prompt is a decision the model makes for you — format, length, perspective, tone, level of detail, what to include. It fills those gaps with the most statistically plausible defaults from its training data. Sometimes that matches what you want. Often it doesn't. Dev's variance isn't a model problem. It's a specification problem. The model is doing exactly what it was asked to do — it just had to choose everything Dev didn't specify."
+            : "When you type 'Summarise this', the model has to decide: how long? What format? What to include? What to leave out? What level of detail? It fills every one of those gaps with whatever seems most plausible based on its training. Sometimes that matches what you needed. Often it doesn't. Priya's prompts leave almost no gaps. Dev's prompts are almost entirely gaps. The model isn't performing differently — it's just completing very different briefs. The good news is this is immediately fixable. You don't need a new tool, a new model, or any technical changes."}
+          question={track === 'tech'
+            ? "Dev says 'I can't control model variance — it's a fundamental limitation.' What would you tell him?"
+            : "Dev wants to know what to add to his prompt first. What would you start with?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Agree — LLM variance is a known limitation that can\'t be engineered around', correct: false, feedback: 'Variance exists, but it fills the space you leave for it. Specify format, length, and constraints, and the variance mostly disappears.' },
+                { text: 'The model is filling the gaps he\'s leaving. If he specifies format, length, and what to include, the variance will collapse', correct: true, feedback: 'Exactly. "Summarise this" leaves every dimension open. "Write a 3-sentence summary covering category, key action, and urgency — in plain language for a case worker" doesn\'t.' },
+                { text: 'He needs to provide more context about each case to get consistent outputs', correct: false, feedback: 'More case context helps the model understand the situation. But output variance is about output specification — format, length, structure — not input volume.' },
+              ]
+            : [
+                { text: 'More context about the case — the model needs more background to produce a good summary', correct: false, feedback: 'More input context helps the model understand the situation. But the inconsistency is about output specification — Dev\'s prompt doesn\'t tell the model what format, length, or structure to use.' },
+                { text: 'Format and length — define what the output should look like before anything else', correct: true, feedback: 'Yes. "Write a 3-sentence summary in plain language, covering: what happened, what action is needed, and urgency level" immediately collapses most of the variance.' },
+                { text: 'A role instruction — telling the model it\'s a claims specialist', correct: false, feedback: 'Role helps orient the model, but if format and length are still unspecified, the outputs will still vary significantly.' },
+              ]}
         />
+        {para(track === 'tech'
+          ? 'The shift is from question-asking to task specification. A question is "summarise this." A specification is: role, task, format, constraints, length, and what to exclude. When those dimensions are defined, the model stops choosing them. Variance drops. Not because the model improved — because the brief stopped leaving things to chance.'
+          : 'The shift is from asking to specifying. A question leaves gaps. A specification fills them. When format, length, constraints, and structure are defined, the model executes your choices instead of making its own. That\'s true for a three-sentence summary, a draft email, or a structured triage report.')}
         <GenAIAvatar
           name="Kabir"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
-          content="The most underused technique in prompting is examples. One good example teaches format, tone, level of detail, and scope all at once."
-          expandedContent="Teams spend a lot of effort writing instructions and then wonder why the model interprets them differently than expected. An example shows, rather than tells. If I give the model a sample input and the exact output I want for it, ambiguity disappears. The model has a concrete reference point. It stops guessing about what I mean."
-          question="What is the fastest way to anchor format and style in a reusable prompt?"
-          options={[
-            { text: 'Write detailed written instructions covering every possible edge case', correct: false, feedback: 'Detailed instructions help, but they often still leave room for interpretation. An example is more efficient at conveying format intent.' },
-            { text: 'Add one sample input-output pair so the model has a concrete reference', correct: true, feedback: 'Exactly. A single well-chosen example teaches format, length, tone, and scope more efficiently than instructions alone.' },
-            { text: 'Switch to a different model that better understands your domain', correct: false, feedback: 'Model choice rarely solves format consistency issues. A clearer brief almost always does.' },
-          ]}
+          content={track === 'tech'
+            ? "Aarav, there's one more thing Priya does that Dev doesn't. Look at her prompts again."
+            : "Rhea, there's one thing I've watched consistently narrow the gap between what people want and what the model produces. Does Priya ever include an example in her prompts?"}
+          expandedContent={track === 'tech'
+            ? "She includes an example output. Not always — but for any task where the format really matters, she pastes one previous output and says 'like this.' I've watched teams spend hours writing instruction paragraphs trying to explain exactly what format they need, and then still be surprised when the model interprets it differently. One concrete example teaches format, tone, level of detail, and scope simultaneously. It shows the model what you mean instead of describing it. That's the fastest way to collapse the gap between the output you're imagining and the output you get."
+            : "That's the pattern. Instructions tell the model what you want. Examples show it. When Priya includes a sample output, the model has a concrete reference for length, format, and style — not a description to interpret. I've seen teams spend a whole afternoon writing detailed prompt instructions and still get variance because there's always room to interpret a description differently. One well-chosen example closes most of that gap immediately."}
+          question={track === 'tech'
+            ? "You're building a reusable prompt for weekly case triage summaries. What's the most efficient way to lock in consistent format?"
+            : "You're writing a prompt for a recurring task — weekly escalation summaries for the director. What's the fastest way to make sure the format stays consistent?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Write comprehensive format instructions covering every structural edge case', correct: false, feedback: 'Comprehensive instructions help but still leave interpretation space. One example is more efficient — it shows exactly what you mean.' },
+                { text: 'Include one example of a good output as a reference for the model to match', correct: true, feedback: 'One well-chosen example teaches format, tone, length, and structure simultaneously. It\'s the fastest way to get consistent outputs on a recurring task.' },
+                { text: 'Run it a few times and manually select the best output as the template', correct: false, feedback: 'That helps you identify what good looks like, but without embedding that standard in the prompt, every new run is still a lottery.' },
+              ]
+            : [
+                { text: 'Write detailed formatting instructions and test against five cases before going live', correct: false, feedback: 'Detailed instructions help, but they still leave room for interpretation. An example gives the model a concrete reference that doesn\'t depend on interpretation.' },
+                { text: 'Include one good previous summary as an example so the model has a concrete reference', correct: true, feedback: 'Exactly. One example teaches format, length, and tone simultaneously — more efficiently than any description.' },
+                { text: 'Ask the model to suggest a format, then standardise on what it proposes', correct: false, feedback: 'That gives you a model-chosen format. For a recurring task with a specific audience, the format should come from you.' },
+              ]}
         />
+        {pullQuote('Vague brief, model chooses. Specific brief, you choose. The model executes either way.')}
+        {keyBox('Elements of a clear task specification', [
+          'Role: who the model should act as ("You are a claims triage analyst").',
+          'Task: what to do, precisely ("Classify this request into one of five categories").',
+          'Format: what the output must look like ("Return three sentences: what happened, action needed, urgency").',
+          'Constraints: what to include, exclude, or prioritise.',
+          'Example: one sample input-output pair that shows rather than describes.',
+        ], '#0F766E')}
         {PMPrincipleBox({ principle: 'Every gap in a prompt is a decision the model makes for you. Decide intentionally or accept whatever the model chooses.' })}
-        <ApplyItBox prompt={track === 'tech' ? "Take the worst-performing LLM call in your current stack. Identify the unspecified dimensions: role, output format, constraints, examples. Rewrite the prompt with each one defined. What changed?" : "Find a prompt your team uses regularly that gives inconsistent results. Identify the unspecified gaps — format, length, perspective, what to exclude. Add them. Compare the output before and after."} />
+        <ApplyItBox prompt={track === 'tech' ? "Take the worst-performing prompt in your current stack. List every unspecified dimension: role, output format, length, constraints, examples. Add them one at a time. Which change had the biggest effect on variance?" : "Find a prompt your team uses that gives inconsistent results. Count the gaps — format, length, perspective, what to exclude. Add specifications for each. Compare the output before and after."} />
         <QuizEngine conceptId="genai-m1-mental-model" conceptName="Mental Model Shift" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has the specification mindset. But a well-written prompt still fails when what it processes is poor. The quality of the context packet is often the deciding variable." : "Rhea can write better specifications now. But there is one more thing that determines whether a good prompt produces a good output — what the model actually receives to work with."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the specification mindset. But a well-specified prompt still fails when what the model receives is broken. The context packet is often where the real problem lives." : "Rhea can write better prompts now. But there's one more variable that determines whether a good prompt produces a good output — and it has nothing to do with the prompt itself."} />
       </ChapterSection>
 
       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-m1-context">
@@ -665,50 +735,74 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2('The quality of the output is bounded by the quality of what went in.')}
         <SituationCard accent="#C2410C" accentRgb="194,65,12">
           {track === 'tech'
-            ? <>Aarav&apos;s team has a prompt that works well in testing. In staging, the same prompt produces poor outputs on roughly one in five cases. When he inspects the failing runs, the pattern is immediate: the context packets are broken. A patient record with missing fields. A case note that was truncated at the API limit. An intake form where the structured fields were flattened into a single string. The model was not failing. It was doing its best with damaged input.</>
-            : <>Rhea notices that the AI summary tool works well when her team uses it on recent, fully completed cases, but struggles on older cases with partial records. A colleague says the model is &ldquo;inconsistent.&rdquo; Rhea pulls up two examples side by side — one good output, one poor one. The difference is not the prompt. The poor output came from a case with half the fields missing and two attached PDFs that never loaded. The model received a skeleton and wrote accordingly.</>}
+            ? <>Aarav&apos;s team has a prompt that works well in testing — sharp outputs, right format, right length. In staging, the same prompt produces degraded outputs on roughly one in five cases. He spends most of a day in the prompt, adding constraints, clarifying the format spec, running A/B tests. The outputs barely change. Finally, a colleague suggests inspecting the actual payloads. He pulls up a failing case. The context packet has a patient record where three fields are null, a case note truncated at the API limit, and an intake form where structured fields were flattened into a single unbroken string. He messages Rohan.</>
+            : <>Rhea&apos;s team has been using the summary tool for six weeks. Mostly good. Then she notices the failure cases aren&apos;t random — they cluster around older cases, cases from before the system migration, cases where the PDF attachments didn&apos;t load. She pulls up a good summary and a bad one side by side. Same prompt. The bad one came from a case with half the fields blank and two attachments that show as &ldquo;unavailable.&rdquo; She&apos;d been assuming it was the prompt. She messages Rohan.</>}
         </SituationCard>
-        {para('Context is not configuration. It is the actual input the model receives. Everything the model knows about your specific situation — the case, the document, the request, the background — must be in the context window at inference time. The model has no memory between calls, no access to prior sessions, no ability to retrieve information it was not sent.')}
-        {para('This means the quality of your outputs is bounded by the quality of your inputs. A well-written prompt with poor, incomplete, or incorrectly structured context will produce a poor output. Not because the model failed — because it did exactly what you asked with what you gave it. The garbage-in-garbage-out principle applies more literally to LLMs than to almost any other system.')}
-        {para('The most common gap between demo and production is almost always a context quality gap. Demo inputs are hand-crafted and clean. Production inputs are assembled from real, messy, incomplete, inconsistently formatted data. When a model that worked perfectly in a demo produces poor results in production, the first thing to inspect is the context packet, not the prompt.')}
-        {keyBox('What belongs in a good context packet', [
-          'The task input: the document, case note, request, or record being processed.',
-          'Relevant background: role of the reader, purpose of the output, audience.',
-          'Constraints: what to include, exclude, or flag.',
-          'Format of the input: tell the model what type of data it is reading.',
-        ], '#C2410C')}
         <GenAIAvatar
           name="Rohan"
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m1-context"
-          content="When a model works in demo and fails in production, I look at the context packet first. It is the right answer 80% of the time."
-          expandedContent="Demo data is curated. Someone assembled a clean, complete example specifically to show the workflow working. Production data arrives from real systems — missing fields, truncated strings, inconsistent formats, encoding issues. The model is the same. The payload is different. That gap explains almost every demo-to-production failure I have investigated."
-          question="A model works well in demo but gives poor outputs in staging. Best first thing to investigate?"
-          options={[
-            { text: 'Whether model drift has occurred between the demo and staging environments', correct: false, feedback: 'Models do not drift between environments. The model is the same everywhere you call it.' },
-            { text: 'Whether the context in staging is as complete and clean as in the demo', correct: true, feedback: 'Yes. Demo data is curated. Staging data is real — missing fields, edge cases, truncation. That difference explains most output quality gaps.' },
-            { text: 'Whether a higher-tier model is needed to handle real production inputs', correct: false, feedback: 'Upgrading the model rarely solves a context quality problem. The model needs better inputs, not more parameters.' },
-          ]}
+          content={track === 'tech'
+            ? "Before we touch the prompt — tell me what the model actually received in a failing case. Exactly what was in the payload."
+            : "Before you change the prompt — pull up a failing case and tell me what's actually in the record the model received."}
+          expandedContent={track === 'tech'
+            ? "There it is. The model didn't fail. It did exactly what it was supposed to do — it generated the most plausible summary from what it received. Three null fields, a truncated case note, and a flattened form. That's not enough information to produce a sharp output. The model doesn't have a way to say 'this context is broken, I can't work with this.' It just generates from whatever it has. The context is the actual input. Everything the model knows about your specific case has to be in that payload at inference time. No memory between calls. No ability to look things up. If the context is broken, the output will reflect that — and it will look like a model failure when it's actually a data pipeline failure."
+            : "That's the answer. The prompt is the same. The model is the same. The context is different. The good summary came from a complete record. The bad one came from a skeleton with missing attachments and blank fields. The model doesn't have a way to flag that something is missing — it generates from whatever it receives. So it produced a summary of the information that was there. That's not a model inconsistency problem. That's a context quality problem. The two cases might as well have been sent to a different model — because from the model's perspective, they might as well have been completely different documents."}
+          question={track === 'tech'
+            ? "Your team proposes upgrading to a larger model to fix the staging inconsistency. What would you say?"
+            : "You've been debugging the prompt for a week. A colleague says 'just upgrade the model.' What's your response now?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Agree — a larger model handles incomplete context better', correct: false, feedback: 'A larger model receiving a context packet with null fields and a truncated case note will produce a better-written bad output. The constraint is the data, not the model.' },
+                { text: 'Fix the context assembly pipeline first — the model is doing its job with broken inputs', correct: true, feedback: 'Exactly. The model generates from what it receives. If the payload is broken, the fix is in the data pipeline, not the model.' },
+                { text: 'Add fallback instructions to the prompt for when fields are missing', correct: false, feedback: 'Fallback instructions help the model handle missing data more gracefully. But they don\'t fix missing data. The context assembly layer needs to validate before inference.' },
+              ]
+            : [
+                { text: 'Agree — a better model would infer missing information from the partial context', correct: false, feedback: 'Models can\'t conjure information that isn\'t there. A larger model generates a more fluent summary of nothing.' },
+                { text: 'The model is working correctly — the issue is incomplete context reaching the model. That\'s a data pipeline problem', correct: true, feedback: 'Yes. Same prompt, same model, different inputs. The variable is the context packet. Fix that layer first.' },
+                { text: 'Keep debugging the prompt — there\'s probably a constraint that would make the model handle incomplete records better', correct: false, feedback: 'You can instruct the model to handle missing data gracefully, but instructions can\'t substitute for actual information. If the attachment didn\'t load, no prompt instruction retrieves it.' },
+              ]}
         />
+        {para(track === 'tech'
+          ? 'Context is not configuration. It is the actual input the model receives at inference time. Everything the model knows about your specific case must be in the context window. The model has no memory between calls, no access to your systems, no ability to retrieve information it was not sent. Output quality is bounded by context quality — not by model quality.'
+          : 'The model has no memory between calls and no access to systems it wasn\'t given. Every fact it needs to produce a good output has to be in the context window when you make the call. A good prompt with broken context produces a broken output — not because the model failed, but because it did exactly what you asked with what you gave it.')}
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m1-context"
-          content="Context assembly is where a lot of the real engineering effort lives in a production AI system — and it is where most teams underinvest."
-          expandedContent="The model is the easy part. APIs are easy. The hard part is reliably assembling a complete, correctly structured context packet every time a request comes in — with the right fields, in the right format, with the right fallback when a field is missing. That is real engineering. And it is what separates a demo that works once from a workflow that works every Monday morning."
-          question="Your team wants to improve AI output quality. Which investment has the highest expected return?"
-          options={[
-            { text: 'Upgrade to a more powerful model to handle edge cases better', correct: false, feedback: 'A more powerful model receiving a poor context packet still produces a poor output. Context quality is almost always the binding constraint.' },
-            { text: 'Improve context assembly — ensure all required fields arrive clean and complete', correct: true, feedback: 'Exactly. If the context is complete and correctly structured, output quality improves dramatically without any model change.' },
-            { text: 'Add more instructions to the system prompt to compensate for missing context', correct: false, feedback: 'Instructions cannot substitute for missing information. If the model does not have the data, instructions cannot conjure it.' },
-          ]}
+          content={track === 'tech'
+            ? "Aarav — how long was the staging environment running before you caught this?"
+            : "Rhea, I want to ask you about the six weeks before you noticed the pattern."}
+          expandedContent={track === 'tech'
+            ? "Because that's the design problem I'm most concerned about. Not that the context packets were broken — that's fixable. The problem is the system had no way to know a context packet was broken. A null field, a truncated note, a flattened form — those all produced outputs that looked like outputs. Not error states. Not flags. Just a summary, formatted correctly, sent to whoever was waiting for it. The question for your context assembly layer is: what does it do when a required field is missing? Does it fail loudly and route the case for human review? Or does it silently proceed?"
+            : "For six weeks, bad summaries were going to case workers on those older cases. Some of them may have acted on incomplete information. The thing about context quality failures is they're silent — the output looks like an output. It doesn't look like an error. Nobody sees a red flag. They just see a summary that's a bit thin or misses something important. The design question is: what should your system do when a required field is missing or an attachment doesn't load? Because right now, the answer is: proceed and generate anyway."}
+          question={track === 'tech'
+            ? "You're redesigning the context assembly layer. What's the most important safeguard to add?"
+            : "You're redesigning the summary workflow. What's the most important thing to add to the context assembly step?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Log all API calls so you can inspect failing cases after the fact', correct: false, feedback: 'Logging is essential for debugging, but it doesn\'t prevent bad outputs from being delivered. The safeguard needs to be before inference.' },
+                { text: 'Validate required fields before sending to the model — if they\'re missing, flag the case for human review instead of running inference', correct: true, feedback: 'Exactly. Silent failures are the most dangerous kind. Validate context completeness before the call. If something critical is missing, the system should know that and act accordingly.' },
+                { text: 'Add a confidence score output so downstream users know when to verify the summary', correct: false, feedback: 'Confidence scores help, but they reflect the model\'s self-assessment, not context completeness. A model receiving a broken context packet doesn\'t necessarily output a low confidence score.' },
+              ]
+            : [
+                { text: 'Add a disclaimer to every AI summary reminding case workers to verify against the original record', correct: false, feedback: 'Disclaimers shift the burden to the case worker without fixing the underlying issue. If the context is broken, the summary is unreliable regardless of the disclaimer.' },
+                { text: 'Validate that required fields are present and attachments loaded before running the model — route incomplete cases to human review', correct: true, feedback: 'Yes. The safeguard goes before inference, not after. If the context is incomplete, the system should flag it — not silently generate a degraded summary.' },
+                { text: 'Have case workers rate summaries so you can identify which ones the model struggled with', correct: false, feedback: 'Rating helps you find past failures. It doesn\'t prevent future ones from reaching case workers first.' },
+              ]}
         />
+        {keyBox('What belongs in a good context packet', [
+          'The task input: the document, case note, or record being processed — complete and correctly structured.',
+          'Relevant background: role of the reader, purpose of the output, what\'s already known.',
+          'Constraints: what to include, exclude, or flag in the output.',
+          'Validation: required fields present, attachments loaded, data not truncated.',
+        ], '#C2410C')}
         {PMPrincipleBox({ principle: 'The model cannot produce what it does not have. Fix the context before you fix the prompt.' })}
-        <ApplyItBox prompt={track === 'tech' ? "Pick a production LLM call that produces inconsistent outputs. Inspect the context packet across good and bad cases. What fields are present in good runs but missing or malformed in poor ones? What does the context assembly layer need to fix?" : "Find a case where an AI tool gave you a surprisingly poor output. What was actually in the context it received? Was any important information missing, truncated, or in the wrong format? What would a complete context packet have looked like?"} />
+        <ApplyItBox prompt={track === 'tech' ? "Pick a production LLM call with inconsistent outputs. Compare the context packets across good and bad cases. What fields are present in good runs but missing or malformed in bad ones? What does the context assembly layer need to validate before inference?" : "Find a case where an AI tool gave you a surprisingly poor output. What was actually in the context it received? Was anything missing, truncated, or in the wrong format? What would a validated context packet look like for that case?"} />
         <QuizEngine conceptId="genai-m1-context" conceptName="Context as Input" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the four fundamentals: what the model is, where it is reliable, how to specify tasks, and why context quality matters. The last question is: which task do you actually start with?" : "Rhea now has the four fundamentals. The last question is the most practical one: given everything you have learned, which use case do you actually build first?"} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the four fundamentals: what the model is, where it's reliable, how to specify tasks, and why context quality matters. The last question is the one that has to come before any of this reaches production." : "Rhea has the four fundamentals. The last question is the most practical: given everything she now knows, which use case does she actually build first?"} />
       </ChapterSection>
 
       <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-m1-apply">
@@ -716,51 +810,75 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2('Win clearly. Verify easily. Fail cheaply.')}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
-            ? <>Aarav has three candidates for a first AI integration. Option one: auto-approve routine claims exceptions based on pattern matching and AI scoring. Option two: classify inbound case requests by type and urgency, flagging uncertain cases for human review. Option three: build an autonomous agent that monitors the intake queue, routes requests, and takes action without human checkpoints. He applies the readiness criteria. Two candidates fail immediately. One is ready to build.</>
-            : <>Rhea has three candidates for a first AI workflow. Option one: draft responses to provider complaints using AI, sent directly without review. Option two: classify inbound escalations by category and urgency, with human review of low-confidence cases. Option three: automatically resolve routine exception requests based on AI confidence scores. She runs them through a simple filter. The answer is obvious once she knows what to look for.</>}
+            ? <>Aarav has three candidates for a first production AI integration. Option one: auto-approve routine claims exceptions when AI confidence is above a threshold — biggest efficiency gain, clearest ROI. Option two: classify inbound case requests by type and urgency, flagging low-confidence cases for human review. Option three: an autonomous intake agent that monitors the queue, routes requests, and takes action without human checkpoints — most technically interesting. He builds the ROI case for option one. Then he messages Anika before the presentation.</>
+            : <>Rhea has three options to bring to her director. Option one: auto-resolve routine exception requests where the AI confidence is above 80% — biggest headline number, clearest headcount case. Option two: classify inbound escalations by category and urgency, with human review of anything below a confidence threshold. Option three: AI drafts responses to provider complaints, sent directly after a quick assistant spot-check. She&apos;s been building the case for option one. She calls Anika the night before the presentation.</>}
         </SituationCard>
-        {para('Choosing the right first AI use case is not about finding the most impressive one. It is about finding one where success is clear, failure is cheap, and the team learns as much as possible from running it. Most teams choose the wrong first use case — too ambitious, too irreversible, or too hard to verify — and their early AI experience produces expensive confusion instead of a foundation to build on.')}
-        {para('A strong first use case has five properties: the task is language-based (input and output are text, no live database queries required), the output is bounded (a category, a summary, a draft — not a final decision or an irreversible action), the output is easy to verify (a human can quickly assess whether the result is good), mistakes are recoverable (if the model is wrong, the error is caught before causing harm), and no live data is required (the task does not depend on current records the model cannot have).')}
-        {para('Classification with a human review gate is the archetype. The model reads an inbound request, assigns a category and urgency, and flags low-confidence cases for a human. The model does not update any record, send any message, or take any action. It suggests. A human confirms. The system learns where it fails. That is how you build trust before you extend autonomy.')}
-        {keyBox('First use case readiness criteria', [
-          'Language-based: text in, text out. No live database access needed.',
-          'Bounded output: category, summary, or draft — not a final action.',
-          'Easy to verify: a human can quickly check whether the output is right.',
-          'Recoverable: errors are caught before they cause harm.',
-          'No live data dependency: the task works on documents and text you already have.',
-        ], ACCENT)}
         <GenAIAvatar
           name="Anika"
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-use-case-readiness"
-          content="The purpose of the first use case is not efficiency. It is proof that your team can build, observe, and improve an AI system reliably."
-          expandedContent="Efficiency comes later, once the system has earned it. The first deployment should teach the team where the model fails, how to catch those failures, and what the context needs in order for the model to perform well. All of that learning requires a low-stakes, easy-to-verify workflow. Choose it deliberately."
-          question="Which candidate makes the best first AI use case?"
-          options={[
-            { text: 'Auto-approve routine policy exceptions to cut manual review time', correct: false, feedback: 'Auto-approval is an irreversible action with high stakes. It does not meet the recoverable or bounded criteria for a first use case.' },
-            { text: 'Classify inbound requests and flag uncertain cases for human review', correct: true, feedback: 'Exactly. Bounded output, easy to verify, recoverable, no live data dependency. This is the archetype for a strong first use case.' },
-            { text: 'Build a fully autonomous intake agent to handle requests end-to-end', correct: false, feedback: 'Full autonomy at the start skips the trust-building stages. The team has not yet learned where the model fails.' },
-          ]}
+          content={track === 'tech'
+            ? "Walk me through option one. What happens to a case when the AI confidence score is wrong?"
+            : "Walk me through option one. Auto-resolve at 80% confidence. What does an incorrectly resolved exception look like to the person who submitted it?"}
+          expandedContent={track === 'tech'
+            ? "A confidence score is not accuracy. It's the model's estimate of its own certainty — which correlates with accuracy but is not the same thing. An 80% threshold means roughly 1 in 5 decisions the model is confident about are wrong. Now: what does an incorrectly auto-approved exception look like, end to end? Does it route somewhere before anyone sees it? Does the person affected know? Can they appeal? Can you tell how many there have been? That's the question the ROI presentation hasn't answered. The first use case doesn't have to be the most impressive one. It has to be one where you can see what the system is doing, learn from its mistakes, and improve it. You can't do that with option one."
+            : "Do they get a notification? Can they see what happened? Is there a flag in your system that says 'AI-resolved, no human review'? Because here's what I know: a confidence score is the model's estimate of its own certainty, not a guarantee of accuracy. At 80%, 1 in 5 cases the model thinks it's sure about are wrong. If those wrong cases auto-resolve and nobody catches them, you don't have an efficiency gain. You have a liability you don't know the size of yet. The first use case is how you learn what your model gets wrong. That learning requires being able to see the failures. Option one makes them invisible."}
+          question={track === 'tech'
+            ? "Your director pushes back: 'Option two doesn't show enough efficiency gain. Why start there?' What's the right argument?"
+            : "Your director says 'Option two doesn't move the needle on headcount. Why would we do this?' What do you say?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Option two is safer from a compliance standpoint, which limits our liability exposure', correct: false, feedback: 'That frames it as caution vs. results. The real argument is about what you can actually build reliably and what you learn from it.' },
+                { text: 'Option two teaches us where the model fails before those failures affect outcomes — that\'s what earns the right to do option one later', correct: true, feedback: 'Exactly. Six weeks of option two tells you which case types the model misclassifies, what the context looks like when it fails, and what accuracy looks like on real data. Option one without that foundation is a liability.' },
+                { text: 'Option one requires more infrastructure than we have right now', correct: false, feedback: 'Infrastructure is a real consideration but not the strongest argument. The core issue is what happens when the model is wrong and whether you\'ll know.' },
+              ]
+            : [
+                { text: 'Option two is the safe, compliance-friendly choice while we prove the technology', correct: false, feedback: 'That frames option two as the cautious option. It\'s actually the strategic one — it generates the data that makes option one viable later.' },
+                { text: 'Option two teaches us exactly where the model fails before those failures affect real cases — that\'s what makes option one possible to do safely', correct: true, feedback: 'Exactly. Option two is how you build the foundation. Six weeks of classification data tells you what the model gets wrong, how often, and on which case types. Without that, option one\'s 80% confidence threshold is a number with no context.' },
+                { text: 'Option one requires more technical complexity than we\'re ready for right now', correct: false, feedback: 'Complexity is a real factor, but the stronger argument is about observability. Option one without a review step makes failures invisible until they\'ve had an effect.' },
+              ]}
         />
+        {para(track === 'tech'
+          ? 'The first use case is not about maximum impact. It is about building something you can see, understand, and improve. Bounded output, human checkpoint, easy verification, recoverable failures. Classification with a review gate is the archetype — the model suggests, a human confirms, and the team learns exactly where the model fails before those failures affect anything.'
+          : 'The first use case is not the most efficient one. It is the most learnable one. Bounded output, human review, easy verification, recoverable errors. Classification with a review step is the archetype — the model reads, categorises, flags uncertainty, and a human confirms. The team learns what the model gets wrong before any of that affects a case.')}
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-use-case-readiness"
-          content="Teams that start with the most ambitious use case almost always end up doing less than teams that start with the most learnable one."
-          expandedContent="An ambitious first use case generates a lot of complexity and a lot of noise. The team cannot tell what is failing or why. A simple, bounded first use case generates clean signal: is the classification right? If not, which cases failed, and what did the context look like? That is the kind of learning that compounds. Start learnable. Scale to ambitious once you have the foundation."
-          question="A team argues that starting with a simple classification task is too modest. They want to build a full autonomous agent for their first deployment. What is the strongest counterargument?"
-          options={[
-            { text: 'Agents require too much technical infrastructure to start with', correct: false, feedback: 'Infrastructure complexity is a real concern, but it is not the strongest argument against starting with an agent.' },
-            { text: 'A full autonomous agent gives the team no way to learn where the model fails before it acts', correct: true, feedback: 'Exactly. Without a review gate, failures are invisible until they cause harm. A bounded first use case generates the learning needed to extend autonomy safely.' },
-            { text: 'Agents are only suitable for large enterprises with dedicated AI teams', correct: false, feedback: 'Agents can work at any scale. The issue is sequencing — earning autonomy before granting it.' },
-          ]}
+          content={track === 'tech'
+            ? "Aarav, I want to ask you something different. After six weeks of running option two — what would you need to see before you'd feel comfortable removing the review step?"
+            : "Rhea, after six weeks of running option two — what would you need to see before you'd feel ready to move to option one?"}
+          expandedContent={track === 'tech'
+            ? "That's the question that turns a pilot into a strategy. You'd want to know: which case types does the model classify correctly 98%+ of the time? Which ones does it consistently get wrong? What does the context look like in the failures — are there patterns? How long does the review step actually take when a human catches a bad classification? Those six weeks turn the 80% confidence threshold from a number into a decision. You don't remove the review step. You narrow it — apply it only to the case types where the model has earned that trust. That's how you get to option one. Not by starting there."
+            : "That's the question that connects option two to option one. Not 'when have we run it long enough?' but 'what does the data show us?' Which escalation categories is the model consistently right on? Which ones does it misclassify, and what do those cases look like? How often does the human reviewer change the classification? Once you have that, you're not guessing about 80% confidence — you have actual accuracy rates on your actual cases. You extend autonomy to the categories the model has earned it on. That's how option one becomes viable. Not by starting there on faith."}
+          question={track === 'tech'
+            ? "After six weeks, your classification model is 94% accurate on routine cases. Someone proposes removing the review step. What do you check first?"
+            : "After six weeks, the model is correctly flagging 93% of escalations. Your director wants to move to auto-routing with no human review. What's the first question you ask?"}
+          options={track === 'tech'
+            ? [
+                { text: 'Whether 94% meets the industry benchmark for this classification task', correct: false, feedback: 'Benchmarks compare you to other models. They don\'t tell you what the 6% failures look like in your specific workflow.' },
+                { text: 'What the 6% misclassifications are — which case types, and whether a wrong classification causes recoverable or unrecoverable harm', correct: true, feedback: 'Exactly. 94% sounds high. But if the 6% that are wrong are the highest-stakes cases, removing the review step is a different decision than it looks. The failure cases tell you more than the accuracy rate does.' },
+                { text: 'Whether the model has been trained on enough domain-specific cases to generalise reliably', correct: false, feedback: 'Training coverage is worth understanding, but after six weeks of live data, the question is about the actual failure modes you\'ve observed.' },
+              ]
+            : [
+                { text: 'Whether the model\'s accuracy rate is high enough to meet the SLA we\'ve committed to', correct: false, feedback: 'SLA compliance is a goal, but it doesn\'t answer what happens when the model is wrong. The question is about failure mode, not error rate.' },
+                { text: 'What the 7% misclassifications look like — which case types, and whether an incorrectly routed case causes harm before it\'s caught', correct: true, feedback: 'Yes. 93% sounds reliable. But if the cases the model misclassifies are the highest-urgency ones, auto-routing them is a different risk than the headline number suggests.' },
+                { text: 'Whether we can build an escalation path so misrouted cases get flagged eventually', correct: false, feedback: 'An escalation path helps catch failures after they happen. The question is whether you understand the failure pattern well enough to design that path correctly.' },
+              ]}
         />
+        {keyBox('First use case readiness criteria', [
+          'Language-based: text in, text out. No live database access needed.',
+          'Bounded output: category, summary, or draft — not a final decision or irreversible action.',
+          'Easy to verify: a human can quickly check whether the output is right.',
+          'Recoverable: errors are caught before they affect anything downstream.',
+          'Observable: you can see what the model gets wrong, not just what it gets right.',
+        ], ACCENT)}
         {PMPrincipleBox({ principle: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.' })}
-        <ApplyItBox prompt={track === 'tech' ? "Name three AI integration candidates from your current team. Apply the five criteria: language-based, bounded output, easy to verify, recoverable, no live data required. Which candidate scores best? What does building it first unlock?" : "Name one AI workflow you have been considering. Run it through the five criteria. Where does it pass, and where does it fail? What would a simpler, lower-stakes version of the same idea look like that clears all five?"} />
+        <ApplyItBox prompt={track === 'tech' ? "Name three AI integration candidates from your current backlog. Run each through the five criteria: language-based, bounded output, easy to verify, recoverable, observable failures. Which one scores best? What does running it first teach you that the others can't?" : "Name one AI workflow you've been considering. Run it through the five criteria. Where does it pass, where does it fail? What's the smallest, most learnable version of the same idea that clears all five?"} />
         <QuizEngine conceptId="genai-m1-use-case-readiness" conceptName="Use-Case Readiness" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has the mental model, the capability map, the specification habit, the context discipline, and a first use case. Pre-Read 02 goes inside the model: how to write prompts that stay reliable under production conditions." : "Rhea now has everything she needs to think clearly about GenAI. Pre-Read 02 goes deeper: how to write prompts that produce consistent, reliable outputs when real, messy data is flowing through them."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav has the mental model, the capability map, the specification habit, the context discipline, and a first use case worth building. Pre-Read 02 goes inside the model: how to write prompts that stay reliable when real, messy data is flowing through them." : "Rhea now has everything she needs to think clearly about GenAI. Pre-Read 02 goes deeper: how to write prompts that produce consistent, reliable outputs when the data is real and the stakes are higher."} />
       </ChapterSection>
     </>
   );
