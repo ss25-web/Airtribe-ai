@@ -203,10 +203,6 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Modules 1–2 are available now. Modules 3–11 unlock week by week.</div>
-          </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            2 of 11 available
           </div>
         </div>
 
@@ -300,7 +296,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <div style={{ marginTop: '32px', padding: '16px 20px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', textAlign: 'center' as const }}>
           <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
             Modules 1–11 are part of the <strong style={{ color: 'var(--ed-ink)' }}>AI-First Product Management</strong> program.
-            Module 1 is available now — the full program unlocks week by week.
+            Modules unlock week by week as the cohort progresses.
           </div>
         </div>
       </div>
