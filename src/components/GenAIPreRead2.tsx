@@ -172,11 +172,11 @@ const QUIZZES = [
 ];
 
 const BADGES = [
-  { id: 'prompt-architect', icon: '✍️', label: 'Prompt Architect', color: '#2563EB', bg: 'rgba(37,99,235,0.1)', border: '#2563EB' },
-  { id: 'few-shot-master', icon: '🎯', label: 'Few-Shot Master', color: '#0F766E', bg: 'rgba(15,118,110,0.1)', border: '#0F766E' },
-  { id: 'context-navigator', icon: '🗺️', label: 'Context Navigator', color: '#7C3AED', bg: 'rgba(124,58,237,0.1)', border: '#7C3AED' },
-  { id: 'model-strategist', icon: '🧠', label: 'Model Strategist', color: '#C2410C', bg: 'rgba(194,65,12,0.1)', border: '#C2410C' },
-  { id: 'refinement-expert', icon: '🔬', label: 'Refinement Expert', color: '#DB2777', bg: 'rgba(219,39,119,0.1)', border: '#DB2777' },
+  { id: 'genai-m2-anatomy', icon: 'PA', label: 'Anatomy', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+  { id: 'genai-m2-fewshot', icon: 'FS', label: 'Few-Shot', color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
+  { id: 'genai-m2-context', icon: 'CW', label: 'Context', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+  { id: 'genai-m2-models', icon: 'MS', label: 'Models', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
+  { id: 'genai-m2-refine', icon: 'RL', label: 'Refine', color: '#DB2777', bg: '#FDF2F8', border: '#FBCFE8' },
 ];
 
 const SECTION_XP = 50;

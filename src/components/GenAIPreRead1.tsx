@@ -450,13 +450,15 @@ function CoreContent({ track }: { track: GenAITrack }) {
               border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`,
               borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{protagonist}</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ display: 'inline-block', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: track === 'tech' ? '#0F766E' : ACCENT, background: track === 'tech' ? 'rgba(15,118,110,0.1)' : `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em', marginBottom: '8px' }}>PROTAGONIST</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{protagonist}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
+                  </div>
                 </div>
-                <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: track === 'tech' ? '#0F766E' : ACCENT, background: track === 'tech' ? 'rgba(15,118,110,0.1)' : `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em' }}>PROTAGONIST</div>
               </div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{protagonistDesc}</div>
             </div>
