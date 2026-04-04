@@ -83,7 +83,7 @@ const StoryCard = ({ protagonist, accentColor, children }: { protagonist: string
 );
 
 // ─── SWEMentorFace ────────────────────────────────────────────────────────────
-const SWEMentorFace = ({ name, color, size = 66 }: { name: string; color: string; size?: number }) => {
+const SWEMentorFace = ({ name, size = 66 }: { name: string; size?: number }) => {
   const [blink, setBlink] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -96,22 +96,93 @@ const SWEMentorFace = ({ name, color, size = 66 }: { name: string; color: string
     schedule();
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
-  const initials = name.split(' ').map((w: string) => w[0]).join('');
+  const eyeRy = blink ? 0.7 : 4.8;
+
+  const faces: Record<string, React.ReactNode> = {
+    Riya: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#024F8C" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#0369A1" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#BF8B5A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#BF8B5A" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#BF8B5A" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#BF8B5A" />
+        <ellipse cx="50" cy="22" rx="28" ry="15" fill="#1A0A05" />
+        <path d="M 22 30 Q 28 22 50 20 Q 72 22 78 30 L 76 44 Q 64 37 50 37 Q 36 37 24 44 Z" fill="#1A0A05" />
+        <ellipse cx="50" cy="10" rx="9" ry="8" fill="#1A0A05" />
+        <ellipse cx="50" cy="9" rx="6" ry="4" fill="#2A1005" />
+        <path d="M 31 42 Q 38 40 45 42" stroke="#1A0A05" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 42 Q 62 40 69 42" stroke="#1A0A05" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#3A2417" /><circle cx="62.5" cy="50.5" r="3.3" fill="#3A2417" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 62 53 57" stroke="#A96938" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#9C5D3B" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    Kavya: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4F35B8" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#7C3AED" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#D4956B" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#D4956B" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#D4956B" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#D4956B" />
+        <circle cx="24" cy="59" r="2.5" fill="#F0C040" />
+        <circle cx="76" cy="59" r="2.5" fill="#F0C040" />
+        <ellipse cx="50" cy="22" rx="27" ry="15" fill="#0D0D0D" />
+        <path d="M 23 31 Q 28 22 50 20 Q 72 22 77 31 L 76 46 Q 65 39 50 39 Q 35 39 24 46 Z" fill="#0D0D0D" />
+        <path d="M 23 46 Q 20 62 22 74 Q 27 65 27 54 Z" fill="#0D0D0D" />
+        <path d="M 77 46 Q 80 62 78 74 Q 73 65 73 54 Z" fill="#0D0D0D" />
+        <path d="M 31 42 Q 38 40 45 42" stroke="#0D0D0D" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M 55 42 Q 62 40 69 42" stroke="#0D0D0D" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#2A1810" /><circle cx="62.5" cy="50.5" r="3.3" fill="#2A1810" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 62 53 57" stroke="#B07050" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#9C6845" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    Mei: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#991B1B" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#DC2626" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#E8C8A5" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#E8C8A5" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#E8C8A5" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#E8C8A5" />
+        <ellipse cx="50" cy="22" rx="27" ry="14" fill="#111111" />
+        <path d="M 23 28 Q 30 20 50 18 Q 70 20 77 28 L 77 46 Q 66 38 50 38 Q 34 38 23 46 Z" fill="#111111" />
+        <path d="M 23 46 Q 20 62 24 78 Q 28 68 28 56 Z" fill="#111111" />
+        <path d="M 77 46 Q 80 62 76 78 Q 72 68 72 56 Z" fill="#111111" />
+        <path d="M 25 33 Q 37 28 50 28 Q 63 28 75 33 Q 63 37 50 37 Q 37 37 25 33 Z" fill="#111111" />
+        <path d="M 31 41 Q 38 40 45 41" stroke="#111111" strokeWidth="2.3" strokeLinecap="round" fill="none" />
+        <path d="M 55 41 Q 62 40 69 41" stroke="#111111" strokeWidth="2.3" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#2A1C14" /><circle cx="62.5" cy="50.5" r="3.3" fill="#2A1C14" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 61 53 57" stroke="#C09070" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 41 67 Q 50 72 59 67" stroke="#B07860" strokeWidth="1.9" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+  };
+
   return (
     <motion.div
       animate={{ y: [0, -2, 0] }}
       transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
       style={{
         width: size, height: size, borderRadius: '16px', flexShrink: 0,
-        background: `linear-gradient(135deg, ${color} 0%, ${color}BB 100%)`,
-        border: `2px solid ${color}`,
-        boxShadow: `0 0 20px ${color}35`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        transition: 'opacity 0.08s', opacity: blink ? 0.5 : 1,
+        overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
       }}>
-      <span style={{ fontSize: size * 0.32, fontWeight: 800, color: '#fff', letterSpacing: '-0.01em', fontFamily: "'Plus Jakarta Sans', sans-serif", lineHeight: 1 }}>
-        {initials}
-      </span>
+      {faces[name] ?? (
+        <div style={{ width: '100%', height: '100%', background: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: size * 0.32, fontWeight: 800, color: '#fff' }}>{name[0]}</span>
+        </div>
+      )}
     </motion.div>
   );
 };
@@ -152,7 +223,7 @@ const SWEAvatar = ({ name, role, color, content, expandedContent, question, opti
       </div>
       {/* Body */}
       <div style={{ padding: '18px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-        <SWEMentorFace name={name} color={color} size={66} />
+        <SWEMentorFace name={name} size={66} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '1px' }}>{name}</div>
           <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px', letterSpacing: '0.04em' }}>{role}</div>
@@ -957,25 +1028,13 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               {track === 'nodejs' && <>Leo had been writing JavaScript for six months — buttons, event listeners, DOM manipulation. His first task at Launchly was to add a field to the notifications service. He opened the file. JavaScript. But no HTML, no <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>document</code>, no <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>window</code>. He ran <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node server.js</code> and a server started — listening on port 3000, handling real HTTP requests. He messaged Mei: &ldquo;Is this even still JavaScript?&rdquo; She replied: &ldquo;Same language. Different host. V8 doesn&apos;t care where it runs.&rdquo;</>}
             </StoryCard>
 
-            {para(<>Your source code — the text you write in your editor — is not what the computer runs. The computer runs machine code: sequences of ones and zeros that tell the CPU exactly what to do. Everything in between is translation. What makes languages different is <em>when and how</em> that translation happens.</>)}
-
-            {h2(<>The translation chain</>)}
-
-            {track === 'python' && para(<>Python is an <strong>interpreted language</strong>. When you run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>python pipeline.py</code>, the <strong>CPython interpreter</strong> reads your source code and executes it directly — no separate compile step. This is why Python errors sometimes only surface when a specific line is reached: the interpreter has not read ahead.</>)}
-            {track === 'java' && para(<>Java uses a <strong>two-step model</strong>. First, <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>javac</code> compiles your source code into <strong>bytecode</strong> — not machine code, but a portable intermediate format. Then the <strong>JVM (Java Virtual Machine)</strong> reads that bytecode and translates it to native instructions at runtime, using JIT compilation. Two commands, two jobs.</>)}
-            {track === 'nodejs' && para(<>Node.js is a <strong>JavaScript runtime</strong> built on Chrome&apos;s <strong>V8 engine</strong> — the same engine that runs JavaScript in your browser. V8 JIT-compiles JavaScript directly to native machine code. Node.js adds what the browser cannot offer: file system access, network sockets, and the ability to run as a server. Same language, different environment.</>)}
-
-            <ExecutionFlow track={track} accentColor={meta.accentColor} />
-
-            <LiveCodeSandbox track={track} accentColor={meta.accentColor} />
-
             <SWEAvatar
               name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
               conceptId="swe-m1-execution"
               content={
-                track === 'python' ? <>&ldquo;Jupyter was hiding the machine from you. The terminal forces you to understand its language. That <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>ModuleNotFoundError</code> on day one? That&apos;s the environment telling you exactly what it needs. The interpreter is a meticulous librarian — it tells you <em>exactly</em> when a book isn&apos;t on its shelf.&rdquo;</> :
-                track === 'java' ? <>&ldquo;JavaScript runs when it reads. Java runs after it&apos;s built. That difference is the whole story. Compilation isn&apos;t an inconvenience — it&apos;s your first reviewer, and it works for free. When a refactor touches 200 files, the compiler tells you every place that broke before you ship a single byte to production.&rdquo;</> :
-                <>&ldquo;V8 doesn&apos;t care if you call it from Chrome or a terminal — it just compiles and runs JavaScript. What makes Node different isn&apos;t the language. It&apos;s what Node wraps around V8: the file system, the event loop, the HTTP module. Learn what Node <em>adds</em>. That&apos;s where the real work is.&rdquo;</>
+                track === 'python' ? <>&ldquo;That error on your first day — the interpreter didn&apos;t crash randomly. It told you exactly what it needs. Before we talk about how Python runs, I want you to understand why that message is actually your most useful tool.&rdquo;</> :
+                track === 'java' ? <>&ldquo;That CI failure tells you something important about Java that most people miss. Your code compiled. It ran. Then it failed differently in a different environment. That gap — between compile time and runtime — is what I want you to understand.&rdquo;</> :
+                <>&ldquo;Same language, different host — that&apos;s the whole answer. But I want you to understand what &apos;different host&apos; actually means for how your code runs and what capabilities you have.&rdquo;</>
               }
               expandedContent={
                 track === 'python' ? <>In Python, errors only appear when a line actually runs. A script can have a bug on line 47 that nobody sees for weeks because that code path is never triggered in testing. This is why you write tests for every branch — not because the code looks wrong, but because the interpreter won&apos;t warn you ahead of time. In production, you&apos;ll encounter data you never anticipated. The only defence is coverage that exercises every path before it gets there.</> :
@@ -1060,6 +1119,43 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               {track === 'nodejs' && <>Leo clones the Launchly API repo and runs <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node server.js</code>. It crashes immediately: &ldquo;Cannot find module &apos;express&apos;.&rdquo; He checks the repo — express is listed in package.json. He messages Mei. She sends back a one-word reply: <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code>. He runs it, 180 packages appear. The server starts.</>}
             </StoryCard>
 
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-environment"
+              content={
+                track === 'python' ? <>&ldquo;Every Python developer loses hours to the venv confusion. Once. You do it once, you understand, and you never forget to activate it again. The thing to internalise: your environment <em>is</em> part of your code. A script that only works in one specific setup is not a reliable script — it&apos;s a script that happens to work on your machine.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Maven&apos;s XML is ugly and verbose. I know. But it solves a real problem: reproducible builds. Your machine, my machine, the CI server, and production should all build the exact same thing from the same pom.xml. When they don&apos;t, the build tool is almost always why. Learn to read pom.xml early — it&apos;s the contract for how the project is built.&rdquo;</> :
+                <>&ldquo;First rule of joining any Node.js project: <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code>. Second rule: commit <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>package-lock.json</code>. Without the lock file, two developers can run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code> on the same package.json and get different versions of a transitive dependency. That is how &apos;it works on my machine&apos; bugs are born.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>Here is the practical test: if another engineer clones your repo and runs your script without any instructions and it fails, your environment setup is broken. requirements.txt solves this. A venv per project solves this. The goal is that anyone can reproduce your work from just the code and the requirements file. If that&apos;s true, you have a reliable setup. If it&apos;s not, you have a local script that happens to work for you.</> :
+                track === 'java' ? <>The Maven wrapper — the mvnw file you see in most Java repos — guarantees everyone uses the same Maven version. No &ldquo;it builds on my machine&rdquo; because Maven is different. The pom.xml declares the Java version too. If you set <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>java.version</code> to 17, anyone building with Java 21 will be warned. Your CI enforces these constraints automatically. That&apos;s reproducibility.</> :
+                <>The difference between <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> and <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> matters on a team. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> may update package-lock.json. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> installs exactly what is in the lock file and fails if anything drifts. Use <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> in CI pipelines and on new clones — it is faster and deterministic.</>
+              }
+              question={
+                track === 'python' ? 'A new engineer clones the repo and runs the pipeline. It crashes with ModuleNotFoundError. Riya asks you to diagnose it before she looks. What do you say?' :
+                track === 'java' ? 'A junior asks whether they should download the required library JAR manually from Maven Central. What do you tell them?' :
+                'You just cloned the notifications repo. You try node server.js and get "Cannot find module \'express\'". Before asking anyone — what is your move?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: 'There is probably a bug in the pipeline code causing the crash', correct: false, feedback: "ModuleNotFoundError means a package isn't installed in the active Python environment — it's not a logic error in the code. The fix is environment setup, not code changes." },
+                  { text: "They haven't activated the project's virtual environment or run pip install -r requirements.txt", correct: true, feedback: "Correct. Every new clone needs the environment set up first. The virtual environment isn't committed to git — they need to create it, activate it, and install the packages listed in requirements.txt." },
+                  { text: 'Their Python version is too old — they need to upgrade', correct: false, feedback: "Version mismatch would produce a different error, usually a syntax error or DeprecationWarning. ModuleNotFoundError points specifically to missing packages in the active environment." },
+                ] :
+                track === 'java' ? [
+                  { text: 'Yes, download from Maven Central and add it to a /lib folder in the project', correct: false, feedback: "This is exactly the problem Maven was designed to solve. Manually managed JARs lead to version conflicts, bloated repos, and no automated consistency across machines. Always use pom.xml." },
+                  { text: 'No — declare the dependency in pom.xml and Maven downloads it automatically on the next build', correct: true, feedback: "Exactly. pom.xml is the single source of truth for what the project needs. Maven downloads, caches, and manages every declared dependency. The whole team gets the same versions, automatically." },
+                  { text: 'Ask the tech lead first — dependency decisions need approval', correct: false, feedback: "Escalating a basic dependency question is a sign of uncertainty, not caution. The process is clear: declare in pom.xml, let Maven handle it. You can confirm the choice in a PR review." },
+                ] : [
+                  { text: "Check if Node.js is installed correctly — it might be a PATH issue", correct: false, feedback: "If Node.js wasn't installed or was misconfigured, you wouldn't be able to run node at all. The error 'Cannot find module express' tells you Node is fine — it just can't find a specific package." },
+                  { text: "Run npm install — node_modules is never committed to the repo, so packages need to be installed after every fresh clone", correct: true, feedback: "Correct. node_modules is in .gitignore by convention — it's large, reproducible, and platform-specific. npm install reads package.json and restores everything. This is the first step after cloning any Node.js project." },
+                  { text: "Edit package.json to add express manually", correct: false, feedback: "If express is already in package.json (which it is — it's listed as a dependency), the fix isn't to edit the file. It's to install what's already declared. npm install is all you need." },
+                ]
+              }
+            />
+
+
             {para(<>Professional engineers spend deliberate time on their environment — the set of tools, configurations, and habits that let them write, run, and debug code reliably. Getting this wrong early causes a specific kind of suffering: hours lost to problems that have nothing to do with the actual code you are trying to write.</>)}
 
             {h2(<>The Terminal</>)}
@@ -1115,42 +1211,6 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <EnvMistakes track={track} accentColor={meta.accentColor} />
 
-            <SWEAvatar
-              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
-              conceptId="swe-m1-environment"
-              content={
-                track === 'python' ? <>&ldquo;Every Python developer loses hours to the venv confusion. Once. You do it once, you understand, and you never forget to activate it again. The thing to internalise: your environment <em>is</em> part of your code. A script that only works in one specific setup is not a reliable script — it&apos;s a script that happens to work on your machine.&rdquo;</> :
-                track === 'java' ? <>&ldquo;Maven&apos;s XML is ugly and verbose. I know. But it solves a real problem: reproducible builds. Your machine, my machine, the CI server, and production should all build the exact same thing from the same pom.xml. When they don&apos;t, the build tool is almost always why. Learn to read pom.xml early — it&apos;s the contract for how the project is built.&rdquo;</> :
-                <>&ldquo;First rule of joining any Node.js project: <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code>. Second rule: commit <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>package-lock.json</code>. Without the lock file, two developers can run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 4px', borderRadius: '3px' }}>npm install</code> on the same package.json and get different versions of a transitive dependency. That is how &apos;it works on my machine&apos; bugs are born.&rdquo;</>
-              }
-              expandedContent={
-                track === 'python' ? <>Here is the practical test: if another engineer clones your repo and runs your script without any instructions and it fails, your environment setup is broken. requirements.txt solves this. A venv per project solves this. The goal is that anyone can reproduce your work from just the code and the requirements file. If that&apos;s true, you have a reliable setup. If it&apos;s not, you have a local script that happens to work for you.</> :
-                track === 'java' ? <>The Maven wrapper — the mvnw file you see in most Java repos — guarantees everyone uses the same Maven version. No &ldquo;it builds on my machine&rdquo; because Maven is different. The pom.xml declares the Java version too. If you set <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>java.version</code> to 17, anyone building with Java 21 will be warned. Your CI enforces these constraints automatically. That&apos;s reproducibility.</> :
-                <>The difference between <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> and <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> matters on a team. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm install</code> may update package-lock.json. <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> installs exactly what is in the lock file and fails if anything drifts. Use <code style={{ fontFamily: 'monospace', fontSize: '13px' }}>npm ci</code> in CI pipelines and on new clones — it is faster and deterministic.</>
-              }
-              question={
-                track === 'python' ? 'A new engineer clones the repo and runs the pipeline. It crashes with ModuleNotFoundError. Riya asks you to diagnose it before she looks. What do you say?' :
-                track === 'java' ? 'A junior asks whether they should download the required library JAR manually from Maven Central. What do you tell them?' :
-                'You just cloned the notifications repo. You try node server.js and get "Cannot find module \'express\'". Before asking anyone — what is your move?'
-              }
-              options={
-                track === 'python' ? [
-                  { text: 'There is probably a bug in the pipeline code causing the crash', correct: false, feedback: "ModuleNotFoundError means a package isn't installed in the active Python environment — it's not a logic error in the code. The fix is environment setup, not code changes." },
-                  { text: "They haven't activated the project's virtual environment or run pip install -r requirements.txt", correct: true, feedback: "Correct. Every new clone needs the environment set up first. The virtual environment isn't committed to git — they need to create it, activate it, and install the packages listed in requirements.txt." },
-                  { text: 'Their Python version is too old — they need to upgrade', correct: false, feedback: "Version mismatch would produce a different error, usually a syntax error or DeprecationWarning. ModuleNotFoundError points specifically to missing packages in the active environment." },
-                ] :
-                track === 'java' ? [
-                  { text: 'Yes, download from Maven Central and add it to a /lib folder in the project', correct: false, feedback: "This is exactly the problem Maven was designed to solve. Manually managed JARs lead to version conflicts, bloated repos, and no automated consistency across machines. Always use pom.xml." },
-                  { text: 'No — declare the dependency in pom.xml and Maven downloads it automatically on the next build', correct: true, feedback: "Exactly. pom.xml is the single source of truth for what the project needs. Maven downloads, caches, and manages every declared dependency. The whole team gets the same versions, automatically." },
-                  { text: 'Ask the tech lead first — dependency decisions need approval', correct: false, feedback: "Escalating a basic dependency question is a sign of uncertainty, not caution. The process is clear: declare in pom.xml, let Maven handle it. You can confirm the choice in a PR review." },
-                ] : [
-                  { text: "Check if Node.js is installed correctly — it might be a PATH issue", correct: false, feedback: "If Node.js wasn't installed or was misconfigured, you wouldn't be able to run node at all. The error 'Cannot find module express' tells you Node is fine — it just can't find a specific package." },
-                  { text: "Run npm install — node_modules is never committed to the repo, so packages need to be installed after every fresh clone", correct: true, feedback: "Correct. node_modules is in .gitignore by convention — it's large, reproducible, and platform-specific. npm install reads package.json and restores everything. This is the first step after cloning any Node.js project." },
-                  { text: "Edit package.json to add express manually", correct: false, feedback: "If express is already in package.json (which it is — it's listed as a dependency), the fix isn't to edit the file. It's to install what's already declared. npm install is all you need." },
-                ]
-              }
-            />
-
             {h2(<>Version Control: Git</>)}
             {para(<>Git is not optional. Every professional engineering team uses version control. Git lets you save checkpoints of your code, experiment in branches without fear, and collaborate through pull requests. Your first day on any team involves cloning a git repository.</>)}
 
@@ -1200,6 +1260,43 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               {track === 'nodejs' && <>Leo&apos;s computer science professor always said JavaScript was &ldquo;just a frontend toy.&rdquo; Leo is now looking at 50,000 lines of production JavaScript running Launchly&apos;s entire backend. He asks Mei: &ldquo;Is this normal? Running JavaScript on the server?&rdquo; She does not even look up. &ldquo;It&apos;s been normal for over a decade.&rdquo;</>}
             </StoryCard>
 
+            <SWEAvatar
+              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
+              conceptId="swe-m1-ecosystem"
+              content={
+                track === 'python' ? <>&ldquo;Riya&apos;s question — &lsquo;faster at what?&rsquo; — is the question that ends most &lsquo;let&apos;s rewrite in a faster language&apos; conversations. Python is slow at CPU computation. For most data pipelines, the bottleneck is waiting for I/O: database queries, network calls, file reads. A 10× faster language on a workload that is 90% waiting makes no measurable difference.&rdquo;</> :
+                track === 'java' ? <>&ldquo;The friend who texted &lsquo;nobody builds new things in Java&apos; has never worked in fintech. Java&apos;s type system catches an entire class of bugs before they reach production — bugs that surface in dynamic languages after a refactor, often in a code path nobody thought to test. At scale, with compliance requirements, that matters more than the syntax preferences of a startup.&rdquo;</> :
+                <>&ldquo;Your professor was half right — JavaScript was a frontend toy in 1996. Then V8 happened, then Node, then a decade of production usage at Netflix, LinkedIn, and Uber. The mental model of &lsquo;JavaScript is for browsers&apos; is as outdated as &lsquo;SQL is only for reporting&apos;. The runtime matters more than the language&apos;s original purpose.&rdquo;</>
+              }
+              expandedContent={
+                track === 'python' ? <>The ecosystem is where Python wins. pandas, NumPy, scikit-learn, PyTorch, FastAPI — this combination has no close equivalent in any other language. When your bottleneck is a database query or an API call, language speed is irrelevant. When you need to iterate fast on data analysis and ML experiments, Python&apos;s libraries are unmatched. Mosaic Analytics runs Python because it is the best tool for the actual work they do — not because it&apos;s fast at computation.</> :
+                track === 'java' ? <>Spring Boot&apos;s auto-configuration means you write business logic, not infrastructure. Dependency injection, connection pooling, transaction management, security, observability — all configured with sensible defaults, all overridable. When a new engineer joins the team, they see the same patterns everywhere because Spring enforces consistency. That predictability compounds over time into a codebase that 40 engineers can work in simultaneously without stepping on each other.</> :
+                <>Express is where you learn Node.js. NestJS is where you scale it. The jump between them is the jump from understanding HTTP to understanding architecture — modules, dependency injection, typed controllers. Knowing where you are on that spectrum is important. Most startups start with Express and migrate to NestJS when the codebase becomes hard to navigate. Knowing both gives you the judgment to make that call.</>
+              }
+              question={
+                track === 'python' ? 'The data pipeline is slow on 50M rows. A teammate suggests rewriting it in Rust. Riya looks at you. What do you say first?' :
+                track === 'java' ? 'A recruiter describes your team as "behind the times" for using Java. Kavya asks you to respond. What is the strongest answer?' :
+                'The API handles 10k req/s fine. You add a PDF generation route and response times spike badly. Mei asks: why specifically Node, and why specifically this task?'
+              }
+              options={
+                track === 'python' ? [
+                  { text: 'Agree — Python is too slow for data at this scale and Rust is the right call', correct: false, feedback: "Suggesting a language rewrite without profiling first is almost always wrong. You don't know what's slow yet. Most pipeline slowness is I/O, an N+1 query, or a pandas operation on unfiltered data — not Python's interpreter." },
+                  { text: "Profile first — the bottleneck is almost certainly I/O or an inefficient query, not Python's interpreter speed", correct: true, feedback: "Correct. The rule is: measure before you rewrite. Instagram and Dropbox run Python backends at scale. Slowness in a data pipeline is almost always a database query, a missing index, or loading data you don't need — fix that first." },
+                  { text: 'Switch to a newer Python version — Python 3.12 is significantly faster', correct: false, feedback: "Python 3.12 does have performance improvements, but they're unlikely to address 50M row pipeline slowness. The root cause is almost always algorithmic or I/O-related, not interpreter overhead." },
+                ] :
+                track === 'java' ? [
+                  { text: 'Agree — Java is legacy and the team should start planning a migration to Node.js or Go', correct: false, feedback: "Agreeing with an uninformed opinion without context is not the right response. Java's continued dominance in fintech, banking, and enterprise isn't inertia — it's a deliberate choice based on type safety, ecosystem maturity, and compliance tooling." },
+                  { text: "Java's type system and Spring's maturity give compile-time safety and battle-tested patterns — critical for fintech compliance and multi-engineer codebases at scale", correct: true, feedback: "Exactly. The type system catches entire classes of bugs before production. At Finova's scale and compliance requirements, that matters more than language trendiness. Java 17+ is also significantly more modern than the stereotype suggests." },
+                  { text: 'Java is faster than everything else — performance is why we use it', correct: false, feedback: "Java is fast, but 'faster than everything' isn't accurate, and performance isn't the primary reason fintech uses it. The real reasons are type safety, ecosystem maturity, compliance tooling, and the ability to scale codebases across large engineering teams." },
+                ] : [
+                  { text: "Node can't handle high request volumes — 10k req/s is near its ceiling", correct: false, feedback: "Node handles high I/O concurrency very well — 10k req/s of JSON queries is well within its range. The problem is task type, not volume. I/O-bound work and CPU-bound work are fundamentally different on Node's architecture." },
+                  { text: "PDF generation is CPU-intensive — it blocks Node's single-threaded event loop, starving all concurrent requests", correct: true, feedback: "Exactly. Node's event loop handles I/O concurrency by registering callbacks and moving on while waiting. CPU-intensive work can't be delegated — it occupies the single thread and blocks everything else. The fix is worker_threads or offloading to a separate service." },
+                  { text: 'The PDF library has a memory leak that degrades performance under load', correct: false, feedback: "Memory leaks cause gradual degradation over time, not immediate spikes. A sudden performance spike when adding a new operation type points to the operation itself blocking the event loop — which is the CPU-intensity problem." },
+                ]
+              }
+            />
+
+
             {track === 'python' && (<>
               {para(<>Riya&apos;s question is the right one. Python is not fast at CPU computation — compared to Java or C++, CPython is slow. But for most software engineering work, the bottleneck is <strong>network I/O and database queries</strong>, not raw CPU speed. A data pipeline that spends 90% of its time waiting for a database to respond is not going to run meaningfully faster in a compiled language.</>)}
               {para(<>Python&apos;s real power is its ecosystem. The combination of <strong>pandas</strong> and <strong>NumPy</strong> for data, <strong>scikit-learn</strong> and <strong>PyTorch</strong> for ML, and <strong>FastAPI</strong> for web APIs means that Python is often the <em>only</em> language a data-heavy team needs. Instagram, Dropbox, and Spotify run Python backends at scale. The bottleneck is almost never the language.</>)}
@@ -1238,42 +1335,6 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             <LibraryMatcher track={track} accentColor={meta.accentColor} />
 
             <CodeAnatomy track={track} accentColor={meta.accentColor} />
-
-            <SWEAvatar
-              name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
-              conceptId="swe-m1-ecosystem"
-              content={
-                track === 'python' ? <>&ldquo;Riya&apos;s question — &lsquo;faster at what?&rsquo; — is the question that ends most &lsquo;let&apos;s rewrite in a faster language&apos; conversations. Python is slow at CPU computation. For most data pipelines, the bottleneck is waiting for I/O: database queries, network calls, file reads. A 10× faster language on a workload that is 90% waiting makes no measurable difference.&rdquo;</> :
-                track === 'java' ? <>&ldquo;The friend who texted &lsquo;nobody builds new things in Java&apos; has never worked in fintech. Java&apos;s type system catches an entire class of bugs before they reach production — bugs that surface in dynamic languages after a refactor, often in a code path nobody thought to test. At scale, with compliance requirements, that matters more than the syntax preferences of a startup.&rdquo;</> :
-                <>&ldquo;Your professor was half right — JavaScript was a frontend toy in 1996. Then V8 happened, then Node, then a decade of production usage at Netflix, LinkedIn, and Uber. The mental model of &lsquo;JavaScript is for browsers&apos; is as outdated as &lsquo;SQL is only for reporting&apos;. The runtime matters more than the language&apos;s original purpose.&rdquo;</>
-              }
-              expandedContent={
-                track === 'python' ? <>The ecosystem is where Python wins. pandas, NumPy, scikit-learn, PyTorch, FastAPI — this combination has no close equivalent in any other language. When your bottleneck is a database query or an API call, language speed is irrelevant. When you need to iterate fast on data analysis and ML experiments, Python&apos;s libraries are unmatched. Mosaic Analytics runs Python because it is the best tool for the actual work they do — not because it&apos;s fast at computation.</> :
-                track === 'java' ? <>Spring Boot&apos;s auto-configuration means you write business logic, not infrastructure. Dependency injection, connection pooling, transaction management, security, observability — all configured with sensible defaults, all overridable. When a new engineer joins the team, they see the same patterns everywhere because Spring enforces consistency. That predictability compounds over time into a codebase that 40 engineers can work in simultaneously without stepping on each other.</> :
-                <>Express is where you learn Node.js. NestJS is where you scale it. The jump between them is the jump from understanding HTTP to understanding architecture — modules, dependency injection, typed controllers. Knowing where you are on that spectrum is important. Most startups start with Express and migrate to NestJS when the codebase becomes hard to navigate. Knowing both gives you the judgment to make that call.</>
-              }
-              question={
-                track === 'python' ? 'The data pipeline is slow on 50M rows. A teammate suggests rewriting it in Rust. Riya looks at you. What do you say first?' :
-                track === 'java' ? 'A recruiter describes your team as "behind the times" for using Java. Kavya asks you to respond. What is the strongest answer?' :
-                'The API handles 10k req/s fine. You add a PDF generation route and response times spike badly. Mei asks: why specifically Node, and why specifically this task?'
-              }
-              options={
-                track === 'python' ? [
-                  { text: 'Agree — Python is too slow for data at this scale and Rust is the right call', correct: false, feedback: "Suggesting a language rewrite without profiling first is almost always wrong. You don't know what's slow yet. Most pipeline slowness is I/O, an N+1 query, or a pandas operation on unfiltered data — not Python's interpreter." },
-                  { text: "Profile first — the bottleneck is almost certainly I/O or an inefficient query, not Python's interpreter speed", correct: true, feedback: "Correct. The rule is: measure before you rewrite. Instagram and Dropbox run Python backends at scale. Slowness in a data pipeline is almost always a database query, a missing index, or loading data you don't need — fix that first." },
-                  { text: 'Switch to a newer Python version — Python 3.12 is significantly faster', correct: false, feedback: "Python 3.12 does have performance improvements, but they're unlikely to address 50M row pipeline slowness. The root cause is almost always algorithmic or I/O-related, not interpreter overhead." },
-                ] :
-                track === 'java' ? [
-                  { text: 'Agree — Java is legacy and the team should start planning a migration to Node.js or Go', correct: false, feedback: "Agreeing with an uninformed opinion without context is not the right response. Java's continued dominance in fintech, banking, and enterprise isn't inertia — it's a deliberate choice based on type safety, ecosystem maturity, and compliance tooling." },
-                  { text: "Java's type system and Spring's maturity give compile-time safety and battle-tested patterns — critical for fintech compliance and multi-engineer codebases at scale", correct: true, feedback: "Exactly. The type system catches entire classes of bugs before production. At Finova's scale and compliance requirements, that matters more than language trendiness. Java 17+ is also significantly more modern than the stereotype suggests." },
-                  { text: 'Java is faster than everything else — performance is why we use it', correct: false, feedback: "Java is fast, but 'faster than everything' isn't accurate, and performance isn't the primary reason fintech uses it. The real reasons are type safety, ecosystem maturity, compliance tooling, and the ability to scale codebases across large engineering teams." },
-                ] : [
-                  { text: "Node can't handle high request volumes — 10k req/s is near its ceiling", correct: false, feedback: "Node handles high I/O concurrency very well — 10k req/s of JSON queries is well within its range. The problem is task type, not volume. I/O-bound work and CPU-bound work are fundamentally different on Node's architecture." },
-                  { text: "PDF generation is CPU-intensive — it blocks Node's single-threaded event loop, starving all concurrent requests", correct: true, feedback: "Exactly. Node's event loop handles I/O concurrency by registering callbacks and moving on while waiting. CPU-intensive work can't be delegated — it occupies the single thread and blocks everything else. The fix is worker_threads or offloading to a separate service." },
-                  { text: 'The PDF library has a memory leak that degrades performance under load', correct: false, feedback: "Memory leaks cause gradual degradation over time, not immediate spikes. A sudden performance spike when adding a new operation type points to the operation itself blocking the event loop — which is the CPU-intensity problem." },
-                ]
-              }
-            />
 
             {pullQuote(
               track === 'python' ? 'In Python, there is almost always a library for what you need. The skill is knowing which one to trust — and when to reach for it versus writing it yourself.' :
@@ -1315,42 +1376,6 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               {track === 'nodejs' && <>Leo merged a small change to the users route on a Friday afternoon. The API crashed immediately. Twelve lines of red text in the terminal. His first instinct was Google. Mei walked past: &ldquo;Did you read the error?&rdquo; He hadn&apos;t. He&apos;d seen <em>TypeError</em> and panicked. She pointed: &ldquo;Line one. The type. Line two. The message. Skip node_modules frames. Find your file. That&apos;s it.&rdquo; He found <em>users.js:34</em>. A missing await. A promise object being treated as a user. Two words he needed to add, and he would have found them in thirty seconds if he&apos;d started by reading instead of searching.</>}
             </StoryCard>
 
-            {para(<>The single largest productivity gap between a junior and senior engineer is not syntax knowledge. It is how fast they go from &ldquo;something is broken&rdquo; to &ldquo;I know exactly what is broken and why.&rdquo; Senior engineers are fast at debugging not because they have seen every error — it is because they read errors before doing anything else.</>)}
-
-            {h2(<>How to read a {track === 'java' ? 'stack trace' : track === 'python' ? 'traceback' : 'Node.js error'}</>)}
-
-            {track === 'python' && (<>
-              {para(<>Python tracebacks read <strong>bottom to top</strong>. The last line is the actual error — error type and message. The lines above it are the call chain. The most useful line is usually the last one that points to <em>your</em> file, not a library you imported.</>)}
-              {keyBox('Reading a Python traceback', [
-                '"Traceback (most recent call last):" — always the header, ignore it',
-                'Lines with your file path — these are where YOUR code is involved',
-                'Lines with site-packages/ — library code, usually not the root cause',
-                'Last line = error type + message: KeyError: \'value\' — start here',
-              ])}
-            </>)}
-            {track === 'java' && (<>
-              {para(<>Java stack traces are verbose but information-rich. The first line names the exception and its message — that is your starting point. Everything below is the call chain. The rule Kavya used: <strong>find the first line that starts with your package</strong>, not a library package. That is your code. That is where you start.</>)}
-              {keyBox('Reading a Java stack trace', [
-                'Line 1: exception type + message — this is what broke and how',
-                'at com.yourpackage.YourClass (YourClass.java:42) — this is your code',
-                'at java.* or org.springframework.* — library code, skip these first',
-                '"Caused by:" further down means a wrapped exception — read that section too',
-              ])}
-            </>)}
-            {track === 'nodejs' && (<>
-              {para(<>Node.js errors have three parts: an error type (TypeError, ReferenceError), a message describing what broke, and a stack trace showing the call chain. The rule Mei teaches: <strong>find the first line that points to a file in your project</strong>, not in node_modules. That is where the crash started.</>)}
-              {keyBox('Reading a Node.js error', [
-                'Line 1: error type + message — read this first, always',
-                'Find the first line pointing to YOUR project file (not node_modules/)',
-                'That file and line number is where the problem started',
-                'For async errors: look for "at process.nextTick" or "at Promise" — async stack frames',
-              ])}
-            </>)}
-
-            <TracebackReader track={track} accentColor={meta.accentColor} />
-
-            <BugHunter track={track} accentColor={meta.accentColor} />
-
             <SWEAvatar
               name={meta.mentor} role={meta.mentorRole} color={meta.mentorColor}
               conceptId="swe-m1-debugging"
@@ -1386,6 +1411,43 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                 ]
               }
             />
+
+
+            {para(<>The single largest productivity gap between a junior and senior engineer is not syntax knowledge. It is how fast they go from &ldquo;something is broken&rdquo; to &ldquo;I know exactly what is broken and why.&rdquo; Senior engineers are fast at debugging not because they have seen every error — it is because they read errors before doing anything else.</>)}
+
+            {h2(<>How to read a {track === 'java' ? 'stack trace' : track === 'python' ? 'traceback' : 'Node.js error'}</>)}
+
+            {track === 'python' && (<>
+              {para(<>Python tracebacks read <strong>bottom to top</strong>. The last line is the actual error — error type and message. The lines above it are the call chain. The most useful line is usually the last one that points to <em>your</em> file, not a library you imported.</>)}
+              {keyBox('Reading a Python traceback', [
+                '"Traceback (most recent call last):" — always the header, ignore it',
+                'Lines with your file path — these are where YOUR code is involved',
+                'Lines with site-packages/ — library code, usually not the root cause',
+                'Last line = error type + message: KeyError: \'value\' — start here',
+              ])}
+            </>)}
+            {track === 'java' && (<>
+              {para(<>Java stack traces are verbose but information-rich. The first line names the exception and its message — that is your starting point. Everything below is the call chain. The rule Kavya used: <strong>find the first line that starts with your package</strong>, not a library package. That is your code. That is where you start.</>)}
+              {keyBox('Reading a Java stack trace', [
+                'Line 1: exception type + message — this is what broke and how',
+                'at com.yourpackage.YourClass (YourClass.java:42) — this is your code',
+                'at java.* or org.springframework.* — library code, skip these first',
+                '"Caused by:" further down means a wrapped exception — read that section too',
+              ])}
+            </>)}
+            {track === 'nodejs' && (<>
+              {para(<>Node.js errors have three parts: an error type (TypeError, ReferenceError), a message describing what broke, and a stack trace showing the call chain. The rule Mei teaches: <strong>find the first line that points to a file in your project</strong>, not in node_modules. That is where the crash started.</>)}
+              {keyBox('Reading a Node.js error', [
+                'Line 1: error type + message — read this first, always',
+                'Find the first line pointing to YOUR project file (not node_modules/)',
+                'That file and line number is where the problem started',
+                'For async errors: look for "at process.nextTick" or "at Promise" — async stack frames',
+              ])}
+            </>)}
+
+            <TracebackReader track={track} accentColor={meta.accentColor} />
+
+            <BugHunter track={track} accentColor={meta.accentColor} />
 
             {h2(<>The debugging loop</>)}
             {para(<>Professional debugging is hypothesis-driven. You read the error, form a theory about what caused it at that specific line, test that theory with a print statement or breakpoint, and revise. Jumping straight to Google before doing this step adds noise and slows you down.</>)}
