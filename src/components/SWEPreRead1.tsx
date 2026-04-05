@@ -77,10 +77,8 @@ const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 const ProtagonistThought = ({ name, accentColor, children }: { name: string; accentColor: string; children: React.ReactNode }) => (
   <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', margin: '0 0 28px', padding: '16px 20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '8px' }}>
-    <div style={{ flexShrink: 0, width: '30px', height: '30px', borderRadius: '50%', background: 'var(--ed-amber-bg)', border: '1.5px solid var(--ed-amber-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2px' }}>
-      <span style={{ fontSize: '12px' }}>💭</span>
-    </div>
-    <div style={{ minWidth: 0 }}>
+    <SWEMentorFace name={name} size={48} />
+    <div style={{ minWidth: 0, paddingTop: '2px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: accentColor, marginBottom: '8px' }}>{name}&apos;s inner voice</div>
       <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif" }}>{children}</div>
     </div>
@@ -356,6 +354,76 @@ const SWEMentorFace = ({ name, size = 66 }: { name: string; size?: number }) => 
         <path d="M 37 65 Q 43 69 50 68 Q 57 69 63 65" stroke="#7A4028" strokeWidth="2.2" fill="none" strokeLinecap="round" />
         <path d="M 40 58 Q 43 60 46 58" stroke="#7A4028" strokeWidth="1.4" fill="none" strokeLinecap="round" />
         <path d="M 54 58 Q 57 60 60 58" stroke="#7A4028" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    Aisha: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#1D4ED8" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#3B82F6" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#D4956B" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#D4956B" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#D4956B" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#D4956B" />
+        <ellipse cx="50" cy="22" rx="27" ry="15" fill="#0D0505" />
+        <path d="M 23 30 Q 28 20 50 18 Q 72 20 77 30 L 76 46 Q 65 38 50 38 Q 35 38 24 46 Z" fill="#0D0505" />
+        <path d="M 23 46 Q 19 62 20 76 Q 25 65 25 52 Z" fill="#0D0505" />
+        <path d="M 77 46 Q 81 62 80 76 Q 75 65 75 52 Z" fill="#0D0505" />
+        <path d="M 31 42 Q 38 40 45 42" stroke="#0D0505" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 42 Q 62 40 69 42" stroke="#0D0505" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#2A1408" /><circle cx="62.5" cy="50.5" r="3.3" fill="#2A1408" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 62 53 57" stroke="#B07050" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#9C6040" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+        <circle cx="36" cy="58" r="2.5" fill="rgba(210,120,80,0.35)" />
+        <circle cx="64" cy="58" r="2.5" fill="rgba(210,120,80,0.35)" />
+      </svg>
+    ),
+    Vikram: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#0F4C81" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#1A6AAF" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#8B5A3A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#8B5A3A" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#8B5A3A" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#8B5A3A" />
+        <ellipse cx="50" cy="22" rx="26" ry="14" fill="#0A0505" />
+        <path d="M 24 28 Q 30 20 50 18 Q 70 20 76 28 L 76 42 Q 64 35 50 35 Q 36 35 24 42 Z" fill="#0A0505" />
+        <path d="M 24 28 Q 20 38 22 48 Q 25 40 25 32 Z" fill="#0A0505" />
+        <path d="M 76 28 Q 80 38 78 48 Q 75 40 75 32 Z" fill="#0A0505" />
+        <path d="M 32 42 Q 38 40 45 42" stroke="#0A0505" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 42 Q 62 40 68 42" stroke="#0A0505" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#1A0808" /><circle cx="62.5" cy="50.5" r="3.3" fill="#1A0808" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 61 53 57" stroke="#7A4020" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 72 60 67" stroke="#6A3010" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M 35 61 Q 44 65 50 64 Q 56 65 65 61" stroke="#6A3010" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
+    Leo: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#B45309" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#D97706" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#E0B890" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#E0B890" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#E0B890" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#E0B890" />
+        <ellipse cx="50" cy="23" rx="27" ry="14" fill="#2A1808" />
+        <path d="M 23 29 Q 30 20 50 18 Q 70 20 77 29 L 76 44 Q 66 36 55 35 Q 44 36 30 40 Q 26 40 23 44 Z" fill="#2A1808" />
+        <path d="M 23 29 Q 19 40 20 52 Q 24 43 24 34 Z" fill="#2A1808" />
+        <path d="M 77 29 Q 81 38 80 48 Q 77 41 77 34 Z" fill="#2A1808" />
+        <path d="M 66 20 Q 74 24 78 32 Q 72 26 66 20 Z" fill="#2A1808" />
+        <path d="M 31 43 Q 38 41 45 43" stroke="#2A1808" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M 55 43 Q 62 41 69 43" stroke="#2A1808" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="51" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="51" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="51.5" r="3.3" fill="#3A2010" /><circle cx="62.5" cy="51.5" r="3.3" fill="#3A2010" /></>}
+        {!blink && <><circle cx="39.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 58 Q 50 63 53 58" stroke="#C09060" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 68 Q 50 74 60 68" stroke="#B08050" strokeWidth="2" fill="none" strokeLinecap="round" />
       </svg>
     ),
   };
