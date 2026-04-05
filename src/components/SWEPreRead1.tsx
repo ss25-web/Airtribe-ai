@@ -75,6 +75,18 @@ const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 // ─── Custom story + character components ───────────────────────────────────
 
+const ProtagonistThought = ({ name, accentColor, children }: { name: string; accentColor: string; children: React.ReactNode }) => (
+  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', margin: '0 0 28px', padding: '16px 20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '8px' }}>
+    <div style={{ flexShrink: 0, width: '30px', height: '30px', borderRadius: '50%', background: 'var(--ed-amber-bg)', border: '1.5px solid var(--ed-amber-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2px' }}>
+      <span style={{ fontSize: '12px' }}>💭</span>
+    </div>
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: accentColor, marginBottom: '8px' }}>{name}&apos;s inner voice</div>
+      <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif" }}>{children}</div>
+    </div>
+  </div>
+);
+
 const StoryCard = ({ protagonist, accentColor, children }: { protagonist: string; accentColor: string; children: React.ReactNode }) => (
   <div style={{ position: 'relative', background: 'var(--ed-amber-bg)', borderRadius: '6px', padding: '20px 24px', margin: '0 0 28px', borderTop: '1px solid var(--ed-amber-border)', borderRight: '1px solid var(--ed-amber-border)', borderBottom: '1px solid var(--ed-amber-border)', borderLeft: `4px solid ${accentColor}` }}>
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: accentColor, marginBottom: '10px' }}>◎ {protagonist}&apos;s Situation</div>
@@ -1200,10 +1212,16 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {chLabel('The Execution Model')}
             {h2(<>When you run a program, what actually happens?</>)}
 
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>I fixed that off-by-one error, the pipeline ran green, no exceptions. That means it worked, right? Ran successfully is basically a pass. The dashboard should reflect the correct data now.</>}
+              {track === 'java' && <>My code compiles, all unit tests pass, the endpoint returns 200 OK. Pushing to CI is a formality at this point. If it works in my IDE with the dependency I added, it will work everywhere.</>}
+              {track === 'nodejs' && <>JavaScript is JavaScript. localStorage is a standard web storage API. The notification service runs JavaScript so localStorage should just work. This is a ten-minute feature.</>}
+            </ProtagonistThought>
+
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Aisha's first week at Mosaic Analytics feels like a whirlwind. Her main task is to maintain the flagship 50M row nightly data pipeline. She's just pushed her first small bug fix. The pipeline ran without errors, but Riya, her lead, is now pointing at a dashboard showing a subtle data discrepancy for a specific client. Aisha feels a knot in her stomach.</>}
-              {track === "java" && <>Vikram just finished implementing a new payment validation endpoint for Finova Systems. He's tested it thoroughly in his IDE, and it works perfectly, returning the expected <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>200 OK</code> for valid payments. Confident, he pushes his code. A few minutes later, the CI/CD pipeline fails with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code> related to a dependency he's sure he included.</>}
-              {track === "nodejs" && <>Leo is tasked with adding a 'resend notification' endpoint to Launchly's backend. He's a full-stack developer, so he's used to JavaScript. He tries to implement a feature that saves user preferences for resend frequency using <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code>, but his Node.js server crashes with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ReferenceError: localStorage is not defined</code>. He's confused why a common JS feature isn't working.</>}
+              {track === "python" && <>Aisha watches the deployment dashboard, a small smile on her lips as the SUCCESS badge glows green. She refreshes the client analytics page expecting corrected numbers. Client Alpha revenue: still zero. Riya leans over the partition and points at the screen without saying anything for a moment. Then: 'Aisha. The pipeline ran successfully. But this client's data is still bad. What exactly do you mean by ran successfully?'</>}
+              {track === "java" && <>Vikram watches the green test indicators light up in his IDE, a small surge of satisfaction. He pushes the branch and pulls up the CI dashboard. Build running. Tests running. Then: BUILD FAILED. He opens the log expecting something minor. Instead: java.lang.ClassNotFoundException for the exact dependency he can see referenced in his pom.xml. Kavya walks over, looks at the screen briefly, and asks Vikram to explain the difference between how his IDE runs code and how CI does.</>}
+              {track === "nodejs" && <>Leo writes the localStorage call, saves the file, starts the notification service. The server crashes immediately: ReferenceError: localStorage is not defined. He reads it twice. He has used localStorage dozens of times in frontend work. Jordan leans over to look: 'That is weird. Node is basically the same as browser JS. Probably needs a polyfill or something.'</>}
             </StoryCard>
 
             <SWEAvatar
@@ -1242,6 +1260,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                           ]
               }
             />
+
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>I thought ran successfully meant the code executed without crashing. Is there something more fundamental than the absence of exceptions? The logs showed nothing wrong. How can data be broken if nothing threw an error?</>}
+              {track === 'java' && <>I don't understand. The dependency is right there in pom.xml and my IDE finds it without complaint. Is CI running a different version of Maven? Or is there something about how the artifact gets packaged that I am missing entirely?</>}
+              {track === 'nodejs' && <>Jordan thinks polyfill but something about that feels off. localStorage is not something you polyfill — it is a core browser API. Is there something actually different about what APIs exist in a Node process versus a browser tab?</>}
+            </ProtagonistThought>
 
             <SWEAvatar
               name={track === 'python' ? 'Sam' : track === 'java' ? 'Rahul' : meta.mentor} role={track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : meta.mentorRole} color={track === 'python' ? '#059669' : track === 'java' ? '#0891B2' : meta.mentorColor}
@@ -1329,10 +1353,16 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {chLabel('The Developer Environment')}
             {h2(<>Your tools before you write a single line</>)}
 
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>I installed fast_csv_parser myself and watched it import cleanly. If it works on my machine it should work for the rest of the team. Python environments are pretty straightforward.</>}
+              {track === 'java' && <>Adding a new library should mean dropping a dependency block in pom.xml with the artifact ID and version. How complicated can one library addition really be?</>}
+              {track === 'nodejs' && <>I ran npm install, everything resolved, my endpoint works perfectly. Deploying to Docker is just packaging what already works. Containers are supposed to make deployment more consistent, not less.</>}
+            </ProtagonistThought>
+
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Aisha implemented Riya's feedback and added more robust data validation to her pipeline. Now, she's trying to run the updated code on her local machine, but it keeps failing with a dependency error for a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>fast_csv_parser</code> library. Sam's machine, which has the exact same code, runs it perfectly. The difference is baffling.</>}
-              {track === "java" && <>The <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code> was indeed a missing dependency in the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pom.xml</code>. Vikram tries to add the dependency, but the Maven syntax for versioning, scopes, and transitive dependencies feels like navigating an ancient fortress. He's struggling to just get the new library included correctly.</>}
-              {track === "nodejs" && <>Leo fixes the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> issue, understanding the difference between browser and server environments. His <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>resend notification</code> endpoint now works perfectly on his local machine. But when Carlos, the DevOps engineer, tries to deploy it via Docker, it fails with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>MODULE_NOT_FOUND</code> error for a utility package Leo added. Carlos is not pleased.</>}
+              {track === "python" && <>Aisha runs the updated data processing script on her laptop, output streaming by clean and correct. She pushes to the shared repo and Sam pulls it to test on his machine. His terminal immediately fires back: ModuleNotFoundError: No module named fast_csv_parser. Same repo. Same Python version. Aisha stares at the error trying to figure out what is different between their two machines.</>}
+              {track === "java" && <>Vikram copies a dependency block from the Maven documentation into pom.xml. mvn install fails immediately with a conflict about transitive dependencies. He scans the existing pom.xml, overwhelmed by scope attributes, optional flags, and exclusion blocks. He has no idea what any of it means. Suresh, overhearing his escalating frustration from the adjacent desk, strides over: 'Before you touch another dependency, explain to me what Maven lifecycle phases are.'</>}
+              {track === "nodejs" && <>Leo pushes to the container registry. Carlos initiates the Docker build and deploy. Two minutes later: MODULE_NOT_FOUND: Cannot find module lodash. Carlos stares at his terminal. Then at Leo. Leo stares back. Lodash is definitely installed. It is in his node_modules right now. He can see it sitting there. Carlos says nothing. He just sighs.</>}
             </StoryCard>
 
             <SWEAvatar
@@ -1371,6 +1401,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                           ]
               }
             />
+
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>Dev is saying containerize everything, but that feels like a sledgehammer for a nail problem. All I know is my script runs and Sam's does not, and I genuinely don't understand what is different between our setups.</>}
+              {track === 'java' && <>I just want to add one library. Suresh is asking me about lifecycle phases and I feel like he is deliberately making this harder than it needs to be. But Maven is clearly not behaving like I expected, so maybe he knows something I do not.</>}
+              {track === 'nodejs' && <>Carlos is clearly frustrated but I genuinely do not understand. Lodash is installed, it is in package.json, it is in my local node_modules. What does the Docker container not have access to that my terminal does?</>}
+            </ProtagonistThought>
 
             <SWEAvatar
               name={track === 'python' ? 'Priya' : track === 'java' ? 'Ananya' : meta.mentor} role={track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Product Manager' : meta.mentorRole} color={track === 'python' ? '#7C3AED' : track === 'java' ? '#DB2777' : meta.mentorColor}
@@ -1508,10 +1544,16 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               {track === 'nodejs' && <>Why Launchly&apos;s API is Node.js</>}
             </>)}
 
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>Python is slow compared to compiled languages, I know that. But it is so productive for data work. I thought that slowness was an accepted tradeoff. Is the pipeline really that much of a bottleneck?</>}
+              {track === 'java' && <>I came here to write business logic, not to decode architectural diagrams. Every file I open has three interfaces and a factory class. This feels over-engineered and it is making a simple task impossible to navigate.</>}
+              {track === 'nodejs' && <>My professor was not wrong exactly. JavaScript was designed in ten days and some of the quirks are still there. I am not saying it is bad, just that it was not originally designed for serious backend systems.</>}
+            </ProtagonistThought>
+
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>The 50M row pipeline is stable, but its nightly run time is pushing limits. During a team meeting, the discussion turns to optimizing performance. Dev enthusiastically suggests rewriting critical components in Rust for speed. Aisha listens, wondering about the implications of such a drastic change.</>}
-              {track === "java" && <>Vikram is now integrating his payment validation endpoint with an existing, highly abstract part of Finova's core payment processing logic. He's drowning in interfaces, abstract classes, factories, and builders. The codebase feels impenetrable, a vast network of types and patterns that seem to obscure the actual business logic.</>}
-              {track === "nodejs" && <>During a team discussion about future architecture, Leo brings up a comment from his CS professor: 'JavaScript is a toy language, not suitable for serious enterprise applications.' An awkward silence falls over the room. Leo feels a bit foolish, given he's now building critical backend services with it.</>}
+              {track === "python" && <>At standup, Dev has benchmarks ready and a slide deck nobody asked for. The nightly 50M row transformation could run in half the time with Rust components, he says. Aisha listens, a faint unease forming. She has only ever done this kind of work in Python, and the libraries — pandas, numpy, the whole stack — feel inseparable from the job. Dev wraps up: Python just cannot keep up with the scale we are hitting.</>}
+              {track === "java" && <>Vikram navigates to PaymentService to add his validation hook. It is an interface. He finds AbstractPaymentService. Then PaymentServiceFactory. Then CreditCardPaymentServiceImpl. Each layer opens three more questions. He has been reading code for forty minutes and has not written a single line. Rahul appears at his desk: 'Just find the interface you need to implement. You do not have to understand all of it.'</>}
+              {track === "nodejs" && <>Leo, trying to contribute something thoughtful to the architecture discussion, mentions that his CS professor described JavaScript as a toy language not designed for production scale. The room goes quiet in a way that is different from thinking. Priya sets down her coffee cup. Leo realizes this was the wrong thing to say in this room.</>}
             </StoryCard>
 
             <SWEAvatar
@@ -1550,6 +1592,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                           ]
               }
             />
+
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>Dev sounds certain but I don't actually know if Python is the bottleneck. Is the slow part the computation, or is it the I/O waits and database queries? And even if he is right, would rewriting in Rust just shift the problem to our team not knowing Rust?</>}
+              {track === 'java' && <>Rahul is probably right if the goal is shipping something today. But if I implement against an interface I do not understand, what am I going to do when something breaks? What invariant might I be violating without knowing it?</>}
+              {track === 'nodejs' && <>Priya did not argue with me, she just dismissed the frame entirely. That stings a bit but she might be right. I am sitting in a backend handling millions of notifications built entirely in Node. Something about my professor's framing was clearly incomplete.</>}
+            </ProtagonistThought>
 
             <SWEAvatar
               name={track === 'python' ? meta.mentor : track === 'java' ? 'Suresh' : 'Jordan'} role={track === 'python' ? meta.mentorRole : track === 'java' ? 'Principal Architect' : 'Frontend Engineer'} color={track === 'python' ? meta.mentorColor : track === 'java' ? '#2563EB' : '#65A30D'}
@@ -1662,10 +1710,16 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {chLabel('Debugging Mindset')}
             {h2(<>Reading errors like a senior engineer</>)}
 
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>If a bug is dropping data there has to be some kind of error message. My code always throws an exception if something goes wrong. The logs should tell me exactly what happened.</>}
+              {track === 'java' && <>My validation logic is thorough. I covered null inputs in the unit tests. If there is a NullPointerException it is probably a malformed request from the test harness, something straightforward to fix.</>}
+              {track === 'nodejs' && <>My resend endpoint is simple — it fetches the notification record and calls the send function once. If users are getting duplicates it is probably a network retry from the delivery service, not anything wrong in my code.</>}
+            </ProtagonistThought>
+
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Despite all the improvements, a critical bug has surfaced. The 50M row pipeline silently dropped data for a key client for three nights straight. Production data is missing. Priya is stressed. Aisha is tasked with finding the hidden bug and tracing its root cause, starting from the application logs.</>}
-              {track === "java" && <>Vikram's payment validation endpoint is now in staging. Suddenly, an urgent alert comes in: a real payment failed with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code> directly from Vikram's code. The payment was for a significant amount, and Finova's reputation is on the line. The stack trace points to a line where he's accessing a field on an object.</>}
-              {track === "nodejs" && <>Leo's <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>resend notification</code> endpoint is in production, but users are reporting a critical issue: duplicate notifications are being sent. Sometimes one, sometimes two, sometimes three. Carlos is getting alerts, and Priya is asking pointed questions. It's clearly an asynchronous bug, but the logs aren't immediately showing errors.</>}
+              {track === "python" && <>Priya paces near the whiteboard, voice tight. Three days. Client Gamma is missing three days of revenue data with no errors thrown, no warnings logged, just a quiet absence in the numbers. Aisha stares at the pipeline logs: page after page of green SUCCESS checkmarks. Nothing red. Nothing wrong. Sam suggests sprinkling print statements everywhere until something shows up. Aisha looks at the volume of log output and feels completely lost.</>}
+              {track === "java" && <>A real-world staging payment triggers against Vikram's new endpoint. The amount is significant. The call hangs for a beat, then fires a NullPointerException into the logs. The staging dashboard returns PAYMENT FAILED in red. Kavya, still calm: 'I need the exact input payload that caused this. Every field, every value.' Suresh appears in the doorway. His expression does not communicate that this is fine.</>}
+              {track === "nodejs" && <>The Slack support channel fills up fast. Got this notification three times. Why did I get two identical emails. Leo opens his endpoint logs. No errors. Just a pattern of Notification sent followed immediately by another Notification sent for the same notification ID. Jordan: 'Maybe wrap it all in Promise.all, or add a setTimeout zero to debounce it?' Mei reads the logs over Leo's shoulder and does not say anything for a long moment.</>}
             </StoryCard>
 
             <SWEAvatar
@@ -1704,6 +1758,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                           ]
               }
             />
+
+            <ProtagonistThought name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'} accentColor={meta.accentColor}>
+              {track === 'python' && <>Print statements everywhere feels like throwing darts in the dark. The code thinks it succeeded. There is no error to find. How do you debug something that does not know it is broken?</>}
+              {track === 'java' && <>A NullPointerException means something was null that I expected to exist. My tests covered null inputs, so where did this null come from? Is the real payment system sending data in a shape I never tested against?</>}
+              {track === 'nodejs' && <>Promise.all does not make sense here, there is no parallel work to coordinate. And setTimeout zero is a thing I have seen people add without understanding why. But I also cannot explain why the send function would execute more than once when I only called it once.</>}
+            </ProtagonistThought>
 
             <SWEAvatar
               name={track === 'python' ? 'Priya' : track === 'java' ? 'Suresh' : meta.mentor} role={track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Principal Architect' : meta.mentorRole} color={track === 'python' ? '#7C3AED' : track === 'java' ? '#2563EB' : meta.mentorColor}
