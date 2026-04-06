@@ -73,6 +73,346 @@ function getNextLevel(xp: number) { const i = LEVELS.findIndex(l => l.min > xp);
 const ROMAN = ['I', 'II', 'III', 'IV'];
 const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
+// ─── Advanced-track story content (Gemini-generated) ────────────────────────
+type AdvOpt = { text: string; correct: boolean; feedback: string };
+type AdvBeat = { name: string; role: string; color: string; content: string; expanded: string; question: string; opts: AdvOpt[] };
+type AdvSection = Record<SWETrack, { open: string; story: string; b1: AdvBeat; bridge: string; b2: AdvBeat }>;
+
+const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
+  s01: {
+    python: {
+      open: "My new data processing script is super efficient. Local tests with 10,000 rows passed in seconds, so scaling to 50 million in production should be a linear increase in time. No surprises here.",
+      story: "Aisha watches the production dashboard. Her script, which processed a small sample quickly, now chugs. The CPU hovers near 100%, but throughput remains abysmal. Memory usage climbs steadily, then drops sharply, indicating garbage collection pauses. The 50M-row batch is projected to take hours, not minutes, and the psutil output shows intermittent, inexplicable stalls.",
+      b1: {
+        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
+        content: "Aisha, check your pandas DataFrame operations. Are you doing any implicit copies? That can kill performance on large datasets, especially with memory.",
+        expanded: "Deep copies create temporary objects, doubling memory footprint. Also ensure you're using vectorized operations where possible. Python's loops are just too slow for big data. It's usually a memory or algorithm issue.",
+        question: "What is the primary reason Aisha's Python script, efficient on small samples, performs poorly at scale despite optimized DataFrame operations?",
+        opts: [
+          { text: 'Insufficient CPU cores are allocated to the production environment, hindering parallel processing.', correct: false, feedback: "Python's GIL limits true parallelism for CPU-bound tasks in a single process, so more cores alone won't help." },
+          { text: 'Memory pressure and the GIL cause frequent garbage collection pauses and serialization bottlenecks.', correct: true, feedback: 'At scale, the GIL prevents multiple threads from running Python bytecode simultaneously and memory pressure triggers costly GC cycles.' },
+          { text: 'The underlying storage system has high latency, leading to slow data retrieval for the large dataset.', correct: false, feedback: 'Storage latency is a factor, but the observed CPU spikes and GC pauses point to in-memory processing bottlenecks.' },
+        ],
+      },
+      bridge: "Dev's point about copies is valid, but I've already optimized those. The CPU is high yet the script isn't faster. It feels like something is blocking, not just slowing down. There's a deeper bottleneck I haven't named yet.",
+      b2: {
+        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
+        content: "Aisha, at this scale the GIL and Python's memory management become critical. Profiling reveals significant time in object allocation and garbage collection, not your actual logic.",
+        expanded: "For 50M rows, memory pressure triggers frequent GC pauses that halt execution. The GIL further limits true concurrency for CPU-bound tasks. Consider offloading to Polars or PySpark, or a multi-process architecture to bypass the GIL for specific bottlenecks.",
+        question: "To effectively scale Python data processing beyond GIL limitations and memory pressure, what is the most appropriate strategy?",
+        opts: [
+          { text: 'Increase the number of threads within the Python process to achieve better parallel execution.', correct: false, feedback: 'The GIL prevents multiple Python threads from running bytecode concurrently, so more threads do not help CPU-bound tasks.' },
+          { text: 'Use multi-process architectures or offload heavy computation to C-based libraries or specialized frameworks.', correct: true, feedback: 'Multi-processing bypasses the GIL, and C-based libraries like NumPy or frameworks like Polars release the GIL during their execution.' },
+          { text: "Optimize the Python interpreter's internal GC threshold settings for improved memory handling.", correct: false, feedback: 'Minor GC tuning helps at the margins; fundamental scaling issues require architectural changes beyond interpreter settings.' },
+        ],
+      },
+    },
+    java: {
+      open: "My new API endpoint passed all local integration tests with flying colors. It handles concurrent data insertion perfectly under test load. I'm confident it's production-ready.",
+      story: "Vikram deploys his new API. Load tests begin at 1000 concurrent users. Initially requests are fast, but after a few minutes latency spikes. Error logs fill with Connection pool exhausted messages and Deadlock detected exceptions. The API becomes unresponsive despite seemingly low individual request times.",
+      b1: {
+        name: 'Rahul', role: 'Junior Backend Engineer', color: '#0891B2',
+        content: "Vikram, are you sure your database queries are optimized? Slow queries hold connections open and exhaust the pool. Maybe add some indexes or refactor the joins.",
+        expanded: "An N+1 query problem or missing indexes would definitely cause this. Each slow query ties up a database connection. Check your ORM mappings too; sometimes they generate inefficient SQL under load.",
+        question: "What is the most likely underlying cause of Connection pool exhausted errors and API unresponsiveness under concurrent load?",
+        opts: [
+          { text: "The database server's network bandwidth is insufficient to handle the high volume of concurrent requests.", correct: false, feedback: 'Network bandwidth issues appear as latency, not connection exhaustion. Pool exhaustion points to resource contention at the application level.' },
+          { text: 'Unmanaged shared resources or non-thread-safe code within the API cause contention and connection starvation.', correct: true, feedback: 'Race conditions or lack of synchronization prevent connections from being released correctly, starving new requests of available connections.' },
+          { text: "The application server's CPU is overloaded, preventing it from processing requests fast enough to free connections.", correct: false, feedback: 'High CPU can contribute, but connection exhaustion stems from threads holding resources too long, not just slow processing speed.' },
+        ],
+      },
+      bridge: "Rahul's right about query optimization but I've already reviewed those — they're efficient. The deadlocks are the tell. It's like something internal to the application is getting tangled, not just slow external calls.",
+      b2: {
+        name: 'Kavya', role: 'Senior Backend Engineer', color: '#7C3AED',
+        content: "Vikram, concurrent access to shared resources without proper synchronization causes deadlocks and connection pool exhaustion. Your local single-threaded tests will never expose this.",
+        expanded: "You need to ensure all shared state — counters, caches, connection handles — is protected with locks or concurrent data structures. Also review transaction boundaries: every code path must release the connection, including exception paths.",
+        question: "To prevent thread-safety issues and connection pool exhaustion in a concurrent Java application, what is a crucial practice?",
+        opts: [
+          { text: "Rely solely on the application server's default connection pooling settings to manage database connections.", correct: false, feedback: 'Default settings may be insufficient; correct resource handling in code is required alongside proper pool configuration.' },
+          { text: 'Implement proper synchronization mechanisms for all shared resources and ensure every critical section is thread-safe.', correct: true, feedback: 'Using synchronized blocks, ReentrantLock, or java.util.concurrent utilities protects shared state from race conditions and deadlocks.' },
+          { text: 'Increase the maximum number of connections in the database pool to accommodate more concurrent users.', correct: false, feedback: 'Increasing pool size is a temporary workaround; it masks the underlying thread-safety issue and still leads to exhaustion under load.' },
+        ],
+      },
+    },
+    nodejs: {
+      open: "Async/await makes my Node.js code look synchronous, so it should execute in a predictable linear fashion even under multiple concurrent requests. That's the whole point of async/await.",
+      story: "Leo's new endpoint, built with a chain of await calls, is deployed. Under light load it works perfectly. During a peak traffic surge, users report intermittent data inconsistencies: a request for resource A occasionally returns data from a different user's concurrent request, baffling Leo since his await chain should prevent any interleaving.",
+      b1: {
+        name: 'Jordan', role: 'Frontend Engineer', color: '#65A30D',
+        content: "Leo, are you sure you're not caching user-specific data in a module-level variable? Or maybe some middleware is modifying the request object before your handler runs?",
+        expanded: "Global state is a common trap in Node.js. If you're storing anything tied to a specific request outside the request context, concurrent requests will definitely stomp on each other's data. Check your middleware chain carefully.",
+        question: "What is the most likely reason for data inconsistencies in Leo's async/await API under concurrent requests?",
+        opts: [
+          { text: 'The database transaction isolation level is too low, allowing dirty reads or non-repeatable reads between requests.', correct: false, feedback: 'Database isolation can cause this, but the issue points more to application-level state management given the await structure.' },
+          { text: 'Shared mutable state is inadvertently modified across concurrent requests due to event loop interleaving between awaits.', correct: true, feedback: 'Async/await only guarantees sequential execution within a single logical flow. The event loop still interleaves different request handlers.' },
+          { text: 'The event loop is becoming saturated, causing requests to be processed out of order and corrupting data.', correct: false, feedback: 'Event loop saturation causes latency, not corruption. Corruption implies shared state being overwritten by concurrent handlers.' },
+        ],
+      },
+      bridge: "Jordan's point about module-level state is making me rethink. My await chain handles one request's flow, but it doesn't stop other incoming requests from running their own chains concurrently. Could my service layer be using a shared object?",
+      b2: {
+        name: 'Mei', role: 'Senior Full-Stack Engineer', color: '#DC2626',
+        content: "Leo, async/await manages control flow for one request's execution, but Node.js's event loop still interleaves different concurrent request handlers between every await.",
+        expanded: "Shared mutable state — even seemingly local variables in module scope — can be accessed by different requests. Always pass request-specific data down the call stack or use a context library, and never mutate module-level variables inside request handlers.",
+        question: "How should Leo address shared mutable state causing data inconsistencies in his Node.js API under concurrency?",
+        opts: [
+          { text: 'Refactor all async/await code to use Promises and callbacks to avoid implicit state sharing between handlers.', correct: false, feedback: 'Async/await is syntactic sugar for Promises and does not change how Node.js handles shared state or concurrent execution.' },
+          { text: 'Ensure all request-specific data is passed explicitly down the call stack or managed via request-scoped context.', correct: true, feedback: 'Scoping state to the request prevents concurrent handlers from accessing or modifying each other\'s data inadvertently.' },
+          { text: "Implement explicit mutex locks around shared variables to prevent concurrent modifications inside async handlers.", correct: false, feedback: "Node.js's single-threaded model makes explicit locks usually unnecessary, and adding them without understanding the event loop adds complexity." },
+        ],
+      },
+    },
+  },
+  s02: {
+    python: {
+      open: "My requirements.txt pins all direct dependencies precisely. This guarantees a stable and reproducible environment across all machines. Minor sub-dependency version bumps should be harmless — they're backward-compatible by convention.",
+      story: "Aisha deploys a new feature. Suddenly production starts throwing ImportError on a module that worked perfectly in staging. The error traces to a deep transitive dependency, cryptography, which received a minor version update. Her pinned direct dependencies are unchanged, but the sub-dependency's API broke compatibility silently.",
+      b1: {
+        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
+        content: "Aisha, sometimes pip's resolver is tricky. Did you try a clean pip install --no-cache-dir? Might be a corrupted cached package causing the mismatch.",
+        expanded: "Pip caches wheels, and sometimes an old or corrupted cache entry leads to unexpected mismatches. Clearing it forces a fresh download. Also ensure the base Python version is identical in staging and production.",
+        question: "What is the root cause of Aisha's production ImportError despite all direct dependencies being pinned in requirements.txt?",
+        opts: [
+          { text: 'A manual pip install was executed in production, accidentally installing an incompatible version of a package.', correct: false, feedback: 'While possible, the more systemic issue here is unpinned transitive dependencies creating a reproducibility gap.' },
+          { text: 'A transitive dependency updated its minor version, introducing a breaking API change not caught by direct dependency pinning.', correct: true, feedback: 'Pinning only direct dependencies leaves transitive dependencies free to update, and minor versions can still introduce breaking changes.' },
+          { text: "The production environment's underlying OS libraries are incompatible with the installed Python packages.", correct: false, feedback: 'OS library incompatibility is possible, but the error pointing to a Python module API change strongly suggests a Python-level version conflict.' },
+        ],
+      },
+      bridge: "Dev's suggestion about cache didn't solve it. The error points to a specific breaking change in a deep dependency. My requirements.txt isn't capturing the full dependency graph state — just the top layer. How do I pin everything?",
+      b2: {
+        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
+        content: "Aisha, direct pinning isn't enough. You need full dependency locking — transitives included — to prevent unexpected breaking changes from any level of the dependency tree.",
+        expanded: "Use pip-tools to generate a requirements.txt that includes all transitive dependencies with pinned versions. Run pip-compile on your high-level requirements file and commit the output. That file is your environment's exact fingerprint.",
+        question: "What is the most robust method to ensure a fully reproducible Python environment including all transitive dependencies?",
+        opts: [
+          { text: 'Manually inspect and add every transitive dependency and its version to the requirements.txt file.', correct: false, feedback: 'Manual inspection is error-prone and impractical for complex projects with dozens of transitive dependencies.' },
+          { text: 'Use a dependency locking tool like pip-tools to generate a comprehensive requirements.txt with all pinned versions.', correct: true, feedback: 'pip-tools automatically resolves and pins all direct and transitive dependencies, producing a fully reproducible lockfile.' },
+          { text: 'Regularly update all dependencies to their latest versions to benefit from bug fixes and avoid old compatibility issues.', correct: false, feedback: 'Regular updates are good hygiene, but they do not guarantee reproducibility. A lockfile is needed to freeze the exact environment state.' },
+        ],
+      },
+    },
+    java: {
+      open: "Adding a new library to Maven is straightforward. I just need the artifact ID and version, and Maven handles the rest. One dependency block, done.",
+      story: "Vikram adds a new logging library to his project. Upon rebuilding, the application fails to start with a NoSuchMethodError originating from an older XML parsing library that the project already uses. Maven's build output showed warnings about version conflicts, but Vikram did not understand their significance until the application refused to boot.",
+      b1: {
+        name: 'Rahul', role: 'Junior Backend Engineer', color: '#0891B2',
+        content: "Vikram, did you check the new library's dependencies? Maybe it's bringing in an older version of something we already depend on and they're clashing.",
+        expanded: "Transitive dependencies are a pain. A new library can pull in an older, incompatible version of a common library you're already using. Maven tries to resolve it with nearest-first, but not always correctly. You might need to explicitly exclude it.",
+        question: "What is the primary reason for the NoSuchMethodError after adding a new library to Vikram's Maven project?",
+        opts: [
+          { text: 'The new logging library is fundamentally incompatible with the existing application runtime environment.', correct: false, feedback: 'Fundamental incompatibility would manifest as a ClassNotFoundException. NoSuchMethodError specifically points to a version conflict on a shared dependency.' },
+          { text: "A transitive dependency of the new library introduced an older version of an existing library, removing an expected method.", correct: true, feedback: "Maven's nearest-first resolution may select the older version if it appears closer in the dependency tree, removing APIs the application expects." },
+          { text: "The application server's classpath is misconfigured, loading the wrong version of the XML parsing library.", correct: false, feedback: 'Classpath misconfiguration is possible, but Maven manages the classpath. The issue likely stems from Maven resolution logic itself.' },
+        ],
+      },
+      bridge: "Rahul's on the right track — it's a transitive conflict. Maven showed those warnings but I didn't know what nearest-first meant or how to force a specific version. I need to understand how to take control of the resolution.",
+      b2: {
+        name: 'Kavya', role: 'Senior Backend Engineer', color: '#7C3AED',
+        content: "Vikram, Maven's nearest-first conflict resolution picks the version closest to your project in the dependency tree. When that version is older than expected, methods disappear at runtime.",
+        expanded: "Manage this with exclusions in the offending dependency block, or declare the desired version explicitly in your pom.xml dependencyManagement section. Always run mvn dependency:tree before adding a new library to understand the full graph you're inheriting.",
+        question: "To resolve a transitive dependency version conflict in Maven, what is the most effective approach?",
+        opts: [
+          { text: 'Remove the conflicting library from the project even if it provides critical functionality.', correct: false, feedback: 'Removing a critical library is not viable. The goal is to control which version is selected, not eliminate the dependency.' },
+          { text: 'Use exclusions on the new dependency or declare the desired version in dependencyManagement to override resolution.', correct: true, feedback: 'Exclusions prevent the unwanted transitive version from entering the graph; dependencyManagement enforces the version you want across the whole project.' },
+          { text: 'Rename the conflicting package to avoid a namespace collision and allow both versions to coexist on the classpath.', correct: false, feedback: 'Package renaming is not a standard Maven practice and does not resolve version conflicts — it just hides them and creates new ones.' },
+        ],
+      },
+    },
+    nodejs: {
+      open: "My Dockerfile builds successfully and the app runs perfectly in the container. The order of instructions shouldn't matter much as long as the end result works. It's just a sequence of shell commands.",
+      story: "Leo makes a minor code change and rebuilds his Docker image. The docker build takes eight minutes. He watches npm install execute every single time, downloading hundreds of packages, even though package.json has not changed. His teammates in the Slack channel are asking why every PR takes this long to pass CI.",
+      b1: {
+        name: 'Carlos', role: 'DevOps Engineer', color: '#B45309',
+        content: "Leo, are you copying your application code before npm install? That invalidates the layer cache for node_modules every time any file changes, not just package.json.",
+        expanded: "Docker caches layers sequentially. If COPY . . happens before npm install, then any file change — even a comment — invalidates that COPY layer and everything after it, forcing npm install to re-run from scratch every single build.",
+        question: "Why is Leo's Docker image rebuild taking eight minutes for minor code changes when dependencies have not changed?",
+        opts: [
+          { text: "The Docker daemon's build cache is corrupted and needs to be manually cleared and regenerated.", correct: false, feedback: 'A corrupted cache causes one-off failures, not consistently slow builds on every code change. The pattern points to a structural Dockerfile issue.' },
+          { text: 'The COPY . . instruction is placed before npm install, invalidating the node_modules cache layer on every code change.', correct: true, feedback: 'Docker invalidates all layers from the first changed instruction forward. Copying all source code early forces npm install to rerun unnecessarily.' },
+          { text: 'The base Node.js image is outdated, causing slow package downloads and compilation during each build.', correct: false, feedback: 'An outdated base image might slow downloads, but it would not explain why npm install reruns on minor code changes that leave package.json untouched.' },
+        ],
+      },
+      bridge: "Carlos hit it. I always put COPY . . first to get all files into the image context. But if that invalidates the npm install cache every time, my whole Dockerfile layer strategy is backwards. The order of instructions defines the caching boundary.",
+      b2: {
+        name: 'Mei', role: 'Senior Full-Stack Engineer', color: '#DC2626',
+        content: "Leo, Docker layers cache sequentially from top to bottom. COPY your package files first, run npm install, then COPY your source code. That way npm install only reruns when dependencies actually change.",
+        expanded: "The package.json and package-lock.json layer changes rarely, so npm install gets cached. Your source code layer changes frequently, but it comes after — so it only invalidates itself. This simple ordering turns an 8-minute build into a 30-second one for code-only changes.",
+        question: "What is the optimal Dockerfile instruction order to leverage layer caching for a Node.js application?",
+        opts: [
+          { text: 'Place COPY . . at the beginning so all files are available before any subsequent instructions run.', correct: false, feedback: 'Copying everything early invalidates the cache for all subsequent layers, including npm install, on every code change.' },
+          { text: 'Copy only package.json and package-lock.json first, run npm install, then copy the rest of the application code.', correct: true, feedback: 'This order caches the npm install layer until dependencies change, while source code changes only invalidate the later COPY layer.' },
+          { text: 'Run npm install on the host machine and then COPY the node_modules directory into the Docker image directly.', correct: false, feedback: 'Copying node_modules from the host can cause platform-specific binary mismatches and makes the build non-reproducible across environments.' },
+        ],
+      },
+    },
+  },
+  s03: {
+    python: {
+      open: "Polars offers a 10x speedup over pandas. I'm confident that replacing our pandas operations with Polars will dramatically speed up the entire data pipeline. The benchmarks are clear.",
+      story: "Aisha presents her Polars migration proposal to the team, citing impressive benchmarks for CPU-bound columnar operations. She outlines the refactor plan and estimates two weeks of work. Riya opens the pipeline's Datadog dashboard and points to the flame graph: 78% of wall-clock time is spent waiting on S3 reads and Redshift query results. The CPU computation Polars optimizes is 9% of total runtime.",
+      b1: {
+        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
+        content: "Polars is fast, no doubt. But have we actually profiled where our pipeline's bottlenecks are? Benchmarks on synthetic data don't always match production behavior.",
+        expanded: "A blanket replacement might not yield the expected gains if the real delays are in I/O operations — fetching from S3, writing to Redshift — rather than in-memory computation. Polars is great but it won't speed up a network round trip.",
+        question: "What is the most important factor to evaluate before migrating a data pipeline to a faster processing library like Polars?",
+        opts: [
+          { text: "The new library's raw computational benchmark scores on large in-memory datasets.", correct: false, feedback: 'Benchmark scores only matter if in-memory computation is the bottleneck. If most time is spent on I/O, a faster compute library changes nothing.' },
+          { text: 'Whether the pipeline is CPU-bound or I/O-bound, identified through profiling the actual production workload.', correct: true, feedback: 'Profiling reveals where time is actually spent. Optimizing CPU-bound operations with a faster library only helps if CPU is the real bottleneck.' },
+          { text: 'The ease of migrating existing pandas code to the new library\'s API to minimize refactor effort.', correct: false, feedback: 'Migration effort is a practical concern but secondary — if the bottleneck is I/O, even an easy migration will not improve pipeline speed.' },
+        ],
+      },
+      bridge: "Dev's question about bottlenecks landed differently seeing the actual flame graph. I had benchmarks showing Polars is faster at computation, but I never checked what percentage of our pipeline time is actually computation versus waiting on S3 and Redshift.",
+      b2: {
+        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
+        content: "Aisha, before any library migration, profile the end-to-end pipeline under production load. Our bottleneck is I/O wait, not CPU. Polars won't touch that.",
+        expanded: "The right optimization here is parallel S3 reads, query pushdown to Redshift, or smarter partitioning — not a compute library swap. The lesson is: measure first, then optimize. A two-week refactor that moves a 9% metric is engineering theater.",
+        question: "When a data pipeline profiling reveals 78% of runtime is I/O wait, what is the correct optimization strategy?",
+        opts: [
+          { text: 'Replace the compute library with a faster one to reduce the CPU-bound portion of execution time.', correct: false, feedback: 'Optimizing the 22% CPU portion will have minimal impact when 78% of time is blocked on I/O that the compute library cannot affect.' },
+          { text: 'Target the I/O operations directly — parallel reads, query pushdown, or smarter data partitioning strategies.', correct: true, feedback: "Reducing I/O wait directly attacks the dominant bottleneck. This is where most of the pipeline's time is actually spent." },
+          { text: 'Add more CPU cores to the processing environment to handle both compute and I/O operations faster.', correct: false, feedback: 'More CPU helps CPU-bound work. I/O wait is blocked on network and storage latency, which more cores cannot reduce.' },
+        ],
+      },
+    },
+    java: {
+      open: "Spring Boot is overkill for this new microservice. We don't need all that framework overhead and boilerplate for a simple notification service. A lightweight framework will be faster to build and easier to maintain.",
+      story: "Vikram advocates strongly for a minimalist Java framework for the new payment notification microservice, emphasizing its small footprint and fast startup. The architecture review begins. Suresh opens a slide showing the 23 other microservices at Finova, each with standardized health endpoints, Prometheus metrics, centralized config via Spring Cloud Config, and OAuth2 integration. He asks Vikram how the new service will wire into each of these.",
+      b1: {
+        name: 'Suresh', role: 'Principal Architect', color: '#2563EB',
+        content: "How will this lightweight service expose health endpoints, emit Prometheus metrics, pull config from our vault, and integrate with our OAuth2 provider? Walk me through each one.",
+        expanded: "A lighter framework might feel simpler in isolation. But at Finova, consistency across the microservice fleet is itself a feature. Operators need every service to behave predictably. Diverging from the standard stack creates a unique support burden every time the service needs to be debugged or upgraded.",
+        question: "When selecting a framework for a new microservice in an established enterprise, what is a crucial consideration beyond initial development speed?",
+        opts: [
+          { text: "The framework's community size and third-party library ecosystem for rapid feature development.", correct: false, feedback: 'Community size helps, but in an enterprise with 20+ existing services, integration consistency with the current stack matters far more.' },
+          { text: 'Its seamless integration with the existing enterprise observability, security, and configuration management patterns.', correct: true, feedback: 'Enterprise microservices need standardized health checks, metrics, and auth. A divergent framework creates a unique operational burden for every incident.' },
+          { text: 'The minimum memory footprint and container startup time of the framework under production load.', correct: false, feedback: 'Performance characteristics matter, but they are secondary to ensuring the service integrates correctly with the existing infrastructure and tooling.' },
+        ],
+      },
+      bridge: "Suresh's questions caught me off guard. I was thinking about the code I'd write, not the 23 other services this one needs to behave like. Boilerplate is not just ceremony — it's how every service at Finova connects to the same operational backbone.",
+      b2: {
+        name: 'Kavya', role: 'Senior Backend Engineer', color: '#7C3AED',
+        content: "Vikram, Spring Boot's starters exist precisely because those 23 concerns — health, metrics, config, security — are solved problems. The boilerplate is the integration.",
+        expanded: "A new engineer joining the team can understand any Spring Boot service immediately because they all follow the same patterns. If you build a bespoke lightweight service, you own every integration forever. In a large engineering org, consistency is worth more than cleverness.",
+        question: "What is a primary advantage of using a standardized framework like Spring Boot across an enterprise microservice fleet?",
+        opts: [
+          { text: 'It forces developers to write less total code across all services, reducing the overall engineering headcount needed.', correct: false, feedback: 'Spring Boot reduces boilerplate for common concerns but does not reduce total code. Its primary value is standardization, not line count reduction.' },
+          { text: 'It provides standardized patterns for operational concerns like observability, security, and config that work consistently fleet-wide.', correct: true, feedback: "Spring Boot's strength is that every service exposes the same operational surface. This makes the entire fleet predictable to run and debug." },
+          { text: 'It guarantees the fastest possible runtime performance for all microservice operations regardless of workload type.', correct: false, feedback: 'Performance depends on code quality and architecture. Spring Boot optimizes for developer experience and operational consistency, not peak throughput.' },
+        ],
+      },
+    },
+    nodejs: {
+      open: "Our notification service is full of runtime type errors. Rewriting it in TypeScript will eliminate these issues and make it robust. Static typing is the answer to our reliability problems.",
+      story: "Leo pitches the TypeScript rewrite in the sprint planning. He has prepared examples of the runtime errors it would prevent. Mei pulls up the service's test coverage report: 40% coverage, with the entire retry logic and the webhook delivery module untested. She sets it next to Leo's error log. Most of the production incidents trace to those two untested modules.",
+      b1: {
+        name: 'Jordan', role: 'Frontend Engineer', color: '#65A30D',
+        content: "TypeScript definitely helps, but are these service crashes actually from type mismatches? A lot of bugs I've seen in Node services come from untested code paths, not wrong types.",
+        expanded: "Static types catch type errors at compile time, which is great. But they can't catch incorrect business logic, missing edge case handling, or faulty external API integration behavior. Those need tests, not type annotations.",
+        question: "What is a key limitation of a static type system like TypeScript in preventing all categories of production bugs?",
+        opts: [
+          { text: 'It significantly adds to build time and tooling complexity, slowing down developer iteration cycles.', correct: false, feedback: 'Build overhead is a practical tradeoff but it is not a limitation of what TypeScript can prevent. The question is about bug prevention coverage.' },
+          { text: 'It cannot prevent logic errors, incorrect business rules, or unexpected behavior from external API responses at runtime.', correct: true, feedback: 'Type systems ensure structural correctness but cannot guarantee that the logic itself is correct or that external dependencies behave as assumed.' },
+          { text: 'It is designed primarily for frontend development and lacks the tooling support needed for production Node.js backends.', correct: false, feedback: 'TypeScript has excellent support for Node.js backends with specific type definitions and is widely used in production server environments.' },
+        ],
+      },
+      bridge: "Jordan pointing at the untested modules shifted something. The type errors I can point to are real but small. The incidents that paged us at 2am were all from the retry logic and webhook module — neither has a single test.",
+      b2: {
+        name: 'Mei', role: 'Senior Full-Stack Engineer', color: '#DC2626',
+        content: "Leo, the instability is not the language — it's the 40% coverage. TypeScript would have caught none of the incidents that actually happened. The retry logic and webhook module need tests, not types.",
+        expanded: "TypeScript is valuable and I'd support migrating incrementally. But it won't fix untested code. A rewrite in TypeScript with 40% coverage is still a service that fails under conditions you've never tested. Cover the retry logic and webhook delivery first — that's where the pain actually lives.",
+        question: "What is the most impactful first step to improve reliability in a critical backend service with 40% test coverage?",
+        opts: [
+          { text: 'Rewrite the service in a statically typed language to eliminate the category of runtime type errors.', correct: false, feedback: 'A rewrite in TypeScript with the same test coverage would still fail on the same untested code paths that cause the current incidents.' },
+          { text: 'Increase test coverage specifically on the highest-risk modules identified by the production incident history.', correct: true, feedback: 'Targeting tests at the modules that actually caused incidents addresses the real source of unreliability before adding new abstraction layers.' },
+          { text: 'Add comprehensive input validation and error handling across all API endpoints to catch bad data early.', correct: false, feedback: 'Input validation is good hygiene but does not address the untested retry and webhook logic that is causing the actual production failures.' },
+        ],
+      },
+    },
+  },
+  s04: {
+    python: {
+      open: "There's a KeyError in the logs. Easy fix — I'll add a .get() with a default value. Pipeline won't crash anymore. That's the error handled.",
+      story: "Aisha spots KeyError: customer_id in the daily pipeline logs, adds a .get call with a default of UNKNOWN, deploys. The pipeline runs without error. Over the next three days, the customer analytics dashboard fills with UNKNOWN entries, distorting every revenue report. Priya spots the anomaly in the weekly data review and traces it back to the silent default that masked a broken upstream data feed.",
+      b1: {
+        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
+        content: "Adding a default stops the crash, but did we figure out why customer_id is suddenly missing? That key has always been there.",
+        expanded: "Silencing an error with a default is sometimes right, but here we should investigate whether an upstream API changed its schema or there's a data quality issue. An UNKNOWN customer_id will distort every downstream metric that depends on it.",
+        question: "What is the most critical step after silencing a KeyError with a default value in a data pipeline?",
+        opts: [
+          { text: 'Verify the pipeline runs without errors for several days to confirm the fix is stable.', correct: false, feedback: 'The pipeline running without errors confirms the default is working, not that the data being produced is correct or meaningful.' },
+          { text: 'Investigate why the key is missing to determine whether a data contract upstream has changed unexpectedly.', correct: true, feedback: 'A suddenly missing required key signals a contract break. Silencing it without investigation produces silently wrong data, which is worse than a crash.' },
+          { text: 'Document the default value behavior and notify stakeholders that some records will show UNKNOWN.', correct: false, feedback: 'Documentation is appropriate if the default is intentional. First you need to determine whether this is expected behavior or a bug in the upstream source.' },
+        ],
+      },
+      bridge: "Dev's question is the one I avoided. I was proud of the fast fix, but defaulting to UNKNOWN means the pipeline is now producing wrong data silently. The error is gone but the problem is still running in production, quietly.",
+      b2: {
+        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
+        content: "Aisha, always trace the lineage. A KeyError on a required field means a data contract upstream changed. Defaulting to UNKNOWN is worse than crashing — it produces confident wrong data.",
+        expanded: "Check the upstream API's changelog or contact that team. This is exactly why we need schema validation at ingestion boundaries, not just error handling. A pipeline that crashes loudly is easier to debug than one that silently writes wrong values for three days.",
+        question: "What is the most effective long-term strategy to prevent data contract changes from silently corrupting a production data pipeline?",
+        opts: [
+          { text: 'Apply defensive defaults for all dictionary key accesses throughout the pipeline to prevent any crashes.', correct: false, feedback: 'Defensive defaults mask contract violations rather than detecting them. The goal is to catch schema changes at ingestion, not hide their effects downstream.' },
+          { text: 'Implement schema validation at ingestion boundaries so that contract changes surface as loud failures immediately.', correct: true, feedback: 'Schema validation at the entry point catches contract breaks before wrong data propagates downstream, making failures loud and localized rather than silent and widespread.' },
+          { text: 'Regularly review and manually update field access code to match any upstream API documentation changes.', correct: false, feedback: 'Manual reviews are reactive and slow. Automated schema validation catches contract changes immediately, without depending on human review cycles.' },
+        ],
+      },
+    },
+    java: {
+      open: "NullPointerException — classic. Stack trace points right to line 84. Add a null check there, problem solved. Another bug squashed.",
+      story: "Vikram reads the stack trace, finds the exact line, adds if (paymentDetails != null). The NPE disappears from logs. Two days later Kavya flags a silent regression: a subset of payment processing requests are now silently skipped rather than failing loud. The null check that prevented the crash also prevented the retry logic from triggering, and real payments are being dropped.",
+      b1: {
+        name: 'Rahul', role: 'Junior Backend Engineer', color: '#0891B2',
+        content: "That null check stopped the crash, but was paymentDetails ever supposed to be null? It feels like something that should always be present.",
+        expanded: "If paymentDetails is always supposed to exist, then null means something upstream is broken — a service returned an unexpected response, or a database query returned nothing when it should always return a result. The null is a signal, not just a missing value.",
+        question: "After fixing a NullPointerException with a null check, what is the most important follow-up question?",
+        opts: [
+          { text: 'Is the null check implementation robust enough to handle all possible null scenarios in future requests?', correct: false, feedback: 'Defensive robustness is good, but the prior question is whether this null should ever occur at all, which the check has now hidden.' },
+          { text: 'Why did this value become null — is this an expected condition or a signal that something upstream is broken?', correct: true, feedback: 'A null on a value that should always be present is a symptom. Fixing the symptom without finding the cause leaves the upstream breakage undetected.' },
+          { text: 'Should the null case return a default response instead of silently skipping the operation entirely?', correct: false, feedback: 'Choosing between skip and default is a design question. It should only be answered after understanding whether this null is expected or anomalous.' },
+        ],
+      },
+      bridge: "Rahul's right. I stopped the crash but I didn't ask whether paymentDetails should ever be null. If it shouldn't, then my null check is hiding a broken upstream call, and now real payments are silently being skipped.",
+      b2: {
+        name: 'Kavya', role: 'Senior Backend Engineer', color: '#7C3AED',
+        content: "Vikram, a null check is a symptom fix. The stack trace shows where it failed. You need to trace backward to where paymentDetails is populated and find out why it's null.",
+        expanded: "Was a downstream service returning 404 instead of a default response? Did the database return an empty result set when it should always have a row? Debugging in a microservice system means tracing across service boundaries, not just fixing the line that threw the exception.",
+        question: "What is the most effective approach to debugging a NullPointerException in a microservice architecture?",
+        opts: [
+          { text: 'Add a null check at the point of the exception and log a warning so the issue is visible in future monitoring.', correct: false, feedback: 'Logging helps, but the fix still masks the upstream problem. The payment being silently skipped will not appear as an error in logs.' },
+          { text: "Trace the value's origin by following the call chain and logs across service boundaries to find why it became null.", correct: true, feedback: 'Tracing to the origin reveals whether a downstream service is failing, a query is returning empty results, or a code path is not setting the value as expected.' },
+          { text: 'Refactor the method to use Optional to make null handling explicit and idiomatic throughout the codebase.', correct: false, feedback: 'Optional improves code clarity for nullable values, but it does not explain why a value that should always be present is suddenly null.' },
+        ],
+      },
+    },
+    nodejs: {
+      open: "I stepped through the debugger, watched send() execute exactly once. The duplicate notification bug must be intermittent network retries from the delivery provider. Not our code.",
+      story: "Leo runs the debugger, confirms sendNotification is called once per request in his trace. He closes the ticket as a delivery provider issue. The next morning there are 847 duplicate notification reports. Carlos runs a concurrent load test against staging: every run with 20+ simultaneous requests produces duplicates. Leo's debugger trace was single-threaded and never showed the race.",
+      b1: {
+        name: 'Jordan', role: 'Frontend Engineer', color: '#65A30D',
+        content: "Leo, could the duplicates be from two requests hitting the endpoint simultaneously? A debugger trace only shows one request at a time — it can't show concurrent racing.",
+        expanded: "If two requests arrive close together, they might both pass an already-sent check before either one has written the sent flag. A single-threaded debugger session will never reproduce that. You need a concurrent test to observe the race.",
+        question: "What is a critical limitation of using a single-threaded debugger session to diagnose intermittent duplicate-action bugs?",
+        opts: [
+          { text: 'The debugger pauses execution, which changes the timing and may cause the program to bypass certain code paths.', correct: false, feedback: 'Debugger pausing can affect timing-sensitive bugs, but the more fundamental issue is that a single session only traces one request and misses concurrent interactions.' },
+          { text: "A debugger traces one request's execution path and cannot reveal race conditions between concurrent requests.", correct: true, feedback: "Concurrent race conditions only appear when multiple requests interleave. A single-request trace appears clean because it doesn't show what another request is doing simultaneously." },
+          { text: 'Debuggers do not have access to the Node.js event loop internals, making async bugs invisible in traces.', correct: false, feedback: 'Modern debuggers can show async call stacks, but the missing piece here is concurrency across multiple requests, not async visibility within one.' },
+        ],
+      },
+      bridge: "Jordan pointing at concurrency changed my read of the bug. My debugger confirmed one request is correct. But if two requests arrive 50ms apart, they could both pass the sent check before either writes the result. That race is invisible in a single trace.",
+      b2: {
+        name: 'Mei', role: 'Senior Full-Stack Engineer', color: '#DC2626',
+        content: "Leo, this is a non-atomic check-then-act pattern. Two concurrent requests both read sent=false, both proceed, both send. Your debugger only shows the world from one request's perspective.",
+        expanded: "The fix is an atomic upsert or a database-level unique constraint that rejects the second insert. You can also use a distributed lock keyed on the notification ID. The general lesson is: whenever correctness depends on reading state before writing it, that operation must be atomic.",
+        question: "What is the correct strategy to prevent duplicate actions caused by a race condition in a concurrent web service?",
+        opts: [
+          { text: 'Add retry logic with exponential backoff so duplicate requests are automatically de-duplicated by the delivery provider.', correct: false, feedback: 'Retry logic addresses delivery reliability, not the race condition in your own check-then-act logic that is causing the duplicates in the first place.' },
+          { text: 'Make the check-and-set operation atomic using a database constraint, atomic upsert, or distributed lock keyed on the resource.', correct: true, feedback: 'Atomic operations guarantee that the second concurrent request fails rather than proceeding, because the state can only transition from unsent to sent once.' },
+          { text: 'Increase server processing speed so that the window for concurrent races is too small to occur in practice.', correct: false, feedback: 'Reducing the race window lowers the probability but does not eliminate it. Under sufficient load, any non-zero window will eventually produce duplicates.' },
+        ],
+      },
+    },
+  },
+};
+
 // ─── Custom story + character components ───────────────────────────────────
 
 const ProtagonistAvatar = ({ name, role, color, content, expandedContent }: {
@@ -1316,7 +1656,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s01[track].open : <>
                 {track === 'python' && <>I fixed that off-by-one error, the pipeline ran green, no exceptions. That means it worked, right? Ran successfully is basically a pass. The dashboard should reflect the correct data now.</>}
                 {track === 'java' && <>My code compiles, all unit tests pass, the endpoint returns 200 OK. Pushing to CI is a formality at this point. If it works in my IDE with the dependency I added, it will work everywhere.</>}
                 {track === 'nodejs' && <>JavaScript is JavaScript. localStorage is a standard web storage API. The notification service runs JavaScript so localStorage should just work. This is a ten-minute feature.</>}
@@ -1324,45 +1664,48 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Aisha watches the deployment dashboard, a small smile on her lips as the SUCCESS badge glows green. She refreshes the client analytics page expecting corrected numbers. Client Alpha revenue: still zero. Riya leans over the partition and points at the screen without saying anything for a moment. Then: 'Aisha. The pipeline ran successfully. But this client's data is still bad. What exactly do you mean by ran successfully?'</>}
-              {track === "java" && <>Vikram watches the green test indicators light up in his IDE, a small surge of satisfaction. He pushes the branch and pulls up the CI dashboard. Build running. Tests running. Then: BUILD FAILED. He opens the log expecting something minor. Instead: java.lang.ClassNotFoundException for the exact dependency he can see referenced in his pom.xml. Kavya walks over, looks at the screen briefly, and asks Vikram to explain the difference between how his IDE runs code and how CI does.</>}
-              {track === "nodejs" && <>Leo writes the localStorage call, saves the file, starts the notification service. The server crashes immediately: ReferenceError: localStorage is not defined. He reads it twice. He has used localStorage dozens of times in frontend work. Jordan leans over to look: 'That is weird. Node is basically the same as browser JS. Probably needs a polyfill or something.'</>}
+              {level === 'advanced' ? ADV.s01[track].story : <>
+                {track === "python" && <>Aisha watches the deployment dashboard, a small smile on her lips as the SUCCESS badge glows green. She refreshes the client analytics page expecting corrected numbers. Client Alpha revenue: still zero. Riya leans over the partition and points at the screen without saying anything for a moment. Then: &lsquo;Aisha. The pipeline ran successfully. But this client&apos;s data is still bad. What exactly do you mean by ran successfully?&rsquo;</>}
+                {track === "java" && <>Vikram watches the green test indicators light up in his IDE, a small surge of satisfaction. He pushes the branch and pulls up the CI dashboard. Build running. Tests running. Then: BUILD FAILED. He opens the log expecting something minor. Instead: java.lang.ClassNotFoundException for the exact dependency he can see referenced in his pom.xml. Kavya walks over, looks at the screen briefly, and asks Vikram to explain the difference between how his IDE runs code and how CI does.</>}
+                {track === "nodejs" && <>Leo writes the localStorage call, saves the file, starts the notification service. The server crashes immediately: ReferenceError: localStorage is not defined. He reads it twice. He has used localStorage dozens of times in frontend work. Jordan leans over to look: &lsquo;That is weird. Node is basically the same as browser JS. Probably needs a polyfill or something.&rsquo;</>}
+              </>}
             </StoryCard>
 
             <SWEAvatar
-              name={track !== 'nodejs' ? meta.mentor : 'Jordan'} role={track !== 'nodejs' ? meta.mentorRole : 'Frontend Engineer'} color={track !== 'nodejs' ? meta.mentorColor : '#65A30D'}
+              name={level === 'advanced' ? ADV.s01[track].b1.name : (track !== 'nodejs' ? meta.mentor : 'Jordan')}
+              role={level === 'advanced' ? ADV.s01[track].b1.role : (track !== 'nodejs' ? meta.mentorRole : 'Frontend Engineer')}
+              color={level === 'advanced' ? ADV.s01[track].b1.color : (track !== 'nodejs' ? meta.mentorColor : '#65A30D')}
               conceptId="swe-m1-execution"
-              content={
-                track === 'python' ? <>&ldquo;Aisha, your change deployed, and the pipeline ran through. But look at this client's report. What does 'ran successfully' truly mean here?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Vikram, your endpoint is functional locally, but the CI build failed with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code>. Describe the precise difference in how your code executes in your IDE versus the CI environment.&rdquo;</> :
-                          <>&ldquo;Huh, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code>? That's weird. I thought Node.js was basically the same as browser JS. Are you sure you're not trying to do frontend stuff on the backend?&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b1.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha, your change deployed, and the pipeline ran through. But look at this client&apos;s report. What does &lsquo;ran successfully&rsquo; truly mean here?&rdquo;</> :
+                track === 'java' ? <>&ldquo;Vikram, your endpoint is functional locally, but the CI build failed with a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code>. Describe the precise difference in how your code executes in your IDE versus the CI environment.&rdquo;</> :
+                <>&ldquo;Huh, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code>? That&apos;s weird. I thought Node.js was basically the same as browser JS. Are you sure you&apos;re not trying to do frontend stuff on the backend?&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;It's easy to just check the exit code and move on, but in data engineering, 'success' is about the data's integrity. Did your code handle every possible input, especially the edge cases? What if a specific data format broke something silently, letting bad data pass?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;In your IDE, your classpath is managed automatically, often including various transitive dependencies and potentially even local filesystem paths. CI, however, builds from a clean slate, following strict build tool rules. The <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code> indicates a discrepancy in how dependencies are resolved or packaged.&rdquo;</> :
-                          <>&ldquo;I mean, it's all JavaScript, right? The syntax is the same, you use <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>const</code> and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>let</code>, and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>async/await</code> works everywhere. Maybe there's a polyfill or a specific Node.js package you need to install to get <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> to work? I'm pretty sure it's just a missing dependency.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b1.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;It&apos;s easy to just check the exit code and move on, but in data engineering, &lsquo;success&rsquo; is about the data&apos;s integrity. Did your code handle every possible input, especially the edge cases? What if a specific data format broke something silently, letting bad data pass?&rdquo;</> :
+                track === 'java' ? <>&ldquo;In your IDE, your classpath is managed automatically, often including various transitive dependencies and potentially even local filesystem paths. CI, however, builds from a clean slate, following strict build tool rules. The <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ClassNotFoundException</code> indicates a discrepancy in how dependencies are resolved or packaged.&rdquo;</> :
+                <>&ldquo;I mean, it&apos;s all JavaScript, right? The syntax is the same, you use <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>const</code> and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>let</code>, and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>async/await</code> works everywhere. Maybe there&apos;s a polyfill or a specific Node.js package you need to install to get <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> to work? I&apos;m pretty sure it&apos;s just a missing dependency.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s01[track].b1.question :
                 track === 'python' ? 'When a Python script finishes without raising an explicit error, what is the most critical next step to verify its true success?' :
-                          track === 'java' ? 'What is the most common reason a ClassNotFoundException appears in CI but not in an IDE for a Java application?' :
-                          'Jordan believes Node.js is \'basically the same as browser JS.\' What core distinction does this perspective overlook regarding environment-specific APIs?'
+                track === 'java' ? 'What is the most common reason a ClassNotFoundException appears in CI but not in an IDE for a Java application?' :
+                'Jordan believes Node.js is \'basically the same as browser JS.\' What core distinction does this perspective overlook regarding environment-specific APIs?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s01[track].b1.opts :
                 track === 'python' ? [
-                            { text: 'Rely solely on the script\'s exit code, assuming zero means a perfect execution without any data issues.', correct: false, feedback: 'An exit code of zero only indicates the program terminated normally, not necessarily that its output or side effects are correct.' },
-                            { text: 'Implement robust data validation checks and integrity assertions to confirm the output meets expectations.', correct: true, feedback: 'True success in data pipelines requires validating the output against expected data models and business rules, catching silent failures.' },
-                            { text: 'Trust that if no exceptions were raised, all processing steps completed as intended without any logical errors.', correct: false, feedback: 'Code can execute without exceptions yet still produce incorrect results, especially with complex business logic or edge cases.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'The IDE\'s embedded web server uses a different Java Virtual Machine (JVM) than the CI server, causing class conflicts.', correct: false, feedback: 'While JVM versions can differ, a ClassNotFoundException usually points to a missing dependency on the classpath, not a JVM conflict itself.' },
-                            { text: 'A required dependency is correctly referenced in the IDE but is not properly declared or packaged within the build artifact for CI.', correct: true, feedback: 'This is a frequent issue: IDEs are forgiving with classpath resolution, but CI builds require explicit dependency declarations in build tools like Maven or Gradle.' },
-                            { text: 'The CI server\'s network firewall blocks access to the external repository where the required class is hosted.', correct: false, feedback: 'A firewall issue would manifest as a network error during dependency download, not a ClassNotFoundException during execution.' }
-                          ] :
-                          [
-                            { text: 'Node.js uses a different JavaScript engine than browsers, impacting how built-in language features execute.', correct: false, feedback: 'Both Node.js and modern browsers use the V8 engine, so the core language features are consistent. The difference lies in available APIs.' },
-                            { text: 'Browser JavaScript has access to Web APIs like localStorage that are absent in Node.js\'s server-side environment.', correct: true, feedback: 'The browser provides Web APIs (like DOM, window, localStorage) for interacting with the browser environment, which Node.js (a server runtime) does not have.' },
-                            { text: 'Node.js enforces strict type-checking, which prevents the use of loosely typed browser-specific functions.', correct: false, feedback: 'JavaScript is dynamically typed in both environments. Type-checking is typically added via tools like TypeScript, not inherent to the runtime.' }
-                          ]
+                  { text: 'Rely solely on the script\'s exit code, assuming zero means a perfect execution without any data issues.', correct: false, feedback: 'An exit code of zero only indicates the program terminated normally, not necessarily that its output or side effects are correct.' },
+                  { text: 'Implement robust data validation checks and integrity assertions to confirm the output meets expectations.', correct: true, feedback: 'True success in data pipelines requires validating the output against expected data models and business rules, catching silent failures.' },
+                  { text: 'Trust that if no exceptions were raised, all processing steps completed as intended without any logical errors.', correct: false, feedback: 'Code can execute without exceptions yet still produce incorrect results, especially with complex business logic or edge cases.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'The IDE\'s embedded web server uses a different Java Virtual Machine (JVM) than the CI server, causing class conflicts.', correct: false, feedback: 'While JVM versions can differ, a ClassNotFoundException usually points to a missing dependency on the classpath, not a JVM conflict itself.' },
+                  { text: 'A required dependency is correctly referenced in the IDE but is not properly declared or packaged within the build artifact for CI.', correct: true, feedback: 'This is a frequent issue: IDEs are forgiving with classpath resolution, but CI builds require explicit dependency declarations in build tools like Maven or Gradle.' },
+                  { text: 'The CI server\'s network firewall blocks access to the external repository where the required class is hosted.', correct: false, feedback: 'A firewall issue would manifest as a network error during dependency download, not a ClassNotFoundException during execution.' },
+                ] : [
+                  { text: 'Node.js uses a different JavaScript engine than browsers, impacting how built-in language features execute.', correct: false, feedback: 'Both Node.js and modern browsers use the V8 engine, so the core language features are consistent. The difference lies in available APIs.' },
+                  { text: 'Browser JavaScript has access to Web APIs like localStorage that are absent in Node.js\'s server-side environment.', correct: true, feedback: 'The browser provides Web APIs (like DOM, window, localStorage) for interacting with the browser environment, which Node.js (a server runtime) does not have.' },
+                  { text: 'Node.js enforces strict type-checking, which prevents the use of loosely typed browser-specific functions.', correct: false, feedback: 'JavaScript is dynamically typed in both environments. Type-checking is typically added via tools like TypeScript, not inherent to the runtime.' },
+                ]
               }
             />
 
@@ -1370,7 +1713,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s01[track].bridge : <>
                 {track === 'python' && <>I thought ran successfully meant the code executed without crashing. Is there something more fundamental than the absence of exceptions? The logs showed nothing wrong. How can data be broken if nothing threw an error?</>}
                 {track === 'java' && <>I don&apos;t understand. The dependency is right there in pom.xml and my IDE finds it without complaint. Is CI running a different version of Maven? Or is there something about how the artifact gets packaged that I am missing entirely?</>}
                 {track === 'nodejs' && <>Jordan thinks polyfill but something about that feels off. localStorage is not something you polyfill — it is a core browser API. Is there something actually different about what APIs exist in a Node process versus a browser tab?</>}
@@ -1378,39 +1721,40 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <SWEAvatar
-              name={track === 'python' ? 'Sam' : track === 'java' ? 'Rahul' : meta.mentor} role={track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : meta.mentorRole} color={track === 'python' ? '#059669' : track === 'java' ? '#0891B2' : meta.mentorColor}
+              name={level === 'advanced' ? ADV.s01[track].b2.name : (track === 'python' ? 'Sam' : track === 'java' ? 'Rahul' : meta.mentor)}
+              role={level === 'advanced' ? ADV.s01[track].b2.role : (track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : meta.mentorRole)}
+              color={level === 'advanced' ? ADV.s01[track].b2.color : (track === 'python' ? '#059669' : track === 'java' ? '#0891B2' : meta.mentorColor)}
               conceptId="swe-m1-execution"
-              content={
-                track === 'python' ? <>&ldquo;Hey Aisha, don't sweat it. If the pipeline logs say 'SUCCESS' and it ran to completion, it's good. Riya's probably just overthinking it.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Oh, that's normal. CI is always a bit finicky. Did you try cleaning your local Maven repository and rebuilding? Sometimes that fixes it.&rdquo;</> :
-                          <>&ldquo;Leo, the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ReferenceError</code> for <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> tells you something fundamental. Where does browser JavaScript execute, and where does Node.js execute? What's the context for each?&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b2.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Hey Aisha, don&apos;t sweat it. If the pipeline logs say &lsquo;SUCCESS&rsquo; and it ran to completion, it&apos;s good. Riya&apos;s probably just overthinking it.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Oh, that&apos;s normal. CI is always a bit finicky. Did you try cleaning your local Maven repository and rebuilding? Sometimes that fixes it.&rdquo;</> :
+                <>&ldquo;Leo, the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ReferenceError</code> for <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> tells you something fundamental. Where does browser JavaScript execute, and where does Node.js execute? What&apos;s the context for each?&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;I mean, I've had pipelines run for hours, and as long as they don't crash, that's a win, right? We've got monitoring, but if it didn't yell at us, it's probably fine. Maybe it's an upstream data issue, not your code.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;I've had that happen a bunch of times. My code works fine, but CI just acts up. Maybe the CI server has a cached version of your code or something? I'd just try re-running the build a couple of times, or check if anyone else deployed something weird recently.&rdquo;</> :
-                          <>&ldquo;Think about what <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> is designed to do. It's for persisting data on a user's browser. Now, consider the server. Does it have a 'user's browser' in the same way? The runtime environment dictates which global objects and APIs are available. Your code is running in a different 'world' now.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b2.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;I mean, I&apos;ve had pipelines run for hours, and as long as they don&apos;t crash, that&apos;s a win, right? We&apos;ve got monitoring, but if it didn&apos;t yell at us, it&apos;s probably fine. Maybe it&apos;s an upstream data issue, not your code.&rdquo;</> :
+                track === 'java' ? <>&ldquo;I&apos;ve had that happen a bunch of times. My code works fine, but CI just acts up. Maybe the CI server has a cached version of your code or something? I&apos;d just try re-running the build a couple of times, or check if anyone else deployed something weird recently.&rdquo;</> :
+                <>&ldquo;Think about what <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> is designed to do. It&apos;s for persisting data on a user&apos;s browser. Now, consider the server. Does it have a &lsquo;user&apos;s browser&rsquo; in the same way? The runtime environment dictates which global objects and APIs are available.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s01[track].b2.question :
                 track === 'python' ? 'Sam suggests that a \'SUCCESS\' log message is sufficient proof of a pipeline\'s successful operation. What fundamental aspect does this perspective overlook?' :
-                          track === 'java' ? 'Rahul suggests general troubleshooting steps for CI failures. What is a more focused initial action Vikram should take when facing a ClassNotFoundException in CI?' :
-                          'Mei prompts Leo to consider the execution context. What is the fundamental difference in the global objects available in a browser versus a Node.js environment?'
+                track === 'java' ? 'Rahul suggests general troubleshooting steps for CI failures. What is a more focused initial action Vikram should take when facing a ClassNotFoundException in CI?' :
+                'Mei prompts Leo to consider the execution context. What is the fundamental difference in the global objects available in a browser versus a Node.js environment?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s01[track].b2.opts :
                 track === 'python' ? [
-                            { text: 'The importance of optimizing runtime performance, as a slow success is still considered a failure by some metrics.', correct: false, feedback: 'While performance is important, Sam\'s statement overlooks data correctness, which is more fundamental than speed for pipeline success.' },
-                            { text: 'The potential for logical errors or unhandled edge cases to produce incorrect output without crashing the process.', correct: true, feedback: 'A \'SUCCESS\' log only indicates completion, not correctness. Silent data corruption or missed records are common issues that don\'t always trigger errors.' },
-                            { text: 'The need for comprehensive unit tests to ensure every function works independently before integration into the pipeline.', correct: false, feedback: 'Unit tests are valuable, but Sam\'s point is about runtime verification, not pre-deployment testing, although they are related.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'Review the CI build logs for specific messages about dependency resolution or artifact packaging, not just the exception.', correct: true, feedback: 'Detailed CI logs provide crucial information about the build process, including dependency downloads, classpath construction, and packaging errors.' },
-                            { text: 'Revert to a previous commit that passed CI successfully, then reapply changes incrementally to identify the breaking point.', correct: false, feedback: 'While sometimes necessary, this is a reactive step. Understanding the current failure from logs is more efficient first.' },
-                            { text: 'Check if the CI server\'s operating system has been recently updated, as this can affect Java classpath resolution.', correct: false, feedback: 'OS updates rarely affect Java classpath resolution directly. Build tool configuration and dependency declarations are far more common causes.' }
-                          ] :
-                          [
-                            { text: 'Node.js provides global for server-side utilities, whereas browsers expose window for client-side interactions.', correct: true, feedback: 'Node.js uses global (or globalThis) as its global object, providing access to OS-level functionalities, while browsers use window for DOM manipulation and browser-specific APIs.' },
-                            { text: 'Browsers automatically include all Node.js modules, making them universally accessible without explicit imports.', correct: false, feedback: 'Browsers do not automatically include Node.js modules. Node.js has its own module system (require or import), separate from browser-specific modules.' },
-                            { text: 'The browser environment has no concept of a file system, while Node.js inherently supports file I/O operations.', correct: false, feedback: 'While true that browsers don\'t have direct filesystem access, Mei\'s question is about global objects and APIs, not specific capabilities like file I/O.' }
-                          ]
+                  { text: 'The importance of optimizing runtime performance, as a slow success is still considered a failure by some metrics.', correct: false, feedback: 'While performance is important, Sam\'s statement overlooks data correctness, which is more fundamental than speed for pipeline success.' },
+                  { text: 'The potential for logical errors or unhandled edge cases to produce incorrect output without crashing the process.', correct: true, feedback: 'A \'SUCCESS\' log only indicates completion, not correctness. Silent data corruption or missed records are common issues that don\'t always trigger errors.' },
+                  { text: 'The need for comprehensive unit tests to ensure every function works independently before integration into the pipeline.', correct: false, feedback: 'Unit tests are valuable, but Sam\'s point is about runtime verification, not pre-deployment testing, although they are related.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'Review the CI build logs for specific messages about dependency resolution or artifact packaging, not just the exception.', correct: true, feedback: 'Detailed CI logs provide crucial information about the build process, including dependency downloads, classpath construction, and packaging errors.' },
+                  { text: 'Revert to a previous commit that passed CI successfully, then reapply changes incrementally to identify the breaking point.', correct: false, feedback: 'While sometimes necessary, this is a reactive step. Understanding the current failure from logs is more efficient first.' },
+                  { text: 'Check if the CI server\'s operating system has been recently updated, as this can affect Java classpath resolution.', correct: false, feedback: 'OS updates rarely affect Java classpath resolution directly. Build tool configuration and dependency declarations are far more common causes.' },
+                ] : [
+                  { text: 'Node.js provides global for server-side utilities, whereas browsers expose window for client-side interactions.', correct: true, feedback: 'Node.js uses global (or globalThis) as its global object, providing access to OS-level functionalities, while browsers use window for DOM manipulation and browser-specific APIs.' },
+                  { text: 'Browsers automatically include all Node.js modules, making them universally accessible without explicit imports.', correct: false, feedback: 'Browsers do not automatically include Node.js modules. Node.js has its own module system (require or import), separate from browser-specific modules.' },
+                  { text: 'The browser environment has no concept of a file system, while Node.js inherently supports file I/O operations.', correct: false, feedback: 'While true that browsers don\'t have direct filesystem access, Mei\'s question is about global objects and APIs, not specific capabilities like file I/O.' },
+                ]
               }
             />
 
@@ -1467,7 +1811,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s02[track].open : <>
                 {track === 'python' && <>I installed fast_csv_parser myself and watched it import cleanly. If it works on my machine it should work for the rest of the team. Python environments are pretty straightforward.</>}
                 {track === 'java' && <>Adding a new library should mean dropping a dependency block in pom.xml with the artifact ID and version. How complicated can one library addition really be?</>}
                 {track === 'nodejs' && <>I ran npm install, everything resolved, my endpoint works perfectly. Deploying to Docker is just packaging what already works. Containers are supposed to make deployment more consistent, not less.</>}
@@ -1475,45 +1819,48 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Aisha runs the updated data processing script on her laptop, output streaming by clean and correct. She pushes to the shared repo and Sam pulls it to test on his machine. His terminal immediately fires back: ModuleNotFoundError: No module named fast_csv_parser. Same repo. Same Python version. Aisha stares at the error trying to figure out what is different between their two machines.</>}
-              {track === "java" && <>Vikram copies a dependency block from the Maven documentation into pom.xml. mvn install fails immediately with a conflict about transitive dependencies. He scans the existing pom.xml, overwhelmed by scope attributes, optional flags, and exclusion blocks. He has no idea what any of it means. Suresh, overhearing his escalating frustration from the adjacent desk, strides over: 'Before you touch another dependency, explain to me what Maven lifecycle phases are.'</>}
-              {track === "nodejs" && <>Leo pushes to the container registry. Carlos initiates the Docker build and deploy. Two minutes later: MODULE_NOT_FOUND: Cannot find module lodash. Carlos stares at his terminal. Then at Leo. Leo stares back. Lodash is definitely installed. It is in his node_modules right now. He can see it sitting there. Carlos says nothing. He just sighs.</>}
+              {level === 'advanced' ? ADV.s02[track].story : <>
+                {track === "python" && <>Aisha runs the updated data processing script on her laptop, output streaming by clean and correct. She pushes to the shared repo and Sam pulls it to test on his machine. His terminal immediately fires back: ModuleNotFoundError: No module named fast_csv_parser. Same repo. Same Python version. Aisha stares at the error trying to figure out what is different between their two machines.</>}
+                {track === "java" && <>Vikram copies a dependency block from the Maven documentation into pom.xml. mvn install fails immediately with a conflict about transitive dependencies. He scans the existing pom.xml, overwhelmed by scope attributes, optional flags, and exclusion blocks. He has no idea what any of it means. Suresh, overhearing his escalating frustration from the adjacent desk, strides over: &lsquo;Before you touch another dependency, explain to me what Maven lifecycle phases are.&rsquo;</>}
+                {track === "nodejs" && <>Leo pushes to the container registry. Carlos initiates the Docker build and deploy. Two minutes later: MODULE_NOT_FOUND: Cannot find module lodash. Carlos stares at his terminal. Then at Leo. Leo stares back. Lodash is definitely installed. It is in his node_modules right now. He can see it sitting there. Carlos says nothing. He just sighs.</>}
+              </>}
             </StoryCard>
 
             <SWEAvatar
-              name={track === 'python' ? 'Dev' : track === 'java' ? 'Suresh' : 'Carlos'} role={track === 'python' ? 'Senior Data Scientist' : track === 'java' ? 'Principal Architect' : 'DevOps Engineer'} color={track === 'python' ? '#D97706' : track === 'java' ? '#2563EB' : '#B45309'}
+              name={level === 'advanced' ? ADV.s02[track].b1.name : (track === 'python' ? 'Dev' : track === 'java' ? 'Suresh' : 'Carlos')}
+              role={level === 'advanced' ? ADV.s02[track].b1.role : (track === 'python' ? 'Senior Data Scientist' : track === 'java' ? 'Principal Architect' : 'DevOps Engineer')}
+              color={level === 'advanced' ? ADV.s02[track].b1.color : (track === 'python' ? '#D97706' : track === 'java' ? '#2563EB' : '#B45309')}
               conceptId="swe-m1-environment"
-              content={
-                track === 'python' ? <>&ldquo;Aisha, this is why we need to move everything to Kubernetes containers. Your local setup is just a mess. It's probably some ancient library version on your OS.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Vikram, Maven is not 'just for adding libraries.' It's a project management tool. Explain to me the lifecycle phases and artifact resolution process before you touch that <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pom.xml</code>.&rdquo;</> :
-                          <>&ldquo;Leo, your container build failed with <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>MODULE_NOT_FOUND</code>. Did you forget to include that new utility package in the Docker image? I only care about what runs in production, not on your laptop.&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s02[track].b1.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha, this is why we need to move everything to Kubernetes containers. Your local setup is just a mess. It&apos;s probably some ancient library version on your OS.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Vikram, Maven is not &lsquo;just for adding libraries.&rsquo; It&apos;s a project management tool. Explain to me the lifecycle phases and artifact resolution process before you touch that <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pom.xml</code>.&rdquo;</> :
+                <>&ldquo;Leo, your container build failed with <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>MODULE_NOT_FOUND</code>. Did you forget to include that new utility package in the Docker image? I only care about what runs in production, not on your laptop.&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;Honestly, local development environments are just a constant source of friction. You're probably running an older Python version or some system-level library conflict. We should just containerize everything immediately, then these issues disappear. It's the only way to ensure consistency.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pom.xml</code> is a contract. It defines your project's identity, its dependencies, and how it's built, tested, and packaged. Understanding dependency scopes – <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>compile</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>provided</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>test</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>runtime</code> – is critical to prevent classpath bloat and ensure correct deployment. We do not simply 'add libraries' at Finova; we manage our build graph meticulously.&rdquo;</> :
-                          <>&ldquo;The Docker container is a clean, isolated environment. It doesn't magically know what's on your local machine. If you add a dependency, it needs to be explicitly installed inside the container during the build process. We can't have manual steps; everything needs to be defined in the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>Dockerfile</code> or it won't work in production.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s02[track].b1.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Honestly, local development environments are just a constant source of friction. You&apos;re probably running an older Python version or some system-level library conflict. We should just containerize everything immediately, then these issues disappear. It&apos;s the only way to ensure consistency.&rdquo;</> :
+                track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pom.xml</code> is a contract. It defines your project&apos;s identity, its dependencies, and how it&apos;s built, tested, and packaged. Understanding dependency scopes — <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>compile</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>provided</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>test</code>, <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>runtime</code> — is critical. We do not simply &lsquo;add libraries&rsquo; at Finova; we manage our build graph meticulously.&rdquo;</> :
+                <>&ldquo;The Docker container is a clean, isolated environment. It doesn&apos;t magically know what&apos;s on your local machine. If you add a dependency, it needs to be explicitly installed inside the container during the build process. Everything needs to be defined in the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>Dockerfile</code> or it won&apos;t work in production.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s02[track].b1.question :
                 track === 'python' ? 'Dev suggests containerization as the ultimate solution for environment consistency. While beneficial, what aspect of initial setup does this approach not entirely eliminate for a developer?' :
-                          track === 'java' ? 'Suresh emphasizes understanding Maven\'s dependency scopes. What is the primary purpose of defining a dependency with a provided scope?' :
-                          'Carlos points to a MODULE_NOT_FOUND error in Docker. What is the most common reason for this issue when deploying a Node.js application in a container?'
+                track === 'java' ? 'Suresh emphasizes understanding Maven\'s dependency scopes. What is the primary purpose of defining a dependency with a provided scope?' :
+                'Carlos points to a MODULE_NOT_FOUND error in Docker. What is the most common reason for this issue when deploying a Node.js application in a container?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s02[track].b1.opts :
                 track === 'python' ? [
-                            { text: 'The ongoing need to regularly update the base operating system within the container images themselves.', correct: false, feedback: 'Containerization centralizes environment control, but the initial local setup for running and interacting with containers still matters.' },
-                            { text: 'The necessity of correctly defining and managing all required dependencies within the container\'s build process.', correct: true, feedback: 'Containerization moves the environment definition into code (Dockerfile), but you still need to correctly specify and install all dependencies within it.' },
-                            { text: 'The challenge of debugging performance bottlenecks that only manifest within a highly distributed container cluster.', correct: false, feedback: 'This is a valid point about containers, but Dev\'s focus is on local environment inconsistencies, not distributed performance issues.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'To ensure the dependency is always included in the final build artifact, regardless of the deployment environment.', correct: false, feedback: 'A provided scope explicitly means the dependency will NOT be included in the final artifact, as it\'s expected to be provided by the runtime environment.' },
-                            { text: 'To indicate that the dependency is required for compilation and testing but will be supplied by the runtime container or server.', correct: true, feedback: 'The provided scope tells Maven that the dependency is needed during compilation but will be available in the server\'s classpath at runtime (e.g., Servlet API in a web server).' },
-                            { text: 'To mark a dependency as optional, allowing the application to run even if it\'s not present at runtime.', correct: false, feedback: 'While optional dependencies exist, the provided scope has a very specific meaning related to runtime provision by the environment, not general optionality.' }
-                          ] :
-                          [
-                            { text: 'The Docker container\'s operating system is incompatible with the Node.js version specified in the package.json.', correct: false, feedback: 'While OS/Node.js compatibility can be an issue, MODULE_NOT_FOUND typically points to missing packages, not core runtime conflicts.' },
-                            { text: 'The node_modules directory or the package.json file was not correctly copied or installed within the Docker image.', correct: true, feedback: 'Forgetting to copy package.json and package-lock.json and then running npm install inside the Docker image is a frequent cause of this error.' },
-                            { text: 'The Node.js application is attempting to access a network resource that is blocked by the Docker container\'s firewall.', correct: false, feedback: 'A network issue would result in a network-related error (e.g., connection refused), not a MODULE_NOT_FOUND for a local module.' }
-                          ]
+                  { text: 'The ongoing need to regularly update the base operating system within the container images themselves.', correct: false, feedback: 'Containerization centralizes environment control, but the initial local setup for running and interacting with containers still matters.' },
+                  { text: 'The necessity of correctly defining and managing all required dependencies within the container\'s build process.', correct: true, feedback: 'Containerization moves the environment definition into code (Dockerfile), but you still need to correctly specify and install all dependencies within it.' },
+                  { text: 'The challenge of debugging performance bottlenecks that only manifest within a highly distributed container cluster.', correct: false, feedback: 'This is a valid point about containers, but Dev\'s focus is on local environment inconsistencies, not distributed performance issues.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'To ensure the dependency is always included in the final build artifact, regardless of the deployment environment.', correct: false, feedback: 'A provided scope explicitly means the dependency will NOT be included in the final artifact, as it\'s expected to be provided by the runtime environment.' },
+                  { text: 'To indicate that the dependency is required for compilation and testing but will be supplied by the runtime container or server.', correct: true, feedback: 'The provided scope tells Maven that the dependency is needed during compilation but will be available in the server\'s classpath at runtime (e.g., Servlet API in a web server).' },
+                  { text: 'To mark a dependency as optional, allowing the application to run even if it\'s not present at runtime.', correct: false, feedback: 'While optional dependencies exist, the provided scope has a very specific meaning related to runtime provision by the environment, not general optionality.' },
+                ] : [
+                  { text: 'The Docker container\'s operating system is incompatible with the Node.js version specified in the package.json.', correct: false, feedback: 'While OS/Node.js compatibility can be an issue, MODULE_NOT_FOUND typically points to missing packages, not core runtime conflicts.' },
+                  { text: 'The node_modules directory or the package.json file was not correctly copied or installed within the Docker image.', correct: true, feedback: 'Forgetting to copy package.json and package-lock.json and then running npm install inside the Docker image is a frequent cause of this error.' },
+                  { text: 'The Node.js application is attempting to access a network resource that is blocked by the Docker container\'s firewall.', correct: false, feedback: 'A network issue would result in a network-related error (e.g., connection refused), not a MODULE_NOT_FOUND for a local module.' },
+                ]
               }
             />
 
@@ -1521,7 +1868,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s02[track].bridge : <>
                 {track === 'python' && <>Dev is saying containerize everything, but that feels like a sledgehammer for a nail problem. All I know is my script runs and Sam&apos;s does not, and I genuinely don&apos;t understand what is different between our setups.</>}
                 {track === 'java' && <>I just want to add one library. Suresh is asking me about lifecycle phases and I feel like he is deliberately making this harder than it needs to be. But Maven is clearly not behaving like I expected, so maybe he knows something I do not.</>}
                 {track === 'nodejs' && <>Carlos is clearly frustrated but I genuinely do not understand. Lodash is installed, it is in package.json, it is in my local node_modules. What does the Docker container not have access to that my terminal does?</>}
@@ -1529,39 +1876,40 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <SWEAvatar
-              name={track === 'python' ? 'Priya' : track === 'java' ? 'Ananya' : meta.mentor} role={track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Product Manager' : meta.mentorRole} color={track === 'python' ? '#7C3AED' : track === 'java' ? '#DB2777' : meta.mentorColor}
+              name={level === 'advanced' ? ADV.s02[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Ananya' : meta.mentor)}
+              role={level === 'advanced' ? ADV.s02[track].b2.role : (track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Product Manager' : meta.mentorRole)}
+              color={level === 'advanced' ? ADV.s02[track].b2.color : (track === 'python' ? '#7C3AED' : track === 'java' ? '#DB2777' : meta.mentorColor)}
               conceptId="swe-m1-environment"
-              content={
-                track === 'python' ? <>&ldquo;Aisha, I don't care if it's a Docker container or a virtual environment. I just need your local setup to match production and Sam's. What's the fastest path to consistency?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;So, it takes this much effort just to add a single library in Java? In other ecosystems, you just type <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> and you're done. Why is Java so slow to change?&rdquo;</> :
-                          <>&ldquo;Leo, think about the steps for building and running your app locally versus how a Docker container is constructed. What's fundamentally different about how dependencies are handled in each scenario?&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s02[track].b2.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha, I don&apos;t care if it&apos;s a Docker container or a virtual environment. I just need your local setup to match production and Sam&apos;s. What&apos;s the fastest path to consistency?&rdquo;</> :
+                track === 'java' ? <>&ldquo;So, it takes this much effort just to add a single library in Java? In other ecosystems, you just type <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> and you&apos;re done. Why is Java so slow to change?&rdquo;</> :
+                <>&ldquo;Leo, think about the steps for building and running your app locally versus how a Docker container is constructed. What&apos;s fundamentally different about how dependencies are handled in each scenario?&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;We can't have developers wasting time debugging environment issues when they should be shipping features. If Sam's machine works and yours doesn't, we need to standardize. Are we using a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>requirements.txt</code>? Is everyone on the same Python version? Let's fix this so you can focus on the actual data pipeline.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;I don't understand why something so basic has to be this complicated. My team needs features delivered quickly, and if half your time is spent wrestling with build tools and XML files, that's a problem. We need agility, not a fortress of configuration.&rdquo;</> :
-                          <>&ldquo;On your machine, you run <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> once, and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node_modules</code> sits there. Docker, however, builds layer by layer. If you add a dependency, you need to ensure the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> command runs *inside* the container's build context *after* the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>package.json</code> is copied. Otherwise, the container simply won't have the necessary packages.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s02[track].b2.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;We can&apos;t have developers wasting time debugging environment issues when they should be shipping features. Are we using a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>requirements.txt</code>? Is everyone on the same Python version? Let&apos;s fix this so you can focus on the actual data pipeline.&rdquo;</> :
+                track === 'java' ? <>&ldquo;I don&apos;t understand why something so basic has to be this complicated. My team needs features delivered quickly, and if half your time is spent wrestling with build tools and XML files, that&apos;s a problem. We need agility, not a fortress of configuration.&rdquo;</> :
+                <>&ldquo;On your machine, you run <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> once, and <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node_modules</code> sits there. Docker, however, builds layer by layer. If you add a dependency, you need to ensure the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> command runs inside the container&apos;s build context after <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>package.json</code> is copied.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s02[track].b2.question :
                 track === 'python' ? 'Priya prioritizes consistent development environments. What is the most immediate and practical step for Aisha to ensure her local Python dependencies match Sam\'s?' :
-                          track === 'java' ? 'Ananya expresses frustration with Maven\'s complexity compared to other package managers. What benefit does Maven\'s structured approach offer that simpler tools might lack for enterprise projects?' :
-                          'Mei emphasizes the difference in dependency handling. What is the correct sequence of Dockerfile instructions to ensure Node.js dependencies are properly installed for a containerized application?'
+                track === 'java' ? 'Ananya expresses frustration with Maven\'s complexity compared to other package managers. What benefit does Maven\'s structured approach offer that simpler tools might lack for enterprise projects?' :
+                'Mei emphasizes the difference in dependency handling. What is the correct sequence of Dockerfile instructions to ensure Node.js dependencies are properly installed for a containerized application?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s02[track].b2.opts :
                 track === 'python' ? [
-                            { text: 'Reinstall her operating system to ensure a clean slate, then manually install Python and all libraries.', correct: false, feedback: 'This is an extreme and often unnecessary step. There are more targeted ways to manage Python environments without reinstalling the OS.' },
-                            { text: 'Use a tool like pip freeze > requirements.txt on Sam\'s machine and then pip install -r requirements.txt on hers.', correct: true, feedback: 'Using pip freeze and pip install -r is a standard and effective way to replicate exact Python dependency versions across environments.' },
-                            { text: 'Manually compare all installed packages using pip list on both machines and install missing ones individually.', correct: false, feedback: 'Manually comparing pip list is tedious and error-prone, especially for many dependencies and nested requirements.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'It provides a highly optimized compiler that generates faster bytecode than other language compilers.', correct: false, feedback: 'Maven is a build automation tool, not a compiler. The compiler (Javac) is a separate component.' },
-                            { text: 'It enforces a standardized project structure and build lifecycle, promoting consistency and reducing \'works on my machine\' issues.', correct: true, feedback: 'Maven\'s convention-over-configuration and lifecycle management standardize builds, making them more predictable and reproducible across environments.' },
-                            { text: 'It automatically detects and resolves all transitive dependency conflicts without requiring any manual intervention.', correct: false, feedback: 'Maven has conflict resolution mechanisms, but it doesn\'t always automatically resolve all conflicts without developer input or configuration.' }
-                          ] :
-                          [
-                            { text: 'Copy the entire local node_modules directory into the Docker image, then run npm start directly.', correct: false, feedback: 'Copying node_modules is platform-specific and can lead to issues. It\'s best to install dependencies directly within the container.' },
-                            { text: 'Copy package.json and package-lock.json, run npm install, then copy the rest of the application code.', correct: true, feedback: 'This sequence ensures dependencies are installed using the correct lockfile, and then the application code is added, leveraging Docker\'s layer caching effectively.' },
-                            { text: 'Run npm install on the host machine, then copy the generated node_modules and the application code into the Docker image.', correct: false, feedback: 'Installing on the host and copying node_modules can cause problems due to platform differences or incorrect builds for the container\'s environment.' }
-                          ]
+                  { text: 'Reinstall her operating system to ensure a clean slate, then manually install Python and all libraries.', correct: false, feedback: 'This is an extreme and often unnecessary step. There are more targeted ways to manage Python environments without reinstalling the OS.' },
+                  { text: 'Use a tool like pip freeze > requirements.txt on Sam\'s machine and then pip install -r requirements.txt on hers.', correct: true, feedback: 'Using pip freeze and pip install -r is a standard and effective way to replicate exact Python dependency versions across environments.' },
+                  { text: 'Manually compare all installed packages using pip list on both machines and install missing ones individually.', correct: false, feedback: 'Manually comparing pip list is tedious and error-prone, especially for many dependencies and nested requirements.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'It provides a highly optimized compiler that generates faster bytecode than other language compilers.', correct: false, feedback: 'Maven is a build automation tool, not a compiler. The compiler (Javac) is a separate component.' },
+                  { text: 'It enforces a standardized project structure and build lifecycle, promoting consistency and reducing \'works on my machine\' issues.', correct: true, feedback: 'Maven\'s convention-over-configuration and lifecycle management standardize builds, making them more predictable and reproducible across environments.' },
+                  { text: 'It automatically detects and resolves all transitive dependency conflicts without requiring any manual intervention.', correct: false, feedback: 'Maven has conflict resolution mechanisms, but it doesn\'t always automatically resolve all conflicts without developer input or configuration.' },
+                ] : [
+                  { text: 'Copy the entire local node_modules directory into the Docker image, then run npm start directly.', correct: false, feedback: 'Copying node_modules is platform-specific and can lead to issues. It\'s best to install dependencies directly within the container.' },
+                  { text: 'Copy package.json and package-lock.json, run npm install, then copy the rest of the application code.', correct: true, feedback: 'This sequence ensures dependencies are installed using the correct lockfile, and then the application code is added, leveraging Docker\'s layer caching effectively.' },
+                  { text: 'Run npm install on the host machine, then copy the generated node_modules and the application code into the Docker image.', correct: false, feedback: 'Installing on the host and copying node_modules can cause problems due to platform differences or incorrect builds for the container\'s environment.' },
+                ]
               }
             />
 
@@ -1668,7 +2016,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s03[track].open : <>
                 {track === 'python' && <>Python is slow compared to compiled languages, I know that. But it is so productive for data work. I thought that slowness was an accepted tradeoff. Is the pipeline really that much of a bottleneck?</>}
                 {track === 'java' && <>I came here to write business logic, not to decode architectural diagrams. Every file I open has three interfaces and a factory class. This feels over-engineered and it is making a simple task impossible to navigate.</>}
                 {track === 'nodejs' && <>My professor was not wrong exactly. JavaScript was designed in ten days and some of the quirks are still there. I am not saying it is bad, just that it was not originally designed for serious backend systems.</>}
@@ -1676,45 +2024,48 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>At standup, Dev has benchmarks ready and a slide deck nobody asked for. The nightly 50M row transformation could run in half the time with Rust components, he says. Aisha listens, a faint unease forming. She has only ever done this kind of work in Python, and the libraries — pandas, numpy, the whole stack — feel inseparable from the job. Dev wraps up: Python just cannot keep up with the scale we are hitting.</>}
-              {track === "java" && <>Vikram navigates to PaymentService to add his validation hook. It is an interface. He finds AbstractPaymentService. Then PaymentServiceFactory. Then CreditCardPaymentServiceImpl. Each layer opens three more questions. He has been reading code for forty minutes and has not written a single line. Rahul appears at his desk: 'Just find the interface you need to implement. You do not have to understand all of it.'</>}
-              {track === "nodejs" && <>Leo, trying to contribute something thoughtful to the architecture discussion, mentions that his CS professor described JavaScript as a toy language not designed for production scale. The room goes quiet in a way that is different from thinking. Priya sets down her coffee cup. Leo realizes this was the wrong thing to say in this room.</>}
+              {level === 'advanced' ? ADV.s03[track].story : <>
+                {track === "python" && <>At standup, Dev has benchmarks ready and a slide deck nobody asked for. The nightly 50M row transformation could run in half the time with Rust components, he says. Aisha listens, a faint unease forming. She has only ever done this kind of work in Python, and the libraries — pandas, numpy, the whole stack — feel inseparable from the job. Dev wraps up: Python just cannot keep up with the scale we are hitting.</>}
+                {track === "java" && <>Vikram navigates to PaymentService to add his validation hook. It is an interface. He finds AbstractPaymentService. Then PaymentServiceFactory. Then CreditCardPaymentServiceImpl. Each layer opens three more questions. He has been reading code for forty minutes and has not written a single line. Rahul appears at his desk: &lsquo;Just find the interface you need to implement. You do not have to understand all of it.&rsquo;</>}
+                {track === "nodejs" && <>Leo, trying to contribute something thoughtful to the architecture discussion, mentions that his CS professor described JavaScript as a toy language not designed for production scale. The room goes quiet in a way that is different from thinking. Priya sets down her coffee cup. Leo realizes this was the wrong thing to say in this room.</>}
+              </>}
             </StoryCard>
 
             <SWEAvatar
-              name={track === 'python' ? 'Dev' : track === 'java' ? 'Rahul' : 'Priya'} role={track === 'python' ? 'Senior Data Scientist' : track === 'java' ? 'Junior Backend Engineer' : 'CTO'} color={track === 'python' ? '#D97706' : track === 'java' ? '#0891B2' : '#B45309'}
+              name={level === 'advanced' ? ADV.s03[track].b1.name : (track === 'python' ? 'Dev' : track === 'java' ? 'Rahul' : 'Priya')}
+              role={level === 'advanced' ? ADV.s03[track].b1.role : (track === 'python' ? 'Senior Data Scientist' : track === 'java' ? 'Junior Backend Engineer' : 'CTO')}
+              color={level === 'advanced' ? ADV.s03[track].b1.color : (track === 'python' ? '#D97706' : track === 'java' ? '#0891B2' : '#B45309')}
               conceptId="swe-m1-ecosystem"
-              content={
-                track === 'python' ? <>&ldquo;Look, Python is great for prototyping, but for raw performance, especially with heavy data processing, we need Rust. It's blazing fast, memory-safe, and we'd cut pipeline runtime by half!&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Yeah, that part of the codebase is a beast. Just find the interface you need, implement it, and try not to think too much about the rest. That's what I do.&rdquo;</> :
-                          <>&ldquo;Leo, the language's origin story is irrelevant. What matters is its current capability, ecosystem, and how quickly it lets us deliver value to our customers. Is Node.js doing that for Launchly?&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b1.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Look, Python is great for prototyping, but for raw performance, especially with heavy data processing, we need Rust. It&apos;s blazing fast, memory-safe, and we&apos;d cut pipeline runtime by half!&rdquo;</> :
+                track === 'java' ? <>&ldquo;Yeah, that part of the codebase is a beast. Just find the interface you need, implement it, and try not to think too much about the rest. That&apos;s what I do.&rdquo;</> :
+                <>&ldquo;Leo, the language&apos;s origin story is irrelevant. What matters is its current capability, ecosystem, and how quickly it lets us deliver value to our customers. Is Node.js doing that for Launchly?&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;I've been reading about how companies are using Rust for high-performance data engineering tasks. Imagine the cost savings on compute and the faster insights! We could integrate Rust modules into our Python code. It's the future, and we need to be on the cutting edge, not stuck with Python's GIL limitations.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Honestly, it's just a lot of boilerplate. Most of it is probably over-engineered. Just look for the methods you need to call, or the interface you have to implement, and stick to that. Don't try to understand the entire hierarchy; you'll be here all day.&rdquo;</> :
-                          <>&ldquo;My priority is business outcomes. Node.js allows our full-stack engineers to move quickly, leverage shared knowledge, and build scalable microservices. The vast NPM ecosystem, combined with modern language features, makes it a pragmatic choice for a company like ours. Perceived 'toy' status doesn't pay the bills.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b1.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;I&apos;ve been reading about companies using Rust for high-performance data engineering. Imagine the cost savings! We could integrate Rust modules into our Python code. It&apos;s the future, and we need to be on the cutting edge, not stuck with Python&apos;s GIL limitations.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Honestly, it&apos;s just a lot of boilerplate. Most of it is probably over-engineered. Just look for the methods you need to call or the interface you have to implement, and stick to that. Don&apos;t try to understand the entire hierarchy; you&apos;ll be here all day.&rdquo;</> :
+                <>&ldquo;My priority is business outcomes. Node.js allows our full-stack engineers to move quickly, leverage shared knowledge, and build scalable microservices. The vast NPM ecosystem, combined with modern language features, makes it a pragmatic choice for a company like ours.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s03[track].b1.question :
                 track === 'python' ? 'Dev champions Rust for its performance benefits. What is a key technical consideration when integrating Rust components into an existing Python codebase?' :
-                          track === 'java' ? 'Rahul suggests focusing only on the immediate interface. What risk does this approach pose when working with a large, complex Java codebase?' :
-                          'Priya dismisses the \'toy language\' perception of JavaScript. What is the most compelling argument for choosing Node.js for a B2C SaaS platform like Launchly?'
+                track === 'java' ? 'Rahul suggests focusing only on the immediate interface. What risk does this approach pose when working with a large, complex Java codebase?' :
+                'Priya dismisses the \'toy language\' perception of JavaScript. What is the most compelling argument for choosing Node.js for a B2C SaaS platform like Launchly?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s03[track].b1.opts :
                 track === 'python' ? [
-                            { text: 'Rust\'s strict type system will automatically enforce type safety across the Python-Rust boundary without any manual effort.', correct: false, feedback: 'While Rust is type-safe, explicit FFI (Foreign Function Interface) or binding libraries are needed to manage types across the Python boundary.' },
-                            { text: 'The overhead of inter-process communication or FFI for data exchange between Python and Rust needs careful management.', correct: true, feedback: 'Data serialization and deserialization across the language boundary can introduce significant overhead, negating some performance gains.' },
-                            { text: 'Rust\'s asynchronous programming model is inherently incompatible with Python\'s asyncio, requiring a full rewrite of Python\'s async logic.', correct: false, feedback: 'Rust and Python async models can coexist; the challenge is usually in data marshalling and function calls, not inherent incompatibility.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'It might lead to redundant code, as existing utility methods within the broader system could be overlooked.', correct: false, feedback: 'While possible, the primary risk is deeper: misunderstanding how your changes impact the system\'s core design principles.' },
-                            { text: 'It can result in a superficial understanding of the system\'s design, leading to unintended side effects or architectural violations.', correct: true, feedback: 'Ignoring the broader design context can lead to misusing patterns, introducing bugs, or deviating from the intended architecture, making future maintenance harder.' },
-                            { text: 'It could prevent the developer from discovering hidden performance optimizations that are deeply embedded in the system.', correct: false, feedback: 'Performance optimizations are usually specific, not inherent to understanding the entire design. The risk is more about correctness and maintainability.' }
-                          ] :
-                          [
-                            { text: 'Its inherent ability to perform complex mathematical computations faster than other compiled languages.', correct: false, feedback: 'Node.js is not generally known for faster complex mathematical computations compared to compiled languages like C++ or Java.' },
-                            { text: 'Its single-threaded, non-blocking I/O model, making it highly efficient for handling numerous concurrent connections.', correct: true, feedback: 'Node.js excels at I/O-bound tasks typical of web services, efficiently handling many concurrent users without complex multi-threading.' },
-                            { text: 'The strict type system and compile-time error checking, which guarantee robust and bug-free production deployments.', correct: false, feedback: 'JavaScript is dynamically typed. Robustness comes from practices like TypeScript and testing, not inherent strict typing in JS itself.' }
-                          ]
+                  { text: 'Rust\'s strict type system will automatically enforce type safety across the Python-Rust boundary without any manual effort.', correct: false, feedback: 'While Rust is type-safe, explicit FFI or binding libraries are needed to manage types across the Python boundary.' },
+                  { text: 'The overhead of inter-process communication or FFI for data exchange between Python and Rust needs careful management.', correct: true, feedback: 'Data serialization and deserialization across the language boundary can introduce significant overhead, negating some performance gains.' },
+                  { text: 'Rust\'s asynchronous programming model is inherently incompatible with Python\'s asyncio, requiring a full rewrite of Python\'s async logic.', correct: false, feedback: 'Rust and Python async models can coexist; the challenge is usually in data marshalling and function calls, not inherent incompatibility.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'It might lead to redundant code, as existing utility methods within the broader system could be overlooked.', correct: false, feedback: 'While possible, the primary risk is deeper: misunderstanding how your changes impact the system\'s core design principles.' },
+                  { text: 'It can result in a superficial understanding of the system\'s design, leading to unintended side effects or architectural violations.', correct: true, feedback: 'Ignoring the broader design context can lead to misusing patterns, introducing bugs, or deviating from the intended architecture.' },
+                  { text: 'It could prevent the developer from discovering hidden performance optimizations that are deeply embedded in the system.', correct: false, feedback: 'Performance optimizations are usually specific, not inherent to understanding the entire design. The risk is more about correctness and maintainability.' },
+                ] : [
+                  { text: 'Its inherent ability to perform complex mathematical computations faster than other compiled languages.', correct: false, feedback: 'Node.js is not generally known for faster complex math computations compared to compiled languages like C++ or Java.' },
+                  { text: 'Its single-threaded, non-blocking I/O model, making it highly efficient for handling numerous concurrent connections.', correct: true, feedback: 'Node.js excels at I/O-bound tasks typical of web services, efficiently handling many concurrent users without complex multi-threading.' },
+                  { text: 'The strict type system and compile-time error checking, which guarantee robust and bug-free production deployments.', correct: false, feedback: 'JavaScript is dynamically typed. Robustness comes from practices like TypeScript and testing, not inherent strict typing in JS itself.' },
+                ]
               }
             />
 
@@ -1722,7 +2073,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s03[track].bridge : <>
                 {track === 'python' && <>Dev sounds certain but I don&apos;t actually know if Python is the bottleneck. Is the slow part the computation, or is it the I/O waits and database queries? And even if he is right, would rewriting in Rust just shift the problem to our team not knowing Rust?</>}
                 {track === 'java' && <>Rahul is probably right if the goal is shipping something today. But if I implement against an interface I do not understand, what am I going to do when something breaks? What invariant might I be violating without knowing it?</>}
                 {track === 'nodejs' && <>Priya did not argue with me, she just dismissed the frame entirely. That stings a bit but she might be right. I am sitting in a backend handling millions of notifications built entirely in Node. Something about my professor&apos;s framing was clearly incomplete.</>}
@@ -1730,39 +2081,40 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <SWEAvatar
-              name={track === 'python' ? meta.mentor : track === 'java' ? 'Suresh' : 'Jordan'} role={track === 'python' ? meta.mentorRole : track === 'java' ? 'Principal Architect' : 'Frontend Engineer'} color={track === 'python' ? meta.mentorColor : track === 'java' ? '#2563EB' : '#65A30D'}
+              name={level === 'advanced' ? ADV.s03[track].b2.name : (track === 'python' ? meta.mentor : track === 'java' ? 'Suresh' : 'Jordan')}
+              role={level === 'advanced' ? ADV.s03[track].b2.role : (track === 'python' ? meta.mentorRole : track === 'java' ? 'Principal Architect' : 'Frontend Engineer')}
+              color={level === 'advanced' ? ADV.s03[track].b2.color : (track === 'python' ? meta.mentorColor : track === 'java' ? '#2563EB' : '#65A30D')}
               conceptId="swe-m1-ecosystem"
-              content={
+              content={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b2.content}&rdquo;</> :
                 track === 'python' ? <>&ldquo;Dev, performance is one factor. Aisha, what other aspects of our development and operations would a language change impact, beyond just execution speed?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Vikram, this isn't 'boilerplate.' This is a carefully constructed domain model. What problem do you think these abstractions are trying to solve in a financial system like ours?&rdquo;</> :
-                          <>&ldquo;Dude, your professor must be living in the past! Modern JS is awesome. We've got TypeScript, React, Next.js, Webpack... the tooling is incredible!&rdquo;</>
+                track === 'java' ? <>&ldquo;Vikram, this isn&apos;t &lsquo;boilerplate.&rsquo; This is a carefully constructed domain model. What problem do you think these abstractions are trying to solve in a financial system like ours?&rdquo;</> :
+                <>&ldquo;Dude, your professor must be living in the past! Modern JS is awesome. We&apos;ve got TypeScript, React, Next.js, Webpack... the tooling is incredible!&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;Think beyond the immediate speed gains. Consider our current team's skillset, the availability of libraries for data processing in Rust, debugging tools, and the long-term maintainability. What happens when we need to hire? Is the performance gain worth the potential increase in complexity and operational overhead?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;In Finova, we handle billions. Type safety, explicit contracts, and clear separation of concerns aren't luxuries; they're necessities for correctness and maintainability over decades. These patterns, like Dependency Injection or Strategy, protect us from runtime errors and allow for robust testing. They're an investment in stability, not a hindrance.&rdquo;</> :
-                          <>&ldquo;I mean, look at all the frameworks and libraries! We can build anything from real-time chat to complex APIs. And with TypeScript, we get all the type safety benefits that Java guys brag about. Plus, it's constantly evolving, way more exciting than those old, rigid languages.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b2.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Think beyond the immediate speed gains. Consider our current team&apos;s skillset, the availability of libraries for data processing in Rust, debugging tools, and the long-term maintainability. What happens when we need to hire? Is the performance gain worth the potential increase in complexity and operational overhead?&rdquo;</> :
+                track === 'java' ? <>&ldquo;In Finova, we handle billions. Type safety, explicit contracts, and clear separation of concerns aren&apos;t luxuries; they&apos;re necessities for correctness and maintainability over decades. These patterns protect us from runtime errors and allow for robust testing. They&apos;re an investment in stability, not a hindrance.&rdquo;</> :
+                <>&ldquo;I mean, look at all the frameworks and libraries! We can build anything from real-time chat to complex APIs. And with TypeScript, we get all the type safety benefits that Java folks brag about. Plus, it&apos;s constantly evolving, way more exciting than those old, rigid languages.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s03[track].b2.question :
                 track === 'python' ? 'Riya encourages Aisha to consider the broader implications of adopting Rust. What is a significant non-technical factor in evaluating a new language for a core system?' :
-                          track === 'java' ? 'Suresh explains the rationale behind complex Java patterns. What is the primary benefit of extensive use of interfaces and abstract classes in a large enterprise application?' :
-                          'Jordan highlights modern JavaScript\'s ecosystem. What is a key benefit of the extensive tooling and frameworks available in the Node.js ecosystem?'
+                track === 'java' ? 'Suresh explains the rationale behind complex Java patterns. What is the primary benefit of extensive use of interfaces and abstract classes in a large enterprise application?' :
+                'Jordan highlights modern JavaScript\'s ecosystem. What is a key benefit of the extensive tooling and frameworks available in the Node.js ecosystem?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s03[track].b2.opts :
                 track === 'python' ? [
-                            { text: 'The ability to integrate seamlessly with existing cloud provider services, ensuring optimal infrastructure utilization.', correct: false, feedback: 'While cloud integration is important, it\'s often more about SDKs and APIs, not a primary non-technical factor in language choice itself.' },
-                            { text: 'The size and activity of the language\'s community, which influences documentation, support, and available libraries.', correct: true, feedback: 'A strong community and rich ecosystem are crucial for long-term project health, developer support, and access to pre-built solutions.' },
-                            { text: 'The maximum number of concurrent users the application can support before requiring horizontal scaling.', correct: false, feedback: 'Concurrency is a technical performance metric. Riya\'s question is about non-technical aspects like team skill sets and community support.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'They enable faster development by reducing the amount of code that needs to be written for new features.', correct: false, feedback: 'While some patterns can streamline development, heavy abstraction often increases initial development time, prioritizing maintainability and flexibility.' },
-                            { text: 'They promote loose coupling and high cohesion, making the system more modular, testable, and adaptable to change.', correct: true, feedback: 'Interfaces and abstractions are fundamental to object-oriented design principles, allowing components to interact without knowing concrete implementations, improving flexibility.' },
-                            { text: 'They are a historical artifact from older Java versions and are less relevant in modern, functional programming paradigms.', correct: false, feedback: 'These patterns remain highly relevant in modern Java development, especially for large-scale, long-lived enterprise applications, for their architectural benefits.' }
-                          ] :
-                          [
-                            { text: 'They significantly reduce the need for writing any custom code, allowing developers to build applications entirely from pre-built components.', correct: false, feedback: 'While frameworks provide components, developers still write significant custom code. The benefit is accelerated development, not complete automation.' },
-                            { text: 'They accelerate development, provide standardized solutions, and enhance developer experience through features like hot-reloading and transpilation.', correct: true, feedback: 'Frameworks and tools streamline common tasks, enforce best practices, and offer features that boost productivity and improve code quality.' },
-                            { text: 'They eliminate the need for understanding fundamental JavaScript concepts, as the frameworks abstract away all complexity.', correct: false, feedback: 'Frameworks build on fundamentals. A strong understanding of core JavaScript is essential to use frameworks effectively and debug issues.' }
-                          ]
+                  { text: 'The ability to integrate seamlessly with existing cloud provider services, ensuring optimal infrastructure utilization.', correct: false, feedback: 'While cloud integration is important, it\'s often more about SDKs and APIs, not a primary non-technical factor in language choice itself.' },
+                  { text: 'The size and activity of the language\'s community, which influences documentation, support, and available libraries.', correct: true, feedback: 'A strong community and rich ecosystem are crucial for long-term project health, developer support, and access to pre-built solutions.' },
+                  { text: 'The maximum number of concurrent users the application can support before requiring horizontal scaling.', correct: false, feedback: 'Concurrency is a technical performance metric. Riya\'s question is about non-technical aspects like team skill sets and community support.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'They enable faster development by reducing the amount of code that needs to be written for new features.', correct: false, feedback: 'While some patterns can streamline development, heavy abstraction often increases initial development time, prioritizing maintainability.' },
+                  { text: 'They promote loose coupling and high cohesion, making the system more modular, testable, and adaptable to change.', correct: true, feedback: 'Interfaces and abstractions enable components to interact without knowing concrete implementations, improving flexibility and testability.' },
+                  { text: 'They are a historical artifact from older Java versions and are less relevant in modern, functional programming paradigms.', correct: false, feedback: 'These patterns remain highly relevant in modern Java development, especially for large-scale, long-lived enterprise applications.' },
+                ] : [
+                  { text: 'They significantly reduce the need for writing any custom code, allowing developers to build applications entirely from pre-built components.', correct: false, feedback: 'While frameworks provide components, developers still write significant custom code. The benefit is accelerated development, not complete automation.' },
+                  { text: 'They accelerate development, provide standardized solutions, and enhance developer experience through features like hot-reloading and transpilation.', correct: true, feedback: 'Frameworks and tools streamline common tasks, enforce best practices, and offer features that boost productivity and improve code quality.' },
+                  { text: 'They eliminate the need for understanding fundamental JavaScript concepts, as the frameworks abstract away all complexity.', correct: false, feedback: 'Frameworks build on fundamentals. A strong understanding of core JavaScript is essential to use frameworks effectively and debug issues.' },
+                ]
               }
             />
 
@@ -1844,7 +2196,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s04[track].open : <>
                 {track === 'python' && <>If a bug is dropping data there has to be some kind of error message. My code always throws an exception if something goes wrong. The logs should tell me exactly what happened.</>}
                 {track === 'java' && <>My validation logic is thorough. I covered null inputs in the unit tests. If there is a NullPointerException it is probably a malformed request from the test harness, something straightforward to fix.</>}
                 {track === 'nodejs' && <>My resend endpoint is simple — it fetches the notification record and calls the send function once. If users are getting duplicates it is probably a network retry from the delivery service, not anything wrong in my code.</>}
@@ -1852,45 +2204,48 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
-              {track === "python" && <>Priya paces near the whiteboard, voice tight. Three days. Client Gamma is missing three days of revenue data with no errors thrown, no warnings logged, just a quiet absence in the numbers. Aisha stares at the pipeline logs: page after page of green SUCCESS checkmarks. Nothing red. Nothing wrong. Sam suggests sprinkling print statements everywhere until something shows up. Aisha looks at the volume of log output and feels completely lost.</>}
-              {track === "java" && <>A real-world staging payment triggers against Vikram's new endpoint. The amount is significant. The call hangs for a beat, then fires a NullPointerException into the logs. The staging dashboard returns PAYMENT FAILED in red. Kavya, still calm: 'I need the exact input payload that caused this. Every field, every value.' Suresh appears in the doorway. His expression does not communicate that this is fine.</>}
-              {track === "nodejs" && <>The Slack support channel fills up fast. Got this notification three times. Why did I get two identical emails. Leo opens his endpoint logs. No errors. Just a pattern of Notification sent followed immediately by another Notification sent for the same notification ID. Jordan: 'Maybe wrap it all in Promise.all, or add a setTimeout zero to debounce it?' Mei reads the logs over Leo's shoulder and does not say anything for a long moment.</>}
+              {level === 'advanced' ? ADV.s04[track].story : <>
+                {track === "python" && <>Priya paces near the whiteboard, voice tight. Three days. Client Gamma is missing three days of revenue data with no errors thrown, no warnings logged, just a quiet absence in the numbers. Aisha stares at the pipeline logs: page after page of green SUCCESS checkmarks. Nothing red. Nothing wrong. Sam suggests sprinkling print statements everywhere until something shows up. Aisha looks at the volume of log output and feels completely lost.</>}
+                {track === "java" && <>A real-world staging payment triggers against Vikram&apos;s new endpoint. The amount is significant. The call hangs for a beat, then fires a NullPointerException into the logs. The staging dashboard returns PAYMENT FAILED in red. Kavya, still calm: &lsquo;I need the exact input payload that caused this. Every field, every value.&rsquo; Suresh appears in the doorway. His expression does not communicate that this is fine.</>}
+                {track === "nodejs" && <>The Slack support channel fills up fast. Got this notification three times. Why did I get two identical emails. Leo opens his endpoint logs. No errors. Just a pattern of Notification sent followed immediately by another Notification sent for the same notification ID. Jordan: &lsquo;Maybe wrap it all in Promise.all, or add a setTimeout zero to debounce it?&rsquo; Mei reads the logs over Leo&apos;s shoulder and does not say anything for a long moment.</>}
+              </>}
             </StoryCard>
 
             <SWEAvatar
-              name={track === 'python' ? 'Sam' : track === 'java' ? meta.mentor : 'Jordan'} role={track === 'python' ? 'Junior Data Engineer' : track === 'java' ? meta.mentorRole : 'Frontend Engineer'} color={track === 'python' ? '#059669' : track === 'java' ? meta.mentorColor : '#65A30D'}
+              name={level === 'advanced' ? ADV.s04[track].b1.name : (track === 'python' ? 'Sam' : track === 'java' ? meta.mentor : 'Jordan')}
+              role={level === 'advanced' ? ADV.s04[track].b1.role : (track === 'python' ? 'Junior Data Engineer' : track === 'java' ? meta.mentorRole : 'Frontend Engineer')}
+              color={level === 'advanced' ? ADV.s04[track].b1.color : (track === 'python' ? '#059669' : track === 'java' ? meta.mentorColor : '#65A30D')}
               conceptId="swe-m1-debugging"
-              content={
-                track === 'python' ? <>&ldquo;Oh man, a prod bug? Just rerun the pipeline with a debugger attached and step through the whole thing. You'll find it eventually, just keep adding print statements everywhere.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;Vikram, describe the exact input payload that triggered this staging <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code>. What was the state of the object you were trying to access at that specific line?&rdquo;</> :
-                          <>&ldquo;Duplicate notifications? That sounds like a race condition. Just wrap the whole resend logic in a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>Promise.all</code> or add a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>setTimeout(0)</code> to debounce it. That usually fixes async weirdness.&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s04[track].b1.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Oh man, a prod bug? Just rerun the pipeline with a debugger attached and step through the whole thing. You&apos;ll find it eventually, just keep adding print statements everywhere.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Vikram, describe the exact input payload that triggered this staging <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code>. What was the state of the object you were trying to access at that specific line?&rdquo;</> :
+                <>&ldquo;Duplicate notifications? That sounds like a race condition. Just wrap the whole resend logic in a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>Promise.all</code> or add a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>setTimeout(0)</code> to debounce it. That usually fixes async weirdness.&rdquo;</>
               }
-              expandedContent={
-                track === 'python' ? <>&ldquo;I've done that before. It's tedious, but if you just sprinkle <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>print()</code> calls throughout the code, especially before and after critical operations, you'll eventually see where the data goes wrong. Or, just use <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pdb</code> and step through. It's basically trial and error, but it works.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code> means you tried to invoke a method on a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> reference. This is a runtime error that static analysis can't always catch. We need to identify if the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> was unexpected, perhaps due to an edge case in the input, or if our code simply failed to handle a legitimate <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> scenario. Reproduce the exact conditions.&rdquo;</> :
-                          <>&ldquo;I've seen this before in frontend code. Asynchronous operations can get out of sync. You just need to ensure things execute in the right order. Maybe add a global lock? Or just sprinkle some <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>await</code> keywords around until it stops doing that. It's all about making sure one operation finishes before the next starts.&rdquo;</>
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s04[track].b1.expanded}&rdquo;</> :
+                track === 'python' ? <>&ldquo;I&apos;ve done that before. It&apos;s tedious, but if you just sprinkle <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>print()</code> calls throughout the code, especially before and after critical operations, you&apos;ll eventually see where the data goes wrong. Or, just use <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>pdb</code> and step through. It&apos;s basically trial and error, but it works.&rdquo;</> :
+                track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code> means you tried to invoke a method on a <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> reference. We need to identify if the null was unexpected or if our code failed to handle a legitimate null scenario. Reproduce the exact conditions.&rdquo;</> :
+                <>&ldquo;I&apos;ve seen this before in frontend code. Asynchronous operations can get out of sync. You just need to ensure things execute in the right order. Maybe add a global lock? Or just sprinkle some <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>await</code> keywords around until it stops doing that.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s04[track].b1.question :
                 track === 'python' ? 'Sam suggests adding many print() statements for debugging a production issue. What is a significant drawback of this approach in a large-scale data pipeline?' :
-                          track === 'java' ? 'Kavya asks for the exact input and object state. What is the most effective way to debug a NullPointerException in a Java application?' :
-                          'Jordan suggests setTimeout(0) or Promise.all as blanket solutions for async bugs. What is a potential pitfall of applying such solutions without understanding the root cause?'
+                track === 'java' ? 'Kavya asks for the exact input and object state. What is the most effective way to debug a NullPointerException in a Java application?' :
+                'Jordan suggests setTimeout(0) or Promise.all as blanket solutions for async bugs. What is a potential pitfall of applying such solutions without understanding the root cause?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s04[track].b1.opts :
                 track === 'python' ? [
-                            { text: 'It can introduce significant performance overhead, slowing down the pipeline and potentially masking the original timing-related bug.', correct: true, feedback: 'Excessive logging or print statements can dramatically increase I/O and CPU usage, impacting performance and potentially altering bug reproduction.' },
-                            { text: 'It requires redeploying the code for each iteration of debugging, which is slow and disruptive in a production environment.', correct: false, feedback: 'While true for production, the primary drawback is often the volume of irrelevant output and the inability to dynamically inspect state.' },
-                            { text: 'The printed output is difficult to format consistently, making it challenging to parse automatically for analysis.', correct: false, feedback: 'Formatting can be managed; the bigger issue is the sheer volume of data and the lack of structured, dynamic inspection.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'Immediately adding a try-catch block around the problematic line to simply suppress the exception, preventing crashes.', correct: false, feedback: 'Catching NullPointerExceptions without fixing the root cause only hides the problem, potentially leading to silent data corruption.' },
-                            { text: 'Using a debugger to inspect the values of variables leading up to the null reference at the exact point of failure.', correct: true, feedback: 'A debugger allows you to step through code, examine variable states, and understand why a reference became null just before it was accessed.' },
-                            { text: 'Reviewing the entire codebase for all instances where an object might potentially be assigned a null value.', correct: false, feedback: 'This is overly broad. Focus on the specific stack trace and the code path leading to the reported NullPointerException first.' }
-                          ] :
-                          [
-                            { text: 'It can introduce new, harder-to-debug timing-related issues or mask the original bug by altering execution flow.', correct: true, feedback: 'Applying generic async solutions without diagnosing the specific race condition or mismanaged promise can introduce new bugs or hide the true cause, making debugging harder.' },
-                            { text: 'It might significantly increase the application\'s memory footprint, leading to out-of-memory errors in long-running processes.', correct: false, feedback: 'While some async patterns can use more memory, this is not the primary pitfall of misapplying setTimeout or Promise.all for a duplicate notification bug.' },
-                            { text: 'It will always cause a deadlock in a single-threaded Node.js environment, freezing the entire application indefinitely.', correct: false, feedback: 'Node.js\'s event loop prevents traditional deadlocks. Incorrect async handling leads to incorrect logic or race conditions, not necessarily deadlocks.' }
-                          ]
+                  { text: 'It can introduce significant performance overhead, slowing down the pipeline and potentially masking the original timing-related bug.', correct: true, feedback: 'Excessive logging or print statements can dramatically increase I/O and CPU usage, impacting performance and potentially altering bug reproduction.' },
+                  { text: 'It requires redeploying the code for each iteration of debugging, which is slow and disruptive in a production environment.', correct: false, feedback: 'While true for production, the primary drawback is often the volume of irrelevant output and the inability to dynamically inspect state.' },
+                  { text: 'The printed output is difficult to format consistently, making it challenging to parse automatically for analysis.', correct: false, feedback: 'Formatting can be managed; the bigger issue is the sheer volume of data and the lack of structured, dynamic inspection.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'Immediately adding a try-catch block around the problematic line to simply suppress the exception, preventing crashes.', correct: false, feedback: 'Catching NullPointerExceptions without fixing the root cause only hides the problem, potentially leading to silent data corruption.' },
+                  { text: 'Using a debugger to inspect the values of variables leading up to the null reference at the exact point of failure.', correct: true, feedback: 'A debugger allows you to step through code, examine variable states, and understand why a reference became null just before it was accessed.' },
+                  { text: 'Reviewing the entire codebase for all instances where an object might potentially be assigned a null value.', correct: false, feedback: 'This is overly broad. Focus on the specific stack trace and the code path leading to the reported NullPointerException first.' },
+                ] : [
+                  { text: 'It can introduce new, harder-to-debug timing-related issues or mask the original bug by altering execution flow.', correct: true, feedback: 'Applying generic async solutions without diagnosing the specific race condition can introduce new bugs or hide the true cause, making debugging harder.' },
+                  { text: 'It might significantly increase the application\'s memory footprint, leading to out-of-memory errors in long-running processes.', correct: false, feedback: 'While some async patterns can use more memory, this is not the primary pitfall of misapplying setTimeout or Promise.all for a duplicate notification bug.' },
+                  { text: 'It will always cause a deadlock in a single-threaded Node.js environment, freezing the entire application indefinitely.', correct: false, feedback: 'Node.js\'s event loop prevents traditional deadlocks. Incorrect async handling leads to incorrect logic or race conditions, not necessarily deadlocks.' },
+                ]
               }
             />
 
@@ -1898,7 +2253,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
               role={meta.protagonistRole}
               color={meta.accentColor}
-              content={<>
+              content={level === 'advanced' ? ADV.s04[track].bridge : <>
                 {track === 'python' && <>Print statements everywhere feels like throwing darts in the dark. The code thinks it succeeded. There is no error to find. How do you debug something that does not know it is broken?</>}
                 {track === 'java' && <>A NullPointerException means something was null that I expected to exist. My tests covered null inputs, so where did this null come from? Is the real payment system sending data in a shape I never tested against?</>}
                 {track === 'nodejs' && <>Promise.all does not make sense here, there is no parallel work to coordinate. And setTimeout zero is a thing I have seen people add without understanding why. But I also cannot explain why the send function would execute more than once when I only called it once.</>}
@@ -1906,39 +2261,40 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             />
 
             <SWEAvatar
-              name={track === 'python' ? 'Priya' : track === 'java' ? 'Suresh' : meta.mentor} role={track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Principal Architect' : meta.mentorRole} color={track === 'python' ? '#7C3AED' : track === 'java' ? '#2563EB' : meta.mentorColor}
+              name={level === 'advanced' ? ADV.s04[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Suresh' : meta.mentor)}
+              role={level === 'advanced' ? ADV.s04[track].b2.role : (track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Principal Architect' : meta.mentorRole)}
+              color={level === 'advanced' ? ADV.s04[track].b2.color : (track === 'python' ? '#7C3AED' : track === 'java' ? '#2563EB' : meta.mentorColor)}
               conceptId="swe-m1-debugging"
-              content={
-                track === 'python' ? <>&ldquo;Aisha, this is impacting a key client. We need to isolate this bug quickly and understand *why* it happened. How are you approaching this systematically, not just reactively?&rdquo;</> :
-                          track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code> in staging for a payment endpoint? This is precisely why we champion type safety. How did this <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> bypass our validation, Vikram?&rdquo;</> :
-                          <>&ldquo;Leo, duplicate notifications usually indicate a race condition or an idempotent function being called multiple times. Walk me through the exact sequence of asynchronous operations in your <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>resend notification</code> logic.&rdquo;</>
+              content={level === 'advanced' ? <>&ldquo;{ADV.s04[track].b2.content}&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha, this is impacting a key client. We need to isolate this bug quickly and understand why it happened. How are you approaching this systematically, not just reactively?&rdquo;</> :
+                track === 'java' ? <>&ldquo;A <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code> in staging for a payment endpoint? This is precisely why we champion type safety. How did this null bypass our validation, Vikram?&rdquo;</> :
+                <>&ldquo;Leo, duplicate notifications usually indicate a race condition or an idempotent function being called multiple times. Walk me through the exact sequence of asynchronous operations in your <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>resend notification</code> logic.&rdquo;</>
               }
-              expandedContent={
+              expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s04[track].b2.expanded}&rdquo;</> :
                 track === 'python' ? <>&ldquo;I need to know the root cause so we can prevent this from ever happening again. Are you looking at the input data for the affected client? Comparing logs from successful runs with the failed ones? We need a clear hypothesis and a plan to validate it, not just random poking around.&rdquo;</> :
-                          track === 'java' ? <>&ldquo;This is a critical failure. <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>NullPointerException</code>s are runtime errors that should be proactively prevented. Did we not enforce non-null constraints at the API gateway? Or was an optional field not handled gracefully? Every <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>null</code> in a financial system represents an unhandled state, a potential vulnerability, or a data loss event. This is unacceptable.&rdquo;</> :
-                          <>&ldquo;We need to understand where the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>await</code> keywords are, which external services are called, and if there are any callbacks or events that might trigger multiple executions. Is there a transactional boundary? Is the notification ID being checked for uniqueness before sending? An asynchronous bug requires a meticulous walkthrough of the control flow.&rdquo;</>
+                track === 'java' ? <>&ldquo;This is a critical failure. Did we not enforce non-null constraints at the API gateway? Or was an optional field not handled gracefully? Every null in a financial system represents an unhandled state, a potential vulnerability, or a data loss event. This is unacceptable.&rdquo;</> :
+                <>&ldquo;We need to understand where the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>await</code> keywords are, which external services are called, and if there are any callbacks or events that might trigger multiple executions. Is the notification ID being checked for uniqueness before sending? An asynchronous bug requires a meticulous walkthrough of the control flow.&rdquo;</>
               }
-              question={
+              question={level === 'advanced' ? ADV.s04[track].b2.question :
                 track === 'python' ? 'Priya emphasizes a systematic approach to debugging. What is the most effective initial strategy for Aisha to narrow down the source of a data-dropping bug?' :
-                          track === 'java' ? 'Suresh is frustrated by the NullPointerException. What is a best practice for preventing NullPointerExceptions in Java, especially with potentially absent data?' :
-                          'Mei asks Leo to trace the async flow. What is the most effective approach to identify a race condition causing duplicate notifications in Node.js?'
+                track === 'java' ? 'Suresh is frustrated by the NullPointerException. What is a best practice for preventing NullPointerExceptions in Java, especially with potentially absent data?' :
+                'Mei asks Leo to trace the async flow. What is the most effective approach to identify a race condition causing duplicate notifications in Node.js?'
               }
-              options={
+              options={level === 'advanced' ? ADV.s04[track].b2.opts :
                 track === 'python' ? [
-                            { text: 'Immediately checking all external API calls made by the pipeline, assuming the issue lies outside of the internal logic.', correct: false, feedback: 'While external APIs can be a source, starting with them without internal context is not systematic; it\'s a specific guess.' },
-                            { text: 'Re-running the entire pipeline multiple times in a staging environment to observe if the bug consistently reproduces.', correct: false, feedback: 'Reproduction is key, but \'re-running the entire pipeline\' is often too broad. Isolating the smallest reproducible case is better.' },
-                            { text: 'Analyzing the logs for specific error messages or unexpected warnings around the time of the data drop, focusing on affected client IDs.', correct: true, feedback: 'Logs are the primary historical record. Filtering for errors, warnings, and specific identifiers (like client IDs) helps pinpoint the problematic area.' }
-                          ] :
-                          track === 'java' ? [
-                            { text: 'Relying on the garbage collector to automatically handle null references by reclaiming their memory.', correct: false, feedback: 'The garbage collector handles memory deallocation, not the prevention or handling of null references themselves.' },
-                            { text: 'Using Optional for values that might legitimately be absent and performing explicit null checks where Optional is not applicable.', correct: true, feedback: 'Using Optional forces developers to explicitly handle the presence or absence of a value, and explicit null checks are crucial for other scenarios.' },
-                            { text: 'Ensuring all objects are initialized with default values, even if those values are logically empty or irrelevant.', correct: false, feedback: 'Initializing with arbitrary defaults can mask the true absence of data and lead to incorrect business logic, which is often worse than an NPE.' }
-                          ] :
-                          [
-                            { text: 'Adding console.log statements with timestamps at critical asynchronous points to observe the exact order of execution.', correct: true, feedback: 'Logging with timestamps helps visualize the actual sequence of events in an async flow, revealing if operations are executing in an unexpected order or concurrently.' },
-                            { text: 'Rewriting all asynchronous functions to synchronous ones to eliminate any potential for race conditions entirely.', correct: false, feedback: 'Rewriting async to sync is often impractical and can block the event loop, severely degrading performance in a Node.js application.' },
-                            { text: 'Increasing the server\'s CPU and memory resources, assuming the duplicates are caused by system overload.', correct: false, feedback: 'Resource issues might cause delays, but they don\'t typically create logical errors like duplicate notifications. This is a symptom, not the cause.' }
-                          ]
+                  { text: 'Immediately checking all external API calls made by the pipeline, assuming the issue lies outside of the internal logic.', correct: false, feedback: 'While external APIs can be a source, starting with them without internal context is not systematic; it\'s a specific guess.' },
+                  { text: 'Re-running the entire pipeline multiple times in a staging environment to observe if the bug consistently reproduces.', correct: false, feedback: 'Reproduction is key, but re-running the entire pipeline is often too broad. Isolating the smallest reproducible case is better.' },
+                  { text: 'Analyzing the logs for specific error messages or unexpected warnings around the time of the data drop, focusing on affected client IDs.', correct: true, feedback: 'Logs are the primary historical record. Filtering for errors, warnings, and specific identifiers helps pinpoint the problematic area.' },
+                ] :
+                track === 'java' ? [
+                  { text: 'Relying on the garbage collector to automatically handle null references by reclaiming their memory.', correct: false, feedback: 'The garbage collector handles memory deallocation, not the prevention or handling of null references themselves.' },
+                  { text: 'Using Optional for values that might legitimately be absent and performing explicit null checks where Optional is not applicable.', correct: true, feedback: 'Using Optional forces developers to explicitly handle the presence or absence of a value, and explicit null checks are crucial for other scenarios.' },
+                  { text: 'Ensuring all objects are initialized with default values, even if those values are logically empty or irrelevant.', correct: false, feedback: 'Initializing with arbitrary defaults can mask the true absence of data and lead to incorrect business logic, which is often worse than an NPE.' },
+                ] : [
+                  { text: 'Adding console.log statements with timestamps at critical asynchronous points to observe the exact order of execution.', correct: true, feedback: 'Logging with timestamps helps visualize the actual sequence of events in an async flow, revealing if operations are executing in an unexpected order.' },
+                  { text: 'Rewriting all asynchronous functions to synchronous ones to eliminate any potential for race conditions entirely.', correct: false, feedback: 'Rewriting async to sync is often impractical and can block the event loop, severely degrading performance in a Node.js application.' },
+                  { text: 'Increasing the server\'s CPU and memory resources, assuming the duplicates are caused by system overload.', correct: false, feedback: 'Resource issues might cause delays, but they don\'t typically create logical errors like duplicate notifications. This is a symptom, not the cause.' },
+                ]
               }
             />
 
