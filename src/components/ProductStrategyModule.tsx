@@ -4,64 +4,54 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import type { Track } from './pm-fundamentals/designSystem';
-import Track1Prioritization from './pm-fundamentals/Track1Prioritization';
-import Track2Prioritization from './pm-fundamentals/Track2Prioritization';
+import Track1ProductStrategy from './pm-fundamentals/Track1ProductStrategy';
+import Track2ProductStrategy from './pm-fundamentals/Track2ProductStrategy';
 
 const ROMAN = ['I','II','III','IV','V','VI','VII'];
 const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
-const ACCENT       = '#C85A40';
-const ACCENT_RGB   = '200,90,64';
-const MODULE_LABEL = 'Problem Framing & Prioritization';
-const MODULE_TIME  = '45 min · 7 parts';
+const ACCENT       = '#7C3AED';
+const ACCENT_RGB   = '124,58,237';
+const MODULE_LABEL = 'Product Strategy';
+const MODULE_TIME  = '50 min · 5 parts';
 
 const SECTIONS = [
-  { id: 'm3-raw-inputs',   label: 'Raw Inputs' },
-  { id: 'm3-reframe',      label: 'Reframe the List' },
-  { id: 'm3-data',         label: 'Data Changes Everything' },
-  { id: 'm3-rice',         label: 'RICE Framework' },
-  { id: 'm3-call',         label: 'Making the Call' },
-  { id: 'm3-stakeholder',  label: "The PM's Real Job" },
-  { id: 'm3-reflection',   label: 'Final Reflection' },
+  { id: 'm2s-strategy-vs-features',  label: 'Strategy vs Features'      },
+  { id: 'm2s-vision-moats',          label: 'Vision & Moats'            },
+  { id: 'm2s-systems-thinking',      label: 'Systems Thinking'          },
+  { id: 'm2s-bet-sizing',            label: 'Bet Sizing'                },
+  { id: 'm2s-b2b-strategy',          label: 'B2B & Interviews'          },
 ];
 
 const CONCEPTS = [
-  { id: 'raw-inputs-m3',          label: 'Problem Framing',       color: '#C85A40' },
-  { id: 'problem-framing-m3',     label: 'Problem Statements',    color: '#4F46E5' },
-  { id: 'data-vs-requests-m3',    label: 'Data vs Opinions',      color: '#3A86FF' },
-  { id: 'rice-framework-m3',      label: 'RICE Framework',        color: '#0D7A5A' },
-  { id: 'stakeholder-decisions-m3', label: 'Stakeholder Calls',   color: '#7843EE' },
-  { id: 'prioritization-summary-m3', label: 'Prioritization Loop', color: '#B5720A' },
+  { id: 'product-strategy',       label: 'Product Strategy',       color: '#7C3AED' },
+  { id: 'competitive-moats',      label: 'Competitive Moats',      color: '#4F46E5' },
+  { id: 'systems-thinking',       label: 'Systems Thinking',       color: '#0097A7' },
+  { id: 'bet-sizing',             label: 'Bet Sizing',             color: '#C85A40' },
+  { id: 'b2b-strategy',           label: 'B2B Strategy',           color: '#158158' },
 ];
 
 const ACHIEVEMENTS = [
-  { id: 'm3-raw-inputs',  icon: '📥', label: 'Framer',      desc: 'Converted raw inputs to problems' },
-  { id: 'm3-reframe',     icon: '🔄', label: 'Reframer',    desc: 'Turned requests into problem statements' },
-  { id: 'm3-data',        icon: '📊', label: 'Data-Driven', desc: 'Let data guide the priority call' },
-  { id: 'm3-rice',        icon: '⚖️', label: 'Scorer',      desc: 'Applied RICE to compare problems' },
-  { id: 'm3-call',        icon: '🎯', label: 'Decider',     desc: 'Made a defensible priority call' },
-  { id: 'm3-stakeholder', icon: '🗣️', label: 'Communicator', desc: 'Explained the why behind the what' },
-  { id: 'm3-reflection',  icon: '🧠', label: 'PM-Minded',   desc: 'Completed the prioritization loop' },
+  { id: 'm2s-strategy-vs-features', icon: '🧭', label: 'Strategist',    desc: 'Separated strategy from features'   },
+  { id: 'm2s-vision-moats',         icon: '🏰', label: 'Moat Builder',  desc: 'Identified competitive advantages'  },
+  { id: 'm2s-systems-thinking',     icon: '🕸️', label: 'Systems PM',    desc: 'Anticipated second-order effects'   },
+  { id: 'm2s-bet-sizing',           icon: '🎯', label: 'Bet Sizer',     desc: 'Allocated resources to right bets'  },
+  { id: 'm2s-b2b-strategy',         icon: '📈', label: 'B2B Thinker',   desc: 'Mastered land-and-expand strategy'  },
 ];
 
 const CONCEPT_IDS = CONCEPTS.map(c => c.id);
-
 const SECTION_XP = 50;
 const MAX_QUIZ_XP_PER_CONCEPT = 100;
 
-function computeXP(
-  completedSections: Set<string>,
-  conceptStates: Record<string, { pKnow: number }>,
-) {
+function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completedSections.size * SECTION_XP;
-  const quizXP = Object.values(conceptStates)
-    .reduce((sum, s) => sum + Math.round(s.pKnow * MAX_QUIZ_XP_PER_CONCEPT), 0);
+  const quizXP = Object.values(conceptStates).reduce((sum, s) => sum + Math.round(s.pKnow * MAX_QUIZ_XP_PER_CONCEPT), 0);
   return { readingXP, quizXP, total: readingXP + quizXP };
 }
 
 const LEVELS = [
   { min: 0,   label: 'Curious',      color: 'var(--ed-ink3)'  },
-  { min: 150, label: 'Thinker',      color: '#0097A7' },
+  { min: 150, label: 'Thinker',      color: '#7C3AED' },
   { min: 350, label: 'Practitioner', color: '#3A86FF' },
   { min: 600, label: 'PM-Minded',    color: '#4F46E5' },
   { min: 850, label: 'PM Thinker',   color: '#C85A40' },
@@ -76,9 +66,6 @@ function getNextLevel(xp: number) {
   return idx === -1 ? null : LEVELS[idx];
 }
 
-// ─────────────────────────────────────────
-// AIRTRIBE LOGO
-// ─────────────────────────────────────────
 function AirtribeLogo() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -96,9 +83,6 @@ function AirtribeLogo() {
   );
 }
 
-// ─────────────────────────────────────────
-// LEFT NAV
-// ─────────────────────────────────────────
 function LeftNav({ completedSections, activeSection }: { completedSections: Set<string>; activeSection: string | null }) {
   const scrollTo = (id: string) => {
     document.querySelector(`[data-section="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -138,9 +122,6 @@ function LeftNav({ completedSections, activeSection }: { completedSections: Set<
   );
 }
 
-// ─────────────────────────────────────────
-// RIGHT SIDEBAR
-// ─────────────────────────────────────────
 function Sidebar({ completedSections, progressPct, xp, prevXp }: {
   completedSections: Set<string>; progressPct: number;
   xp: { readingXP: number; quizXP: number; total: number }; prevXp: number;
@@ -170,8 +151,6 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
 
   return (
     <aside style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column', gap: '10px', minWidth: 0 }}>
-
-      {/* XP + Level */}
       <div style={{ ...cardStyle, borderTop: `3px solid ${ACCENT}`, position: 'relative', overflow: 'hidden' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
           <div style={{ minWidth: 0 }}>
@@ -217,7 +196,6 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
         )}
       </div>
 
-      {/* Module progress */}
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)' }}>Module Progress</div>
@@ -231,7 +209,6 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
         </div>
       </div>
 
-      {/* Badges */}
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)' }}>Badges</div>
@@ -256,7 +233,6 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
         </div>
       </div>
 
-      {/* Concept Mastery */}
       <div style={{ ...cardStyle, borderLeft: `3px solid ${ACCENT}` }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '10px' }}>Concept Mastery</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
@@ -279,13 +255,12 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
         <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes to raise mastery scores</div>
       </div>
 
-      {/* Streak */}
-      {store.streakDays > 0 && (
+      {useLearnerStore(s => s.streakDays) > 0 && (
         <div style={{ ...cardStyle, borderLeft: '3px solid #C85A40' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <motion.span animate={{ scale: [1, 1.12, 1] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ fontSize: '20px', flexShrink: 0 }}>🔥</motion.span>
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#C85A40', lineHeight: 1 }}>{store.streakDays} day{store.streakDays !== 1 ? 's' : ''}</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#C85A40', lineHeight: 1 }}>{useLearnerStore(s => s.streakDays)} day{useLearnerStore(s => s.streakDays) !== 1 ? 's' : ''}</div>
               <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '2px' }}>learning streak</div>
             </div>
           </div>
@@ -295,15 +270,12 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
   );
 }
 
-// ─────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────
 interface Props {
   onBack: () => void;
   track?: Track | null;
 }
 
-export default function PrioritizationModule({ onBack, track }: Props) {
+export default function ProductStrategyModule({ onBack, track }: Props) {
   const store = useLearnerStore();
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -383,7 +355,7 @@ export default function PrioritizationModule({ onBack, track }: Props) {
               <AirtribeLogo />
               <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>Module 04</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>Module 02</span>
                 <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{MODULE_LABEL}</span>
               </div>
@@ -410,19 +382,19 @@ export default function PrioritizationModule({ onBack, track }: Props) {
             <LeftNav completedSections={completedSections} activeSection={activeSection} />
           </div>
 
-          <motion.main key="m3-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            {track === 'apm' ? <Track2Prioritization /> : <Track1Prioritization />}
+          <motion.main key="m2s-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
+            {track === 'apm' ? <Track2ProductStrategy /> : <Track1ProductStrategy />}
 
             <AnimatePresence>
               {progressPct >= 87 && (
                 <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                   style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center' as const, position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
-                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>🎯</motion.div>
+                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>🧭</motion.div>
                   <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "'Lora', 'Georgia', serif" }}>
-                    Module 04 Complete
+                    Module 02 Complete
                   </h3>
                   <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '400px', margin: '0 auto 24px' }}>
-                    You followed Priya through the full prioritisation loop. Raw inputs → problem statements → data → RICE → defensible call. That sequence never changes.
+                    You followed Priya from reactive feature shipping to owning a real product strategy. Vision → Moats → Bets. That&apos;s the sequence that separates PMs from product owners.
                   </p>
                   <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onBack}
                     style={{ padding: '12px 28px', borderRadius: '6px', background: ACCENT, color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>

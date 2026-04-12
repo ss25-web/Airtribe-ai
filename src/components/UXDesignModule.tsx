@@ -383,7 +383,7 @@ export default function UXDesignModule({ onBack, track }: Props) {
               <AirtribeLogo />
               <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>Module 04</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>Module 05</span>
                 <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{MODULE_LABEL}</span>
               </div>
@@ -419,7 +419,7 @@ export default function UXDesignModule({ onBack, track }: Props) {
                   style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center' as const, position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
                   <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>🎯</motion.div>
                   <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "'Lora', 'Georgia', serif" }}>
-                    Module 04 Complete
+                    Module 05 Complete
                   </h3>
                   <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '400px', margin: '0 auto 24px' }}>
                     You followed Priya from a 30% completion rate to 58% — with three lines of copy and a progress bar. Systems can be correct and experiences can still fail. Now you know how to tell the difference.

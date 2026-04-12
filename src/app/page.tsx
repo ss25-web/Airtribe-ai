@@ -6,6 +6,7 @@ import SeriesHomepage from '@/components/SeriesHomepage';
 import PlacementQuiz from '@/components/PlacementQuiz';
 import CourseOverview from '@/components/CourseOverview';
 import PMFundamentalsModule from '@/components/PMFundamentalsModule';
+import ProductStrategyModule from '@/components/ProductStrategyModule';
 import ProblemDiscoveryModule from '@/components/ProblemDiscoveryModule';
 import PrioritizationModule from '@/components/PrioritizationModule';
 import UXDesignModule from '@/components/UXDesignModule';
@@ -276,12 +277,15 @@ export default function Home() {
 
   if (stage === 'reading' && assignedTrack) {
     if (activeModule === '02') {
-      return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <ProductStrategyModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     if (activeModule === '03') {
-      return <PrioritizationModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     if (activeModule === '04') {
+      return <PrioritizationModule track={assignedTrack} onBack={goBackToOverview} />;
+    }
+    if (activeModule === '05') {
       return <UXDesignModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     return (
