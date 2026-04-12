@@ -7,6 +7,7 @@ import {
   h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, para,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -74,6 +75,21 @@ const QUIZZES = [
     correctIndex: 1,
     explanation: 'Land-and-expand lives or dies on the internal champion. Getting 10+ reps to daily usage creates proof that the champion can take to their VP. One concrete win (e.g. "ramp time dropped from 90 to 60 days") is worth more than any enterprise feature.',
   },
+];
+
+const PARTS = [
+  { num: '01', label: 'Strategy vs Features — when building is easy, what to build matters more' },
+  { num: '02', label: 'Vision & Competitive Moats — the three-year question your roadmap can\'t answer' },
+  { num: '03', label: 'Systems Thinking — every decision has a third-order effect nobody planned for' },
+  { num: '04', label: 'Bet Sizing — twelve engineer-weeks, three bets, one right answer' },
+  { num: '05', label: 'B2B Strategy — land, expand, and never lose an enterprise account again' },
+];
+
+const CHARACTERS: { mentor: 'priya' | 'rohan' | 'kiran' | 'asha'; accent: string; desc: string }[] = [
+  { mentor: 'priya', accent: '#4F46E5', desc: 'Your protagonist. First real strategy call. The feature list is three pages long.' },
+  { mentor: 'rohan', accent: '#E67E22', desc: 'Wants five features by end of quarter. Data says otherwise.' },
+  { mentor: 'kiran', accent: '#0097A7', desc: 'Sees past executive narratives with data.' },
+  { mentor: 'asha',  accent: '#7843EE', desc: 'AI mentor with the questions Priya hasn\'t thought to ask yet.' },
 ];
 
 // ─────────────────────────────────────────
@@ -553,6 +569,162 @@ const Section5Mockup = () => {
 export default function Track1ProductStrategy({ onSectionChange }: { onSectionChange?: (id: string) => void }) {
   return (
     <>
+
+      {/* ── HERO ──────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', marginBottom: '56px', flexWrap: 'wrap' as const }}
+      >
+        {/* Left column */}
+        <div style={{ flex: 1, minWidth: '280px' }}>
+          {/* Breadcrumb */}
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '28px', letterSpacing: '0.04em' }}>
+            PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
+            <span style={{ color: 'var(--ed-ink2)' }}>Foundations Track</span>
+            <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
+            <span style={{ color: 'var(--ed-ink3)' }}>50 min · 5 parts</span>
+          </div>
+
+          {/* Title */}
+          <h1 style={{
+            fontSize: 'clamp(26px, 3.2vw, 44px)', fontWeight: 700, lineHeight: 1.12,
+            letterSpacing: '-0.025em', marginBottom: '18px', color: 'var(--ed-ink)',
+            fontFamily: "'Lora', 'Georgia', 'Times New Roman', serif",
+          }}>
+            Product Strategy &amp;<br />
+            <span style={{ color: ACCENT }}>Strategic Thinking</span>
+          </h1>
+
+          <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '500px', marginBottom: '36px' }}>
+            50 minutes. 5 decisions. One strategic lens. Follow Priya as EdSpark&apos;s churn crisis forces a choice between building more and building right.
+          </p>
+
+          {/* Parts grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '28px' }}>
+            {PARTS.map(p => (
+              <div key={p.num} style={{
+                padding: '11px 14px', borderRadius: '7px',
+                background: 'var(--ed-card)',
+                border: '1px solid var(--ed-rule)',
+                display: 'flex', gap: '10px', alignItems: 'baseline',
+              }}>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: '10px',
+                  fontWeight: 700, color: ACCENT, flexShrink: 0,
+                }}>{p.num}.</span>
+                <span style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.4 }}>{p.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* How this works */}
+          <div style={{
+            padding: '18px 22px', borderRadius: '8px',
+            background: 'var(--ed-card)',
+            borderTop: '1px solid var(--ed-rule)',
+            borderRight: '1px solid var(--ed-rule)',
+            borderBottom: '1px solid var(--ed-rule)',
+            borderLeft: `4px solid ${ACCENT}`,
+          }}>
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
+              letterSpacing: '0.16em', color: ACCENT, textTransform: 'uppercase' as const,
+              marginBottom: '10px',
+            }}>How this works</div>
+            <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
+              Each part follows <strong style={{ color: 'var(--ed-ink)' }}>Priya Sharma</strong>, APM at EdSpark, through a real strategic moment.
+              Three guides — <strong style={{ color: 'var(--ed-ink)' }}>Rohan</strong>, <strong style={{ color: 'var(--ed-ink)' }}>Kiran</strong>, and <strong style={{ color: 'var(--ed-ink)' }}>Asha</strong> — surface when the stakes get real.
+            </div>
+          </div>
+
+          {/* Characters */}
+          <div style={{ marginTop: '24px' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+              {CHARACTERS.map(c => (
+                <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '12px 14px', minWidth: '130px', flex: '1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
+                    <MentorFace mentor={c.mentor} size={42} />
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>
+                        {{ priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor]}
+                      </div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>
+                        {{ priya: 'APM · EdSpark', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor]}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: 3D floating module card */}
+        <div style={{ flexShrink: 0, width: '168px', paddingTop: '48px' }}>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}>
+            <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
+              <div style={{
+                background: 'linear-gradient(145deg, #1A1218 0%, #241228 100%)',
+                borderRadius: '14px',
+                padding: '20px 18px',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.07)',
+              }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>
+                  MODULE 02
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>
+                  Product Strategy
+                </div>
+                <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>
+                  Foundations Track
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '0%' }}
+                    transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
+                    style={{ height: '100%', background: ACCENT, borderRadius: '1px' }}
+                  />
+                </div>
+
+                {/* Part list */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {PARTS.map((p, i) => (
+                    <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <div style={{
+                        width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                        background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)',
+                        border: `1px solid ${i === 0 ? ACCENT : 'rgba(255,255,255,0.1)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '7px', color: i === 0 ? '#fff' : 'rgba(255,255,255,0.3)',
+                        fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                      }}>{p.num}</div>
+                      <div style={{ fontSize: '9px', color: i === 0 ? 'rgba(240,232,216,0.8)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1 }}>
+                        {p.label.split(' — ')[0]}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
+                  <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>Strategy vs Features</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* ── SECTION 1: Strategy vs Features ─────── */}
       <ChapterSection id="m2s-strategy-vs-features" num="01" accentRgb={ACCENT_RGB} first>
