@@ -11,89 +11,123 @@ import { MentorFace } from './MentorFaces';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
-const MODULE_CONTEXT = `Priya Sharma is an APM at EdSpark, a B2B SaaS platform for sales coaching. EdSpark's core problem is 40% week-1 churn among new sales managers. This module covers product strategy: why having a vision and a plan to win matters more than a long feature list.`;
+const MODULE_CONTEXT = `Priya Sharma is an APM at EdSpark, a B2B SaaS platform for sales coaching. EdSpark has 40% week-1 churn and a Series A board meeting in 6 weeks. This module follows Priya as she builds EdSpark's product strategy from scratch — five decisions that will define the company's direction.`;
 
+// ─────────────────────────────────────────
+// QUIZZES — tied to the storyline
+// ─────────────────────────────────────────
 const QUIZZES = [
   {
     conceptId: 'product-strategy',
-    question: 'Rohan wants to add 5 new features to reduce EdSpark\'s 40% week-1 churn. What should Priya do first?',
+    question: "Rohan opens the strategy session with: \"We need 5 features before the board meeting.\" What should Priya do first?",
     options: [
-      'A. Ship the features quickly to show progress to the board',
-      'B. Diagnose why new managers churn before deciding what to build',
-      'C. Run a competitor analysis to see what Gong.io ships next quarter',
-      'D. Survey all existing customers about which features they want most',
+      'A. Scope the features so engineering can estimate timelines immediately',
+      'B. Ask why each feature is on the list before any engineering time is committed',
+      'C. Build a RICE matrix to rank all 47 backlog items by impact and effort',
+      'D. Get engineering buy-in on which features are actually feasible this quarter',
     ],
     correctIndex: 1,
-    explanation: 'Features without strategy are just guesses. Priya needs to understand the root cause of churn first — only then does she know which features (if any) are the right answer. Adding features to a leaky bucket just adds complexity.',
-    keyInsight: 'Strategy answers "why this bet" before engineering asks "how to build it."',
+    explanation: "Features without strategy are guesses. Priya needs to understand why each item is on the list — does it address the 40% churn? Does it connect to why EdSpark wins? Scoping before asking 'why' means executing the wrong plan efficiently.",
+    keyInsight: "The PM's first move is always diagnosis, never execution.",
   },
   {
     conceptId: 'competitive-moats',
-    question: 'EdSpark\'s strongest competitive advantage over Gong.io and Chorus is its deep integration with CRM data from day one. This is best described as:',
+    question: "Kiran reveals that 70% of churned customers cited missing CRM integration. EdSpark's deep CRM sync is best described as:",
     options: [
-      'A. A network effect, since more users make the product better for all',
-      'B. A switching cost moat, since migrating CRM integrations is painful',
-      'C. A cost advantage, because EdSpark spends less on infrastructure',
-      'D. A brand moat, since enterprise buyers trust established CRM vendors',
+      'A. A network effect — more EdSpark users improve the quality of shared CRM data',
+      'B. A switching cost moat — migrating CRM-configured coaching workflows is painful',
+      'C. A cost advantage — deep integrations reduce EdSpark\'s support ticket volume',
+      'D. A data moat — CRM data trains the AI to produce more accurate coaching scores',
     ],
     correctIndex: 1,
-    explanation: 'Deep CRM integrations create high switching costs — once a sales org has configured their workflows, call flows, and coaching cadences inside EdSpark\'s CRM integration, ripping it out is expensive and disruptive. That\'s a real moat.',
+    explanation: "CRM-configured coaching workflows create real switching costs. Once a sales org has built their coaching cadences around EdSpark's live deal data, migrating to Gong means rebuilding everything. That's a retention moat, not a cost or data moat.",
   },
   {
     conceptId: 'systems-thinking',
-    question: 'Priya\'s new onboarding fix reduced week-1 churn from 40% to 25%, but sales reps now spend 30 extra minutes per week on admin. What is this an example of?',
+    question: "Priya simplifies onboarding and activation jumps from 48% to 71%. Two weeks later, AI coaching scores break because users skip the CRM sync step she removed. This is:",
     options: [
-      'A. A failed product decision that should be immediately rolled back',
-      'B. A second-order effect — solving one problem created a new constraint',
-      'C. A UX problem that design should fix without PM involvement at all',
-      'D. A success metric misalignment between product and the sales team',
+      'A. A product regression — engineering shipped a bug in the coaching data pipeline',
+      'B. A second-order effect — fixing activation inadvertently broke coaching data quality',
+      'C. A stakeholder misalignment between product and RevOps team requirements',
+      'D. A measurement problem — the coaching score metric was never properly defined',
     ],
     correctIndex: 1,
-    explanation: 'Second-order effects are downstream consequences of first-order changes. Priya fixed churn (first order) but created admin burden (second order). Systems thinking means anticipating these before shipping, not discovering them after.',
+    explanation: "Second-order effects are downstream consequences of first-order fixes. Priya improved activation (intended) but broke the CRM sync → coaching data pipeline (unintended). No amount of QA would have caught this — it's a systems design problem.",
   },
   {
     conceptId: 'bet-sizing',
-    question: 'EdSpark has 6 engineers and 3 strategic bets: (A) fix onboarding, (B) build analytics dashboard, (C) add Salesforce integration. Bet C has highest revenue potential but 6-month timeline. What should Priya recommend?',
+    question: "EdSpark has 12 engineer-weeks. The board wants churn fixed AND a growth story. What sequence should Priya recommend?",
     options: [
-      'A. Pursue all three bets in parallel to maximise potential upside',
-      'B. Start with A to stop the churn bleeding, then sequence B and C',
-      'C. Prioritise C because highest revenue always justifies the timeline',
-      'D. Wait for more data before committing resources to any single bet',
+      'A. All three bets in parallel — this shows the board maximum ambition and speed',
+      'B. Onboarding fix first, then analytics scoped to reveal insights, then Salesforce discovery',
+      'C. Salesforce integration first — highest revenue potential justifies taking the risk',
+      'D. Only Bet A this quarter — ship nothing else until the retention problem is fully solved',
     ],
     correctIndex: 1,
-    explanation: 'Bet sizing means sequencing by impact-per-risk, not just upside. Fixing the onboarding bleed (A) unblocks retention metrics needed to justify the C investment. A 6-month bet on a product with 40% churn is a risky sequence.',
+    explanation: "Sequencing is strategy. Onboarding fix unblocks the retention metric. Analytics tightly scoped reveals manager-involvement patterns that inform the Salesforce scope. A discovery sprint de-risks Bet C before full investment. Each bet unlocks the next.",
   },
   {
     conceptId: 'b2b-strategy',
-    question: 'EdSpark lands a 50-seat deal with a mid-market sales org. The land-and-expand goal is 500 seats in 18 months. What is the most important first milestone to hit?',
+    question: "EdSpark just signed Apex Corp for 50 seats with a 500-seat expansion goal in 18 months. The most critical 90-day product milestone is:",
     options: [
-      'A. Build the enterprise SSO and admin dashboard before the first QBR',
-      'B. Get 10+ reps using it daily and document one concrete win to share',
-      'C. Negotiate the expansion contract terms before the trial period ends',
-      'D. Assign a dedicated CSM to the account within the first two weeks',
+      'A. Shipping the enterprise admin dashboard and SSO before the first QBR meeting',
+      'B. Getting 10+ reps to daily usage and documenting one concrete, measurable win',
+      'C. Locking in the expansion contract terms while the goodwill from closing is still warm',
+      'D. Running a user research sprint with all 50 Apex reps to surface feature gaps early',
     ],
     correctIndex: 1,
-    explanation: 'Land-and-expand lives or dies on the internal champion. Getting 10+ reps to daily usage creates proof that the champion can take to their VP. One concrete win (e.g. "ramp time dropped from 90 to 60 days") is worth more than any enterprise feature.',
+    explanation: "Land-and-expand wins at the team level before it wins at the org level. 10+ daily active users proves adoption. One concrete win (ramp time down 20%, conversion up) gives the champion the story they need to take to their VP. That proof drives expansion.",
   },
 ];
 
 const PARTS = [
-  { num: '01', label: 'Strategy vs Features — when building is easy, what to build matters more' },
-  { num: '02', label: 'Vision & Competitive Moats — the three-year question your roadmap can\'t answer' },
-  { num: '03', label: 'Systems Thinking — every decision has a third-order effect nobody planned for' },
-  { num: '04', label: 'Bet Sizing — twelve engineer-weeks, three bets, one right answer' },
-  { num: '05', label: 'B2B Strategy — land, expand, and never lose an enterprise account again' },
+  { num: '01', label: "Strategy vs Features — when building is easy, what to build matters more" },
+  { num: '02', label: "Vision & Competitive Moats — the three-year question your roadmap can't answer" },
+  { num: '03', label: "Systems Thinking — every decision has a third-order effect nobody planned for" },
+  { num: '04', label: "Bet Sizing — twelve engineer-weeks, three bets, one right answer" },
+  { num: '05', label: "B2B Strategy — land, expand, and never lose an enterprise account again" },
 ];
 
 const CHARACTERS: { mentor: 'priya' | 'rohan' | 'kiran' | 'asha'; accent: string; desc: string }[] = [
-  { mentor: 'priya', accent: '#4F46E5', desc: 'Your protagonist. First real strategy call. The feature list is three pages long.' },
-  { mentor: 'rohan', accent: '#E67E22', desc: 'Wants five features by end of quarter. Data says otherwise.' },
-  { mentor: 'kiran', accent: '#0097A7', desc: 'Sees past executive narratives with data.' },
-  { mentor: 'asha',  accent: '#7843EE', desc: 'AI mentor with the questions Priya hasn\'t thought to ask yet.' },
+  { mentor: 'priya', accent: '#4F46E5', desc: "Your protagonist. First real strategy call. The feature list is three pages long." },
+  { mentor: 'rohan', accent: '#E67E22', desc: "Wants five features by quarter-end. The board meeting is in six weeks." },
+  { mentor: 'kiran', accent: '#0097A7', desc: "Brings the one data point that changes Priya's entire analysis." },
+  { mentor: 'asha',  accent: '#7843EE', desc: "AI mentor. Asks the question Priya hasn't thought to ask yet." },
 ];
 
 // ─────────────────────────────────────────
-// TILT CARD
+// CHARACTER MOMENT — inline avatar for Rohan / Kiran dialogue
+// Each character has one specific job: Rohan creates pressure, Kiran
+// delivers ground truth, and their appearance is always purposeful.
+// ─────────────────────────────────────────
+const CharacterMoment = ({ mentor, name, role, accent, children }: {
+  mentor: 'rohan' | 'kiran';
+  name: string;
+  role: string;
+  accent: string;
+  children: React.ReactNode;
+}) => (
+  <div style={{
+    margin: '28px 0', padding: '18px 20px', borderRadius: '10px',
+    background: `${accent}08`,
+    border: `1px solid ${accent}22`,
+    borderLeft: `3px solid ${accent}`,
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+      <MentorFace mentor={mentor} size={38} />
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
+      </div>
+    </div>
+    <div style={{ fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.8 }}>
+      {children}
+    </div>
+  </div>
+);
+
+// ─────────────────────────────────────────
+// TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
   const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
@@ -116,17 +150,19 @@ const TiltCard = ({ children, style }: { children: React.ReactNode; style?: Reac
 
 // ─────────────────────────────────────────
 // SECTION 1: Strategy vs Features Sorter
-// Learner sorts 8 items into Strategy or Feature/Tactic buckets
+// Items are drawn directly from Rohan's all-hands slide.
+// The learner sorts them as Priya would — strategy vs tactic.
+// The reveal shows why none of Rohan's features address the root cause.
 // ─────────────────────────────────────────
 const ITEMS = [
-  { id: 'a', text: 'Add a dark mode to the dashboard',           correct: 'tactic'   },
-  { id: 'b', text: 'Focus exclusively on mid-market sales orgs', correct: 'strategy' },
-  { id: 'c', text: 'Fix the CSV export bug',                     correct: 'tactic'   },
-  { id: 'd', text: 'Win on CRM depth before broadening tools',   correct: 'strategy' },
-  { id: 'e', text: 'Add Slack notifications for call scores',    correct: 'tactic'   },
-  { id: 'f', text: 'Be the coaching platform reps actually use', correct: 'strategy' },
-  { id: 'g', text: 'Reduce onboarding from 7 steps to 3',       correct: 'tactic'   },
-  { id: 'h', text: 'Land 3 marquee logos to anchor enterprise',  correct: 'strategy' },
+  { id: 'a', text: 'Target mid-market sales orgs with 20–100 rep teams only',    correct: 'strategy' },
+  { id: 'b', text: 'Add CSV export for call recordings',                          correct: 'tactic'   },
+  { id: 'c', text: 'Win on CRM depth before expanding to other integrations',     correct: 'strategy' },
+  { id: 'd', text: 'Fix the Slack notification delay bug',                        correct: 'tactic'   },
+  { id: 'e', text: 'Be the coaching platform that changes rep behavior measurably', correct: 'strategy' },
+  { id: 'f', text: 'Add weekly email digest of manager coaching scores',          correct: 'tactic'   },
+  { id: 'g', text: 'Land 3 marquee logos before Series A closes',                 correct: 'strategy' },
+  { id: 'h', text: 'Reduce onboarding from 7 steps to 3',                        correct: 'tactic'   },
 ];
 
 const Section1Mockup = () => {
@@ -153,7 +189,7 @@ const Section1Mockup = () => {
               {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
             </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#fff', fontWeight: 600, letterSpacing: '0.08em' }}>
-              EdSpark Strategy Review · Sort these items
+              EdSpark Strategy Review · Sort Rohan&apos;s list
             </div>
           </div>
           {!checked && unsorted.length === 0 && (
@@ -172,7 +208,9 @@ const Section1Mockup = () => {
           {/* Unsorted pool */}
           {unsorted.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '8px' }}>UNSORTED — click to assign</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '8px' }}>
+                FROM ROHAN&apos;S ALL-HANDS SLIDE — click S (strategy) or T (tactic)
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {unsorted.map(item => (
                   <div key={item.id} style={{ display: 'flex', gap: '4px' }}>
@@ -209,11 +247,20 @@ const Section1Mockup = () => {
               </div>
             ))}
           </div>
+
+          {checked && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '8px', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, marginBottom: '6px' }}>THE INSIGHT</div>
+              <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+                Rohan&apos;s list has four legitimate strategies — but none of them say <em>why EdSpark wins against Gong.io</em> specifically, or which customer segment to target first. Strategy without a clear theory of differentiation is just ambition.
+              </div>
+            </motion.div>
+          )}
         </div>
 
         <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-            Click S to mark as Strategy · T to mark as Feature/Tactic · then check your answers
+            Sort every item · then check — count how many of Rohan&apos;s asks were actually strategic bets
           </div>
         </div>
       </div>
@@ -223,19 +270,21 @@ const Section1Mockup = () => {
 
 // ─────────────────────────────────────────
 // SECTION 2: Competitive Moat Analyzer
-// Rate EdSpark's 4 moat types vs Gong.io (1–5 sliders)
+// Priya rates EdSpark's moat strength. Then reveals Gong's.
+// The gap in switching costs is the insight — it's EdSpark's only real edge.
 // ─────────────────────────────────────────
 type MoatKey = 'network' | 'switching' | 'cost' | 'data';
-const MOATS: { key: MoatKey; label: string; desc: string; gong: number }[] = [
-  { key: 'network',   label: 'Network Effects',   desc: 'Product gets better as more users join',         gong: 3 },
-  { key: 'switching', label: 'Switching Costs',   desc: 'Pain of moving to a competitor',                 gong: 4 },
-  { key: 'cost',      label: 'Cost Advantage',    desc: 'Ability to deliver at lower cost than rivals',   gong: 2 },
-  { key: 'data',      label: 'Data / AI Moat',    desc: 'Proprietary data that improves the product',    gong: 4 },
+const MOATS: { key: MoatKey; label: string; desc: string; gong: number; insight: string }[] = [
+  { key: 'network',   label: 'Network Effects',  desc: 'Value increases as more users join the platform',     gong: 3, insight: 'Gong builds call benchmarks across their customer base. EdSpark has fewer users — this gap is hard to close.' },
+  { key: 'switching', label: 'Switching Costs',  desc: 'Pain of migrating workflows and integrations away',   gong: 4, insight: 'Both have high switching costs — but EdSpark\'s CRM depth creates even more workflow lock-in for SMB sales teams.' },
+  { key: 'cost',      label: 'Cost Advantage',   desc: 'Structural ability to serve customers at lower cost', gong: 2, insight: 'EdSpark\'s focused scope keeps costs lower. But Gong\'s scale will eventually win on infrastructure.' },
+  { key: 'data',      label: 'Data / AI Moat',   desc: 'Proprietary data that compounds product intelligence', gong: 4, insight: 'Gong has 4,000 customers feeding their AI. EdSpark\'s AI accuracy will lag until they reach meaningful scale.' },
 ];
 
 const Section2Mockup = () => {
-  const [edspark, setEdspark] = useState<Record<MoatKey, number>>({ network: 2, switching: 4, cost: 2, data: 3 });
+  const [edspark, setEdspark] = useState<Record<MoatKey, number>>({ network: 2, switching: 4, cost: 3, data: 2 });
   const [revealed, setRevealed] = useState(false);
+  const [activeInsight, setActiveInsight] = useState<MoatKey | null>(null);
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
@@ -246,46 +295,62 @@ const Section2Mockup = () => {
               {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
             </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#C4B5FD', fontWeight: 600, letterSpacing: '0.08em' }}>
-              Competitive Moat Analysis · EdSpark vs Gong.io
+              EdSpark · Competitive Moat Assessment
             </div>
           </div>
           <button onClick={() => setRevealed(r => !r)} style={{ padding: '4px 12px', borderRadius: '4px', background: 'rgba(196,181,253,0.15)', border: '1px solid rgba(196,181,253,0.3)', color: '#C4B5FD', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
-            {revealed ? 'Hide Gong' : 'Reveal Gong →'}
+            {revealed ? 'Hide Gong.io' : 'Reveal Gong.io →'}
           </button>
         </div>
 
         <div style={{ background: '#fff', padding: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px', padding: '6px 12px', borderRadius: '6px', background: '#F8F6F2' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT }}>● EDSPARK</div>
-            {revealed && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#6366F1' }}>● GONG.IO</div>}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', padding: '6px 12px', borderRadius: '6px', background: '#F8F6F2' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT }}>● EDSPARK (drag to rate)</div>
+            {revealed && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#6366F1' }}>● GONG.IO (actual)</div>}
           </div>
 
           {MOATS.map(moat => (
-            <div key={moat.key} style={{ marginBottom: '16px' }}>
+            <div key={moat.key} style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <div>
                   <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814' }}>{moat.label}</span>
                   <span style={{ fontSize: '11px', color: '#8A8580', marginLeft: '8px' }}>{moat.desc}</span>
                 </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: ACCENT }}>{edspark[moat.key]}/5</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {revealed && (
+                    <button onClick={() => setActiveInsight(activeInsight === moat.key ? null : moat.key)}
+                      style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.3)', color: '#6366F1', fontSize: '9px', fontWeight: 600, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace" }}>
+                      WHY?
+                    </button>
+                  )}
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: ACCENT }}>{edspark[moat.key]}/5</span>
+                </div>
               </div>
-              <div style={{ position: 'relative', height: '8px', background: '#F0EDE8', borderRadius: '4px', overflow: 'visible' }}>
+              <div style={{ position: 'relative', height: '8px', background: '#F0EDE8', borderRadius: '4px', overflow: 'visible', marginBottom: '4px' }}>
                 <motion.div animate={{ width: `${(edspark[moat.key] / 5) * 100}%` }} style={{ height: '100%', background: ACCENT, borderRadius: '4px', position: 'relative' }} />
                 {revealed && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${(moat.gong / 5) * 100}%`, background: 'rgba(99,102,241,0.35)', borderRadius: '4px', border: '2px dashed #6366F1', boxSizing: 'border-box' }} />
+                    style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${(moat.gong / 5) * 100}%`, background: 'rgba(99,102,241,0.28)', borderRadius: '4px', border: '2px dashed #6366F1', boxSizing: 'border-box' }} />
                 )}
               </div>
               <input type="range" min={1} max={5} value={edspark[moat.key]}
                 onChange={e => setEdspark(prev => ({ ...prev, [moat.key]: Number(e.target.value) }))}
-                style={{ width: '100%', marginTop: '4px', accentColor: ACCENT }} />
+                style={{ width: '100%', accentColor: ACCENT }} />
+              <AnimatePresence>
+                {activeInsight === moat.key && (
+                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                    style={{ marginTop: '8px', padding: '10px 12px', borderRadius: '6px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '12px', color: '#1C1814', lineHeight: 1.6 }}>
+                    {moat.insight}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </div>
 
         <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-            Drag sliders to rate EdSpark's moat strength · Reveal Gong to compare — where are you stronger?
+            Rate EdSpark&apos;s moat strength 1–5 · Reveal Gong to see the gap · click WHY to understand each difference
           </div>
         </div>
       </div>
@@ -294,31 +359,36 @@ const Section2Mockup = () => {
 };
 
 // ─────────────────────────────────────────
-// SECTION 3: Systems Thinking Cascade
-// Click a decision, see 1st and 2nd order effects
+// SECTION 3: Decision Cascade Simulator
+// Priya faces Rohan's three asks for Q2.
+// Each decision path shows the chain of effects.
+// The insight: rushing two big bets in parallel with 6 engineers breaks both.
 // ─────────────────────────────────────────
-type DecisionKey = 'onboarding' | 'ai-score' | 'manager-dashboard';
-const DECISIONS: { key: DecisionKey; label: string; first: string; second: string; third: string }[] = [
+type DecisionKey = 'sequence' | 'parallel' | 'salesforce-first';
+const DECISIONS: { key: DecisionKey; label: string; sublabel: string; first: string; second: string; third: string }[] = [
   {
-    key: 'onboarding',
-    label: 'Simplify onboarding to 3 steps',
-    first: 'Week-1 activation rate increases from 48% to 71%',
-    second: 'Reps skip the CRM sync step → coaching data is incomplete',
-    third: 'AI coaching scores become unreliable → managers distrust the product',
+    key: 'sequence',
+    label: 'Fix onboarding first, then Salesforce',
+    sublabel: 'Sequence the bets — one at a time',
+    first: 'Onboarding ships in week 4. Week-1 churn drops from 40% to 22%.',
+    second: 'Retention metric cleans up before the board meeting. Series A story is credible.',
+    third: 'Salesforce integration starts with real usage data to scope it right — less rework, better outcome.',
   },
   {
-    key: 'ai-score',
-    label: 'Make AI call scores visible to managers only',
-    first: 'Managers adopt the feature faster — 80% weekly active',
-    second: 'Reps feel surveilled → engagement drops 22% among top performers',
-    third: 'Best reps advocate against EdSpark in Slack communities',
+    key: 'parallel',
+    label: 'Run onboarding + Salesforce in parallel',
+    sublabel: 'Two bets, same quarter, 6 engineers',
+    first: 'Both projects slip 3 weeks. Rohan asks for status updates daily.',
+    second: 'Neither ships before the board meeting. Churn is still 40%. The slide is empty.',
+    third: 'Team is burnt out. Q3 starts with two half-finished bets and no momentum.',
   },
   {
-    key: 'manager-dashboard',
-    label: 'Add team-wide performance dashboard',
-    first: 'Sales VPs love it — drives 3 upsell conversations in Q1',
-    second: 'Individual reps see peer rankings → unhealthy competition emerges',
-    third: 'Manager requests custom ranking logic → support load increases 40%',
+    key: 'salesforce-first',
+    label: 'Prioritize Salesforce — it closes enterprise deals',
+    sublabel: 'Highest revenue potential, ship it first',
+    first: 'Salesforce integration ships. Two enterprise prospects move forward in the pipeline.',
+    second: 'Week-1 churn is still 40%. The root problem wasn\'t Salesforce access.',
+    third: 'Board meeting: strong pipeline, broken retention. Series A is conditional on fixing churn before close.',
   },
 ];
 
@@ -328,10 +398,15 @@ const Section3Mockup = () => {
   const decision = DECISIONS.find(d => d.key === selected);
 
   const steps = decision ? [
-    { label: '1st Order', text: decision.first, color: '#0D7A5A', bg: 'rgba(13,122,90,0.08)' },
+    { label: '1st Order', text: decision.first,  color: '#0D7A5A', bg: 'rgba(13,122,90,0.08)' },
     { label: '2nd Order', text: decision.second, color: '#B5720A', bg: 'rgba(181,114,10,0.08)' },
     { label: '3rd Order', text: decision.third,  color: '#C85A40', bg: 'rgba(200,90,64,0.08)' },
   ] : [];
+
+  const handleSelect = (key: DecisionKey) => {
+    setSelected(key);
+    setStep(0);
+  };
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
@@ -341,24 +416,33 @@ const Section3Mockup = () => {
             {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#94A3B8', fontWeight: 600, letterSpacing: '0.08em' }}>
-            EdSpark Decision Simulator · Systems Thinking
+            EdSpark Q2 · Decision Cascade · 6 weeks to board meeting
           </div>
         </div>
 
         <div style={{ background: '#fff', padding: '20px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '10px' }}>SELECT A DECISION</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '12px' }}>
+            ROHAN WANTS ALL THREE THIS QUARTER — PICK YOUR RECOMMENDATION
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
             {DECISIONS.map(d => (
-              <button key={d.key} onClick={() => { setSelected(d.key); setStep(0); }}
-                style={{ padding: '10px 14px', borderRadius: '8px', border: `1.5px solid ${selected === d.key ? ACCENT : '#E0D9D0'}`, background: selected === d.key ? `rgba(${ACCENT_RGB},0.06)` : '#F8F6F2', cursor: 'pointer', textAlign: 'left', fontSize: '13px', fontWeight: selected === d.key ? 600 : 400, color: selected === d.key ? ACCENT : '#1C1814', transition: 'all 0.15s' }}>
-                → {d.label}
+              <button key={d.key} onClick={() => handleSelect(d.key)}
+                style={{
+                  padding: '12px 16px', borderRadius: '8px', textAlign: 'left',
+                  background: selected === d.key ? `rgba(${ACCENT_RGB},0.08)` : '#F8F6F2',
+                  border: `1.5px solid ${selected === d.key ? ACCENT : '#E0D9D0'}`,
+                  cursor: 'pointer', transition: 'all 0.15s',
+                }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: selected === d.key ? ACCENT : '#1C1814', marginBottom: '2px' }}>{d.label}</div>
+                <div style={{ fontSize: '11px', color: '#8A8580' }}>{d.sublabel}</div>
               </button>
             ))}
           </div>
 
           {decision && (
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' as const }}>
                 {steps.map((s, i) => (
                   <React.Fragment key={i}>
                     <button onClick={() => setStep(i)}
@@ -373,7 +457,7 @@ const Section3Mockup = () => {
                 <motion.div key={step} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   style={{ padding: '14px 16px', borderRadius: '8px', background: steps[step].bg, border: `1px solid ${steps[step].color}33` }}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: steps[step].color, marginBottom: '6px' }}>{steps[step].label} EFFECT</div>
-                  <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.6 }}>{steps[step].text}</div>
+                  <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>{steps[step].text}</div>
                   {step < steps.length - 1 && (
                     <button onClick={() => setStep(s => s + 1)} style={{ marginTop: '10px', padding: '4px 12px', borderRadius: '4px', background: steps[step].color, color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>
                       See next effect →
@@ -387,7 +471,7 @@ const Section3Mockup = () => {
 
         <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-            Pick a decision · step through 1st → 2nd → 3rd order effects to see what Priya missed
+            Pick a recommendation · step through 1st → 2nd → 3rd order effects to see where each path leads
           </div>
         </div>
       </div>
@@ -397,16 +481,19 @@ const Section3Mockup = () => {
 
 // ─────────────────────────────────────────
 // SECTION 4: Bet Sizing — allocate 12 engineer-weeks
+// The allocation forces a real trade-off decision.
+// Going over budget or under-investing in Bet A both produce bad outcomes.
 // ─────────────────────────────────────────
 const BETS = [
-  { id: 'onboarding', label: 'Fix onboarding flow',        impact: 'HIGH',   risk: 'LOW',    minWeeks: 2, color: '#0D7A5A' },
-  { id: 'analytics',  label: 'Manager analytics dashboard', impact: 'MED',    risk: 'MED',    minWeeks: 4, color: '#B5720A' },
-  { id: 'salesforce', label: 'Salesforce deep integration', impact: 'HIGH',   risk: 'HIGH',   minWeeks: 8, color: '#C85A40' },
+  { id: 'onboarding', label: 'Fix onboarding flow',         impact: 'HIGH',  risk: 'LOW',  minWeeks: 2, color: '#0D7A5A', note: 'Directly attacks 40% churn. Clean metric story for the board.' },
+  { id: 'analytics',  label: 'Manager analytics dashboard', impact: 'MED',   risk: 'MED',  minWeeks: 3, color: '#B5720A', note: "Reveals which managers are driving retention — or killing it." },
+  { id: 'salesforce', label: 'Salesforce deep integration',  impact: 'HIGH',  risk: 'HIGH', minWeeks: 4, color: '#C85A40', note: 'High revenue potential but 8+ weeks for full build. Scope to discovery sprint first.' },
 ];
 const TOTAL_WEEKS = 12;
 
 const Section4Mockup = () => {
-  const [allocated, setAllocated] = useState<Record<string, number>>({ onboarding: 4, analytics: 4, salesforce: 4 });
+  const [allocated, setAllocated] = useState<Record<string, number>>({ onboarding: 5, analytics: 4, salesforce: 3 });
+  const [expanded, setExpanded] = useState<string | null>(null);
   const total = Object.values(allocated).reduce((a, b) => a + b, 0);
   const remaining = TOTAL_WEEKS - total;
 
@@ -419,11 +506,11 @@ const Section4Mockup = () => {
               {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
             </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#B8C4D4', fontWeight: 600, letterSpacing: '0.08em' }}>
-              EdSpark · Q2 Bets · 12 engineer-weeks available
+              EdSpark · Q2 Bets · 12 engineer-weeks · Board meeting in 6 weeks
             </div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: remaining === 0 ? '#28C840' : remaining < 0 ? '#FF5F57' : '#FFBD2E', fontWeight: 700 }}>
-            {remaining >= 0 ? `${remaining} wks remaining` : `${Math.abs(remaining)} wks over budget`}
+            {remaining >= 0 ? `${remaining} wks left` : `${Math.abs(remaining)} wks over`}
           </div>
         </div>
 
@@ -431,19 +518,32 @@ const Section4Mockup = () => {
           {BETS.map(bet => (
             <div key={bet.id} style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #F0EDE8' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814' }}>{bet.label}</div>
-                  <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814' }}>{bet.label}</div>
+                    <button onClick={() => setExpanded(expanded === bet.id ? null : bet.id)}
+                      style={{ padding: '1px 7px', borderRadius: '3px', background: `${bet.color}12`, border: `1px solid ${bet.color}30`, color: bet.color, fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", cursor: 'pointer', fontWeight: 700 }}>
+                      WHY
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <span style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, background: bet.impact === 'HIGH' ? 'rgba(13,122,90,0.1)' : 'rgba(181,114,10,0.1)', color: bet.impact === 'HIGH' ? '#0D7A5A' : '#B5720A' }}>IMPACT {bet.impact}</span>
                     <span style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, background: bet.risk === 'HIGH' ? 'rgba(200,90,64,0.1)' : bet.risk === 'MED' ? 'rgba(181,114,10,0.1)' : 'rgba(13,122,90,0.1)', color: bet.risk === 'HIGH' ? '#C85A40' : bet.risk === 'MED' ? '#B5720A' : '#0D7A5A' }}>RISK {bet.risk}</span>
                   </div>
+                  <AnimatePresence>
+                    {expanded === bet.id && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                        <div style={{ marginTop: '8px', fontSize: '12px', color: '#5E6C84', lineHeight: 1.6, borderLeft: `2px solid ${bet.color}`, paddingLeft: '10px' }}>{bet.note}</div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '16px' }}>
                   <button onClick={() => setAllocated(a => ({ ...a, [bet.id]: Math.max(bet.minWeeks, a[bet.id] - 1) }))}
-                    style={{ width: '24px', height: '24px', borderRadius: '50%', border: `1px solid ${bet.color}`, background: 'transparent', color: bet.color, cursor: 'pointer', fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                    style={{ width: '26px', height: '26px', borderRadius: '50%', border: `1px solid ${bet.color}`, background: 'transparent', color: bet.color, cursor: 'pointer', fontWeight: 700, fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '16px', fontWeight: 900, color: bet.color, minWidth: '32px', textAlign: 'center' }}>{allocated[bet.id]}</span>
                   <button onClick={() => setAllocated(a => ({ ...a, [bet.id]: a[bet.id] + 1 }))}
-                    style={{ width: '24px', height: '24px', borderRadius: '50%', border: `1px solid ${bet.color}`, background: 'transparent', color: bet.color, cursor: 'pointer', fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                    style={{ width: '26px', height: '26px', borderRadius: '50%', border: `1px solid ${bet.color}`, background: 'transparent', color: bet.color, cursor: 'pointer', fontWeight: 700, fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#8A8580' }}>wks</span>
                 </div>
               </div>
@@ -453,16 +553,20 @@ const Section4Mockup = () => {
             </div>
           ))}
 
-          <div style={{ padding: '10px 14px', borderRadius: '8px', background: remaining < 0 ? 'rgba(200,90,64,0.08)' : remaining === 0 ? 'rgba(13,122,90,0.08)' : 'rgba(124,58,237,0.06)', border: `1px solid ${remaining < 0 ? 'rgba(200,90,64,0.3)' : remaining === 0 ? 'rgba(13,122,90,0.3)' : 'rgba(124,58,237,0.2)'}` }}>
-            <div style={{ fontSize: '12px', color: '#1C1814', lineHeight: 1.6 }}>
-              {remaining < 0 ? `⚠️ Over budget by ${Math.abs(remaining)} weeks. Reduce allocation or cut a bet.` : remaining === 0 ? '✓ Fully allocated. Does this sequence make sense given EdSpark\'s 40% churn problem?' : `${remaining} weeks unallocated — what else deserves investment?`}
+          <div style={{ padding: '12px 14px', borderRadius: '8px', background: remaining < 0 ? 'rgba(200,90,64,0.08)' : remaining === 0 ? 'rgba(13,122,90,0.08)' : 'rgba(124,58,237,0.06)', border: `1px solid ${remaining < 0 ? 'rgba(200,90,64,0.3)' : remaining === 0 ? 'rgba(13,122,90,0.3)' : 'rgba(124,58,237,0.2)'}` }}>
+            <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+              {remaining < 0
+                ? `⚠️ Over budget by ${Math.abs(remaining)} weeks. Something has to give — which bet are you cutting?`
+                : remaining === 0
+                ? "✓ Fully allocated. Does onboarding get enough to actually fix churn before the board meeting?"
+                : `${remaining} weeks unallocated — is that a buffer or a missing bet?`}
             </div>
           </div>
         </div>
 
         <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-            Adjust engineer-weeks per bet · stay within 12 total · minimum allocation shown per bet
+            +/− to adjust weeks · min allocation per bet shown · stay within 12 total · click WHY to understand each bet
           </div>
         </div>
       </div>
@@ -472,25 +576,26 @@ const Section4Mockup = () => {
 
 // ─────────────────────────────────────────
 // SECTION 5: Land-and-Expand Account Map
-// Click expansion opportunities in an enterprise account
+// EdSpark just signed Apex Corp. 50 seats now, 500 seats needed for Series A.
+// Each click advances an opportunity stage — the product must generate the proof.
 // ─────────────────────────────────────────
-type OppStatus = 'locked' | 'target' | 'active' | 'won';
-interface Opp { id: string; label: string; seats: number; status: OppStatus; dept: string }
+type OppStatus = 'locked' | 'target' | 'pilot' | 'won';
+interface Opp { id: string; label: string; seats: number; status: OppStatus; dept: string; proof: string }
 
 const Section5Mockup = () => {
   const [opps, setOpps] = useState<Opp[]>([
-    { id: 'land',    label: 'West Coast Sales Team',    seats: 50,  status: 'won',    dept: 'Sales' },
-    { id: 'east',    label: 'East Coast Sales Team',    seats: 60,  status: 'target', dept: 'Sales' },
-    { id: 'se',      label: 'Solutions Engineering',    seats: 25,  status: 'target', dept: 'Pre-Sales' },
-    { id: 'enablement', label: 'Sales Enablement',     seats: 15,  status: 'locked', dept: 'L&D' },
-    { id: 'mgr',     label: 'Regional Sales Managers',  seats: 18,  status: 'active', dept: 'Management' },
-    { id: 'rev',     label: 'Revenue Ops',              seats: 12,  status: 'locked', dept: 'Ops' },
+    { id: 'land',       label: 'West Coast Sales Team',   seats: 50,  status: 'won',    dept: 'Sales',      proof: 'Ramp time: 90d → 58d · 12 daily active users' },
+    { id: 'east',       label: 'East Coast Sales Team',   seats: 60,  status: 'target', dept: 'Sales',      proof: 'West Coast win story shared by champion at regional kickoff' },
+    { id: 'se',         label: 'Solutions Engineering',   seats: 25,  status: 'target', dept: 'Pre-Sales',  proof: 'Call recordings help SE prep enterprise demos' },
+    { id: 'enablement', label: 'Sales Enablement',        seats: 15,  status: 'locked', dept: 'L&D',        proof: 'Needs admin dashboard + training content tool first' },
+    { id: 'mgr',        label: 'Regional Sales Managers', seats: 18,  status: 'pilot',  dept: 'Management', proof: 'Team dashboards showing coaching ROI — VP loves the data' },
+    { id: 'rev',        label: 'Revenue Operations',      seats: 12,  status: 'locked', dept: 'Ops',        proof: 'Needs Salesforce integration to make RevOps workflows viable' },
   ]);
 
   const advance = (id: string) => {
     setOpps(prev => prev.map(o => {
       if (o.id !== id) return o;
-      const next: Record<OppStatus, OppStatus> = { locked: 'target', target: 'active', active: 'won', won: 'won' };
+      const next: Record<OppStatus, OppStatus> = { locked: 'target', target: 'pilot', pilot: 'won', won: 'won' };
       return { ...o, status: next[o.status] };
     }));
   };
@@ -499,10 +604,10 @@ const Section5Mockup = () => {
   const target = 500;
 
   const statusConfig: Record<OppStatus, { label: string; color: string; bg: string; border: string }> = {
-    locked:  { label: 'LOCKED',  color: '#8A8580', bg: '#F8F6F2', border: '#E0D9D0' },
-    target:  { label: 'TARGET',  color: '#B5720A', bg: 'rgba(181,114,10,0.08)', border: 'rgba(181,114,10,0.3)' },
-    active:  { label: 'IN PILOT', color: ACCENT,   bg: `rgba(${ACCENT_RGB},0.08)`, border: `rgba(${ACCENT_RGB},0.3)` },
-    won:     { label: 'WON',     color: '#0D7A5A', bg: 'rgba(13,122,90,0.08)', border: 'rgba(13,122,90,0.3)' },
+    locked:  { label: 'LOCKED',   color: '#8A8580', bg: '#F8F6F2',                  border: '#E0D9D0' },
+    target:  { label: 'TARGET',   color: '#B5720A', bg: 'rgba(181,114,10,0.08)',    border: 'rgba(181,114,10,0.3)' },
+    pilot:   { label: 'IN PILOT', color: ACCENT,    bg: `rgba(${ACCENT_RGB},0.08)`, border: `rgba(${ACCENT_RGB},0.3)` },
+    won:     { label: 'WON',      color: '#0D7A5A', bg: 'rgba(13,122,90,0.08)',     border: 'rgba(13,122,90,0.3)' },
   };
 
   return (
@@ -514,11 +619,11 @@ const Section5Mockup = () => {
               {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
             </div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#7FBAFF', fontWeight: 600, letterSpacing: '0.08em' }}>
-              Apex Corp · Account Expansion Map · Target: 500 seats
+              Apex Corp · Land &amp; Expand Map · Series A target: 500 seats
             </div>
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: totalWon >= target ? '#28C840' : '#7FBAFF' }}>
-            {totalWon}/{target} seats
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: totalWon >= 500 ? '#28C840' : '#7FBAFF' }}>
+            {totalWon}/{target} seats won
           </div>
         </div>
 
@@ -531,20 +636,23 @@ const Section5Mockup = () => {
             {opps.map(opp => {
               const cfg = statusConfig[opp.status];
               return (
-                <motion.div key={opp.id} whileHover={{ y: -1 }}
+                <motion.div key={opp.id} whileHover={opp.status !== 'won' ? { y: -1 } : {}}
                   style={{ padding: '12px', borderRadius: '8px', background: cfg.bg, border: `1.5px solid ${cfg.border}`, cursor: opp.status !== 'won' ? 'pointer' : 'default' }}
-                  onClick={() => advance(opp.id)}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814', lineHeight: 1.3 }}>{opp.label}</div>
+                  onClick={() => opp.status !== 'won' && advance(opp.id)}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814', lineHeight: 1.3, flex: 1 }}>{opp.label}</div>
                     <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.border}`, flexShrink: 0, marginLeft: '6px' }}>{cfg.label}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ fontSize: '11px', color: '#8A8580' }}>{opp.dept}</span>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: cfg.color }}>{opp.seats} seats</span>
                   </div>
-                  {opp.status !== 'won' && (
+                  <div style={{ fontSize: '10px', color: opp.status === 'locked' ? '#AAA' : cfg.color, lineHeight: 1.5, fontStyle: 'italic' }}>
+                    {opp.status === 'locked' ? `🔒 ${opp.proof}` : opp.proof}
+                  </div>
+                  {opp.status !== 'won' && opp.status !== 'locked' && (
                     <div style={{ marginTop: '8px', fontSize: '10px', color: cfg.color, fontWeight: 600 }}>
-                      Click to advance →
+                      Advance → {opp.status === 'target' ? 'In Pilot' : 'Won'}
                     </div>
                   )}
                 </motion.div>
@@ -555,7 +663,7 @@ const Section5Mockup = () => {
 
         <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
-            Click each team to advance: Locked → Target → In Pilot → Won · reach 500 seats to complete the expand
+            Click unlocked teams to advance · locked teams show what product work unblocks them · reach 500 seats
           </div>
         </div>
       </div>
@@ -567,6 +675,7 @@ const Section5Mockup = () => {
 // MAIN EXPORT
 // ─────────────────────────────────────────
 export default function Track1ProductStrategy({ onSectionChange }: { onSectionChange?: (id: string) => void }) {
+  void onSectionChange;
   return (
     <>
 
@@ -579,7 +688,6 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
       >
         {/* Left column */}
         <div style={{ flex: 1, minWidth: '280px' }}>
-          {/* Breadcrumb */}
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '28px', letterSpacing: '0.04em' }}>
             PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
             <span style={{ color: 'var(--ed-ink2)' }}>Foundations Track</span>
@@ -587,7 +695,6 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
             <span style={{ color: 'var(--ed-ink3)' }}>50 min · 5 parts</span>
           </div>
 
-          {/* Title */}
           <h1 style={{
             fontSize: 'clamp(26px, 3.2vw, 44px)', fontWeight: 700, lineHeight: 1.12,
             letterSpacing: '-0.025em', marginBottom: '18px', color: 'var(--ed-ink)',
@@ -598,7 +705,8 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           </h1>
 
           <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '500px', marginBottom: '36px' }}>
-            50 minutes. 5 decisions. One strategic lens. Follow Priya as EdSpark&apos;s churn crisis forces a choice between building more and building right.
+            Rohan gives Priya six weeks and one instruction: &ldquo;Don&apos;t bring me a feature list. Bring me a strategy.&rdquo;
+            Follow her as each section of this module becomes one piece of the answer.
           </p>
 
           {/* Parts grid */}
@@ -606,14 +714,10 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
             {PARTS.map(p => (
               <div key={p.num} style={{
                 padding: '11px 14px', borderRadius: '7px',
-                background: 'var(--ed-card)',
-                border: '1px solid var(--ed-rule)',
+                background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
                 display: 'flex', gap: '10px', alignItems: 'baseline',
               }}>
-                <span style={{
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: '10px',
-                  fontWeight: 700, color: ACCENT, flexShrink: 0,
-                }}>{p.num}.</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{p.num}.</span>
                 <span style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.4 }}>{p.label}</span>
               </div>
             ))}
@@ -621,21 +725,15 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
 
           {/* How this works */}
           <div style={{
-            padding: '18px 22px', borderRadius: '8px',
-            background: 'var(--ed-card)',
-            borderTop: '1px solid var(--ed-rule)',
-            borderRight: '1px solid var(--ed-rule)',
-            borderBottom: '1px solid var(--ed-rule)',
-            borderLeft: `4px solid ${ACCENT}`,
+            padding: '18px 22px', borderRadius: '8px', background: 'var(--ed-card)',
+            borderTop: '1px solid var(--ed-rule)', borderRight: '1px solid var(--ed-rule)',
+            borderBottom: '1px solid var(--ed-rule)', borderLeft: `4px solid ${ACCENT}`,
           }}>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
-              letterSpacing: '0.16em', color: ACCENT, textTransform: 'uppercase' as const,
-              marginBottom: '10px',
-            }}>How this works</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, textTransform: 'uppercase' as const, marginBottom: '10px' }}>How this works</div>
             <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.8 }}>
-              Each part follows <strong style={{ color: 'var(--ed-ink)' }}>Priya Sharma</strong>, APM at EdSpark, through a real strategic moment.
-              Three guides — <strong style={{ color: 'var(--ed-ink)' }}>Rohan</strong>, <strong style={{ color: 'var(--ed-ink)' }}>Kiran</strong>, and <strong style={{ color: 'var(--ed-ink)' }}>Asha</strong> — surface when the stakes get real.
+              <strong style={{ color: 'var(--ed-ink)' }}>Rohan</strong> creates the pressure. <strong style={{ color: 'var(--ed-ink)' }}>Kiran</strong> brings the data that reframes the picture.
+              <strong style={{ color: 'var(--ed-ink)' }}> Asha</strong> asks the one question that stops Priya cold at each inflection point.
+              Every interactive is a tool Priya actually uses — not a demo.
             </div>
           </div>
 
@@ -665,39 +763,21 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
 
         {/* Right: 3D floating module card */}
         <div style={{ flexShrink: 0, width: '168px', paddingTop: '48px' }}>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}>
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
             <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
               <div style={{
                 background: 'linear-gradient(145deg, #1A1218 0%, #241228 100%)',
-                borderRadius: '14px',
-                padding: '20px 18px',
+                borderRadius: '14px', padding: '20px 18px',
                 boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.07)',
               }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>
-                  MODULE 02
-                </div>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>
-                  Product Strategy
-                </div>
-                <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>
-                  Foundations Track
-                </div>
-
-                {/* Progress bar */}
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 02</div>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Product Strategy</div>
+                <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>Foundations Track</div>
                 <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: '0%' }}
-                    transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
-                    style={{ height: '100%', background: ACCENT, borderRadius: '1px' }}
-                  />
+                  <motion.div initial={{ width: 0 }} animate={{ width: '0%' }} transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
+                    style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} />
                 </div>
-
-                {/* Part list */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {PARTS.map((p, i) => (
                     <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -715,7 +795,6 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
                     </div>
                   ))}
                 </div>
-
                 <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
                   <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>Strategy vs Features</div>
@@ -730,50 +809,58 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
       <ChapterSection id="m2s-strategy-vs-features" num="01" accentRgb={ACCENT_RGB} first>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          It&apos;s Monday morning at EdSpark. Rohan, the CEO, opens the all-hands with a slide: &ldquo;40% of new managers churn in week one. I want five new features shipped this quarter.&rdquo;
-          Priya is scribbling notes. She knows the feature list is three pages long. What she doesn&apos;t know yet is whether any of those features will actually solve the problem.
+          Monday morning. Rohan calls Priya into his office before the all-hands. The door closes.
+          He pulls up a slide: one number, centered, red. <strong>40%</strong>. Week-1 churn. &ldquo;The board sees this in six weeks,&rdquo; he says. &ldquo;I don&apos;t want a feature list. I want a strategy. Something that tells the board exactly why we win — and exactly what we&apos;re betting on.&rdquo;
+          Priya nods. She has never built a strategy from scratch.
         </SituationCard>
 
-        {h2(<>When Building Is Easy, What to Build Matters More</>)}
+        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
+          &ldquo;I&apos;ve got 47 items in the backlog. Engineers asking what to build next. Sales asking for integrations. Customer success asking for better reporting. I need you to tell me what actually matters — and why. The board doesn&apos;t want features. They want a reason to believe.&rdquo;
+        </CharacterMoment>
+
+        {h2(<>Features Are Answers. Strategy Is Knowing Which Questions Matter.</>)}
 
         {para(<>
-          Priya has seen this pattern before. A metric goes red, leadership calls for more features, engineering starts scoping, and six months later the metric is still red — but the product is 30% more complex.
-          The problem wasn&apos;t a missing feature. It was a missing strategy.
-          Product strategy is the answer to: <em>why this bet, for this customer, in this market, right now?</em>
+          Priya&apos;s instinct is to open the backlog and start sorting. That&apos;s the wrong move.
+          A feature list is a collection of answers. Strategy is the process of figuring out which questions are worth asking at all.
+          The Spanish restaurant El Bulli didn&apos;t win by adding more dishes than its competitors — it won by redefining what fine dining meant entirely. The question was different, so the answers were different.
+          EdSpark&apos;s question isn&apos;t &ldquo;what features should we ship?&rdquo; It&apos;s &ldquo;what does a new sales manager need to stop churning in week one — and can we build a defensible position around solving that?&rdquo;
         </>)}
 
-        {pullQuote("Features are answers. Strategy is knowing which questions matter.")}
+        {pullQuote("The board doesn\u2019t want a roadmap. They want a reason to believe.")}
 
         {para(<>
-          The wrong move is treating a strategy session like a backlog grooming. A prioritization framework (RICE, MoSCoW) is a tactic — it tells you how to sequence what you&apos;ve already decided to build.
-          Strategy sits upstream. It decides which problems are worth solving at all, and which customer segments to serve.
-          Stripe didn&apos;t win by shipping more payment features than PayPal. They won by targeting developers with a better API — that was the strategic insight that unlocked everything else.
+          Product strategy has three components: a <em>theory of the customer</em> (who you&apos;re serving and why they choose you), a <em>theory of differentiation</em> (what you do that competitors can&apos;t easily replicate), and a <em>theory of sequencing</em> (which bets to make in which order to get there).
+          None of these are features. They&apos;re the frame that makes features legible.
+          Priya&apos;s job for the next six weeks is to build all three.
         </>)}
 
-        {keyBox("What Product Strategy Is (and Isn't)", [
-          "Strategy: which customers, which problems, which bets — and why now",
-          "Tactic: how you build, prioritize, and ship those bets",
+        {keyBox("Strategy vs Tactics", [
+          "Strategy: which customers, which problems, which bets — and why now, in this market",
+          "Tactic: how you execute within a chosen bet (prioritization, sprint planning, RICE)",
           "Feature: a specific solution to a specific problem within a tactic",
+          "The failure mode: treating a tactic as a strategy, or a feature as a bet",
         ])}
 
         <Section1Mockup />
 
         {para(<>
-          After the exercise, Priya walks Rohan through the sorted list. The five features he wants are all tactics — good ones, probably — but none of them address why new managers churn in week one.
-          That answer requires a different question: <em>what does a new manager actually need to succeed in their first 7 days?</em>
+          Priya runs through Rohan&apos;s list. Four of the eight items are genuine strategic bets — focused, differentiated, hard to copy. Four are tactics: good work, probably necessary, but not the reason EdSpark wins.
+          The problem is that Rohan&apos;s list has no theory of differentiation. It doesn&apos;t say <em>why EdSpark</em> — what makes a mid-market sales org choose EdSpark over Gong.io&apos;s free trial.
+          Before she can answer that, she needs to understand what EdSpark actually has that Gong doesn&apos;t.
         </>)}
 
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Rohan isn&apos;t wrong to ask for features. Features ship, features are tangible, features can be measured. What&apos;s the actual risk of just building the list?</>}
-          expandedContent={<>The risk is opportunity cost and compounding complexity. Every feature you ship narrows your design space for future features, adds support burden, and signals to the market what kind of product you are. Shipping the wrong features doesn&apos;t just waste engineering time — it shapes customer expectations in ways that are hard to reverse.</>}
-          question="What is the primary difference between product strategy and product tactics?"
+          content={<>&ldquo;Are you sorting features — or solving the 40% churn problem? Because those are two completely different exercises.&rdquo;</>}
+          expandedContent={<>Sorting items into &ldquo;strategy&rdquo; and &ldquo;tactic&rdquo; buckets is useful — but only if each strategic bet connects back to a specific theory of why you win. If you can&apos;t answer &ldquo;why does this bet help us beat Gong at the segment we&apos;re targeting&rdquo;, it&apos;s not a strategy — it&apos;s an aspiration. Priya&apos;s next job is to find EdSpark&apos;s actual edge.</>}
+          question="Rohan wants five features shipped before the board meeting. What is Priya's correct first move?"
           options={[
-            { text: "Strategy is long-term, tactics are short-term deliverables", correct: false, feedback: "Time horizon is a symptom, not the definition. A 6-month tactic is still a tactic." },
-            { text: "Strategy defines which bets to make; tactics define how to execute them", correct: true, feedback: "Exactly. Strategy answers 'what to build and why'. Tactics answer 'how to build it well'." },
-            { text: "Strategy comes from leadership; tactics come from the product team", correct: false, feedback: "Great PMs own strategy, not just execution. Waiting for leadership to set strategy is itself a tactical mindset." },
+            { text: "Start scoping features so engineering can begin estimating timelines today", correct: false, feedback: "Scoping before diagnosis means executing the wrong plan efficiently. The backlog doesn't tell you which problem to solve." },
+            { text: "Ask why each feature is on the list before committing any engineering time", correct: true, feedback: "Right. The five features are answers. Priya needs to understand which questions they're answering — and whether those questions are the right ones." },
+            { text: "Build a RICE matrix across all 47 backlog items to rank them by impact", correct: false, feedback: "RICE is a prioritization tactic — it helps you sequence items you've already decided to build. It doesn't tell you whether the items are strategic bets worth building at all." },
           ]}
           conceptId="product-strategy"
         />
@@ -791,52 +878,60 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
       <ChapterSection id="m2s-vision-moats" num="02" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Priya runs a competitive analysis. Gong.io has $583M raised and 4,000 customers.
-          Chorus just got acquired by ZoomInfo. Salesforce has Einstein Call Coaching baked into every Enterprise contract.
-          She stares at the slide and thinks: how is EdSpark supposed to win?
+          Priya spends two days on competitive research. The picture is not encouraging.
+          Gong.io: $583M raised, 4,000 customers, 500 engineers. Chorus: acquired by ZoomInfo for $575M.
+          Salesforce has Einstein Call Coaching baked into every Enterprise contract at no extra charge.
+          She stares at the slide and thinks: <em>how is EdSpark supposed to win?</em>
+          Then Kiran walks over.
         </SituationCard>
 
-        {h2(<>You Don&apos;t Beat Giants on Features. You Build Moats.</>)}
+        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
+          &ldquo;I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn&apos;t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection. They didn&apos;t feel like EdSpark knew their pipeline.&rdquo;
+        </CharacterMoment>
+
+        {h2(<>You Can\u2019t Out\u2011Feature Gong. You Build a Moat They Can\u2019t Cross.</>)}
 
         {para(<>
-          The worst strategic mistake is trying to out-feature a well-funded competitor.
-          Gong.io has 500 engineers. EdSpark has six. Feature parity is not a strategy — it&apos;s a race you will lose.
-          The question isn&apos;t &ldquo;what does Gong have that we don&apos;t?&rdquo; It&apos;s &ldquo;where can we build a moat that Gong can&apos;t easily replicate?&rdquo;
+          Kiran&apos;s data point reframes everything. The competitive threat isn&apos;t Gong&apos;s call analytics — it&apos;s that Gong targets large enterprises. They don&apos;t care about a 40-person sales team&apos;s CRM configuration. EdSpark does.
+          EdSpark&apos;s six engineers can&apos;t build more features than Gong. But they can build <em>deeper</em> for the segment Gong ignores: mid-market B2B sales orgs who need their coaching platform to actually know their deals.
+          That&apos;s not a feature gap. That&apos;s a strategic opening.
         </>)}
 
-        {pullQuote("A competitive moat isn't what you have. It's what makes switching to you painful — and switching away even more painful.")}
+        {pullQuote("Specialize to survive. Let the giants fight their own wars.")}
 
         {para(<>
-          Priya looks at EdSpark&apos;s data: 80% of churned customers cite &ldquo;the product didn&apos;t connect to how we actually run deals.&rdquo;
-          That&apos;s a clue. EdSpark&apos;s CRM integration is deeper than any competitor&apos;s — it reads deal stages, quota attainment, and manager-to-rep ratios in real time.
-          No one else does this. That&apos;s not a feature. That&apos;s a switching cost — because once you&apos;ve built your coaching cadences around live CRM data, migrating to Gong means rebuilding everything.
+          A competitive moat is not what you have today — it&apos;s what makes switching to a competitor painful tomorrow.
+          EdSpark&apos;s CRM integration does something subtle: once a sales org configures their coaching cadences around live deal data — call scores tied to quota attainment, manager alerts triggered by deal stage changes — ripping it out means rebuilding their entire coaching workflow from scratch.
+          That&apos;s a switching cost. And switching costs compound: the longer EdSpark is embedded, the more the org&apos;s coaching patterns become <em>dependent</em> on the integration.
+          Gong can copy the feature. They can&apos;t copy the fact that your customers have spent 18 months building their workflows around yours.
         </>)}
 
-        {keyBox("The Four Moat Types", [
-          "Network effects: product improves as more users join (Slack, Figma)",
-          "Switching costs: painful to migrate workflows, data, integrations (EdSpark's CRM depth)",
-          "Cost advantage: structural cost to serve lower than competitors (AWS scale)",
-          "Data / AI moat: proprietary data makes AI recommendations better over time",
+        {keyBox("The Four Moat Types — Where EdSpark Sits", [
+          "Network effects: product improves as total users grow — Gong has this, EdSpark doesn't yet",
+          "Switching costs: painful to migrate workflows and integrations — EdSpark's real edge",
+          "Cost advantage: structural lower cost to serve — neither has this cleanly",
+          "Data / AI moat: proprietary training data makes AI better over time — Gong leads, EdSpark must close",
         ])}
 
         <Section2Mockup />
 
         {para(<>
-          Priya&apos;s analysis shows EdSpark&apos;s highest-rated moat is switching costs — specifically the CRM integration.
-          Her strategic recommendation: double down on CRM depth, not breadth. Don&apos;t try to match Gong on call analytics. Win on being the only platform that knows a rep&apos;s full deal context before the coaching session starts.
+          Priya&apos;s moat analysis shows one clear answer: EdSpark&apos;s switching costs from CRM depth are stronger than Gong&apos;s in the mid-market segment — <em>if</em> EdSpark invests in deepening that integration, not broadening into analytics and reporting that Gong already does well.
+          The strategic recommendation takes shape: don&apos;t compete on Gong&apos;s terrain. Win on being the only coaching platform that knows a rep&apos;s full deal context before the session starts. Make the CRM integration so deep that every other coaching tool feels like it&apos;s operating blind.
+          That&apos;s the three-year vision. Now she needs to know what bets get EdSpark there — and in what order.
         </>)}
 
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>If EdSpark&apos;s main moat is switching costs, what happens the day Salesforce bundles call coaching into its base tier for free?</>}
-          expandedContent={<>That&apos;s the strategic risk of a single-moat strategy. The best defensive position combines moats — switching costs AND a data moat (coaching patterns that get smarter per org over time). Priya should be asking: how do we build a second moat before the first one erodes?</>}
-          question="EdSpark's CRM integration creates which type of competitive moat?"
+          content={<>&ldquo;If your moat is switching costs from CRM depth — what happens the day Salesforce bundles a coaching layer into its base tier for free?&rdquo;</>}
+          expandedContent={<>That&apos;s the right question to ask right now. A single-moat strategy is fragile. The best defensive position stacks moats: switching costs now, a data moat as usage grows (coaching patterns that get smarter per org over time), and eventually a network effect if you can build benchmarking across similar-sized orgs. Priya should ask: how do we build a second moat before the first one erodes?</>}
+          question="Kiran's data reveals 70% of churned customers cited missing CRM integration. EdSpark's deep CRM sync is best described as:"
           options={[
-            { text: "A network effect, because more EdSpark users share call data", correct: false, feedback: "Network effects require value to increase as the total user base grows. CRM integration benefits the individual org, not the network." },
-            { text: "A switching cost moat, because migrating CRM integrations is painful", correct: true, feedback: "Exactly. Deep CRM configuration creates migration friction that protects EdSpark's installed base even when competitors ship better features." },
-            { text: "A cost advantage, because deep integrations reduce EdSpark's cloud spend", correct: false, feedback: "Cost advantage moats are about structural cost-to-serve, not integration depth. This is a retention moat, not a cost moat." },
+            { text: "A network effect — more EdSpark users improve the quality of shared call benchmarks", correct: false, feedback: "Network effects require value to grow as the total user base grows. CRM integration benefits each org individually — it doesn't compound across orgs." },
+            { text: "A switching cost moat — migrating CRM-configured coaching workflows is painful", correct: true, feedback: "Exactly. Coaching cadences configured around live deal data take months to build. Migrating to a competitor means starting that work over. That's real switching cost." },
+            { text: "A cost advantage — deep integrations reduce EdSpark's engineering maintenance overhead", correct: false, feedback: "Cost advantage moats are about structural cost-to-serve relative to competitors. Integration depth is a retention mechanism, not a cost structure play." },
           ]}
           conceptId="competitive-moats"
         />
@@ -854,51 +949,49 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
       <ChapterSection id="m2s-systems-thinking" num="03" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Priya ships the simplified onboarding. Week-1 activation climbs from 48% to 71% — a clear win.
-          Two weeks later, her Slack lights up. The RevOps lead flags that AI coaching scores for new reps look &ldquo;completely wrong.&rdquo;
-          It turns out new users are skipping the CRM sync step — the one she removed from onboarding to make it simpler.
+          Week two. Rohan calls a 1:1. He comes in energized, speaking fast. &ldquo;Three things this quarter,&rdquo; he says, counting on his fingers. &ldquo;Fix the onboarding — you&apos;re right, that&apos;s the bleed. Get the Salesforce integration to beta — two enterprise prospects are waiting. And I want the manager analytics dashboard so the board can see we&apos;re building toward the data moat.&rdquo;
+          Priya&apos;s hand tightens around her pen. She starts to say yes to all three.
         </SituationCard>
 
-        {h2(<>Every Fix Creates a New System. Think in Second-Order Effects.</>)}
+        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
+          &ldquo;I know what you&apos;re thinking — that&apos;s too much for six engineers. But we can&apos;t afford to move slow. The window for Series A closes in 18 months. If we don&apos;t show the board a growth story AND a retention story in the same deck, we&apos;re going to have a hard conversation.&rdquo;
+        </CharacterMoment>
+
+        {h2(<>First\u2011Order Thinking Asks What Happens Next. Strategy Asks What Happens After That.</>)}
 
         {para(<>
-          Priya solved the activation problem (first-order effect) but broke the data pipeline that coaching scores depend on (second-order effect).
-          This is the trap of optimizing one metric in isolation. Products are systems — changing one lever moves others.
-          Systems thinking is a PM superpower because it lets you anticipate the downstream consequences of decisions before you ship them, not after.
+          Rohan&apos;s instinct is correct in isolation: onboarding matters, Salesforce matters, analytics matter. The mistake is treating them as independent parallel bets.
+          With six engineers, running two large bets simultaneously doesn&apos;t produce two half-finished products on schedule. It produces two fully-broken products three weeks late.
+          The reason is second-order effects. Every engineering decision creates dependencies — on shared infrastructure, on team cognitive load, on the QA pipeline, on each other&apos;s code. Running parallel bets isn&apos;t twice the output. It&apos;s half the focus applied to everything.
         </>)}
 
-        {pullQuote("First-order thinking asks: what happens next? Systems thinking asks: what happens after that?")}
+        {pullQuote("Doing two things at once with a small team doesn\u2019t split the work. It multiplies the risk.")}
 
         {para(<>
-          The classic PM failure is solving the symptom without mapping the system. A team adds a feature to reduce support tickets — and doubles engineering complexity.
-          Another team removes friction from signup — and destroys the quality signal that sales used to qualify leads.
-          Before shipping any significant change, great PMs draw the causal chain: Decision → 1st effect → 2nd effect → 3rd effect. Where does it break?
+          Systems thinking is the practice of mapping the downstream effects of decisions before you commit to them.
+          The question Priya needs to ask isn&apos;t &ldquo;can we build all three?&rdquo; It&apos;s &ldquo;if we build all three at once, what breaks — and where does that break show up in the product, the team, and the metrics Rohan will present to the board?&rdquo;
+          That question has a concrete, uncomfortable answer. The simulator below makes it visible.
         </>)}
-
-        {keyBox("Systems Thinking Checklist", [
-          "Map who else depends on what you're changing (other teams, features, metrics)",
-          "Ask: if this works perfectly, what new problem does it create?",
-          "Identify the feedback loops — does the fix reinforce or undermine itself?",
-        ])}
 
         <Section3Mockup />
 
         {para(<>
-          After running through the simulator, Priya adds a &ldquo;lightweight CRM sync&rdquo; step back into onboarding — but makes it contextual: only shown to users whose org has CRM connected.
-          Activation stays high. Data quality recovers. The key was mapping the system before shipping the simplification.
+          The cascade is clear. Sequencing — onboarding first, then Salesforce as a scoped discovery sprint, then analytics built on real retention data — produces better outcomes than parallelism. Not because it&apos;s slower. Because each completed bet creates the conditions for the next bet to succeed.
+          Onboarding fixed means churn drops. Churn dropped means the retention story exists for the board. Retention story exists means Salesforce integration can be scoped based on which enterprise workflows actually matter — instead of guessing.
+          Priya needs to bring Rohan the sequencing argument, not just the &ldquo;we can&apos;t do all three&rdquo; argument.
         </>)}
 
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>If second-order effects are so important, why don&apos;t all PMs map them before shipping? What gets in the way?</>}
-          expandedContent={<>Pressure. When churn is 40% and the board wants results, taking two days to map causal chains feels like delay. The real skill is doing a fast systems sketch — 20 minutes, whiteboard, just three levels deep. It doesn&apos;t have to be perfect to be useful.</>}
-          question="Priya fixes onboarding and improves activation, but AI coaching scores break. This is best described as:"
+          content={<>&ldquo;What would happen if you sequenced these three bets — one fully done before the next starts? Walk Rohan through the third-order effects of that world versus the parallel world.&rdquo;</>}
+          expandedContent={<>This is the PM&apos;s core persuasion tool with executives who want speed: show the third-order effects, not just the first-order constraints. Rohan already knows you can&apos;t do everything at once — he&apos;s heard that before. What he hasn&apos;t seen is the specific downstream consequence: that rushing all three means the board sees no movement on churn AND no completed integration AND a half-built analytics view. The sequenced world gets him a cleaner deck.</>}
+          question="Priya simplifies onboarding and activation jumps from 48% to 71%. Two weeks later, AI coaching scores break because users skip the CRM sync step she removed. This is:"
           options={[
-            { text: "A product regression caused by insufficient QA before shipping", correct: false, feedback: "Regression means something that worked before now breaks. This is a systemic consequence, not a code bug. QA wouldn't have caught it." },
-            { text: "A second-order effect — solving one problem created a downstream impact", correct: true, feedback: "Exactly. Second-order effects are the downstream consequences of first-order changes. Priya fixed activation but disrupted the data pipeline coaching scores depend on." },
-            { text: "A stakeholder misalignment between product and the RevOps team", correct: false, feedback: "Stakeholder misalignment is a communication problem. This is a systems problem — the architecture of how onboarding feeds the coaching model." },
+            { text: "A product regression — engineering shipped a bug in the coaching data pipeline", correct: false, feedback: "Regression means something that worked before now breaks due to a code change. This is a systems consequence — the architectural dependency between onboarding steps and data quality wasn't mapped." },
+            { text: "A second-order effect — fixing activation broke the data quality coaching depends on", correct: true, feedback: "Exactly. Priya solved the first-order problem (activation) but created a downstream consequence (broken coaching data). Systems thinking would have caught this before shipping." },
+            { text: "A stakeholder misalignment — RevOps didn't communicate their data requirements to product", correct: false, feedback: "Stakeholder misalignment is a communication problem. This is a design problem — Priya didn't map how the onboarding change would affect downstream features." },
           ]}
           conceptId="systems-thinking"
         />
@@ -916,39 +1009,44 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
       <ChapterSection id="m2s-bet-sizing" num="04" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Q2 planning. Priya has three competing bets and twelve engineer-weeks to allocate.
-          Bet A: fix onboarding (low risk, high impact on retention). Bet B: manager analytics dashboard (medium risk, medium impact). Bet C: deep Salesforce integration (high risk, highest revenue potential, 8-week minimum).
-          Engineering asks: &ldquo;Which order do we go in?&rdquo;
+          Week three. Priya stands at the whiteboard in Rohan&apos;s office with a marker and twelve boxes — one per engineer-week.
+          Three bets. Twelve weeks. The math doesn&apos;t add up if she&apos;s not careful.
+          Rohan watches from the chair. &ldquo;Show me how you&apos;d sequence it.&rdquo;
         </SituationCard>
 
-        {h2(<>Strategy Is Saying No to Good Ideas</>)}
+        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
+          &ldquo;One thing on the analytics dashboard: it&apos;s not just a nice-to-have for the board. If we scope it right — specifically around manager involvement rates and coaching frequency — it&apos;ll tell us why churn is dropping. Or why it&apos;s not. That&apos;s the data that makes the Salesforce integration scope obvious, instead of a guess.&rdquo;
+        </CharacterMoment>
+
+        {h2(<>Bet Sizing Is Sequencing. The Right Order Unlocks the Next Bet.</>)}
 
         {para(<>
-          The hardest part of product strategy is not finding good ideas — it&apos;s saying no to good ideas in service of the best ones.
-          Bet sizing is the process of deciding how much to invest in each strategic bet relative to its expected return and risk.
-          The key insight: size bets asymmetrically. Put your biggest bets on the highest-conviction opportunities. Don&apos;t spread resources evenly across everything interesting.
+          Bet sizing is not just resource allocation — it&apos;s the art of sequencing bets so each completed bet creates the conditions for the next one to succeed with less risk.
+          The onboarding fix (Bet A) isn&apos;t just about churn. It&apos;s the foundation. Without it, the analytics dashboard (Bet B) has no clean data to analyze — it&apos;s measuring a product that&apos;s still broken at entry. And without Bet B&apos;s insights, the Salesforce integration (Bet C) is scoped from assumptions instead of evidence.
+          Each bet unlocks the next. That&apos;s the sequencing argument Priya needs to make to Rohan.
         </>)}
 
-        {pullQuote("Trying to pursue every good opportunity is a strategy for pursuing none of them well.")}
+        {pullQuote("The best bet is not the one with the highest expected value. It\u2019s the one that makes every subsequent bet better.")}
 
         {para(<>
-          A common mistake is allocating resources by committee consensus — a little for everything, no one bet gets enough to succeed.
-          Amazon&apos;s strategy in AWS was the opposite: a huge, focused bet on a market no one thought Amazon should be in.
-          For EdSpark, with 40% churn, Bet A (onboarding) has the clearest ROI path: fix the bleed first, then build the upsell story that justifies Bet C.
-          Sequencing matters as much as allocation.
+          The trap is Bet C. Salesforce integration has the highest revenue potential and two enterprise prospects waiting. The temptation is to front-load it.
+          But enterprise prospects can wait six weeks. A board meeting cannot. And if Priya arrives at the board meeting with a Salesforce integration in beta but 40% churn unchanged, she has a growth story and a retention crisis — which is exactly the kind of mixed signal that delays a Series A.
+          Fix the bleed first. Then build the story.
         </>)}
 
         {keyBox("Bet Sizing Principles", [
-          "Fix the bleed before you invest in growth — leaky buckets waste every dollar",
-          "High-risk bets need minimum viable validation before full investment",
-          "Under-resourced bets fail — give winning bets enough to actually win",
+          "Fix structural leaks before growth investments — churn is a structural leak",
+          "Sequence bets so each creates signal that de-risks the next",
+          "Under-resourced bets fail more than delayed bets — give winning bets enough to actually win",
+          "A discovery sprint is not a failure to commit — it's risk-adjusted investment",
         ])}
 
         <Section4Mockup />
 
         {para(<>
-          Priya allocates 5 weeks to Bet A (enough to ship a proper fix), 3 weeks to Bet B (scoped to core analytics only), and 4 weeks to Bet C as a discovery sprint — not the full build.
-          The board pushes back on not doing the Salesforce integration fully. Priya&apos;s argument: &ldquo;We can&apos;t sell enterprise integrations to customers who are still churning in week one.&rdquo;
+          Priya fills in the whiteboard: five weeks for onboarding (enough to ship a proper fix, not a patch), three weeks for analytics scoped to coaching frequency and manager involvement only, four weeks for a Salesforce discovery sprint — not a full build.
+          Rohan stares at it. &ldquo;The board is going to ask why Salesforce isn&apos;t done.&rdquo;
+          Priya&apos;s answer: &ldquo;Because we can&apos;t sell enterprise integrations to customers who are still churning in week one. Bet A is what makes Bet C worth the investment.&rdquo;
           That&apos;s strategic sequencing. It wins.
         </>)}
 
@@ -956,13 +1054,13 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>If you always fix the bleed before you invest in growth, how do you ever build something new? Doesn&apos;t &lsquo;fix retention first&rsquo; become an excuse to never take strategic bets?</>}
-          expandedContent={<>Yes — it can. The test is whether the retention problem is structural (requires strategy to fix) or tactical (requires execution to fix). If onboarding is broken, that&apos;s a tactical fix — quick, measurable, finite. If your core value prop is broken, that&apos;s a strategic problem and no growth investment will save you.</>}
-          question="EdSpark has 12 engineer-weeks. Bet C (Salesforce integration) needs 8 minimum but has the highest revenue potential. What should Priya recommend?"
+          content={<>&ldquo;If you always prioritize fixing retention before growth, how do you ever take a strategic bet that creates new value instead of just protecting what exists?&rdquo;</>}
+          expandedContent={<>The test is whether the retention problem is structural or tactical. Structural means the core value proposition is broken — no growth investment fixes that, it just adds users who will also churn. Tactical means execution is rough but the value prop works — in which case a growth bet makes sense in parallel. EdSpark&apos;s 40% churn is structural: new managers can&apos;t find their first value moment. That&apos;s a strategy problem, not a marketing problem.</>}
+          question="EdSpark has 12 engineer-weeks. The board wants churn fixed AND a growth story. What sequence should Priya recommend?"
           options={[
-            { text: "Fully fund Bet C — highest revenue potential always wins the allocation", correct: false, feedback: "High revenue potential means nothing on a product with 40% week-1 churn. You can't upsell customers who've already left." },
-            { text: "Start with the retention fix, then run Bet C as a scoped discovery sprint", correct: true, feedback: "Right. Bet A unblocks the retention metric that makes Bet C investable. A discovery sprint on Bet C validates the integration scope without over-committing." },
-            { text: "Split evenly across all three bets to maintain optionality this quarter", correct: false, feedback: "Even splits mean no bet gets enough resources to succeed. This is the worst of all worlds — you spend 12 weeks and ship nothing meaningful." },
+            { text: "All three bets in parallel — shows the board maximum ambition and urgency", correct: false, feedback: "Parallel bets with 6 engineers means none of them ship before the board meeting. Maximum ambition, zero execution signal." },
+            { text: "Onboarding fix first, analytics scoped tightly, then Salesforce discovery sprint", correct: true, feedback: "Right. Bet A unblocks the retention metric. Analytics scoped to coaching frequency reveals why churn is changing. Discovery sprint de-risks Bet C scope before full investment." },
+            { text: "Salesforce integration first — highest revenue potential always justifies the timeline", correct: false, feedback: "High revenue potential on a product with 40% week-1 churn is a leaky bucket. The board will see enterprise pipeline AND broken retention. Series A gets conditional." },
           ]}
           conceptId="bet-sizing"
         />
@@ -976,57 +1074,58 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
 
       </ChapterSection>
 
-      {/* ── SECTION 5: B2B Strategy & Interviews ──── */}
+      {/* ── SECTION 5: B2B Strategy ───────────────── */}
       <ChapterSection id="m2s-b2b-strategy" num="05" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          EdSpark closes its first mid-market deal: Apex Corp, 50 seats, West Coast sales team only.
-          The contract has a 12-month option to expand to 500 seats company-wide.
-          Priya is now the DRI on making the land-and-expand strategy work. The VP of Sales at Apex says: &ldquo;Impress us in 90 days.&rdquo;
+          Week five. Priya gets a Slack message from Marcus, the enterprise sales rep: &ldquo;WE CLOSED APEX CORP. 50 seats. 6-month pilot. Call me when you get a minute 🎉&rdquo;
+          Priya opens a spreadsheet. Apex Corp. 50 seats. Series A target: 500+ seats in enterprise accounts.
+          Marcus is celebrating his commission. Priya is calculating what it will take to turn 50 into 500.
         </SituationCard>
 
-        {h2(<>B2B Strategy: Land Small, Win Big, Expand Everywhere</>)}
+        {h2(<>In B2B, the First Contract Is a Pilot. The Expansion Is the Actual Business.</>)}
 
         {para(<>
-          Consumer products grow through virality and network effects. B2B products grow through land-and-expand.
-          Land-and-expand is the dominant B2B growth motion: win a beachhead in one team or department, prove value, then use that proof to expand across the organization.
-          The land is not the goal — it&apos;s the cost of getting the proof you need to expand.
+          Consumer products grow through virality. B2B products grow through land-and-expand: win a beachhead in one team, prove value so undeniable that the internal champion has no choice but to take it to their VP, then ride the internal selling motion to adjacent teams and departments.
+          The 50-seat Apex deal is not a win. It&apos;s an entrance exam.
+          What EdSpark does with those 50 seats in 90 days determines whether Apex Corp becomes a 500-seat account or a cautionary tale in the next board deck.
         </>)}
 
-        {pullQuote("In B2B, the first contract is a pilot. The expansion is the actual business.")}
+        {pullQuote("The land is not the goal. It\u2019s the cost of admission to earn the proof that drives the expand.")}
 
         {para(<>
-          The mistake Priya must avoid: treating the 50-seat deal as a success and moving on.
-          The 50 seats are the test. What she needs in 90 days is a success story that the VP can take to the CRO — specific, measurable, attributable to EdSpark.
-          Slack&apos;s land-and-expand playbook: get one team addicted, let the internal champion become a case study, let peer pressure do the expansion selling.
-          It&apos;s not about features. It&apos;s about creating a win so undeniable that the champion&apos;s career becomes linked to EdSpark&apos;s success.
+          The mistake Priya must avoid: treating Apex Corp as a customer success problem and handing it off to support.
+          Land-and-expand is a product strategy. The product has to generate proof — measurable, attributable, undeniable — that the champion can take to their VP and say: &ldquo;Look at this number. This is why we need to expand.&rdquo;
+          Slack&apos;s expansion playbook wasn&apos;t driven by sales outreach to other teams. It was driven by the West Coast engineering team telling the East Coast team: &ldquo;You need to be on this.&rdquo; The product created the expansion pressure. Sales just closed the paperwork.
+          For EdSpark, that proof is specific: ramp time for new reps. If EdSpark can show Apex Corp that reps coached on the platform hit full productivity 30 days faster than the control group, that number sells the next 450 seats.
         </>)}
 
         {keyBox("Land-and-Expand Playbook", [
-          "Land: target a high-visibility team with a clear pain point you can solve in 30 days",
-          "Prove: get to 10+ daily active users and document one concrete, measurable win",
-          "Expand: arm the champion with that win story to sell up and sideways in the org",
+          "Land: win a high-visibility team with a concrete pain point — make it easy to prove ROI",
+          "Prove: 10+ daily active users + one measurable business win the champion can reference",
+          "Expand: arm the champion with that win story to sell sideways and upward in the org",
+          "Gate expansions: locked teams tell Priya exactly which product bets to prioritize next",
         ])}
 
         <Section5Mockup />
 
         {para(<>
-          Priya maps Apex Corp&apos;s expansion opportunities: East Coast team, Solutions Engineering, Sales Enablement, and Revenue Ops.
-          Her 90-day plan: get the West Coast team to measurable results (ramp time down 20%), then use that as the internal case study for the East Coast expansion conversation.
-          Strategic thinking in interviews follows the same logic: interviewers want to see that you can identify the beachhead, sequence the expansion, and name the metric that proves the strategy is working.
+          Priya maps Apex Corp&apos;s expansion path. Two teams are immediately targetable: East Coast Sales (same pain, same use case) and Regional Sales Managers (need the coaching ROI data Kiran pointed to).
+          Two teams are locked: Sales Enablement needs an admin tool EdSpark hasn&apos;t built, and Revenue Ops needs the Salesforce integration still in discovery sprint.
+          That&apos;s not a problem. That&apos;s a roadmap. The locked teams tell Priya exactly which bets to fund next quarter.
         </>)}
 
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Land-and-expand assumes the product is good enough that the first team will become advocates. What if the 50-seat pilot is struggling — do you still try to expand?</>}
-          expandedContent={<>No. And knowing when to stop expanding is as important as knowing when to push. If the pilot team is struggling, expanding multiplies the failure — you get 500 unhappy seats instead of 50. The strategic move is to shrink the scope, find the one persona or use case where EdSpark actually works, win there, and rebuild the expansion story from that narrower proof point.</>}
-          question="EdSpark lands a 50-seat deal with a goal of 500 seats in 18 months. The most important 90-day milestone is:"
+          content={<>&ldquo;What specific data points will Apex Corp&apos;s champion need to convince their VP to expand from 50 to 500 seats? Name the number — not the feature.&rdquo;</>}
+          expandedContent={<>This is the reframe that separates product-led expansion from sales-led expansion. Priya shouldn&apos;t be asking &ldquo;what features does Apex need?&rdquo; — she should be asking &ldquo;what number will make the champion&apos;s argument irrefutable?&rdquo; In EdSpark&apos;s case: ramp time reduction (days), call conversion rate change (%), and manager time saved per week (hours). Three numbers. One story. If the product can&apos;t generate those numbers, the expansion stalls regardless of how good the features are.</>}
+          question="EdSpark just signed Apex Corp for 50 seats. The expansion goal is 500 seats in 18 months. The most critical 90-day product milestone is:"
           options={[
-            { text: "Building the enterprise SSO and admin controls before the first QBR meeting", correct: false, feedback: "Admin features are table stakes, not proof of value. A QBR with no usage story is a renewal risk, not a success signal." },
-            { text: "Getting 10+ reps to daily usage and documenting one measurable business win", correct: true, feedback: "Exactly. Daily usage proves adoption. One concrete win (e.g. ramp time dropped 20%) gives the champion the story they need to justify expansion to their VP." },
-            { text: "Locking in the expansion contract terms before the 90-day pilot period ends", correct: false, feedback: "Locking in contract terms before proving value is backwards. The proof creates the leverage for a good expansion contract — not the other way around." },
+            { text: "Shipping the enterprise admin dashboard and SSO before the first QBR meeting", correct: false, feedback: "Admin features are table stakes. A QBR with no usage story and no business win is a renewal risk, not a success signal." },
+            { text: "Getting 10+ reps to daily usage and documenting one measurable business win", correct: true, feedback: "Daily usage proves adoption. One concrete win — ramp time down 30 days, conversion up 12% — gives the champion the number they need to sell expansion internally." },
+            { text: "Locking in expansion contract terms while goodwill from the close is still high", correct: false, feedback: "Locking expansion terms before proving value is backwards. The proof creates the leverage for a good expansion contract — not the other way around." },
           ]}
           conceptId="b2b-strategy"
         />
@@ -1040,7 +1139,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
 
       </ChapterSection>
 
-      <NextChapterTeaser text="Next: Problem Discovery — strategy tells you which problem to solve. Discovery tells you whether you've actually found it." />
+      <NextChapterTeaser text="Strategy tells you which problem to solve. Discovery tells you whether you've actually found it. Next: Problem Discovery." />
 
     </>
   );
