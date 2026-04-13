@@ -383,7 +383,7 @@ export default function ProductStrategyModule({ onBack, track }: Props) {
           </div>
 
           <motion.main key="m2s-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            {track === 'apm' ? <Track2ProductStrategy /> : <Track1ProductStrategy />}
+            {track === 'apm' ? <Track2ProductStrategy /> : <Track1ProductStrategy completedSections={completedSections} />}
 
             <AnimatePresence>
               {progressPct >= 87 && (

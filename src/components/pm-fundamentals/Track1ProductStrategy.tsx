@@ -81,11 +81,11 @@ const QUIZZES = [
 ];
 
 const PARTS = [
-  { num: '01', label: "Strategy vs Features — when building is easy, what to build matters more" },
-  { num: '02', label: "Vision & Competitive Moats — the three-year question your roadmap can't answer" },
-  { num: '03', label: "Systems Thinking — every decision has a third-order effect nobody planned for" },
-  { num: '04', label: "Bet Sizing — twelve engineer-weeks, three bets, one right answer" },
-  { num: '05', label: "B2B Strategy — land, expand, and never lose an enterprise account again" },
+  { num: '01', id: 'm2s-strategy-vs-features', label: "Strategy vs Features — when building is easy, what to build matters more" },
+  { num: '02', id: 'm2s-vision-moats',          label: "Vision & Competitive Moats — the three-year question your roadmap can't answer" },
+  { num: '03', id: 'm2s-systems-thinking',      label: "Systems Thinking — every decision has a third-order effect nobody planned for" },
+  { num: '04', id: 'm2s-bet-sizing',            label: "Bet Sizing — twelve engineer-weeks, three bets, one right answer" },
+  { num: '05', id: 'm2s-b2b-strategy',          label: "B2B Strategy — land, expand, and never lose an enterprise account again" },
 ];
 
 const CHARACTERS: { mentor: 'priya' | 'rohan' | 'kiran' | 'asha'; accent: string; desc: string }[] = [
@@ -728,8 +728,16 @@ const Section5Mockup = () => {
 // ─────────────────────────────────────────
 // MAIN EXPORT
 // ─────────────────────────────────────────
-export default function Track1ProductStrategy({ onSectionChange }: { onSectionChange?: (id: string) => void }) {
+export default function Track1ProductStrategy({
+  onSectionChange,
+  completedSections = new Set<string>(),
+}: {
+  onSectionChange?: (id: string) => void;
+  completedSections?: Set<string>;
+}) {
   void onSectionChange;
+  const donePct = Math.round((completedSections.size / PARTS.length) * 100);
+  const nextPart = PARTS.find(p => !completedSections.has(p.id));
   return (
     <>
 
@@ -829,29 +837,38 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
                 <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Product Strategy</div>
                 <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>Foundations Track</div>
                 <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
-                  <motion.div initial={{ width: 0 }} animate={{ width: '0%' }} transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }}
+                  <motion.div animate={{ width: `${donePct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }}
                     style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {PARTS.map((p, i) => (
-                    <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                      <div style={{
-                        width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
-                        background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)',
-                        border: `1px solid ${i === 0 ? ACCENT : 'rgba(255,255,255,0.1)'}`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '7px', color: i === 0 ? '#fff' : 'rgba(255,255,255,0.3)',
-                        fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
-                      }}>{p.num}</div>
-                      <div style={{ fontSize: '9px', color: i === 0 ? 'rgba(240,232,216,0.8)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1 }}>
-                        {p.label.split(' — ')[0]}
+                  {PARTS.map(p => {
+                    const done = completedSections.has(p.id);
+                    const isNext = p.id === nextPart?.id;
+                    return (
+                      <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                        <div style={{
+                          width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                          background: done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.06)',
+                          border: `1px solid ${done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.1)'}`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                          fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                          transition: 'background 0.3s, border-color 0.3s',
+                        }}>{done ? '✓' : p.num}</div>
+                        <div style={{ fontSize: '9px', color: done ? 'rgba(240,232,216,0.5)' : isNext ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1, transition: 'color 0.3s' }}>
+                          {p.label.split(' — ')[0]}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
-                  <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>Strategy vs Features</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>
+                    {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+                  </div>
+                  <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>
+                    {donePct === 100 ? 'All 5 parts done' : nextPart ? nextPart.label.split(' — ')[0] : 'Strategy vs Features'}
+                  </div>
                 </div>
               </div>
             </div>
