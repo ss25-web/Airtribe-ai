@@ -9,6 +9,56 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
+// ─────────────────────────────────────────
+// CONVERSATION SCENE — chat-bubble dialogue between Priya and a stakeholder
+// ─────────────────────────────────────────
+import React from 'react';
+type DialogueLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({
+  mentor, name, role, accent, lines,
+}: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha';
+  name: string; role: string; accent: string;
+  lines: DialogueLine[];
+}) => (
+  <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
+      <MentorFace mentor={mentor} size={36} />
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+        <MentorFace mentor="priya" size={38} />
+      </div>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {lines.map((line, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+          <div style={{ flexShrink: 0, marginTop: '2px' }}>
+            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={38} />
+          </div>
+          <div style={{ maxWidth: '78%' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
+              {line.speaker === 'priya' ? 'PRIYA' : name.toUpperCase()}
+            </div>
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: line.speaker === 'priya' ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+              background: line.speaker === 'priya' ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+              border: `1px solid ${line.speaker === 'priya' ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+              fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+            }}>
+              &ldquo;{line.text}&rdquo;
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
 
@@ -979,18 +1029,28 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
+            lines={[
+              { speaker: 'other', text: "What kind of search?" },
+              { speaker: 'priya', text: "Just... search. For recordings." },
+              { speaker: 'other', text: "By date? By contact name? Keywords in the transcript? Duration? Those are four completely different things to build. Also \u2014 Friday? We have two other things this sprint. To do this properly, I\u2019d need at least a week." },
+              { speaker: 'priya', text: "I didn\u2019t realise it was that complicated." },
+              { speaker: 'other', text: "Don\u2019t worry. But next time \u2014 tell me the problem. Not the solution. Let me figure out what\u2019s actually buildable and what tradeoffs you\u2019d be making." },
+            ]}
+          />
           <Avatar
             name="Dev"
             nameColor="var(--blue)"
             borderColor="var(--blue)"
-            content={<>&ldquo;What kind of search?&rdquo;<br /><br />Priya: &ldquo;Just... search. For recordings.&rdquo;<br /><br />Dev: &ldquo;By date? By contact name? Keywords in the transcript? Duration? Those are four completely different things to build. Also — Friday? We have two other things this sprint. To do this properly, I&apos;d need at least a week.&rdquo;<br /><br />Priya feels like she&apos;s failed some test she didn&apos;t know she was taking.<br /><br />Dev: &ldquo;Don&apos;t worry. But next time — tell me the problem. Not the solution. Let me figure out what&apos;s actually buildable and what tradeoffs you&apos;d be making.&rdquo;</>}
-            expandedContent={<>I don&apos;t say this to make PMs feel bad. I say it because when someone gives me a wireframe without context, I build exactly what&apos;s in the wireframe — even if there&apos;s a better solution two feet away. But when someone tells me the problem, I bring everything I know about the system to it. I&apos;ll often find an approach that&apos;s faster to build and solves the problem better. Give me the problem. I&apos;ll find a way in.</>}
+            content={<>When someone gives me a wireframe without context, I build exactly what&apos;s in the wireframe \u2014 even if there&apos;s a better solution two feet away. But when someone tells me the problem, I bring everything I know about the system to it. Give me the problem. I&apos;ll find a way in.</>}
+            expandedContent={<>The instinct to come with a solution feels helpful \u2014 it seems like you&apos;re saving time. But you&apos;re actually narrowing the solution space before the person with the most relevant knowledge has had a chance to think. Engineers solve constraints you don&apos;t know exist. Designers see patterns you haven&apos;t observed. The problem-first approach doesn&apos;t slow things down. It makes the thing you build more likely to be right.</>}
             conceptId="collaboration"
             question="You have a wireframe ready. When should you show it to an engineer?"
             options={[
-              { text: "Right away — they need to know what to build", correct: false, feedback: "Show the wireframe too early and they'll build exactly what you drew — even if there's a smarter solution two feet away." },
+              { text: "Right away \u2014 they need to know what to build", correct: false, feedback: "Show the wireframe too early and they'll build exactly what you drew \u2014 even if there's a smarter solution two feet away." },
               { text: "After sharing the problem and asking 'what are our options?'", correct: true, feedback: "The problem first opens up the solution space. Dev might find a faster, simpler approach. Share the wireframe only after you've heard their thinking." },
-              { text: "Only after they've estimated the complexity", correct: false, feedback: "They can't estimate something they haven't seen — but more importantly, don't lead with the wireframe at all." },
+              { text: "Only after they've estimated the complexity", correct: false, feedback: "They can't estimate something they haven't seen \u2014 but more importantly, don't lead with the wireframe at all." },
             ]}
           />
         </div>
@@ -1156,35 +1216,54 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
+            lines={[
+              { speaker: 'other', text: "You wrote \u2018share results.\u2019 I built that. I didn\u2019t know how sharing usually happens here. If you know that, tell me \u2014 I\u2019m not guessing to annoy you, I genuinely didn\u2019t have that context." },
+              { speaker: 'priya', text: "Fair. I should have specified." },
+              { speaker: 'other', text: "Also \u2014 did you check in during the sprint at all?" },
+              { speaker: 'priya', text: "No. I didn\u2019t want to micromanage." },
+              { speaker: 'other', text: "There\u2019s a difference. Checking in is not micromanaging. You\u2019re not checking if I\u2019m working hard \u2014 you\u2019re checking if we still mean the same thing by \u2018done.\u2019" },
+            ]}
+          />
           <Avatar
             name="Dev"
             nameColor="var(--blue)"
             borderColor="var(--blue)"
-            content={<>&ldquo;You wrote &apos;share results.&apos; I built that,&rdquo; Dev says. &ldquo;I didn&apos;t know how sharing usually happens. If you know that, tell me. I&apos;m not guessing to annoy you — I genuinely didn&apos;t have that context.&rdquo;<br /><br />Priya: &ldquo;Fair. I should have specified.&rdquo;<br /><br />Dev: &ldquo;Also — did you check in during the sprint at all?&rdquo;<br /><br />Priya: &ldquo;No. I didn&apos;t want to micromanage.&rdquo;<br /><br />Dev: &ldquo;There&apos;s a difference. Checking in is not micromanaging.&rdquo;</>}
-            expandedContent={<>A spec is a starting point, not a complete specification of reality. Things that feel obvious to a PM are often genuinely ambiguous to an engineer who hasn&apos;t been in every stakeholder conversation. The solution isn&apos;t longer specs — it&apos;s more conversation. Check in mid-sprint. Ask: does your understanding of &apos;done&apos; match mine? If not, fix it then — not in the retrospective.</>}
+            content={<>A spec is a starting point, not a complete picture of reality. Things that feel obvious to a PM are often genuinely ambiguous to an engineer who hasn&apos;t been in every stakeholder conversation. The solution isn&apos;t longer specs \u2014 it&apos;s more conversation.</>}
+            expandedContent={<>Check in mid-sprint. Ask: does your understanding of &apos;done&apos; match mine? If not, fix it then \u2014 not in the retrospective. That 10-minute conversation now is cheaper than a week of rework after the sprint closes.</>}
             conceptId="collaboration"
             question="Mid-sprint, your spec says 'share results.' Dev might build a link, email, or Slack integration. The right move:"
             options={[
-              { text: "Wait until sprint end — don't interrupt the build", correct: false, feedback: "That 10 minutes of ambiguity now becomes a week of rework later. Catching it mid-sprint is always cheaper." },
+              { text: "Wait until sprint end \u2014 don\u2019t interrupt the build", correct: false, feedback: "That 10 minutes of ambiguity now becomes a week of rework later. Catching it mid-sprint is always cheaper." },
               { text: "Clarify immediately: 'When I said share results, I meant via Slack integration'", correct: true, feedback: "Exactly. Catching misalignment during the sprint is product management. Catching it in the retro is damage control." },
-              { text: "Add more detail to the spec for next sprint", correct: false, feedback: "Writing longer specs doesn't fix this — the spec already had the ambiguous phrase in it. What fixes it is a mid-sprint conversation." },
+              { text: "Add more detail to the spec for next sprint", correct: false, feedback: "Writing longer specs doesn't fix this \u2014 the spec already had the ambiguous phrase in it. What fixes it is a mid-sprint conversation." },
             ]}
           />
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="AI Mentor" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "Should I have been more specific in the spec?" },
+              { speaker: 'other', text: "Sometimes. But the bigger question \u2014 did you talk to Dev at all during those two weeks?" },
+              { speaker: 'priya', text: "No. I assumed it was going fine." },
+              { speaker: 'other', text: "That assumption cost you a week of rework. Alignment isn\u2019t a kickoff meeting. It\u2019s a habit. You\u2019re not done when the sprint starts." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>Priya: &ldquo;Should I have been more specific in the spec?&rdquo;<br /><br />Asha: &ldquo;Sometimes. But the bigger question — did you talk to Dev at all during those two weeks?&rdquo;<br /><br />Priya: &ldquo;No. I assumed it was going fine.&rdquo;<br /><br />Asha: &ldquo;That assumption cost you a week of re-work. Alignment isn&apos;t a kickoff meeting. It&apos;s a habit. You&apos;re not done when the sprint starts.&rdquo;</>}
-            expandedContent={<>The most common thing I hear from PMs is &apos;I don&apos;t want to micromanage.&apos; I understand the instinct. But there&apos;s a meaningful difference between checking on a person and checking on shared understanding. You&apos;re not checking whether Dev is working hard. You&apos;re checking whether what&apos;s being built still matches what you both meant when the sprint started. That&apos;s not micromanagement. That&apos;s product management.</>}
+            content={<>There&apos;s a meaningful difference between checking on a person and checking on shared understanding. You&apos;re not verifying that Dev is working hard. You&apos;re verifying that what&apos;s being built still matches what you both meant when the sprint started. That&apos;s not micromanagement. That&apos;s product management.</>}
+            expandedContent={<>The most common thing I hear from PMs is &apos;I don&apos;t want to micromanage.&apos; I understand the instinct. But alignment at kickoff decays. Things agreed on Monday are often interpreted differently by Wednesday. Mid-sprint check-ins aren&apos;t interruptions \u2014 they&apos;re how you catch drift before it becomes a rewrite.</>}
             conceptId="collaboration"
             question="After a sprint ends with a mismatch between what you intended and what was built, the most likely root cause is:"
             options={[
-              { text: "The spec was too short", correct: false, feedback: "Longer specs contain more ambiguous words. Length doesn't fix clarity — conversations do." },
+              { text: "The spec was too short", correct: false, feedback: "Longer specs contain more ambiguous words. Length doesn't fix clarity \u2014 conversations do." },
               { text: "Shared understanding was never confirmed during the sprint", correct: true, feedback: "Alignment at kickoff decays. Things agreed on Monday are often interpreted differently by Wednesday. Mid-sprint check-ins catch this." },
-              { text: "Engineering should ask more questions upfront", correct: false, feedback: "Maybe — but it's the PM's job to make the problem clear enough that the right questions surface naturally." },
+              { text: "Engineering should ask more questions upfront", correct: false, feedback: "Maybe \u2014 but it\u2019s the PM\u2019s job to make the problem clear enough that the right questions surface naturally." },
             ]}
           />
         </div>
