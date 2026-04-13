@@ -903,11 +903,20 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'other', text: "What do you think your job is?" },
+              { speaker: 'priya', text: "Build features? Manage the roadmap? Make decisions about the product?" },
+              { speaker: 'other', text: "Engineers build the product. Designers shape how it feels. Business decides how it makes money. So what\u2019s left for you?" },
+              { speaker: 'priya', text: "I\u2026 don\u2019t know." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;What do you think your job is?&rdquo; she asks.<br /><br />Priya: &ldquo;Build features? Manage the roadmap? Make decisions about the product?&rdquo;<br /><br />Asha: &ldquo;Close. But not quite. Here&apos;s the thing — engineers build the product. Designers shape how it feels. Business decides how it makes money. So what&apos;s left for you?&rdquo;<br /><br />Priya: &ldquo;I... don&apos;t know.&rdquo;<br /><br />Asha: &ldquo;Your job is to make sure the <em>right</em> thing gets built. Not to build it yourself. The PM is the person who asks: <em>why are we building this at all?</em> And: <em>is this the most important thing to build right now?</em>&rdquo;</>}
+            content={<>Your job is to make sure the <em>right</em> thing gets built \u2014 not to build it yourself. The PM asks: <em>why are we building this at all?</em> And: <em>is this the most important thing to build right now?</em></>}
             expandedContent={<>Think of it this way. Engineering owns the HOW — how features are built, what&apos;s technically possible. Design owns the experience — how it looks and feels for users. Business owns the commercial model — how the company makes money. The PM is the one who connects all three and asks: given what users need, what&apos;s technically feasible, and what the business requires — what should we actually build? That&apos;s the whole job. It sounds simple. In practice, it&apos;s the hardest role on the team.</>}
             conceptId="pm-role"
             question="Engineering says it's too complex to build. Business says it's critical to ship. The PM should:"
@@ -959,12 +968,22 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
+            lines={[
+              { speaker: 'other', text: "What did the user say exactly?" },
+              { speaker: 'priya', text: "The app is confusing." },
+              { speaker: 'other', text: "That\u2019s a feeling. Not a problem. What were they trying to do when they felt confused?" },
+              { speaker: 'priya', text: "I\u2026 don\u2019t know. I assumed it was navigation." },
+              { speaker: 'other', text: "Maybe. Or maybe they couldn\u2019t find a specific feature. Or the language was unclear. Or the page loaded slowly. Or they were new and had no idea where to start. Each of those is a completely different fix." },
+            ]}
+          />
           <Avatar
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>&ldquo;What did the user say exactly?&rdquo;<br /><br />Priya: &ldquo;The app is confusing.&rdquo;<br /><br />Maya: &ldquo;That&apos;s a feeling. Not a problem. What were they trying to do when they felt confused?&rdquo;<br /><br />Priya: &ldquo;I... don&apos;t know. I assumed it was navigation.&rdquo;<br /><br />Maya: &ldquo;Maybe. Or maybe they couldn&apos;t find a specific feature. Or the language was unclear. Or the page loaded slowly. Or they were new and had no idea where to start. Each of those is a completely different fix.&rdquo;</>}
-            expandedContent={<>Designers see this constantly — a complaint comes in, someone jumps to a visual solution, and we end up redesigning things that weren&apos;t the problem. The most expensive thing in product is building the right solution to the wrong problem. Before you open Figma, write one sentence: &ldquo;Users who are trying to [X] experience [Y] because [Z].&rdquo; If you can&apos;t fill in all three, you&apos;re not ready to design anything yet.</>}
+            content={<>Designers see this constantly \u2014 a complaint comes in, someone jumps to a visual solution, and we end up redesigning things that weren&apos;t the problem. Before you open Figma, write one sentence: &ldquo;Users who are trying to [X] experience [Y] because [Z].&rdquo; If you can&apos;t fill in all three, you&apos;re not ready to design anything yet.</>}
+            expandedContent={<>The most expensive thing in product is building the right solution to the wrong problem. Every user complaint is a hypothesis about what went wrong. Your job is to figure out which hypothesis is correct before you start designing.</>}
             conceptId="problem-definition"
             question="A user says 'the app is slow.' What's your first move as a PM?"
             options={[
@@ -983,12 +1002,21 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "I almost redesigned the entire navigation for a search problem." },
+              { speaker: 'other', text: "This happens to everyone. We call it solution-first thinking. You see a complaint, your brain jumps to a fix. The fix feels productive. But you\u2019ve skipped the most important step." },
+              { speaker: 'priya', text: "Understanding the actual problem." },
+              { speaker: 'other', text: "Exactly. A user complaint is a signal, not a specification. It tells you something is wrong. It doesn\u2019t tell you what." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>Priya tells Asha what happened. &ldquo;I almost redesigned the entire navigation for a search problem.&rdquo;<br /><br />Asha: &ldquo;This happens to everyone. We call it solution-first thinking. You see a complaint, your brain jumps to a fix. The fix feels productive. But you&apos;ve skipped the most important step.&rdquo;<br /><br />Priya: &ldquo;Understanding the actual problem.&rdquo;<br /><br />Asha: &ldquo;Exactly. A user complaint is a signal, not a specification. It tells you something is wrong. It doesn&apos;t tell you what.&rdquo;</>}
-            expandedContent={<>Here&apos;s the test I use. A good problem statement has three parts: WHO is experiencing it, WHAT they&apos;re trying to do, and WHERE it breaks down. &ldquo;The app is confusing&rdquo; has none of those. &ldquo;Users trying to find past call recordings can&apos;t locate them in under 30 seconds&rdquo; has all three. That second version tells you exactly what to solve — and gives you a way to know when you&apos;ve solved it.</>}
+            content={<>A good problem statement has three parts: WHO is experiencing it, WHAT they&apos;re trying to do, and WHERE it breaks down. &ldquo;The app is confusing&rdquo; has none of those. &ldquo;Users trying to find past call recordings can&apos;t locate them in under 30 seconds&rdquo; has all three. That second version tells you exactly what to solve \u2014 and gives you a way to know when you&apos;ve solved it.</>}
+            expandedContent={<>The test I use: if you can&apos;t describe the problem without referencing a solution, you haven&apos;t found the problem yet. Keep asking &ldquo;why is that a problem?&rdquo; until you hit something that can&apos;t be answered with another feature.</>}
             conceptId="problem-definition"
             question="Which of these is a proper problem statement?"
             options={[
@@ -1124,12 +1152,21 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "How do I choose? Every stakeholder says their thing is the most important." },
+              { speaker: 'other', text: "Before you pick a feature \u2014 what outcome is EdSpark trying to improve right now?" },
+              { speaker: 'priya', text: "Users\u2026 like the product?" },
+              { speaker: 'other', text: "More specifically. Are you trying to grow? Retain? Activate? Those are different problems with different solutions. You can\u2019t prioritize features without knowing what goal you\u2019re prioritizing toward." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>Priya brings the list to Asha. &ldquo;How do I choose?&rdquo;<br /><br />Asha: &ldquo;Before you pick a feature — what outcome is EdSpark trying to improve right now?&rdquo;<br /><br />Priya: &ldquo;Users like the product?&rdquo;<br /><br />Asha: &ldquo;More specifically. Are you trying to grow? Retain? Activate? Those are different problems with different solutions. You can&apos;t prioritize features without knowing what goal you&apos;re prioritizing toward.&rdquo;</>}
-            expandedContent={<>This is the mistake I see most often in new PMs — prioritizing features without anchoring to an outcome. Every stakeholder will tell you their feature is the most important. They&apos;re not lying. From their vantage point, it is. Your job is to find the outcome that matters most to the business right now, and pick the feature that most directly drives it. That gives you a defensible reason to say no to everything else.</>}
+            content={<>This is the mistake I see most often in new PMs \u2014 prioritizing features without anchoring to an outcome. Every stakeholder will tell you their feature is the most important. They&apos;re not lying. From their vantage point, it is. Your job is to find the outcome that matters most to the business right now, and pick the feature that most directly drives it.</>}
+            expandedContent={<>That gives you a defensible reason to say no to everything else. &ldquo;We&apos;re not building the CRM integration this sprint because our biggest problem is activation, not expansion&rdquo; is a complete sentence. &ldquo;Not right now&rdquo; is not.</>}
             conceptId="prioritization"
             question="You have 5 features on the backlog. Before using RICE to score them, your first step is:"
             options={[
@@ -1145,12 +1182,20 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
+            lines={[
+              { speaker: 'other', text: "40% of users churn in the first two weeks. They sign up. They poke around. They leave and never come back. We traced it \u2014 most of them never completed onboarding. They never got to the first value moment." },
+              { speaker: 'priya', text: "So the Salesforce integration the VP keeps pushing\u2026" },
+              { speaker: 'other', text: "Three customers asked for it. We lose 200 users a month to bad onboarding. Those aren\u2019t the same scale of problem." },
+            ]}
+          />
           <Avatar
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>&ldquo;40% of users churn in the first two weeks,&rdquo; Kiran says, pulling up a cohort chart. &ldquo;They sign up. They poke around. They leave and never come back. We traced it — most of them never completed onboarding. They never got to the first value moment.&rdquo;<br /><br />Priya: &ldquo;So the Salesforce integration...&rdquo;<br /><br />Kiran: &ldquo;Three customers asked. We lose 200 users a month to bad onboarding.&rdquo;</>}
-            expandedContent={<>The Salesforce integration might be the right call if those three customers represent 60% of ARR. That&apos;s a business decision, not a product decision. But if you&apos;re making it without knowing that number, you&apos;re guessing. Always find the numbers before you make the call.</>}
+            content={<>The Salesforce integration might be the right call if those three customers represent 60% of ARR. That&apos;s a business decision, not a product decision. But if you&apos;re making it without knowing that number, you&apos;re guessing. Always find the numbers before you make the call.</>}
+            expandedContent={<>Data doesn&apos;t replace judgment \u2014 it informs it. In this case, the data makes the decision obvious. But even when it&apos;s less clear, start with the data before you start with assumptions. You&apos;ll be surprised how often the data tells you something you didn&apos;t expect.</>}
             conceptId="prioritization"
             question="3 enterprise customers want a CRM integration. Data shows 200 users churn monthly due to bad onboarding. Which do you pick?"
             options={[
@@ -1167,12 +1212,21 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "The VP of Sales isn\u2019t happy. He pushed back hard in Slack." },
+              { speaker: 'other', text: "You\u2019re going to be saying no to someone, always. The question isn\u2019t how to avoid that. It\u2019s how to make sure the no is the right no." },
+              { speaker: 'priya', text: "How do I know it\u2019s the right no?" },
+              { speaker: 'other', text: "A no backed by data and strategy is something people can respect, even if they don\u2019t like it. A no that\u2019s just \u2018not right now\u2019 is just friction." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;You&apos;re going to be saying no to someone, always,&rdquo; Asha tells her. &ldquo;The question isn&apos;t how to avoid that. It&apos;s how to make sure the no is the right no. A no backed by data and strategy is something people can respect, even if they don&apos;t like it. A no that&apos;s just &apos;not right now&apos; is just friction.&rdquo;</>}
-            expandedContent={<>Prioritization is a negotiation, not a formula. Frameworks like RICE help you structure the conversation and surface assumptions. But the actual decision requires judgment — about the business stage, the competitive environment, the team&apos;s capacity. Get comfortable making that call, owning it, and explaining it clearly. That&apos;s what separates a PM from a backlog manager.</>}
+            content={<>Prioritization is a negotiation, not a formula. Frameworks like RICE help you structure the conversation and surface assumptions. But the actual decision requires judgment \u2014 about the business stage, the competitive environment, the team&apos;s capacity.</>}
+            expandedContent={<>Get comfortable making that call, owning it, and explaining it clearly. That&apos;s what separates a PM from a backlog manager. The VP&apos;s disagreement is not a signal that you&apos;re wrong \u2014 it&apos;s an opportunity to show your reasoning. And sometimes, they know something you don&apos;t.</>}
             conceptId="prioritization"
             question="A VP challenges your priority decision in a public Slack thread. Your response:"
             options={[
@@ -1301,12 +1355,22 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
+            lines={[
+              { speaker: 'other', text: "What did you define as success before we shipped?" },
+              { speaker: 'priya', text: "Users completing onboarding." },
+              { speaker: 'other', text: "What number? And when were you going to check?" },
+              { speaker: 'priya', text: "I\u2026 didn\u2019t set a specific number. I assumed we\u2019d just see if it worked." },
+              { speaker: 'other', text: "That\u2019s the problem. If you didn\u2019t define what \u2018working\u2019 looks like before you shipped, you can\u2019t know if it\u2019s working after." },
+            ]}
+          />
           <Avatar
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>&ldquo;What did you define as success before we shipped?&rdquo;<br /><br />Priya: &ldquo;Users completing onboarding.&rdquo;<br /><br />Kiran: &ldquo;What number? And when were you going to check?&rdquo;<br /><br />Priya doesn&apos;t have answers.<br /><br />Kiran: &ldquo;That&apos;s the problem. If you didn&apos;t define what &apos;working&apos; looks like before you shipped, you can&apos;t know if it&apos;s working after.&rdquo;</>}
-            expandedContent={<>Before every launch, I ask PMs three questions: What behavior are you trying to change? What number tells you that behavior has changed? When are you checking? If you can&apos;t answer all three, the feature isn&apos;t ready to ship — or at least, you&apos;re not ready to evaluate it. Shipping without measurement is just hope.</>}
+            content={<>Before every launch, I ask PMs three questions: What behavior are you trying to change? What number tells you that behavior has changed? When are you checking? If you can&apos;t answer all three, the feature isn&apos;t ready to ship \u2014 or at least, you&apos;re not ready to evaluate it. Shipping without measurement is just hope.</>}
+            expandedContent={<>It sounds strict. It isn&apos;t. The three questions take five minutes. Skipping them costs weeks. Define success before you build it \u2014 not after you\u2019re already defending it.</>}
             conceptId="north-star"
             question="You're about to ship a new search feature. Which set of answers do you need before launch?"
             options={[
@@ -1324,12 +1388,20 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
+            lines={[
+              { speaker: 'other', text: "The metric told us something was wrong. The investigation told us what. That\u2019s how it\u2019s supposed to work." },
+              { speaker: 'priya', text: "What should I have done differently?" },
+              { speaker: 'other', text: "Before you shipped: define what success looks like in a number. After you ship: check it within a week. Don\u2019t wait a month. A week. Things that are broken need to be found fast." },
+            ]}
+          />
           <Avatar
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>&ldquo;The metric told us something was wrong. The investigation told us what. That&apos;s how it&apos;s supposed to work.&rdquo;<br /><br />Priya: &ldquo;What should I have done differently?&rdquo;<br /><br />Kiran: &ldquo;Before you shipped: define what success looks like in a number. After you ship: check it within a week. Don&apos;t wait a month. A week. Things that are broken need to be found fast.&rdquo;</>}
-            expandedContent={<>The metric I care about most for any new feature isn&apos;t the vanity metric — page views, impressions. It&apos;s the completion metric: did users do the thing the feature was designed for? For onboarding, that&apos;s completion rate. For search, it&apos;s successful searches. For sharing, it&apos;s shares that resulted in someone opening the shared content. Find the behavior that proves the feature is doing what it was meant to do. That&apos;s your metric.</>}
+            content={<>The metric I care about most for any new feature isn&apos;t the vanity metric \u2014 page views, impressions. It&apos;s the completion metric: did users do the thing the feature was designed for? For onboarding, that&apos;s completion rate. For search, it&apos;s successful searches. For sharing, it&apos;s shares that resulted in someone opening the shared content.</>}
+            expandedContent={<>Find the behavior that proves the feature is doing what it was meant to do. That&apos;s your metric. Everything else is noise until you\u2019ve confirmed the core behavior is actually happening.</>}
             conceptId="north-star"
             question="You shipped a sharing feature. Which metric best tells you if it worked?"
             options={[
@@ -1380,12 +1452,22 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'other', text: "Still here?" },
+              { speaker: 'priya', text: "Just connecting some dots." },
+              { speaker: 'other', text: "\u2018Understand. Decide. Build. Measure.\u2019 That\u2019s it. That\u2019s the whole loop." },
+              { speaker: 'priya', text: "Is it always that simple?" },
+              { speaker: 'other', text: "The loop is simple. The work inside it isn\u2019t. But if you always know which part you\u2019re in \u2014 you\u2019ll know what to do next." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>Asha appears in the doorway. Still here?<br /><br />&ldquo;Just connecting some dots,&rdquo; Priya says.<br /><br />Asha walks over. Reads what Priya wrote. &ldquo;Understand. Decide. Build. Measure.&rdquo; She nods. &ldquo;That&apos;s it. That&apos;s the whole loop.&rdquo;<br /><br />Priya: &ldquo;Is it always that simple?&rdquo;<br /><br />Asha: &ldquo;The loop is simple. The work inside it isn&apos;t. But if you always know which part you&apos;re in — you&apos;ll know what to do next.&rdquo;</>}
-            expandedContent={<>Every product decision you&apos;ll ever make lives somewhere in that loop. And the loop never stops. You finish measuring, and you start understanding again. A new problem surfaces. You decide what matters. You build. You measure. The PMs who plateau are the ones who skip steps — who build without understanding, or ship without measuring. The ones who grow are the ones who run the full loop, every time, even when it&apos;s uncomfortable.</>}
+            content={<>Every product decision you&apos;ll ever make lives somewhere in that loop. And the loop never stops. You finish measuring, and you start understanding again. A new problem surfaces. You decide what matters. You build. You measure.</>}
+            expandedContent={<>The PMs who plateau are the ones who skip steps \u2014 who build without understanding, or ship without measuring. The ones who grow are the ones who run the full loop, every time, even when it&apos;s uncomfortable.</>}
             conceptId="pm-role"
             question="A PM skips measuring after shipping because the next sprint has already started. What's the cost?"
             options={[
