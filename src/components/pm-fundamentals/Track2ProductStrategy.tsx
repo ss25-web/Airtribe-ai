@@ -144,14 +144,14 @@ const ConversationScene = ({
       </div>
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
-        <MentorFace mentor="priya" size={28} />
+        <MentorFace mentor="priya" size={38} />
       </div>
     </div>
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {lines.map((line, i) => (
         <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
           <div style={{ flexShrink: 0, marginTop: '2px' }}>
-            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={24} />
+            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={38} />
           </div>
           <div style={{ maxWidth: '78%' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
