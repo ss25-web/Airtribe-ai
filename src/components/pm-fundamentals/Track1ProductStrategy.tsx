@@ -209,16 +209,20 @@ const Section1Mockup = () => {
           {unsorted.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '8px' }}>
-                FROM ROHAN&apos;S ALL-HANDS SLIDE — click S (strategy) or T (tactic)
+                FROM ROHAN&apos;S ALL-HANDS SLIDE — click Strategy or Tactic to sort each item
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {unsorted.map(item => (
-                  <div key={item.id} style={{ display: 'flex', gap: '4px' }}>
+                  <div key={item.id} style={{ display: 'flex', alignItems: 'stretch', gap: '0' }}>
                     <button onClick={() => sort(item.id, 'strategy')}
-                      style={{ padding: '6px 10px', borderRadius: '6px 0 0 6px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.3)', borderRight: 'none', cursor: 'pointer', fontSize: '11px', color: ACCENT, fontWeight: 600 }}>S</button>
-                    <div style={{ padding: '6px 10px', background: '#F8F6F2', border: '1px solid #E0D9D0', fontSize: '12px', color: '#1C1814', display: 'flex', alignItems: 'center' }}>{item.text}</div>
+                      style={{ padding: '8px 14px', borderRadius: '6px 0 0 6px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.3)', borderRight: 'none', cursor: 'pointer', fontSize: '10px', color: ACCENT, fontWeight: 700, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                      Strategy
+                    </button>
+                    <div style={{ flex: 1, padding: '8px 12px', background: '#F8F6F2', border: '1px solid #E0D9D0', fontSize: '12px', color: '#1C1814', display: 'flex', alignItems: 'center' }}>{item.text}</div>
                     <button onClick={() => sort(item.id, 'tactic')}
-                      style={{ padding: '6px 10px', borderRadius: '0 6px 6px 0', background: 'rgba(200,90,64,0.08)', border: '1px solid rgba(200,90,64,0.3)', borderLeft: 'none', cursor: 'pointer', fontSize: '11px', color: '#C85A40', fontWeight: 600 }}>T</button>
+                      style={{ padding: '8px 14px', borderRadius: '0 6px 6px 0', background: 'rgba(200,90,64,0.08)', border: '1px solid rgba(200,90,64,0.3)', borderLeft: 'none', cursor: 'pointer', fontSize: '10px', color: '#C85A40', fontWeight: 700, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                      Tactic
+                    </button>
                   </div>
                 ))}
               </div>
