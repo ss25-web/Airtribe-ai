@@ -7,6 +7,56 @@ import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
+
+// ─────────────────────────────────────────
+// CONVERSATION SCENE — chat-bubble dialogue between Priya and a stakeholder
+// ─────────────────────────────────────────
+type DialogueLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({
+  mentor, name, role, accent, lines,
+}: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha';
+  name: string; role: string; accent: string;
+  lines: DialogueLine[];
+}) => (
+  <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
+      <MentorFace mentor={mentor} size={36} />
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+        <MentorFace mentor="priya" size={38} />
+      </div>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {lines.map((line, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+          <div style={{ flexShrink: 0, marginTop: '2px' }}>
+            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={38} />
+          </div>
+          <div style={{ maxWidth: '78%' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
+              {line.speaker === 'priya' ? 'PRIYA' : name.toUpperCase()}
+            </div>
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: line.speaker === 'priya' ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+              background: line.speaker === 'priya' ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+              border: `1px solid ${line.speaker === 'priya' ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+              fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+            }}>
+              &ldquo;{line.text}&rdquo;
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
@@ -771,6 +821,15 @@ export default function Track2APM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+            lines={[
+              { speaker: 'other', text: "The board was thrilled with the speed. Now engineering tells me your next four features take twice as long. Explain that to me." },
+              { speaker: 'priya', text: "I made the tradeoff \u2014 fast ship, accept the debt. What I didn\u2019t do was name it explicitly, so nobody planned for the paydown." },
+              { speaker: 'other', text: "You should have told me that before the sprint closed, not after the consequences arrived." },
+              { speaker: 'priya', text: "The decision was right for the moment. Not communicating it explicitly was the mistake I won\u2019t repeat." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
@@ -818,6 +877,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><PMTriangleDiagramAPM /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
+            lines={[
+              { speaker: 'other', text: "The fast sprint bought you four weeks of happy stakeholders and cost us eight weeks of velocity. I need you to sit with that math." },
+              { speaker: 'priya', text: "I do. What I got wrong wasn\u2019t the tradeoff \u2014 it was not scheduling the debt paydown before the sprint closed." },
+              { speaker: 'other', text: "Every time we skip that conversation, I end up explaining it in the next sprint planning instead of building." },
+              { speaker: 'priya', text: "Let\u2019s make it a standing item: what debt are we accepting this sprint, and when do we address it." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Dev"
@@ -866,6 +934,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><ProblemFramingSimulator /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
+            lines={[
+              { speaker: 'other', text: "Retention dropped 15%. CEO says pricing. Engineering says debt. Design says onboarding. They\u2019re all looking at the same number and seeing different movies." },
+              { speaker: 'priya', text: "Which frame does your data actually support?" },
+              { speaker: 'other', text: "All three, partially \u2014 the error rate spiked after the onboarding change, which also correlated with the price increase quarter. It\u2019s not one cause." },
+              { speaker: 'priya', text: "Then our job isn\u2019t to pick a frame \u2014 it\u2019s to find the hypothesis that explains all three signals at once." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Asha"
@@ -914,6 +991,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><ResearchBiasIdentifier /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
+            lines={[
+              { speaker: 'other', text: "Your research says users love the product. You interviewed 12 people. All 12 are still active customers." },
+              { speaker: 'priya', text: "The churned users\u2026 they\u2019re not in the sample at all." },
+              { speaker: 'other', text: "They voted with their feet and you never asked them why \u2014 so you only understand the experience of the people who stayed." },
+              { speaker: 'priya', text: "Which is exactly the population we don\u2019t need to understand better. We need to talk to the people who left." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Asha"
@@ -962,6 +1048,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><StrategyTradeoffScenario /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+            lines={[
+              { speaker: 'other', text: "HR teams have training budgets, similar enterprise dynamics, and we already have contacts there. This is a clean expansion." },
+              { speaker: 'priya', text: "On paper, yes. But our best sales team customers value us because we\u2019re built specifically for their workflows \u2014 generalize to HR and we stop being excellent for anyone." },
+              { speaker: 'other', text: "We\u2019re leaving real revenue on the table by staying narrow." },
+              { speaker: 'priya', text: "And if we take it, we might lose the customers who value us most \u2014 which is a worse outcome than the revenue we didn\u2019t capture." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Asha"
@@ -1010,6 +1105,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><PMFLocalMaximaDemo /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
+            lines={[
+              { speaker: 'other', text: "Q1 2023 cohort: 68% month-6 retention. Q3 2024 cohort: 18%. Each new cohort retains worse than the last." },
+              { speaker: 'priya', text: "Rohan reads this as \u2018growth is hard.\u2019 I think the product isn\u2019t keeping up with the users we\u2019re now acquiring." },
+              { speaker: 'other', text: "Early adopters tolerated the friction because they really wanted it to work. The new cohort doesn\u2019t have that patience." },
+              { speaker: 'priya', text: "Then this isn\u2019t a growth problem \u2014 it\u2019s a product-market fit problem with a new segment we\u2019ve never designed for." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Kiran"
@@ -1058,6 +1162,15 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><StakeholderNegotiation /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+            lines={[
+              { speaker: 'other', text: "Your reach estimate for Feature A is off \u2014 you\u2019re underestimating by at least 40%. I want it rescored." },
+              { speaker: 'priya', text: "Walk me through your number \u2014 because what I\u2019m disputing isn\u2019t the math, it\u2019s the strategic assumption underneath it." },
+              { speaker: 'other', text: "We\u2019re targeting enterprise, not SMB. Your reach figure assumes SMB volumes." },
+              { speaker: 'priya', text: "Then this isn\u2019t a RICE disagreement \u2014 it\u2019s a \u2018who are we building for this quarter\u2019 disagreement, and that\u2019s the conversation we should be having." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Dev"
@@ -1105,6 +1218,15 @@ export default function Track2APM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
+            lines={[
+              { speaker: 'other', text: "RICE scores are in. Feature B wins \u2014 reach 8,000, impact high, confidence 80%, effort 3 weeks." },
+              { speaker: 'priya', text: "That\u2019s the third time in two quarters the top RICE score matched exactly what leadership wanted before we ran the numbers." },
+              { speaker: 'other', text: "\u2026I didn\u2019t backfill on purpose. But you might be right that I filled in what felt reasonable given the direction." },
+              { speaker: 'priya', text: "That\u2019s how it works \u2014 nobody games it consciously. Run the inputs before you know which feature you want to win." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Dev"
@@ -1151,6 +1273,15 @@ export default function Track2APM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
+            lines={[
+              { speaker: 'other', text: "We built what design specified \u2014 \u2018filter by date.\u2019 In the data model that\u2019s upload date. That\u2019s what we shipped." },
+              { speaker: 'priya', text: "Users needed call date \u2014 the date the conversation happened. That\u2019s a completely different field." },
+              { speaker: 'other', text: "If the spec had said \u2018call date\u2019 I would have built call date. One word, three different assumptions." },
+              { speaker: 'priya', text: "I used one ambiguous phrase and none of us thought to ask what the other person meant by it." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Asha"
@@ -1197,6 +1328,15 @@ export default function Track2APM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="AI Mentor" accent="#7843EE"
+            lines={[
+              { speaker: 'other', text: "Everyone on the team worked hard. Nobody was confused. They built exactly what they thought was right. So where did it go wrong?" },
+              { speaker: 'priya', text: "The kickoff. I said \u2018filter by date\u2019 and assumed we all meant the same thing." },
+              { speaker: 'other', text: "What would you have had to ask at kickoff to catch it?" },
+              { speaker: 'priya', text: "\u2018Walk me through exactly what a user does when they open this filter.\u2019 That one question would have surfaced it in 30 seconds." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Asha"
