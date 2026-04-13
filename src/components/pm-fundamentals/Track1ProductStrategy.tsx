@@ -869,7 +869,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
         </SituationCard>
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters \u2014 and why." },
             { speaker: 'priya', text: "Which problem are we actually solving? Not which feature \u2014 which problem." },
@@ -946,7 +946,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'other', text: "I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn\u2019t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection." },
             { speaker: 'priya', text: "That\u2019s not a feature gap. That\u2019s a workflow dependency. If they can\u2019t see live pipeline data inside EdSpark, the coaching scores are meaningless." },
@@ -1020,7 +1020,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
         </SituationCard>
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "Three things this quarter \u2014 fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\u2019t afford to move slow." },
             { speaker: 'priya', text: "Running two large bets simultaneously with six engineers doesn\u2019t produce two half-finished products on schedule. It produces two fully-broken products three weeks late." },
@@ -1087,7 +1087,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right \u2014 specifically around manager involvement rates and coaching frequency \u2014 it\u2019ll tell us why churn is dropping. Or why it\u2019s not." },
             { speaker: 'priya', text: "You\u2019re saying it\u2019s not just a board slide. It\u2019s the instrument that tells us how to scope the next bet." },
@@ -1162,7 +1162,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
         </SituationCard>
 
         <ConversationScene
-          mentor="dev" name="Marcus" role="Enterprise Sales \u00b7 EdSpark" accent="#16A34A"
+          mentor="dev" name="Marcus" role="Enterprise Sales · EdSpark" accent="#16A34A"
           lines={[
             { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months \u2014 finally." },
             { speaker: 'priya', text: "Congratulations. What\u2019s their expansion potential? How many reps does Apex have in total?" },

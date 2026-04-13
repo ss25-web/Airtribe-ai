@@ -839,7 +839,7 @@ export default function Track2ProductStrategy() {
         {para(<>Every experienced PM will eventually face a version of this moment. A big customer, a credible competitor, and a CEO who hears $240K at risk and wants action. The question isn&apos;t whether to feel the urgency — it&apos;s whether to let the urgency make the decision.</>)}
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "Meridian is 200 seats and $240K ARR. If they leave with a Gong case study, we lose three more like them before the board call. Build the Deal Intelligence AI \u2014 it\u2019s a no-brainer." },
             { speaker: 'priya', text: "What\u2019s Meridian\u2019s NPS? Their support ticket volume? Their expansion potential beyond 200 seats?" },
@@ -905,7 +905,7 @@ export default function Track2ProductStrategy() {
         {pullQuote("A platform exists when third parties can create value on top of your core that you couldn't create yourself. Until then, it's a product with more features.")}
 
         <ConversationScene
-          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'other', text: "If we build platform APIs, our 120 SMB customers won\u2019t use them \u2014 they don\u2019t have engineering teams. The companies who would use the API are enterprise accounts we haven\u2019t won yet." },
             { speaker: 'priya', text: "So what\u2019s the actual platform inflection signal? When do we know we\u2019re ready?" },
@@ -960,7 +960,7 @@ export default function Track2ProductStrategy() {
         {para(<>The word &ldquo;fit&rdquo; is how scope creep starts. No bet exists in isolation — they share engineers, they share attention, and when one grows, the others shrink. The cascade is real and it&apos;s always larger than it first appears.</>)}
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "For every dollar we spend on the Meridian bet, I need to see a clear path to $3 back. Two engineers for 10 weeks. Make it work." },
             { speaker: 'priya', text: "Two engineers on Meridian means Smart Coaching Prompts and Q4 Reporting both slip by six weeks. Those are features 90% of our customer base is waiting for." },
@@ -1022,7 +1022,7 @@ export default function Track2ProductStrategy() {
         {para(<>The sunk cost fallacy is the most common reason good PMs ship features nobody uses. &ldquo;We&apos;ve already invested so much&rdquo; is not a criterion. Kill decisions require a framework — not because the math is hard, but because the politics are.</>)}
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "We\u2019ve already sunk $150,000 into this. I don\u2019t care if the willingness to pay is low \u2014 we can\u2019t just abandon it." },
             { speaker: 'priya', text: "The $150,000 is gone whether we ship it or not. The question is what the next six weeks should produce." },
@@ -1036,7 +1036,7 @@ export default function Track2ProductStrategy() {
         <Section4Mockup />
 
         <ConversationScene
-          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'other', text: "I ran the numbers. Users who activate any call feature have 12% better 30-day retention \u2014 but that\u2019s correlation with call recording, not summarization specifically." },
             { speaker: 'priya', text: "So we can\u2019t attribute the retention lift to summarization. We\u2019re missing the counterfactual." },
@@ -1089,7 +1089,7 @@ export default function Track2ProductStrategy() {
         {para(<>A Series B raise is not a growth story — any decent company growing 2× YoY has a growth story. Series B investors are buying a thesis about why one company owns a category. The narrative that gets a term sheet is the one that explains defensibility, not just velocity.</>)}
 
         <ConversationScene
-          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'other', text: "If we lead with growth metrics, investors will ask what stops Gong from copying our features and outspending us in sales. Our $3.2M ARR doesn\u2019t answer that question." },
             { speaker: 'priya', text: "What does answer it?" },
