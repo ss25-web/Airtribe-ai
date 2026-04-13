@@ -125,6 +125,55 @@ const CharacterMoment = ({ mentor, name, role, accent, children }: {
 );
 
 // ─────────────────────────────────────────
+// CONVERSATION SCENE — full back-and-forth dialogue between Priya and a stakeholder
+// ─────────────────────────────────────────
+type DialogueLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({
+  mentor, name, role, accent, lines,
+}: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev';
+  name: string; role: string; accent: string;
+  lines: DialogueLine[];
+}) => (
+  <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
+      <MentorFace mentor={mentor} size={36} />
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+        <MentorFace mentor="priya" size={28} />
+      </div>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {lines.map((line, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+          <div style={{ flexShrink: 0, marginTop: '2px' }}>
+            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={24} />
+          </div>
+          <div style={{ maxWidth: '78%' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
+              {line.speaker === 'priya' ? 'PRIYA' : name.toUpperCase()}
+            </div>
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: line.speaker === 'priya' ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+              background: line.speaker === 'priya' ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+              border: `1px solid ${line.speaker === 'priya' ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+              fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+            }}>
+              &ldquo;{line.text}&rdquo;
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// ─────────────────────────────────────────
 // TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
@@ -789,9 +838,15 @@ export default function Track2ProductStrategy() {
 
         {para(<>Every experienced PM will eventually face a version of this moment. A big customer, a credible competitor, and a CEO who hears $240K at risk and wants action. The question isn&apos;t whether to feel the urgency — it&apos;s whether to let the urgency make the decision.</>)}
 
-        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
-          &ldquo;Meridian is 200 seats. If they leave with a Gong case study, we lose three more like them before the board call. Build the Deal Intelligence AI — it&apos;s a no-brainer.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "Meridian is 200 seats and $240K ARR. If they leave with a Gong case study, we lose three more like them before the board call. Build the Deal Intelligence AI \u2014 it\u2019s a no-brainer." },
+            { speaker: 'priya', text: "What\u2019s Meridian\u2019s NPS? Their support ticket volume? Their expansion potential beyond 200 seats?" },
+            { speaker: 'other', text: "I don\u2019t know the details \u2014 but $240K is $240K. We can\u2019t just let that walk." },
+            { speaker: 'priya', text: "Let me show you the full segment analysis before we make an engineering call. Because I think Meridian is telling us something we haven\u2019t heard yet." },
+          ]}
+        />
 
         {para(<>Rohan is right about the stakes and wrong about the solution. $240,000 in ARR sounds like a lot until you see what Meridian actually costs to serve — and what it would cost to build their way.</>)}
 
@@ -849,9 +904,15 @@ export default function Track2ProductStrategy() {
 
         {pullQuote("A platform exists when third parties can create value on top of your core that you couldn't create yourself. Until then, it's a product with more features.")}
 
-        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
-          &ldquo;If we build platform APIs, our 120 SMB customers won&apos;t use them — they don&apos;t have engineering teams. The companies who would use the API are enterprise accounts we haven&apos;t won yet. We&apos;d be building for a segment we don&apos;t have, to solve a problem for a customer we don&apos;t serve.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'other', text: "If we build platform APIs, our 120 SMB customers won\u2019t use them \u2014 they don\u2019t have engineering teams. The companies who would use the API are enterprise accounts we haven\u2019t won yet." },
+            { speaker: 'priya', text: "So what\u2019s the actual platform inflection signal? When do we know we\u2019re ready?" },
+            { speaker: 'other', text: "When our coaching data is good enough that a third party builds on top of it without us asking them to. We\u2019re not there \u2014 the CRM sync gaps mean our data model still has holes." },
+            { speaker: 'priya', text: "Then we\u2019re clear with Rohan: platform is a 12\u201318 month horizon, not a Q2 roadmap item. Let\u2019s show him which extension actually clears the criteria." },
+          ]}
+        />
 
         {para(<>Kiran isn&apos;t saying never. He&apos;s saying: not yet, not for these reasons. The platform readiness matrix below asks the three questions that separate genuine platform inflection from premature complexity. Try each of Rohan&apos;s proposed extensions.</>)}
 
@@ -898,9 +959,15 @@ export default function Track2ProductStrategy() {
 
         {para(<>The word &ldquo;fit&rdquo; is how scope creep starts. No bet exists in isolation — they share engineers, they share attention, and when one grows, the others shrink. The cascade is real and it&apos;s always larger than it first appears.</>)}
 
-        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
-          &ldquo;For every dollar we spend on the Meridian bet, I need to see a clear path to $3 back — but we also can&apos;t afford to lose them while we&apos;re raising. Two engineers for 10 weeks. Make it work.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "For every dollar we spend on the Meridian bet, I need to see a clear path to $3 back. Two engineers for 10 weeks. Make it work." },
+            { speaker: 'priya', text: "Two engineers on Meridian means Smart Coaching Prompts and Q4 Reporting both slip by six weeks. Those are features 90% of our customer base is waiting for." },
+            { speaker: 'other', text: "Meridian could pull out while we\u2019re raising. That\u2019s $240K gone and a bad story for the board." },
+            { speaker: 'priya', text: "And losing Smart Coaching Prompts delays our NPS story for everyone else. Let me show you the full cascade before we decide \u2014 because every bet we add cancels something else." },
+          ]}
+        />
 
         {para(<>Two engineers for 10 weeks is not a small ask when the team has 4. Toggle the Meridian bet in the dependency map below and watch what happens to the three bets that were already in the sprint. Click the slipped bets to see the user impact.</>)}
 
@@ -954,17 +1021,29 @@ export default function Track2ProductStrategy() {
 
         {para(<>The sunk cost fallacy is the most common reason good PMs ship features nobody uses. &ldquo;We&apos;ve already invested so much&rdquo; is not a criterion. Kill decisions require a framework — not because the math is hard, but because the politics are.</>)}
 
-        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
-          &ldquo;We&apos;ve already sunk $150,000 into this. I don&apos;t care if the willingness to pay is low — we can&apos;t just abandon it. That&apos;s a huge waste of resources.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "We\u2019ve already sunk $150,000 into this. I don\u2019t care if the willingness to pay is low \u2014 we can\u2019t just abandon it." },
+            { speaker: 'priya', text: "The $150,000 is gone whether we ship it or not. The question is what the next six weeks should produce." },
+            { speaker: 'other', text: "That\u2019s easy to say. The team will feel like failures if we kill it at 60% built." },
+            { speaker: 'priya', text: "Or we tell them the truth: what they built taught us what customers don\u2019t actually need. That\u2019s not waste \u2014 that\u2019s discovery. Let me walk you through the kill criteria." },
+          ]}
+        />
 
         {para(<>Rohan is expressing a human instinct, not a business logic. The $150,000 is gone whether EdSpark ships the feature or not. The only question on the table is what the next 6 weeks should produce. Answer the five kill criteria below — then let the framework make the case.</>)}
 
         <Section4Mockup />
 
-        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
-          &ldquo;I ran the numbers. Users who activate any call feature have 12% better 30-day retention — but that&apos;s correlation with call recording, not summarization specifically. We don&apos;t have evidence that the summarization feature is driving the retention, just that it lives in the same product area.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'other', text: "I ran the numbers. Users who activate any call feature have 12% better 30-day retention \u2014 but that\u2019s correlation with call recording, not summarization specifically." },
+            { speaker: 'priya', text: "So we can\u2019t attribute the retention lift to summarization. We\u2019re missing the counterfactual." },
+            { speaker: 'other', text: "Right. We need users who use call recording but not summarization to know if summarization is doing anything on its own. We don\u2019t have that cohort yet." },
+            { speaker: 'priya', text: "Then we don\u2019t have the evidence to justify six more weeks. That\u2019s the answer Rohan needs to hear." },
+          ]}
+        />
 
         {pullQuote("A kill decision is not admitting failure. It's reallocating future capacity to something that earns it.")}
 
@@ -1009,9 +1088,15 @@ export default function Track2ProductStrategy() {
 
         {para(<>A Series B raise is not a growth story — any decent company growing 2× YoY has a growth story. Series B investors are buying a thesis about why one company owns a category. The narrative that gets a term sheet is the one that explains defensibility, not just velocity.</>)}
 
-        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
-          &ldquo;If we lead with growth metrics, investors will ask what stops Gong from copying our features and outspending us in sales. Our $3.2M ARR doesn&apos;t answer that question. Our CRM switching cost data does — if we show it.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'other', text: "If we lead with growth metrics, investors will ask what stops Gong from copying our features and outspending us in sales. Our $3.2M ARR doesn\u2019t answer that question." },
+            { speaker: 'priya', text: "What does answer it?" },
+            { speaker: 'other', text: "Our CRM switching cost data. Average tenure of a churned customer: 2.8 months. Average tenure of a customer with full CRM sync: 19 months. That\u2019s the moat, not the feature set." },
+            { speaker: 'priya', text: "So the Series B story isn\u2019t \u2018we grew fast\u2019 \u2014 it\u2019s \u2018we grew precisely, into a segment where leaving us is operationally painful.\u2019" },
+          ]}
+        />
 
         {para(<>Three narrative framings are on the table. Each one is true — EdSpark grew fast, the TAM is large, and customers love the product. But only one of them is a Series B thesis. Try all three below before deciding.</>)}
 

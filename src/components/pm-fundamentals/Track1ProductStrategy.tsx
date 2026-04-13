@@ -127,6 +127,56 @@ const CharacterMoment = ({ mentor, name, role, accent, children }: {
 );
 
 // ─────────────────────────────────────────
+// CONVERSATION SCENE — full back-and-forth dialogue between Priya and a stakeholder
+// Shows the real-time decision pressure that PMs navigate in 1:1 conversations.
+// ─────────────────────────────────────────
+type DialogueLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({
+  mentor, name, role, accent, lines,
+}: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev';
+  name: string; role: string; accent: string;
+  lines: DialogueLine[];
+}) => (
+  <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
+      <MentorFace mentor={mentor} size={36} />
+      <div>
+        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+        <MentorFace mentor="priya" size={28} />
+      </div>
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {lines.map((line, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+          <div style={{ flexShrink: 0, marginTop: '2px' }}>
+            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={24} />
+          </div>
+          <div style={{ maxWidth: '78%' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
+              {line.speaker === 'priya' ? 'PRIYA' : name.toUpperCase()}
+            </div>
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: line.speaker === 'priya' ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+              background: line.speaker === 'priya' ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+              border: `1px solid ${line.speaker === 'priya' ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+              fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+            }}>
+              &ldquo;{line.text}&rdquo;
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// ─────────────────────────────────────────
 // TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
@@ -818,9 +868,15 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           Priya nods. She has never built a strategy from scratch.
         </SituationCard>
 
-        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
-          &ldquo;I&apos;ve got 47 items in the backlog. Engineers asking what to build next. Sales asking for integrations. Customer success asking for better reporting. I need you to tell me what actually matters — and why. The board doesn&apos;t want features. They want a reason to believe.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters \u2014 and why." },
+            { speaker: 'priya', text: "Which problem are we actually solving? Not which feature \u2014 which problem." },
+            { speaker: 'other', text: "40% week-one churn. Pick whatever fixes it fastest. The board sees this in six weeks." },
+            { speaker: 'priya', text: "We don\u2019t have a problem statement yet \u2014 we have a symptom. The backlog can\u2019t tell us why they\u2019re churning. Only the customers can." },
+          ]}
+        />
 
         {h2(<>Features Are Answers. Strategy Is Knowing Which Questions Matter.</>)}
 
@@ -889,9 +945,15 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           Then Kiran walks over.
         </SituationCard>
 
-        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
-          &ldquo;I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn&apos;t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection. They didn&apos;t feel like EdSpark knew their pipeline.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'other', text: "I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn\u2019t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection." },
+            { speaker: 'priya', text: "That\u2019s not a feature gap. That\u2019s a workflow dependency. If they can\u2019t see live pipeline data inside EdSpark, the coaching scores are meaningless." },
+            { speaker: 'other', text: "Exactly. And nobody asked which CRM workflows actually matter. They built the generic sync." },
+            { speaker: 'priya', text: "Then that\u2019s where EdSpark\u2019s moat starts. Not more features \u2014 deeper integration than Gong is willing to build for a 40-person team." },
+          ]}
+        />
 
         {h2(<>You Can&rsquo;t Out-Feature Gong. You Build a Moat They Can&rsquo;t Cross.</>)}
 
@@ -957,9 +1019,15 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           Priya&apos;s hand tightens around her pen. She starts to say yes to all three.
         </SituationCard>
 
-        <CharacterMoment mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22">
-          &ldquo;I know what you&apos;re thinking — that&apos;s too much for six engineers. But we can&apos;t afford to move slow. The window for Series A closes in 18 months. If we don&apos;t show the board a growth story AND a retention story in the same deck, we&apos;re going to have a hard conversation.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO \u00b7 EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "Three things this quarter \u2014 fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\u2019t afford to move slow." },
+            { speaker: 'priya', text: "Running two large bets simultaneously with six engineers doesn\u2019t produce two half-finished products on schedule. It produces two fully-broken products three weeks late." },
+            { speaker: 'other', text: "Walk me through the math then." },
+            { speaker: 'priya', text: "Onboarding first \u2014 that stops the churn bleed. Then analytics tells us why churn is changing. Then Salesforce gets scoped from actual data instead of assumptions. Each bet unlocks the next one." },
+          ]}
+        />
 
         {h2(<>First-Order Thinking Asks What Happens Next. Strategy Asks What Happens After That.</>)}
 
@@ -1018,9 +1086,15 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           Rohan watches from the chair. &ldquo;Show me how you&apos;d sequence it.&rdquo;
         </SituationCard>
 
-        <CharacterMoment mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7">
-          &ldquo;One thing on the analytics dashboard: it&apos;s not just a nice-to-have for the board. If we scope it right — specifically around manager involvement rates and coaching frequency — it&apos;ll tell us why churn is dropping. Or why it&apos;s not. That&apos;s the data that makes the Salesforce integration scope obvious, instead of a guess.&rdquo;
-        </CharacterMoment>
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right \u2014 specifically around manager involvement rates and coaching frequency \u2014 it\u2019ll tell us why churn is dropping. Or why it\u2019s not." },
+            { speaker: 'priya', text: "You\u2019re saying it\u2019s not just a board slide. It\u2019s the instrument that tells us how to scope the next bet." },
+            { speaker: 'other', text: "Exactly. Build the right dashboard and you know which CRM workflows actually matter to managers \u2014 not which ones we assumed mattered." },
+            { speaker: 'priya', text: "Then we scope it tight. Coaching frequency and manager involvement only. Nothing else on the dashboard until churn drops." },
+          ]}
+        />
 
         {h2(<>Bet Sizing Is Sequencing. The Right Order Unlocks the Next Bet.</>)}
 
@@ -1086,6 +1160,16 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           Priya opens a spreadsheet. Apex Corp. 50 seats. Series A target: 500+ seats in enterprise accounts.
           Marcus is celebrating his commission. Priya is calculating what it will take to turn 50 into 500.
         </SituationCard>
+
+        <ConversationScene
+          mentor="dev" name="Marcus" role="Enterprise Sales \u00b7 EdSpark" accent="#16A34A"
+          lines={[
+            { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months \u2014 finally." },
+            { speaker: 'priya', text: "Congratulations. What\u2019s their expansion potential? How many reps does Apex have in total?" },
+            { speaker: 'other', text: "...I don\u2019t know. I hadn\u2019t thought past the close." },
+            { speaker: 'priya', text: "The $40K contract is the entrance fee to the conversation, not the contract itself. Tell me about their org structure \u2014 because that\u2019s what we\u2019re actually selling to." },
+          ]}
+        />
 
         {h2(<>In B2B, the First Contract Is a Pilot. The Expansion Is the Actual Business.</>)}
 
