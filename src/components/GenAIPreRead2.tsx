@@ -1272,7 +1272,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2("The Anatomy of a Prompt")}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
-            ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent \u2014 sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
+            ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent &mdash; sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
             : <>Aarav&apos;s first API call for entity extraction: just the raw user message, no system prompt, no output format. The result is verbose, occasionally hallucinated, and unpredictable in structure. He runs it again with the same input and gets a different response. Rohan points to the missing output contract instead.</>}
         </SituationCard>
         {para(track === 'non-tech'
@@ -1325,8 +1325,8 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {h2("Examples don\u2019t clarify \u2014 they transfer domain knowledge.")}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
-            ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization \u2014 Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; \u2014 a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
-            : <>Aarav\u2019s IT ticket classifier runs at 70% accuracy. Network connectivity tickets involving VPN authentication failures keep routing to the wrong team. The categories exist in the prompt. The problem is the model has never seen Northstar\u2019s specific failure patterns.</>}
+            ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization &mdash; Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; &mdash; a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
+            : <>Aarav&rsquo;s IT ticket classifier runs at 70% accuracy. Network connectivity tickets involving VPN authentication failures keep routing to the wrong team. The categories exist in the prompt. The problem is the model has never seen Northstar&rsquo;s specific failure patterns.</>}
         </SituationCard>
         {para(track === 'non-tech'
           ? "Zero-shot prompting relies on the model's pre-trained knowledge. When your categories have internal meanings not aligned with general language use, the model has no way to learn the distinction from a label alone."
@@ -1347,7 +1347,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m2-fewshot"
-          content={<>The question to ask about a few-shot example isn&apos;t &ldquo;is it correct?&rdquo; \u2014 it&apos;s &ldquo;does it show the model the boundary it keeps getting wrong?&rdquo;</>}
+          content={<>The question to ask about a few-shot example isn&apos;t &ldquo;is it correct?&rdquo; &mdash; it&apos;s &ldquo;does it show the model the boundary it keeps getting wrong?&rdquo;</>}
           expandedContent="Most teams add examples of the most common case. Classification errors almost always happen on the most ambiguous cases. Examples are most valuable where the model's prior is weakest."
           question={track === 'non-tech' ? "Slightly critical feedback keeps classifying as Neutral. What kind of example helps most?" : "Network tickets misclassify despite 5 examples. Most impactful fix?"}
           options={track === 'non-tech' ? [
@@ -1383,7 +1383,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea feeds 10 pages of patient notes into her summarizer. The output is &ldquo;generally fine&rdquo; until a pharmacist flags a critical drug interaction on page 7 was not in the summary. The model processed the full document and still missed it. This is a context management problem.</>
-            : <>Aarav\u2019s internal support chatbot forgets user instructions after 5\u20136 turns. He checks the API logs: the cumulative message history silently exceeds the model\u2019s 16k token limit. Older messages are dropped without any error.</>}
+            : <>Aarav&rsquo;s internal support chatbot forgets user instructions after 5&ndash;6 turns. He checks the API logs: the cumulative message history silently exceeds the model&rsquo;s 16k token limit. Older messages are dropped without any error.</>}
         </SituationCard>
         {para(track === 'non-tech'
           ? "LLMs process everything within a fixed context window. When content is long, attention distributes unevenly: information in the middle of a large context is systematically less likely to appear in the output \u2014 the 'lost in the middle' phenomenon."

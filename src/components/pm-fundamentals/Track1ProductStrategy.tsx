@@ -889,7 +889,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           &ldquo;I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn&apos;t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection. They didn&apos;t feel like EdSpark knew their pipeline.&rdquo;
         </CharacterMoment>
 
-        {h2(<>You Can\u2019t Out\u2011Feature Gong. You Build a Moat They Can\u2019t Cross.</>)}
+        {h2(<>You Can&rsquo;t Out-Feature Gong. You Build a Moat They Can&rsquo;t Cross.</>)}
 
         {para(<>
           Kiran&apos;s data point reframes everything. The competitive threat isn&apos;t Gong&apos;s call analytics — it&apos;s that Gong targets large enterprises. They don&apos;t care about a 40-person sales team&apos;s CRM configuration. EdSpark does.
@@ -957,7 +957,7 @@ export default function Track1ProductStrategy({ onSectionChange }: { onSectionCh
           &ldquo;I know what you&apos;re thinking — that&apos;s too much for six engineers. But we can&apos;t afford to move slow. The window for Series A closes in 18 months. If we don&apos;t show the board a growth story AND a retention story in the same deck, we&apos;re going to have a hard conversation.&rdquo;
         </CharacterMoment>
 
-        {h2(<>First\u2011Order Thinking Asks What Happens Next. Strategy Asks What Happens After That.</>)}
+        {h2(<>First-Order Thinking Asks What Happens Next. Strategy Asks What Happens After That.</>)}
 
         {para(<>
           Rohan&apos;s instinct is correct in isolation: onboarding matters, Salesforce matters, analytics matter. The mistake is treating them as independent parallel bets.
