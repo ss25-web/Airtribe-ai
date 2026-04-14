@@ -17,6 +17,31 @@ const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to 
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: diagnosing UX failures vs feature failures, session recordings, the 45-second drop-off problem, spec completeness (loading/error/empty/success states), and how small feedback changes drive massive metric improvements.`;
 
 // ─────────────────────────────────────────
+// CONVERSATION SCENE — Priya ↔ stakeholder
+// ─────────────────────────────────────────
+type CSLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
+}) => (
+  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {lines.map((l, i) => {
+      const isPriya = l.speaker === 'priya';
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div style={{ flexShrink: 0 }}>
+            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor} size={38} />}
+          </div>
+          <div style={{ maxWidth: '72%' }}>
+            {i === 0 && <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>{isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>· {isPriya ? 'PM' : role}</span></div>}
+            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+// ─────────────────────────────────────────
 // TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
@@ -1266,12 +1291,21 @@ export default function Track1UXDesign() {
 
         <MetricsDashboardMockup />
 
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data · EdSpark" accent="#3A86FF"
+          lines={[
+            { speaker: 'priya', text: "We shipped the onboarding update two weeks ago. Why is completion still at 30%?" },
+            { speaker: 'other', text: "Same users. Same drop-off. We shipped something \u2014 that\u2019s not the same as solving something." },
+            { speaker: 'priya', text: "It moved 2 points. That\u2019s something." },
+            { speaker: 'other', text: "Against a 30-point gap? That gap is information. It\u2019s telling you the root cause is still there." },
+          ]}
+        />
         <Avatar
           name="Kiran"
           nameColor="#3A86FF"
           borderColor="#3A86FF"
-          content={<>Same users. Same drop-off. We shipped something &mdash; that&apos;s not the same as solving something.</>}
-          expandedContent="When a metric moves but underperforms target, that gap is information. It tells you the root cause is still present — you've touched a symptom, not the system. Before proposing solutions, ask: what specifically didn't change for the users who still aren't completing?"
+          content={<>A metric moving in the right direction is not evidence your hypothesis was correct. It might be seasonality, a different cohort, or a different behaviour entirely. Before proposing solutions, ask: what specifically didn\u2019t change for the users who still aren\u2019t completing?</>}
+          expandedContent="When a metric underperforms target, that gap is information. It tells you the root cause is still present — you've touched a symptom, not the system."
           conceptId="ux-metric-communication"
           question="Kiran shows you this chart. Completion is 30%, target is 60%. You have a check-in with Rohan in an hour. What do you tell him?"
           options={[
@@ -1282,12 +1316,21 @@ export default function Track1UXDesign() {
           ]}
         />
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "It improved though. Just not enough. Should I ship another fix?" },
+            { speaker: 'other', text: "Before diagnosing the fix, diagnose the understanding. Do you know why it improved 2% and not 30%?" },
+            { speaker: 'priya', text: "Not exactly." },
+            { speaker: 'other', text: "Then you\u2019re guessing. Find the specific friction point that\u2019s still present \u2014 before you build anything else." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content={<>Before diagnosing the fix, diagnose the understanding. Do you know <em>why</em> completion improved by 2% and not 30%? If not, you&apos;re guessing.</>}
-          expandedContent="A metric moving in the right direction is not evidence that your hypothesis was correct. It might be seasonality, a different cohort, or a different behaviour entirely. Priya shipped better copy. But the core confusion — not knowing what happens after clicking Analyze — was never touched."
+          content={<>Shipping into an unknown multiplies the chance of another miss. A small improvement against a big gap means something specific is still broken. Find it before you build around it.</>}
+          expandedContent="Priya shipped better copy. But the core confusion — not knowing what happens after clicking Analyze — was never touched. Metrics confirmed the gap was still there."
           conceptId="ux-ship-vs-fix"
           question="Your feature shipped and metrics improved slightly but far below target. What's your first move?"
           options={[
@@ -1329,12 +1372,21 @@ export default function Track1UXDesign() {
 
         <SessionRecordingMockup />
 
+        <ConversationScene
+          mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
+          lines={[
+            { speaker: 'priya', text: "The backend works. The recording gets processed. The system isn\u2019t broken." },
+            { speaker: 'other', text: "I didn\u2019t say the system wasn\u2019t working. I said watch what the user does." },
+            { speaker: 'priya', text: "They just\u2026 stop. They leave midway." },
+            { speaker: 'other', text: "They can\u2019t tell if anything is happening. That\u2019s not a backend problem." },
+          ]}
+        />
         <Avatar
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>I didn&apos;t say the system wasn&apos;t working. I said watch what the user does.</>}
-          expandedContent="A session recording is not a bug report — it's a window into the user's mental model. When you watch a user interact, you see the exact moment their model of 'what should happen' collides with the product's model of 'what actually happens.' That collision is where UX problems live, and it's invisible in any metric."
+          content={<>A session recording is a window into the user\u2019s mental model. The exact moment their model of \u2018what should happen\u2019 collides with the product\u2019s model of \u2018what actually happens\u2019 \u2014 that collision is where UX problems live. It\u2019s invisible in any metric.</>}
+          expandedContent="Systems can be functionally correct and experientially broken. The backend processed every request successfully. The user had zero information about it. Those aren't the same world."
           conceptId="ux-designer-collaboration"
           question="Maya asks for two hours next week to review session recordings together. Rohan says the priority is shipping the next feature. Who do you side with?"
           options={[
@@ -1358,11 +1410,20 @@ export default function Track1UXDesign() {
           The system worked perfectly. And the user left anyway.
         </>)}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "The system worked perfectly every time. And they still left." },
+            { speaker: 'other', text: "There are two kinds of broken: technically broken and experientially broken. Engineering fixes the first. Product design fixes the second." },
+            { speaker: 'priya', text: "We fixed the first. Never looked at the second." },
+            { speaker: 'other', text: "You optimised copy around an experience that still left users in the dark." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content="There are two kinds of broken: technically broken and experientially broken. Engineering fixes the first. Product design fixes the second. Priya's team fixed neither — they optimised copy around an experience that still left users in the dark."
+          content="Technically broken = engineering fixes it. Experientially broken = design fixes it. The two are easy to confuse and expensive to conflate. A metric gap is the first signal that you might have the wrong kind of broken."
           conceptId="ux-two-kinds-broken"
           question="The system processes correctly but users abandon midway. What's the core issue?"
           options={[
@@ -1412,11 +1473,19 @@ export default function Track1UXDesign() {
           this is broken, therefore I&apos;m leaving. That&apos;s not impatience. That&apos;s logic.
         </>)}
 
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data · EdSpark" accent="#3A86FF"
+          lines={[
+            { speaker: 'other', text: "Average processing time: 45 seconds. Drop-off spike: 12 seconds. 67% of abandoning users leave in the first 15 seconds." },
+            { speaker: 'priya', text: "They\u2019re not patient enough. We need to make the analysis faster." },
+            { speaker: 'other', text: "The drop-off isn\u2019t about patience. It\u2019s about information. At 12 seconds they have none. They\u2019re not impatient \u2014 they\u2019re rational." },
+          ]}
+        />
         <Avatar
           name="Kiran"
           nameColor="#3A86FF"
           borderColor="#3A86FF"
-          content={<>The drop-off isn&apos;t about patience. It&apos;s about information. At 12 seconds they have none.</>}
+          content={<>Users don\u2019t abandon slow systems. They abandon uncertain ones. At 12 seconds without feedback, leaving is the logical choice \u2014 the only information they have is that nothing is happening.</>}
           conceptId="ux-data-to-requirement"
           question="Kiran's data: 67% of abandoning users leave within 15 seconds. Average processing time: 45 seconds. What product requirement does this create?"
           options={[
@@ -1427,12 +1496,21 @@ export default function Track1UXDesign() {
           ]}
         />
 
+        <ConversationScene
+          mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
+          lines={[
+            { speaker: 'priya', text: "Can we at least add a label? Something like \u2018Analyzing your recording\u2019?" },
+            { speaker: 'other', text: "That\u2019s what you have now. \u2018Analyzing\u2019 isn\u2019t a state. It\u2019s a word." },
+            { speaker: 'priya', text: "What do they actually need?" },
+            { speaker: 'other', text: "To know what\u2019s happening, how long it will take, and what comes next. \u2018Analyzing\u2019 answers none of those." },
+          ]}
+        />
         <Avatar
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>They don&apos;t know they should wait. &ldquo;Analyzing&rdquo; isn&apos;t a state. It&apos;s a word.</>}
-          expandedContent="A UI state needs to answer three questions: what is happening, how long will it take, and what comes next. 'Analyzing' answers none of them. It's a label pasted over a silence. A real loading state is a system communicating with a user — progress bar, time estimate, context-specific message. That's what makes waiting feel intentional rather than broken."
+          content={<>A UI state needs to answer three questions: what is happening, how long will it take, what comes next. &ldquo;Analyzing&rdquo; answers none of them. It\u2019s a label pasted over silence. A real loading state is a system communicating with a user.</>}
+          expandedContent="Progress bar, time estimate, context-specific message — those are what make waiting feel intentional rather than broken. Maya can design this in 20 minutes, but only if the spec is specific about all three elements."
           conceptId="ux-state-design"
           question="You're writing the spec for the loading state to hand to Maya. What's the minimum your spec must describe?"
           options={[
@@ -1443,12 +1521,21 @@ export default function Track1UXDesign() {
           ]}
         />
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "So we need feedback within 12 seconds." },
+            { speaker: 'other', text: "Before 12. The 12-second drop-off is a design specification hiding as a data point. Users need feedback by second 5 at the latest." },
+            { speaker: 'priya', text: "Every second of silence after that is a decision point." },
+            { speaker: 'other', text: "Exactly. And right now you\u2019re giving them 45 seconds of silence." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content="The 12-second drop-off is a design specification hiding as a data point. It's telling you: users need feedback by second 5 at the latest. Every second of silence after that is a decision point where they can leave."
-          expandedContent="Processing time is a product constraint. Perceived processing time is a design problem. You can't always make things faster — but you can almost always make waiting feel intentional. Progress bars, status messages, time estimates: these don't speed up the system. They eliminate the ambiguity that causes abandonment."
+          content="Processing time is a product constraint. Perceived processing time is a design problem. You can't always make things faster — but you can almost always make waiting feel intentional. Progress bars, status messages, time estimates don't speed up the system. They eliminate the ambiguity that causes abandonment."
+          expandedContent="Users can wait 3 minutes for an Uber because they have a map and a countdown. They can't wait 12 seconds for EdSpark because they have nothing. Same wait time, completely different experience."
           conceptId="ux-uncertainty-abandonment"
           question="Why do users leave at 12 seconds if the process takes 45 seconds?"
           options={[
@@ -1491,12 +1578,22 @@ export default function Track1UXDesign() {
 
         <SpecComparisonMockup />
 
+        <ConversationScene
+          mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#6E7681"
+          lines={[
+            { speaker: 'other', text: "I built what was written. \u2018Step 2: Analyze recording.\u2019 No loading state was specified. I assumed the system feedback was handled elsewhere." },
+            { speaker: 'priya', text: "That was my gap. I wrote the happy path and never thought about the waiting state." },
+            { speaker: 'other', text: "If you know what states a feature needs \u2014 loading, error, empty, success \u2014 tell me upfront. I can\u2019t build what isn\u2019t in the spec." },
+            { speaker: 'priya', text: "Going forward \u2014 flag it in sprint planning if you see states missing." },
+            { speaker: 'other', text: "Deal." },
+          ]}
+        />
         <Avatar
           name="Dev"
           nameColor="#6E7681"
           borderColor="#6E7681"
-          content={<>I built what was written. No loading state was specified. I assumed the system feedback was handled elsewhere.</>}
-          expandedContent="Engineers build to spec — this isn't a gap in their process, it's a feature of it. When an engineer fills in something not in the spec, they're patching a gap the PM created. The loading state wasn't forgotten — it was never considered. That's a different problem requiring a different fix."
+          content={<>Engineers build to spec. When an engineer fills in an unspecified state, they\u2019re patching a gap the PM created. The loading state wasn\u2019t forgotten \u2014 it was never considered. That\u2019s a different problem requiring a different fix.</>}
+          expandedContent="'Never considered' requires a different kind of thinking going forward: what is every possible state this UI can be in? Write them all down before a single line of code is written."
           conceptId="ux-pm-engineer-spec"
           question="Dev says this in the retrospective. What's the most constructive PM response in this moment?"
           options={[
@@ -1520,12 +1617,21 @@ export default function Track1UXDesign() {
           the real root cause. Not a bug. Not a missed ticket. A hole in the thinking.
         </>)}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "Dev\u2019s right. I wrote the spec. I just never thought about what happens during those 45 seconds." },
+            { speaker: 'other', text: "A spec that only describes the happy path is a spec for a world that doesn\u2019t exist. Real users hit loading states, error states, empty states." },
+            { speaker: 'priya', text: "If those aren\u2019t designed, they\u2019re improvised." },
+            { speaker: 'other', text: "By engineers. In production. Usually badly." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content="A spec that only describes the happy path is a spec for a world that doesn't exist. Real users hit loading states, error states, empty states. If those aren't designed, they're improvised — by engineers, in production."
-          expandedContent="The loading state wasn't forgotten — it was never considered. That's the difference. Forgotten things can be added. Never-considered things require a different kind of thinking: what is every possible state this UI can be in? Write them all down before a single line of code is written."
+          content="The loading state wasn't forgotten — it was never considered. Forgotten things can be added. Never-considered things require a different kind of thinking: what is every possible state this UI can be in? Write them all down before a single line of code is written."
+          expandedContent="Success is 40% of the experience. The other 60% is loading, error, empty, and edge cases — the states most PMs never spec."
           conceptId="ux-spec-completeness"
           question="Dev says 'I built what was written.' Who is responsible for the missing loading state?"
           options={[
@@ -1596,11 +1702,20 @@ export default function Track1UXDesign() {
           takes an afternoon. The sentence works.
         </>)}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "Maya designed it in 20 minutes. Dev shipped it in an afternoon." },
+            { speaker: 'other', text: "The fix cost one afternoon. The original gap cost two weeks of confusion, a 30% completion rate, and a post-launch investigation." },
+            { speaker: 'priya', text: "One missing sentence in the spec." },
+            { speaker: 'other', text: "That\u2019s the real cost of an incomplete spec." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content="The fix cost one afternoon. The original gap cost two weeks of confusion, a 30% completion rate, and a post-launch investigation. That's the real cost of an incomplete spec."
+          content="The most expensive mistakes in product are usually missing sentences, not missing features. Every day PMs propose redesigns when the actual problem is a missing paragraph in a spec."
           conceptId="ux-feedback-loops"
           question="What actually improved the user experience in this fix?"
           options={[
@@ -1658,12 +1773,21 @@ export default function Track1UXDesign() {
 
         <SlackUpdateMockup />
 
+        <ConversationScene
+          mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
+          lines={[
+            { speaker: 'priya', text: "Completion went from 30% to 58%. From a loading state." },
+            { speaker: 'other', text: "You fixed the experience. The feature was always fine." },
+            { speaker: 'priya', text: "I kept thinking something was wrong with the feature itself." },
+            { speaker: 'other', text: "The feature worked. The wait \u2014 the silence \u2014 that was broken." },
+          ]}
+        />
         <Avatar
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>You fixed the experience. The feature was always fine.</>}
-          expandedContent="This distinction matters for everything that comes next. When you see a metric underperform, the first question should always be: is this a feature failure or an experience failure? Feature failures need roadmap changes. Experience failures need design changes. Confusing the two is how teams ship new features into broken experiences."
+          content={<>When a metric underperforms, the first question should always be: is this a feature failure or an experience failure? Feature failures need roadmap changes. Experience failures need design changes. Confusing the two is how teams ship new features into broken experiences.</>}
+          expandedContent="The loading state fix was a design change, not a feature change. Same feature, same flow — just with visible progress. That distinction matters for every diagnosis going forward."
           conceptId="ux-feature-vs-experience"
           question="Completion is now 58%. Rohan asks: 'Should we redesign the full onboarding flow to close the remaining gap?' What's your answer?"
           options={[
@@ -1676,12 +1800,21 @@ export default function Track1UXDesign() {
 
         {pullQuote('Users don\'t experience features. They experience what happens between actions.')}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "28 points from three lines of copy and a progress bar." },
+            { speaker: 'other', text: "28 points from a loading state. That\u2019s not unusual \u2014 it\u2019s what happens when you fix the right thing." },
+            { speaker: 'priya', text: "Most UX problems aren\u2019t in the features themselves." },
+            { speaker: 'other', text: "They\u2019re in the gaps between features. What happens between actions is often more important than the actions themselves." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content="28 points from a loading state. That's not unusual — it's what happens when you fix the right thing. Most UX problems aren't about the feature. They're about the gaps between features."
-          expandedContent="The UX debug loop: observe real users → identify the specific drop-off moment → ask what they're feeling in that moment (not what they think) → fix clarity, not just functionality → measure again. Priya ran this loop. It works every time."
+          content="The UX debug loop: observe real users → find the exact drop-off moment → ask what they're feeling in that moment → fix clarity, not just functionality → measure the specific change. Priya ran this loop. It works every time."
+          expandedContent="Users don't experience features. They experience what happens between actions — the waits, the transitions, the states. That's where most UX problems live, and it's invisible in any metric."
           conceptId="ux-debug-loop"
           question="What does a 28-point improvement from a loading state tell you about the original spec?"
           options={[
