@@ -17,6 +17,31 @@ const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to 
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
 
 // ─────────────────────────────────────────
+// CONVERSATION SCENE — Priya ↔ stakeholder chat bubbles
+// ─────────────────────────────────────────
+type CSLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
+}) => (
+  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {lines.map((l, i) => {
+      const isPriya = l.speaker === 'priya';
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div style={{ flexShrink: 0 }}>
+            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor} size={38} />}
+          </div>
+          <div style={{ maxWidth: '72%' }}>
+            {i === 0 && <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>{isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>\u00b7 {isPriya ? 'PM' : role}</span></div>}
+            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+// ─────────────────────────────────────────
 // TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
@@ -974,11 +999,23 @@ export default function Track1Prioritization() {
           convert them into the same currency.
         </>)}
 
+        <ConversationScene
+          mentor="asha"
+          name="Asha"
+          role="Senior PM"
+          accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I have four things on my list but I can\u2019t figure out how to compare them. A sales ask, user complaints, a data signal, a referral idea \u2014 they don\u2019t even feel like the same type of thing." },
+            { speaker: 'other', text: "They\u2019re not. Feature requests, complaints, stakeholder asks, data signals \u2014 four completely different input types with different confidence levels and shelf lives." },
+            { speaker: 'priya', text: "So how do I compare them?" },
+            { speaker: 'other', text: "You don\u2019t \u2014 not yet. First you convert them into the same currency: problem statements. Right now you have apples, oranges, and a wrench in the same bowl." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>&ldquo;Are these even the same type of things?&rdquo; Feature requests, complaints, stakeholder asks, and data signals are all different kinds of inputs. Before you can prioritize, you need to convert them into the same currency: problem statements. Right now you have apples, oranges, and a wrench in the same bowl.</>}
+          content={<>Before you can prioritize, convert every input into a problem statement. That\u2019s the common currency that makes comparison possible.</>}
         />
 
         {h2(<>You can&apos;t prioritize what you haven&apos;t defined</>)}
@@ -1058,12 +1095,24 @@ export default function Track1Prioritization() {
           you can actually design and test against.
         </>)}
 
+        <ConversationScene
+          mentor="asha"
+          name="Asha"
+          role="Senior PM"
+          accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I rewrote all four items as problem statements. It took longer than I expected \u2014 I kept wanting to jump to the solution." },
+            { speaker: 'other', text: "That\u2019s the discipline. Now look at what you have: four comparable, specific statements. You can finally ask the right question \u2014 which one matters most?" },
+            { speaker: 'priya', text: "Two of them feel like they might be solving the same underlying thing though. CRM sync and deal context loss." },
+            { speaker: 'other', text: "That\u2019s JTBD. Users don\u2019t want features \u2014 they want to get a job done. When two requests share the same job, you might only need to build one thing." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>Now you have four problem statements. They&apos;re comparable. They&apos;re specific. And you can finally start asking: which one matters most?</>}
-          expandedContent={<>Jobs to Be Done is the frame behind every problem statement. Users don&apos;t want features &mdash; they want to get a job done. &ldquo;Build CRM integration&rdquo; is a feature. &ldquo;Sales reps need to stay in context during deal reviews&rdquo; is a job. Find the job, and the right solution becomes obvious. The JTBD frame also helps you spot when two different feature requests are actually solving the same underlying job &mdash; which means you might only need to build one thing.</>}
+          content={<>Now you have four comparable problem statements. Jobs to Be Done helps you spot when two different requests are actually the same job \u2014 which means you might only need to build one thing.</>}
+          expandedContent={<>Jobs to Be Done is the frame behind every problem statement. Users don\u2019t want features \u2014 they want to get a job done. \u201cBuild CRM integration\u201d is a feature. \u201cSales reps need to stay in context during deal reviews\u201d is a job. Find the job, and the right solution becomes obvious. The JTBD frame also helps you spot when two different feature requests are actually solving the same underlying job \u2014 which means you might only need to build one thing.</>}
         />
 
         {keyBox('Problem Statement Template', [
@@ -1203,12 +1252,24 @@ export default function Track1Prioritization() {
           information, not a weakness.
         </>)}
 
+        <ConversationScene
+          mentor="asha"
+          name="Asha"
+          role="Senior PM"
+          accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "The RICE scores are really clear \u2014 onboarding at 800, CRM at 12.5. But I feel like Marcus is going to push back on the numbers." },
+            { speaker: 'other', text: "Good. That\u2019s the point. When he pushes back on the score, he\u2019s really pushing back on your assumptions \u2014 your Reach estimate, your Confidence level. That\u2019s strategy, not feelings." },
+            { speaker: 'priya', text: "So the disagreement becomes about data, not opinions." },
+            { speaker: 'other', text: "Exactly. RICE doesn\u2019t make the decision for you. It forces you to make your assumptions visible. When you disagree on a score, you\u2019re having a much better conversation." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>RICE doesn&apos;t make the decision for you. It forces you to make your assumptions visible. When you disagree on a score, you&apos;re really disagreeing on strategy &mdash; and that&apos;s a much better conversation to have.</>}
-          expandedContent={<>The confidence score is the most honest part of RICE. It&apos;s where you admit what you don&apos;t know. A team that puts 80% confidence on everything is lying to itself. A team that puts 30% on something should probably run more research before committing to build it. Low confidence is not a problem &mdash; it&apos;s a signal to gather more data before you start building.</>}
+          content={<>RICE doesn\u2019t make the decision for you. It forces assumptions into the open. Disagreement on a score is disagreement on strategy \u2014 a much better conversation than gut vs. gut.</>}
+          expandedContent={<>The confidence score is the most honest part of RICE. It\u2019s where you admit what you don\u2019t know. A team that puts 80% confidence on everything is lying to itself. A team that puts 30% on something should probably run more research before committing to build it. Low confidence is not a problem \u2014 it\u2019s a signal to gather more data before you start building.</>}
           question="What does a low RICE score for a feature request mean?"
           options={[
             { text: 'The feature is not worth building — ever', correct: false, feedback: 'RICE scores change as context changes. A low score today might be high next quarter if the strategic situation shifts.' },
@@ -1252,12 +1313,24 @@ export default function Track1Prioritization() {
           her decision if the data warrants it. That last part is important.
         </>)}
 
+        <ConversationScene
+          mentor="asha"
+          name="Asha"
+          role="Senior PM"
+          accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I sent the reply. I didn\u2019t apologize, I didn\u2019t cave. But I\u2019m still nervous Marcus is going to escalate." },
+            { speaker: 'other', text: "That\u2019s fine. The goal isn\u2019t for him to agree. The goal is for him to understand your reasoning. \u2018I disagree but I understand why\u2019 is a successful outcome." },
+            { speaker: 'priya', text: "What if he doesn\u2019t understand?" },
+            { speaker: 'other', text: "Then you didn\u2019t communicate clearly enough \u2014 not that you made the wrong call. Clarity builds trust even when people disagree." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>Notice what Priya didn&apos;t do: she didn&apos;t apologize, and she didn&apos;t cave. She explained her reasoning with data and connected it to a metric everyone cares about. Clarity builds trust &mdash; even when people disagree with the decision.</>}
-          expandedContent={<>The test of a good prioritization decision is not whether everyone agrees. It&apos;s whether everyone understands why. If a stakeholder can say &ldquo;I disagree but I understand the reasoning,&rdquo; you&apos;ve done your job. &ldquo;I disagree and I don&apos;t understand why&rdquo; means you didn&apos;t communicate well enough &mdash; not that your decision was wrong.</>}
+          content={<>Priya didn\u2019t apologize and didn\u2019t cave. She explained with data and connected it to a shared metric. \u201cI disagree but I understand\u201d is the goal \u2014 not agreement.</>}
+          expandedContent={<>The test of a good prioritization decision is not whether everyone agrees. It\u2019s whether everyone understands why. If a stakeholder can say \u201cI disagree but I understand the reasoning,\u201d you\u2019ve done your job. \u201cI disagree and I don\u2019t understand why\u201d means you didn\u2019t communicate well enough \u2014 not that your decision was wrong.</>}
           question="A senior stakeholder disagrees with your priority call. What do you do?"
           options={[
             { text: 'Change the priority to keep them happy', correct: false, feedback: 'This makes every future decision subject to whoever shouts loudest. It also destroys your credibility as someone who makes principled decisions.' },
