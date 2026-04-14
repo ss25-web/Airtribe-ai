@@ -511,6 +511,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection num="01" accentRgb={ACCENT_RGB} id="genai-m1-whatitis" first>
         {chLabel('Week 0 · Introduction to Generative AI')}
         {h2('It does not look things up. It generates what probably comes next.')}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can explain why adding a stronger model won\u2019t fix a retrieval problem \u2014 and name the architectural component that actually is missing."
+          : "\u25b6 After this section, you can tell the difference between a model problem and an information problem, and know which one to fix."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
             ? <>Aarav&apos;s team shipped an LLM call that returns coverage rates during claims triage. Three days after demo, the data team flags it: the numbers look right but aren&apos;t. No one panics — it was a prototype. But Aarav pulls the API call apart looking for the bug. There is no bug. The model returned plausible rates because plausible rates are what the training data looked like. There is no claim system in the call. No policy database. Just a question and a model that answered it. He messages Rohan: <em>&ldquo;I think I fundamentally misunderstood what this thing actually does.&rdquo;</em></>
@@ -552,11 +556,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Agree — a model trained on more recent healthcare data would return accurate rates', correct: false, feedback: 'No version of this model has Northstar\'s specific rates in its weights. A newer model would generate equally plausible but equally wrong numbers.' },
                 { text: 'The model is doing its job — the call needs a retrieval layer to pull actual rates from the claims system', correct: true, feedback: 'Exactly. The fix is architecture, not model quality. The model handles the language work. A retrieval layer connects it to live data.' },
                 { text: 'Fine-tune the model on Northstar\'s historical claims data to improve accuracy', correct: false, feedback: 'Fine-tuning on historical data improves pattern matching, not real-time accuracy. It still won\'t have current rates.' },
+                { text: 'Update the prompt to explicitly instruct the model not to make up numbers', correct: false, feedback: 'You can\'t prompt your way out of an architecture gap. Instructing the model not to hallucinate doesn\'t give it access to Northstar\'s actual rates — it will still generate from training patterns.' },
               ]
             : [
                 { text: 'Agree — policy compliance tasks need a model trained on more recent regulatory data', correct: false, feedback: 'Training recency doesn\'t change the fundamental issue. No model has Northstar\'s internal procedures unless you give them as input.' },
                 { text: 'The model is working as designed — it was being asked for specific data it cannot have without retrieval', correct: true, feedback: 'Yes. Policy procedures exist in specific documents, not in training patterns. The fix is putting those documents in the context, not finding a better model.' },
                 { text: 'Write longer prompts that include more context about what Northstar does', correct: false, feedback: 'More context helps, but if the actual procedure document isn\'t in the prompt, no amount of background context produces the correct procedure.' },
+                { text: 'Switch to a model with internet access so it can look up the correct procedure', correct: false, feedback: 'Internet access doesn\'t give the model Northstar\'s internal procedure. That lives in your internal documentation, not on the web.' },
               ]}
         />
         {para(track === 'tech'
@@ -598,11 +604,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Return the current deductible for a given plan and coverage tier', correct: false, feedback: 'Current deductibles live in a plan database. That\'s a data lookup — the model needs retrieval to answer correctly.' },
                 { text: 'Rewrite a dense case note into plain language for a patient communication', correct: true, feedback: 'The input is the case note. The output is a rewritten version. Nothing from an external system is required. That\'s a language task the model can do directly.' },
                 { text: 'Check whether an exception request was resolved within the 48-hour SLA window', correct: false, feedback: 'SLA compliance requires a timestamp lookup from your case management system. Data lookup, not language task.' },
+                { text: 'Generate a risk score for a claim based on its category and value', correct: false, feedback: 'Risk scoring on specific claim values requires arithmetic on real financial data — that\'s a data lookup and calculation, not a language task.' },
               ]
             : [
                 { text: 'SLA checking — that\'s a pattern-matching task LLMs handle well', correct: false, feedback: 'SLA checking requires live timestamp data from your claims system. The model can\'t look that up without retrieval infrastructure.' },
                 { text: 'Drafting complaint responses — the model only needs what\'s in the prompt, no live data required', correct: true, feedback: 'Yes. A good complaint response requires understanding the situation and writing well — both language work. The draft goes to a human before sending anyway.' },
                 { text: 'Both work — modern LLMs are capable enough for both categories', correct: false, feedback: 'Capability isn\'t the issue. Architecture is. SLA checking requires current data the model simply doesn\'t have without a retrieval layer.' },
+                { text: 'Complaint drafting, but only after connecting it to the patient database for richer context', correct: false, feedback: 'Complaint drafting works without the database — the situation description you paste in is sufficient. Adding a database connection is extra complexity that doesn\'t change the fundamental task type.' },
               ]}
         />
         {keyBox('What GenAI actually is', [
@@ -635,6 +643,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection num="02" accentRgb={ACCENT_RGB} id="genai-m1-capabilities">
         {chLabel('The Capability Map')}
         {h2('Every model has a reliable zone. Most teams use it outside that zone.')}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can classify any proposed LLM integration into Reliable, Extended, or Unreliable zone using three diagnostic questions \u2014 and explain what to do differently in each zone."
+          : "\u25b6 After this section, you can map your team\u2019s AI tasks across the three zones and identify which ones need a retrieval layer or human review step to be safe."
+        )}
         <SituationCard accent="#2563EB" accentRgb="37,99,235">
           {track === 'tech'
             ? <>Aarav takes a whiteboard and maps everything his team has tried with LLMs in the last quarter. Left side: worked reliably. Right side: failed or got flagged. Middle: inconsistent. He stares at the left side — classification, summarisation, extraction from forms, rewriting dense notes. He stares at the right side — arithmetic on claim amounts, questions about current patient records, contract language that had to be legally exact. The pattern is uncomfortable because it was obvious in retrospect. The model wasn&apos;t bad at some things and good at others randomly. It had a zone. Nobody had looked for it. He calls Rohan.</>
@@ -676,11 +688,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Unreliable — structured extraction needs deterministic parsing logic, not AI', correct: false, feedback: 'Extraction from free text is a core LLM strength. Given a clear schema, they reliably pull structured fields from unstructured input.' },
                 { text: 'Reliable — extracting defined fields from text you provide is a language task with no live data dependency', correct: true, feedback: 'Yes. The form is in the context window, the schema is specified, no external system required. Reliable zone.' },
                 { text: 'Extended — you\'d need retrieval infrastructure to make this work consistently', correct: false, feedback: 'Retrieval is for when you need to look things up from external systems. If the form is in the prompt, you already have what the model needs.' },
+                { text: 'Reliable, but only after fine-tuning the model on intake form examples first', correct: false, feedback: 'Fine-tuning isn\'t needed for extraction from forms you provide. A well-specified prompt with the form in context handles this reliably without additional training.' },
               ]
             : [
                 { text: 'Unreliable — urgency flagging requires clinical judgment the model can\'t make', correct: false, feedback: 'Classifying from a text description is a language task. It doesn\'t require clinical judgment — it requires reading the description and applying defined criteria.' },
                 { text: 'Reliable — reading a case description and flagging urgency is a language task, as long as a human reviews before action', correct: true, feedback: 'Right. The model reads text and assigns a category. No live data required. And with a review step, errors are caught before they affect the case.' },
                 { text: 'Extended — you\'d need retrieval of the patient\'s history to flag urgency accurately', correct: false, feedback: 'For a first pass on inbound escalations, the description itself is often enough to flag urgency. Retrieval can be added later, but it\'s not the baseline requirement.' },
+                { text: 'Unreliable — the model can\'t be consistent enough across different urgency definitions', correct: false, feedback: 'Inconsistency is a prompt specification problem, not a fundamental model limitation. Define the urgency criteria explicitly in the prompt and the model applies them reliably.' },
               ]}
         />
         {para(track === 'tech'
@@ -722,11 +736,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Both — AI accuracy is high enough that the risk difference is minimal', correct: false, feedback: 'Accuracy rates are averages. Claim adjustments that are wrong 2% of the time, undetected, are a financial and compliance liability. Format errors in correspondence are caught in review.' },
                 { text: 'Formatting correspondence — errors are visible and low-stakes. Claim calculations are in the unreliable zone with consequential, potentially invisible errors', correct: true, feedback: 'Exactly. Formatting is a reliable-zone task with easy verification. Arithmetic on real claim amounts is unreliable, and wrong outputs in financial calculation can pass unnoticed.' },
                 { text: 'Claim adjustments — more value, and accuracy rates on structured tasks are high enough to proceed', correct: false, feedback: 'Value doesn\'t determine safety. Arithmetic on novel numbers in the unreliable zone produces errors that look exactly like correct outputs.' },
+                { text: 'Neither — both require domain expertise the model doesn\'t have', correct: false, feedback: 'Formatting correspondence doesn\'t require domain expertise — it\'s a language task the model handles well. The distinction is reliable zone (formatting) vs unreliable zone (arithmetic on real numbers), not domain expertise.' },
               ]
             : [
                 { text: 'Auto-routing is more efficient — it removes a bottleneck from the review process', correct: false, feedback: 'Efficiency is the right goal eventually. But removing the human checkpoint means the model\'s errors act on real cases before anyone sees them.' },
                 { text: 'Auto-routing removes the human checkpoint — a wrong urgency flag routes a case incorrectly with no one noticing until something downstream breaks', correct: true, feedback: 'Yes. In the first workflow, a wrong summary goes to a case worker who catches it. In the second, a wrong flag routes a case — and the affected person may not know until it\'s too late.' },
                 { text: 'Both are equivalent — the model\'s accuracy on urgency flagging is high enough to proceed without review', correct: false, feedback: 'Accuracy rates don\'t address what happens in the failures. The question is whether errors are catchable, not just rare.' },
+                { text: 'AI-drafted summaries are riskier — a wrong summary could mislead a case worker more than a wrong route', correct: false, feedback: 'A wrong summary goes to a case worker who reads it before acting — they catch it. A wrong urgency flag auto-routes before anyone sees it. The review step is the key difference, not which task feels higher-stakes.' },
               ]}
         />
         {keyBox('The three zones', [
@@ -752,6 +768,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-m1-mental-model">
         {chLabel('The Mental Model Shift')}
         {h2('You are not asking a question. You are specifying a task.')}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can diagnose a prompt variance problem and specify the missing dimensions \u2014 role, format, constraints, length, example \u2014 that collapse it."
+          : "\u25b6 After this section, you can rewrite a vague prompt by identifying every unspecified dimension and filling it in deliberately."
+        )}
         <SituationCard accent="#0F766E" accentRgb="15,118,110">
           {track === 'tech'
             ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Priya&apos;s prompts. The bad ones came from Dev&apos;s. The model is the same. The prompts are not. Priya&apos;s specify a role, output format, required fields, and length. Dev&apos;s are three words followed by a case note. He messages Anika.</>
@@ -793,11 +813,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Agree — LLM variance is a known limitation that can\'t be engineered around', correct: false, feedback: 'Variance exists, but it fills the space you leave for it. Specify format, length, and constraints, and the variance mostly disappears.' },
                 { text: 'The model is filling the gaps he\'s leaving. If he specifies format, length, and what to include, the variance will collapse', correct: true, feedback: 'Exactly. "Summarise this" leaves every dimension open. "Write a 3-sentence summary covering category, key action, and urgency — in plain language for a case worker" doesn\'t.' },
                 { text: 'He needs to provide more context about each case to get consistent outputs', correct: false, feedback: 'More case context helps the model understand the situation. But output variance is about output specification — format, length, structure — not input volume.' },
+                { text: 'Switch to a lower temperature setting to reduce the model\'s randomness', correct: false, feedback: 'Temperature reduction helps at the margins, but output variance from an underspecified brief isn\'t primarily a temperature problem. A lower-temperature model still has to choose format, length, and structure when you leave them open.' },
               ]
             : [
                 { text: 'More context about the case — the model needs more background to produce a good summary', correct: false, feedback: 'More input context helps the model understand the situation. But the inconsistency is about output specification — Dev\'s prompt doesn\'t tell the model what format, length, or structure to use.' },
                 { text: 'Format and length — define what the output should look like before anything else', correct: true, feedback: 'Yes. "Write a 3-sentence summary in plain language, covering: what happened, what action is needed, and urgency level" immediately collapses most of the variance.' },
                 { text: 'A role instruction — telling the model it\'s a claims specialist', correct: false, feedback: 'Role helps orient the model, but if format and length are still unspecified, the outputs will still vary significantly.' },
+                { text: 'A stricter instruction at the end — \'be consistent and professional\'', correct: false, feedback: 'Vague quality instructions don\'t anchor specific dimensions. \'Be consistent\' doesn\'t tell the model what consistent looks like. Format and length specifications do.' },
               ]}
         />
         {para(track === 'tech'
@@ -839,11 +861,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Write comprehensive format instructions covering every structural edge case', correct: false, feedback: 'Comprehensive instructions help but still leave interpretation space. One example is more efficient — it shows exactly what you mean.' },
                 { text: 'Include one example of a good output as a reference for the model to match', correct: true, feedback: 'One well-chosen example teaches format, tone, length, and structure simultaneously. It\'s the fastest way to get consistent outputs on a recurring task.' },
                 { text: 'Run it a few times and manually select the best output as the template', correct: false, feedback: 'That helps you identify what good looks like, but without embedding that standard in the prompt, every new run is still a lottery.' },
+                { text: 'Add a chain-of-thought instruction so the model explains its formatting choices', correct: false, feedback: 'Chain-of-thought is useful for reasoning tasks. For format consistency on a recurring task, an example output is more direct — it shows the model what to produce rather than asking it to reason about how.' },
               ]
             : [
                 { text: 'Write detailed formatting instructions and test against five cases before going live', correct: false, feedback: 'Detailed instructions help, but they still leave room for interpretation. An example gives the model a concrete reference that doesn\'t depend on interpretation.' },
                 { text: 'Include one good previous summary as an example so the model has a concrete reference', correct: true, feedback: 'Exactly. One example teaches format, length, and tone simultaneously — more efficiently than any description.' },
                 { text: 'Ask the model to suggest a format, then standardise on what it proposes', correct: false, feedback: 'That gives you a model-chosen format. For a recurring task with a specific audience, the format should come from you.' },
+                { text: 'Send the prompt to three team members and use whichever version produces the most consistent outputs', correct: false, feedback: 'Testing with team members evaluates outputs, but doesn\'t anchor format in the prompt. An example output is what makes every future run consistent — not just the ones your team tested.' },
               ]}
         />
         {pullQuote('Vague brief, model chooses. Specific brief, you choose. The model executes either way.')}
@@ -863,6 +887,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-m1-context">
         {chLabel('Context Is the Input')}
         {h2('The quality of the output is bounded by the quality of what went in.')}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can identify a context assembly failure in a staging environment and know to fix the data pipeline before touching the prompt."
+          : "\u25b6 After this section, you can audit what the model actually receives in a failing case and distinguish a context quality problem from a prompt problem."
+        )}
         <SituationCard accent="#C2410C" accentRgb="194,65,12">
           {track === 'tech'
             ? <>Aarav&apos;s team has a prompt that works well in testing — sharp outputs, right format, right length. In staging, the same prompt produces degraded outputs on roughly one in five cases. He spends most of a day in the prompt, adding constraints, clarifying the format spec, running A/B tests. The outputs barely change. Finally, a colleague suggests inspecting the actual payloads. He pulls up a failing case. The context packet has a patient record where three fields are null, a case note truncated at the API limit, and an intake form where structured fields were flattened into a single unbroken string. He messages Rohan.</>
@@ -904,11 +932,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Agree — a larger model handles incomplete context better', correct: false, feedback: 'A larger model receiving a context packet with null fields and a truncated case note will produce a better-written bad output. The constraint is the data, not the model.' },
                 { text: 'Fix the context assembly pipeline first — the model is doing its job with broken inputs', correct: true, feedback: 'Exactly. The model generates from what it receives. If the payload is broken, the fix is in the data pipeline, not the model.' },
                 { text: 'Add fallback instructions to the prompt for when fields are missing', correct: false, feedback: 'Fallback instructions help the model handle missing data more gracefully. But they don\'t fix missing data. The context assembly layer needs to validate before inference.' },
+                { text: 'Rewrite the prompt to explicitly handle each missing field scenario', correct: false, feedback: 'You can\'t write your way out of missing data. If the case note is truncated at the API limit, no prompt instruction recovers what was cut off. Fix the data pipeline.' },
               ]
             : [
                 { text: 'Agree — a better model would infer missing information from the partial context', correct: false, feedback: 'Models can\'t conjure information that isn\'t there. A larger model generates a more fluent summary of nothing.' },
                 { text: 'The model is working correctly — the issue is incomplete context reaching the model. That\'s a data pipeline problem', correct: true, feedback: 'Yes. Same prompt, same model, different inputs. The variable is the context packet. Fix that layer first.' },
                 { text: 'Keep debugging the prompt — there\'s probably a constraint that would make the model handle incomplete records better', correct: false, feedback: 'You can instruct the model to handle missing data gracefully, but instructions can\'t substitute for actual information. If the attachment didn\'t load, no prompt instruction retrieves it.' },
+                { text: 'Add a verification step after the summary is generated, asking the model to check its own output', correct: false, feedback: 'Self-verification doesn\'t work when the model doesn\'t know what information is missing. It can only check what it received — not what should have been there.' },
               ]}
         />
         {para(track === 'tech'
@@ -950,11 +980,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Log all API calls so you can inspect failing cases after the fact', correct: false, feedback: 'Logging is essential for debugging, but it doesn\'t prevent bad outputs from being delivered. The safeguard needs to be before inference.' },
                 { text: 'Validate required fields before sending to the model — if they\'re missing, flag the case for human review instead of running inference', correct: true, feedback: 'Exactly. Silent failures are the most dangerous kind. Validate context completeness before the call. If something critical is missing, the system should know that and act accordingly.' },
                 { text: 'Add a confidence score output so downstream users know when to verify the summary', correct: false, feedback: 'Confidence scores help, but they reflect the model\'s self-assessment, not context completeness. A model receiving a broken context packet doesn\'t necessarily output a low confidence score.' },
+                { text: 'Set up automated regression testing that runs on a weekly batch of real cases', correct: false, feedback: 'Regression testing catches patterns after delivery. The safeguard needs to be pre-inference — if a required field is missing, the case shouldn\'t reach the model at all.' },
               ]
             : [
                 { text: 'Add a disclaimer to every AI summary reminding case workers to verify against the original record', correct: false, feedback: 'Disclaimers shift the burden to the case worker without fixing the underlying issue. If the context is broken, the summary is unreliable regardless of the disclaimer.' },
                 { text: 'Validate that required fields are present and attachments loaded before running the model — route incomplete cases to human review', correct: true, feedback: 'Yes. The safeguard goes before inference, not after. If the context is incomplete, the system should flag it — not silently generate a degraded summary.' },
                 { text: 'Have case workers rate summaries so you can identify which ones the model struggled with', correct: false, feedback: 'Rating helps you find past failures. It doesn\'t prevent future ones from reaching case workers first.' },
+                { text: 'Re-run the model on failing cases with a different prompt once they\'re identified', correct: false, feedback: 'Re-running with a different prompt doesn\'t help if the context is still broken. If the attachments didn\'t load and the fields are blank, a different prompt gets the same bad inputs.' },
               ]}
         />
         {keyBox('What belongs in a good context packet', [
@@ -972,6 +1004,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection num="05" accentRgb={ACCENT_RGB} id="genai-m1-apply">
         {chLabel('Your First Use Case')}
         {h2('Win clearly. Verify easily. Fail cheaply.')}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can apply three selection criteria to a list of AI candidates and make the case for which one is safe and learnable enough to build first."
+          : "\u25b6 After this section, you can evaluate a proposed AI use case against three readiness criteria and identify the smallest version of the idea that passes all three."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'tech'
             ? <>Aarav has three candidates for a first production AI integration. Option one: auto-approve routine claims exceptions when AI confidence is above a threshold — biggest efficiency gain, clearest ROI. Option two: classify inbound case requests by type and urgency, flagging low-confidence cases for human review. Option three: an autonomous intake agent that monitors the queue, routes requests, and takes action without human checkpoints — most technically interesting. He builds the ROI case for option one. Then he messages Anika before the presentation.</>
@@ -1013,11 +1049,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Option two is safer from a compliance standpoint, which limits our liability exposure', correct: false, feedback: 'That frames it as caution vs. results. The real argument is about what you can actually build reliably and what you learn from it.' },
                 { text: 'Option two teaches us where the model fails before those failures affect outcomes — that\'s what earns the right to do option one later', correct: true, feedback: 'Exactly. Six weeks of option two tells you which case types the model misclassifies, what the context looks like when it fails, and what accuracy looks like on real data. Option one without that foundation is a liability.' },
                 { text: 'Option one requires more infrastructure than we have right now', correct: false, feedback: 'Infrastructure is a real consideration but not the strongest argument. The core issue is what happens when the model is wrong and whether you\'ll know.' },
+                { text: 'Option three is the better learning opportunity — more complexity means more to learn', correct: false, feedback: 'More complexity means more variables, harder-to-attribute failures, and harder-to-recover mistakes. The first use case should maximise observability, not complexity.' },
               ]
             : [
                 { text: 'Option two is the safe, compliance-friendly choice while we prove the technology', correct: false, feedback: 'That frames option two as the cautious option. It\'s actually the strategic one — it generates the data that makes option one viable later.' },
                 { text: 'Option two teaches us exactly where the model fails before those failures affect real cases — that\'s what makes option one possible to do safely', correct: true, feedback: 'Exactly. Option two is how you build the foundation. Six weeks of classification data tells you what the model gets wrong, how often, and on which case types. Without that, option one\'s 80% confidence threshold is a number with no context.' },
                 { text: 'Option one requires more technical complexity than we\'re ready for right now', correct: false, feedback: 'Complexity is a real factor, but the stronger argument is about observability. Option one without a review step makes failures invisible until they\'ve had an effect.' },
+                { text: 'Start with option three — the drafting task is the one staff will actually adopt', correct: false, feedback: 'Adoption isn\'t the right first criterion. Option three sends AI drafts with minimal human review — it removes most of the human checkpoint. Option two\'s review step is what makes it learnable.' },
               ]}
         />
         {para(track === 'tech'
@@ -1059,11 +1097,13 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Whether 94% meets the industry benchmark for this classification task', correct: false, feedback: 'Benchmarks compare you to other models. They don\'t tell you what the 6% failures look like in your specific workflow.' },
                 { text: 'What the 6% misclassifications are — which case types, and whether a wrong classification causes recoverable or unrecoverable harm', correct: true, feedback: 'Exactly. 94% sounds high. But if the 6% that are wrong are the highest-stakes cases, removing the review step is a different decision than it looks. The failure cases tell you more than the accuracy rate does.' },
                 { text: 'Whether the model has been trained on enough domain-specific cases to generalise reliably', correct: false, feedback: 'Training coverage is worth understanding, but after six weeks of live data, the question is about the actual failure modes you\'ve observed.' },
+                { text: 'Whether the team has enough capacity to keep reviewing the edge cases the model flags', correct: false, feedback: 'Capacity matters for the review step, but the first question is about the failure pattern. Understanding what the 6% looks like determines whether narrowing the review step is safe — not whether you have enough reviewers.' },
               ]
             : [
                 { text: 'Whether the model\'s accuracy rate is high enough to meet the SLA we\'ve committed to', correct: false, feedback: 'SLA compliance is a goal, but it doesn\'t answer what happens when the model is wrong. The question is about failure mode, not error rate.' },
                 { text: 'What the 7% misclassifications look like — which case types, and whether an incorrectly routed case causes harm before it\'s caught', correct: true, feedback: 'Yes. 93% sounds reliable. But if the cases the model misclassifies are the highest-urgency ones, auto-routing them is a different risk than the headline number suggests.' },
                 { text: 'Whether we can build an escalation path so misrouted cases get flagged eventually', correct: false, feedback: 'An escalation path helps catch failures after they happen. The question is whether you understand the failure pattern well enough to design that path correctly.' },
+                { text: 'Whether the 93% accuracy has been consistent across all six weeks of the pilot', correct: false, feedback: 'Consistency over time matters, but it still doesn\'t tell you what the failures look like. A model that\'s consistently 93% accurate on low-stakes cases might still be failing on the highest-urgency ones.' },
               ]}
         />
         {track === 'non-tech' ? keyBox('Walking two tasks through the criteria \u2014 Rhea\u2019s candidates', [

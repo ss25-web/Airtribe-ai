@@ -1269,7 +1269,15 @@ function CoreContent({ track }: { track: GenAITrack }) {
 
       <ChapterSection id="genai-m2-anatomy" num="01" accentRgb={ACCENT_RGB} first>
         {chLabel('Prompt Engineering & LLM Foundations')}
+        {para(track === 'tech'
+          ? "In Pre-Read 01, Aarav built the mental model: GenAI completes, it does not retrieve; tasks have zones; outputs are bounded by context quality. That foundation is necessary but not sufficient. The gap between knowing what a prompt should do and writing one that reliably does it is where most integrations fail. This pre-read goes inside the call \u2014 the system message, the few-shot examples, the context budget, the model choice, the versioning discipline. Each section is a lever Aarav can pull on the ticket classifier, the incident summariser, or any LLM call his team ships."
+          : "In Pre-Read 01, Rhea built the mental model: the model generates, it does not look things up; tasks belong in zones; a vague brief gives the model permission to choose everything. That understanding changes how you think about AI failures. This pre-read is about what to actually do about them \u2014 how to write prompts that stop being inconsistent, how to teach the model your domain, how to manage what it can see, how to pick the right model, and how to change prompts without breaking what works."
+        )}
         {h2("The Anatomy of a Prompt")}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can write a system message and user message that specify all five anatomy components for any LLM call \u2014 and annotate which component each line is doing."
+          : "\u25b6 After this section, you can write a complete, structured prompt for your most-used AI task, with role, format, and constraints all explicitly specified."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent &mdash; sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
@@ -1336,10 +1344,12 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Add \u2018use professional language\u2019 at the end of the prompt", correct: false, feedback: "Vague style instructions don\u2019t anchor tone \u2014 the model interprets them differently each run." },
             { text: "Open with \u2018You are a clinical documentation assistant\u2019", correct: true, feedback: "A role declaration anchors persona, tone, and vocabulary. It\u2019s the highest-leverage single change." },
             { text: "Add five example sentences showing the preferred tone", correct: false, feedback: "Examples help, but a role declaration is a higher-leverage starting point." },
+            { text: "Use a more capable model that defaults to formal clinical register", correct: false, feedback: "Model capability doesn\u2019t determine register when no role is specified \u2014 a stronger model still defaults to its own judgment about tone. The role declaration is what anchors it." },
           ] : [
             { text: "Increase temperature to get more varied outputs to choose from", correct: false, feedback: "Higher temperature increases randomness \u2014 the opposite of what structured extraction needs." },
             { text: "Define the output schema in response_format or the system message", correct: true, feedback: "An explicit schema tells the model exactly what fields to populate, eliminating structural guesswork." },
             { text: "Add a retry loop to discard malformed responses", correct: false, feedback: "Retries treat the symptom, not the cause. Define the output contract instead." },
+            { text: "Add more JSON examples to the user message to show the model the expected format", correct: false, feedback: "Examples reinforce the schema but don\u2019t replace it. Without a schema constraint, the model can still invent fields or omit required ones. Define the schema in the system message first." },
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Look at your last LLM API call. Which of the five anatomy components are missing? Add a system message with role + output format constraint and compare the output." : "Find a prompt your team uses that gives inconsistent results. Identify the missing anatomy components and add them one at a time."} />
@@ -1362,6 +1372,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection id="genai-m2-fewshot" num="02" accentRgb={ACCENT_RGB}>
         {chLabel('Zero-Shot vs Few-Shot')}
         {h2("Examples don\u2019t clarify \u2014 they transfer domain knowledge.")}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can identify which category in a classifier needs boundary examples, write those examples using a repeatable process, and know when to stop adding them."
+          : "\u25b6 After this section, you can write a boundary example for your most-confused classification pair and explain why it works better than adding more clear-cut examples."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization &mdash; Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; &mdash; a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
@@ -1421,10 +1435,12 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "More clearly positive examples to anchor the Positive end", correct: false, feedback: "The unclear boundary is Neutral vs Negative \u2014 not Positive vs Neutral." },
             { text: "Borderline-negative examples explicitly labelled as Negative", correct: true, feedback: "Edge-case examples teach exactly where the ambiguous boundary sits." },
             { text: "A longer instruction explaining what Negative means", correct: false, feedback: "Instructions describe; examples demonstrate. For subtle boundaries, demonstration wins." },
+            { text: "More clearly negative examples so the model learns the Negative category better", correct: false, feedback: "The model already handles obvious negatives correctly. More examples of what it already knows won\u2019t fix the boundary confusion \u2014 the mislabelling happens at the Neutral/Negative line, not in the clear-cut cases." },
           ] : [
             { text: "Fine-tune the model on Northstar\u2019s full ticket history", correct: false, feedback: "Fine-tuning is expensive and a last resort. More representative few-shot examples come first." },
             { text: "Add more varied examples covering different connectivity failure scenarios", correct: true, feedback: "Low accuracy with examples usually means they aren\u2019t representative of real-world variance." },
             { text: "Switch to a more powerful model and use the same examples", correct: false, feedback: "A stronger model won\u2019t compensate for unrepresentative examples \u2014 it\u2019ll just fail more confidently." },
+            { text: "Remove the VPN Authentication category and merge it with General Network", correct: false, feedback: "Collapsing categories removes real operational distinctions \u2014 VPN auth failures and general network issues route to different teams for a reason. The fix is better examples, not fewer categories." },
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Find a classification endpoint. How many labeled examples per class? For the three most-confused categories, write one boundary example each and measure accuracy." : "Think of an AI task where your team has complained about wrong categories. Write three labeled examples for the most-confused category and add them to the prompt."} />
@@ -1447,6 +1463,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection id="genai-m2-context" num="03" accentRgb={ACCENT_RGB}>
         {chLabel('Context Window: What Goes In Matters')}
         {h2("The context window is a spotlight, not a searchlight.")}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can diagnose a context window failure from API logs and apply the correct fix \u2014 sliding window, front-loading, or periodic summarisation \u2014 to your specific situation."
+          : "\u25b6 After this section, you can identify when a missed output was caused by context placement and restructure a prompt to front-load what the model must not miss."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea feeds 10 pages of patient notes into her summarizer. The output is &ldquo;generally fine&rdquo; until a pharmacist flags a critical drug interaction on page 7 was not in the summary. The model processed the full document and still missed it. This is a context management problem.</>
@@ -1490,10 +1510,12 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Request a model with a larger context window", correct: false, feedback: "A bigger window doesn\u2019t fix \u2018lost in the middle\u2019 \u2014 it can make it worse by adding more surrounding filler." },
             { text: "Pre-extract critical flags and place them at the top of the prompt", correct: true, feedback: "The model prioritizes context at the start. Front-loading critical information ensures it\u2019s seen and included." },
             { text: "Break the document into chunks and summarize each separately", correct: false, feedback: "Chunking can fragment relationships across sections and may miss the critical finding entirely." },
+            { text: "Ask the model to re-read the document from page 7 in a follow-up prompt", correct: false, feedback: "Each API call is stateless \u2014 there is no document the model has from a previous turn. The only way to ensure critical information is attended to is to front-load it in the same prompt." },
           ] : [
             { text: "Model weights decay during long sessions, losing earlier instructions", correct: false, feedback: "Model weights don\u2019t change during inference. The context window is the only memory in a session." },
             { text: "Cumulative chat history silently exceeds the token limit, dropping old messages", correct: true, feedback: "Once the context window fills, oldest content is truncated with no error. Monitor prompt_tokens in API responses." },
             { text: "System message instructions get overridden by user messages over time", correct: false, feedback: "System messages persist but still consume tokens. The issue is budget exhaustion, not override logic." },
+            { text: "The model deprioritizes earlier turns as conversation length grows", correct: false, feedback: "The model doesn\u2019t deprioritize \u2014 it truncates. When the context limit is reached, oldest messages are dropped entirely, not down-weighted. They simply don\u2019t exist in the next API call." },
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Check your most-used LLM call\u2019s token count in the API response. Where is the critical information in the prompt? What would happen if you moved it to the top?" : "Think of an AI summary that missed something important. Where was that information in the source document? What would pre-extraction have looked like?"} />
@@ -1516,6 +1538,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection id="genai-m2-models" num="04" accentRgb={ACCENT_RGB}>
         {chLabel('Model Selection & Cost')}
         {h2("The best model for a task is the smallest one that meets the quality bar.")}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can define a quality bar for a task, run a structured 20-input evaluation, and make a cost-justified routing decision between model tiers."
+          : "\u25b6 After this section, you can define what \u2018good enough\u2019 means for a specific task, test a cheaper model against that bar, and decide whether hybrid routing makes sense for your workflow."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea assumes GPT-4o is right for everything. She runs it on 200 intake form summaries per day and 5 complex referral letters. Anika points out that for structured summarization at high volume, Claude Haiku produces nearly identical quality at a fraction of the cost.</>
@@ -1559,10 +1585,12 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "GPT-4o for everything \u2014 quality matters most in healthcare", correct: false, feedback: "GPT-4o at 200/day is expensive overkill for structured summarization. Quality gaps are marginal; cost gaps are not." },
             { text: "Haiku for high-volume summaries, GPT-4o for complex referrals", correct: true, feedback: "Match model capability to task complexity. Small models at scale, frontier models for irreducible complexity." },
             { text: "Gemini Flash for everything \u2014 it\u2019s the cheapest per token", correct: false, feedback: "Cheapest per token isn\u2019t always cheapest overall. Complex referrals may need multiple retries on a weaker model." },
+            { text: "Start with the smallest model for everything and upgrade only if quality fails", correct: false, feedback: "Starting from the bottom risks deploying an inadequate model on complex referrals before you\u2019ve established the quality bar. Define the bar per task first, then find the cheapest model that clears it." },
           ] : [
             { text: "GPT-4o for both to ensure consistent quality", correct: false, feedback: "Running GPT-4o on 100 daily medium-complexity reports is ~10\u00d7 more expensive than necessary." },
             { text: "GPT-3.5-turbo or Haiku for daily reports, GPT-4o for weekly insights", correct: true, feedback: "Hybrid routing optimizes cost per task tier. Most savings come from the high-volume medium-complexity work." },
             { text: "Haiku for both to minimize total monthly cost", correct: false, feedback: "Haiku may underperform on high-complexity weekly insights where multi-step reasoning is required." },
+            { text: "Run a cost analysis and use whatever model the budget allows", correct: false, feedback: "Budget constraints shape the decision, but they don\u2019t replace the quality bar. If a cheaper model doesn\u2019t clear the bar for your high-complexity task, using it because it\u2019s affordable produces unacceptable outputs at any price." },
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Map your team\u2019s LLM API calls by volume and task complexity. Which high-volume calls could move to a smaller model? Estimate the monthly cost difference." : "List two AI tasks your team uses. Look up cost per 1M tokens for the current model vs the tier below. What\u2019s the monthly delta at your current volume?"} />
@@ -1600,6 +1628,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <ChapterSection id="genai-m2-refine" num="05" accentRgb={ACCENT_RGB}>
         {chLabel('The Refinement Loop')}
         {h2("Prompts are code. They need versioning, testing, and regression checks.")}
+        {para(track === 'tech'
+          ? "\u25b6 After this section, you can set up a minimal prompt versioning workflow \u2014 git directory, golden dataset, eval script, promotion rule \u2014 before shipping any prompt change to production."
+          : "\u25b6 After this section, you can maintain a version log and golden cases sheet that would have caught the V1\u2192V3 compliance regression before it reached production."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           {track === 'non-tech'
             ? <>Rhea has improved her discharge summary prompt across three versions. V3 is more concise. But a compliance auditor flags a legal disclaimer always present in V1 is now missing. She has no record of what changed and no way to know which edit caused the regression.</>
@@ -1657,10 +1689,12 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Revert to V1 \u2014 safety and compliance take precedence", correct: false, feedback: "Reverting discards valid improvements. Diagnose the specific change that caused the regression and fix it surgically." },
             { text: "Diff V1 and V3, identify what dropped the disclaimer, add an explicit constraint", correct: true, feedback: "Systematic comparison lets you preserve the improvement while restoring the requirement. That\u2019s the refinement loop." },
             { text: "Ask legal to simplify the disclaimer to fit the concise format", correct: false, feedback: "That changes the requirement, not the prompt. The problem is prompt regression." },
+            { text: "Ship V3 and add a manual review step specifically for disclaimer presence", correct: false, feedback: "Adding post-hoc review for a known regression is the wrong direction. Find and fix the regression in the prompt, verify it passes all golden cases, then ship. Review is for unknown failures \u2014 not ones you\u2019ve already identified." },
           ] : [
             { text: "A/B test V3 with 10% of production traffic", correct: false, feedback: "Production A/B testing is risky when regressions are already known. Verify against a golden dataset first." },
             { text: "Run V3 against the golden dataset and compare metrics against V1 and V2", correct: true, feedback: "A golden dataset is your regression test suite for prompts. No deployment without it." },
             { text: "Manually review 10\u201320 outputs and use judgment", correct: false, feedback: "Manual spot-checks miss systematic failures. A golden dataset scales verification beyond human review." },
+            { text: "Ask the team lead who flagged the regression to validate V3 outputs manually", correct: false, feedback: "Human spot-checking is valuable but doesn\u2019t catch failures that only appear under specific input patterns. The golden dataset exists precisely because a handful of manually reviewed cases can miss the failure mode entirely." },
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Does your team have a golden dataset for your most-used prompt? If not, identify 20 representative test cases and store them with expected outputs \u2014 that\u2019s your regression baseline." : "Think of the last time an AI tool gave different outputs from before. What would a golden case set look like for that task? Write down 5 representative inputs and expected outputs."} />
