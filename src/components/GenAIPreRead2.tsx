@@ -1566,6 +1566,21 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
         />
         <ApplyItBox prompt={track === 'tech' ? "Map your team\u2019s LLM API calls by volume and task complexity. Which high-volume calls could move to a smaller model? Estimate the monthly cost difference." : "List two AI tasks your team uses. Look up cost per 1M tokens for the current model vs the tier below. What\u2019s the monthly delta at your current volume?"} />
+        {track === 'tech' ? keyBox('How to actually find where the quality bar sits', [
+          '1. Pull 20 representative inputs from your real task — not hand-picked examples, but a random sample including messy, ambiguous, and edge-case inputs.',
+          '2. Define a pass/fail rubric for each input before you run any model. For classification: correct label. For extraction: all required fields present and correctly typed. For summarisation: must include X, must not include Y. Write it down first — do not judge outputs by feel.',
+          '3. Run all 20 inputs through the candidate smaller model (e.g. Haiku or GPT-3.5-turbo) and your current model. Score each output against the rubric.',
+          '4. Compare the failure cases — not the accuracy number. Where does the smaller model fail? Are those failures on critical inputs or edge cases you can handle separately?',
+          '5. If the smaller model passes your rubric on 18/20 and the 2 failures are low-stakes or rare: it clears the bar. Route those inputs to the smaller model. Send the 2 failure patterns to the frontier model.',
+          'Cost check: (volume × cost_per_token_small) + (failure_rate × volume × cost_per_token_frontier). That number vs your current bill is the real decision.',
+        ], ACCENT) : keyBox('How to test whether a smaller model meets your quality bar', [
+          '1. Pick one task (start with your highest-volume one — that is where the cost saving is largest).',
+          '2. Collect 15\u201320 real outputs from that task that you already know are correct. These are your quality benchmark.',
+          '3. Run the same inputs through a cheaper model tier. Review each output side by side with your benchmark.',
+          '4. Define your bar before you look: for intake summaries, the bar might be \u201call required fields present, no invented information, tone appropriate for clinical handover.\u201d Write that down first.',
+          '5. Count how many outputs from the cheaper model pass that bar without any editing. If it is 17 out of 20, the bar is cleared for routine cases. Route complex cases (referral letters, anything requiring clinical reasoning) to the frontier model.',
+          'The question is not \u201cis the cheaper model as good?\u201d — it is \u201cdoes it clear the minimum bar for this specific task?\u201d Those are different questions with different answers.',
+        ], ACCENT)}
         <QuizEngine
           conceptId="genai-m2-models"
           conceptName="Model Selection"
