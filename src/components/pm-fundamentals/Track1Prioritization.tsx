@@ -1238,6 +1238,13 @@ export default function Track1Prioritization() {
 
         <RICELiveCalculator />
 
+        {keyBox('Where do these numbers come from?', [
+          'Reach \u2014 query your analytics (Amplitude, GA, SQL): how many users hit this specific flow last quarter?',
+          'Impact \u2014 PM judgment anchored by research: compare to similar features you\'ve shipped before, not gut feeling',
+          'Confidence \u2014 honest self-assessment: low data or untested assumption = 50%; solid research = 80%+; never 100%',
+          'Effort \u2014 engineering estimate in sprint-weeks: always round up by 20% for integration unknowns and cross-team dependencies',
+        ], ACCENT)}
+
         {para(<>
           The numbers tell a clear story. The onboarding gap scores 800. The next closest is search improvements
           at 60 &mdash; a full order of magnitude below. CRM integration, the request that has generated the most
@@ -1341,11 +1348,44 @@ export default function Track1Prioritization() {
           conceptId="stakeholder-decisions-m3"
         />
 
+        {para(<>
+          Thirty minutes later, Marcus follows up.
+        </>)}
+
+        <div style={{ margin: '4px 0 24px', padding: '14px 16px', background: 'rgba(255,86,48,0.04)', border: '1px solid rgba(255,86,48,0.15)', borderLeft: `3px solid ${ACCENT}`, borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#FF5630', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#fff' }}>M</span>
+            </div>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)' }}>Marcus</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>4:38 PM</span>
+          </div>
+          <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+            i hear the data argument but honestly this feels like product just doesn&apos;t care about sales. we&apos;re out here trying to close meridian and you&apos;re telling me the priority is some onboarding metric. does my deal actually matter to anyone?
+          </div>
+        </div>
+
+        <Avatar
+          name="Asha"
+          nameColor="var(--purple-light)"
+          borderColor="var(--purple)"
+          content={<>That message is designed to make you feel guilty. Marcus isn&apos;t engaging with the data &mdash; he&apos;s going emotional. This is the harder part: separating the relationship from the decision.</>}
+          question="Marcus is making this personal. What is Priya's best next move?"
+          options={[
+            { text: 'Stand firm: "I already explained the reasoning. The answer is the same."', correct: false, feedback: 'You can be firm on the decision without being cold on the relationship. Repeating your position without acknowledging his frustration will push Marcus from "I disagree" to "I will escalate."' },
+            { text: 'Cave: "You\'re right, I\'ll move CRM up this sprint."', correct: false, feedback: 'The moment you reverse a data-backed decision under emotional pressure, every future priority call becomes subject to whoever pushes hardest. Marcus learns to escalate louder next time.' },
+            { text: 'Acknowledge the feeling, restate the shared interest, offer a concrete next step: "Closing Meridian matters to me too. Let\'s find 30 minutes to explore what we can offer them right now with existing features."', correct: true, feedback: 'Holding a decision and caring about someone\'s goal are not in conflict. Acknowledge the frustration, name what you share, and give a path forward that doesn\'t require you to reverse the sprint. This keeps Marcus as an ally.' },
+            { text: 'Loop in your manager to help mediate.', correct: false, feedback: 'Escalating before attempting a direct conversation signals you can\'t handle stakeholder friction independently. Try the human conversation first \u2014 escalation is a last resort, not a first move.' },
+          ]}
+          conceptId="stakeholder-pushback-m3"
+        />
+
         {keyBox('How to communicate a hard priority call', [
           '"We\'re prioritising X because it impacts Y% of users"',
-          '"CRM is important — here\'s when we can revisit it"',
+          '"CRM is important \u2014 here\'s when we can revisit it"',
           '"If you have data that changes this, let\'s look at it together"',
           '"I disagree but I understand" is a successful outcome',
+          'When it goes emotional: acknowledge the feeling, name the shared goal, offer a path that doesn\'t require you to reverse the call',
         ], ACCENT)}
       </ChapterSection>
 

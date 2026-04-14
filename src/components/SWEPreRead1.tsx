@@ -1773,6 +1773,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             {track === 'nodejs' && keyBox('The V8 + Node.js Model', [
               'JavaScript source → V8 engine → native machine code (JIT compiled)',
               'Node.js adds APIs the browser doesn\'t have: file system, network, OS access',
+              'Node.js does NOT have browser APIs — no DOM, no window, no localStorage. Same language, different global object',
               'The same JS engine runs in Chrome (browser) and in your terminal (Node)',
               'node --version tells you the Node runtime version; this implies a V8 version too',
             ])}
@@ -1954,6 +1955,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
                 'mvn spring-boot:run — start a Spring Boot app directly',
                 'pom.xml — the file that defines your dependencies (like package.json for Java)',
               ])}
+              {para(<>Maven does not just download the library you declared. It downloads that library&apos;s dependencies, and their dependencies — forming a tree. When two branches of the tree need different versions of the same library, Maven picks one using <strong>nearest-first resolution</strong>: the version closest to your project in the graph wins. Sometimes the wrong version wins, removing methods your code expected. This is called a <strong>transitive dependency conflict</strong>, and it is why adding a single line to pom.xml can break things that were working before.</>)}
             </>)}
             {track === 'nodejs' && (<>
               {para(<><strong>npm</strong> (Node Package Manager) comes bundled with Node.js. When you run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install express</code>, npm downloads express and its dependencies into a folder called <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node_modules</code>. When you clone a project, <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>node_modules</code> is not there — it is in <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>.gitignore</code>. That is why Leo needed to run <code style={{ fontFamily: 'monospace', fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>npm install</code> first.</>)}
