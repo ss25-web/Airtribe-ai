@@ -7,6 +7,32 @@ import {
   glassCard, demoLabel, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser,
 } from './designSystem';
+import { MentorFace } from './MentorFaces';
+
+// ─────────────────────────────────────────
+// CONVERSATION SCENE — Priya ↔ stakeholder
+// ─────────────────────────────────────────
+type CSLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
+}) => (
+  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {lines.map((l, i) => {
+      const isPriya = l.speaker === 'priya';
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div style={{ flexShrink: 0 }}>
+            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor} size={38} />}
+          </div>
+          <div style={{ maxWidth: '72%' }}>
+            {i === 0 && <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>{isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>· {isPriya ? 'PM' : role}</span></div>}
+            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
 
 // ─────────────────────────────────────────
 // LOCAL HELPERS
@@ -799,12 +825,21 @@ export default function Track2ProblemDiscovery() {
         </p>
         {pullQuote("Challenging a brief isn't insubordination. It's the job. A PM who executes every brief unquestioned is an order-taker, not a strategist.")}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "The Kraftful data contradicts Rohan\u2019s brief. The problem has shifted \u2014 it\u2019s not onboarding anymore. But Rohan defined the research question." },
+            { speaker: 'other', text: "The data doesn\u2019t just contradict the brief \u2014 it tells you something more important: the problem has moved. If you run with the old brief, you ship the right solution to yesterday\u2019s problem." },
+            { speaker: 'priya', text: "So I need to go back to Rohan before we start." },
+            { speaker: 'other', text: "Before you commit to the study. Show him the trend. The Kraftful chart isn\u2019t just data \u2014 it\u2019s your mandate to pause." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>&ldquo;The data doesn&apos;t just contradict Rohan&apos;s brief — it tells you something more important: the problem has moved. Onboarding was the issue three months ago. Now it&apos;s something different. If you run with the old brief, you ship the right solution to yesterday&apos;s problem.&rdquo;</>}
-          expandedContent={<>This happens more than you&apos;d think. A CEO spots a problem, commissions research, ships a fix. Six months later the same metric hasn&apos;t moved — because the problem evolved and no one updated the hypothesis. <strong>The Kraftful trend chart isn&apos;t just data. It&apos;s your mandate to pause.</strong></>}
+          content={<>A CEO spots a problem, commissions research, ships a fix. Six months later the same metric hasn\u2019t moved \u2014 because the problem evolved and no one updated the hypothesis. Challenging a brief isn\u2019t insubordination. It\u2019s the job.</>}
+          expandedContent={<>A brief is a hypothesis about where the problem is. When new data arrives, good leaders update it. When they don\u2019t, it\u2019s usually not stubbornness \u2014 it\u2019s that no one showed them the data clearly enough.</>}
           question="Your CEO defines the research question. Your Kraftful data suggests it's based on stale assumptions. What's the right move?"
           options={[
             { text: "Run the research the CEO asked for — they have more context than you", correct: false, feedback: "The CEO has authority, not omniscience. Their brief is based on information they had at the time. If you have newer data, your job is to surface it, not bury it." },
@@ -814,12 +849,21 @@ export default function Track2ProblemDiscovery() {
           conceptId="user-research"
         />
 
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="var(--coral)"
+          lines={[
+            { speaker: 'priya', text: "Before we commit to a direction \u2014 I found something in Kraftful last night I want to show the room." },
+            { speaker: 'other', text: "Show me." },
+            { speaker: 'priya', text: "The onboarding complaint trend has dropped 40% in three months. The new spike is ROI visibility \u2014 managers can\u2019t show their leadership that EdSpark is working." },
+            { speaker: 'other', text: "I\u2019d been treating the brief like a fact, not a hypothesis. The data you\u2019re showing me is three months newer than what I was working from. When the evidence shifts, the question has to shift too." },
+          ]}
+        />
         <Avatar
           name="Rohan"
           nameColor="var(--coral)"
           borderColor="#E67E22"
-          content={<>&ldquo;I realised I&apos;d been treating the brief like a fact, not a hypothesis. The data Priya showed me was three months newer than what I was working from. When the evidence shifts, the question has to shift too.&rdquo; — Rohan, after the Monday sync</>}
-          expandedContent={<>The moment Priya showed Rohan the Kraftful trend, she wasn&apos;t challenging him — she was updating the shared model. <strong>A brief is a hypothesis about where the problem is.</strong> When new data arrives, good leaders update. When they don&apos;t, it&apos;s usually not stubbornness — it&apos;s that no one showed them the data clearly enough.</>}
+          content={<>A brief is a hypothesis about where the problem is \u2014 not a permanent directive. When new data arrives, good leaders update it. Priya wasn\u2019t challenging Rohan \u2014 she was updating the shared model. That\u2019s the PM\u2019s job.</>}
+          expandedContent={<>The moment Priya showed Rohan the Kraftful trend, she positioned herself as bringing value, not picking a fight. Evidence should do the work \u2014 not the framing of the disagreement.</>}
           question="Rohan's brief is based on data from Q3. You have Q4 data that contradicts it. What's your opening line in the Monday meeting?"
           options={[
             { text: '"I think we should look at onboarding again — maybe we missed something."', correct: false, feedback: "This reinforces the old brief without surfacing the new data. You've buried the insight before the conversation even starts." },
@@ -910,12 +954,21 @@ export default function Track2ProblemDiscovery() {
 
         <BiasSpotter />
 
+        <ConversationScene
+          mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
+          lines={[
+            { speaker: 'priya', text: "Maya \u2014 the users you want to talk to are the ones who didn\u2019t churn. We\u2019re asking why people leave. We need to talk to people who left." },
+            { speaker: 'other', text: "I recruited active users because they were easier to reach. I didn\u2019t realise I\u2019d designed out the people who could actually answer the question." },
+            { speaker: 'priya', text: "The fix is in the CRM \u2014 filter for accounts that went inactive in the last 3 weeks and reach out directly." },
+            { speaker: 'other', text: "The answer was always in the data I wasn\u2019t looking at." },
+          ]}
+        />
         <Avatar
           name="Maya"
           nameColor="var(--coral)"
           borderColor="var(--purple)"
-          content={<>&ldquo;I recruited active users because they were easier to reach. I didn&apos;t realise I&apos;d designed out the people who could actually answer the question. The fix was simple — go to the CRM, filter for accounts that went inactive in the last 3 weeks, reach out directly. The answer was always in the data I wasn&apos;t looking at.&rdquo; — Maya</>}
-          expandedContent={<>Survivorship bias in research recruitment is a process failure, not a judgement failure. Maya didn&apos;t ask the wrong question — she built a sample that made the right answer impossible to find. <strong>Fix: before you recruit, write down exactly who needs to be in your sample for your research question to be answerable.</strong> Then build your recruitment list from that, not from who&apos;s easy to reach.</>}
+          content={<>Survivorship bias in research recruitment is a process failure, not a judgement failure. Maya didn\u2019t ask the wrong question \u2014 she built a sample that made the right answer impossible to find. Before you recruit, write down exactly who needs to be in your sample for the research question to be answerable.</>}
+          expandedContent={<>Then build your recruitment list from that \u2014 not from who\u2019s easy to reach. The most important users for a churn study are the ones who can no longer reply to your emails.</>}
           question="You need to understand why managers churn. Which recruitment approach gives you the most useful signal?"
           options={[
             { text: "Email your 20 most engaged active managers — they know the product deeply", correct: false, feedback: "Engaged users can tell you why they stayed. They cannot tell you why others left. You're optimising for accessibility, not relevance." },
@@ -927,12 +980,21 @@ export default function Track2ProblemDiscovery() {
 
         {pullQuote("The users who matter most for a churn study are the ones who can no longer reply to your emails.")}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "Maya\u2019s study design has survivorship bias baked in from the first line. How do I explain that without making it sound like a criticism?" },
+            { speaker: 'other', text: "She didn\u2019t do it on purpose \u2014 it\u2019s an easy mistake. But notice what it reveals: she framed the question around active users, which made churned users invisible by default. That\u2019s design bias, not data bias." },
+            { speaker: 'priya', text: "So the fix is structural \u2014 recruit from the right pool first." },
+            { speaker: 'other', text: "Before you recruit anyone, ask: who has to be in my sample for this question to be answerable? If your sample contains zero churned managers, the study is broken before it starts. No analysis fixes a broken sample." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>&ldquo;Maya&apos;s study design has survivorship bias baked in from the first line. She didn&apos;t do it on purpose — it&apos;s an easy mistake. But notice what it reveals: she framed the research question around active users, which made churned users invisible by default. That&apos;s design bias, not data bias.&rdquo;</>}
-          expandedContent={<>The fix is structural. Before you recruit participants, ask: <strong>who has to be in my sample for this question to be answerable?</strong> If your question is &ldquo;why do managers churn?&rdquo; and your sample contains zero churned managers, the study is broken before it starts. No analysis will fix a broken sample.</>}
+          content={<>Survivorship bias is a process failure, not a judgement failure. The fix: before you recruit, write down exactly who needs to be in your sample for the research question to be answerable. Then build your recruitment list from that \u2014 not from who\u2019s easy to reach.</>}
+          expandedContent={<>If your question is \u201cwhy do managers churn?\u201d and your sample contains zero churned managers, the study is broken before it starts. You could run 50 perfect interviews and still get the wrong answer.</>}
           question="Maya wants to study 'why managers leave EdSpark.' She recruits 10 active users. What's the core flaw?"
           options={[
             { text: "Too small a sample — she needs at least 30 to be statistically valid", correct: false, feedback: "Sample size is a secondary problem here. You could have 1,000 active users in your sample and still get the wrong answer because you excluded the people who could actually answer the question." },
@@ -1030,12 +1092,21 @@ export default function Track2ProblemDiscovery() {
 
         {pullQuote("Synthesis is about reducing. You start with 94 tagged moments and end with one sentence that explains all of them.")}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I have two clusters: \u2018no feedback loop\u2019 and \u2018can\u2019t show ROI.\u2019 Do I write two separate briefs?" },
+            { speaker: 'other', text: "Most PMs would. But they\u2019re the same root. Once you see that, everything simplifies \u2014 one brief, one team direction, one sharp question for Rohan." },
+            { speaker: 'priya', text: "Managers can\u2019t see evidence EdSpark is working \u2014 for themselves or their leadership." },
+            { speaker: 'other', text: "That\u2019s your brief. One sentence that covers both clusters. That\u2019s synthesis." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>&ldquo;Priya has two findings: &apos;no feedback loop&apos; and &apos;can&apos;t show ROI.&apos; Most PMs would write two problem statements and run two separate workstreams. But they&apos;re the same root. Once you see that, everything simplifies — one brief, one team direction, one sharp question for Rohan.&rdquo;</>}
-          expandedContent={<>This is what separates synthesis from summarising. <strong>Summarising</strong> is listing what you heard. <strong>Synthesising</strong> is finding the single frame that explains why you heard all of it. The Dovetail clusters give you the what. The &lsquo;why&rsquo; is the insight only a human can provide.</>}
+          content={<>Summarising is listing what you heard. Synthesising is finding the single frame that explains why you heard all of it. The Dovetail clusters give you the what. The \u2018why\u2019 is the insight only a human can provide.</>}
+          expandedContent={<>Two clusters that look separate often share a root cause. When you find it, you reduce the workstream, sharpen the brief, and give the team one target to design against instead of two.</>}
           question="You have two Dovetail clusters: 'no feedback loop post-upload' (9/14) and 'can't show ROI to leadership' (11/14). How do you write the brief?"
           options={[
             { text: "Two separate briefs — don't collapse findings", correct: false, feedback: "They look separate but they share a root cause: the product never shows managers that it's working. Writing two briefs doubles the workstream and splits team focus unnecessarily." },
