@@ -610,6 +610,10 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Excellent at language work: summarise, classify, draft, rewrite, extract from documents you provide.',
           'Disconnected from live data — it needs retrieval infrastructure for anything that requires current or proprietary facts.',
         ], ACCENT)}
+        {para(track === 'tech'
+          ? "A retrieval layer is the component that sits between your application and the model. When a user asks about current coverage rates, the retrieval layer queries your claims system first, then passes the actual rate \u2014 alongside the question \u2014 to the model as part of the prompt. The model\u2019s job is language work: formatting, synthesising, explaining the result. The retrieval layer\u2019s job is fetching the fact. They are different components doing different jobs. Without a retrieval layer, you are asking the model to remember something it was never given."
+          : "A retrieval layer is the part of an AI system that looks things up before the model responds. Think of it like a research assistant: before the model writes anything, the retrieval layer finds the relevant policy document, the specific procedure, or the correct figure \u2014 and puts it in the prompt as context. Without this layer, the model writes from training data. With it, the model writes from the specific document you gave it. Most early AI failures happen because teams skip this step and ask the model to recall things it was never shown."
+        )}
         {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs to answer correctly.' })}
         <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. Was the model doing language work (completing, transforming, classifying text you gave it) or implicitly expected to know live facts? If the latter — where would the retrieval layer need to sit?" : "Think of one task your team has tried with AI that gave unreliable results. Was it a language task or an information lookup? If it was a lookup — what would a correct design have looked like?"} />
         <QuizEngine conceptId="genai-m1-what-it-is" conceptName="What GenAI Is" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
@@ -718,6 +722,16 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Extended: retrieval-augmented Q&A, structured outputs, tool-augmented workflows. Works with the right infrastructure.',
           'Unreliable: real-time data lookups, precise arithmetic, legally exact claims, novel edge cases.',
         ], '#2563EB')}
+        {keyBox('Zone check: three questions for any new task', [
+          'Q1. Does this task need a fact from a system not already in the prompt — a live record, a current status, a database value? → Yes: Extended or Unreliable.',
+          'Q2. Does a correct answer require precise arithmetic or a legally exact output where being close is not good enough? → Yes: Unreliable.',
+          'Q3. Is everything the model needs already in the prompt — text in, text out, no external lookup required? → Yes: Reliable.',
+          'If Q1 and Q2 are both No and Q3 is Yes: Reliable. If Q1 is Yes but the task can be solved with the right retrieval infrastructure: Extended. If Q2 is Yes regardless of anything else: Unreliable.',
+        ], '#2563EB')}
+        {para(track === 'tech'
+          ? "Applied: Aarav wants to auto-calculate claim adjustment amounts. Q1: Yes — the claim amount lives in a database, not the prompt. Q2: Yes — arithmetic on real financial figures where a 3% error is a compliance issue. Zone: Unreliable. The fix is not a better prompt — it is removing this task from LLM scope and using a deterministic calculation layer."
+          : "Applied: Rhea wants to flag overdue insurance exceptions. Q1: Yes — overdue status requires checking a timestamp in the case management system, which is not in the prompt. Zone: Extended. The model can classify exception descriptions you give it, but it cannot determine whether a deadline has passed without a retrieval layer pulling that data first."
+        )}
         <ApplyItBox prompt={track === 'tech' ? "Map your last three LLM integration attempts across the three zones. For the failures — which zone were they actually in, and what was the failure mode? Visible or invisible?" : "Take your whiteboard map and add one column: for each task, who sees the output before it affects anything? That column tells you which tasks need redesigning."} />
         <QuizEngine conceptId="genai-m1-capabilities" conceptName="Capability Map" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the capability map. But knowing the zones doesn't tell you how to assign tasks reliably. That takes a different shift — from the way you've been thinking about prompts." : "Rhea has the capability map. But knowing where AI is reliable doesn't automatically mean her team will use it well. That depends on something about how they're communicating with it."} />
@@ -1040,6 +1054,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
                 { text: 'Whether we can build an escalation path so misrouted cases get flagged eventually', correct: false, feedback: 'An escalation path helps catch failures after they happen. The question is whether you understand the failure pattern well enough to design that path correctly.' },
               ]}
         />
+        {track === 'non-tech' ? keyBox('Walking two tasks through the criteria \u2014 Rhea\u2019s candidates', [
+          'Task A: AI drafts responses to provider complaints, reviewed by an assistant before sending.',
+          '  \u2713 Win clearly: a good draft is readable, on-tone, and addresses the complaint. Rhea can define that before running it.',
+          '  \u2713 Verify easily: the assistant reads it in 30 seconds and spots anything wrong.',
+          '  \u2713 Fail cheaply: a bad draft gets edited or discarded. Nothing is sent without human sign-off.',
+          '  \u2192 Passes all three. Good first use case.',
+          '',
+          'Task B: AI checks whether claims were processed within the SLA window.',
+          '  \u2717 Win clearly: seems clear \u2014 yes or no answer. But the correct answer requires a timestamp from the case management system.',
+          '  \u2717 Fail cheaply: if the model generates a wrong SLA status and it acts on a case before anyone checks, harm is done silently.',
+          '  \u2192 Fails. Not a language task \u2014 it requires live data the model cannot access. Extended zone at minimum.',
+        ], ACCENT) : keyBox('Walking two tasks through the criteria \u2014 Aarav\u2019s candidates', [
+          'Task A: AI auto-formats outgoing case correspondence to the required template.',
+          '  \u2713 Win clearly: correct formatting is visually verifiable \u2014 the fields are in the right place, the structure matches the template.',
+          '  \u2713 Verify easily: anyone can read the output and spot a misplaced field or wrong section header.',
+          '  \u2713 Fail cheaply: a bad format gets caught in the review step before the letter goes out.',
+          '  \u2192 Passes all three. Good first use case.',
+          '',
+          'Task B: AI auto-calculates and applies claim adjustment amounts.',
+          '  \u2717 Win clearly: the correct adjustment depends on policy terms and claim data in external systems \u2014 you cannot verify correctness from the prompt alone.',
+          '  \u2717 Fail cheaply: a wrong adjustment that applies automatically is a financial and compliance error. It may not surface until something downstream breaks.',
+          '  \u2192 Fails. Precise arithmetic on real claim data is Unreliable zone. Even 98% accuracy means systematic errors at scale.',
+        ], ACCENT)}
         {keyBox('First use case readiness criteria', [
           'Language-based: text in, text out. No live database access needed.',
           'Bounded output: category, summary, or draft — not a final decision or irreversible action.',

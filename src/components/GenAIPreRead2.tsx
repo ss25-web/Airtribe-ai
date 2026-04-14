@@ -1284,6 +1284,28 @@ function CoreContent({ track }: { track: GenAITrack }) {
           : "The five components map to API parameters: System Message (role, scope, instructions), User Message (specific task + input data), Context Payload, Response Format (JSON schema, markdown), Parameters (temperature, max_tokens). Together they define a deterministic contract."
         )}
         {pullQuote("A vague brief produces a vague output. The model is not failing \u2014 you are underspecifying.")}
+        {track === 'non-tech' ? keyBox("What Rhea\u2019s discharge summary prompt looks like assembled", [
+          'SYSTEM: You are a clinical documentation specialist at Northstar Health. Write in formal clinical register. Do not speculate beyond the information provided. If a field is missing from the record, write \u201cnot documented\u201d \u2014 do not infer.',
+          'USER: Write a discharge summary for the patient below. Include these sections in order: (1) Primary diagnosis, (2) Medications prescribed \u2014 name, dose, and frequency for each, (3) Follow-up appointments with dates and department, (4) Restrictions or instructions. Maximum 200 words total.',
+          '[Patient record inserted here]',
+          '\u2014\u2014\u2014',
+          '\u2192 Role: \u201cclinical documentation specialist\u201d \u2014 anchors tone, register, and persona.',
+          '\u2192 Constraint: \u201cdo not speculate\u201d \u2014 prevents the model filling in missing fields with plausible guesses.',
+          '\u2192 Format: four numbered sections in a fixed order \u2014 eliminates structural variance across runs.',
+          '\u2192 Length: 200-word cap \u2014 eliminates length variance.',
+          '\u2192 Context: patient record is inserted at runtime, not typed manually each time.',
+        ], ACCENT) : keyBox("What Aarav\u2019s entity extraction prompt looks like assembled", [
+          'SYSTEM: You are a structured data extraction API. Return only valid JSON matching the schema below. Never include explanation, prose, or keys not in the schema.',
+          'Schema: { "category": "hardware | software | network | access | other", "urgency": "low | medium | high", "callback_required": true | false, "summary": "<one sentence, max 20 words>" }',
+          'USER: Extract the required fields from the support ticket below.',
+          '[Ticket text inserted here]',
+          '\u2014\u2014\u2014',
+          '\u2192 Role: \u201cstructured data extraction API\u201d \u2014 signals JSON-only output, no prose.',
+          '\u2192 Output schema: defined explicitly \u2014 model cannot invent new fields or omit required ones.',
+          '\u2192 Constraint: \u201cnever include explanation\u201d \u2014 prevents model adding context outside the JSON structure.',
+          '\u2192 Enum values listed: model selects from defined options instead of generating free-form categories.',
+          '\u2192 Context: ticket text inserted at runtime via placeholder.',
+        ], ACCENT)}
         <PromptBuilderTool track={track} />
         <GenAIConversationScene
           mentor={track === 'non-tech' ? 'anika' : 'rohan'}
@@ -1358,6 +1380,17 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Boundary examples: show the model where hard-to-distinguish cases land',
           'Edge cases: show the model what should NOT be classified as a given label',
         ], '#0F766E')}
+        {keyBox('How many examples, and when to stop', [
+          'New domain category the model has never seen: start with 5 \u2014 3 clear representative cases, 2 showing the boundaries of the category.',
+          'Confused boundary (two classes the model keeps conflating): start with 3 examples that sit exactly on the line between them. Clear-cut examples of either class are not what the model needs.',
+          'Already-working category: 1\u20132 task exemplars to anchor style and format. Do not keep adding.',
+          'Stopping signal 1: run the updated prompt on 20 new inputs. If the confused category\u2019s accuracy has not improved by at least 10 percentage points, your examples are not targeting the right boundary \u2014 not the right quantity.',
+          'Stopping signal 2: the misclassified cases shift to a different category pair. That is your next boundary to target. Stop adding to the current set.',
+        ], '#0F766E')}
+        {para(track === 'non-tech'
+          ? "How Rhea wrote a boundary example for Pre-Authorization vs Coverage Limit: (1) She found a real exception request where the patient\u2019s procedure was medically required but not pre-authorised \u2014 the case that kept getting mis-labelled. (2) She wrote the input as a one-sentence description: \u2018Patient requires MRI for suspected disc herniation. Procedure is medically indicated but prior authorisation was not obtained.\u2019 (3) She labelled it explicitly: Pre-Authorization \u2013 Medical Necessity. (4) She added a note in the prompt: \u2018This is Pre-Authorization, not Coverage Limit \u2014 the procedure is covered but the approval step was missed.\u2019 That note is the boundary signal the model needs."
+          : "How Aarav wrote a boundary example for VPN auth failure tickets: (1) He found a real ticket that kept routing to the wrong team \u2014 a VPN timeout that looked like a general network issue. (2) He wrote the input verbatim: \u2018User cannot connect to VPN from home network. Credentials valid. Connection times out after 30 seconds.\u2019 (3) He labelled it: Network \u2013 VPN Authentication. (4) He added a note: \u2018This is VPN Authentication, not General Network \u2014 credentials are valid, the failure is in the auth handshake, not the connection layer.\u2019 Three examples like this moved the routing accuracy for VPN tickets from 58% to 91%."
+        )}
         <FewShotLabeler track={track} />
         <GenAIConversationScene
           mentor="kabir"
@@ -1565,6 +1598,19 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "Rhea\u2019s refinement loop: store each version with a changelog. Maintain 'golden cases' \u2014 inputs where you know exactly what the correct output looks like. Before replacing V2 with V3, verify V3 passes all golden cases."
           : "Aarav\u2019s workflow: store prompts in a prompts/ directory in git. Build a golden dataset of 50\u2013100 labeled examples covering normal cases, edge cases, and previously seen failures. Automate evaluation on every PR."
         )}
+        {track === 'non-tech' ? keyBox('What Rhea\u2019s minimal refinement loop looks like in practice', [
+          'Version doc: one shared Google Doc with a simple table \u2014 columns: Version, Date, What changed, Why. One row per edit. Takes two minutes to fill in.',
+          'Golden cases sheet: a separate spreadsheet with 10\u201315 rows. Each row: the input text, what the output MUST include, what it must NOT include. Start with the cases that have failed or been flagged before.',
+          'Before replacing V2 with V3: paste each golden case input into the new prompt and check the output against the \u201cmust include / must not include\u201d columns manually. Flag any row where V3 fails something V2 passed.',
+          'Promotion rule: if V3 fails even one compliance-critical golden case (missing disclaimer, wrong section, wrong tone), do not ship it. Fix the regression first.',
+          'This is not a heavy process \u2014 10 golden cases takes about 20 minutes to check. The V1\u2192V3 disclaimer regression would have been caught in the first row.',
+        ], '#DB2777') : keyBox('What Aarav\u2019s minimal refinement loop looks like in practice', [
+          'prompts/ directory in git: one .txt or .md file per prompt, named by use case (e.g. incident_summariser_v3.txt). Commit message must state what changed and why \u2014 not just \u201cupdate prompt\u201d.',
+          'golden_dataset.jsonl: 50\u2013100 examples in JSON Lines format. Each entry has an input and expected output fields (or must_include / must_not_include for open-ended tasks). Cover normal cases, known edge cases, and every failure mode seen in production.',
+          'eval.py: a script that loads the current prompt, runs each golden case through the model, and prints pass/fail per row plus overall accuracy per category. Run it locally before opening a PR.',
+          'Promotion rule: a new prompt version ships only if eval accuracy is equal to or better than the previous version on every category \u2014 not just overall. An improvement in Category A that causes a regression in Category B does not pass.',
+          'The V2 regression (missing resolution step in edge-case reports) would have appeared as a failing row in eval.py before it ever reached production.',
+        ], '#DB2777')}
         {pullQuote("You cannot improve a prompt safely without knowing what it does consistently right.")}
         <PromptDiffViewer track={track} />
         <GenAIConversationScene
