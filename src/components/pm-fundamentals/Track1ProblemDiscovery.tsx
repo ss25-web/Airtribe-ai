@@ -27,6 +27,33 @@ const ToolBadge = ({ name, desc, accent = 'var(--teal)' }: { name: string; desc:
 );
 
 // ─────────────────────────────────────────
+// CONVERSATION SCENE — Priya ↔ stakeholder
+// ─────────────────────────────────────────
+type CSLine = { speaker: 'priya' | 'other'; text: string };
+const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
+}) => (
+  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {lines.map((l, i) => {
+      const isPriya = l.speaker === 'priya';
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div style={{ flexShrink: 0 }}>
+            {isPriya
+              ? <MentorFace mentor="priya" size={38} />
+              : <MentorFace mentor={mentor} size={38} />}
+          </div>
+          <div style={{ maxWidth: '72%' }}>
+            {i === 0 && <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>{isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>· {isPriya ? 'PM' : role}</span></div>}
+            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+// ─────────────────────────────────────────
 // TILT CARD — 3D mouse-tracking wrapper
 // ─────────────────────────────────────────
 const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
@@ -1076,12 +1103,21 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "I spent all weekend on this. 14 screens. And none of it is right." },
+              { speaker: 'other', text: "You saw a number \u2014 40% churn \u2014 and your brain jumped to a cause: \u2018the onboarding must be confusing.\u2019 Then you spent a weekend solving that cause before checking whether it was real." },
+              { speaker: 'priya', text: "So what do I do now?" },
+              { speaker: 'other', text: "The number is a symptom. You don\u2019t know the cause yet. Talk to five churned users before you open Figma again. You caught it before you shipped it. Most PMs don\u2019t." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;Here&apos;s what happened. You saw a number — 40% churn — and your brain immediately jumped to a cause: &apos;the onboarding must be confusing.&apos; Then you spent a weekend solving that cause before checking whether it was real.<br /><br />&ldquo;The number is a symptom. You don&apos;t know the cause yet. It could be onboarding. Or the product doesn&apos;t show value fast enough. Or managers don&apos;t know what to do once they set it up. Or the sales team is promising features that don&apos;t exist. Your redesign doesn&apos;t help with any of those.<br /><br />&ldquo;You caught it before you shipped it. Most PMs don&apos;t.&rdquo;</>}
-            expandedContent={<>Asha opens a Notion doc on her laptop. &ldquo;This is the template I use for every discovery sprint — interview notes, patterns, brief, all in one place. I&apos;ll share it with you.&rdquo; The template has three sections: raw notes from each interview, an affinity map organized by theme (not by user), and a one-page brief at the end. &ldquo;By Wednesday you&apos;ll have something better than 14 Figma screens. And it&apos;ll actually solve the right problem.&rdquo;</>}
+            content={<>A number tells you something is wrong. It doesn&apos;t tell you why. The gap between symptom and cause is where most product time gets wasted \u2014 building the right solution to the wrong problem.</>}
+            expandedContent={<>The template I use for every discovery sprint has three sections: raw notes from each interview, an affinity map organized by theme (not by user), and a one-page brief at the end. By Wednesday you&apos;ll have something better than 14 Figma screens. And it&apos;ll actually solve the right problem.</>}
             conceptId="user-research"
             question="Your manager says '40% of users churn in week 2 — fix it.' You have a theory about onboarding. What do you do first?"
             options={[
@@ -1139,12 +1175,21 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
+            lines={[
+              { speaker: 'priya', text: "Which managers do I reach out to? I can\u2019t interview all 340." },
+              { speaker: 'other', text: "Interview managers who churned in the last 10 days, at teams of 5\u201320 reps. Recent enough to remember. Representative enough to generalize. Not enterprise \u2014 too many variables. Not solo reps \u2014 different job entirely." },
+              { speaker: 'priya', text: "And where do I put the notes?" },
+              { speaker: 'other', text: "I\u2019ve set up a Dovetail workspace for the team. Every transcript, clip, and tag goes in there. By the time you\u2019ve done 5 interviews, the patterns start forming automatically. I\u2019ll add you tonight." },
+            ]}
+          />
           <Avatar
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>&ldquo;I&apos;ve set up a Dovetail workspace for the team. Every research session goes in there — interview transcript, clips, tags. By the time you&apos;ve done 5 interviews, the patterns start forming automatically.<br /><br />&ldquo;Here&apos;s what I&apos;d recommend: interview managers who churned in the last 10 days, at teams of 5–20 reps. That&apos;s your most representative group — not enterprise (too complex), not solo reps (different job), not ancient history (memory fades). I&apos;ll add you to the workspace tonight.&rdquo;</>}
-            expandedContent={<>Dovetail is a research repository that stores transcripts, recordings, and notes from interviews. The real value comes from tagging: as you read each interview, you tag observations (e.g. &ldquo;didn&apos;t know what to do first,&rdquo; &ldquo;wanted to see an example&rdquo;). Once all interviews are tagged, Dovetail shows you which tags appear most — automatically surfacing the patterns. It turns 8 pages of notes into a prioritized list of themes. Priya will use it in Part 5 to build her synthesis.</>}
+            content={<>Dovetail stores transcripts and notes, and the real value is tagging: as you read each interview, tag observations like &ldquo;didn&apos;t know what to do first.&rdquo; Once all interviews are tagged, Dovetail shows you which tags appear most \u2014 automatically surfacing the patterns across 8 pages of notes.</>}
+            expandedContent={<>It turns raw notes into a prioritized list of themes. The tool does the clustering. Your job is to interpret what the clusters mean \u2014 that\u2019s the synthesis step that no tool can do for you.</>}
             conceptId="customer-segments"
             question="EdSpark has 340 churned users last month. You need to understand why managers specifically are churning. Who do you interview?"
             options={[
@@ -1189,12 +1234,20 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
+            lines={[
+              { speaker: 'other', text: "Before you go interview people \u2014 look at this. We ran three months of support tickets through Kraftful. 34% are about \u2018not knowing where to start.\u2019 28%: \u2018not understanding the difference between features.\u2019 18% technical." },
+              { speaker: 'priya', text: "So this confirms the onboarding is the issue." },
+              { speaker: 'other', text: "Careful. These are users who cared enough to write in. The silent churners might have a completely different story. Use this to sharpen your interview questions. Not to replace the interviews." },
+            ]}
+          />
           <Avatar
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>&ldquo;One more thing before you go interview people. We ran three months of EdSpark support tickets through Kraftful last week. The AI clustered them by theme automatically.<br /><br />&ldquo;34% of tickets: &lsquo;not knowing where to start.&rsquo; 28%: &lsquo;not understanding the difference between features.&rsquo; 18%: technical issues. 20% other.<br /><br />&ldquo;This is a good starting point — it tells you what people who write in are struggling with. But remember: these are users who cared enough to reach out. The silent churners might have a completely different experience. Use Kraftful to sharpen your interview questions, not to replace them.&rdquo;</>}
-            expandedContent={<>Kraftful uses AI to analyze patterns in customer feedback — support tickets, app store reviews, user surveys — and group them into themes automatically. It&apos;s useful for understanding what users who surface issues are experiencing. The limitation: it only captures people who chose to say something. If 40% of users churn silently, Kraftful tells you nothing about them. Use it to scope your research — not to finish it.</>}
+            content={<>Kraftful uses AI to cluster support tickets by theme automatically. It tells you what users who spoke up are struggling with. The limitation: 40% of users who churn never write in. Kraftful tells you nothing about them. Use it to scope your research \u2014 not to finish it.</>}
+            expandedContent={<>Think of Kraftful as a lens on the vocal minority. It&apos;s valuable signal \u2014 just not a complete picture. Pair it with interviews and you get both the volume and the depth.</>}
             conceptId="research-methods"
             question="Kiran's Amplitude data shows 43% of managers never click 'Add Recording' in their first session. What does this tell you?"
             options={[
@@ -1265,12 +1318,21 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "So my 14 screens were completely wrong. The problem isn\u2019t navigation. It\u2019s not even onboarding confusion." },
+              { speaker: 'other', text: "The product gave him a toolbox without showing him how to use a single tool. He\u2019d still churn at exactly the same point even if you\u2019d shipped everything you designed." },
+              { speaker: 'priya', text: "And the follow-up question was what made the difference." },
+              { speaker: 'other', text: "Always. \u2018Can you be more specific?\u2019 is the whole job. The insight lives in the second answer, not the first." },
+            ]}
+          />
           <Avatar
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>&ldquo;Rahul didn&apos;t churn because the product was confusing. He churned because EdSpark assumes managers already know what great coaching looks like. They don&apos;t. The product gave him a toolbox without showing him how to use a single tool.<br /><br />&ldquo;Your 14 Figma screens would have simplified the account setup process that Rahul had no problem with. And then he&apos;d still leave at exactly the same point, for exactly the same reason.<br /><br />&ldquo;The follow-up question — &apos;can you be more specific?&apos; — is the whole job. That&apos;s where the insight lives. Always.&rdquo;</>}
-            expandedContent={<>After the call, Priya adds Rahul&apos;s transcript to Dovetail and starts tagging. One tag immediately: &ldquo;doesn&apos;t know what good looks like.&rdquo; Another: &ldquo;job is proving value to director.&rdquo; She has five more interviews to run. But she already has a hypothesis to test: EdSpark never shows users what good coaching looks like — and managers, specifically, have never been taught this either. The product assumes expertise the user doesn&apos;t have.</>}
+            content={<>Rahul didn&apos;t churn because the product was confusing. He churned because EdSpark assumes managers already know what great coaching looks like. They don&apos;t. That&apos;s a completely different problem than UX confusion \u2014 and a completely different solution.</>}
+            expandedContent={<>After the call, Priya tags the transcript in Dovetail: &ldquo;doesn&apos;t know what good looks like.&rdquo; And: &ldquo;job is proving value to director.&rdquo; She has five more interviews to run. But she already has a hypothesis to test: EdSpark assumes expertise the user was never given.</>}
             conceptId="user-research"
             question="Midway through an interview, Rahul says 'I wasn't sure what to do next.' You should:"
             options={[
@@ -1328,12 +1390,21 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
+            lines={[
+              { speaker: 'priya', text: "I\u2019ve tagged all six interviews. The \u2018doesn\u2019t know what good looks like\u2019 tag shows up in five of them. Is that my finding?" },
+              { speaker: 'other', text: "That\u2019s your signal. Dovetail shows you which themes appear across the most interviews \u2014 5 of 6 is hard to argue with. But the tool doesn\u2019t tell you what it means." },
+              { speaker: 'priya', text: "They didn\u2019t just have trouble with a feature. They had no frame of reference for good coaching at all." },
+              { speaker: 'other', text: "That\u2019s not in the data. That\u2019s your synthesis. EdSpark gives them a mirror \u2014 nobody gave them a benchmark. That\u2019s a completely different problem than UX confusion." },
+            ]}
+          />
           <Avatar
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>&ldquo;What Dovetail does automatically — once you tag — is show you which themes appear across the most interviews. You can literally see: &apos;this observation appeared in 5 of 6 sessions.&apos; That&apos;s your primary finding.<br /><br />&ldquo;But the tool doesn&apos;t tell you what it means. That&apos;s yours. Your 5 managers didn&apos;t just have trouble with a feature — they lacked a mental model for good coaching. EdSpark gives them a mirror but no benchmark. That&apos;s a completely different problem than UX confusion.<br /><br />&ldquo;That&apos;s not in the data. That&apos;s your synthesis.&rdquo;</>}
-            expandedContent={<>The difference between a note and an insight: a note is what happened. An insight is what it means. &ldquo;User didn&apos;t know what to do after setup&rdquo; is a note. &ldquo;EdSpark assumes managers know what great coaching looks like — but most of them have never been taught&rdquo; is an insight. It explains the pattern, points to a root cause, and implies a direction without dictating a solution. That&apos;s the goal of synthesis.</>}
+            content={<>A note is what happened. An insight is what it means. &ldquo;User didn&apos;t know what to do after setup&rdquo; is a note. &ldquo;EdSpark assumes managers know what great coaching looks like \u2014 but most of them have never been taught&rdquo; is an insight. That&apos;s the goal of synthesis.</>}
+            expandedContent={<>An insight explains the pattern, points to a root cause, and implies a direction without dictating a solution. If your synthesis is just a summary of observations, you haven&apos;t synthesized yet.</>}
             conceptId="insight-synthesis"
             question="After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?"
             options={[
@@ -1408,12 +1479,22 @@ export default function Track1ProblemDiscovery() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
+            lines={[
+              { speaker: 'other', text: "Priya walked in Friday with one page. Rohan read it in 90 seconds, looked up, and said \u2018What\u2019s the fix?\u2019" },
+              { speaker: 'priya', text: "I have a hypothesis \u2014 but I want to hear what the team thinks first." },
+              { speaker: 'other', text: "What if we showed an anonymised example coaching session the first time you add a recording? A real before/after call. I can build that in a day. Maya said: or a 60-second video. Kiran said: A/B test both." },
+              { speaker: 'priya', text: "None of those were in my original plan." },
+              { speaker: 'other', text: "On Monday with 14 wireframes, I would have built exactly what you asked for. It would have been wrong. On Friday you gave us the problem. We built the right thing together." },
+            ]}
+          />
           <Avatar
             name="Dev"
             nameColor="var(--blue)"
             borderColor="var(--blue)"
-            content={<>&ldquo;Priya showed us the brief on Friday morning. Rohan read it in 90 seconds. Then he looked up and said, &apos;What&apos;s the fix?&apos;<br /><br />&ldquo;Priya said, &apos;I have a hypothesis, but I want to hear what the team thinks first.&apos;<br /><br />&ldquo;I said: what if we showed an anonymised example coaching session the first time you add a recording — a real before/after call with commentary? I can build that in a day, maybe less. Maya said: or a 60-second video. Kiran said: let&apos;s A/B test both. Two weeks, measure day-14 retention.<br /><br />&ldquo;When Priya arrived Monday with 14 wireframes, I would have built exactly what she asked for. It would have been wrong. On Friday she gave us the problem. We built the right thing together.&rdquo;</>}
-            expandedContent={<>The brief doesn&apos;t end with a solution for a reason. When a PM presents a clear problem, the team&apos;s collective intelligence — engineering&apos;s knowledge of what&apos;s feasible, design&apos;s knowledge of what&apos;s usable, analytics&apos;s knowledge of what&apos;s measurable — produces better ideas than any one person could generate alone. The PM&apos;s job is to make the problem so clear that the solution becomes obvious. Not to arrive with both.</>}
+            content={<>When a PM presents a clear problem, the team&apos;s collective intelligence \u2014 engineering&apos;s knowledge of what&apos;s feasible, design&apos;s knowledge of what&apos;s usable, analytics&apos;s knowledge of what&apos;s measurable \u2014 produces better ideas than any one person could generate alone.</>}
+            expandedContent={<>The PM&apos;s job is to make the problem so clear that the solution becomes obvious. Not to arrive with both. That&apos;s the brief&apos;s job \u2014 and why it ends with a question, not an answer.</>}
             conceptId="problem-framing"
             question="You've written your discovery brief. How do you open the Friday meeting with Rohan?"
             options={[
