@@ -131,7 +131,7 @@ type DialogueLine = { speaker: 'priya' | 'other'; text: string };
 const ConversationScene = ({
   mentor, name, role, accent, lines,
 }: {
-  mentor: 'rohan' | 'kiran' | 'maya' | 'dev';
+  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha';
   name: string; role: string; accent: string;
   lines: DialogueLine[];
 }) => (
@@ -861,12 +861,21 @@ export default function Track2ProductStrategy() {
 
         <Section1Mockup />
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
+          lines={[
+            { speaker: 'priya', text: "Meridian is 10% of our ARR and threatening to pull out. Their NPS is 21 \u2014 everyone else is above 70. Rohan wants to build for them." },
+            { speaker: 'other', text: "Are they 10% of your market \u2014 or 10% of your problem?" },
+            { speaker: 'priya', text: "Based on the data\u2026 a 46-point NPS gap in one segment while every other segment is above 70 \u2014 that\u2019s not a product problem." },
+            { speaker: 'other', text: "That\u2019s the signature of a segment-of-one outlier. Meridian is asking EdSpark to be something it wasn\u2019t built to be. Run that analysis before you walk into Rohan\u2019s office." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Meridian is 10% of your ARR. But are they 10% of your market — or 10% of your problem?</>}
-          expandedContent={<>There are two very different things a big customer can signal. They can be a leading indicator — showing you where your whole market is heading. Or they can be an outlier — a customer with a use case that diverges from your ICP so far that serving them means not serving everyone else. Kiran&apos;s data suggests Meridian is the second. But Rohan is reacting to the first. The analysis you just ran is how Priya tells the difference before the meeting — not during it.</>}
+          content={<>Meridian is 10% of your ARR. But a 46-point NPS gap in one segment while every other is above 70 is the signature of an outlier, not a product problem.</>}
+          expandedContent={<>There are two very different things a big customer can signal. They can be a leading indicator \u2014 showing you where your whole market is heading. Or they can be an outlier \u2014 a customer with a use case that diverges from your ICP so far that serving them means not serving everyone else. Kiran\u2019s data suggests Meridian is the second. But Rohan is reacting to the first. The analysis you just ran is how Priya tells the difference before the meeting \u2014 not during it.</>}
           question="Meridian's NPS is 21. EdSpark's average is 67. What does that gap tell you?"
           options={[
             { text: 'EdSpark has a product quality problem that Meridian is surfacing first', correct: false, feedback: 'A company-wide product problem would show up across segments, not just Meridian. The SMB and mid-market segments both have NPS above 70.' },
@@ -918,12 +927,21 @@ export default function Track2ProductStrategy() {
 
         <Section2Mockup />
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
+          lines={[
+            { speaker: 'priya', text: "Only the Coaching API cleared all three platform criteria. The other three extensions don\u2019t amplify the core \u2014 they\u2019re just adjacent products." },
+            { speaker: 'other', text: "Who are those other extensions actually for?" },
+            { speaker: 'priya', text: "Not our 120 SMB customers. They don\u2019t have engineering teams. They\u2019d never use an API." },
+            { speaker: 'other', text: "So if your 120 happiest customers don\u2019t need a platform \u2014 who exactly is the platform for?" },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>If your 120 happiest customers don&apos;t need a platform — who exactly is the platform for?</>}
-          expandedContent={<>Platform decisions get made for two reasons: because your core customers are asking for extensibility, or because you&apos;re trying to defensively expand before a competitor does. The first is a signal. The second is a reaction. The matrix you just used reveals which of those is driving EdSpark&apos;s platform conversation — and only the Coaching API clears all three criteria because it amplifies coaching depth for existing customers while enabling third-party extensions. Every other extension is a new product disguised as a platform feature.</>}
+          content={<>Only the Coaching API clears the platform criteria because it amplifies what existing customers already value. Every other extension is a new product disguised as a platform feature.</>}
+          expandedContent={<>Platform decisions get made for two reasons: because your core customers are asking for extensibility, or because you\u2019re trying to defensively expand before a competitor does. The first is a signal. The second is a reaction. The matrix you just used reveals which of those is driving EdSpark\u2019s platform conversation \u2014 and only the Coaching API clears all three criteria because it amplifies coaching depth for existing customers while enabling third-party extensions. Every other extension is a new product disguised as a platform feature.</>}
           question="EdSpark decides to build platform APIs. What's the earliest leading indicator that it was the right call?"
           options={[
             { text: 'Three enterprise deals specifically cited the API in their procurement criteria', correct: false, feedback: 'This indicates the API is a sales tool, not a platform signal. Enterprise procurement criteria change — a real platform signal is usage, not procurement.' },
@@ -980,12 +998,21 @@ export default function Track2ProductStrategy() {
           'Make Rohan choose with full information — not partial information framed as "we\'ll make it work"',
         ])}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
+          lines={[
+            { speaker: 'priya', text: "Adding the Meridian bet slips Forecasting by 8 weeks. 90+ accounts are waiting for that feature. But they\u2019re not in my Slack sending escalation messages." },
+            { speaker: 'other', text: "Which feature are you more afraid to miss: the one Meridian is asking for, or the one 90 accounts are waiting for?" },
+            { speaker: 'priya', text: "The quiet ones. They don\u2019t escalate. They just churn." },
+            { speaker: 'other', text: "The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade makes that invisible cost visible before it happens." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Which feature are you more afraid to miss: the one Meridian is asking for, or the one 90 accounts are waiting for?</>}
-          expandedContent={<>The cascade map makes it concrete: adding the Meridian bet delays the forecasting feature by 8 weeks. 90+ accounts are waiting for that feature. But those accounts don&apos;t send escalation emails — they just quietly churn when their roadmap requests keep getting deprioritized. The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade you just ran is the tool that makes the quiet cost visible before it happens.</>}
+          content={<>The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade map makes the quiet cost visible before it becomes a churn number.</>}
+          expandedContent={<>The cascade map makes it concrete: adding the Meridian bet delays the forecasting feature by 8 weeks. 90+ accounts are waiting for that feature. But those accounts don\u2019t send escalation emails \u2014 they just quietly churn when their roadmap requests keep getting deprioritized. The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade you just ran is the tool that makes the quiet cost visible before it happens.</>}
           question="Priya presents the cascade to Rohan. He says: 'Then find two more engineers.' What does Priya do?"
           options={[
             { text: 'Hire two contractors to run the Meridian bet without pulling from the core team', correct: false, feedback: 'Contractors need onboarding time and context — in a 10-week sprint, you lose 2–3 weeks before they\'re productive. The math doesn\'t work, and you\'ve added coordination overhead.' },
@@ -1047,12 +1074,21 @@ export default function Track2ProductStrategy() {
 
         {pullQuote("A kill decision is not admitting failure. It's reallocating future capacity to something that earns it.")}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
+          lines={[
+            { speaker: 'priya', text: "Kill criteria says 4 out of 5 point toward stopping. But Rohan keeps pointing to the 60% we\u2019ve already built." },
+            { speaker: 'other', text: "Did Gong build AI summarization before they had the data to support it?" },
+            { speaker: 'priya', text: "\u2026No, actually." },
+            { speaker: 'other', text: "So who told EdSpark this was a must-have? The 60% is context, not evidence. It doesn\u2019t answer what the next 6 weeks should produce." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Gong didn&apos;t build AI summarization either. So who told EdSpark this was a must-have?</>}
-          expandedContent={<>Kill decisions often fail because the PM is trying to prove the feature wasn&apos;t a mistake — instead of asking whether the next 6 weeks should be spent on it. The framework you just ran makes the question concrete: kill criteria aren&apos;t a verdict on the past, they&apos;re an allocation decision about the future. The 60% already built is context, not evidence.</>}
+          content={<>Kill criteria aren\u2019t a verdict on the past. They\u2019re an allocation decision about the future. The 60% already built is context, not evidence.</>}
+          expandedContent={<>Kill decisions often fail because the PM is trying to prove the feature wasn\u2019t a mistake \u2014 instead of asking whether the next 6 weeks should be spent on it. The framework you just ran makes the question concrete: kill criteria aren\u2019t a verdict on the past, they\u2019re an allocation decision about the future. The 60% already built is context, not evidence.</>}
           question="The kill criteria framework says 4/5 point toward killing the feature. Rohan still wants to ship it. What does Priya do?"
           options={[
             { text: 'Defer to Rohan — he has visibility into customer relationships she doesn\'t', correct: false, feedback: 'Visibility into relationships doesn\'t override willingness-to-pay data, ICP misalignment, or opportunity cost. Deferring without presenting the framework means the decision will be repeated for the next 60%-built feature.' },
@@ -1109,12 +1145,21 @@ export default function Track2ProductStrategy() {
           'Evidence that your best customers cannot easily leave — not just that they\'re happy',
         ])}
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
+          lines={[
+            { speaker: 'priya', text: "Rohan wants to lead with the growth story. 2x YoY, NPS 76, renewal 96%. It\u2019s all true." },
+            { speaker: 'other', text: "Are you telling investors why EdSpark grows \u2014 or why EdSpark wins?" },
+            { speaker: 'priya', text: "The switching cost data is the moat. 2.8 months average tenure for churned customers vs 19 months with full CRM sync." },
+            { speaker: 'other', text: "That\u2019s the thesis. Not \u2018we grew fast\u2019 \u2014 \u2018we grew precisely, into a segment where leaving us is operationally painful.\u2019 That\u2019s what investors write checks for." },
+          ]}
+        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Are you telling investors why EdSpark grows — or why EdSpark wins?</>}
-          expandedContent={<>Growth tells investors you&apos;ve found something. Defensibility tells them you can keep it. The narrative framer above shows the difference: growth and TAM stories invite the question "why can't Gong do this?" — and you don't have a good answer if you're competing on features. The category leadership framing works because it centers on the switching cost moat — CRM-integrated coaching workflows that are too painful to rebuild on a competitor's platform. That's a thesis. The others are metrics.</>}
+          content={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The switching cost moat is the thesis \u2014 the growth metrics are just evidence it\u2019s working.</>}
+          expandedContent={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The narrative framer above shows the difference: growth and TAM stories invite the question \u201cwhy can\u2019t Gong do this?\u201d \u2014 and you don\u2019t have a good answer if you\u2019re competing on features. The category leadership framing works because it centers on the switching cost moat \u2014 CRM-integrated coaching workflows that are too painful to rebuild on a competitor\u2019s platform. That\u2019s a thesis. The others are metrics.</>}
           question="EdSpark's Series B deck leads with CRM switching costs as the primary moat. An investor asks: 'What happens when Gong builds CRM depth?' How does Priya answer?"
           options={[
             { text: 'EdSpark will have 18 months of compounding data advantage that Gong can\'t acquire quickly', correct: false, feedback: 'Data moats are real but fragile — Gong has 4,000 customers feeding their AI. This argument puts EdSpark in a race it\'s already behind in.' },

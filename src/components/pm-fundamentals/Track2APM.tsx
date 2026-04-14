@@ -1383,13 +1383,22 @@ export default function Track2APM() {
         </div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+            lines={[
+              { speaker: 'other', text: "DAU is up 20%. Your manager is happy. But I pulled the session depth \u2014 a big chunk of that lift is users who open the app, check the notification badge, and leave in under 30 seconds." },
+              { speaker: 'priya', text: "So they\u2019re daily active by definition but not engaging with anything." },
+              { speaker: 'other', text: "Exactly. The metric is technically correct. The story everyone\u2019s telling about it is wrong." },
+              { speaker: 'priya', text: "We need to redefine \u2018active\u2019 before the next review. \u2018Completes at least one core action\u2019 \u2014 something that actually requires using the product." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Kiran"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>Priya's DAU finding is important because it reveals an interpretive failure, not a data failure. The data was correct. The story people told about it was wrong. The way to prevent this: define what "active" means before you set it as a success metric. "A user is active if they complete at least one core action." Now the metric is harder to inflate.</>}
-            expandedContent={<>The metric design question I always ask: "What user behavior would make this number go up without the product delivering real value?" If the answer is easy — if users can game it by opening the app and closing it — design a tighter metric. The harder it is to satisfy the metric without delivering value, the more reliable it is as a signal.</>}
+            content={<>The DAU finding reveals an interpretive failure, not a data failure. The data was correct \u2014 the story people told about it was wrong. Define what \u201cactive\u201d means before you set it as a success metric.</>}
+            expandedContent={<>The metric design question I always ask: \u201cWhat user behavior would make this number go up without the product delivering real value?\u201d If the answer is easy \u2014 if users can game it by opening the app and closing it \u2014 design a tighter metric. The harder it is to satisfy the metric without delivering value, the more reliable it is as a signal.</>}
           />
           <PMPrincipleBox principle="Metrics are proxies for reality and can mislead if not interpreted carefully. Metrics can be gamed. Context is critical for interpretation." color="var(--purple)" />
           <ApplyItBox prompt="For each metric your team tracks: what user behavior would make this number rise without real value increasing? If you can answer easily, the metric needs tightening." color="var(--purple)" />
@@ -1432,13 +1441,22 @@ export default function Track2APM() {
         <div className="rv" style={{ margin: '24px 0' }}><GuardrailMetricsDemo /></div>
 
         <div className="rv">
+          <ConversationScene
+            mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
+            lines={[
+              { speaker: 'priya', text: "Sessions per user hit an all-time high. The board is going to call this a win." },
+              { speaker: 'other', text: "Before you do \u2014 check the guardrails. Support tickets per user: up 41%. NPS: down 8 points. Churn: up 15%." },
+              { speaker: 'priya', text: "More sessions, more problems, lower satisfaction, more users leaving. The north star is going up while everything else is going wrong." },
+              { speaker: 'other', text: "Users are having more sessions because they\u2019re confused, not because they\u2019re getting value. The metric can\u2019t tell the difference \u2014 that\u2019s what guardrails are for." },
+            ]}
+          />
           <Avatar
             emoji="🤖"
             name="Kiran"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>Priya's north star divergence is the most sophisticated failure mode in this module. The sessions number is technically correct. Users are having more sessions. But those sessions are generating confusion and churn. The north star became a local optimum that wasn't correlated with actual value.</>}
-            expandedContent={<>The guardrail design question I always ask: "If the north star rose 30% but these three other things happened, would I still consider this a success?" The "three other things" are your guardrails. Define them before you start optimizing. If you define them after the fact, you'll rationalize away any deterioration that's inconvenient. Guardrails only work if they're non-negotiable in advance.</>}
+            content={<>The north star divergence is the most sophisticated failure mode here. Sessions are up \u2014 because users are confused and looping. The metric became a local optimum disconnected from actual value. That\u2019s what guardrails catch before the board review.</>}
+            expandedContent={<>The guardrail design question I always ask: \u201cIf the north star rose 30% but these three other things happened, would I still consider this a success?\u201d The \u201cthree other things\u201d are your guardrails. Define them before you start optimizing. If you define them after the fact, you\u2019ll rationalize away any deterioration that\u2019s inconvenient. Guardrails only work if they\u2019re non-negotiable in advance.</>}
           />
           <PMPrincipleBox principle="A single metric cannot capture all dimensions of success. Optimizing one metric may harm others. Guardrail metrics are essential to protect your north star." color="var(--purple)" />
           <ApplyItBox prompt="Design three guardrail metrics for your current north star. For each: define the threshold that would cause you to pause north star optimization. Write those numbers down before your next review." color="var(--purple)" />
