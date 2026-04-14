@@ -176,6 +176,82 @@ export function GenAIMentorFace({ mentor, size = 66 }: { mentor: GenAIMentorId; 
   );
 }
 
+// ─────────────────────────────────────────
+// CONVERSATION SCENE — protagonist ↔ mentor chat bubbles
+// ─────────────────────────────────────────
+type GenAITrack = 'tech' | 'non-tech';
+type GenAICSLine = { speaker: 'protagonist' | 'mentor'; text: string };
+
+const PROTAGONIST_META: Record<GenAITrack, { name: string; initial: string; gradient: string; accent: string }> = {
+  tech: { name: 'Aarav', initial: 'A', gradient: 'linear-gradient(135deg, #1D4ED8 0%, #0F766E 100%)', accent: '#2563EB' },
+  'non-tech': { name: 'Rhea', initial: 'R', gradient: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)', accent: '#7C3AED' },
+};
+
+function ProtagonistFace({ track, size = 38 }: { track: GenAITrack; size?: number }) {
+  const meta = PROTAGONIST_META[track];
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: Math.round(size * 0.27),
+      background: meta.gradient, flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: Math.round(size * 0.38), fontWeight: 800, color: '#fff',
+      letterSpacing: '-0.02em', fontFamily: 'system-ui, sans-serif',
+      boxShadow: `0 4px 12px ${meta.accent}40`,
+      border: `2px solid ${meta.accent}55`,
+    }}>
+      {meta.initial}
+    </div>
+  );
+}
+
+export function GenAIConversationScene({ mentor, track, accent, techLines, nonTechLines }: {
+  mentor: GenAIMentorId;
+  track: GenAITrack;
+  accent: string;
+  techLines: GenAICSLine[];
+  nonTechLines: GenAICSLine[];
+}) {
+  const lines = track === 'tech' ? techLines : nonTechLines;
+  const protagonistName = PROTAGONIST_META[track].name;
+  const protagonistAccent = PROTAGONIST_META[track].accent;
+  const mentorName = MENTOR_META[mentor].name;
+  const mentorRole = MENTOR_META[mentor].role;
+
+  return (
+    <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {lines.map((l, i) => {
+        const isProtagonist = l.speaker === 'protagonist';
+        const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
+        return (
+          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+            <div style={{ flexShrink: 0 }}>
+              {isProtagonist
+                ? <ProtagonistFace track={track} size={38} />
+                : <GenAIMentorFace mentor={mentor} size={38} />}
+            </div>
+            <div style={{ maxWidth: '72%' }}>
+              {prevDifferent && (
+                <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistAccent : accent, marginBottom: '4px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.04em' }}>
+                  {isProtagonist ? protagonistName : mentorName}
+                  <span style={{ fontWeight: 400, opacity: 0.65 }}> · {isProtagonist ? (track === 'tech' ? 'Platform Engineer' : 'Operations Lead') : mentorRole}</span>
+                </div>
+              )}
+              <div style={{
+                background: isProtagonist ? `${protagonistAccent}18` : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${isProtagonist ? `${protagonistAccent}30` : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: isProtagonist ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65,
+              }}>
+                {l.text}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function GenAIAvatar({
   name,
   borderColor,

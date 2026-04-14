@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, CSSProperties, useCallback } from '
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace } from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
@@ -1285,12 +1285,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
         )}
         {pullQuote("A vague brief produces a vague output. The model is not failing \u2014 you are underspecifying.")}
         <PromptBuilderTool track={track} />
+        <GenAIConversationScene
+          mentor={track === 'non-tech' ? 'anika' : 'rohan'}
+          track={track}
+          accent={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
+          techLines={[
+            { speaker: 'protagonist', text: "Entity extraction is returning incomplete JSON on about 1-in-4 calls. I\u2019ve been varying the phrasing." },
+            { speaker: 'mentor', text: "Before you touch the phrasing \u2014 is the output schema defined anywhere in the system message?" },
+            { speaker: 'protagonist', text: "It\u2019s in the user message as an instruction, not a formal schema." },
+            { speaker: 'mentor', text: "An instruction leaves interpretation room. A schema doesn\u2019t. Define the output contract and the model stops guessing what to include." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "My discharge summaries vary wildly in tone. Sometimes clinical, sometimes conversational. I\u2019ve tried different phrasings." },
+            { speaker: 'mentor', text: "Before reaching for a different model \u2014 what exactly is specified in your prompt, and what\u2019s left open?" },
+            { speaker: 'protagonist', text: "I specify the task and the length. But not a role or a format." },
+            { speaker: 'mentor', text: "Tone is one of the dimensions you left open. \u2018You are a clinical documentation specialist\u2019 at the top is the single highest-leverage change you can make." },
+          ]}
+        />
         <GenAIAvatar
           name={track === 'non-tech' ? 'Anika' : 'Rohan'}
           nameColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
           borderColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
           conceptId="genai-m2-anatomy"
-          content={<>{track === 'non-tech' ? "Before reaching for a different model, ask: what exactly was specified, and what was left open?" : "Every prompt you write is an API contract. If you wouldn't ship an API without a response schema, don't ship a prompt without an output format."}</>}
+          content={<>{track === 'non-tech' ? "Before reaching for a different model, ask: what exactly was specified, and what was left open?" : "Every prompt you write is an API contract. If you wouldn\u2019t ship an API without a response schema, don\u2019t ship a prompt without an output format."}</>}
           expandedContent={track === 'non-tech' ? "Consistency isn't a model capability \u2014 it's a prompt property. A well-specified prompt will outperform a vague prompt on a much stronger model." : "System messages are your configuration layer. Treat them with the same discipline as service configuration \u2014 version-controlled, reviewed, tested."}
           question={track === 'non-tech' ? "Rhea\u2019s discharge summaries vary wildly in tone. What single prompt change has the most impact?" : "Aarav\u2019s entity extraction returns incomplete JSON on 1 in 4 calls. Best targeted fix?"}
           options={track === 'non-tech' ? [
@@ -1342,12 +1359,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Edge cases: show the model what should NOT be classified as a given label',
         ], '#0F766E')}
         <FewShotLabeler track={track} />
+        <GenAIConversationScene
+          mentor="kabir"
+          track={track}
+          accent="#0F766E"
+          techLines={[
+            { speaker: 'protagonist', text: "I added five examples per category. VPN auth failure tickets still route to the wrong team." },
+            { speaker: 'mentor', text: "The question for each example isn\u2019t \u2018is it correct\u2019 \u2014 it\u2019s \u2018does it show the model the boundary it keeps getting wrong?\u2019" },
+            { speaker: 'protagonist', text: "My examples are all clear-cut tickets. The VPN failures are the ambiguous edge cases." },
+            { speaker: 'mentor', text: "Examples are most valuable exactly where the model\u2019s prior is weakest. You need boundary examples \u2014 showing where the ambiguous cases actually land." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Slightly critical feedback keeps classifying as Neutral instead of Negative. I\u2019ve added more examples but it\u2019s not improving." },
+            { speaker: 'mentor', text: "What kind of examples did you add \u2014 clear negatives or borderline cases?" },
+            { speaker: 'protagonist', text: "Clear negatives. Obvious complaints." },
+            { speaker: 'mentor', text: "The model already handles obvious negatives. Add one example of a near-neutral comment that should be Negative. That\u2019s the boundary it needs to see." },
+          ]}
+        />
         <GenAIAvatar
           name="Kabir"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m2-fewshot"
-          content={<>The question to ask about a few-shot example isn&apos;t &ldquo;is it correct?&rdquo; &mdash; it&apos;s &ldquo;does it show the model the boundary it keeps getting wrong?&rdquo;</>}
+          content={<>The question to ask about a few-shot example isn\u2019t \u201cis it correct?\u201d \u2014 it\u2019s \u201cdoes it show the model the boundary it keeps getting wrong?\u201d</>}
           expandedContent="Most teams add examples of the most common case. Classification errors almost always happen on the most ambiguous cases. Examples are most valuable where the model's prior is weakest."
           question={track === 'non-tech' ? "Slightly critical feedback keeps classifying as Neutral. What kind of example helps most?" : "Network tickets misclassify despite 5 examples. Most impactful fix?"}
           options={track === 'non-tech' ? [
@@ -1394,12 +1428,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
           : "The fix is explicit context budget management: monitor prompt_tokens in the API response, implement a sliding window retaining only the most recent N turns, and periodically summarize older conversation into a compressed context block."
         )}
         <ContextWindowInspector track={track} />
+        <GenAIConversationScene
+          mentor="anika"
+          track={track}
+          accent="#7C3AED"
+          techLines={[
+            { speaker: 'protagonist', text: "The chatbot loses context after 5\u20136 turns. I\u2019m looking at upgrading to a model with a larger context window." },
+            { speaker: 'mentor', text: "Check your API response logs first. What\u2019s the prompt_tokens count at the point it starts forgetting?" },
+            { speaker: 'protagonist', text: "It\u2019s maxing out. The cumulative message history hits the limit silently \u2014 no error, just truncation." },
+            { speaker: 'mentor', text: "A bigger window delays the problem. A sliding window or periodic summarization solves it. The model can only use what\u2019s in front of it \u2014 old messages that were truncated are gone." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "My summarizer processed all 10 pages of patient notes. The critical drug interaction on page 7 isn\u2019t in the output." },
+            { speaker: 'mentor', text: "Where did you place the most critical information in the prompt \u2014 beginning, middle, or end?" },
+            { speaker: 'protagonist', text: "Original document order. Page 7 of 10, so the middle." },
+            { speaker: 'mentor', text: "Attention distributes unevenly in long contexts \u2014 information in the middle is systematically under-represented. Front-load what matters most." },
+          ]}
+        />
         <GenAIAvatar
           name="Anika"
           nameColor="#7C3AED"
           borderColor="#7C3AED"
           conceptId="genai-m2-context"
-          content={<>The model can only use what&apos;s in front of it. If the most critical information is buried in the middle of a large context, it has the same effect as if you never included it.</>}
+          content={<>The model can only use what\u2019s in front of it. If the most critical information is buried in the middle of a large context, it has the same effect as if you never included it.</>}
           expandedContent="Researchers have documented the 'lost in the middle' effect: critical information in the middle of a long context has lower retrieval accuracy than information at the start or end. Front-load what matters most."
           question={track === 'non-tech' ? "Rhea\u2019s summarizer misses a critical drug reaction buried on page 7 of 10. Best fix?" : "Aarav\u2019s chatbot forgets instructions after 6 turns. Root cause?"}
           options={track === 'non-tech' ? [
@@ -1446,12 +1497,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
           : "Aarav\u2019s team finds Haiku achieves 92% accuracy vs GPT-4o\u2019s 95% at 1/20th the cost. Hybrid: route clear-cut tickets to Haiku, ambiguous ones to GPT-4o. Result: effective 94.7% accuracy at $2.4k/month."
         )}
         <ModelSelectorTool track={track} />
+        <GenAIConversationScene
+          mentor="kabir"
+          track={track}
+          accent="#0F766E"
+          techLines={[
+            { speaker: 'protagonist', text: "I want to evaluate which model to use for the ticket classifier. Should I start with the most capable and work down?" },
+            { speaker: 'mentor', text: "Wrong direction. Define the minimum quality bar first. Then find the cheapest model that clears it." },
+            { speaker: 'protagonist', text: "For the ticket classifier \u2014 consistent categorization across 7 classes, with domain examples provided." },
+            { speaker: 'mentor', text: "That doesn\u2019t require frontier reasoning. You\u2019re spending GPT-4o rates on a task a smaller model handles at 95% accuracy for a fraction of the cost." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "I\u2019ve been using GPT-4o for everything \u2014 200 high-volume intake summaries and 5 complex referral letters per day." },
+            { speaker: 'mentor', text: "Before choosing a model, what\u2019s the minimum quality bar for each task separately?" },
+            { speaker: 'protagonist', text: "Intake summaries just need structured bullets. Referrals need nuanced clinical reasoning." },
+            { speaker: 'mentor', text: "Those are two different bars. A smaller model clears the intake bar at 20\u00d7 lower cost. Save GPT-4o for the referrals." },
+          ]}
+        />
         <GenAIAvatar
           name="Kabir"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m2-models"
-          content={<>Before choosing a model, define the minimum quality bar. Then find the cheapest model that clears it. Never start from the top down.</>}
+          content={<>Define the minimum quality bar first. Then find the cheapest model that clears it \u2014 never start from the top down.</>}
           expandedContent="'What\u2019s the best model?' is the wrong question. 'What\u2019s the minimum capability required?' is the right one. This leads to hybrid architectures that are both cost-efficient and reliable."
           question={track === 'non-tech' ? "Rhea has 200 structured summaries/day and 5 complex referrals/day. Best model strategy?" : "Daily reports at 100/day (medium complexity) and weekly insights at 5/week (high complexity). Budget is tight. Best strategy?"}
           options={track === 'non-tech' ? [
@@ -1499,12 +1567,29 @@ function CoreContent({ track }: { track: GenAITrack }) {
         )}
         {pullQuote("You cannot improve a prompt safely without knowing what it does consistently right.")}
         <PromptDiffViewer track={track} />
+        <GenAIConversationScene
+          mentor="leela"
+          track={track}
+          accent="#C2410C"
+          techLines={[
+            { speaker: 'protagonist', text: "V2 improved summary quality for most cases but introduced a regression \u2014 edge-case incident reports are missing the resolution step." },
+            { speaker: 'mentor', text: "Every prompt change is a hypothesis. Before you ship V3, what would tell you V3 doesn\u2019t introduce the same regression?" },
+            { speaker: 'protagonist', text: "I need a golden dataset \u2014 normal cases, edge cases, and the specific failure mode from V2." },
+            { speaker: 'mentor', text: "Run V3 against that dataset before it touches production. An undocumented prompt change that removes a safety instruction is indistinguishable from a silent code change." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "V3 is more concise. Then the compliance auditor found the legal disclaimer is missing \u2014 it was always in V1." },
+            { speaker: 'mentor', text: "Every prompt change is a hypothesis. What should you have tested before replacing V2?" },
+            { speaker: 'protagonist', text: "I need golden cases \u2014 inputs where I know exactly what the correct output should include." },
+            { speaker: 'mentor', text: "The disclaimer wasn\u2019t an accident \u2014 it was a requirement you stopped enforcing. Verify compliance-critical outputs before any version goes live." },
+          ]}
+        />
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m2-refine"
-          content={<>Every prompt change is a hypothesis. Before you test it on production, you need to know what it might break \u2014 not just what it might improve.</>}
+          content={<>Every prompt change is a hypothesis. You need to know what it might break, not just what it might improve.</>}
           expandedContent="From a compliance perspective, an undocumented prompt change that removes a safety instruction is indistinguishable from a silent code change that introduces a compliance violation. Treat prompts with the same governance as any production artifact."
           question={track === 'non-tech' ? "V3 consent form prompt omits a legal disclaimer that V1 always included. Next step?" : "V2 improved summaries for most cases but introduced edge-case regressions. Before shipping V3, what\u2019s critical?"}
           options={track === 'non-tech' ? [

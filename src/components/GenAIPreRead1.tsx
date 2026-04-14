@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace } from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
@@ -516,14 +516,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav&apos;s team shipped an LLM call that returns coverage rates during claims triage. Three days after demo, the data team flags it: the numbers look right but aren&apos;t. No one panics — it was a prototype. But Aarav pulls the API call apart looking for the bug. There is no bug. The model returned plausible rates because plausible rates are what the training data looked like. There is no claim system in the call. No policy database. Just a question and a model that answered it. He messages Rohan: <em>&ldquo;I think I fundamentally misunderstood what this thing actually does.&rdquo;</em></>
             : <>Rhea&apos;s team has been using an AI assistant for policy questions for three weeks. Good adoption, saves time. Then someone follows an AI-generated escalation procedure that turns out to be wrong. Rhea calls the vendor. The support rep says: <em>&ldquo;The model doesn&apos;t have access to your internal systems. It responds based on training data.&rdquo;</em> She sits with that for a while. They had been asking it questions as if it were a well-informed colleague who had read the Northstar handbook. It hadn&apos;t. It had read everything else. She messages Anika.</>}
         </SituationCard>
+        <GenAIConversationScene
+          mentor={track === 'tech' ? 'rohan' : 'anika'}
+          track={track}
+          accent={track === 'tech' ? '#2563EB' : ACCENT}
+          techLines={[
+            { speaker: 'protagonist', text: "I upgraded to a larger model but the coverage rates are still wrong. There must be a bug in the API call." },
+            { speaker: 'mentor', text: "Walk me through the call. Is there a retrieval layer — anything pulling from the claims system?" },
+            { speaker: 'protagonist', text: "No retrieval. I'm just passing the question directly to the model." },
+            { speaker: 'mentor', text: "Then the model generated plausible rates from training data. It has no idea what Northstar's actual rates are — you never gave it Northstar's rates." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "The AI gave us a wrong escalation procedure. I'm looking at other tools — this one clearly doesn't understand healthcare compliance." },
+            { speaker: 'mentor', text: "Tell me exactly what you asked it. Not what you wanted to know — what did you literally type?" },
+            { speaker: 'protagonist', text: "I asked it to give me the escalation procedure for a compliance incident." },
+            { speaker: 'mentor', text: "It generated the most plausible procedure from its training data. Northstar's actual handbook was never in the conversation — no model has that unless you put it there." },
+          ]}
+        />
         <GenAIAvatar
           name={track === 'tech' ? 'Rohan' : 'Anika'}
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-what-it-is"
           content={track === 'tech'
-            ? "Walk me through the API call. When the model returned coverage rates — where did those numbers actually come from?"
-            : "Tell me exactly what you asked it. Not what you wanted to know — what did you literally type into the prompt?"}
+            ? "The model has no claims system in your call \u2014 it generated statistically plausible rates. That\u2019s not a bug. It\u2019s the architecture."
+            : "The model generated a plausible escalation procedure from generic training data. Northstar\u2019s actual handbook was never part of the conversation."}
           expandedContent={track === 'tech'
             ? "There's no claims system in your call. No policy database. So the model did what it always does: it generated the most statistically plausible continuation of the text you gave it. Rates in the right format, right range, right level of precision — because that's what coverage rate responses look like in the training data. The model has no way to know what Northstar's actual rates are. You didn't give it Northstar's rates. This isn't a hallucination bug to fix. It's an architecture question: you were asking a completion system to do retrieval. Those are different jobs."
             : "The model gave you the most plausible escalation procedure it could construct from everything it's been trained on — general healthcare operations, compliance docs, whatever made it into the pretraining set. That's not a malfunction. That's what it does. It generates the most likely continuation of the text you gave it. It has no idea what Northstar's actual procedure is unless you put it in the conversation yourself. No model does — not this one, not a newer one. What broke wasn't the model's reliability. It was the assumption underneath the question."}
@@ -545,14 +562,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'Generative AI models are completion systems. Given a sequence of text, they generate the most statistically plausible continuation based on patterns in training data. They have no live connection to the world — no access to your databases, no ability to check current state, no memory between calls. They generate. They do not retrieve. That distinction is not a limitation to be patched. It is the architecture.'
           : 'Generative AI models are completion systems. They generate the most plausible continuation of whatever text they receive. They have no connection to live systems, no access to internal documents they weren\'t given, and no ability to flag when they don\'t actually know something. Certainty is a text style — the model can sound completely confident about things it is factually wrong about, because confidence is in the training data too.')}
+        <GenAIConversationScene
+          mentor="kabir"
+          track={track}
+          accent="#0F766E"
+          techLines={[
+            { speaker: 'protagonist', text: "I want to add domain-specific training data so the model learns our coverage rates." },
+            { speaker: 'mentor', text: "Before you redesign anything \u2014 what kind of task is 'look up a coverage rate' at its core?" },
+            { speaker: 'protagonist', text: "...It's a data lookup. The answer lives in our claims system, not in language patterns." },
+            { speaker: 'mentor', text: "Exactly. Fine-tuning doesn't move the claims database inside the model. You need a retrieval layer, not more training." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Maybe a newer model would know our procedures \u2014 there's more healthcare data in the latest ones." },
+            { speaker: 'mentor', text: "The escalation procedure task \u2014 was that a language problem or an information lookup?" },
+            { speaker: 'protagonist', text: "It needed a specific fact. Our procedure. Which lives in a document, not in general language patterns." },
+            { speaker: 'mentor', text: "No model has your internal procedures unless you put them in the conversation. That's not a capability gap \u2014 it's an architecture gap." },
+          ]}
+        />
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-what-it-is"
           content={track === 'tech'
-            ? "Before you redesign anything — what kind of task was the coverage rate lookup, at its core? Language task or data lookup?"
-            : "Rhea, before you update your team's guidelines — I want to ask you one question. The escalation procedure task: was that a language problem or an information lookup?"}
+            ? "Before you redesign anything \u2014 what kind of task was the coverage rate lookup, at its core? Language task or data lookup?"
+            : "Rhea, before you update your team\u2019s guidelines \u2014 I want to ask you one question. The escalation procedure task: was that a language problem or an information lookup?"}
           expandedContent={track === 'tech'
             ? "That's the filter I use first. Language task: the input is text, the output is text, and you don't need anything from an external system to answer correctly. Data lookup: the correct answer lives in a specific record somewhere. Coverage rates are a lookup — they live in a claims system. The model is genuinely excellent at language tasks. It is not a database. Once you separate those two categories, most of the confusion about when to use AI and when not to dissolves immediately."
             : "Those are two different jobs. Language task: rewrite this, summarise that, draft a response — the model works from what's in the prompt and its training. Information lookup: tell me the current escalation procedure, pull the right premium for this tier — the correct answer lives in a specific document or system. The model is very good at language work. It is not a retrieval system. The moment you ask it to look something up that isn't in the context, you've crossed from one category to the other. Most AI failures I've seen come from that exact crossing."}
@@ -590,14 +624,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav takes a whiteboard and maps everything his team has tried with LLMs in the last quarter. Left side: worked reliably. Right side: failed or got flagged. Middle: inconsistent. He stares at the left side — classification, summarisation, extraction from forms, rewriting dense notes. He stares at the right side — arithmetic on claim amounts, questions about current patient records, contract language that had to be legally exact. The pattern is uncomfortable because it was obvious in retrospect. The model wasn&apos;t bad at some things and good at others randomly. It had a zone. Nobody had looked for it. He calls Rohan.</>
             : <>Rhea makes a list. Every AI experiment her team has run in the last two months — she writes them on a whiteboard and draws three columns. The left column fills quickly: draft an email, summarise a case note, reformat a form for a different audience. All of them language, no single right answer, easy for a human to review. The right column is slower but the pattern is just as clear: check an SLA window, look up a current premium, verify a policy was filed. All of them needing live data, all of them silently wrong when the model tried. She had never made this map before. She had been treating AI as either magic or useless. She calls Rohan.</>}
         </SituationCard>
+        <GenAIConversationScene
+          mentor="rohan"
+          track={track}
+          accent="#2563EB"
+          techLines={[
+            { speaker: 'protagonist', text: "I mapped everything out \u2014 classification, summarisation, extraction on the left. Arithmetic on claim amounts, current patient records, exact contract language on the right." },
+            { speaker: 'mentor', text: "Good map. What do all the left-side tasks have in common that the right side doesn\u2019t?" },
+            { speaker: 'protagonist', text: "The left side... doesn\u2019t need anything from an external system. Text in, text out. Everything needed is in the prompt." },
+            { speaker: 'mentor', text: "That\u2019s the reliable zone. The model generates equally fluently in both columns \u2014 it just can\u2019t warn you when it\u2019s outside it." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Left column fills fast: draft email, summarise case note, reformat a form. Right column: SLA check, current premium lookup, policy verification \u2014 all wrong." },
+            { speaker: 'mentor', text: "Good map. Now look at the right column failures. Were any of those still running in production when they failed?" },
+            { speaker: 'protagonist', text: "Yes \u2014 the SLA checker was deployed. It was flagging cases for weeks before someone noticed something was off." },
+            { speaker: 'mentor', text: "That\u2019s the real risk. Not that the model failed \u2014 it\u2019s that nobody could tell it had." },
+          ]}
+        />
         <GenAIAvatar
           name="Rohan"
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m1-capabilities"
           content={track === 'tech'
-            ? "Good map. What does the left side have in common that the right side doesn't?"
-            : "Good map. Now look at the right column — the failures. Were any of those still running when they failed?"}
+            ? "Good map. What does the left side have in common that the right side doesn\u2019t?"
+            : "Good map. Now look at the right column \u2014 the failures. Were any of those still running when they failed?"}
           expandedContent={track === 'tech'
             ? "The left side is language work. Text in, text out, everything the model needs is in the prompt. The right side is either data lookups or precision tasks where being 95% right is a liability. That's the reliable zone — language tasks where the model works from what you've given it and errors are catchable before they cause harm. Outside that zone, the model doesn't warn you. It keeps generating with exactly the same confidence. Classification works. Arithmetic on novel numbers does not. The model looks equally certain in both cases. You have to know the zones before you assign the tasks, because the model won't tell you when it's out of its depth."
             : "That's the question that matters. A model being wrong in a demo is an interesting finding. A model being wrong in a deployed workflow, on real cases, before anyone checks — that's a different problem. The capability map isn't just about what the model can do. It's about where errors are catchable. In your left column, a human reads the draft before anything happens. In your right column, the model gives a wrong number or a wrong status check and it might act on it before you see it. The zone a task lives in tells you what verification you need to build around it."}
@@ -619,13 +670,30 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The zones are: reliable (language in, language out, no live data required), extended (retrieval-augmented or tool-augmented tasks that work with the right infrastructure), and unreliable (precise calculations on real numbers, real-time data without retrieval, legally exact outputs). The model generates equally fluently in all three. Only the first zone doesn\'t require you to build around its failures.'
           : 'The zones are: reliable (language work — summarise, classify, draft, extract — where the model works from what you give it), extended (tasks that need retrieval or tools to work correctly), and unreliable (precise arithmetic, live data without retrieval, legally exact claims). A map like the one on your whiteboard is more useful than any benchmark score.')}
+        <GenAIConversationScene
+          mentor="leela"
+          track={track}
+          accent="#C2410C"
+          techLines={[
+            { speaker: 'protagonist', text: "Arithmetic on claim amounts is on the right side of the map. I didn\u2019t realize it was in the unreliable zone." },
+            { speaker: 'mentor', text: "Is that one in production right now?" },
+            { speaker: 'protagonist', text: "It is. But the numbers look right \u2014 they\u2019re formatted correctly, right range, right precision." },
+            { speaker: 'mentor', text: "That\u2019s the failure mode I\u2019m most worried about. An output that\u2019s off by 4% looks exactly like a correct output. Nobody flags it." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "The middle column \u2014 the inconsistent tasks \u2014 sometimes gave good results, sometimes didn\u2019t." },
+            { speaker: 'mentor', text: "When they worked, who was checking the output before anything happened with it?" },
+            { speaker: 'protagonist', text: "Some of them went straight to the case worker. No review step before they acted on it." },
+            { speaker: 'mentor', text: "The ones with a human in the loop are recoverable. The ones without \u2014 errors acted on real cases before anyone saw them." },
+          ]}
+        />
         <GenAIAvatar
           name="Leela"
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m1-capabilities"
           content={track === 'tech'
-            ? "Aarav, the arithmetic thing on your whiteboard — claim amounts — is that in production right now?"
+            ? "Aarav, the arithmetic thing on your whiteboard \u2014 claim amounts \u2014 is that in production right now?"
             : "Rhea, I want to ask you about the middle column. The inconsistent ones. When they worked, who was checking the output before anything happened with it?"}
           expandedContent={track === 'tech'
             ? "Because that's the one I'd pull immediately. Arithmetic on real financial figures is in the unreliable zone, and the failure mode isn't 'obviously broken output' — it's 'plausibly formatted but wrong number.' Nobody flags a number that's off by 4%. It passes review. It processes. The pattern I look for is: what does a wrong output look like, and would anyone notice before it has an effect? Unreliable zone tasks with invisible failure modes are the most dangerous thing on that whiteboard."
@@ -663,14 +731,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Priya&apos;s prompts. The bad ones came from Dev&apos;s. The model is the same. The prompts are not. Priya&apos;s specify a role, output format, required fields, and length. Dev&apos;s are three words followed by a case note. He messages Anika.</>
             : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Priya&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Dev&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Priya has some intuition Dev hasn&apos;t developed. She messages Anika to check.</>}
         </SituationCard>
+        <GenAIConversationScene
+          mentor="anika"
+          track={track}
+          accent="#0F766E"
+          techLines={[
+            { speaker: 'protagonist', text: "Same model, same task \u2014 Priya gets sharp, structured outputs. Dev gets meandering ones. I can\u2019t explain it." },
+            { speaker: 'mentor', text: "Read me one of Dev\u2019s prompts and one of Priya\u2019s. Exactly as written." },
+            { speaker: 'protagonist', text: "Dev: \u2018Summarise this case note.\u2019 Priya: role, task, format, length, what to exclude, one example output." },
+            { speaker: 'mentor', text: "Dev\u2019s prompt has one dimension specified. Priya\u2019s has six. Every gap Dev leaves, the model fills with whatever seems statistically plausible \u2014 differently each run." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Priya gets useful outputs consistently. Dev gets all over the place. I assumed Priya just has better instincts." },
+            { speaker: 'mentor', text: "It\u2019s not instincts. \u2018Summarise this\u2019 is a question. Priya\u2019s version is a specification. They\u2019re different briefs." },
+            { speaker: 'protagonist', text: "So the model is choosing everything Dev didn\u2019t specify \u2014 format, length, what to include." },
+            { speaker: 'mentor', text: "And it chooses differently every run. Priya\u2019s prompts don\u2019t leave anything to chance. That\u2019s not intuition \u2014 it\u2019s discipline." },
+          ]}
+        />
         <GenAIAvatar
           name="Anika"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'tech'
-            ? "Read me one of Dev's prompts and one of Priya's. Exactly as written."
-            : "It's not a skill gap. Priya is specifying a task. Dev is asking a question. Those are not the same thing."}
+            ? "Dev\u2019s prompt has one dimension specified. Priya\u2019s has five. Every unspecified dimension is a choice the model makes for you."
+            : "It\u2019s not a skill gap. Priya is specifying a task. Dev is asking a question. Those are not the same thing."}
           expandedContent={track === 'tech'
             ? "There it is. Dev's prompt has one dimension specified: the task. Priya's has five: role, task, format, length, and constraints. Every dimension that's unspecified in a prompt is a decision the model makes for you — format, length, perspective, tone, level of detail, what to include. It fills those gaps with the most statistically plausible defaults from its training data. Sometimes that matches what you want. Often it doesn't. Dev's variance isn't a model problem. It's a specification problem. The model is doing exactly what it was asked to do — it just had to choose everything Dev didn't specify."
             : "When you type 'Summarise this', the model has to decide: how long? What format? What to include? What to leave out? What level of detail? It fills every one of those gaps with whatever seems most plausible based on its training. Sometimes that matches what you needed. Often it doesn't. Priya's prompts leave almost no gaps. Dev's prompts are almost entirely gaps. The model isn't performing differently — it's just completing very different briefs. The good news is this is immediately fixable. You don't need a new tool, a new model, or any technical changes."}
@@ -692,14 +777,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The shift is from question-asking to task specification. A question is "summarise this." A specification is: role, task, format, constraints, length, and what to exclude. When those dimensions are defined, the model stops choosing them. Variance drops. Not because the model improved — because the brief stopped leaving things to chance.'
           : 'The shift is from asking to specifying. A question leaves gaps. A specification fills them. When format, length, constraints, and structure are defined, the model executes your choices instead of making its own. That\'s true for a three-sentence summary, a draft email, or a structured triage report.')}
+        <GenAIConversationScene
+          mentor="kabir"
+          track={track}
+          accent="#0F766E"
+          techLines={[
+            { speaker: 'protagonist', text: "I see the difference \u2014 role, format, length, constraints. Priya specifies all of it." },
+            { speaker: 'mentor', text: "There\u2019s one more thing she does that Dev doesn\u2019t. Look at her prompts for format-critical tasks." },
+            { speaker: 'protagonist', text: "She includes an example output. An actual sample of what she wants, not just a description." },
+            { speaker: 'mentor', text: "One example teaches format, tone, length, and scope simultaneously. Faster than three paragraphs of instructions \u2014 and instructions still leave room for interpretation." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "I\u2019ve looked at Priya\u2019s prompts \u2014 role, task, format, what to exclude. All the dimensions are covered." },
+            { speaker: 'mentor', text: "Does she ever paste an example output at the bottom? Check her prompts for recurring tasks." },
+            { speaker: 'protagonist', text: "She does \u2014 there\u2019s always a sample at the end. I thought it was just extra context." },
+            { speaker: 'mentor', text: "That sample is doing more than context. It shows the model exactly what you mean instead of describing it. Instructions can be misread. Examples can\u2019t." },
+          ]}
+        />
         <GenAIAvatar
           name="Kabir"
           nameColor="#0F766E"
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'tech'
-            ? "Aarav, there's one more thing Priya does that Dev doesn't. Look at her prompts again."
-            : "Rhea, there's one thing I've watched consistently narrow the gap between what people want and what the model produces. Does Priya ever include an example in her prompts?"}
+            ? "Aarav, there\u2019s one more thing Priya does that Dev doesn\u2019t. Look at her prompts again."
+            : "Rhea, there\u2019s one thing I\u2019ve watched consistently narrow the gap between what people want and what the model produces. Does Priya ever include an example in her prompts?"}
           expandedContent={track === 'tech'
             ? "She includes an example output. Not always — but for any task where the format really matters, she pastes one previous output and says 'like this.' I've watched teams spend hours writing instruction paragraphs trying to explain exactly what format they need, and then still be surprised when the model interprets it differently. One concrete example teaches format, tone, level of detail, and scope simultaneously. It shows the model what you mean instead of describing it. That's the fastest way to collapse the gap between the output you're imagining and the output you get."
             : "That's the pattern. Instructions tell the model what you want. Examples show it. When Priya includes a sample output, the model has a concrete reference for length, format, and style — not a description to interpret. I've seen teams spend a whole afternoon writing detailed prompt instructions and still get variance because there's always room to interpret a description differently. One well-chosen example closes most of that gap immediately."}
@@ -740,13 +842,30 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav&apos;s team has a prompt that works well in testing — sharp outputs, right format, right length. In staging, the same prompt produces degraded outputs on roughly one in five cases. He spends most of a day in the prompt, adding constraints, clarifying the format spec, running A/B tests. The outputs barely change. Finally, a colleague suggests inspecting the actual payloads. He pulls up a failing case. The context packet has a patient record where three fields are null, a case note truncated at the API limit, and an intake form where structured fields were flattened into a single unbroken string. He messages Rohan.</>
             : <>Rhea&apos;s team has been using the summary tool for six weeks. Mostly good. Then she notices the failure cases aren&apos;t random — they cluster around older cases, cases from before the system migration, cases where the PDF attachments didn&apos;t load. She pulls up a good summary and a bad one side by side. Same prompt. The bad one came from a case with half the fields blank and two attachments that show as &ldquo;unavailable.&rdquo; She&apos;d been assuming it was the prompt. She messages Rohan.</>}
         </SituationCard>
+        <GenAIConversationScene
+          mentor="rohan"
+          track={track}
+          accent="#C2410C"
+          techLines={[
+            { speaker: 'protagonist', text: "My prompt works perfectly in testing. In staging, 1-in-5 cases degrade. I\u2019ve spent a day tightening the constraints." },
+            { speaker: 'mentor', text: "Stop touching the prompt. Pull up a failing staging case and tell me exactly what the model received." },
+            { speaker: 'protagonist', text: "Three null fields, a case note truncated at the API limit, one form flattened into an unbroken string." },
+            { speaker: 'mentor', text: "The model didn\u2019t fail. It generated the best output it could from broken inputs. The bug is in your context assembly pipeline, not the prompt." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "The failures cluster around older cases and cases where PDFs didn\u2019t load. I\u2019ve been rewriting the prompt for a week." },
+            { speaker: 'mentor', text: "The prompt isn\u2019t your problem. Pull up a bad case and tell me what was actually in the record the model received." },
+            { speaker: 'protagonist', text: "Half the fields are blank. Two attachments show as unavailable." },
+            { speaker: 'mentor', text: "The model produced a summary of what it was given. It doesn\u2019t have a way to say \u2018this isn\u2019t enough.\u2019 Context quality failure \u2014 not a prompt failure." },
+          ]}
+        />
         <GenAIAvatar
           name="Rohan"
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m1-context"
           content={track === 'tech'
-            ? "Before we touch the prompt — tell me what the model actually received in a failing case. Exactly what was in the payload."
+            ? "Before we touch the prompt \u2014 tell me what the model actually received in a failing case. Exactly what was in the payload."
             : "Before you change the prompt — pull up a failing case and tell me what's actually in the record the model received."}
           expandedContent={track === 'tech'
             ? "There it is. The model didn't fail. It did exactly what it was supposed to do — it generated the most plausible summary from what it received. Three null fields, a truncated case note, and a flattened form. That's not enough information to produce a sharp output. The model doesn't have a way to say 'this context is broken, I can't work with this.' It just generates from whatever it has. The context is the actual input. Everything the model knows about your specific case has to be in that payload at inference time. No memory between calls. No ability to look things up. If the context is broken, the output will reflect that — and it will look like a model failure when it's actually a data pipeline failure."
@@ -769,13 +888,30 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'Context is not configuration. It is the actual input the model receives at inference time. Everything the model knows about your specific case must be in the context window. The model has no memory between calls, no access to your systems, no ability to retrieve information it was not sent. Output quality is bounded by context quality — not by model quality.'
           : 'The model has no memory between calls and no access to systems it wasn\'t given. Every fact it needs to produce a good output has to be in the context window when you make the call. A good prompt with broken context produces a broken output — not because the model failed, but because it did exactly what you asked with what you gave it.')}
+        <GenAIConversationScene
+          mentor="leela"
+          track={track}
+          accent="#C2410C"
+          techLines={[
+            { speaker: 'protagonist', text: "Found the problem \u2014 broken context packets. Null fields, truncated notes, flattened forms." },
+            { speaker: 'mentor', text: "How long was staging running with those broken packets before you caught it?" },
+            { speaker: 'protagonist', text: "About three weeks. The outputs looked like outputs \u2014 nobody flagged them as errors." },
+            { speaker: 'mentor', text: "That\u2019s the design gap. What does your context assembly layer do when a required field is missing? Right now the answer is: generate anyway." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "We found it \u2014 older cases with blank fields and failed attachments were going to the model." },
+            { speaker: 'mentor', text: "For the six weeks before you noticed \u2014 where were those summaries going?" },
+            { speaker: 'protagonist', text: "Straight to case workers. Some of them may have acted on incomplete information." },
+            { speaker: 'mentor', text: "Because the output looked like a summary. Not an error. The system had no way to flag \u2018this context is broken\u2019 \u2014 it just generated from whatever it had." },
+          ]}
+        />
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m1-context"
           content={track === 'tech'
-            ? "Aarav — how long was the staging environment running before you caught this?"
+            ? "Aarav \u2014 how long was the staging environment running before you caught this?"
             : "Rhea, I want to ask you about the six weeks before you noticed the pattern."}
           expandedContent={track === 'tech'
             ? "Because that's the design problem I'm most concerned about. Not that the context packets were broken — that's fixable. The problem is the system had no way to know a context packet was broken. A null field, a truncated note, a flattened form — those all produced outputs that looked like outputs. Not error states. Not flags. Just a summary, formatted correctly, sent to whoever was waiting for it. The question for your context assembly layer is: what does it do when a required field is missing? Does it fail loudly and route the case for human review? Or does it silently proceed?"
@@ -815,6 +951,23 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ? <>Aarav has three candidates for a first production AI integration. Option one: auto-approve routine claims exceptions when AI confidence is above a threshold — biggest efficiency gain, clearest ROI. Option two: classify inbound case requests by type and urgency, flagging low-confidence cases for human review. Option three: an autonomous intake agent that monitors the queue, routes requests, and takes action without human checkpoints — most technically interesting. He builds the ROI case for option one. Then he messages Anika before the presentation.</>
             : <>Rhea has three options to bring to her director. Option one: auto-resolve routine exception requests where the AI confidence is above 80% — biggest headline number, clearest headcount case. Option two: classify inbound escalations by category and urgency, with human review of anything below a confidence threshold. Option three: AI drafts responses to provider complaints, sent directly after a quick assistant spot-check. She&apos;s been building the case for option one. She calls Anika the night before the presentation.</>}
         </SituationCard>
+        <GenAIConversationScene
+          mentor="anika"
+          track={track}
+          accent={ACCENT}
+          techLines={[
+            { speaker: 'protagonist', text: "Option one has the clearest ROI \u2014 auto-approve routine claims when AI confidence clears 80%. I\u2019ve built the case." },
+            { speaker: 'mentor', text: "Walk me through it. What happens to a case when the confidence score is high but the decision is wrong?" },
+            { speaker: 'protagonist', text: "It gets approved and routes through the system. Nobody reviews it before it acts." },
+            { speaker: 'mentor', text: "Confidence is the model\u2019s estimate of its own certainty \u2014 not accuracy. At 80%, one in five confident decisions is wrong. Your ROI deck doesn\u2019t price that in." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Option one has the best headline number \u2014 auto-resolve exceptions at 80% confidence. That\u2019s the headcount case my director wants." },
+            { speaker: 'mentor', text: "Walk me through what an incorrectly resolved exception looks like to the person who submitted it." },
+            { speaker: 'protagonist', text: "They\u2019d get a resolution notice. But if it was wrong\u2026 they might not know until something downstream broke." },
+            { speaker: 'mentor', text: "And can you tell how many wrong resolutions there have been? That\u2019s the question your director will ask when the first one surfaces." },
+          ]}
+        />
         <GenAIAvatar
           name="Anika"
           nameColor={ACCENT}
@@ -844,14 +997,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The first use case is not about maximum impact. It is about building something you can see, understand, and improve. Bounded output, human checkpoint, easy verification, recoverable failures. Classification with a review gate is the archetype — the model suggests, a human confirms, and the team learns exactly where the model fails before those failures affect anything.'
           : 'The first use case is not the most efficient one. It is the most learnable one. Bounded output, human review, easy verification, recoverable errors. Classification with a review step is the archetype — the model reads, categorises, flags uncertainty, and a human confirms. The team learns what the model gets wrong before any of that affects a case.')}
+        <GenAIConversationScene
+          mentor="kabir"
+          track={track}
+          accent={ACCENT}
+          techLines={[
+            { speaker: 'protagonist', text: "After six weeks of option two, we\u2019re at 94% accuracy. I want to remove the review step and move to option one." },
+            { speaker: 'mentor', text: "What would you need to see before you felt comfortable doing that? Not a number \u2014 the actual evidence." },
+            { speaker: 'protagonist', text: "Which case types the model consistently gets right. Which ones it misclassifies. What the failures look like in the context data." },
+            { speaker: 'mentor', text: "Then don\u2019t remove the review step \u2014 narrow it. Apply it only to the case types where the model hasn\u2019t earned trust yet. That\u2019s how you reach option one safely." },
+          ]}
+          nonTechLines={[
+            { speaker: 'protagonist', text: "Six weeks in, 93% accurate. My director wants to move to auto-routing with no human review." },
+            { speaker: 'mentor', text: "Before you answer her \u2014 what would the data need to show you before you\u2019d feel confident doing that?" },
+            { speaker: 'protagonist', text: "Which escalation categories the model gets right consistently. How often reviewers change the classification. What the failure cases look like." },
+            { speaker: 'mentor', text: "That\u2019s not \u2018when have we run it long enough\u2019 \u2014 it\u2019s \u2018what has the data earned.\u2019 Extend autonomy to the categories the model has proven itself on. Not across the board." },
+          ]}
+        />
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
           borderColor={ACCENT}
           conceptId="genai-m1-use-case-readiness"
           content={track === 'tech'
-            ? "Aarav, I want to ask you something different. After six weeks of running option two — what would you need to see before you'd feel comfortable removing the review step?"
-            : "Rhea, after six weeks of running option two — what would you need to see before you'd feel ready to move to option one?"}
+            ? "Aarav, I want to ask you something different. After six weeks of running option two \u2014 what would you need to see before you\u2019d feel comfortable removing the review step?"
+            : "Rhea, after six weeks of running option two \u2014 what would you need to see before you\u2019d feel ready to move to option one?"}
           expandedContent={track === 'tech'
             ? "That's the question that turns a pilot into a strategy. You'd want to know: which case types does the model classify correctly 98%+ of the time? Which ones does it consistently get wrong? What does the context look like in the failures — are there patterns? How long does the review step actually take when a human catches a bad classification? Those six weeks turn the 80% confidence threshold from a number into a decision. You don't remove the review step. You narrow it — apply it only to the case types where the model has earned that trust. That's how you get to option one. Not by starting there."
             : "That's the question that connects option two to option one. Not 'when have we run it long enough?' but 'what does the data show us?' Which escalation categories is the model consistently right on? Which ones does it misclassify, and what do those cases look like? How often does the human reviewer change the classification? Once you have that, you're not guessing about 80% confidence — you have actual accuracy rates on your actual cases. You extend autonomy to the categories the model has earned it on. That's how option one becomes viable. Not by starting there on faith."}
