@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser, para,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
+  TiltCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -173,27 +174,6 @@ const ConversationScene = ({
   </div>
 );
 
-// ─────────────────────────────────────────
-// TILT CARD — 3D mouse-tracking wrapper
-// ─────────────────────────────────────────
-const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
-  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
-  };
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
-      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
-    >
-      {children}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────
 // SECTION 1: Amplitude-style Customer Segment Analysis
@@ -1188,6 +1168,7 @@ export default function Track2ProductStrategy() {
           }}
         />
 
+        <ApplyItBox prompt="For a product you work on or know well, map one strategic bet across the portfolio: what other bets does it share engineers with? How many weeks does each slip if this one is funded? Make the cascade visible — even a rough estimate forces the right conversation." />
         <NextChapterTeaser text="Next up: Problem Discovery — where strategy meets the real, messy world of users, and the gap between what they say and what they actually do." />
       </ChapterSection>
 

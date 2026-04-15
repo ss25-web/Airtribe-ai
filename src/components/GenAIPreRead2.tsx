@@ -8,7 +8,7 @@ import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
-  chLabel, h2, keyBox, para, pullQuote,
+  chLabel, h2, keyBox, para, pullQuote, TiltCard,
 } from './pm-fundamentals/designSystem';
 
 const ACCENT = '#2563EB';
@@ -210,42 +210,6 @@ const AirtribeLogo: React.FC = () => (
     <path d="M7 17L12 7L17 17H15L12 11L9 17H7Z" fill="white" />
   </svg>
 );
-
-const TiltCard: React.FC<{ children: React.ReactNode; style?: CSSProperties }> = ({ children, style }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current) return;
-    const { left, top, width, height } = ref.current.getBoundingClientRect();
-    const x = (e.clientX - left) / width; // 0 to 1
-    const y = (e.clientY - top) / height; // 0 to 1
-    setMousePosition({ x, y });
-  }, []);
-
-  const transform = isHovered
-    ? `perspective(1000px) rotateX(${(mousePosition.y - 0.5) * 20}deg) rotateY(${(0.5 - mousePosition.x) * 20}deg) scale3d(1.015, 1.015, 1.015)`
-    : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        transformStyle: 'preserve-3d',
-        transition: 'transform 0.18s ease-out',
-        ...style,
-      }}
-      initial={false}
-      animate={{ transform }}
-    >
-      {children}
-    </motion.div>
-  );
-};
 
 // --- Interactive Tool Components ---
 

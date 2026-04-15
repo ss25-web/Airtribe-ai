@@ -480,3 +480,69 @@ export const NextChapterTeaser = ({ text, accent: _accent }: { text: string; acc
     <span style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{text}</span>
   </div>
 );
+
+// ─────────────────────────────────────────
+// TILT CARD — shared 3D mouse-tracking wrapper for all mockups
+// ─────────────────────────────────────────
+export const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pos, setPos] = useState({ x: 0.5, y: 0.5 });
+  const handleMouseMove = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const { left, top, width, height } = ref.current.getBoundingClientRect();
+    setPos({ x: (e.clientX - left) / width, y: (e.clientY - top) / height });
+  }, []);
+  const transform = hovered
+    ? `perspective(1000px) rotateX(${(pos.y - 0.5) * -12}deg) rotateY(${(pos.x - 0.5) * 12}deg) scale3d(1.015,1.015,1.015)`
+    : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ transformStyle: 'preserve-3d', ...style }}
+      animate={{ transform }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// ─────────────────────────────────────────
+// CONVERSATION SCENE — shared Priya ↔ stakeholder dialogue bubbles
+// ─────────────────────────────────────────
+export type CSLine = { speaker: 'priya' | 'other'; text: string };
+export type CSMentor = 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha' | 'priya';
+
+export const ConversationScene = ({
+  mentor, name, role, accent = 'var(--teal)', lines,
+}: {
+  mentor: CSMentor; name: string; role: string; accent?: string; lines: CSLine[];
+}) => (
+  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {lines.map((l, i) => {
+      const isPriya = l.speaker === 'priya';
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div style={{ flexShrink: 0 }}>
+            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor === 'priya' ? 'asha' : mentor} size={38} />}
+          </div>
+          <div style={{ maxWidth: '72%' }}>
+            {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
+              <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>
+                {isPriya ? 'Priya' : name}{' '}
+                <span style={{ fontWeight: 400, opacity: 0.65 }}>&middot; {isPriya ? 'APM' : role}</span>
+              </div>
+            )}
+            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
+              {l.text}
+            </div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);

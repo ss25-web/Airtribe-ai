@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
+  TiltCard, ConversationScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -16,56 +17,7 @@ const ACCENT_RGB = '200,90,64';
 const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: APM (Scale Track).
 Follows Priya Sharma, 2-year APM at EdSpark (B2B SaaS for sales coaching). EdSpark has just landed Salesforce, Zendesk, and Infosys as enterprise clients. Covers: strategic prioritisation at scale, opportunity scoring vs. RICE, Now/Next/Later roadmaps, managing upward on priority calls, kill criteria, and communicating hard cuts to boards and VPs.`;
 
-// ─────────────────────────────────────────
-// CONVERSATION SCENE
-// ─────────────────────────────────────────
-type CSLine = { speaker: 'priya' | 'other'; text: string };
-const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
-  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
-}) => (
-  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    {lines.map((l, i) => {
-      const isPriya = l.speaker === 'priya';
-      return (
-        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
-          <div style={{ flexShrink: 0 }}>
-            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor} size={38} />}
-          </div>
-          <div style={{ maxWidth: '72%' }}>
-            {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
-              <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>
-                {isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>&middot; {isPriya ? 'APM' : role}</span>
-              </div>
-            )}
-            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-);
 
-// ─────────────────────────────────────────
-// TILT CARD
-// ─────────────────────────────────────────
-const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
-  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
-  };
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
-      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
-    >
-      {children}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────
 // MOCKUP 1 — Amplitude: Enterprise Cohort Analysis
@@ -900,6 +852,7 @@ export default function Track2Prioritization() {
             keyInsight: "Managing outcomes means you start with the metric you're trying to move, then work backwards to what causes it — not forwards from what stakeholders are asking for.",
           }}
         />
+        <ApplyItBox prompt="Pick one feature request on your roadmap that has a strong advocate. Build an opportunity score for it: RICE score, strategic alignment (1–5), segment weighting (enterprise vs. SMB), dependency risk. Does it belong in Now, Next, or Later? Write the one-sentence rationale you would give a board member." />
         <NextChapterTeaser text="Next: UX & Design Collaboration — turning a prioritised problem into something users can actually react to." />
       </ChapterSection>
 

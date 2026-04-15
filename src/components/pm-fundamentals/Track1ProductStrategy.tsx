@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser, para,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
+  TiltCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -176,27 +177,6 @@ const ConversationScene = ({
   </div>
 );
 
-// ─────────────────────────────────────────
-// TILT CARD — 3D mouse-tracking wrapper
-// ─────────────────────────────────────────
-const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
-  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
-  };
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
-      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
-    >
-      {children}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────
 // SECTION 1: Strategy vs Features Sorter
@@ -1244,6 +1224,7 @@ export default function Track1ProductStrategy({
 
       </ChapterSection>
 
+      <ApplyItBox prompt="Pick a product you know well. Write its one-sentence strategy (who it serves, what it helps them do, how it wins). Then write one bet it should make this year and one it should explicitly not make. What makes the second one tempting but wrong?" />
       <NextChapterTeaser text="Strategy tells you which problem to solve. Discovery tells you whether you've actually found it. Next: Problem Discovery." />
 
     </>

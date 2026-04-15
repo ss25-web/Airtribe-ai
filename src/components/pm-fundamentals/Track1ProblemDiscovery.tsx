@@ -7,6 +7,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
+  TiltCard, ConversationScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -26,54 +27,7 @@ const ToolBadge = ({ name, desc, accent = 'var(--teal)' }: { name: string; desc:
   </div>
 );
 
-// ─────────────────────────────────────────
-// CONVERSATION SCENE — Priya ↔ stakeholder
-// ─────────────────────────────────────────
-type CSLine = { speaker: 'priya' | 'other'; text: string };
-const ConversationScene = ({ mentor, name, role, accent = 'var(--teal)', lines }: {
-  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha'; name: string; role: string; accent?: string; lines: CSLine[];
-}) => (
-  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    {lines.map((l, i) => {
-      const isPriya = l.speaker === 'priya';
-      return (
-        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
-          <div style={{ flexShrink: 0 }}>
-            {isPriya
-              ? <MentorFace mentor="priya" size={38} />
-              : <MentorFace mentor={mentor} size={38} />}
-          </div>
-          <div style={{ maxWidth: '72%' }}>
-            {(i === 0 || lines[i - 1].speaker !== l.speaker) && <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>{isPriya ? 'Priya' : name} <span style={{ fontWeight: 400, opacity: 0.65 }}>· {isPriya ? 'PM' : role}</span></div>}
-            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{l.text}</div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-);
 
-// ─────────────────────────────────────────
-// TILT CARD — 3D mouse-tracking wrapper
-// ─────────────────────────────────────────
-const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
-  const [tilt, setTilt] = useState({ x: 0, y: 0, scale: 1 });
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    setTilt({ x: y * -6, y: x * 6, scale: 1.012 });
-  };
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => setTilt({ x: 0, y: 0, scale: 1 })}
-      style={{ transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${tilt.scale})`, transition: 'transform 0.18s ease', willChange: 'transform', ...style }}
-    >
-      {children}
-    </div>
-  );
-};
 
 // ─────────────────────────────────────────
 // NOTION AFFINITY BOARD
