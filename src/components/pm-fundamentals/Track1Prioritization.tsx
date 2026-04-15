@@ -941,14 +941,15 @@ const IntroHero = () => (
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
           {([
-            { mentor: 'priya' as const, desc: 'Navigating four conflicting priorities with one engineer.' },
-            { mentor: 'rohan' as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },
-            { mentor: 'kiran' as const, desc: 'Pulls the Amplitude numbers that change the whole conversation.' },
-            { mentor: 'asha'  as const, desc: 'Keeps asking "what outcome does that actually move?"' },
+            { mentor: 'priya'  as const, desc: 'Navigating four conflicting priorities with one engineer.' },
+            { mentor: 'rohan'  as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },
+            { mentor: 'kiran'  as const, desc: 'Pulls the Amplitude numbers that change the whole conversation.' },
+            { mentor: 'dev'    as const, desc: 'Marcus from Sales. Pushes back hard when his CRM feature gets deprioritised.' },
+            { mentor: 'asha'   as const, desc: 'Keeps asking "what outcome does that actually move?"' },
           ]).map(c => {
-            const accent = { priya: ACCENT, rohan: '#E67E22', kiran: '#3A86FF', asha: '#0097A7' }[c.mentor];
-            const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor];
-            const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor];
+            const accent = { priya: ACCENT, rohan: '#E67E22', kiran: '#3A86FF', dev: '#FF5630', asha: '#0097A7' }[c.mentor];
+            const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', dev: 'Marcus', asha: 'Asha' }[c.mentor];
+            const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', dev: 'Sales · EdSpark', asha: 'AI Mentor' }[c.mentor];
             return (
               <div key={c.mentor} style={{ background: `${accent}0D`, border: `1px solid ${accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
@@ -1193,6 +1194,16 @@ export default function Track1Prioritization() {
           different estimated impact, and different levels of confidence &mdash; you need a framework that makes
           your assumptions visible and your reasoning transferable. That is where RICE comes in.
         </>)}
+
+        <ConversationScene
+          mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#3A86FF"
+          lines={[
+            { speaker: 'priya', text: "Three customers asked for CRM. That\u2019s a lot of noise from three people." },
+            { speaker: 'other', text: "They sent five Slack messages each. The 40% churn problem sent zero messages. It just quietly churned." },
+            { speaker: 'priya', text: "So the loudest signal isn\u2019t always the biggest problem." },
+            { speaker: 'other', text: "Volume of noise is not the same as breadth of impact. The data is the tie-breaker \u2014 not the number of escalations." },
+          ]}
+        />
       </ChapterSection>
 
       {/* ── PART IV ── The RICE Framework ── */}
@@ -1450,6 +1461,16 @@ export default function Track1Prioritization() {
           }}
         />
 
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM" accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I went through the whole process \u2014 problem statements, RICE, stakeholder comms. It felt like a lot of work for one sprint decision." },
+            { speaker: 'other', text: "What\u2019s the alternative? Guess, get pushback, rebuild trust. The process is faster than the recovery." },
+            { speaker: 'priya', text: "I kept wanting to skip steps when I thought I knew the answer." },
+            { speaker: 'other', text: "You don\u2019t skip the process when you\u2019re confident. You skip it when you\u2019re rushed \u2014 and that\u2019s when the mistakes happen." },
+          ]}
+        />
+
         <PrioritizationCheatSheet />
       </ChapterSection>
 
@@ -1476,6 +1497,16 @@ export default function Track1Prioritization() {
           'RICE doesn\'t replace judgment; it makes your judgment transparent and transferable',
           'Communicating a hard call clearly is as important as making the right call',
         ], ACCENT)}
+
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM" accent="var(--purple)"
+          lines={[
+            { speaker: 'priya', text: "I said no to CRM, no to reporting, no to the refactor. And it felt like the right call." },
+            { speaker: 'other', text: "You didn\u2019t just say no. You said: here\u2019s the evidence, here\u2019s the order of operations, here\u2019s when CRM gets its turn. That\u2019s different from saying no." },
+            { speaker: 'priya', text: "Good prioritisation is just saying yes to the right problem at the right time." },
+            { speaker: 'other', text: "And saying not-yet to everything else \u2014 with a clear record of why, so you can update it when the picture changes." },
+          ]}
+        />
 
         <NextChapterTeaser text="Next: UX & Design Collaboration — Priya needs to turn her prioritised problem into something users can react to. Time to go from brief to prototype." />
       </ChapterSection>

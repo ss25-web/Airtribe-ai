@@ -930,6 +930,16 @@ export default function Track2ProblemDiscovery() {
           </div>
         </InfoBox>
 
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'other', text: "Do we actually know anything about why managers churn, or are we starting from scratch?" },
+            { speaker: 'priya', text: "We have a 3-month-old study. 12 interviews. Top finding: managers couldn\u2019t demonstrate EdSpark\u2019s ROI to their own leadership." },
+            { speaker: 'other', text: "Is that finding still valid?" },
+            { speaker: 'priya', text: "Nothing has shipped that would change the root cause. We validate the finding and scope the new question \u2014 we don\u2019t re-run the whole study." },
+          ]}
+        />
+
         <QuizEngine
           conceptId={QUIZZES[1].conceptId}
           conceptName={QUIZZES[1].conceptName}
@@ -1067,6 +1077,16 @@ export default function Track2ProblemDiscovery() {
           </div>
         </InfoBox>
 
+        <ConversationScene
+          mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
+          lines={[
+            { speaker: 'other', text: "I asked my first three participants about onboarding straight away. They all gave me onboarding feedback. I think I found the issue." },
+            { speaker: 'priya', text: "You primed them. Lead with onboarding and every answer is about onboarding \u2014 even if something else is bothering them more." },
+            { speaker: 'other', text: "So what\u2019s the right opener?" },
+            { speaker: 'priya', text: "\u2018Walk me through the last few weeks you were using EdSpark.\u2019 Then follow the thread. Let them surface the real problem before you ask about anything specific." },
+          ]}
+        />
+
         <QuizEngine
           conceptId={QUIZZES[3].conceptId}
           conceptName={QUIZZES[3].conceptName}
@@ -1156,6 +1176,16 @@ export default function Track2ProblemDiscovery() {
           </div>
         </InfoBox>
 
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'priya', text: "Here\u2019s what we found: managers join EdSpark to prove their coaching is improving their team \u2014 but the product never gives them evidence that it does." },
+            { speaker: 'other', text: "That\u2019s not what I expected. But it makes complete sense." },
+            { speaker: 'priya', text: "In ten minutes the team generated five solutions. None of them were \u2018fix onboarding.\u2019" },
+            { speaker: 'other', text: "A precise problem statement doesn\u2019t constrain the team. It frees them. I\u2019m approving this as the research brief." },
+          ]}
+        />
+
         <QuizEngine
           conceptId={QUIZZES[5].conceptId}
           conceptName={QUIZZES[5].conceptName}
@@ -1179,6 +1209,16 @@ export default function Track2ProblemDiscovery() {
           '5. Synthesise to one sentence — if it takes a paragraph, you\'re still listing',
           '6. Present the problem, not the solution — let the team generate solutions from a clear brief',
         ])}
+
+        <ConversationScene
+          mentor="asha" name="Asha" role="Senior PM" accent="#0097A7"
+          lines={[
+            { speaker: 'priya', text: "I challenged Rohan\u2019s brief, caught a bias in Maya\u2019s study design, and compressed 14 interviews into one sentence that changed the direction." },
+            { speaker: 'other', text: "That\u2019s APM-level discovery. Not running more research \u2014 running smarter research and compressing it into something the team can act on." },
+            { speaker: 'priya', text: "The sentence unlocked five ideas in ten minutes." },
+            { speaker: 'other', text: "The best discovery brief doesn\u2019t answer the question. It makes the question so clear that the answers become obvious." },
+          ]}
+        />
 
         <NextChapterTeaser text="Next module: Priya has 5 strong ideas and must decide which to build. The CEO wants the fastest win. Engineering wants to clear debt. Design wants a different fix entirely. Module 03 covers prioritisation in a room full of competing priorities." />
       </ChapterSection>
