@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
-  glassCard, demoLabel, pullQuote, keyBox,
+  glassCard, demoLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
@@ -804,25 +804,25 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 1 — THE BRIEF THAT'S WRONG */}
       <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part I · When the Brief Is Wrong</h2>
+        {h2(<>Part I · When the Brief Is Wrong</>)}
         <SituationCard>
           Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           Priya had been expecting this. She had also been running her own analysis for the past two weeks. The previous night she had pulled Kraftful and looked at support ticket trends over four months. What she found contradicted Rohan&apos;s theory.
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           Onboarding-related tickets were <em>down</em> 26%. But a different cluster — tickets about not being able to show that EdSpark was working — had almost tripled.
-        </p>
+        </>)}
 
         <KraftfulHypothesisTester />
 
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           She had two options. Nod along and run another onboarding study. Or bring the data and risk the conversation. She chose the data.
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           <strong>&ldquo;Rohan, before we commit to onboarding again — I want to show you something I found in Kraftful last night. The ticket trend has shifted. The problem might have moved.&rdquo;</strong>
-        </p>
+        </>)}
         {pullQuote("Challenging a brief isn't insubordination. It's the job. A PM who executes every brief unquestioned is an order-taker, not a strategist.")}
 
         <ConversationScene
@@ -893,22 +893,22 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 2 — RESEARCH OPS */}
       <ChapterSection id="m2-customer-segments" num="02" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part II · Research Ops: Building Team Memory</h2>
+        {h2(<>Part II · Research Ops: Building Team Memory</>)}
         <SituationCard>
           After the Monday meeting, Rohan agreed to pause and re-scope. &ldquo;Okay, Priya — what do we actually know about why managers leave? And please don&apos;t tell me we need to start from scratch.&rdquo;
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           This was a test Priya was ready for. Three months ago, when she first joined as APM, she had set up a research repository in Notion. Every study, every insight, every tagged interview quote — all in one place. She opened it now.
-        </p>
+        </>)}
 
         <NotionRepoSearch />
 
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           The repo showed 16 studies, 89 tagged insights, and — relevant right now — a 3-month-old manager churn study with 12 interviews. The top finding: <strong>managers churn when they can&apos;t demonstrate EdSpark&apos;s ROI to their own leadership.</strong>
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           &ldquo;We have this already,&rdquo; Priya said. &ldquo;The question is: has anything shipped in the last 3 months that would change this? If not, the insight still holds. We don&apos;t need to re-run the whole study. We need to validate the finding and scope the new one.&rdquo;
-        </p>
+        </>)}
 
         <InfoBox title="The compounding value of a research repo" accent="var(--teal)">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -951,16 +951,16 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 3 — RESEARCH BIASES */}
       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part III · The Biases That Corrupt Discovery</h2>
+        {h2(<>Part III · The Biases That Corrupt Discovery</>)}
         <SituationCard>
           Priya asked Maya, EdSpark&apos;s designer, to help prep the interview study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           &ldquo;Maya — the users you want to talk to are the ones who <em>didn&apos;t</em> churn. We&apos;re asking why people leave. We need to talk to people who left.&rdquo;
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           This is survivorship bias — one of the most common research mistakes experienced PMs still make. But it&apos;s just one of three biases Priya had learned to spot the hard way.
-        </p>
+        </>)}
 
         <BiasSpotter />
 
@@ -1030,19 +1030,19 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 4 — THE INTERVIEWS */}
       <ChapterSection id="m2-interview" num="04" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part IV · Running 14 Interviews in 8 Days</h2>
+        {h2(<>Part IV · Running 14 Interviews in 8 Days</>)}
         <SituationCard>
           Priya and Maya split the interviews: Priya took the churned managers (recruited via email from the CRM), Maya took the active ones. They used the same Notion template — but Priya added one rule: <strong>don&apos;t mention onboarding until the participant does.</strong>
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           The rule was deliberate. If Priya asked about onboarding in the first question, every answer would be about onboarding. She wanted to know what was actually bothering people — not what she primed them to say.
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           The opening question for every interview: <em>&ldquo;Walk me through the last few weeks you were using EdSpark — what was happening?&rdquo;</em>
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           In interview after interview, managers said a version of the same thing without being asked: <strong>&ldquo;I didn&apos;t know if it was working.&rdquo;</strong>
-        </p>
+        </>)}
 
         <InfoBox title="Priya's interview do/don't rule card" accent="var(--blue)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -1097,16 +1097,16 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 5 — SYNTHESIS */}
       <ChapterSection id="m2-synthesis" num="05" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part V · Synthesising 14 Interviews into One Insight</h2>
+        {h2(<>Part V · Synthesising 14 Interviews into One Insight</>)}
         <SituationCard>
           Friday afternoon. Priya and Maya had 14 interview transcripts tagged in Dovetail. 94 individual moments. They booked a 2-hour synthesis session and opened the clusters.
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           The two dominant themes were obvious — but they weren&apos;t two separate problems. As Priya looked at the quotes side by side, she saw the pattern:
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           &ldquo;I didn&apos;t know if EdSpark was working&rdquo; (no feedback loop) and &ldquo;I couldn&apos;t show my director the results&rdquo; (ROI visibility) — these were two surface expressions of the <strong>same underlying job</strong>: managers needed evidence that their investment in EdSpark was producing results.
-        </p>
+        </>)}
 
         <DovetailSynthesisBoard />
 
@@ -1152,19 +1152,19 @@ export default function Track2ProblemDiscovery() {
 
       {/* PART 6 — PROBLEM FRAMING */}
       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Part VI · Framing the Problem That Gets Teams Aligned</h2>
+        {h2(<>Part VI · Framing the Problem That Gets Teams Aligned</>)}
         <SituationCard>
           Monday morning again. Priya had one slide and one sentence. She opened the meeting. &ldquo;I said we&apos;d come back with a validated research question. Here&apos;s what we found.&rdquo;
         </SituationCard>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {para(<>
           She put the sentence on screen: <strong>&ldquo;Sales managers join EdSpark to prove their coaching is improving their team — but the product never gives them evidence that it does.&rdquo;</strong>
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           Rohan leaned forward. &ldquo;That&apos;s... not what I expected.&rdquo; Then: &ldquo;But it makes total sense.&rdquo;
-        </p>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        </>)}
+        {para(<>
           In ten minutes, the team had generated five potential solutions — a coaching impact score, an automated weekly report to the manager&apos;s director, a &ldquo;proof of ROI&rdquo; one-pager template, a progress timeline view, and a Slack integration. None of them were &ldquo;fix onboarding.&rdquo;
-        </p>
+        </>)}
 
         <ProblemFramingShowdown />
 
@@ -1196,10 +1196,10 @@ export default function Track2ProblemDiscovery() {
 
       {/* FINAL REFLECTION */}
       <ChapterSection id="m2-reflection" num="07" accentRgb="0,151,167">
-        <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'Lora', 'Georgia', serif" }}>Final Reflection · The Discovery Playbook for APMs</h2>
-        <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+        {h2(<>Final Reflection · The Discovery Playbook for APMs</>)}
+        {para(<>
           Priya had done discovery before. But this sprint was different — she had run it as an APM, not as an individual contributor. She&apos;d challenged a CEO brief, used a shared repo to avoid redundant research, caught a bias in her team&apos;s study design, and compressed 14 interviews into one sentence that changed the product direction.
-        </p>
+        </>)}
 
         {keyBox('The APM discovery loop', [
           '1. Challenge the brief — bring data before committing to a research question',
