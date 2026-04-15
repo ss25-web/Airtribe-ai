@@ -922,6 +922,25 @@ export default function Track2UXDesign() {
       {/* ── SECTION 01 — The Demo That Went Quiet ── */}
       <ChapterSection id="m4-apm-demo" num="01" accentRgb={ACCENT_RGB} first>
 
+        <div style={{ padding: '16px 20px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid rgba(${ACCENT_RGB},0.18)`, marginBottom: '28px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px' }}>HOW THIS TRACK IS DIFFERENT</div>
+          <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75, marginBottom: '12px' }}>
+            The Foundations track taught you what good UX is and why it matters for users. This track asks a harder question: <strong style={{ color: 'var(--ed-ink)' }}>how do you manage, fund, and advocate for design quality inside a real organisation?</strong> You already know a broken flow hurts users. The gap is making that argument land with a CEO, a procurement team, and an engineering lead who each measure cost differently.
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
+            {[
+              'Frame UX debt as a revenue and velocity cost — not a design complaint',
+              'Decide when a design system is worth the investment and how to pitch it',
+              'Know your role in a design critique: translator, not judge',
+            ].map((obj, i) => (
+              <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, marginTop: '1px' }}>→</span>
+                <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{obj}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Infosys. The procurement lead has been nodding for forty minutes. Then she pauses the screen share.
           &ldquo;Your coaching analysis tool has a different button style than the skill gap tracker. And your

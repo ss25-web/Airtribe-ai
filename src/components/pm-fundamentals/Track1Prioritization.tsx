@@ -1286,6 +1286,10 @@ export default function Track1Prioritization() {
           ]}
           conceptId="rice-framework-m3"
         />
+
+        {para(<>
+          One thing RICE won&apos;t tell you: what to do when two features score within 20 points of each other. At that range, the scores are too close to be meaningful — the uncertainty in your estimates is bigger than the gap. When scores are close, look at three things: <strong>strategic alignment</strong> (which one advances the metric your company cares about most right now?), <strong>reversibility</strong> (which one is easier to undo or pause if the context changes?), and <strong>learning value</strong> (which one tells you something useful faster?). Tie-breaking is judgment, not arithmetic.
+        </>)}
       </ChapterSection>
 
       {/* ── PART V ── Making the Call ── */}
