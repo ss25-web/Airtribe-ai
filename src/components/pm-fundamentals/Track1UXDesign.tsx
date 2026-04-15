@@ -1680,6 +1680,10 @@ export default function Track1UXDesign() {
 
         {h2(<>The best UX fix is often the smallest one</>)}
 
+        {para(<>
+          Before Priya asks Maya to design anything, she writes one sentence in her notebook: <em>&ldquo;Users abandon the analysis flow because the system gives them no signal it&apos;s working &mdash; not because the feature itself is broken.&rdquo;</em> This matters. A hypothesis is a testable prediction, not a plan. If the loading state fix doesn&apos;t move completion, the hypothesis was wrong and she&apos;ll know to look elsewhere. You don&apos;t skip the hypothesis step because you&apos;re confident &mdash; you write it precisely because confidence is when you&apos;re most likely to be wrong.
+        </>)}
+
         {para(<>Maya opens Figma. Two frames. &ldquo;Before&rdquo; and &ldquo;After.&rdquo; Twenty minutes. The after frame has three additions: a status label, a progress bar, a time estimate. That&apos;s it.</>)}
 
         <FigmaMockup />
@@ -1797,6 +1801,10 @@ export default function Track1UXDesign() {
             { text: "Yes — users need a fundamentally better onboarding experience, not incremental improvements.", correct: false, feedback: "This assumes the remaining 42% gap is structural, not specific. You have no evidence of that yet. The loading state fix worked precisely because you found the specific friction point first." },
           ]}
         />
+
+        {para(<>
+          The loop closed: understand the problem (session recordings pinpointed the exact drop-off moment), decide on the minimum targeted fix (loading state only), build it (one afternoon), measure the change (30% &rarr; 58%). The same loop now opens again on the remaining 42%. That&apos;s not a gap &mdash; it&apos;s the next diagnosis. Iterative product work isn&apos;t a series of big bets. It&apos;s a series of tightly-scoped hypothesis tests, each one narrowing the problem.
+        </>)}
 
         {pullQuote('Users don\'t experience features. They experience what happens between actions.')}
 

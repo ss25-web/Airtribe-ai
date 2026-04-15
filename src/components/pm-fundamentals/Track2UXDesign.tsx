@@ -1035,6 +1035,10 @@ export default function Track2UXDesign() {
         </>)}
 
         {para(<>
+          UX debt doesn&apos;t accumulate because teams are careless. It accumulates because each feature team ships independently &mdash; buttons, modals, and typography solved locally, sprint by sprint, with no shared component library. No single team owns the inconsistency, which is exactly how it compounds. By the time it surfaces in a procurement question or a G2 review, the root cause is twelve months of rational local decisions made without anyone watching the whole.
+        </>)}
+
+        {para(<>
           Priya ran the numbers herself. Fifteen percent of users dropping off mid-flow in the coaching analysis
           tool, multiplied by the average contract value for the accounts in that cohort, multiplied by twelve
           months. The number was uncomfortable. It was also the first thing that made the conversation with Rohan

@@ -998,6 +998,10 @@ export default function Track2ProductStrategy() {
           'Make Rohan choose with full information — not partial information framed as "we\'ll make it work"',
         ])}
 
+        {para(<>
+          In practice, the cascade model doesn&apos;t have to be complex. A simple table: bet name, engineers it needs, weeks to ship, which other bets share those engineers, how many weeks each slips. That&apos;s it. The point isn&apos;t precision &mdash; it&apos;s visibility. You&apos;re converting &ldquo;can we fit it in?&rdquo; from a gut-feel question into a named tradeoff with a number attached. That number is what changes the conversation.
+        </>)}
+
         <ConversationScene
           mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
           lines={[

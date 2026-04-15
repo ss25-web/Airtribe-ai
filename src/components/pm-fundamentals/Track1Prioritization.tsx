@@ -1080,6 +1080,10 @@ export default function Track1Prioritization() {
           underlying friction in one specific sentence.
         </>)}
 
+        {para(<>
+          Three questions unlock almost any feature request: <strong>&ldquo;What are users trying to accomplish when they hit this problem?&rdquo;</strong> surfaces the job behind the request. <strong>&ldquo;What happens to them when they can&apos;t?&rdquo;</strong> surfaces the cost. <strong>&ldquo;How do we know this is actually the issue?&rdquo;</strong> surfaces the evidence. Ask all three before you write a single line of the problem statement &mdash; otherwise you&apos;re writing fiction with confidence.
+        </>)}
+
         <ReframingExercise />
 
         {para(<>
