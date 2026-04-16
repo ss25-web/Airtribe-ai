@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene,
+  TiltCard, ConversationScene, PMPrincipleBox,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -911,7 +911,7 @@ export default function Track2ProblemDiscovery() {
           This is survivorship bias — one of the most common research mistakes experienced PMs still make. But it&apos;s just one of three biases Priya had learned to spot the hard way.
         </>)}
 
-        <BiasSpotter />
+        <TiltCard style={{ margin: '32px 0' }}><BiasSpotter /></TiltCard>
 
         <ConversationScene
           mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
@@ -993,6 +993,7 @@ export default function Track2ProblemDiscovery() {
           In interview after interview, managers said a version of the same thing without being asked: <strong>&ldquo;I didn&apos;t know if it was working.&rdquo;</strong>
         </>)}
 
+        <TiltCard style={{ margin: '32px 0' }}>
         <InfoBox title="Priya's interview do/don't rule card" accent="var(--blue)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
@@ -1025,6 +1026,7 @@ export default function Track2ProblemDiscovery() {
             </div>
           </div>
         </InfoBox>
+        </TiltCard>
 
         <ConversationScene
           mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
@@ -1042,6 +1044,8 @@ export default function Track2ProblemDiscovery() {
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{ conceptId: QUIZZES[3].conceptId, question: QUIZZES[3].question, options: QUIZZES[3].options, correctIndex: QUIZZES[3].correctIndex, explanation: QUIZZES[3].explanation, keyInsight: QUIZZES[3].keyInsight }}
         />
+
+        <PMPrincipleBox principle="The Non-Leading Principle \u2014 Don\u2019t name the problem before the user does. Open with \u2018Walk me through\u2026\u2019 and follow the thread. The insight is almost never in the first answer \u2014 it\u2019s in the moment you go quiet and wait for the second one." />
       </ChapterSection>
 
       {/* PART 5 — SYNTHESIS */}
@@ -1115,7 +1119,7 @@ export default function Track2ProblemDiscovery() {
           In ten minutes, the team had generated five potential solutions — a coaching impact score, an automated weekly report to the manager&apos;s director, a &ldquo;proof of ROI&rdquo; one-pager template, a progress timeline view, and a Slack integration. None of them were &ldquo;fix onboarding.&rdquo;
         </>)}
 
-        <ProblemFramingShowdown />
+        <TiltCard style={{ margin: '32px 0' }}><ProblemFramingShowdown /></TiltCard>
 
         {pullQuote("A precise problem statement doesn't constrain solutions — it unlocks them. The team generated five ideas in ten minutes that three onboarding redesigns never would have.")}
 

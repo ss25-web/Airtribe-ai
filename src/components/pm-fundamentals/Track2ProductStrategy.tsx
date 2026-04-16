@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard,
+  TiltCard, PMPrincipleBox,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -927,6 +927,8 @@ export default function Track2ProductStrategy() {
             keyInsight: QUIZZES[1].keyInsight,
           }}
         />
+
+        <PMPrincipleBox principle="The Platform Inflection Principle \u2014 A platform exists when third parties create value on top of your core that you couldn\u2019t create yourself. Until then, it\u2019s a product with more features. The signal isn\u2019t your roadmap \u2014 it\u2019s unsolicited builders showing up." />
       </ChapterSection>
 
       {/* ── SECTION 3: Portfolio Systems Thinking ───────────────── */}

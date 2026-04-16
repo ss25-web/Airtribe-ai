@@ -1166,7 +1166,7 @@ export default function Track1ProblemDiscovery() {
 
           <QuizEngine conceptId="customer-segments" conceptName="Customer Segments" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[1]} />
 
-          <JTBDMatcher />
+          <TiltCard style={{ margin: '24px 0' }}><JTBDMatcher /></TiltCard>
         </div>
       </ChapterSection>
 
@@ -1307,7 +1307,7 @@ export default function Track1ProblemDiscovery() {
         <div className="rv">
           {pullQuote("The insight isn't in the first answer. It's in the question after the first answer.", 'var(--coral)')}
 
-          <InterviewQuality />
+          <TiltCard style={{ margin: '24px 0' }}><InterviewQuality /></TiltCard>
 
           <InfoBox title="The 5 rules Priya learned the hard way" accent="var(--coral)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1483,7 +1483,7 @@ export default function Track1ProblemDiscovery() {
         <div className="rv">
           {pullQuote("Make the problem so clear that the solution becomes obvious. That's the PM's job in discovery.", 'var(--amber)')}
 
-          <DiscoveryBriefBuilder />
+          <TiltCard style={{ margin: '24px 0' }}><DiscoveryBriefBuilder /></TiltCard>
 
           <PMPrincipleBox
             principle="Symptom → Research → Insight → Brief → Ideation. Discovery is not a phase — it's the habit that separates PMs who build the right thing from PMs who build things right."
