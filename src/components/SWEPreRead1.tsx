@@ -1787,30 +1787,51 @@ const SWEConversationScene = ({
   const protagonistRole = track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : 'Junior Full-Stack Developer';
 
   return (
-    <div style={{ margin: '24px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ margin: '28px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {lines.map((l, i) => {
         const isProtagonist = l.speaker === 'protagonist';
         const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
+        const bubble = (
+          <motion.div
+            whileHover={isProtagonist ? {} : { y: -2, boxShadow: `0 6px 20px ${mentorColor}22` }}
+            transition={{ duration: 0.2 }}
+            style={{
+              background: isProtagonist ? `${protagonistColor}12` : 'var(--ed-card)',
+              border: `1px solid ${isProtagonist ? `${protagonistColor}28` : mentorColor + '30'}`,
+              borderLeft: isProtagonist ? undefined : `3px solid ${mentorColor}`,
+              borderRadius: isProtagonist ? '14px 14px 4px 14px' : '4px 14px 14px 14px',
+              padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.68,
+              boxShadow: isProtagonist ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
+            }}
+          >
+            {l.text}
+          </motion.div>
+        );
         return (
-          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: isProtagonist ? protagonistColor : mentorColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0 }}>
-              {isProtagonist ? protagonistName.slice(0, 2) : mentorName.slice(0, 2)}
-            </div>
-            <div style={{ maxWidth: '72%' }}>
+          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '12px', alignItems: 'flex-end' }}>
+            {/* Avatar */}
+            {prevDifferent ? (
+              isProtagonist ? (
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: protagonistColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0, boxShadow: `0 2px 8px ${protagonistColor}40` }}>
+                  {protagonistName.slice(0, 2)}
+                </div>
+              ) : (
+                <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${mentorColor}`, boxShadow: `0 2px 10px ${mentorColor}30` }}>
+                  <SWEMentorFace name={mentorName} size={48} />
+                </div>
+              )
+            ) : (
+              <div style={{ width: isProtagonist ? 42 : 48, flexShrink: 0 }} />
+            )}
+            {/* Bubble + name */}
+            <div style={{ maxWidth: '70%' }}>
               {prevDifferent && (
-                <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistColor : mentorColor, marginBottom: '4px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistColor : mentorColor, marginBottom: '5px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.05em', fontFamily: "'JetBrains Mono', monospace" }}>
                   {isProtagonist ? protagonistName : mentorName}
-                  <span style={{ fontWeight: 400, opacity: 0.6 }}> &middot; {isProtagonist ? protagonistRole : mentorRole}</span>
+                  <span style={{ fontWeight: 400, opacity: 0.65 }}> &middot; {isProtagonist ? protagonistRole : mentorRole}</span>
                 </div>
               )}
-              <div style={{
-                background: isProtagonist ? `${protagonistColor}14` : 'rgba(0,0,0,0.04)',
-                border: `1px solid ${isProtagonist ? `${protagonistColor}28` : 'rgba(0,0,0,0.09)'}`,
-                borderRadius: isProtagonist ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65,
-              }}>
-                {l.text}
-              </div>
+              {bubble}
             </div>
           </div>
         );
