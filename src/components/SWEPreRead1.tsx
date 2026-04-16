@@ -7,7 +7,7 @@ import QuizEngine from './QuizEngine';
 import type { SWETrack, SWELevel } from './sweTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser,
-  chLabel, h2, keyBox, para, pullQuote,
+  chLabel, h2, keyBox, para, pullQuote, TiltCard,
 } from './pm-fundamentals/designSystem';
 
 const ACCENT_RGB = '22,163,74';
@@ -1509,6 +1509,146 @@ const CodeAnatomy = ({ track, accentColor }: { track: SWETrack; accentColor: str
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─── TiltCard Mockups ────────────────────────────────────────────────────────
+
+const TerminalRunCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const lines = track === 'python' ? [
+    { t: 'cmd', v: '$ python3 pipeline.py' },
+    { t: 'out', v: 'Processing 14,823 records...' },
+    { t: 'out', v: 'Validation pass: exit code 0' },
+    { t: 'warn', v: '⚠  Client Alpha revenue: $0.00 (unchanged)' },
+    { t: 'dim', v: '# ran successfully — but the data is still wrong' },
+  ] : track === 'java' ? [
+    { t: 'cmd', v: '$ mvn exec:java -Dexec.mainClass=Main' },
+    { t: 'info', v: '[INFO] Scanning for projects...' },
+    { t: 'info', v: '[INFO] BUILD SUCCESS (local)' },
+    { t: 'err',  v: 'Exception in thread "main"' },
+    { t: 'err',  v: 'java.lang.ClassNotFoundException: com.finova.CacheHelper' },
+    { t: 'stack',v: '\tat java.base/java.lang.Class.forName(Class.java:375)' },
+  ] : [
+    { t: 'cmd', v: '$ node server.js' },
+    { t: 'out', v: 'Starting notification service on :3000' },
+    { t: 'err',  v: 'ReferenceError: localStorage is not defined' },
+    { t: 'stack',v: '    at setupPersistence (server.js:42:3)' },
+    { t: 'stack',v: '    at Object.<anonymous> (server.js:8:1)' },
+    { t: 'dim', v: '# localStorage is a browser API — Node has no window' },
+  ];
+  const col: Record<string, string> = {
+    cmd: '#7DD3FC', out: '#BBF7D0', warn: '#FDE68A',
+    err: '#FCA5A5', stack: '#D1D5DB', info: '#A5B4FC', dim: '#6B7280',
+  };
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '10px', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ background: '#161B22', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid #30363D' }}>
+        {['#FF5F57','#FEBC2E','#28C840'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
+        <span style={{ marginLeft: 8, fontSize: 10, color: '#8B949E', letterSpacing: '0.1em' }}>TERMINAL — {track === 'python' ? 'python3' : track === 'java' ? 'mvn' : 'node'}</span>
+      </div>
+      <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
+        {lines.map((l, i) => (
+          <div key={i} style={{ fontSize: 11, lineHeight: 1.6, color: col[l.t] ?? '#E6EDF3' }}>{l.v}</div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const DevEnvPanel = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const files = track === 'python'
+    ? ['📁 mosaic_pipeline/', '  📄 pipeline.py', '  📄 requirements.txt', '  📁 .venv/', '  📄 .env']
+    : track === 'java'
+    ? ['📁 finova-api/', '  📄 pom.xml', '  📁 src/main/java/', '  📁 target/', '  📄 .gitignore']
+    : ['📁 launchly-api/', '  📄 package.json', '  📁 node_modules/', '  📄 server.js', '  📄 .env'];
+  const cmd = track === 'python' ? 'python -m venv .venv && source .venv/bin/activate'
+    : track === 'java' ? 'mvn clean install'
+    : 'npm install && node server.js';
+  return (
+    <div style={{ background: '#1E1E2E', borderRadius: '10px', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", display: 'grid', gridTemplateColumns: '38% 62%' }}>
+      <div style={{ background: '#13131F', padding: '12px 10px', borderRight: '1px solid #2D2D3F' }}>
+        <div style={{ fontSize: 9, color: '#6C6C8A', letterSpacing: '0.12em', marginBottom: 10 }}>EXPLORER</div>
+        {files.map((f, i) => (
+          <div key={i} style={{ fontSize: 10, color: f.startsWith('  ') ? '#9EA3B0' : accentColor, padding: '2px 0', lineHeight: 1.7 }}>{f}</div>
+        ))}
+      </div>
+      <div style={{ padding: '12px 14px' }}>
+        <div style={{ fontSize: 9, color: '#6C6C8A', letterSpacing: '0.12em', marginBottom: 10 }}>TERMINAL</div>
+        <div style={{ fontSize: 10, color: '#7DD3FC' }}>$ {cmd}</div>
+        <div style={{ marginTop: 8, fontSize: 10, color: '#BBF7D0' }}>✓ Environment ready</div>
+        <div style={{ marginTop: 4, fontSize: 10, color: '#8B949E' }}># commit your code, not your environment</div>
+      </div>
+    </div>
+  );
+};
+
+const EcosystemCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const pkgs = track === 'python'
+    ? [{ n: 'pandas', v: '2.2.1', use: 'data analysis' }, { n: 'fastapi', v: '0.110', use: 'web APIs' }, { n: 'pytest', v: '8.1', use: 'testing' }, { n: 'torch', v: '2.2', use: 'ML / deep learning' }]
+    : track === 'java'
+    ? [{ n: 'spring-boot', v: '3.2.4', use: 'web + DI framework' }, { n: 'hibernate', v: '6.4', use: 'ORM / database' }, { n: 'junit', v: '5.10', use: 'testing' }, { n: 'jackson', v: '2.17', use: 'JSON serialisation' }]
+    : [{ n: 'express', v: '4.19', use: 'web framework' }, { n: 'prisma', v: '5.11', use: 'database ORM' }, { n: 'jest', v: '29.7', use: 'testing' }, { n: 'typescript', v: '5.4', use: 'type safety' }];
+  const cmd = track === 'python' ? 'pip install' : track === 'java' ? '<!-- pom.xml -->' : 'npm install';
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '10px', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ background: '#161B22', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #30363D' }}>
+        <span style={{ fontSize: 10, color: accentColor, fontWeight: 700 }}>{track === 'python' ? 'PyPI' : track === 'java' ? 'Maven Central' : 'npm registry'}</span>
+        <span style={{ fontSize: 9, color: '#8B949E' }}>— packages used at {track === 'python' ? 'Mosaic Analytics' : track === 'java' ? 'Finova Systems' : 'Launchly'}</span>
+      </div>
+      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+        {pkgs.map(p => (
+          <div key={p.n} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: '#161B22', borderRadius: 6, border: '1px solid #21262D' }}>
+            <span style={{ fontSize: 11, color: '#58A6FF', fontWeight: 700 }}>{cmd} {p.n}</span>
+            <span style={{ fontSize: 9, color: '#8B949E' }}>v{p.v}</span>
+            <span style={{ fontSize: 10, color: '#7EE787' }}>{p.use}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const StackTraceCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
+  const frames = track === 'python' ? {
+    err: 'AttributeError: \'NoneType\' object has no attribute \'upper\'',
+    lines: [
+      { f: 'pipeline.py', ln: 88, code: 'result = transform(record)', active: false },
+      { f: 'transforms.py', ln: 34, code: 'cleaned = raw_value.upper()', active: true },
+    ],
+    tip: 'raw_value is None — check the data source',
+  } : track === 'java' ? {
+    err: 'NullPointerException: Cannot invoke "String.length()" because "str" is null',
+    lines: [
+      { f: 'UserService.java', ln: 112, code: 'processUser(user.getName())', active: false },
+      { f: 'Validator.java', ln: 47, code: 'str.length() > 0', active: true },
+    ],
+    tip: 'Add a null check before calling .length()',
+  } : {
+    err: 'TypeError: Cannot read properties of undefined (reading \'id\')',
+    lines: [
+      { f: 'server.js', ln: 67, code: 'handleRequest(req, res)', active: false },
+      { f: 'handler.js', ln: 23, code: 'const id = user.id', active: true },
+    ],
+    tip: 'user is undefined — check the upstream data',
+  };
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '10px', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ background: '#2D1515', padding: '8px 14px', borderBottom: '1px solid #4D2020', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 16 }}>🔴</span>
+        <span style={{ fontSize: 10, color: '#FCA5A5', fontWeight: 700 }}>RUNTIME ERROR</span>
+      </div>
+      <div style={{ padding: '12px 16px' }}>
+        <div style={{ fontSize: 11, color: '#FCA5A5', marginBottom: 12, lineHeight: 1.6 }}>{frames.err}</div>
+        <div style={{ fontSize: 9, color: '#8B949E', letterSpacing: '0.1em', marginBottom: 8 }}>TRACEBACK (most recent call last)</div>
+        {frames.lines.map((l, i) => (
+          <div key={i} style={{ padding: '6px 10px', borderRadius: 6, marginBottom: 4, background: l.active ? 'rgba(252,165,165,0.08)' : '#161B22', borderLeft: `3px solid ${l.active ? '#FCA5A5' : '#30363D'}` }}>
+            <div style={{ fontSize: 9, color: '#8B949E', marginBottom: 3 }}>{l.f} : line {l.ln}</div>
+            <div style={{ fontSize: 11, color: l.active ? '#FDE68A' : '#C9D1D9' }}>{l.code}</div>
+          </div>
+        ))}
+        <div style={{ marginTop: 10, padding: '8px 10px', background: 'rgba(134,239,172,0.06)', borderRadius: 6, borderLeft: '3px solid #86EFAC', fontSize: 10, color: '#86EFAC' }}>💡 {frames.tip}</div>
+      </div>
+    </div>
+  );
+};
+
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1778,6 +1918,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               'node --version tells you the Node runtime version; this implies a V8 version too',
             ])}
 
+            <TiltCard style={{ margin: '28px 0' }}><TerminalRunCard track={track} accentColor={meta.accentColor} /></TiltCard>
+
             {pullQuote('Understanding your runtime is not academic. When a bug only appears under load, or a library behaves differently in production than on your machine, the execution model is usually why.')}
 
             <QuizEngine conceptId="swe-m1-execution" conceptName="Execution Model" moduleContext={meta.moduleContext}
@@ -1982,6 +2124,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               'git push — upload your commits to the remote repository',
             ])}
 
+            <TiltCard style={{ margin: '28px 0' }}><DevEnvPanel track={track} accentColor={meta.accentColor} /></TiltCard>
+
             <QuizEngine conceptId="swe-m1-environment" conceptName="Developer Environment" moduleContext={meta.moduleContext}
               staticQuiz={track === 'python' ? {
                 conceptId: 'swe-m1-environment',
@@ -2166,6 +2310,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               'The event loop is Node\'s superpower for I/O-heavy work. But CPU-intensive tasks block the single thread — know the difference, and know when to reach for worker threads or a separate service.'
             )}
 
+            <TiltCard style={{ margin: '28px 0' }}><EcosystemCard track={track} accentColor={meta.accentColor} /></TiltCard>
+
             <QuizEngine conceptId="swe-m1-ecosystem" conceptName="Language Ecosystem" moduleContext={meta.moduleContext}
               staticQuiz={track === 'python' ? {
                 conceptId: 'swe-m1-ecosystem',
@@ -2347,6 +2493,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               '4. If wrong, revise the hypothesis — do not change random things hoping it fixes',
               '5. Once fixed, understand why — this is the step where learning happens',
             ])}
+
+            <TiltCard style={{ margin: '28px 0' }}><StackTraceCard track={track} accentColor={meta.accentColor} /></TiltCard>
 
             {pullQuote('The engineers who ship reliable code fastest are not the ones who never have bugs. They are the ones who understand errors faster when bugs appear.')}
 
