@@ -1217,6 +1217,13 @@ export default function Track1ProblemDiscovery() {
 
           {pullQuote("Qualitative research finds the why. Quantitative confirms whether the why is widespread.", 'var(--blue)')}
 
+          {keyBox('Research concepts to know', [
+            'Quantitative \u2014 shows WHERE and HOW MANY (Amplitude, SQL, funnel data). Cannot explain why.',
+            'Qualitative \u2014 shows WHY and HOW (interviews, Dovetail). Cannot prove scale.',
+            'Triangulation \u2014 when two methods point at the same problem, your confidence jumps significantly.',
+            'Signal vs noise \u2014 high ticket volume or Slack mentions \u2260 a big problem. Always check the ratio.',
+          ], 'var(--blue)')}
+
           <InfoBox title="When to use each method" accent="var(--blue)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
@@ -1322,6 +1329,13 @@ export default function Track1ProblemDiscovery() {
             </div>
           </InfoBox>
 
+          {keyBox('Interview question starters that work', [
+            '\u201cWalk me through the last time you...\u201d \u2014 gets a real story, not a hypothetical',
+            '\u201cWhat were you hoping to do when you...\u201d \u2014 surfaces the job, not the feature',
+            '\u201cWhat happened next?\u201d \u2014 the most underused follow-up in any interview',
+            '\u201cHelp me understand why that mattered\u2026\u201d \u2014 gets to motivation, not just behaviour',
+          ], 'var(--coral)')}
+
           <QuizEngine conceptId="user-research" conceptName="Interview Technique" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[3]} />
         </div>
       </ChapterSection>
@@ -1412,6 +1426,13 @@ export default function Track1ProblemDiscovery() {
 
           {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
 
+          {keyBox('Note \u2192 Tag \u2192 Pattern \u2192 Insight', [
+            'Note \u2014 what the user said or did: \u201cI didn\u2019t know what I was supposed to be creating\u201d',
+            'Tag \u2014 a label you apply across interviews: \u201cno benchmark for success\u201d',
+            'Pattern \u2014 a tag that appears across 3+ independent conversations unprompted',
+            'Insight \u2014 your interpretation: what the pattern means for the product and the user\u2019s job',
+          ], 'var(--green)')}
+
           <QuizEngine conceptId="insight-synthesis" conceptName="Insight Synthesis" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[5]} />
         </div>
       </ChapterSection>
@@ -1484,6 +1505,13 @@ export default function Track1ProblemDiscovery() {
           {para(<>None of that required genius. It required asking before building.</>)}
 
           {pullQuote("Discovery is not a phase. It's the habit you build to stop solving the wrong problems.", 'var(--purple)')}
+
+          {keyBox('What discovery actually requires', [
+            'Patience \u2014 defer solution-thinking until you genuinely understand the problem',
+            'Curiosity \u2014 ask one more question after the first answer. The real insight lives there.',
+            'Discipline \u2014 tag every note, not just the ones that confirm your hypothesis',
+            'Courage \u2014 present a problem brief when everyone else brought wireframes',
+          ], 'var(--purple)')}
 
           <InfoBox title="The full toolkit Priya used this week" accent="var(--purple)">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

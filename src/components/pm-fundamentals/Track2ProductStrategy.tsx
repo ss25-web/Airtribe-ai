@@ -841,15 +841,6 @@ export default function Track2ProductStrategy() {
 
         <Section1Mockup />
 
-        <ConversationScene
-          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
-          lines={[
-            { speaker: 'priya', text: "Meridian is 10% of our ARR and threatening to pull out. Their NPS is 21 \u2014 everyone else is above 70. Rohan wants to build for them." },
-            { speaker: 'other', text: "Are they 10% of your market \u2014 or 10% of your problem?" },
-            { speaker: 'priya', text: "Based on the data\u2026 a 46-point NPS gap in one segment while every other segment is above 70 \u2014 that\u2019s not a product problem." },
-            { speaker: 'other', text: "That\u2019s the signature of a segment-of-one outlier. Meridian is asking EdSpark to be something it wasn\u2019t built to be. Run that analysis before you walk into Rohan\u2019s office." },
-          ]}
-        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
@@ -907,15 +898,6 @@ export default function Track2ProductStrategy() {
 
         <Section2Mockup />
 
-        <ConversationScene
-          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
-          lines={[
-            { speaker: 'priya', text: "Only the Coaching API cleared all three platform criteria. The other three extensions don\u2019t amplify the core \u2014 they\u2019re just adjacent products." },
-            { speaker: 'other', text: "Who are those other extensions actually for?" },
-            { speaker: 'priya', text: "Not our 120 SMB customers. They don\u2019t have engineering teams. They\u2019d never use an API." },
-            { speaker: 'other', text: "So if your 120 happiest customers don\u2019t need a platform \u2014 who exactly is the platform for?" },
-          ]}
-        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
@@ -982,15 +964,6 @@ export default function Track2ProductStrategy() {
           In practice, the cascade model doesn&apos;t have to be complex. A simple table: bet name, engineers it needs, weeks to ship, which other bets share those engineers, how many weeks each slips. That&apos;s it. The point isn&apos;t precision &mdash; it&apos;s visibility. You&apos;re converting &ldquo;can we fit it in?&rdquo; from a gut-feel question into a named tradeoff with a number attached. That number is what changes the conversation.
         </>)}
 
-        <ConversationScene
-          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
-          lines={[
-            { speaker: 'priya', text: "Adding the Meridian bet slips Forecasting by 8 weeks. 90+ accounts are waiting for that feature. But they\u2019re not in my Slack sending escalation messages." },
-            { speaker: 'other', text: "Which feature are you more afraid to miss: the one Meridian is asking for, or the one 90 accounts are waiting for?" },
-            { speaker: 'priya', text: "The quiet ones. They don\u2019t escalate. They just churn." },
-            { speaker: 'other', text: "The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade makes that invisible cost visible before it happens." },
-          ]}
-        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
@@ -1058,15 +1031,6 @@ export default function Track2ProductStrategy() {
 
         {pullQuote("A kill decision is not admitting failure. It's reallocating future capacity to something that earns it.")}
 
-        <ConversationScene
-          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
-          lines={[
-            { speaker: 'priya', text: "Kill criteria says 4 out of 5 point toward stopping. But Rohan keeps pointing to the 60% we\u2019ve already built." },
-            { speaker: 'other', text: "Did Gong build AI summarization before they had the data to support it?" },
-            { speaker: 'priya', text: "\u2026No, actually." },
-            { speaker: 'other', text: "So who told EdSpark this was a must-have? The 60% is context, not evidence. It doesn\u2019t answer what the next 6 weeks should produce." },
-          ]}
-        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"
@@ -1129,15 +1093,6 @@ export default function Track2ProductStrategy() {
           'Evidence that your best customers cannot easily leave — not just that they\'re happy',
         ])}
 
-        <ConversationScene
-          mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
-          lines={[
-            { speaker: 'priya', text: "Rohan wants to lead with the growth story. 2x YoY, NPS 76, renewal 96%. It\u2019s all true." },
-            { speaker: 'other', text: "Are you telling investors why EdSpark grows \u2014 or why EdSpark wins?" },
-            { speaker: 'priya', text: "The switching cost data is the moat. 2.8 months average tenure for churned customers vs 19 months with full CRM sync." },
-            { speaker: 'other', text: "That\u2019s the thesis. Not \u2018we grew fast\u2019 \u2014 \u2018we grew precisely, into a segment where leaving us is operationally painful.\u2019 That\u2019s what investors write checks for." },
-          ]}
-        />
         <Avatar
           name="Asha"
           nameColor="var(--teal)"

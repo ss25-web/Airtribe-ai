@@ -5,7 +5,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard, ConversationScene,
+  TiltCard, ConversationScene, PMPrincipleBox,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -988,6 +988,8 @@ export default function Track1Prioritization() {
           leaves room for you to find the best way to fix it. That gap is where good PM thinking lives.
         </>)}
 
+        {pullQuote('Feature requests are proposed solutions in disguise. Your first job is to find what\'s broken underneath \u2014 not evaluate the solution someone else already landed on.')}
+
         <JiraBacklogTriage />
 
         {para(<>
@@ -1081,6 +1083,8 @@ export default function Track1Prioritization() {
           'Name the user group, the broken action, and the cost',
         ], ACCENT)}
 
+        {pullQuote('A good problem statement has three parts: who is affected, what they\u2019re struggling to do, and what happens when they fail. Strip the solution out entirely.')}
+
         <QuizEngine
           conceptId="problem-framing-m3"
           conceptName="Problem Framing"
@@ -1123,6 +1127,8 @@ export default function Track1Prioritization() {
           user who signs up. That is not a close call on the numbers alone. But data does not make the
           decision for you &mdash; it changes the frame of the conversation you need to have.
         </>)}
+
+        {pullQuote('Three vocal users can generate more Slack noise than the 40% silent majority. Volume of escalations is not the same as breadth of impact.')}
 
         <KiranMentorCard
           content={<>The CRM request came from 3 customers. The onboarding problem is hitting 40% of everyone. That&apos;s not a close call. Three vocal users generate a disproportionate number of Slack messages &mdash; but volume of noise is not the same as breadth of impact. The data is the tie-breaker.</>}
@@ -1259,6 +1265,10 @@ export default function Track1Prioritization() {
         {para(<>
           One thing RICE won&apos;t tell you: what to do when two features score within 20 points of each other. At that range, the scores are too close to be meaningful — the uncertainty in your estimates is bigger than the gap. When scores are close, look at three things: <strong>strategic alignment</strong> (which one advances the metric your company cares about most right now?), <strong>reversibility</strong> (which one is easier to undo or pause if the context changes?), and <strong>learning value</strong> (which one tells you something useful faster?). Tie-breaking is judgment, not arithmetic.
         </>)}
+
+        {pullQuote('The confidence score is where the intellectual honesty lives. Low confidence isn’t a weakness — it’s a signal to run more research before you start building.')}
+
+        <PMPrincipleBox principle="The Transparency Principle — RICE doesn’t make the call for you. It makes your assumptions visible enough that others can challenge them. Show your confidence levels, name what you don’t know, and invite pushback. That’s where the real strategy conversation happens." />
       </ChapterSection>
 
       {/* ── PART V ── Making the Call ── */}
@@ -1451,6 +1461,25 @@ export default function Track1Prioritization() {
           'RICE doesn\'t replace judgment; it makes your judgment transparent and transferable',
           'Communicating a hard call clearly is as important as making the right call',
         ], ACCENT)}
+
+        <QuizEngine
+          conceptId="prioritization-mindset-m3"
+          conceptName="Prioritization Mindset"
+          moduleContext={MODULE_CONTEXT}
+          staticQuiz={{
+            conceptId: 'prioritization-mindset-m3',
+            question: "Priya\u2019s RICE scores show onboarding at 800 and CRM at 12.5. Marcus pushes back emotionally. What\u2019s the right move?",
+            options: [
+              'A) Revisit the RICE scores to account for Marcus\'s stated business context',
+              'B) Hold the call, acknowledge Marcus\'s concern, and give CRM a concrete future review slot',
+              'C) Cave \u2014 sales revenue pressure should always override product data',
+              'D) Escalate to the CEO to get executive backing before responding',
+            ],
+            correctIndex: 1,
+            explanation: "Data-backed decisions shouldn\u2019t reverse under emotional pressure \u2014 only under new data. Acknowledging the concern while holding the call, and giving CRM a concrete future slot, keeps both the relationship and the process intact.",
+            keyInsight: "You can hold a decision and care about someone\u2019s goals at the same time. \u2018I disagree but I understand\u2019 is a successful outcome.",
+          }}
+        />
 
         <ConversationScene
           mentor="asha" name="Asha" role="Senior PM" accent="var(--purple)"
