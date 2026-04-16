@@ -13,6 +13,7 @@ import {
   NextChapterTeaser,
   PMPrincipleBox,
   SituationCard,
+  TiltCard,
   chLabel,
   h2,
   keyBox,
@@ -411,6 +412,188 @@ function AaravFace({ size = 44 }: { size?: number }) {
   );
 }
 
+// ── GenAI TiltCard Mockups ────────────────────────────────────────────────
+
+const TokenProbCard = ({ track }: { track: GenAITrack }) => {
+  const tokens = track === 'tech'
+    ? [
+        { word: 'The', probs: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
+        { word: 'model', probs: [{ label: 'model', p: 0.68 }, { label: 'system', p: 0.18 }, { label: 'API', p: 0.09 }] },
+        { word: 'generates', probs: [{ label: 'generates', p: 0.55 }, { label: 'predicts', p: 0.28 }, { label: 'returns', p: 0.12 }] },
+        { word: 'plausible', probs: [{ label: 'plausible', p: 0.41 }, { label: 'likely', p: 0.33 }, { label: 'probable', p: 0.19 }] },
+      ]
+    : [
+        { word: 'The', probs: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
+        { word: 'procedure', probs: [{ label: 'procedure', p: 0.61 }, { label: 'process', p: 0.23 }, { label: 'protocol', p: 0.11 }] },
+        { word: 'for', probs: [{ label: 'for', p: 0.79 }, { label: 'when', p: 0.12 }, { label: 'in', p: 0.07 }] },
+        { word: 'compliance', probs: [{ label: 'compliance', p: 0.48 }, { label: 'regulatory', p: 0.31 }, { label: 'internal', p: 0.17 }] },
+      ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#8B949E', marginBottom: '14px' }}>TOKEN PROBABILITY DISTRIBUTION — NEXT-TOKEN SELECTION</div>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, marginBottom: '16px' }}>
+        {tokens.map((t, i) => (
+          <div key={i} style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '6px', padding: '4px 10px', fontSize: '13px', color: '#C9D1D9', fontWeight: 600 }}>{t.word}</div>
+        ))}
+        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px', fontSize: '13px', color: '#484F58' }}>…</div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+        {tokens.map((t, i) => (
+          <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '10px 12px' }}>
+            <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '8px' }}>AFTER &ldquo;{t.word}&rdquo;</div>
+            {t.probs.map((p, j) => (
+              <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+                <div style={{ width: '70px', fontSize: '11px', color: j === 0 ? '#C9D1D9' : '#484F58' }}>{p.label}</div>
+                <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${p.p * 100}%`, background: j === 0 ? '#7C3AED' : 'rgba(124,58,237,0.3)', borderRadius: '3px' }} />
+                </div>
+                <div style={{ fontSize: '10px', color: j === 0 ? '#7C3AED' : '#484F58', minWidth: '32px', textAlign: 'right' as const }}>{Math.round(p.p * 100)}%</div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '12px', fontSize: '10px', color: '#484F58', lineHeight: 1.5 }}>The model picks the highest-probability token each step — then repeats. No retrieval. No reasoning. Pattern completion from training.</div>
+    </div>
+  );
+};
+
+const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
+  const zones = [
+    {
+      label: 'Reliable', color: '#16A34A', bg: 'rgba(22,163,74,0.08)', border: 'rgba(22,163,74,0.3)',
+      tasks: track === 'tech'
+        ? ['Summarise case notes', 'Classify support tickets', 'Draft API docs', 'Reformat structured data']
+        : ['Draft correspondence', 'Summarise case files', 'Classify escalations', 'Rewrite in plain language'],
+    },
+    {
+      label: 'Extended', color: '#D97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.3)',
+      tasks: track === 'tech'
+        ? ['Coverage rate lookup (+ retrieval)', 'Policy Q&A (+ RAG)', 'Claim status check (+ tool)']
+        : ['Procedure lookup (+ document retrieval)', 'Case history Q&A (+ database)', 'Compliance check (+ rules engine)'],
+    },
+    {
+      label: 'Unreliable', color: '#DC2626', bg: 'rgba(220,38,38,0.08)', border: 'rgba(220,38,38,0.3)',
+      tasks: track === 'tech'
+        ? ['Precise claim arithmetic', 'Real-time account balances', 'Legally binding determinations']
+        : ['Exact premium calculations', 'Live case status', 'Binding compliance decisions'],
+    },
+  ];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#78716C', fontFamily: "'JetBrains Mono', monospace", marginBottom: '16px' }}>CAPABILITY ZONE MAP</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+        {zones.map((z) => (
+          <div key={z.label} style={{ background: z.bg, border: `1px solid ${z.border}`, borderRadius: '8px', padding: '14px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: z.color, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: z.color }} />
+              {z.label}
+            </div>
+            {z.tasks.map((t, i) => (
+              <div key={i} style={{ fontSize: '11px', color: '#44403C', lineHeight: 1.5, marginBottom: '4px', paddingLeft: '8px', borderLeft: `2px solid ${z.border}` }}>{t}</div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '12px', fontSize: '11px', color: '#78716C', lineHeight: 1.6 }}>
+        <strong style={{ color: '#44403C' }}>Key question:</strong> Does the correct answer require a fact from a live system not in the prompt? → Extended or Unreliable.
+      </div>
+    </div>
+  );
+};
+
+const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
+  const vague = track === 'tech' ? 'Summarise this case note.' : 'What should I do about this case?';
+  const specific = track === 'tech'
+    ? 'You are a claims triage assistant. Given the case note below, write a 3-sentence summary covering: (1) category, (2) key action required, (3) urgency level. Use plain language for a case worker. No bullet points.'
+    : 'You are a healthcare operations assistant. Given the escalation below, write a 2-sentence summary: one sentence stating the category, one sentence stating the recommended next step. Plain language. Max 60 words.';
+  const vagueOutput = track === 'tech'
+    ? 'The case note discusses a patient claim that was submitted. There are some issues that may need attention from the relevant team. Further review is recommended.'
+    : 'Based on the information provided, there are several considerations for this case. The appropriate team should review and determine next steps based on current policies.';
+  const specificOutput = track === 'tech'
+    ? 'Category: Disputed claim — pharmacy benefit. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High.'
+    : 'Category: Overdue exception request — provider credentialing. Recommended next step: Assign to credentialing team with 24h SLA flag; case has been pending 11 days past standard window.';
+  return (
+    <div style={{ background: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        {[
+          { label: 'Vague brief (Dev)', prompt: vague, output: vagueOutput, accent: '#DC2626', bg: 'rgba(220,38,38,0.04)' },
+          { label: 'Specified brief (Priya)', prompt: specific, output: specificOutput, accent: '#16A34A', bg: 'rgba(22,163,74,0.04)' },
+        ].map((col) => (
+          <div key={col.label} style={{ padding: '16px', background: col.bg, borderRight: col.accent === '#DC2626' ? '1px solid #E9ECEF' : undefined }}>
+            <div style={{ fontSize: '10px', fontWeight: 700, color: col.accent, letterSpacing: '0.1em', fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px' }}>{col.label.toUpperCase()}</div>
+            <div style={{ background: 'white', border: `1px solid ${col.accent}33`, borderRadius: '6px', padding: '10px 12px', marginBottom: '10px' }}>
+              <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>PROMPT</div>
+              <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;{col.prompt}&rdquo;</div>
+            </div>
+            <div style={{ background: 'white', border: '1px solid #E9ECEF', borderRadius: '6px', padding: '10px 12px' }}>
+              <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>OUTPUT</div>
+              <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6 }}>{col.output}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
+  const goodFields = track === 'tech'
+    ? [
+        { label: 'patient_id', value: 'PT-88412', ok: true },
+        { label: 'claim_amount', value: '$2,840.00', ok: true },
+        { label: 'case_note', value: '847 chars — complete', ok: true },
+        { label: 'intake_form', value: 'structured JSON', ok: true },
+        { label: 'policy_tier', value: 'Tier 2 — PPO', ok: true },
+      ]
+    : [
+        { label: 'case_id', value: 'ESC-2024-7712', ok: true },
+        { label: 'category', value: 'Provider credentialing', ok: true },
+        { label: 'submitted_date', value: '2024-03-01', ok: true },
+        { label: 'case_notes', value: '1,204 chars — complete', ok: true },
+        { label: 'attachments', value: '2 PDFs loaded', ok: true },
+      ];
+  const badFields = track === 'tech'
+    ? [
+        { label: 'patient_id', value: 'PT-88412', ok: true },
+        { label: 'claim_amount', value: 'null', ok: false },
+        { label: 'case_note', value: 'truncated at 256 chars…', ok: false },
+        { label: 'intake_form', value: 'flattened string blob', ok: false },
+        { label: 'policy_tier', value: 'null', ok: false },
+      ]
+    : [
+        { label: 'case_id', value: 'ESC-2024-4405', ok: true },
+        { label: 'category', value: '(blank)', ok: false },
+        { label: 'submitted_date', value: '2022-11-14', ok: true },
+        { label: 'case_notes', value: '(blank — pre-migration)', ok: false },
+        { label: 'attachments', value: '2 × "unavailable"', ok: false },
+      ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#8B949E', marginBottom: '16px' }}>CONTEXT PACKET AUDIT — SAME PROMPT, DIFFERENT INPUTS</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+        {[
+          { label: '✓ Complete packet', fields: goodFields, color: '#16A34A' },
+          { label: '✗ Broken packet', fields: badFields, color: '#DC2626' },
+        ].map((col) => (
+          <div key={col.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '12px 14px' }}>
+            <div style={{ fontSize: '10px', fontWeight: 700, color: col.color, marginBottom: '10px' }}>{col.label}</div>
+            {col.fields.map((f, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ fontSize: '10px', color: '#8B949E' }}>{f.label}</span>
+                <span style={{ fontSize: '10px', color: f.ok ? '#16A34A' : '#DC2626', fontWeight: f.ok ? 400 : 600 }}>{f.value}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '12px', fontSize: '10px', color: '#484F58', lineHeight: 1.5 }}>The model generated a summary in both cases. The broken packet produced a plausible-looking but incomplete output. No error was thrown.</div>
+    </div>
+  );
+};
+
+// ── End TiltCard Mockups ─────────────────────────────────────────────────────
+
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
@@ -568,23 +751,6 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'Generative AI models are completion systems. Given a sequence of text, they generate the most statistically plausible continuation based on patterns in training data. They have no live connection to the world — no access to your databases, no ability to check current state, no memory between calls. They generate. They do not retrieve. That distinction is not a limitation to be patched. It is the architecture.'
           : 'Generative AI models are completion systems. They generate the most plausible continuation of whatever text they receive. They have no connection to live systems, no access to internal documents they weren\'t given, and no ability to flag when they don\'t actually know something. Certainty is a text style — the model can sound completely confident about things it is factually wrong about, because confidence is in the training data too.')}
-        <GenAIConversationScene
-          mentor="kabir"
-          track={track}
-          accent="#0F766E"
-          techLines={[
-            { speaker: 'protagonist', text: "I want to add domain-specific training data so the model learns our coverage rates." },
-            { speaker: 'mentor', text: "Before you redesign anything \u2014 what kind of task is 'look up a coverage rate' at its core?" },
-            { speaker: 'protagonist', text: "...It's a data lookup. The answer lives in our claims system, not in language patterns." },
-            { speaker: 'mentor', text: "Exactly. Fine-tuning doesn't move the claims database inside the model. You need a retrieval layer, not more training." },
-          ]}
-          nonTechLines={[
-            { speaker: 'protagonist', text: "Maybe a newer model would know our procedures \u2014 there's more healthcare data in the latest ones." },
-            { speaker: 'mentor', text: "The escalation procedure task \u2014 was that a language problem or an information lookup?" },
-            { speaker: 'protagonist', text: "It needed a specific fact. Our procedure. Which lives in a document, not in general language patterns." },
-            { speaker: 'mentor', text: "No model has your internal procedures unless you put them in the conversation. That's not a capability gap \u2014 it's an architecture gap." },
-          ]}
-        />
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
@@ -635,6 +801,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'The signal that retrieval is working: ask the model a question whose answer only appears in your internal document. If the answer is correct, the document reached the model. If it hallucinated, the retrieval step failed or was skipped.',
         ], ACCENT)}
         {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs to answer correctly.' })}
+        <TiltCard style={{ margin: '28px 0' }}><TokenProbCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. Was the model doing language work (completing, transforming, classifying text you gave it) or implicitly expected to know live facts? If the latter — where would the retrieval layer need to sit?" : "Think of one task your team has tried with AI that gave unreliable results. Was it a language task or an information lookup? If it was a lookup — what would a correct design have looked like?"} />
         <QuizEngine conceptId="genai-m1-what-it-is" conceptName="What GenAI Is" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav knows what the model is now. The next question is which tasks it's reliable on — and where even the most capable model consistently fails. That boundary matters more than model quality." : "Rhea knows what the model is now. The next question is which tasks it genuinely helps with and where it's reliably wrong — and that line has almost nothing to do with which tool you pick."} />
@@ -700,23 +867,6 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The zones are: reliable (language in, language out, no live data required), extended (retrieval-augmented or tool-augmented tasks that work with the right infrastructure), and unreliable (precise calculations on real numbers, real-time data without retrieval, legally exact outputs). The model generates equally fluently in all three. Only the first zone doesn\'t require you to build around its failures.'
           : 'The zones are: reliable (language work — summarise, classify, draft, extract — where the model works from what you give it), extended (tasks that need retrieval or tools to work correctly), and unreliable (precise arithmetic, live data without retrieval, legally exact claims). A map like the one on your whiteboard is more useful than any benchmark score.')}
-        <GenAIConversationScene
-          mentor="leela"
-          track={track}
-          accent="#C2410C"
-          techLines={[
-            { speaker: 'protagonist', text: "Arithmetic on claim amounts is on the right side of the map. I didn\u2019t realize it was in the unreliable zone." },
-            { speaker: 'mentor', text: "Is that one in production right now?" },
-            { speaker: 'protagonist', text: "It is. But the numbers look right \u2014 they\u2019re formatted correctly, right range, right precision." },
-            { speaker: 'mentor', text: "That\u2019s the failure mode I\u2019m most worried about. An output that\u2019s off by 4% looks exactly like a correct output. Nobody flags it." },
-          ]}
-          nonTechLines={[
-            { speaker: 'protagonist', text: "The middle column \u2014 the inconsistent tasks \u2014 sometimes gave good results, sometimes didn\u2019t." },
-            { speaker: 'mentor', text: "When they worked, who was checking the output before anything happened with it?" },
-            { speaker: 'protagonist', text: "Some of them went straight to the case worker. No review step before they acted on it." },
-            { speaker: 'mentor', text: "The ones with a human in the loop are recoverable. The ones without \u2014 errors acted on real cases before anyone saw them." },
-          ]}
-        />
         <GenAIAvatar
           name="Leela"
           nameColor="#2563EB"
@@ -760,6 +910,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "Applied: Aarav wants to auto-calculate claim adjustment amounts. Q1: Yes — the claim amount lives in a database, not the prompt. Q2: Yes — arithmetic on real financial figures where a 3% error is a compliance issue. Zone: Unreliable. The fix is not a better prompt — it is removing this task from LLM scope and using a deterministic calculation layer."
           : "Applied: Rhea wants to flag overdue insurance exceptions. Q1: Yes — overdue status requires checking a timestamp in the case management system, which is not in the prompt. Zone: Extended. The model can classify exception descriptions you give it, but it cannot determine whether a deadline has passed without a retrieval layer pulling that data first."
         )}
+        <TiltCard style={{ margin: '28px 0' }}><CapabilityZoneCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Map your last three LLM integration attempts across the three zones. For the failures — which zone were they actually in, and what was the failure mode? Visible or invisible?" : "Take your whiteboard map and add one column: for each task, who sees the output before it affects anything? That column tells you which tasks need redesigning."} />
         <QuizEngine conceptId="genai-m1-capabilities" conceptName="Capability Map" moduleContext={moduleContext} staticQuiz={QUIZZES[1]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the capability map. But knowing the zones doesn't tell you how to assign tasks reliably. That takes a different shift — from the way you've been thinking about prompts." : "Rhea has the capability map. But knowing where AI is reliable doesn't automatically mean her team will use it well. That depends on something about how they're communicating with it."} />
@@ -825,23 +976,6 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The shift is from question-asking to task specification. A question is "summarise this." A specification is: role, task, format, constraints, length, and what to exclude. When those dimensions are defined, the model stops choosing them. Variance drops. Not because the model improved — because the brief stopped leaving things to chance.'
           : 'The shift is from asking to specifying. A question leaves gaps. A specification fills them. When format, length, constraints, and structure are defined, the model executes your choices instead of making its own. That\'s true for a three-sentence summary, a draft email, or a structured triage report.')}
-        <GenAIConversationScene
-          mentor="kabir"
-          track={track}
-          accent="#0F766E"
-          techLines={[
-            { speaker: 'protagonist', text: "I see the difference \u2014 role, format, length, constraints. Priya specifies all of it." },
-            { speaker: 'mentor', text: "There\u2019s one more thing she does that Dev doesn\u2019t. Look at her prompts for format-critical tasks." },
-            { speaker: 'protagonist', text: "She includes an example output. An actual sample of what she wants, not just a description." },
-            { speaker: 'mentor', text: "One example teaches format, tone, length, and scope simultaneously. Faster than three paragraphs of instructions \u2014 and instructions still leave room for interpretation." },
-          ]}
-          nonTechLines={[
-            { speaker: 'protagonist', text: "I\u2019ve looked at Priya\u2019s prompts \u2014 role, task, format, what to exclude. All the dimensions are covered." },
-            { speaker: 'mentor', text: "Does she ever paste an example output at the bottom? Check her prompts for recurring tasks." },
-            { speaker: 'protagonist', text: "She does \u2014 there\u2019s always a sample at the end. I thought it was just extra context." },
-            { speaker: 'mentor', text: "That sample is doing more than context. It shows the model exactly what you mean instead of describing it. Instructions can be misread. Examples can\u2019t." },
-          ]}
-        />
         <GenAIAvatar
           name="Kabir"
           nameColor="#0F766E"
@@ -871,6 +1005,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
               ]}
         />
         {pullQuote('Vague brief, model chooses. Specific brief, you choose. The model executes either way.')}
+        <TiltCard style={{ margin: '28px 0' }}><PromptCompareCard track={track} /></TiltCard>
         {keyBox('Elements of a clear task specification', [
           'Role: who the model should act as ("You are a claims triage analyst").',
           'Task: what to do, precisely ("Classify this request into one of five categories").',
@@ -944,23 +1079,6 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'Context is not configuration. It is the actual input the model receives at inference time. Everything the model knows about your specific case must be in the context window. The model has no memory between calls, no access to your systems, no ability to retrieve information it was not sent. Output quality is bounded by context quality — not by model quality.'
           : 'The model has no memory between calls and no access to systems it wasn\'t given. Every fact it needs to produce a good output has to be in the context window when you make the call. A good prompt with broken context produces a broken output — not because the model failed, but because it did exactly what you asked with what you gave it.')}
-        <GenAIConversationScene
-          mentor="leela"
-          track={track}
-          accent="#C2410C"
-          techLines={[
-            { speaker: 'protagonist', text: "Found the problem \u2014 broken context packets. Null fields, truncated notes, flattened forms." },
-            { speaker: 'mentor', text: "How long was staging running with those broken packets before you caught it?" },
-            { speaker: 'protagonist', text: "About three weeks. The outputs looked like outputs \u2014 nobody flagged them as errors." },
-            { speaker: 'mentor', text: "That\u2019s the design gap. What does your context assembly layer do when a required field is missing? Right now the answer is: generate anyway." },
-          ]}
-          nonTechLines={[
-            { speaker: 'protagonist', text: "We found it \u2014 older cases with blank fields and failed attachments were going to the model." },
-            { speaker: 'mentor', text: "For the six weeks before you noticed \u2014 where were those summaries going?" },
-            { speaker: 'protagonist', text: "Straight to case workers. Some of them may have acted on incomplete information." },
-            { speaker: 'mentor', text: "Because the output looked like a summary. Not an error. The system had no way to flag \u2018this context is broken\u2019 \u2014 it just generated from whatever it had." },
-          ]}
-        />
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
@@ -996,6 +1114,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Validation: required fields present, attachments loaded, data not truncated.',
         ], '#C2410C')}
         {PMPrincipleBox({ principle: 'The model cannot produce what it does not have. Fix the context before you fix the prompt.' })}
+        <TiltCard style={{ margin: '28px 0' }}><ContextPacketCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Pick a production LLM call with inconsistent outputs. Compare the context packets across good and bad cases. What fields are present in good runs but missing or malformed in bad ones? What does the context assembly layer need to validate before inference?" : "Find a case where an AI tool gave you a surprisingly poor output. What was actually in the context it received? Was anything missing, truncated, or in the wrong format? What would a validated context packet look like for that case?"} />
         <QuizEngine conceptId="genai-m1-context" conceptName="Context as Input" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the four fundamentals: what the model is, where it's reliable, how to specify tasks, and why context quality matters. The last question is the one that has to come before any of this reaches production." : "Rhea has the four fundamentals. The last question is the most practical: given everything she now knows, which use case does she actually build first?"} />
@@ -1061,23 +1180,6 @@ function CoreContent({ track }: { track: GenAITrack }) {
         {para(track === 'tech'
           ? 'The first use case is not about maximum impact. It is about building something you can see, understand, and improve. Bounded output, human checkpoint, easy verification, recoverable failures. Classification with a review gate is the archetype — the model suggests, a human confirms, and the team learns exactly where the model fails before those failures affect anything.'
           : 'The first use case is not the most efficient one. It is the most learnable one. Bounded output, human review, easy verification, recoverable errors. Classification with a review step is the archetype — the model reads, categorises, flags uncertainty, and a human confirms. The team learns what the model gets wrong before any of that affects a case.')}
-        <GenAIConversationScene
-          mentor="kabir"
-          track={track}
-          accent={ACCENT}
-          techLines={[
-            { speaker: 'protagonist', text: "After six weeks of option two, we\u2019re at 94% accuracy. I want to remove the review step and move to option one." },
-            { speaker: 'mentor', text: "What would you need to see before you felt comfortable doing that? Not a number \u2014 the actual evidence." },
-            { speaker: 'protagonist', text: "Which case types the model consistently gets right. Which ones it misclassifies. What the failures look like in the context data." },
-            { speaker: 'mentor', text: "Then don\u2019t remove the review step \u2014 narrow it. Apply it only to the case types where the model hasn\u2019t earned trust yet. That\u2019s how you reach option one safely." },
-          ]}
-          nonTechLines={[
-            { speaker: 'protagonist', text: "Six weeks in, 93% accurate. My director wants to move to auto-routing with no human review." },
-            { speaker: 'mentor', text: "Before you answer her \u2014 what would the data need to show you before you\u2019d feel confident doing that?" },
-            { speaker: 'protagonist', text: "Which escalation categories the model gets right consistently. How often reviewers change the classification. What the failure cases look like." },
-            { speaker: 'mentor', text: "That\u2019s not \u2018when have we run it long enough\u2019 \u2014 it\u2019s \u2018what has the data earned.\u2019 Extend autonomy to the categories the model has proven itself on. Not across the board." },
-          ]}
-        />
         <GenAIAvatar
           name="Kabir"
           nameColor={ACCENT}
