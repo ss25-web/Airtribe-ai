@@ -2385,6 +2385,14 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <TiltCard style={{ margin: '28px 0' }}><EcosystemCard track={track} accentColor={meta.accentColor} /></TiltCard>
 
+            <PMPrincipleBox principle={
+              track === 'python'
+                ? 'Ecosystem literacy is a force multiplier. The engineer who knows which library to reach for — and which to avoid — ships in days what others spend weeks building from scratch.'
+                : track === 'java'
+                ? 'In enterprise Java, opinionated frameworks are a feature, not a constraint. Spring Boot conventions carry ten years of hard-won lessons about how to build systems that survive team turnover.'
+                : 'The JavaScript ecosystem rewards breadth of awareness, not just depth of skill. Knowing that a faster alternative exists is often worth more than mastering the slower one you already know.'
+            } />
+
             <ApplyItBox prompt={
               track === 'python'
                 ? 'Pick a data task you are working on. Search PyPI for a library that handles it. Check: how many weekly downloads does it have, when was it last updated, and does it have a test suite? These three signals tell you whether to trust a library.'
@@ -2537,6 +2545,14 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             <TiltCard style={{ margin: '28px 0' }}><StackTraceCard track={track} accentColor={meta.accentColor} /></TiltCard>
 
             {pullQuote('The engineers who ship reliable code fastest are not the ones who never have bugs. They are the ones who understand errors faster when bugs appear.')}
+
+            <PMPrincipleBox principle={
+              track === 'python'
+                ? 'Systematic debugging is a professional habit. Every senior engineer has a method: read the error, form a hypothesis, test it. Skipping any step turns debugging into luck.'
+                : track === 'java'
+                ? 'Java stack traces are precise. They tell you the class, method, and line. Reading them fluently — not skimming — is the difference between a one-hour debug and a one-day debug.'
+                : 'In async code, the error location and the error cause are often different places. Train yourself to trace back through the call stack, not just fix the line that threw.'
+            } />
 
             <ApplyItBox prompt={
               track === 'python'
