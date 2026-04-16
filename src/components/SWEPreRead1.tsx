@@ -2002,13 +2002,27 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               </>}
             </StoryCard>
 
-            <SWEConversationScene
-              track={track}
-              lines={CS_DIALOGUES.s01[track].lines}
-              mentorName={CS_DIALOGUES.s01[track].mentorName}
-              mentorRole={CS_DIALOGUES.s01[track].mentorRole}
-              mentorColor={CS_DIALOGUES.s01[track].mentorColor}
-            />
+            {level === 'advanced' ? (<>
+              <SWEAvatar
+                name={ADV.s01[track].b1.name} role={ADV.s01[track].b1.role} color={ADV.s01[track].b1.color}
+                content={<>&ldquo;{ADV.s01[track].b1.content}&rdquo;</>}
+                expandedContent={<>&ldquo;{ADV.s01[track].b1.expanded}&rdquo;</>}
+                question={ADV.s01[track].b1.question} options={ADV.s01[track].b1.opts}
+              />
+              <ProtagonistAvatar
+                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                role={meta.protagonistRole} color={meta.accentColor}
+                content={<>{ADV.s01[track].bridge}</>}
+              />
+            </>) : (
+              <SWEConversationScene
+                track={track}
+                lines={CS_DIALOGUES.s01[track].lines}
+                mentorName={CS_DIALOGUES.s01[track].mentorName}
+                mentorRole={CS_DIALOGUES.s01[track].mentorRole}
+                mentorColor={CS_DIALOGUES.s01[track].mentorColor}
+              />
+            )}
 
             <SWEAvatar
               name={level === 'advanced' ? ADV.s01[track].b2.name : (track === 'python' ? 'Sam' : track === 'java' ? 'Rahul' : meta.mentor)}
@@ -2132,13 +2146,27 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               </>}
             </StoryCard>
 
-            <SWEConversationScene
-              track={track}
-              lines={CS_DIALOGUES.s02[track].lines}
-              mentorName={CS_DIALOGUES.s02[track].mentorName}
-              mentorRole={CS_DIALOGUES.s02[track].mentorRole}
-              mentorColor={CS_DIALOGUES.s02[track].mentorColor}
-            />
+            {level === 'advanced' ? (<>
+              <SWEAvatar
+                name={ADV.s02[track].b1.name} role={ADV.s02[track].b1.role} color={ADV.s02[track].b1.color}
+                content={<>&ldquo;{ADV.s02[track].b1.content}&rdquo;</>}
+                expandedContent={<>&ldquo;{ADV.s02[track].b1.expanded}&rdquo;</>}
+                question={ADV.s02[track].b1.question} options={ADV.s02[track].b1.opts}
+              />
+              <ProtagonistAvatar
+                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                role={meta.protagonistRole} color={meta.accentColor}
+                content={<>{ADV.s02[track].bridge}</>}
+              />
+            </>) : (
+              <SWEConversationScene
+                track={track}
+                lines={CS_DIALOGUES.s02[track].lines}
+                mentorName={CS_DIALOGUES.s02[track].mentorName}
+                mentorRole={CS_DIALOGUES.s02[track].mentorRole}
+                mentorColor={CS_DIALOGUES.s02[track].mentorColor}
+              />
+            )}
 
             <SWEAvatar
               name={level === 'advanced' ? ADV.s02[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Ananya' : meta.mentor)}
@@ -2312,13 +2340,27 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               </>}
             </StoryCard>
 
-            <SWEConversationScene
-              track={track}
-              lines={CS_DIALOGUES.s03[track].lines}
-              mentorName={CS_DIALOGUES.s03[track].mentorName}
-              mentorRole={CS_DIALOGUES.s03[track].mentorRole}
-              mentorColor={CS_DIALOGUES.s03[track].mentorColor}
-            />
+            {level === 'advanced' ? (<>
+              <SWEAvatar
+                name={ADV.s03[track].b1.name} role={ADV.s03[track].b1.role} color={ADV.s03[track].b1.color}
+                content={<>&ldquo;{ADV.s03[track].b1.content}&rdquo;</>}
+                expandedContent={<>&ldquo;{ADV.s03[track].b1.expanded}&rdquo;</>}
+                question={ADV.s03[track].b1.question} options={ADV.s03[track].b1.opts}
+              />
+              <ProtagonistAvatar
+                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                role={meta.protagonistRole} color={meta.accentColor}
+                content={<>{ADV.s03[track].bridge}</>}
+              />
+            </>) : (
+              <SWEConversationScene
+                track={track}
+                lines={CS_DIALOGUES.s03[track].lines}
+                mentorName={CS_DIALOGUES.s03[track].mentorName}
+                mentorRole={CS_DIALOGUES.s03[track].mentorRole}
+                mentorColor={CS_DIALOGUES.s03[track].mentorColor}
+              />
+            )}
 
             <SWEAvatar
               name={level === 'advanced' ? ADV.s03[track].b2.name : (track === 'python' ? meta.mentor : track === 'java' ? 'Suresh' : 'Jordan')}
@@ -2469,13 +2511,27 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               </>}
             </StoryCard>
 
-            <SWEConversationScene
-              track={track}
-              lines={CS_DIALOGUES.s04[track].lines}
-              mentorName={CS_DIALOGUES.s04[track].mentorName}
-              mentorRole={CS_DIALOGUES.s04[track].mentorRole}
-              mentorColor={CS_DIALOGUES.s04[track].mentorColor}
-            />
+            {level === 'advanced' ? (<>
+              <SWEAvatar
+                name={ADV.s04[track].b1.name} role={ADV.s04[track].b1.role} color={ADV.s04[track].b1.color}
+                content={<>&ldquo;{ADV.s04[track].b1.content}&rdquo;</>}
+                expandedContent={<>&ldquo;{ADV.s04[track].b1.expanded}&rdquo;</>}
+                question={ADV.s04[track].b1.question} options={ADV.s04[track].b1.opts}
+              />
+              <ProtagonistAvatar
+                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                role={meta.protagonistRole} color={meta.accentColor}
+                content={<>{ADV.s04[track].bridge}</>}
+              />
+            </>) : (
+              <SWEConversationScene
+                track={track}
+                lines={CS_DIALOGUES.s04[track].lines}
+                mentorName={CS_DIALOGUES.s04[track].mentorName}
+                mentorRole={CS_DIALOGUES.s04[track].mentorRole}
+                mentorColor={CS_DIALOGUES.s04[track].mentorColor}
+              />
+            )}
 
             <SWEAvatar
               name={level === 'advanced' ? ADV.s04[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Suresh' : meta.mentor)}
