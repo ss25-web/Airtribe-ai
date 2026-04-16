@@ -6,7 +6,7 @@ import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
 import type { SWETrack, SWELevel } from './sweTypes';
 import {
-  ApplyItBox, ChapterSection, NextChapterTeaser,
+  ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox,
   chLabel, h2, keyBox, para, pullQuote, TiltCard,
 } from './pm-fundamentals/designSystem';
 
@@ -1922,6 +1922,19 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             {pullQuote('Understanding your runtime is not academic. When a bug only appears under load, or a library behaves differently in production than on your machine, the execution model is usually why.')}
 
+            <PMPrincipleBox principle={
+              track === 'python' ? 'The Execution Principle — A script that exits without error is not the same as a script that is correct. Define what success means for your code before you run it.' :
+              track === 'java' ? 'The Execution Principle — The compiler approves your types. The JVM runs your logic. Neither one verifies that your code does what the business expects.' :
+              'The Execution Principle — Same language, different runtime. Browser and Node share JavaScript syntax but not the APIs. Understanding the environment your code runs in is non-negotiable.'
+            } />
+            <ApplyItBox prompt={
+              track === 'python'
+                ? 'Find a script you wrote recently. Write down: (1) what "success" means for this script beyond exit code 0, (2) which inputs could cause silent bad output, (3) one assertion you could add to catch it. Then add it.'
+                : track === 'java'
+                ? 'Open a Java class you wrote recently. Find one method that could receive a null input. Write down: what happens at that line if null arrives? Then add an explicit null check or use Optional.'
+                : 'Create a new file test-env.js. Write one line that only works in a browser (window.document.title) and one that only works in Node (process.version). Run both with node. Read the error. Understand why.'
+            } />
+
             <QuizEngine conceptId="swe-m1-execution" conceptName="Execution Model" moduleContext={meta.moduleContext}
               staticQuiz={track === 'java' ? {
                 conceptId: 'swe-m1-execution',
@@ -2126,6 +2139,19 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <TiltCard style={{ margin: '28px 0' }}><DevEnvPanel track={track} accentColor={meta.accentColor} /></TiltCard>
 
+            <PMPrincipleBox principle={
+              track === 'python' ? 'The Environment Principle — A working local setup is not the same as a reproducible setup. requirements.txt and a virtual environment make your code portable. Without them, it only works on your machine.' :
+              track === 'java' ? 'The Environment Principle — The build tool is the canonical definition of your project. If it is not in pom.xml, it is not a dependency — it is an accident waiting to happen in CI.' :
+              'The Environment Principle — node_modules is a derived artifact, not source code. The source of truth is package.json and package-lock.json. What you commit is the definition; npm install recreates the result.'
+            } />
+            <ApplyItBox prompt={
+              track === 'python'
+                ? 'Set up a fresh virtual environment for a project you work on. Run pip freeze > requirements.txt. Open the file. Are all the versions there? Now delete the venv, recreate it, and run pip install -r requirements.txt. Does it work?'
+                : track === 'java'
+                ? 'Open your pom.xml. Find one dependency. Look up what it does on Maven Central. Now check: what scope is it (compile, test, provided)? If there is no scope attribute, it defaults to compile — is that right for this dependency?'
+                : 'Clone any Node.js project (your own or open source). Delete node_modules. Run npm install. Verify the app starts. Then open package-lock.json and count how many lines it has. That file is what makes the install reproducible.'
+            } />
+
             <QuizEngine conceptId="swe-m1-environment" conceptName="Developer Environment" moduleContext={meta.moduleContext}
               staticQuiz={track === 'python' ? {
                 conceptId: 'swe-m1-environment',
@@ -2311,6 +2337,14 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <TiltCard style={{ margin: '28px 0' }}><EcosystemCard track={track} accentColor={meta.accentColor} /></TiltCard>
+
+            <ApplyItBox prompt={
+              track === 'python'
+                ? 'Pick a data task you are working on. Search PyPI for a library that handles it. Check: how many weekly downloads does it have, when was it last updated, and does it have a test suite? These three signals tell you whether to trust a library.'
+                : track === 'java'
+                ? 'Find one Spring Boot annotation you use but have not looked up (like @RestController or @Transactional). Read the official Spring docs for it. Write one sentence explaining what it actually does at runtime — not just what you assumed.'
+                : 'Identify one npm package in your current project. Check its npm page: weekly downloads, last publish date, number of open issues. Now look at the GitHub repo if it exists. Is this dependency well-maintained? Would you add it today?'
+            } />
 
             <QuizEngine conceptId="swe-m1-ecosystem" conceptName="Language Ecosystem" moduleContext={meta.moduleContext}
               staticQuiz={track === 'python' ? {
