@@ -2457,9 +2457,9 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               ]
             )}
 
-            <LibraryMatcher track={track} accentColor={meta.accentColor} />
+            <TiltCard style={{ margin: '28px 0' }}><LibraryMatcher track={track} accentColor={meta.accentColor} /></TiltCard>
 
-            <CodeAnatomy track={track} accentColor={meta.accentColor} />
+            <TiltCard style={{ margin: '28px 0' }}><CodeAnatomy track={track} accentColor={meta.accentColor} /></TiltCard>
 
             {pullQuote(
               track === 'python' ? 'Adding a library is a decision, not just a convenience. You are taking on its security history, its maintenance future, and its compatibility requirements. Choose deliberately.' :
@@ -2631,9 +2631,9 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               ])}
             </>)}
 
-            <TracebackReader track={track} accentColor={meta.accentColor} />
+            <TiltCard style={{ margin: '28px 0' }}><TracebackReader track={track} accentColor={meta.accentColor} /></TiltCard>
 
-            <BugHunter track={track} accentColor={meta.accentColor} />
+            <TiltCard style={{ margin: '28px 0' }}><BugHunter track={track} accentColor={meta.accentColor} /></TiltCard>
 
             {h2(<>The debugging loop</>)}
             {para(<>Professional debugging is hypothesis-driven. You read the error, form a theory about what caused it at that specific line, test that theory with a print statement or breakpoint, and revise. Jumping straight to Google before doing this step adds noise and slows you down.</>)}
