@@ -821,9 +821,9 @@ export default function Track2ProductStrategy() {
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
-            { speaker: 'other', text: "Meridian is 200 seats and $240K ARR. If they leave with a Gong case study, we lose three more like them before the board call. Build the Deal Intelligence AI \u2014 it\u2019s a no-brainer." },
+            { speaker: 'other', text: "Meridian is 200 seats and $240K ARR. If they leave with a Gong case study, we lose three more like them before the board call. Build the Deal Intelligence AI — it\u2019s a no-brainer." },
             { speaker: 'priya', text: "What\u2019s Meridian\u2019s NPS? Their support ticket volume? Their expansion potential beyond 200 seats?" },
-            { speaker: 'other', text: "I don\u2019t know the details \u2014 but $240K is $240K. We can\u2019t just let that walk." },
+            { speaker: 'other', text: "I don\u2019t know the details — but $240K is $240K. We can\u2019t just let that walk." },
             { speaker: 'priya', text: "Let me show you the full segment analysis before we make an engineering call. Because I think Meridian is telling us something we haven\u2019t heard yet." },
           ]}
         />
@@ -846,7 +846,7 @@ export default function Track2ProductStrategy() {
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>Meridian is 10% of your ARR. But a 46-point NPS gap in one segment while every other is above 70 is the signature of an outlier, not a product problem.</>}
-          expandedContent={<>There are two very different things a big customer can signal. They can be a leading indicator \u2014 showing you where your whole market is heading. Or they can be an outlier \u2014 a customer with a use case that diverges from your ICP so far that serving them means not serving everyone else. Kiran\u2019s data suggests Meridian is the second. But Rohan is reacting to the first. The analysis you just ran is how Priya tells the difference before the meeting \u2014 not during it.</>}
+          expandedContent={<>There are two very different things a big customer can signal. They can be a leading indicator — showing you where your whole market is heading. Or they can be an outlier — a customer with a use case that diverges from your ICP so far that serving them means not serving everyone else. Kiran\u2019s data suggests Meridian is the second. But Rohan is reacting to the first. The analysis you just ran is how Priya tells the difference before the meeting — not during it.</>}
           question="Meridian's NPS is 21. EdSpark's average is 67. What does that gap tell you?"
           options={[
             { text: 'EdSpark has a product quality problem that Meridian is surfacing first', correct: false, feedback: 'A company-wide product problem would show up across segments, not just Meridian. The SMB and mid-market segments both have NPS above 70.' },
@@ -887,9 +887,9 @@ export default function Track2ProductStrategy() {
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'other', text: "If we build platform APIs, our 120 SMB customers won\u2019t use them \u2014 they don\u2019t have engineering teams. The companies who would use the API are enterprise accounts we haven\u2019t won yet." },
+            { speaker: 'other', text: "If we build platform APIs, our 120 SMB customers won\u2019t use them — they don\u2019t have engineering teams. The companies who would use the API are enterprise accounts we haven\u2019t won yet." },
             { speaker: 'priya', text: "So what\u2019s the actual platform inflection signal? When do we know we\u2019re ready?" },
-            { speaker: 'other', text: "When our coaching data is good enough that a third party builds on top of it without us asking them to. We\u2019re not there \u2014 the CRM sync gaps mean our data model still has holes." },
+            { speaker: 'other', text: "When our coaching data is good enough that a third party builds on top of it without us asking them to. We\u2019re not there — the CRM sync gaps mean our data model still has holes." },
             { speaker: 'priya', text: "Then we\u2019re clear with Rohan: platform is a 12\u201318 month horizon, not a Q2 roadmap item. Let\u2019s show him which extension actually clears the criteria." },
           ]}
         />
@@ -903,7 +903,7 @@ export default function Track2ProductStrategy() {
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>Only the Coaching API clears the platform criteria because it amplifies what existing customers already value. Every other extension is a new product disguised as a platform feature.</>}
-          expandedContent={<>Platform decisions get made for two reasons: because your core customers are asking for extensibility, or because you\u2019re trying to defensively expand before a competitor does. The first is a signal. The second is a reaction. The matrix you just used reveals which of those is driving EdSpark\u2019s platform conversation \u2014 and only the Coaching API clears all three criteria because it amplifies coaching depth for existing customers while enabling third-party extensions. Every other extension is a new product disguised as a platform feature.</>}
+          expandedContent={<>Platform decisions get made for two reasons: because your core customers are asking for extensibility, or because you\u2019re trying to defensively expand before a competitor does. The first is a signal. The second is a reaction. The matrix you just used reveals which of those is driving EdSpark\u2019s platform conversation — and only the Coaching API clears all three criteria because it amplifies coaching depth for existing customers while enabling third-party extensions. Every other extension is a new product disguised as a platform feature.</>}
           question="EdSpark decides to build platform APIs. What's the earliest leading indicator that it was the right call?"
           options={[
             { text: 'Three enterprise deals specifically cited the API in their procurement criteria', correct: false, feedback: 'This indicates the API is a sales tool, not a platform signal. Enterprise procurement criteria change — a real platform signal is usage, not procurement.' },
@@ -928,7 +928,7 @@ export default function Track2ProductStrategy() {
           }}
         />
 
-        <PMPrincipleBox principle="The Platform Inflection Principle \u2014 A platform exists when third parties create value on top of your core that you couldn\u2019t create yourself. Until then, it\u2019s a product with more features. The signal isn\u2019t your roadmap \u2014 it\u2019s unsolicited builders showing up." />
+        <PMPrincipleBox principle="The Platform Inflection Principle — A platform exists when third parties create value on top of your core that you couldn\u2019t create yourself. Until then, it\u2019s a product with more features. The signal isn\u2019t your roadmap — it\u2019s unsolicited builders showing up." />
       </ChapterSection>
 
       {/* ── SECTION 3: Portfolio Systems Thinking ───────────────── */}
@@ -947,7 +947,7 @@ export default function Track2ProductStrategy() {
             { speaker: 'other', text: "For every dollar we spend on the Meridian bet, I need to see a clear path to $3 back. Two engineers for 10 weeks. Make it work." },
             { speaker: 'priya', text: "Two engineers on Meridian means Smart Coaching Prompts and Q4 Reporting both slip by six weeks. Those are features 90% of our customer base is waiting for." },
             { speaker: 'other', text: "Meridian could pull out while we\u2019re raising. That\u2019s $240K gone and a bad story for the board." },
-            { speaker: 'priya', text: "And losing Smart Coaching Prompts delays our NPS story for everyone else. Let me show you the full cascade before we decide \u2014 because every bet we add cancels something else." },
+            { speaker: 'priya', text: "And losing Smart Coaching Prompts delays our NPS story for everyone else. Let me show you the full cascade before we decide — because every bet we add cancels something else." },
           ]}
         />
 
@@ -971,7 +971,7 @@ export default function Track2ProductStrategy() {
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade map makes the quiet cost visible before it becomes a churn number.</>}
-          expandedContent={<>The cascade map makes it concrete: adding the Meridian bet delays the forecasting feature by 8 weeks. 90+ accounts are waiting for that feature. But those accounts don\u2019t send escalation emails \u2014 they just quietly churn when their roadmap requests keep getting deprioritized. The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade you just ran is the tool that makes the quiet cost visible before it happens.</>}
+          expandedContent={<>The cascade map makes it concrete: adding the Meridian bet delays the forecasting feature by 8 weeks. 90+ accounts are waiting for that feature. But those accounts don\u2019t send escalation emails — they just quietly churn when their roadmap requests keep getting deprioritized. The customers who complain loudest shape roadmaps. The customers who leave quietly reveal strategy. The cascade you just ran is the tool that makes the quiet cost visible before it happens.</>}
           question="Priya presents the cascade to Rohan. He says: 'Then find two more engineers.' What does Priya do?"
           options={[
             { text: 'Hire two contractors to run the Meridian bet without pulling from the core team', correct: false, feedback: 'Contractors need onboarding time and context — in a 10-week sprint, you lose 2–3 weeks before they\'re productive. The math doesn\'t work, and you\'ve added coordination overhead.' },
@@ -1010,10 +1010,10 @@ export default function Track2ProductStrategy() {
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
-            { speaker: 'other', text: "We\u2019ve already sunk $150,000 into this. I don\u2019t care if the willingness to pay is low \u2014 we can\u2019t just abandon it." },
+            { speaker: 'other', text: "We\u2019ve already sunk $150,000 into this. I don\u2019t care if the willingness to pay is low — we can\u2019t just abandon it." },
             { speaker: 'priya', text: "The $150,000 is gone whether we ship it or not. The question is what the next six weeks should produce." },
             { speaker: 'other', text: "That\u2019s easy to say. The team will feel like failures if we kill it at 60% built." },
-            { speaker: 'priya', text: "Or we tell them the truth: what they built taught us what customers don\u2019t actually need. That\u2019s not waste \u2014 that\u2019s discovery. Let me walk you through the kill criteria." },
+            { speaker: 'priya', text: "Or we tell them the truth: what they built taught us what customers don\u2019t actually need. That\u2019s not waste — that\u2019s discovery. Let me walk you through the kill criteria." },
           ]}
         />
 
@@ -1024,7 +1024,7 @@ export default function Track2ProductStrategy() {
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'other', text: "I ran the numbers. Users who activate any call feature have 12% better 30-day retention \u2014 but that\u2019s correlation with call recording, not summarization specifically." },
+            { speaker: 'other', text: "I ran the numbers. Users who activate any call feature have 12% better 30-day retention — but that\u2019s correlation with call recording, not summarization specifically." },
             { speaker: 'priya', text: "So we can\u2019t attribute the retention lift to summarization. We\u2019re missing the counterfactual." },
             { speaker: 'other', text: "Right. We need users who use call recording but not summarization to know if summarization is doing anything on its own. We don\u2019t have that cohort yet." },
             { speaker: 'priya', text: "Then we don\u2019t have the evidence to justify six more weeks. That\u2019s the answer Rohan needs to hear." },
@@ -1038,7 +1038,7 @@ export default function Track2ProductStrategy() {
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>Kill criteria aren\u2019t a verdict on the past. They\u2019re an allocation decision about the future. The 60% already built is context, not evidence.</>}
-          expandedContent={<>Kill decisions often fail because the PM is trying to prove the feature wasn\u2019t a mistake \u2014 instead of asking whether the next 6 weeks should be spent on it. The framework you just ran makes the question concrete: kill criteria aren\u2019t a verdict on the past, they\u2019re an allocation decision about the future. The 60% already built is context, not evidence.</>}
+          expandedContent={<>Kill decisions often fail because the PM is trying to prove the feature wasn\u2019t a mistake — instead of asking whether the next 6 weeks should be spent on it. The framework you just ran makes the question concrete: kill criteria aren\u2019t a verdict on the past, they\u2019re an allocation decision about the future. The 60% already built is context, not evidence.</>}
           question="The kill criteria framework says 4/5 point toward killing the feature. Rohan still wants to ship it. What does Priya do?"
           options={[
             { text: 'Defer to Rohan — he has visibility into customer relationships she doesn\'t', correct: false, feedback: 'Visibility into relationships doesn\'t override willingness-to-pay data, ICP misalignment, or opportunity cost. Deferring without presenting the framework means the decision will be repeated for the next 60%-built feature.' },
@@ -1080,7 +1080,7 @@ export default function Track2ProductStrategy() {
             { speaker: 'other', text: "If we lead with growth metrics, investors will ask what stops Gong from copying our features and outspending us in sales. Our $3.2M ARR doesn\u2019t answer that question." },
             { speaker: 'priya', text: "What does answer it?" },
             { speaker: 'other', text: "Our CRM switching cost data. Average tenure of a churned customer: 2.8 months. Average tenure of a customer with full CRM sync: 19 months. That\u2019s the moat, not the feature set." },
-            { speaker: 'priya', text: "So the Series B story isn\u2019t \u2018we grew fast\u2019 \u2014 it\u2019s \u2018we grew precisely, into a segment where leaving us is operationally painful.\u2019" },
+            { speaker: 'priya', text: "So the Series B story isn\u2019t \u2018we grew fast\u2019 — it\u2019s \u2018we grew precisely, into a segment where leaving us is operationally painful.\u2019" },
           ]}
         />
 
@@ -1099,8 +1099,8 @@ export default function Track2ProductStrategy() {
           name="Asha"
           nameColor="var(--teal)"
           borderColor="var(--teal)"
-          content={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The switching cost moat is the thesis \u2014 the growth metrics are just evidence it\u2019s working.</>}
-          expandedContent={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The narrative framer above shows the difference: growth and TAM stories invite the question \u201cwhy can\u2019t Gong do this?\u201d \u2014 and you don\u2019t have a good answer if you\u2019re competing on features. The category leadership framing works because it centers on the switching cost moat \u2014 CRM-integrated coaching workflows that are too painful to rebuild on a competitor\u2019s platform. That\u2019s a thesis. The others are metrics.</>}
+          content={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The switching cost moat is the thesis — the growth metrics are just evidence it\u2019s working.</>}
+          expandedContent={<>Growth tells investors you\u2019ve found something. Defensibility tells them you can keep it. The narrative framer above shows the difference: growth and TAM stories invite the question \u201cwhy can\u2019t Gong do this?\u201d — and you don\u2019t have a good answer if you\u2019re competing on features. The category leadership framing works because it centers on the switching cost moat — CRM-integrated coaching workflows that are too painful to rebuild on a competitor\u2019s platform. That\u2019s a thesis. The others are metrics.</>}
           question="EdSpark's Series B deck leads with CRM switching costs as the primary moat. An investor asks: 'What happens when Gong builds CRM depth?' How does Priya answer?"
           options={[
             { text: 'EdSpark will have 18 months of compounding data advantage that Gong can\'t acquire quickly', correct: false, feedback: 'Data moats are real but fragile — Gong has 4,000 customers feeding their AI. This argument puts EdSpark in a race it\'s already behind in.' },

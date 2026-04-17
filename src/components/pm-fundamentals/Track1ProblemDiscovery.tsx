@@ -1061,7 +1061,7 @@ export default function Track1ProblemDiscovery() {
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
             lines={[
               { speaker: 'priya', text: "I spent all weekend on this. 14 screens. And none of it is right." },
-              { speaker: 'other', text: "You saw a number \u2014 40% churn \u2014 and your brain jumped to a cause: \u2018the onboarding must be confusing.\u2019 Then you spent a weekend solving that cause before checking whether it was real." },
+              { speaker: 'other', text: "You saw a number — 40% churn — and your brain jumped to a cause: \u2018the onboarding must be confusing.\u2019 Then you spent a weekend solving that cause before checking whether it was real." },
               { speaker: 'priya', text: "So what do I do now?" },
               { speaker: 'other', text: "The number is a symptom. You don\u2019t know the cause yet. Talk to five churned users before you open Figma again. You caught it before you shipped it. Most PMs don\u2019t." },
             ]}
@@ -1070,7 +1070,7 @@ export default function Track1ProblemDiscovery() {
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>A number tells you something is wrong. It doesn&apos;t tell you why. The gap between symptom and cause is where most product time gets wasted \u2014 building the right solution to the wrong problem.</>}
+            content={<>A number tells you something is wrong. It doesn&apos;t tell you why. The gap between symptom and cause is where most product time gets wasted — building the right solution to the wrong problem.</>}
             expandedContent={<>The template I use for every discovery sprint has three sections: raw notes from each interview, an affinity map organized by theme (not by user), and a one-page brief at the end. By Wednesday you&apos;ll have something better than 14 Figma screens. And it&apos;ll actually solve the right problem.</>}
             conceptId="user-research"
             question="Your manager says '40% of users churn in week 2 — fix it.' You have a theory about onboarding. What do you do first?"
@@ -1133,7 +1133,7 @@ export default function Track1ProblemDiscovery() {
             mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
             lines={[
               { speaker: 'priya', text: "Which managers do I reach out to? I can\u2019t interview all 340." },
-              { speaker: 'other', text: "Interview managers who churned in the last 10 days, at teams of 5\u201320 reps. Recent enough to remember. Representative enough to generalize. Not enterprise \u2014 too many variables. Not solo reps \u2014 different job entirely." },
+              { speaker: 'other', text: "Interview managers who churned in the last 10 days, at teams of 5\u201320 reps. Recent enough to remember. Representative enough to generalize. Not enterprise — too many variables. Not solo reps — different job entirely." },
               { speaker: 'priya', text: "And where do I put the notes?" },
               { speaker: 'other', text: "I\u2019ve set up a Dovetail workspace for the team. Every transcript, clip, and tag goes in there. By the time you\u2019ve done 5 interviews, the patterns start forming automatically. I\u2019ll add you tonight." },
             ]}
@@ -1142,8 +1142,8 @@ export default function Track1ProblemDiscovery() {
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>Dovetail stores transcripts and notes, and the real value is tagging: as you read each interview, tag observations like &ldquo;didn&apos;t know what to do first.&rdquo; Once all interviews are tagged, Dovetail shows you which tags appear most \u2014 automatically surfacing the patterns across 8 pages of notes.</>}
-            expandedContent={<>It turns raw notes into a prioritized list of themes. The tool does the clustering. Your job is to interpret what the clusters mean \u2014 that\u2019s the synthesis step that no tool can do for you.</>}
+            content={<>Dovetail stores transcripts and notes, and the real value is tagging: as you read each interview, tag observations like &ldquo;didn&apos;t know what to do first.&rdquo; Once all interviews are tagged, Dovetail shows you which tags appear most — automatically surfacing the patterns across 8 pages of notes.</>}
+            expandedContent={<>It turns raw notes into a prioritized list of themes. The tool does the clustering. Your job is to interpret what the clusters mean — that\u2019s the synthesis step that no tool can do for you.</>}
             conceptId="customer-segments"
             question="EdSpark has 340 churned users last month. You need to understand why managers specifically are churning. Who do you interview?"
             options={[
@@ -1191,7 +1191,7 @@ export default function Track1ProblemDiscovery() {
           <ConversationScene
             mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
             lines={[
-              { speaker: 'other', text: "Before you go interview people \u2014 look at this. We ran three months of support tickets through Kraftful. 34% are about \u2018not knowing where to start.\u2019 28%: \u2018not understanding the difference between features.\u2019 18% technical." },
+              { speaker: 'other', text: "Before you go interview people — look at this. We ran three months of support tickets through Kraftful. 34% are about \u2018not knowing where to start.\u2019 28%: \u2018not understanding the difference between features.\u2019 18% technical." },
               { speaker: 'priya', text: "So this confirms the onboarding is the issue." },
               { speaker: 'other', text: "Careful. These are users who cared enough to write in. The silent churners might have a completely different story. Use this to sharpen your interview questions. Not to replace the interviews." },
             ]}
@@ -1200,8 +1200,8 @@ export default function Track1ProblemDiscovery() {
             name="Kiran"
             nameColor="var(--teal)"
             borderColor="var(--teal)"
-            content={<>Kraftful uses AI to cluster support tickets by theme automatically. It tells you what users who spoke up are struggling with. The limitation: 40% of users who churn never write in. Kraftful tells you nothing about them. Use it to scope your research \u2014 not to finish it.</>}
-            expandedContent={<>Think of Kraftful as a lens on the vocal minority. It&apos;s valuable signal \u2014 just not a complete picture. Pair it with interviews and you get both the volume and the depth.</>}
+            content={<>Kraftful uses AI to cluster support tickets by theme automatically. It tells you what users who spoke up are struggling with. The limitation: 40% of users who churn never write in. Kraftful tells you nothing about them. Use it to scope your research — not to finish it.</>}
+            expandedContent={<>Think of Kraftful as a lens on the vocal minority. It&apos;s valuable signal — just not a complete picture. Pair it with interviews and you get both the volume and the depth.</>}
             conceptId="research-methods"
             question="Kiran's Amplitude data shows 43% of managers never click 'Add Recording' in their first session. What does this tell you?"
             options={[
@@ -1218,10 +1218,10 @@ export default function Track1ProblemDiscovery() {
           {pullQuote("Qualitative research finds the why. Quantitative confirms whether the why is widespread.", 'var(--blue)')}
 
           {keyBox('Research concepts to know', [
-            'Quantitative \u2014 shows WHERE and HOW MANY (Amplitude, SQL, funnel data). Cannot explain why.',
-            'Qualitative \u2014 shows WHY and HOW (interviews, Dovetail). Cannot prove scale.',
-            'Triangulation \u2014 when two methods point at the same problem, your confidence jumps significantly.',
-            'Signal vs noise \u2014 high ticket volume or Slack mentions \u2260 a big problem. Always check the ratio.',
+            'Quantitative — shows WHERE and HOW MANY (Amplitude, SQL, funnel data). Cannot explain why.',
+            'Qualitative — shows WHY and HOW (interviews, Dovetail). Cannot prove scale.',
+            'Triangulation — when two methods point at the same problem, your confidence jumps significantly.',
+            'Signal vs noise — high ticket volume or Slack mentions \u2260 a big problem. Always check the ratio.',
           ], 'var(--blue)')}
 
           <InfoBox title="When to use each method" accent="var(--blue)">
@@ -1292,7 +1292,7 @@ export default function Track1ProblemDiscovery() {
             name="Asha"
             nameColor="var(--purple-light)"
             borderColor="var(--purple)"
-            content={<>Rahul didn&apos;t churn because the product was confusing. He churned because EdSpark assumes managers already know what great coaching looks like. They don&apos;t. That&apos;s a completely different problem than UX confusion \u2014 and a completely different solution.</>}
+            content={<>Rahul didn&apos;t churn because the product was confusing. He churned because EdSpark assumes managers already know what great coaching looks like. They don&apos;t. That&apos;s a completely different problem than UX confusion — and a completely different solution.</>}
             expandedContent={<>After the call, Priya tags the transcript in Dovetail: &ldquo;doesn&apos;t know what good looks like.&rdquo; And: &ldquo;job is proving value to director.&rdquo; She has five more interviews to run. But she already has a hypothesis to test: EdSpark assumes expertise the user was never given.</>}
             conceptId="user-research"
             question="Midway through an interview, Rahul says 'I wasn't sure what to do next.' You should:"
@@ -1330,10 +1330,10 @@ export default function Track1ProblemDiscovery() {
           </InfoBox>
 
           {keyBox('Interview question starters that work', [
-            '\u201cWalk me through the last time you...\u201d \u2014 gets a real story, not a hypothetical',
-            '\u201cWhat were you hoping to do when you...\u201d \u2014 surfaces the job, not the feature',
-            '\u201cWhat happened next?\u201d \u2014 the most underused follow-up in any interview',
-            '\u201cHelp me understand why that mattered\u2026\u201d \u2014 gets to motivation, not just behaviour',
+            '\u201cWalk me through the last time you...\u201d — gets a real story, not a hypothetical',
+            '\u201cWhat were you hoping to do when you...\u201d — surfaces the job, not the feature',
+            '\u201cWhat happened next?\u201d — the most underused follow-up in any interview',
+            '\u201cHelp me understand why that mattered\u2026\u201d — gets to motivation, not just behaviour',
           ], 'var(--coral)')}
 
           <QuizEngine conceptId="user-research" conceptName="Interview Technique" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[3]} />
@@ -1362,16 +1362,16 @@ export default function Track1ProblemDiscovery() {
             mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
             lines={[
               { speaker: 'priya', text: "I\u2019ve tagged all six interviews. The \u2018doesn\u2019t know what good looks like\u2019 tag shows up in five of them. Is that my finding?" },
-              { speaker: 'other', text: "That\u2019s your signal. Dovetail shows you which themes appear across the most interviews \u2014 5 of 6 is hard to argue with. But the tool doesn\u2019t tell you what it means." },
+              { speaker: 'other', text: "That\u2019s your signal. Dovetail shows you which themes appear across the most interviews — 5 of 6 is hard to argue with. But the tool doesn\u2019t tell you what it means." },
               { speaker: 'priya', text: "They didn\u2019t just have trouble with a feature. They had no frame of reference for good coaching at all." },
-              { speaker: 'other', text: "That\u2019s not in the data. That\u2019s your synthesis. EdSpark gives them a mirror \u2014 nobody gave them a benchmark. That\u2019s a completely different problem than UX confusion." },
+              { speaker: 'other', text: "That\u2019s not in the data. That\u2019s your synthesis. EdSpark gives them a mirror — nobody gave them a benchmark. That\u2019s a completely different problem than UX confusion." },
             ]}
           />
           <Avatar
             name="Maya"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>A note is what happened. An insight is what it means. &ldquo;User didn&apos;t know what to do after setup&rdquo; is a note. &ldquo;EdSpark assumes managers know what great coaching looks like \u2014 but most of them have never been taught&rdquo; is an insight. That&apos;s the goal of synthesis.</>}
+            content={<>A note is what happened. An insight is what it means. &ldquo;User didn&apos;t know what to do after setup&rdquo; is a note. &ldquo;EdSpark assumes managers know what great coaching looks like — but most of them have never been taught&rdquo; is an insight. That&apos;s the goal of synthesis.</>}
             expandedContent={<>An insight explains the pattern, points to a root cause, and implies a direction without dictating a solution. If your synthesis is just a summary of observations, you haven&apos;t synthesized yet.</>}
             conceptId="insight-synthesis"
             question="After 6 interviews you have 8 pages of notes. 5 of 6 users mentioned not knowing what to do after setup. 1 user had a billing issue. How do you weight these?"
@@ -1427,10 +1427,10 @@ export default function Track1ProblemDiscovery() {
           {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
 
           {keyBox('Note \u2192 Tag \u2192 Pattern \u2192 Insight', [
-            'Note \u2014 what the user said or did: \u201cI didn\u2019t know what I was supposed to be creating\u201d',
-            'Tag \u2014 a label you apply across interviews: \u201cno benchmark for success\u201d',
-            'Pattern \u2014 a tag that appears across 3+ independent conversations unprompted',
-            'Insight \u2014 your interpretation: what the pattern means for the product and the user\u2019s job',
+            'Note — what the user said or did: \u201cI didn\u2019t know what I was supposed to be creating\u201d',
+            'Tag — a label you apply across interviews: \u201cno benchmark for success\u201d',
+            'Pattern — a tag that appears across 3+ independent conversations unprompted',
+            'Insight — your interpretation: what the pattern means for the product and the user\u2019s job',
           ], 'var(--green)')}
 
           <QuizEngine conceptId="insight-synthesis" conceptName="Insight Synthesis" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[5]} />
@@ -1458,7 +1458,7 @@ export default function Track1ProblemDiscovery() {
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
             lines={[
               { speaker: 'other', text: "Priya walked in Friday with one page. Rohan read it in 90 seconds, looked up, and said \u2018What\u2019s the fix?\u2019" },
-              { speaker: 'priya', text: "I have a hypothesis \u2014 but I want to hear what the team thinks first." },
+              { speaker: 'priya', text: "I have a hypothesis — but I want to hear what the team thinks first." },
               { speaker: 'other', text: "What if we showed an anonymised example coaching session the first time you add a recording? A real before/after call. I can build that in a day. Maya said: or a 60-second video. Kiran said: A/B test both." },
               { speaker: 'priya', text: "None of those were in my original plan." },
               { speaker: 'other', text: "On Monday with 14 wireframes, I would have built exactly what you asked for. It would have been wrong. On Friday you gave us the problem. We built the right thing together." },
@@ -1468,8 +1468,8 @@ export default function Track1ProblemDiscovery() {
             name="Dev"
             nameColor="var(--blue)"
             borderColor="var(--blue)"
-            content={<>When a PM presents a clear problem, the team&apos;s collective intelligence \u2014 engineering&apos;s knowledge of what&apos;s feasible, design&apos;s knowledge of what&apos;s usable, analytics&apos;s knowledge of what&apos;s measurable \u2014 produces better ideas than any one person could generate alone.</>}
-            expandedContent={<>The PM&apos;s job is to make the problem so clear that the solution becomes obvious. Not to arrive with both. That&apos;s the brief&apos;s job \u2014 and why it ends with a question, not an answer.</>}
+            content={<>When a PM presents a clear problem, the team&apos;s collective intelligence — engineering&apos;s knowledge of what&apos;s feasible, design&apos;s knowledge of what&apos;s usable, analytics&apos;s knowledge of what&apos;s measurable — produces better ideas than any one person could generate alone.</>}
+            expandedContent={<>The PM&apos;s job is to make the problem so clear that the solution becomes obvious. Not to arrive with both. That&apos;s the brief&apos;s job — and why it ends with a question, not an answer.</>}
             conceptId="problem-framing"
             question="You've written your discovery brief. How do you open the Friday meeting with Rohan?"
             options={[
@@ -1507,10 +1507,10 @@ export default function Track1ProblemDiscovery() {
           {pullQuote("Discovery is not a phase. It's the habit you build to stop solving the wrong problems.", 'var(--purple)')}
 
           {keyBox('What discovery actually requires', [
-            'Patience \u2014 defer solution-thinking until you genuinely understand the problem',
-            'Curiosity \u2014 ask one more question after the first answer. The real insight lives there.',
-            'Discipline \u2014 tag every note, not just the ones that confirm your hypothesis',
-            'Courage \u2014 present a problem brief when everyone else brought wireframes',
+            'Patience — defer solution-thinking until you genuinely understand the problem',
+            'Curiosity — ask one more question after the first answer. The real insight lives there.',
+            'Discipline — tag every note, not just the ones that confirm your hypothesis',
+            'Courage — present a problem brief when everyone else brought wireframes',
           ], 'var(--purple)')}
 
           <InfoBox title="The full toolkit Priya used this week" accent="var(--purple)">

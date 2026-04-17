@@ -825,7 +825,7 @@ export default function Track2APM() {
             mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
             lines={[
               { speaker: 'other', text: "The board was thrilled with the speed. Now engineering tells me your next four features take twice as long. Explain that to me." },
-              { speaker: 'priya', text: "I made the tradeoff \u2014 fast ship, accept the debt. What I didn\u2019t do was name it explicitly, so nobody planned for the paydown." },
+              { speaker: 'priya', text: "I made the tradeoff — fast ship, accept the debt. What I didn\u2019t do was name it explicitly, so nobody planned for the paydown." },
               { speaker: 'other', text: "You should have told me that before the sprint closed, not after the consequences arrived." },
               { speaker: 'priya', text: "The decision was right for the moment. Not communicating it explicitly was the mistake I won\u2019t repeat." },
             ]}
@@ -881,7 +881,7 @@ export default function Track2APM() {
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
             lines={[
               { speaker: 'other', text: "The fast sprint bought you four weeks of happy stakeholders and cost us eight weeks of velocity. I need you to sit with that math." },
-              { speaker: 'priya', text: "I do. What I got wrong wasn\u2019t the tradeoff \u2014 it was not scheduling the debt paydown before the sprint closed." },
+              { speaker: 'priya', text: "I do. What I got wrong wasn\u2019t the tradeoff — it was not scheduling the debt paydown before the sprint closed." },
               { speaker: 'other', text: "Every time we skip that conversation, I end up explaining it in the next sprint planning instead of building." },
               { speaker: 'priya', text: "Let\u2019s make it a standing item: what debt are we accepting this sprint, and when do we address it." },
             ]}
@@ -939,8 +939,8 @@ export default function Track2APM() {
             lines={[
               { speaker: 'other', text: "Retention dropped 15%. CEO says pricing. Engineering says debt. Design says onboarding. They\u2019re all looking at the same number and seeing different movies." },
               { speaker: 'priya', text: "Which frame does your data actually support?" },
-              { speaker: 'other', text: "All three, partially \u2014 the error rate spiked after the onboarding change, which also correlated with the price increase quarter. It\u2019s not one cause." },
-              { speaker: 'priya', text: "Then our job isn\u2019t to pick a frame \u2014 it\u2019s to find the hypothesis that explains all three signals at once." },
+              { speaker: 'other', text: "All three, partially — the error rate spiked after the onboarding change, which also correlated with the price increase quarter. It\u2019s not one cause." },
+              { speaker: 'priya', text: "Then our job isn\u2019t to pick a frame — it\u2019s to find the hypothesis that explains all three signals at once." },
             ]}
           />
           <Avatar
@@ -996,7 +996,7 @@ export default function Track2APM() {
             lines={[
               { speaker: 'other', text: "Your research says users love the product. You interviewed 12 people. All 12 are still active customers." },
               { speaker: 'priya', text: "The churned users\u2026 they\u2019re not in the sample at all." },
-              { speaker: 'other', text: "They voted with their feet and you never asked them why \u2014 so you only understand the experience of the people who stayed." },
+              { speaker: 'other', text: "They voted with their feet and you never asked them why — so you only understand the experience of the people who stayed." },
               { speaker: 'priya', text: "Which is exactly the population we don\u2019t need to understand better. We need to talk to the people who left." },
             ]}
           />
@@ -1052,9 +1052,9 @@ export default function Track2APM() {
             mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
             lines={[
               { speaker: 'other', text: "HR teams have training budgets, similar enterprise dynamics, and we already have contacts there. This is a clean expansion." },
-              { speaker: 'priya', text: "On paper, yes. But our best sales team customers value us because we\u2019re built specifically for their workflows \u2014 generalize to HR and we stop being excellent for anyone." },
+              { speaker: 'priya', text: "On paper, yes. But our best sales team customers value us because we\u2019re built specifically for their workflows — generalize to HR and we stop being excellent for anyone." },
               { speaker: 'other', text: "We\u2019re leaving real revenue on the table by staying narrow." },
-              { speaker: 'priya', text: "And if we take it, we might lose the customers who value us most \u2014 which is a worse outcome than the revenue we didn\u2019t capture." },
+              { speaker: 'priya', text: "And if we take it, we might lose the customers who value us most — which is a worse outcome than the revenue we didn\u2019t capture." },
             ]}
           />
           <Avatar
@@ -1111,7 +1111,7 @@ export default function Track2APM() {
               { speaker: 'other', text: "Q1 2023 cohort: 68% month-6 retention. Q3 2024 cohort: 18%. Each new cohort retains worse than the last." },
               { speaker: 'priya', text: "Rohan reads this as \u2018growth is hard.\u2019 I think the product isn\u2019t keeping up with the users we\u2019re now acquiring." },
               { speaker: 'other', text: "Early adopters tolerated the friction because they really wanted it to work. The new cohort doesn\u2019t have that patience." },
-              { speaker: 'priya', text: "Then this isn\u2019t a growth problem \u2014 it\u2019s a product-market fit problem with a new segment we\u2019ve never designed for." },
+              { speaker: 'priya', text: "Then this isn\u2019t a growth problem — it\u2019s a product-market fit problem with a new segment we\u2019ve never designed for." },
             ]}
           />
           <Avatar
@@ -1165,10 +1165,10 @@ export default function Track2APM() {
           <ConversationScene
             mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
             lines={[
-              { speaker: 'other', text: "Your reach estimate for Feature A is off \u2014 you\u2019re underestimating by at least 40%. I want it rescored." },
-              { speaker: 'priya', text: "Walk me through your number \u2014 because what I\u2019m disputing isn\u2019t the math, it\u2019s the strategic assumption underneath it." },
+              { speaker: 'other', text: "Your reach estimate for Feature A is off — you\u2019re underestimating by at least 40%. I want it rescored." },
+              { speaker: 'priya', text: "Walk me through your number — because what I\u2019m disputing isn\u2019t the math, it\u2019s the strategic assumption underneath it." },
               { speaker: 'other', text: "We\u2019re targeting enterprise, not SMB. Your reach figure assumes SMB volumes." },
-              { speaker: 'priya', text: "Then this isn\u2019t a RICE disagreement \u2014 it\u2019s a \u2018who are we building for this quarter\u2019 disagreement, and that\u2019s the conversation we should be having." },
+              { speaker: 'priya', text: "Then this isn\u2019t a RICE disagreement — it\u2019s a \u2018who are we building for this quarter\u2019 disagreement, and that\u2019s the conversation we should be having." },
             ]}
           />
           <Avatar
@@ -1221,10 +1221,10 @@ export default function Track2APM() {
           <ConversationScene
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
             lines={[
-              { speaker: 'other', text: "RICE scores are in. Feature B wins \u2014 reach 8,000, impact high, confidence 80%, effort 3 weeks." },
+              { speaker: 'other', text: "RICE scores are in. Feature B wins — reach 8,000, impact high, confidence 80%, effort 3 weeks." },
               { speaker: 'priya', text: "That\u2019s the third time in two quarters the top RICE score matched exactly what leadership wanted before we ran the numbers." },
               { speaker: 'other', text: "\u2026I didn\u2019t backfill on purpose. But you might be right that I filled in what felt reasonable given the direction." },
-              { speaker: 'priya', text: "That\u2019s how it works \u2014 nobody games it consciously. Run the inputs before you know which feature you want to win." },
+              { speaker: 'priya', text: "That\u2019s how it works — nobody games it consciously. Run the inputs before you know which feature you want to win." },
             ]}
           />
           <Avatar
@@ -1276,8 +1276,8 @@ export default function Track2APM() {
           <ConversationScene
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#3A86FF"
             lines={[
-              { speaker: 'other', text: "We built what design specified \u2014 \u2018filter by date.\u2019 In the data model that\u2019s upload date. That\u2019s what we shipped." },
-              { speaker: 'priya', text: "Users needed call date \u2014 the date the conversation happened. That\u2019s a completely different field." },
+              { speaker: 'other', text: "We built what design specified — \u2018filter by date.\u2019 In the data model that\u2019s upload date. That\u2019s what we shipped." },
+              { speaker: 'priya', text: "Users needed call date — the date the conversation happened. That\u2019s a completely different field." },
               { speaker: 'other', text: "If the spec had said \u2018call date\u2019 I would have built call date. One word, three different assumptions." },
               { speaker: 'priya', text: "I used one ambiguous phrase and none of us thought to ask what the other person meant by it." },
             ]}
@@ -1386,10 +1386,10 @@ export default function Track2APM() {
           <ConversationScene
             mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
             lines={[
-              { speaker: 'other', text: "DAU is up 20%. Your manager is happy. But I pulled the session depth \u2014 a big chunk of that lift is users who open the app, check the notification badge, and leave in under 30 seconds." },
+              { speaker: 'other', text: "DAU is up 20%. Your manager is happy. But I pulled the session depth — a big chunk of that lift is users who open the app, check the notification badge, and leave in under 30 seconds." },
               { speaker: 'priya', text: "So they\u2019re daily active by definition but not engaging with anything." },
               { speaker: 'other', text: "Exactly. The metric is technically correct. The story everyone\u2019s telling about it is wrong." },
-              { speaker: 'priya', text: "We need to redefine \u2018active\u2019 before the next review. \u2018Completes at least one core action\u2019 \u2014 something that actually requires using the product." },
+              { speaker: 'priya', text: "We need to redefine \u2018active\u2019 before the next review. \u2018Completes at least one core action\u2019 — something that actually requires using the product." },
             ]}
           />
           <Avatar
@@ -1397,8 +1397,8 @@ export default function Track2APM() {
             name="Kiran"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>The DAU finding reveals an interpretive failure, not a data failure. The data was correct \u2014 the story people told about it was wrong. Define what \u201cactive\u201d means before you set it as a success metric.</>}
-            expandedContent={<>The metric design question I always ask: \u201cWhat user behavior would make this number go up without the product delivering real value?\u201d If the answer is easy \u2014 if users can game it by opening the app and closing it \u2014 design a tighter metric. The harder it is to satisfy the metric without delivering value, the more reliable it is as a signal.</>}
+            content={<>The DAU finding reveals an interpretive failure, not a data failure. The data was correct — the story people told about it was wrong. Define what \u201cactive\u201d means before you set it as a success metric.</>}
+            expandedContent={<>The metric design question I always ask: \u201cWhat user behavior would make this number go up without the product delivering real value?\u201d If the answer is easy — if users can game it by opening the app and closing it — design a tighter metric. The harder it is to satisfy the metric without delivering value, the more reliable it is as a signal.</>}
           />
           <PMPrincipleBox principle="Metrics are proxies for reality and can mislead if not interpreted carefully. Metrics can be gamed. Context is critical for interpretation." color="var(--purple)" />
           <ApplyItBox prompt="For each metric your team tracks: what user behavior would make this number rise without real value increasing? If you can answer easily, the metric needs tightening." color="var(--purple)" />
@@ -1445,9 +1445,9 @@ export default function Track2APM() {
             mentor="kiran" name="Kiran" role="Data Analyst \u00b7 EdSpark" accent="#0097A7"
             lines={[
               { speaker: 'priya', text: "Sessions per user hit an all-time high. The board is going to call this a win." },
-              { speaker: 'other', text: "Before you do \u2014 check the guardrails. Support tickets per user: up 41%. NPS: down 8 points. Churn: up 15%." },
+              { speaker: 'other', text: "Before you do — check the guardrails. Support tickets per user: up 41%. NPS: down 8 points. Churn: up 15%." },
               { speaker: 'priya', text: "More sessions, more problems, lower satisfaction, more users leaving. The north star is going up while everything else is going wrong." },
-              { speaker: 'other', text: "Users are having more sessions because they\u2019re confused, not because they\u2019re getting value. The metric can\u2019t tell the difference \u2014 that\u2019s what guardrails are for." },
+              { speaker: 'other', text: "Users are having more sessions because they\u2019re confused, not because they\u2019re getting value. The metric can\u2019t tell the difference — that\u2019s what guardrails are for." },
             ]}
           />
           <Avatar
@@ -1455,7 +1455,7 @@ export default function Track2APM() {
             name="Kiran"
             nameColor="var(--coral)"
             borderColor="var(--coral)"
-            content={<>The north star divergence is the most sophisticated failure mode here. Sessions are up \u2014 because users are confused and looping. The metric became a local optimum disconnected from actual value. That\u2019s what guardrails catch before the board review.</>}
+            content={<>The north star divergence is the most sophisticated failure mode here. Sessions are up — because users are confused and looping. The metric became a local optimum disconnected from actual value. That\u2019s what guardrails catch before the board review.</>}
             expandedContent={<>The guardrail design question I always ask: \u201cIf the north star rose 30% but these three other things happened, would I still consider this a success?\u201d The \u201cthree other things\u201d are your guardrails. Define them before you start optimizing. If you define them after the fact, you\u2019ll rationalize away any deterioration that\u2019s inconvenient. Guardrails only work if they\u2019re non-negotiable in advance.</>}
           />
           <PMPrincipleBox principle="A single metric cannot capture all dimensions of success. Optimizing one metric may harm others. Guardrail metrics are essential to protect your north star." color="var(--purple)" />

@@ -868,10 +868,10 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
-            { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters \u2014 and why." },
-            { speaker: 'priya', text: "Which problem are we actually solving? Not which feature \u2014 which problem." },
+            { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters — and why." },
+            { speaker: 'priya', text: "Which problem are we actually solving? Not which feature — which problem." },
             { speaker: 'other', text: "40% week-one churn. Pick whatever fixes it fastest. The board sees this in six weeks." },
-            { speaker: 'priya', text: "We don\u2019t have a problem statement yet \u2014 we have a symptom. The backlog can\u2019t tell us why they\u2019re churning. Only the customers can." },
+            { speaker: 'priya', text: "We don\u2019t have a problem statement yet — we have a symptom. The backlog can\u2019t tell us why they\u2019re churning. Only the customers can." },
           ]}
         />
 
@@ -948,7 +948,7 @@ export default function Track1ProductStrategy({
             { speaker: 'other', text: "I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn\u2019t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection." },
             { speaker: 'priya', text: "That\u2019s not a feature gap. That\u2019s a workflow dependency. If they can\u2019t see live pipeline data inside EdSpark, the coaching scores are meaningless." },
             { speaker: 'other', text: "Exactly. And nobody asked which CRM workflows actually matter. They built the generic sync." },
-            { speaker: 'priya', text: "Then that\u2019s where EdSpark\u2019s moat starts. Not more features \u2014 deeper integration than Gong is willing to build for a 40-person team." },
+            { speaker: 'priya', text: "Then that\u2019s where EdSpark\u2019s moat starts. Not more features — deeper integration than Gong is willing to build for a 40-person team." },
           ]}
         />
 
@@ -1019,10 +1019,10 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
-            { speaker: 'other', text: "Three things this quarter \u2014 fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\u2019t afford to move slow." },
+            { speaker: 'other', text: "Three things this quarter — fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\u2019t afford to move slow." },
             { speaker: 'priya', text: "Running two large bets simultaneously with six engineers doesn\u2019t produce two half-finished products on schedule. It produces two fully-broken products three weeks late." },
             { speaker: 'other', text: "Walk me through the math then." },
-            { speaker: 'priya', text: "Onboarding first \u2014 that stops the churn bleed. Then analytics tells us why churn is changing. Then Salesforce gets scoped from actual data instead of assumptions. Each bet unlocks the next one." },
+            { speaker: 'priya', text: "Onboarding first — that stops the churn bleed. Then analytics tells us why churn is changing. Then Salesforce gets scoped from actual data instead of assumptions. Each bet unlocks the next one." },
           ]}
         />
 
@@ -1086,9 +1086,9 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right \u2014 specifically around manager involvement rates and coaching frequency \u2014 it\u2019ll tell us why churn is dropping. Or why it\u2019s not." },
+            { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right — specifically around manager involvement rates and coaching frequency — it\u2019ll tell us why churn is dropping. Or why it\u2019s not." },
             { speaker: 'priya', text: "You\u2019re saying it\u2019s not just a board slide. It\u2019s the instrument that tells us how to scope the next bet." },
-            { speaker: 'other', text: "Exactly. Build the right dashboard and you know which CRM workflows actually matter to managers \u2014 not which ones we assumed mattered." },
+            { speaker: 'other', text: "Exactly. Build the right dashboard and you know which CRM workflows actually matter to managers — not which ones we assumed mattered." },
             { speaker: 'priya', text: "Then we scope it tight. Coaching frequency and manager involvement only. Nothing else on the dashboard until churn drops." },
           ]}
         />
@@ -1161,10 +1161,10 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="dev" name="Marcus" role="Enterprise Sales · EdSpark" accent="#16A34A"
           lines={[
-            { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months \u2014 finally." },
+            { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months — finally." },
             { speaker: 'priya', text: "Congratulations. What\u2019s their expansion potential? How many reps does Apex have in total?" },
             { speaker: 'other', text: "...I don\u2019t know. I hadn\u2019t thought past the close." },
-            { speaker: 'priya', text: "The $40K contract is the entrance fee to the conversation, not the contract itself. Tell me about their org structure \u2014 because that\u2019s what we\u2019re actually selling to." },
+            { speaker: 'priya', text: "The $40K contract is the entrance fee to the conversation, not the contract itself. Tell me about their org structure — because that\u2019s what we\u2019re actually selling to." },
           ]}
         />
 

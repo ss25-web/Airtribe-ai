@@ -931,7 +931,7 @@ export default function Track2UXDesign() {
           name="Rohan"
           nameColor="#4F46E5"
           borderColor="#4F46E5"
-          content={<>Enterprise clients see inconsistency as a signal of undisciplined engineering culture \u2014 harder integrations, more support tickets, slower iterations. The Infosys lead wasn\u2019t being difficult. She was doing her job.</>}
+          content={<>Enterprise clients see inconsistency as a signal of undisciplined engineering culture — harder integrations, more support tickets, slower iterations. The Infosys lead wasn\u2019t being difficult. She was doing her job.</>}
           expandedContent="A visually inconsistent product signals that the team ships fast but not carefully — which maps directly to how enterprise buyers assess integration risk and long-term support burden."
           conceptId="ux-apm-enterprise-trust"
           question="After the demo, Rohan asks you to 'fix the design inconsistency issue.' What do you do first?"
@@ -1010,7 +1010,7 @@ export default function Track2UXDesign() {
           name="Kiran"
           nameColor="#3A86FF"
           borderColor="#3A86FF"
-          content={<>Every platform builds user expectation over time. When one screen uses a different pattern, users switch from automatic to deliberate \u2014 and in that moment of deliberateness, they notice everything slightly wrong. Inconsistency creates cognitive friction that interrupts the flow state essential for adoption.</>}
+          content={<>Every platform builds user expectation over time. When one screen uses a different pattern, users switch from automatic to deliberate — and in that moment of deliberateness, they notice everything slightly wrong. Inconsistency creates cognitive friction that interrupts the flow state essential for adoption.</>}
           expandedContent="Inconsistency doesn't just look unprofessional. It creates cognitive friction that interrupts the flow state that's essential for adoption. The drop-off wasn't about the feature — it was about the transition into it."
           conceptId="ux-apm-debt-cost"
           question="You want to bring this data to Rohan but he usually dismisses design concerns. How do you frame it?"
@@ -1080,14 +1080,14 @@ export default function Track2UXDesign() {
             { speaker: 'priya', text: "Rohan thinks we should ship features for the enterprise clients first. How do I push back?" },
             { speaker: 'other', text: "I\u2019m not asking for six weeks to make things pretty. I\u2019m asking for six weeks so that every feature after this takes half the time." },
             { speaker: 'priya', text: "How do I say that in a way Rohan will hear?" },
-            { speaker: 'other', text: "Show him the engineering math. 4 hours per feature now. 45 minutes with a shared library. You\u2019re not pausing \u2014 you\u2019re buying speed." },
+            { speaker: 'other', text: "Show him the engineering math. 4 hours per feature now. 45 minutes with a shared library. You\u2019re not pausing — you\u2019re buying speed." },
           ]}
         />
         <Avatar
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>A design system is a force multiplier. The first feature built with it might take just as long \u2014 but every subsequent one gets faster, more consistent, and cheaper to change. The real cost of not having one isn\u2019t the design quality today. It\u2019s the velocity penalty paid on every feature for the rest of the product\u2019s life.</>}
+          content={<>A design system is a force multiplier. The first feature built with it might take just as long — but every subsequent one gets faster, more consistent, and cheaper to change. The real cost of not having one isn\u2019t the design quality today. It\u2019s the velocity penalty paid on every feature for the rest of the product\u2019s life.</>}
           expandedContent="'Not having a design system' is a compounding cost, not a fixed one. Every sprint without it adds one more inconsistent component to untangle later. The right time to invest is when the per-feature cost of inconsistency exceeds the amortised cost of convergence."
           conceptId="ux-apm-design-system-framing"
           question="Rohan says: 'We can't afford 6 weeks on infrastructure when we have enterprise clients wanting features.' How do you respond?"
@@ -1162,7 +1162,7 @@ export default function Track2UXDesign() {
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content={<>PM feedback is only valuable in a critique when it carries context the designer doesn\u2019t have \u2014 user research, business constraints, hypothesis testing. When a PM gives goal-based feedback, the designer can make the right trade-off themselves. Preference-based feedback forecloses those trade-offs without understanding them.</>}
+          content={<>PM feedback is only valuable in a critique when it carries context the designer doesn\u2019t have — user research, business constraints, hypothesis testing. When a PM gives goal-based feedback, the designer can make the right trade-off themselves. Preference-based feedback forecloses those trade-offs without understanding them.</>}
           expandedContent="The second approach produces better design and a better working relationship. Maya can push back on goal-based feedback with design reasoning. She can only comply with preference-based feedback."
           conceptId="ux-apm-critique-role"
           question="Maya presents a design with a prominent empty state illustration. You think it's too decorative. What's the right response?"
@@ -1245,7 +1245,7 @@ export default function Track2UXDesign() {
           name="Dev"
           nameColor="#6E7681"
           borderColor="#6E7681"
-          content={<>Engineers often have opinions about what\u2019s worth building carefully \u2014 but they need the PM to provide context of where users spend attention and what the business prioritises. \u2018Worth it\u2019 is not a design judgement. It\u2019s a product judgement that needs user frequency data, business context, and delivery constraint awareness.</>}
+          content={<>Engineers often have opinions about what\u2019s worth building carefully — but they need the PM to provide context of where users spend attention and what the business prioritises. \u2018Worth it\u2019 is not a design judgement. It\u2019s a product judgement that needs user frequency data, business context, and delivery constraint awareness.</>}
           expandedContent="Speed-vs-craft decisions involve engineering time, user impact, and business priority — all things the PM owns. Deferring to a designer means a designer is making a resourcing decision without business context."
           conceptId="ux-apm-craft-threshold"
           question="Maya advocates for the animation. Dev says it's 2 days. Salesforce integration ships next week. What do you decide?"
@@ -1317,7 +1317,7 @@ export default function Track2UXDesign() {
             { speaker: 'priya', text: "I\u2019ve had this design system conversation with Rohan three times. He always says \u2018makes sense, let\u2019s find the right time.\u2019 The right time never comes." },
             { speaker: 'other', text: "The problem with framing design investment as a design improvement is that it competes with other improvements." },
             { speaker: 'priya', text: "So I lead with the revenue risk." },
-            { speaker: 'other', text: "Revenue risk is always urgent. The strongest pitch doesn\u2019t argue for design. It argues for velocity, revenue, and client retention \u2014 and shows that a design system is the mechanism." },
+            { speaker: 'other', text: "Revenue risk is always urgent. The strongest pitch doesn\u2019t argue for design. It argues for velocity, revenue, and client retention — and shows that a design system is the mechanism." },
           ]}
         />
         <Avatar

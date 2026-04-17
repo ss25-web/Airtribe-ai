@@ -1246,7 +1246,7 @@ export default function Track1UXDesign() {
           mentor="kiran" name="Kiran" role="Data · EdSpark" accent="#3A86FF"
           lines={[
             { speaker: 'priya', text: "We shipped the onboarding update two weeks ago. Why is completion still at 30%?" },
-            { speaker: 'other', text: "Same users. Same drop-off. We shipped something \u2014 that\u2019s not the same as solving something." },
+            { speaker: 'other', text: "Same users. Same drop-off. We shipped something — that\u2019s not the same as solving something." },
             { speaker: 'priya', text: "It moved 2 points. That\u2019s something." },
             { speaker: 'other', text: "Against a 30-point gap? That gap is information. It\u2019s telling you the root cause is still there." },
           ]}
@@ -1273,7 +1273,7 @@ export default function Track1UXDesign() {
             { speaker: 'priya', text: "It improved though. Just not enough. Should I ship another fix?" },
             { speaker: 'other', text: "Before diagnosing the fix, diagnose the understanding. Do you know why it improved 2% and not 30%?" },
             { speaker: 'priya', text: "Not exactly." },
-            { speaker: 'other', text: "Then you\u2019re guessing. Find the specific friction point that\u2019s still present \u2014 before you build anything else." },
+            { speaker: 'other', text: "Then you\u2019re guessing. Find the specific friction point that\u2019s still present — before you build anything else." },
           ]}
         />
         <Avatar
@@ -1336,7 +1336,7 @@ export default function Track1UXDesign() {
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>A session recording is a window into the user\u2019s mental model. The exact moment their model of \u2018what should happen\u2019 collides with the product\u2019s model of \u2018what actually happens\u2019 \u2014 that collision is where UX problems live. It\u2019s invisible in any metric.</>}
+          content={<>A session recording is a window into the user\u2019s mental model. The exact moment their model of \u2018what should happen\u2019 collides with the product\u2019s model of \u2018what actually happens\u2019 — that collision is where UX problems live. It\u2019s invisible in any metric.</>}
           expandedContent="Systems can be functionally correct and experientially broken. The backend processed every request successfully. The user had zero information about it. Those aren't the same world."
           conceptId="ux-designer-collaboration"
           question="Maya asks for two hours next week to review session recordings together. Rohan says the priority is shipping the next feature. Who do you side with?"
@@ -1429,14 +1429,14 @@ export default function Track1UXDesign() {
           lines={[
             { speaker: 'other', text: "Average processing time: 45 seconds. Drop-off spike: 12 seconds. 67% of abandoning users leave in the first 15 seconds." },
             { speaker: 'priya', text: "They\u2019re not patient enough. We need to make the analysis faster." },
-            { speaker: 'other', text: "The drop-off isn\u2019t about patience. It\u2019s about information. At 12 seconds they have none. They\u2019re not impatient \u2014 they\u2019re rational." },
+            { speaker: 'other', text: "The drop-off isn\u2019t about patience. It\u2019s about information. At 12 seconds they have none. They\u2019re not impatient — they\u2019re rational." },
           ]}
         />
         <Avatar
           name="Kiran"
           nameColor="#3A86FF"
           borderColor="#3A86FF"
-          content={<>Users don\u2019t abandon slow systems. They abandon uncertain ones. At 12 seconds without feedback, leaving is the logical choice \u2014 the only information they have is that nothing is happening.</>}
+          content={<>Users don\u2019t abandon slow systems. They abandon uncertain ones. At 12 seconds without feedback, leaving is the logical choice — the only information they have is that nothing is happening.</>}
           conceptId="ux-data-to-requirement"
           question="Kiran's data: 67% of abandoning users leave within 15 seconds. Average processing time: 45 seconds. What product requirement does this create?"
           options={[
@@ -1534,8 +1534,8 @@ export default function Track1UXDesign() {
           lines={[
             { speaker: 'other', text: "I built what was written. \u2018Step 2: Analyze recording.\u2019 No loading state was specified. I assumed the system feedback was handled elsewhere." },
             { speaker: 'priya', text: "That was my gap. I wrote the happy path and never thought about the waiting state." },
-            { speaker: 'other', text: "If you know what states a feature needs \u2014 loading, error, empty, success \u2014 tell me upfront. I can\u2019t build what isn\u2019t in the spec." },
-            { speaker: 'priya', text: "Going forward \u2014 flag it in sprint planning if you see states missing." },
+            { speaker: 'other', text: "If you know what states a feature needs — loading, error, empty, success — tell me upfront. I can\u2019t build what isn\u2019t in the spec." },
+            { speaker: 'priya', text: "Going forward — flag it in sprint planning if you see states missing." },
             { speaker: 'other', text: "Deal." },
           ]}
         />
@@ -1543,7 +1543,7 @@ export default function Track1UXDesign() {
           name="Dev"
           nameColor="#6E7681"
           borderColor="#6E7681"
-          content={<>Engineers build to spec. When an engineer fills in an unspecified state, they\u2019re patching a gap the PM created. The loading state wasn\u2019t forgotten \u2014 it was never considered. That\u2019s a different problem requiring a different fix.</>}
+          content={<>Engineers build to spec. When an engineer fills in an unspecified state, they\u2019re patching a gap the PM created. The loading state wasn\u2019t forgotten — it was never considered. That\u2019s a different problem requiring a different fix.</>}
           expandedContent="'Never considered' requires a different kind of thinking going forward: what is every possible state this UI can be in? Write them all down before a single line of code is written."
           conceptId="ux-pm-engineer-spec"
           question="Dev says this in the retrospective. What's the most constructive PM response in this moment?"
@@ -1734,7 +1734,7 @@ export default function Track1UXDesign() {
             { speaker: 'priya', text: "Completion went from 30% to 58%. From a loading state." },
             { speaker: 'other', text: "You fixed the experience. The feature was always fine." },
             { speaker: 'priya', text: "I kept thinking something was wrong with the feature itself." },
-            { speaker: 'other', text: "The feature worked. The wait \u2014 the silence \u2014 that was broken." },
+            { speaker: 'other', text: "The feature worked. The wait — the silence — that was broken." },
           ]}
         />
         <Avatar
@@ -1763,7 +1763,7 @@ export default function Track1UXDesign() {
           mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'priya', text: "28 points from three lines of copy and a progress bar." },
-            { speaker: 'other', text: "28 points from a loading state. That\u2019s not unusual \u2014 it\u2019s what happens when you fix the right thing." },
+            { speaker: 'other', text: "28 points from a loading state. That\u2019s not unusual — it\u2019s what happens when you fix the right thing." },
             { speaker: 'priya', text: "Most UX problems aren\u2019t in the features themselves." },
             { speaker: 'other', text: "They\u2019re in the gaps between features. What happens between actions is often more important than the actions themselves." },
           ]}
