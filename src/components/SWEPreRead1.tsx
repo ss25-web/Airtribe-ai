@@ -21,9 +21,9 @@ const TRACK_META: Record<SWETrack, {
 }> = {
   python: {
     label: 'Python Track', shortLabel: 'Python', introTitle: 'How Software Works · Python Lens',
-    protagonist: 'Aisha Patel', protagonistRole: 'Junior Data Engineer', company: 'Mosaic Analytics',
-    moduleContext: 'SWE Launchpad · Python · Pre-Read 01. Follows Aisha, a junior data engineer at Mosaic Analytics, as she learns how Python code actually runs, what the terminal is for, and how to read her first error.',
-    mentor: 'Riya', mentorRole: 'Data Engineering Lead', mentorColor: '#0369A1',
+    protagonist: 'Aisha Nair', protagonistRole: 'Junior Software Engineer', company: 'Vela',
+    moduleContext: 'SWE Launchpad · Python · Pre-Read 01. Follows Aisha, a junior software engineer at Vela (a B2B SaaS shift-management platform), as she learns how Python code actually runs, what the developer environment is for, and how to debug when nothing appears to be wrong.',
+    mentor: 'Riya', mentorRole: 'Senior Software Engineer', mentorColor: '#0369A1',
     accentColor: '#16A34A', accentGradient: 'linear-gradient(135deg, #16A34A, #0D9488)',
   },
   java: {
@@ -81,29 +81,29 @@ type AdvSection = Record<SWETrack, { open: string; story: string; b1: AdvBeat; b
 const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
   s01: {
     python: {
-      open: "My new data processing script is super efficient. Local tests with 10,000 rows passed in seconds, so scaling to 50 million in production should be a linear increase in time. No surprises here.",
-      story: "Aisha watches the production dashboard. Her script, which processed a small sample quickly, now chugs. The CPU hovers near 100%, but throughput remains abysmal. Memory usage climbs steadily, then drops sharply, indicating garbage collection pauses. The 50M-row batch is projected to take hours, not minutes, and the psutil output shows intermittent, inexplicable stalls.",
+      open: "The Celery job finished — task status SUCCEEDED, no exceptions raised. That means all 847 shift workers got their confirmation emails. I can mark this ticket done.",
+      story: "Aisha closes her laptop satisfied. Thirty minutes later, her Slack lights up: a shift manager at a warehouse client reports that sixteen of their workers never received confirmation emails and showed up for the wrong shifts. Aisha pulls up the Celery task log — it shows SUCCEEDED for every worker batch. She counts the numbers: 847 workers processed, 831 emails actually sent. The job completed without a single exception, but sixteen workers were silently skipped.",
       b1: {
-        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
-        content: "Aisha, check your pandas DataFrame operations. Are you doing any implicit copies? That can kill performance on large datasets, especially with memory.",
-        expanded: "Deep copies create temporary objects, doubling memory footprint. Also ensure you're using vectorized operations where possible. Python's loops are just too slow for big data. It's usually a memory or algorithm issue.",
-        question: "What is the primary reason Aisha's Python script, efficient on small samples, performs poorly at scale despite optimized DataFrame operations?",
+        name: 'Priya', role: 'Junior Software Engineer', color: '#7C3AED',
+        content: "Check the Celery task result backend — sometimes tasks mark themselves succeeded even when a subtask quietly fails. Also check if your email provider has a bounce log.",
+        expanded: "Task orchestration tools can be tricky. Sometimes the parent task succeeds but a child task fails silently. Checking the result backend and the email provider's delivery logs might reveal where the 16 dropped.",
+        question: "A Celery job reports SUCCEEDED but some workers were not processed. What does a SUCCEEDED status actually guarantee?",
         opts: [
-          { text: 'Insufficient CPU cores are allocated to the production environment, hindering parallel processing.', correct: false, feedback: "Python's GIL limits true parallelism for CPU-bound tasks in a single process, so more cores alone won't help." },
-          { text: 'Memory pressure and the GIL cause frequent garbage collection pauses and serialization bottlenecks.', correct: true, feedback: 'At scale, the GIL prevents multiple threads from running Python bytecode simultaneously and memory pressure triggers costly GC cycles.' },
-          { text: 'The underlying storage system has high latency, leading to slow data retrieval for the large dataset.', correct: false, feedback: 'Storage latency is a factor, but the observed CPU spikes and GC pauses point to in-memory processing bottlenecks.' },
+          { text: 'The task function ran to completion without raising an unhandled exception.', correct: true, feedback: 'SUCCEEDED only means the function returned without an exception. It says nothing about whether every intended side effect — like sending an email — actually happened.' },
+          { text: 'Every operation the task was supposed to perform completed correctly.', correct: false, feedback: 'Task success status reflects exception-free execution, not business outcome correctness. A task can succeed while silently skipping records.' },
+          { text: 'The task was retried the correct number of times and all retries passed.', correct: false, feedback: 'Retry behavior is separate from the success status. A single successful execution without retries also shows SUCCEEDED.' },
         ],
       },
-      bridge: "Dev's point about copies is valid, but I've already optimized those. The CPU is high yet the script isn't faster. It feels like something is blocking, not just slowing down. There's a deeper bottleneck I haven't named yet.",
+      bridge: "Priya's suggestion about the result backend is worth checking, but the task logs clearly show 847 processed and 831 sent — the discrepancy is in my own code, not the infrastructure. The job ran, but it did not do the work I expected. I need to understand what 'success' actually means here.",
       b2: {
-        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
-        content: "Aisha, at this scale the GIL and Python's memory management become critical. Profiling reveals significant time in object allocation and garbage collection, not your actual logic.",
-        expanded: "For 50M rows, memory pressure triggers frequent GC pauses that halt execution. The GIL further limits true concurrency for CPU-bound tasks. Consider offloading to Polars or PySpark, or a multi-process architecture to bypass the GIL for specific bottlenecks.",
-        question: "To effectively scale Python data processing beyond GIL limitations and memory pressure, what is the most appropriate strategy?",
+        name: 'Riya', role: 'Senior Software Engineer', color: '#0369A1',
+        content: "Aisha, a task completing without exceptions and a task completing correctly are two entirely different things. SUCCEEDED tells you the function didn't crash. It says nothing about whether every worker got an email.",
+        expanded: "Add explicit output assertions to your job: count the input workers, count the emails dispatched, compare them. If those numbers don't match, raise an exception or alert. A job that silently under-delivers is worse than one that fails loudly — at least a failure gets investigated.",
+        question: "What is the most reliable way to verify that a background job processed every intended record?",
         opts: [
-          { text: 'Increase the number of threads within the Python process to achieve better parallel execution.', correct: false, feedback: 'The GIL prevents multiple Python threads from running bytecode concurrently, so more threads do not help CPU-bound tasks.' },
-          { text: 'Use multi-process architectures or offload heavy computation to C-based libraries or specialized frameworks.', correct: true, feedback: 'Multi-processing bypasses the GIL, and C-based libraries like NumPy or frameworks like Polars release the GIL during their execution.' },
-          { text: "Optimize the Python interpreter's internal GC threshold settings for improved memory handling.", correct: false, feedback: 'Minor GC tuning helps at the margins; fundamental scaling issues require architectural changes beyond interpreter settings.' },
+          { text: 'Check that the job status is SUCCEEDED and no exceptions appear in the logs.', correct: false, feedback: 'SUCCEEDED and clean logs only confirm the function ran without crashing. They do not confirm every record was processed.' },
+          { text: 'Compare the input record count to the output action count and raise an alert if they diverge.', correct: true, feedback: 'Explicit output validation catches silent partial failures. A job that sends 831 of 847 emails will never show an exception — only a count comparison catches it.' },
+          { text: 'Add a retry policy so the job automatically re-runs any failed records.', correct: false, feedback: 'Retries help with transient failures, but they cannot retry records that were silently skipped without an exception being raised first.' },
         ],
       },
     },
@@ -164,29 +164,29 @@ const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
   },
   s02: {
     python: {
-      open: "My requirements.txt pins all direct dependencies precisely. This guarantees a stable and reproducible environment across all machines. Minor sub-dependency version bumps should be harmless — they're backward-compatible by convention.",
-      story: "Aisha deploys a new feature. Suddenly production starts throwing ImportError on a module that worked perfectly in staging. The error traces to a deep transitive dependency, cryptography, which received a minor version update. Her pinned direct dependencies are unchanged, but the sub-dependency's API broke compatibility silently.",
+      open: "I installed the requests library and it works perfectly. It's just a standard library everyone uses. I'll add it to requirements.txt later — no point slowing down right now.",
+      story: "Aisha pushes her feature branch. Keanu, a fellow engineer, pulls it and tries to run the Vela API locally. His terminal immediately returns: ModuleNotFoundError: No module named 'requests'. He messages Aisha: works on your machine, crashes on mine. Two hours later, the same error appears in the staging deploy logs. Aisha stares at her own requirements.txt — requests is not there. She installed it globally months ago and never noticed it was missing from the file.",
       b1: {
-        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
-        content: "Aisha, sometimes pip's resolver is tricky. Did you try a clean pip install --no-cache-dir? Might be a corrupted cached package causing the mismatch.",
-        expanded: "Pip caches wheels, and sometimes an old or corrupted cache entry leads to unexpected mismatches. Clearing it forces a fresh download. Also ensure the base Python version is identical in staging and production.",
-        question: "What is the root cause of Aisha's production ImportError despite all direct dependencies being pinned in requirements.txt?",
+        name: 'Priya', role: 'Junior Software Engineer', color: '#7C3AED',
+        content: "Keanu probably just has a different Python version. Try asking him to recreate his virtual environment — sometimes a fresh install resolves these weird mismatches.",
+        expanded: "I've seen cases where a package behaves differently across minor Python versions. If his environment is stale, recreating it might pull in the right packages. Worth trying before diving deeper.",
+        question: "Keanu gets ModuleNotFoundError for a library that works on Aisha's machine. What is the most likely root cause?",
         opts: [
-          { text: 'A manual pip install was executed in production, accidentally installing an incompatible version of a package.', correct: false, feedback: 'While possible, the more systemic issue here is unpinned transitive dependencies creating a reproducibility gap.' },
-          { text: 'A transitive dependency updated its minor version, introducing a breaking API change not caught by direct dependency pinning.', correct: true, feedback: 'Pinning only direct dependencies leaves transitive dependencies free to update, and minor versions can still introduce breaking changes.' },
-          { text: "The production environment's underlying OS libraries are incompatible with the installed Python packages.", correct: false, feedback: 'OS library incompatibility is possible, but the error pointing to a Python module API change strongly suggests a Python-level version conflict.' },
+          { text: 'The library is incompatible with Keanu\'s Python version.', correct: false, feedback: 'Version incompatibility is possible but unlikely for a mainstream library. The more immediate issue is that the package was never declared in requirements.txt.' },
+          { text: 'The library was installed on Aisha\'s machine but not declared in requirements.txt, so it never installs on anyone else\'s environment.', correct: true, feedback: 'requirements.txt is the contract for what a project needs. If a library is missing from it, every other environment — teammates, CI, staging, production — will fail to find it.' },
+          { text: 'Keanu\'s virtual environment is corrupted and needs to be deleted and recreated.', correct: false, feedback: 'Recreating the venv would still install from requirements.txt — if the library is not listed there, it would still be missing.' },
         ],
       },
-      bridge: "Dev's suggestion about cache didn't solve it. The error points to a specific breaking change in a deep dependency. My requirements.txt isn't capturing the full dependency graph state — just the top layer. How do I pin everything?",
+      bridge: "Priya's idea of recreating the venv misses the point — even a fresh install reads from requirements.txt, and requests isn't there. The real issue is that my machine has it globally and the file doesn't reflect reality. I need to understand how requirements.txt actually works.",
       b2: {
-        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
-        content: "Aisha, direct pinning isn't enough. You need full dependency locking — transitives included — to prevent unexpected breaking changes from any level of the dependency tree.",
-        expanded: "Use pip-tools to generate a requirements.txt that includes all transitive dependencies with pinned versions. Run pip-compile on your high-level requirements file and commit the output. That file is your environment's exact fingerprint.",
-        question: "What is the most robust method to ensure a fully reproducible Python environment including all transitive dependencies?",
+        name: 'Riya', role: 'Senior Software Engineer', color: '#0369A1',
+        content: "Aisha, requirements.txt is the contract. If a package isn't in that file, every other environment — Keanu's machine, staging, production — will fail. Your global install was invisible to everyone but you.",
+        expanded: "Always install inside a virtual environment, never globally. Activate the venv, pip install the package, then immediately run pip freeze > requirements.txt or add it manually. The rule is simple: if it's not in requirements.txt, it doesn't exist for your teammates or your deployments.",
+        question: "What is the correct workflow to add a new Python dependency so that all team environments stay consistent?",
         opts: [
-          { text: 'Manually inspect and add every transitive dependency and its version to the requirements.txt file.', correct: false, feedback: 'Manual inspection is error-prone and impractical for complex projects with dozens of transitive dependencies.' },
-          { text: 'Use a dependency locking tool like pip-tools to generate a comprehensive requirements.txt with all pinned versions.', correct: true, feedback: 'pip-tools automatically resolves and pins all direct and transitive dependencies, producing a fully reproducible lockfile.' },
-          { text: 'Regularly update all dependencies to their latest versions to benefit from bug fixes and avoid old compatibility issues.', correct: false, feedback: 'Regular updates are good hygiene, but they do not guarantee reproducibility. A lockfile is needed to freeze the exact environment state.' },
+          { text: 'Install the package globally with pip install, then notify teammates to do the same.', correct: false, feedback: 'Global installs are invisible to requirements.txt and different teammates may install different versions. This breaks reproducibility.' },
+          { text: 'Activate the project\'s virtual environment, pip install the package, add it to requirements.txt, and commit the file.', correct: true, feedback: 'This ensures the dependency is captured in the project\'s contract. Any environment that runs pip install -r requirements.txt will get exactly the same package.' },
+          { text: 'Add the package name to requirements.txt and let the CI pipeline handle the actual installation.', correct: false, feedback: 'CI will install it correctly, but you still need to install it locally first to develop against it and confirm the version works.' },
         ],
       },
     },
@@ -247,29 +247,29 @@ const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
   },
   s03: {
     python: {
-      open: "Polars offers a 10x speedup over pandas. I'm confident that replacing our pandas operations with Polars will dramatically speed up the entire data pipeline. The benchmarks are clear.",
-      story: "Aisha presents her Polars migration proposal to the team, citing impressive benchmarks for CPU-bound columnar operations. She outlines the refactor plan and estimates two weeks of work. Riya opens the pipeline's Datadog dashboard and points to the flame graph: 78% of wall-clock time is spent waiting on S3 reads and Redshift query results. The CPU computation Polars optimizes is 9% of total runtime.",
+      open: "I found a library called pdf-shift-reporter — it does exactly what we need for the PDF export feature. It works, the API is clean, I'll add it to the PR. Job done.",
+      story: "Aisha opens a PR with pdf-shift-reporter integrated. Riya approves the code quality but adds a comment before merging: 'When was this last maintained?' Aisha opens the GitHub page for the first time: the last commit was 22 months ago. The Issues tab shows 47 open issues, several tagged 'security'. Three weeks after the merge, Vela's automated security scanner flags two CVEs in pdf-shift-reporter during a routine audit. Both are rated medium severity. Riya's Slack message arrives: 'We need to talk about how we evaluate libraries.'",
       b1: {
-        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
-        content: "Polars is fast, no doubt. But have we actually profiled where our pipeline's bottlenecks are? Benchmarks on synthetic data don't always match production behavior.",
-        expanded: "A blanket replacement might not yield the expected gains if the real delays are in I/O operations — fetching from S3, writing to Redshift — rather than in-memory computation. Polars is great but it won't speed up a network round trip.",
-        question: "What is the most important factor to evaluate before migrating a data pipeline to a faster processing library like Polars?",
+        name: 'Priya', role: 'Junior Software Engineer', color: '#7C3AED',
+        content: "I've actually used pdf-shift-reporter before — it worked fine in a side project. It has 400 GitHub stars, it's not some unknown library. Just pin the version and we won't be affected by future changes.",
+        expanded: "Pinning the version means we stay on a known-good release. Unless there's an active exploit targeting our exact version, we're probably fine. The alternative — writing PDF generation ourselves — is way more work.",
+        question: "When evaluating a third-party library for a production application, what does a 2-year-old last commit most critically signal?",
         opts: [
-          { text: "The new library's raw computational benchmark scores on large in-memory datasets.", correct: false, feedback: 'Benchmark scores only matter if in-memory computation is the bottleneck. If most time is spent on I/O, a faster compute library changes nothing.' },
-          { text: 'Whether the pipeline is CPU-bound or I/O-bound, identified through profiling the actual production workload.', correct: true, feedback: 'Profiling reveals where time is actually spent. Optimizing CPU-bound operations with a faster library only helps if CPU is the real bottleneck.' },
-          { text: 'The ease of migrating existing pandas code to the new library\'s API to minimize refactor effort.', correct: false, feedback: 'Migration effort is a practical concern but secondary — if the bottleneck is I/O, even an easy migration will not improve pipeline speed.' },
+          { text: 'The library is mature and stable — fewer commits means fewer breaking changes.', correct: false, feedback: 'Stability and abandonment look similar from the outside. A library with no recent commits may have unpatched security vulnerabilities, not just a stable API.' },
+          { text: 'The library may have known vulnerabilities that will never be patched, creating ongoing security risk.', correct: true, feedback: 'Security vulnerabilities are discovered continuously. An unmaintained library will never receive patches, meaning known CVEs accumulate with no fix available.' },
+          { text: 'The library\'s API is frozen, making it safe to upgrade other dependencies without compatibility concerns.', correct: false, feedback: 'A frozen API does not protect against security issues in the library\'s own dependencies, which also age without being updated.' },
         ],
       },
-      bridge: "Dev's question about bottlenecks landed differently seeing the actual flame graph. I had benchmarks showing Polars is faster at computation, but I never checked what percentage of our pipeline time is actually computation versus waiting on S3 and Redshift.",
+      bridge: "Priya's point about pinning makes sense for API stability, but it doesn't protect against security vulnerabilities that are already present. Those CVEs exist in the version we're using right now. I picked the library based on whether it worked, not on whether it was safe to run in production.",
       b2: {
-        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
-        content: "Aisha, before any library migration, profile the end-to-end pipeline under production load. Our bottleneck is I/O wait, not CPU. Polars won't touch that.",
-        expanded: "The right optimization here is parallel S3 reads, query pushdown to Redshift, or smarter partitioning — not a compute library swap. The lesson is: measure first, then optimize. A two-week refactor that moves a 9% metric is engineering theater.",
-        question: "When a data pipeline profiling reveals 78% of runtime is I/O wait, what is the correct optimization strategy?",
+        name: 'Riya', role: 'Senior Software Engineer', color: '#0369A1',
+        content: "Aisha, when you add a library to our codebase, you're taking on responsibility for its maintenance record and security history. The question is never just 'does it work' — it's 'will this still be safe to run in six months?'",
+        expanded: "Before adding any library: check the last commit date, open issues, and whether the repo is actively responding to bug reports. Run pip-audit or check PyPI safety ratings. For anything handling files or external data, check the CVE databases. A library that works today but has known, unpatched vulnerabilities is a liability, not a solution.",
+        question: "What is the most important set of signals to evaluate before adding a third-party library to a production Python project?",
         opts: [
-          { text: 'Replace the compute library with a faster one to reduce the CPU-bound portion of execution time.', correct: false, feedback: 'Optimizing the 22% CPU portion will have minimal impact when 78% of time is blocked on I/O that the compute library cannot affect.' },
-          { text: 'Target the I/O operations directly — parallel reads, query pushdown, or smarter data partitioning strategies.', correct: true, feedback: "Reducing I/O wait directly attacks the dominant bottleneck. This is where most of the pipeline's time is actually spent." },
-          { text: 'Add more CPU cores to the processing environment to handle both compute and I/O operations faster.', correct: false, feedback: 'More CPU helps CPU-bound work. I/O wait is blocked on network and storage latency, which more cores cannot reduce.' },
+          { text: 'GitHub star count, number of forks, and whether it appears in popular tutorials.', correct: false, feedback: 'Popularity metrics reflect adoption, not quality or safety. A widely-used unmaintained library can still have critical unpatched vulnerabilities.' },
+          { text: 'Recency of last commit and releases, responsiveness on open issues, known CVEs, and whether active development continues.', correct: true, feedback: 'These signals together tell you whether the library will receive security patches and bug fixes going forward — which is what matters for production use.' },
+          { text: 'Whether it has a comprehensive README and thorough API documentation.', correct: false, feedback: 'Documentation quality reflects developer care but not maintenance status or security posture. Good docs and an abandoned codebase coexist frequently.' },
         ],
       },
     },
@@ -330,29 +330,29 @@ const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
   },
   s04: {
     python: {
-      open: "There's a KeyError in the logs. Easy fix — I'll add a .get() with a default value. Pipeline won't crash anymore. That's the error handled.",
-      story: "Aisha spots KeyError: customer_id in the daily pipeline logs, adds a .get call with a default of UNKNOWN, deploys. The pipeline runs without error. Over the next three days, the customer analytics dashboard fills with UNKNOWN entries, distorting every revenue report. Priya spots the anomaly in the weekly data review and traces it back to the silent default that masked a broken upstream data feed.",
+      open: "Shift swap requests are creating duplicate records. I added an if-not-exists check before the insert. No more duplicates in testing. Ticket closed.",
+      story: "Aisha's duplicate check deploys on Tuesday. For two days, no duplicates appear. On Thursday afternoon, a spike of concurrent shift swap requests — workers submitting swaps as their shift starts — produces a new wave of duplicates with slightly different timestamps. The application-layer check is failing under concurrency: two requests arrive simultaneously, both read 'no existing record', both insert. Riya reviews the diff and asks one question: 'Do you know why duplicates were happening in the first place?'",
       b1: {
-        name: 'Dev', role: 'Senior Data Scientist', color: '#D97706',
-        content: "Adding a default stops the crash, but did we figure out why customer_id is suddenly missing? That key has always been there.",
-        expanded: "Silencing an error with a default is sometimes right, but here we should investigate whether an upstream API changed its schema or there's a data quality issue. An UNKNOWN customer_id will distort every downstream metric that depends on it.",
-        question: "What is the most critical step after silencing a KeyError with a default value in a data pipeline?",
+        name: 'Dev', role: 'Mid-level Engineer', color: '#D97706',
+        content: "The duplicate check works — just wrap the whole insert in a try-except and catch the IntegrityError. If a duplicate sneaks through and the DB rejects it, swallow the error. If nothing crashes, nothing's broken.",
+        expanded: "I've shipped this pattern a dozen times. If the business logic says 'only one swap record per pair', catch the constraint violation and move on. It's faster than debugging the race condition and nobody will know the difference.",
+        question: "Why does an application-layer 'check then insert' pattern fail to prevent duplicates under concurrent requests?",
         opts: [
-          { text: 'Verify the pipeline runs without errors for several days to confirm the fix is stable.', correct: false, feedback: 'The pipeline running without errors confirms the default is working, not that the data being produced is correct or meaningful.' },
-          { text: 'Investigate why the key is missing to determine whether a data contract upstream has changed unexpectedly.', correct: true, feedback: 'A suddenly missing required key signals a contract break. Silencing it without investigation produces silently wrong data, which is worse than a crash.' },
-          { text: 'Document the default value behavior and notify stakeholders that some records will show UNKNOWN.', correct: false, feedback: 'Documentation is appropriate if the default is intentional. First you need to determine whether this is expected behavior or a bug in the upstream source.' },
+          { text: 'Python\'s GIL prevents truly concurrent execution, so concurrent requests actually run sequentially.', correct: false, feedback: 'The GIL only applies within a single process. Multiple web workers run in separate processes — or the gap between check and insert happens within one request\'s execution between event loop ticks.' },
+          { text: 'Two requests can both read "no record exists" before either writes, so both proceed to insert — creating a duplicate.', correct: true, feedback: 'This is a classic check-then-act race condition. The window between the read and the write allows concurrent requests to both pass the check and both insert.' },
+          { text: 'The application check is too slow to run before the database insert completes.', correct: false, feedback: 'Speed is not the issue. Even a fast check has a window between reading and writing that concurrent requests can both occupy.' },
         ],
       },
-      bridge: "Dev's question is the one I avoided. I was proud of the fast fix, but defaulting to UNKNOWN means the pipeline is now producing wrong data silently. The error is gone but the problem is still running in production, quietly.",
+      bridge: "Dev's catch-and-swallow approach would hide the symptom again, not fix it. I kept assuming the check worked because it did — until concurrent requests exposed the race. The question Riya asked is the one I never answered: what actually causes the duplicate to appear in the first place?",
       b2: {
-        name: 'Riya', role: 'Data Engineering Lead', color: '#0369A1',
-        content: "Aisha, always trace the lineage. A KeyError on a required field means a data contract upstream changed. Defaulting to UNKNOWN is worse than crashing — it produces confident wrong data.",
-        expanded: "Check the upstream API's changelog or contact that team. This is exactly why we need schema validation at ingestion boundaries, not just error handling. A pipeline that crashes loudly is easier to debug than one that silently writes wrong values for three days.",
-        question: "What is the most effective long-term strategy to prevent data contract changes from silently corrupting a production data pipeline?",
+        name: 'Riya', role: 'Senior Software Engineer', color: '#0369A1',
+        content: "Aisha, the application-layer check has a race condition: two requests can both read 'no duplicate' before either writes. The fix needs to be at the database layer, not the application layer.",
+        expanded: "Add a UNIQUE constraint on (worker_id, shift_id) in the database migration. Now the database atomically rejects the second insert — no race window possible. Then catch the IntegrityError in your application code and return a clear error to the client. This is the pattern: enforce invariants at the lowest possible layer, handle the error gracefully at the application layer.",
+        question: "What is the correct approach to prevent duplicate records caused by concurrent requests in a web application?",
         opts: [
-          { text: 'Apply defensive defaults for all dictionary key accesses throughout the pipeline to prevent any crashes.', correct: false, feedback: 'Defensive defaults mask contract violations rather than detecting them. The goal is to catch schema changes at ingestion, not hide their effects downstream.' },
-          { text: 'Implement schema validation at ingestion boundaries so that contract changes surface as loud failures immediately.', correct: true, feedback: 'Schema validation at the entry point catches contract breaks before wrong data propagates downstream, making failures loud and localized rather than silent and widespread.' },
-          { text: 'Regularly review and manually update field access code to match any upstream API documentation changes.', correct: false, feedback: 'Manual reviews are reactive and slow. Automated schema validation catches contract changes immediately, without depending on human review cycles.' },
+          { text: 'Add an application-layer check before every insert and use a global lock to prevent concurrent execution.', correct: false, feedback: 'Application-layer locks block concurrency and create performance bottlenecks. Database constraints are atomic by design and do not require locking your application.' },
+          { text: 'Add a database-level UNIQUE constraint so the database atomically rejects duplicates regardless of concurrency.', correct: true, feedback: 'Database constraints are enforced atomically at the storage layer. No race window exists — the second insert either succeeds (not a duplicate) or is rejected (is a duplicate), and both outcomes are consistent.' },
+          { text: 'Retry failed inserts with exponential backoff until they succeed.', correct: false, feedback: 'Retrying a duplicate insert will keep failing. The issue is not transient — it is a logic error. Retry logic is for network failures, not business rule violations.' },
         ],
       },
     },
@@ -1071,20 +1071,20 @@ const TracebackReader = ({ track, accentColor }: { track: SWETrack; accentColor:
   const [step, setStep] = useState(0);
   const content = track === 'python' ? {
     error: `Traceback (most recent call last):
-  File "pipeline.py", line 34, in run_pipeline
-    result = process_batch(data)
-  File "pipeline.py", line 18, in process_batch
-    return [transform(row) for row in rows]
-  File "pipeline.py", line 18, in <listcomp>
-    return [transform(row) for row in rows]
-  File "pipeline.py", line 9, in transform
-    return row['value'] * multiplier
-KeyError: 'value'`,
+  File "shift_service.py", line 41, in process_swap_request
+    result = validate_shift(request)
+  File "shift_service.py", line 27, in validate_shift
+    return [check(r) for r in records]
+  File "shift_service.py", line 27, in <listcomp>
+    return [check(r) for r in records]
+  File "shift_service.py", line 14, in check
+    return r['shift_id'] in allowed_ids
+KeyError: 'shift_id'`,
     steps: [
-      { label: 'Find the error type', highlight: 'KeyError', explanation: 'Start at the bottom. KeyError means you accessed a dictionary key that does not exist. The key is \'value\'. Not a typo error, not a network error — a missing key.' },
-      { label: 'Find the error location', highlight: 'pipeline.py", line 9', explanation: 'Line 9 in pipeline.py is where the problem is. Your code. Not a library. The transform function tried to access row[\'value\'] on a row that didn\'t have that key.' },
-      { label: 'Read the call chain', highlight: 'run_pipeline → process_batch → transform', explanation: 'The traceback reads bottom-up. run_pipeline called process_batch, which called transform — which crashed. The root cause is in transform, not in the callers.' },
-      { label: 'Form a hypothesis', highlight: '', explanation: 'Some rows in data don\'t have a \'value\' key. Maybe the data source changed schema. Maybe an API returned a different field name. Fix: add a guard — row.get(\'value\', 0) — or validate the schema at ingestion.' },
+      { label: 'Find the error type', highlight: 'KeyError', explanation: "Start at the bottom. KeyError means you accessed a dictionary key that doesn't exist. The key is 'shift_id'. Not a type error, not a network error — a missing key in a dict." },
+      { label: 'Find the error location', highlight: 'shift_service.py", line 14', explanation: "Line 14 in shift_service.py is where it crashed. Your code, not a library. The check function tried to access r['shift_id'] on a record that didn't have that key." },
+      { label: 'Read the call chain', highlight: 'process_swap_request → validate_shift → check', explanation: 'The traceback reads bottom-up. process_swap_request called validate_shift, which called check — which crashed. The root cause is in check, but the bad data came from the caller.' },
+      { label: 'Form a hypothesis', highlight: '', explanation: "Some records in records don't have a 'shift_id' key. The upstream data source may have changed its schema, or an API returned a different field name. Fix: validate the shape of incoming data before processing, or use r.get('shift_id') with a fallback and explicit handling." },
     ],
   } : track === 'java' ? {
     error: `Exception in thread "main" java.lang.NullPointerException: Cannot invoke "String.length()" because "this.userName" is null
@@ -1153,32 +1153,33 @@ const LiveCodeSandbox = ({ track, accentColor }: { track: SWETrack; accentColor:
   const [output, setOutput] = useState<string | null>(null);
 
   const data = track === 'python' ? {
-    title: 'Filter a CSV dataset',
-    intro: "Aisha's first real task. Two lines are missing — fill them in, then run.",
+    title: 'Filter confirmed shifts',
+    intro: "Aisha's first task at Vela. Two lines are missing — fill them in, then run.",
     lines: [
-      'import csv, io',
+      'shifts = [',
+      "  {'id': 1, 'worker': 'Ana',   'status': 'confirmed'},",
+      "  {'id': 2, 'worker': 'Ben',   'status': 'pending'},",
+      "  {'id': 3, 'worker': 'Clara', 'status': 'confirmed'},",
+      "  {'id': 4, 'worker': 'Dev',   'status': 'cancelled'},",
+      "  {'id': 5, 'worker': 'Eva',   'status': 'confirmed'},",
+      ']',
       '',
-      'records = """id,name,status',
-      '1,Alice,active  2,Bob,inactive',
-      '3,Charlie,active  4,David,active',
-      '5,Eve,pending"""',
-      '',
-      'def count_active(csv_data):',
+      'def count_confirmed(shift_list):',
       '    count = 0',
-      '    for row in csv.DictReader(io.StringIO(csv_data)):',
-      "        if [BLANK_1]:          ← fill in",
+      '    for shift in shift_list:',
+      "        if [BLANK_1]:      ← fill in",
       '            count += 1',
       '    return count',
       '',
-      'total = count_active(records)',
-      '[BLANK_2]                     ← fill in',
+      'total = count_confirmed(shifts)',
+      '[BLANK_2]                  ← fill in',
     ],
     blanks: [
-      { label: "Blank 1 — the filter condition (line 11)", placeholder: "row['status'] == 'active'", solutions: ["row['status'] == 'active'", "row[\"status\"] == \"active\"", "row['status']=='active'"], hint: "Access the 'status' key of each row dict and compare to 'active'" },
-      { label: 'Blank 2 — the print statement (line 16)', placeholder: "print(f'Found {total} active records.')", solutions: ["print(f'Found {total} active records.')", 'print(f"Found {total} active records.")', 'print(total)'], hint: 'Use print() with an f-string to embed the count' },
+      { label: "Blank 1 — the filter condition (line 12)", placeholder: "shift['status'] == 'confirmed'", solutions: ["shift['status'] == 'confirmed'", "shift[\"status\"] == \"confirmed\"", "shift['status']=='confirmed'"], hint: "Access the 'status' key of each shift dict and compare to 'confirmed'" },
+      { label: 'Blank 2 — the print statement (line 17)', placeholder: "print(f'Confirmed shifts: {total}')", solutions: ["print(f'Confirmed shifts: {total}')", 'print(f"Confirmed shifts: {total}")', 'print(total)'], hint: 'Use print() with an f-string to embed the count' },
     ],
-    correct: '$ python pipeline.py\n> Found 3 active records.',
-    wrong: "$ python pipeline.py\n> SyntaxError or NameError\n  Hint: strings need quotes, dict access uses row['key']",
+    correct: '$ python shifts.py\n> Confirmed shifts: 3',
+    wrong: "$ python shifts.py\n> SyntaxError or NameError\n  Hint: strings need quotes, dict access uses shift['key']",
   } : track === 'java' ? {
     title: 'Filter a list with streams',
     intro: "Vikram's first Java task. Complete the stream pipeline and the print statement.",
@@ -1429,16 +1430,16 @@ const CodeAnatomy = ({ track, accentColor }: { track: SWETrack; accentColor: str
   const [active, setActive] = useState<number | null>(null);
 
   const content = track === 'python' ? {
-    title: 'Anatomy of a production Python script',
-    subtitle: "The kind of file you'll encounter in your first PR review.",
-    lines: ['#!/usr/bin/env python3', '"""Pipeline: extract active users from CSV."""', 'import csv, logging, sys', 'from pathlib import Path', '', 'logging.basicConfig(level=logging.INFO)', 'log = logging.getLogger(__name__)', '', 'def load_users(filepath: Path) -> list[dict]:', '    """Load all rows from the CSV."""', '    with open(filepath, newline="") as fh:', '        return list(csv.DictReader(fh))', '', 'def filter_active(users: list[dict]) -> list[dict]:', '    return [u for u in users if u["status"] == "active"]', '', 'if __name__ == "__main__":', '    path = Path(sys.argv[1])', '    users = load_users(path)', '    active = filter_active(users)', '    log.info("Active users: %d", len(active))'],
+    title: 'Anatomy of a production Python service file',
+    subtitle: "The kind of file you'll encounter in your first PR review at Vela.",
+    lines: ['#!/usr/bin/env python3', '"""shift_service: load and filter confirmed shifts."""', 'import logging, sys', 'from pathlib import Path', '', 'logging.basicConfig(level=logging.INFO)', 'log = logging.getLogger(__name__)', '', 'def load_shifts(filepath: Path) -> list[dict]:', '    """Load all shift records from a JSON file."""', '    with open(filepath) as fh:', '        return __import__("json").load(fh)', '', 'def filter_confirmed(shifts: list[dict]) -> list[dict]:', '    return [s for s in shifts if s["status"] == "confirmed"]', '', 'if __name__ == "__main__":', '    path = Path(sys.argv[1])', '    shifts = load_shifts(path)', '    confirmed = filter_confirmed(shifts)', '    log.info("Confirmed shifts: %d", len(confirmed))'],
     hotspots: [
-      { lines: [1], label: 'Shebang', explanation: "Tells the OS which interpreter runs this file when executed directly (./script.py). Pins the Python binary so the right version is used on servers.", why: "Without it, you must type python3 explicitly. With it, the file becomes directly executable.", remove: "Still runs with python3 script.py but loses standalone execution capability." },
-      { lines: [2], label: 'Module docstring', explanation: "Module-level documentation. IDEs, linters, and pydoc display this. It's the one-line contract for what this file does.", why: "Team members and future you need to understand this module's purpose at a glance.", remove: "Code runs fine, but tooling and teammates lose their first hint about intent." },
-      { lines: [6, 7], label: 'Logging setup', explanation: "Configures the logging module at INFO level. log = logging.getLogger(__name__) creates a named logger — log entries show exactly which module they came from.", why: "print() doesn't appear in log aggregators. Structured logging is observable, filterable, and persistent.", remove: "You lose production observability. print() works locally but disappears in cloud log systems." },
+      { lines: [1], label: 'Shebang', explanation: "Tells the OS which interpreter runs this file when executed directly (./shift_service.py). Pins the Python binary so the right version is used on servers.", why: "Without it, you must type python3 explicitly. With it, the file becomes directly executable from the command line.", remove: "Still runs with python3 shift_service.py but loses standalone execution capability on servers." },
+      { lines: [2], label: 'Module docstring', explanation: "Module-level documentation. IDEs, linters, and pydoc display this. It's the one-line contract for what this file does.", why: "Team members and future you need to understand this module's purpose at a glance, without reading the implementation.", remove: "Code runs fine, but tooling and teammates lose their first hint about intent." },
+      { lines: [6, 7], label: 'Logging setup', explanation: "Configures the logging module at INFO level. log = logging.getLogger(__name__) creates a named logger — log entries show exactly which module they came from.", why: "print() doesn't appear in log aggregators like Datadog or CloudWatch. Structured logging is observable, filterable, and persistent.", remove: "You lose production observability. print() works locally but disappears in cloud log systems." },
       { lines: [11, 12], label: 'Context manager', explanation: "with open(...) as fh: automatically closes the file when the block exits — even if an exception is raised inside.", why: "Prevents file descriptor leaks. Manually calling fh.close() is error-prone; the context manager makes it automatic.", remove: "If an exception occurs inside, the file may stay open until the garbage collector decides to close it." },
-      { lines: [15], label: 'List comprehension', explanation: "[u for u in users if condition] filters the list in one readable line. It's idiomatic Python — cleaner and slightly faster than an explicit for-append loop.", why: "Equivalent to a filter loop but more readable. Most Python codebases prefer the comprehension.", remove: "Fine if replaced by a loop, but the comprehension is what reviewers will expect to see." },
-      { lines: [17], label: '__main__ guard', explanation: "Prevents this code from running when the file is imported as a module. The block only executes when the script is run directly.", why: "If another module imports load_users(), you don't want the entire pipeline to fire as a side effect.", remove: "The pipeline runs every time this module is imported anywhere — a silent, destructive side effect." },
+      { lines: [15], label: 'List comprehension', explanation: "[s for s in shifts if condition] filters the list in one readable line. It's idiomatic Python — cleaner and slightly faster than an explicit for-append loop.", why: "Equivalent to a filter loop but more readable. Most Python codebases prefer the comprehension for simple transformations.", remove: "Fine if replaced by a loop, but the comprehension is what reviewers will expect to see in production Python." },
+      { lines: [17], label: '__main__ guard', explanation: "Prevents this code from running when the file is imported as a module. The block only executes when the script is run directly.", why: "If another module imports filter_confirmed(), you don't want the entire script to fire as a side effect.", remove: "The script runs every time this module is imported anywhere — a silent, potentially destructive side effect." },
     ],
   } : track === 'java' ? {
     title: 'Anatomy of a Spring Boot REST controller',
@@ -1515,11 +1516,11 @@ const CodeAnatomy = ({ track, accentColor }: { track: SWETrack; accentColor: str
 
 const TerminalRunCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
   const lines = track === 'python' ? [
-    { t: 'cmd', v: '$ python3 pipeline.py' },
-    { t: 'out', v: 'Processing 14,823 records...' },
-    { t: 'out', v: 'Validation pass: exit code 0' },
-    { t: 'warn', v: '⚠  Client Alpha revenue: $0.00 (unchanged)' },
-    { t: 'dim', v: '# ran successfully — but the data is still wrong' },
+    { t: 'cmd', v: '$ celery -A vela worker --beat' },
+    { t: 'out', v: '[2024-04-17 09:00:01] Task shift_notifications.send[...] SUCCEEDED' },
+    { t: 'out', v: 'Workers processed: 847  Emails dispatched: 831' },
+    { t: 'warn', v: '⚠  16 workers skipped — no exception raised' },
+    { t: 'dim', v: '# SUCCEEDED does not mean every worker got an email' },
   ] : track === 'java' ? [
     { t: 'cmd', v: '$ mvn exec:java -Dexec.mainClass=Main' },
     { t: 'info', v: '[INFO] Scanning for projects...' },
@@ -1556,7 +1557,7 @@ const TerminalRunCard = ({ track, accentColor }: { track: SWETrack; accentColor:
 
 const DevEnvPanel = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
   const files = track === 'python'
-    ? ['📁 mosaic_pipeline/', '  📄 pipeline.py', '  📄 requirements.txt', '  📁 .venv/', '  📄 .env']
+    ? ['📁 vela_api/', '  📄 app.py', '  📄 requirements.txt', '  📁 .venv/', '  📄 .env']
     : track === 'java'
     ? ['📁 finova-api/', '  📄 pom.xml', '  📁 src/main/java/', '  📁 target/', '  📄 .gitignore']
     : ['📁 launchly-api/', '  📄 package.json', '  📁 node_modules/', '  📄 server.js', '  📄 .env'];
@@ -1583,7 +1584,7 @@ const DevEnvPanel = ({ track, accentColor }: { track: SWETrack; accentColor: str
 
 const EcosystemCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
   const pkgs = track === 'python'
-    ? [{ n: 'pandas', v: '2.2.1', use: 'data analysis' }, { n: 'fastapi', v: '0.110', use: 'web APIs' }, { n: 'pytest', v: '8.1', use: 'testing' }, { n: 'torch', v: '2.2', use: 'ML / deep learning' }]
+    ? [{ n: 'flask', v: '3.0.3', use: 'web API framework' }, { n: 'sqlalchemy', v: '2.0.29', use: 'database ORM' }, { n: 'celery', v: '5.3.6', use: 'background jobs' }, { n: 'pytest', v: '8.1', use: 'testing' }]
     : track === 'java'
     ? [{ n: 'spring-boot', v: '3.2.4', use: 'web + DI framework' }, { n: 'hibernate', v: '6.4', use: 'ORM / database' }, { n: 'junit', v: '5.10', use: 'testing' }, { n: 'jackson', v: '2.17', use: 'JSON serialisation' }]
     : [{ n: 'express', v: '4.19', use: 'web framework' }, { n: 'prisma', v: '5.11', use: 'database ORM' }, { n: 'jest', v: '29.7', use: 'testing' }, { n: 'typescript', v: '5.4', use: 'type safety' }];
@@ -1592,7 +1593,7 @@ const EcosystemCard = ({ track, accentColor }: { track: SWETrack; accentColor: s
     <div style={{ background: '#0D1117', borderRadius: '10px', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
       <div style={{ background: '#161B22', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #30363D' }}>
         <span style={{ fontSize: 10, color: accentColor, fontWeight: 700 }}>{track === 'python' ? 'PyPI' : track === 'java' ? 'Maven Central' : 'npm registry'}</span>
-        <span style={{ fontSize: 9, color: '#8B949E' }}>— packages used at {track === 'python' ? 'Mosaic Analytics' : track === 'java' ? 'Finova Systems' : 'Launchly'}</span>
+        <span style={{ fontSize: 9, color: '#8B949E' }}>— packages used at {track === 'python' ? 'Vela' : track === 'java' ? 'Finova Systems' : 'Launchly'}</span>
       </div>
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
         {pkgs.map(p => (
@@ -1609,12 +1610,12 @@ const EcosystemCard = ({ track, accentColor }: { track: SWETrack; accentColor: s
 
 const StackTraceCard = ({ track, accentColor }: { track: SWETrack; accentColor: string }) => {
   const frames = track === 'python' ? {
-    err: 'AttributeError: \'NoneType\' object has no attribute \'upper\'',
+    err: "AttributeError: 'NoneType' object has no attribute 'upper'",
     lines: [
-      { f: 'pipeline.py', ln: 88, code: 'result = transform(record)', active: false },
-      { f: 'transforms.py', ln: 34, code: 'cleaned = raw_value.upper()', active: true },
+      { f: 'shift_service.py', ln: 88, code: 'result = format_worker(record)', active: false },
+      { f: 'formatters.py', ln: 34, code: 'cleaned = worker_name.upper()', active: true },
     ],
-    tip: 'raw_value is None — check the data source',
+    tip: 'worker_name is None — check if the record has a name field',
   } : track === 'java' ? {
     err: 'NullPointerException: Cannot invoke "String.length()" because "str" is null',
     lines: [
@@ -1659,12 +1660,12 @@ type SWECSData = { mentorName: string; mentorRole: string; mentorColor: string; 
 const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECSData>> = {
   s01: {
     python: {
-      mentorName: 'Sam', mentorRole: 'Junior Data Engineer', mentorColor: '#059669',
+      mentorName: 'Sam', mentorRole: 'Junior Software Engineer', mentorColor: '#059669',
       lines: [
-        { speaker: 'protagonist', text: "The pipeline logged SUCCESS but Client Alpha's revenue is still zero. The fix deployed — maybe the dashboard takes time to update?" },
-        { speaker: 'mentor', text: "SUCCESS means it ran. If there was a problem it would have crashed. Dashboards take time to sync — give it another hour." },
-        { speaker: 'protagonist', text: "Three hours later. Still wrong. How can the output be bad if the pipeline logged no errors at all?" },
-        { speaker: 'mentor', text: "If there were no errors it probably worked. Might be a caching issue in the dashboard. I'd ask the frontend team." },
+        { speaker: 'protagonist', text: "The Celery job logged SUCCESS, but 16 shift managers say their workers never got confirmation emails. How can that be if no errors were thrown?" },
+        { speaker: 'mentor', text: "SUCCESS means the task completed without crashing. Emails probably went to spam, or the email provider had a blip. It's not your code." },
+        { speaker: 'protagonist', text: "I checked the send log — those 16 workers were never sent to at all. The job skipped them without any exception." },
+        { speaker: 'mentor', text: "Probably a Celery retry config issue. Add max_retries=3 and the next scheduled run should catch them." },
       ],
     },
     java: {
@@ -1688,12 +1689,12 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
   },
   s02: {
     python: {
-      mentorName: 'Dev', mentorRole: 'Senior Data Scientist', mentorColor: '#D97706',
+      mentorName: 'Dev', mentorRole: 'Mid-level Engineer', mentorColor: '#D97706',
       lines: [
-        { speaker: 'protagonist', text: "Sam gets ModuleNotFoundError for fast_csv_parser on his machine. It works fine on mine — I installed it myself." },
-        { speaker: 'mentor', text: "Probably a Python version mismatch. Check you both have the same minor version — 3.11 vs 3.12 can behave differently for some packages." },
-        { speaker: 'protagonist', text: "We both have 3.11. But the module is clearly installed in my environment and not his. Shouldn't requirements.txt handle this?" },
-        { speaker: 'mentor', text: "Your requirements.txt is probably fine. Have Sam delete his environment and recreate it — a fresh install usually clears up one-off install quirks like this." },
+        { speaker: 'protagonist', text: "Keanu pulled my branch and gets ModuleNotFoundError for requests. Works perfectly on my machine. I don't understand why." },
+        { speaker: 'mentor', text: "Just tell him to pip install requests globally. Takes 10 seconds." },
+        { speaker: 'protagonist', text: "But staging deployment also failed with the same error. Same ModuleNotFoundError in the deploy logs." },
+        { speaker: 'mentor', text: "Staging environment is probably misconfigured. File a ticket with DevOps, that's their problem to fix." },
       ],
     },
     java: {
@@ -1717,12 +1718,12 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
   },
   s03: {
     python: {
-      mentorName: 'Dev', mentorRole: 'Senior Data Scientist', mentorColor: '#D97706',
+      mentorName: 'Priya', mentorRole: 'Junior Software Engineer', mentorColor: '#7C3AED',
       lines: [
-        { speaker: 'protagonist', text: "Dev's benchmark slides say the pipeline could run twice as fast in Rust. Is Python actually the bottleneck here?" },
-        { speaker: 'mentor', text: "Python's GIL is killing our throughput. We'd cut runtime in half with Rust components. The numbers are clear." },
-        { speaker: 'protagonist', text: "But do we know it's Python's speed causing the slowdown? What if it's the database queries and I/O waits, not the CPU work?" },
-        { speaker: 'mentor', text: "Rust is just faster. Every benchmark says so. We need to be on the cutting edge." },
+        { speaker: 'protagonist', text: "I found pdf-shift-reporter for the PDF export feature. The last commit on GitHub was 2 years ago though — should that worry me?" },
+        { speaker: 'mentor', text: "I used it in my last project, worked great. Old code is stable code. Less commits means fewer bugs introduced." },
+        { speaker: 'protagonist', text: "The issues tab has 47 open issues, a few of them tagged security. Is that normal?" },
+        { speaker: 'mentor', text: "Open issues just means people are engaged with it. Pin the version and you're locked in, those issues won't affect you." },
       ],
     },
     java: {
@@ -1746,12 +1747,12 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
   },
   s04: {
     python: {
-      mentorName: 'Sam', mentorRole: 'Junior Data Engineer', mentorColor: '#059669',
+      mentorName: 'Dev', mentorRole: 'Mid-level Engineer', mentorColor: '#D97706',
       lines: [
-        { speaker: 'protagonist', text: "Three days of missing revenue data. The logs are full of SUCCESS. No errors, no warnings. How do you debug something that doesn't know it's broken?" },
-        { speaker: 'mentor', text: "Oh man, a prod bug? Just rerun with a debugger attached and step through the whole thing. Or sprinkle print statements until something looks wrong." },
-        { speaker: 'protagonist', text: "But the code thinks it succeeded. There's no line where it crashes. Print statements feel like throwing darts in the dark." },
-        { speaker: 'mentor', text: "It'll turn up eventually. Just keep adding prints until you see something weird. That's basically how debugging works." },
+        { speaker: 'protagonist', text: "Shift swap requests are creating duplicate records in shifts_pending. No error anywhere in the logs — just silent duplicates." },
+        { speaker: 'mentor', text: "Easy fix. Add a check before the insert: if the record already exists, skip. Deduplication done." },
+        { speaker: 'protagonist', text: "I added that check but after two days the duplicates came back. Different timestamps this time." },
+        { speaker: 'mentor', text: "Add a try-except around the insert, catch IntegrityError, swallow it. If nothing raises, nothing's broken." },
       ],
     },
     java: {
@@ -1786,7 +1787,7 @@ const SWEConversationScene = ({
 }) => {
   const protagonistName = track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo';
   const protagonistColor = track === 'python' ? '#16A34A' : track === 'java' ? '#0369A1' : '#CA8A04';
-  const protagonistRole = track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : 'Junior Full-Stack Developer';
+  const protagonistRole = track === 'python' ? 'Junior Software Engineer' : track === 'java' ? 'Junior Backend Engineer' : 'Junior Full-Stack Developer';
 
   return (
     <div style={{ margin: '28px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -1990,7 +1991,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               role={meta.protagonistRole}
               color={meta.accentColor}
               content={level === 'advanced' ? ADV.s01[track].open : <>
-                {track === 'python' && <>I fixed that off-by-one error, the pipeline ran green, no exceptions. That means it worked, right? Ran successfully is basically a pass. The dashboard should reflect the correct data now.</>}
+                {track === 'python' && <>The Celery job finished with no exceptions. Status: SUCCEEDED. That is what success looks like — the task ran and nothing crashed. The workers should all have their emails by now.</>}
                 {track === 'java' && <>My code compiles, all unit tests pass, the endpoint returns 200 OK. Pushing to CI is a formality at this point. If it works in my IDE with the dependency I added, it will work everywhere.</>}
                 {track === 'nodejs' && <>JavaScript is JavaScript. localStorage is a standard web storage API. The notification service runs JavaScript so localStorage should just work. This is a ten-minute feature.</>}
               </>}
@@ -1998,7 +1999,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
               {level === 'advanced' ? ADV.s01[track].story : <>
-                {track === "python" && <>Aisha watches the deployment dashboard, a small smile on her lips as the SUCCESS badge glows green. She refreshes the client analytics page expecting corrected numbers. Client Alpha revenue: still zero. Riya leans over the partition and points at the screen without saying anything for a moment. Then: &lsquo;Aisha. The pipeline ran successfully. But this client&apos;s data is still bad. What exactly do you mean by ran successfully?&rsquo;</>}
+                {track === "python" && <>Aisha&apos;s Celery job runs on schedule, the dashboard shows SUCCEEDED for all 847 workers, and she closes her laptop for lunch. Thirty minutes later, Slack lights up: a warehouse operations manager reports that 16 of their workers never received shift confirmation emails and turned up for the wrong shift. Aisha pulls up the task logs — still SUCCEEDED, no exceptions, no warnings. She counts: 847 workers in, 831 emails sent. Riya walks over, looks at the screen, and asks: &lsquo;How are you measuring whether this job actually did its job?&rsquo;</>}
                 {track === "java" && <>Vikram watches the green test indicators light up in his IDE, a small surge of satisfaction. He pushes the branch and pulls up the CI dashboard. Build running. Tests running. Then: BUILD FAILED. He opens the log expecting something minor. Instead: java.lang.ClassNotFoundException for the exact dependency he can see referenced in his pom.xml. Kavya walks over, looks at the screen briefly, and asks Vikram to explain the difference between how his IDE runs code and how CI does.</>}
                 {track === "nodejs" && <>Leo writes the localStorage call, saves the file, starts the notification service. The server crashes immediately: ReferenceError: localStorage is not defined. He reads it twice. He has used localStorage dozens of times in frontend work. Jordan leans over to look: &lsquo;That is weird. Node is basically the same as browser JS. Probably needs a polyfill or something.&rsquo;</>}
               </>}
@@ -2140,7 +2141,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               role={meta.protagonistRole}
               color={meta.accentColor}
               content={level === 'advanced' ? ADV.s02[track].open : <>
-                {track === 'python' && <>I installed fast_csv_parser myself and watched it import cleanly. If it works on my machine it should work for the rest of the team. Python environments are pretty straightforward.</>}
+                {track === 'python' && <>I installed requests and it works fine on my machine. It is a standard library, everyone uses it. I will add it to requirements.txt before the final PR — no need to slow down now.</>}
                 {track === 'java' && <>Adding a new library should mean dropping a dependency block in pom.xml with the artifact ID and version. How complicated can one library addition really be?</>}
                 {track === 'nodejs' && <>I ran npm install, everything resolved, my endpoint works perfectly. Deploying to Docker is just packaging what already works. Containers are supposed to make deployment more consistent, not less.</>}
               </>}
@@ -2148,7 +2149,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
               {level === 'advanced' ? ADV.s02[track].story : <>
-                {track === "python" && <>Aisha runs the updated data processing script on her laptop, output streaming by clean and correct. She pushes to the shared repo and Sam pulls it to test on his machine. His terminal immediately fires back: ModuleNotFoundError: No module named fast_csv_parser. Same repo. Same Python version. Aisha stares at the error trying to figure out what is different between their two machines.</>}
+                {track === "python" && <>Aisha pushes her feature branch with the new API endpoint. Keanu pulls it to run locally and his terminal immediately returns: ModuleNotFoundError: No module named &apos;requests&apos;. He pings Aisha in Slack. She checks her own machine — works fine. She opens requirements.txt. Requests is not there. She installed it globally months ago and never noticed it never made it into the file. Two minutes later, the staging deploy fails with the same error in the CI logs.</>}
                 {track === "java" && <>Vikram copies a dependency block from the Maven documentation into pom.xml. mvn install fails immediately with a conflict about transitive dependencies. He scans the existing pom.xml, overwhelmed by scope attributes, optional flags, and exclusion blocks. He has no idea what any of it means. Suresh, overhearing his escalating frustration from the adjacent desk, strides over: &lsquo;Before you touch another dependency, explain to me what Maven lifecycle phases are.&rsquo;</>}
                 {track === "nodejs" && <>Leo pushes to the container registry. Carlos initiates the Docker build and deploy. Two minutes later: MODULE_NOT_FOUND: Cannot find module lodash. Carlos stares at his terminal. Then at Leo. Leo stares back. Lodash is definitely installed. It is in his node_modules right now. He can see it sitting there. Carlos says nothing. He just sighs.</>}
               </>}
@@ -2330,7 +2331,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
           <ChapterSection id="swe-m1-language-ecosystem" num="03" accentRgb={ACCENT_RGB}>
             {chLabel('The Ecosystem')}
             {h2(<>
-              {track === 'python' && <>Why Mosaic Analytics runs on Python</>}
+              {track === 'python' && <>Why Vela runs on Python</>}
               {track === 'java' && <>Why Finova&apos;s backend is Java</>}
               {track === 'nodejs' && <>Why Launchly&apos;s API is Node.js</>}
             </>)}
@@ -2340,7 +2341,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               role={meta.protagonistRole}
               color={meta.accentColor}
               content={level === 'advanced' ? ADV.s03[track].open : <>
-                {track === 'python' && <>Python is slow compared to compiled languages, I know that. But it is so productive for data work. I thought that slowness was an accepted tradeoff. Is the pipeline really that much of a bottleneck?</>}
+                {track === 'python' && <>I found a library that does exactly what we need for the PDF export feature. It has a clean API, good documentation. I will just add it to the PR — no need to overthink a dependency choice.</>}
                 {track === 'java' && <>I came here to write business logic, not to decode architectural diagrams. Every file I open has three interfaces and a factory class. This feels over-engineered and it is making a simple task impossible to navigate.</>}
                 {track === 'nodejs' && <>My professor was not wrong exactly. JavaScript was designed in ten days and some of the quirks are still there. I am not saying it is bad, just that it was not originally designed for serious backend systems.</>}
               </>}
@@ -2348,7 +2349,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
               {level === 'advanced' ? ADV.s03[track].story : <>
-                {track === "python" && <>At standup, Dev has benchmarks ready and a slide deck nobody asked for. The nightly 50M row transformation could run in half the time with Rust components, he says. Aisha listens, a faint unease forming. She has only ever done this kind of work in Python, and the libraries — pandas, numpy, the whole stack — feel inseparable from the job. Dev wraps up: Python just cannot keep up with the scale we are hitting.</>}
+                {track === "python" && <>Aisha opens a PR with the pdf-shift-reporter library integrated. The code is clean, the tests pass. Riya approves the implementation but adds a comment before merging: &lsquo;When was this last maintained?&rsquo; Aisha opens the GitHub page — last commit 22 months ago, 47 open issues, two tagged security. She had never checked. Three weeks after the merge, Vela&apos;s automated security scanner flags two CVEs in the library. Riya&apos;s message arrives: &lsquo;We need to talk about how we choose libraries.&rsquo;</>}
                 {track === "java" && <>Vikram navigates to PaymentService to add his validation hook. It is an interface. He finds AbstractPaymentService. Then PaymentServiceFactory. Then CreditCardPaymentServiceImpl. Each layer opens three more questions. He has been reading code for forty minutes and has not written a single line. Rahul appears at his desk: &lsquo;Just find the interface you need to implement. You do not have to understand all of it.&rsquo;</>}
                 {track === "nodejs" && <>Leo, trying to contribute something thoughtful to the architecture discussion, mentions that his CS professor described JavaScript as a toy language not designed for production scale. The room goes quiet in a way that is different from thinking. Priya sets down her coffee cup. Leo realizes this was the wrong thing to say in this room.</>}
               </>}
@@ -2388,25 +2389,25 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               color={level === 'advanced' ? ADV.s03[track].b2.color : (track === 'python' ? meta.mentorColor : track === 'java' ? '#2563EB' : '#65A30D')}
               conceptId="swe-m1-ecosystem"
               content={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b2.content}&rdquo;</> :
-                track === 'python' ? <>&ldquo;Dev, performance is one factor. Aisha, what other aspects of our development and operations would a language change impact, beyond just execution speed?&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha, a library that works today is not the same as a library that is safe to run in production six months from now. When did you check its maintenance status and CVE history?&rdquo;</> :
                 track === 'java' ? <>&ldquo;Vikram, this isn&apos;t &lsquo;boilerplate.&rsquo; This is a carefully constructed domain model. What problem do you think these abstractions are trying to solve in a financial system like ours?&rdquo;</> :
                 <>&ldquo;Dude, your professor must be living in the past! Modern JS is awesome. We&apos;ve got TypeScript, React, Next.js, Webpack... the tooling is incredible!&rdquo;</>
               }
               expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s03[track].b2.expanded}&rdquo;</> :
-                track === 'python' ? <>&ldquo;Think beyond the immediate speed gains. Consider our current team&apos;s skillset, the availability of libraries for data processing in Rust, debugging tools, and the long-term maintainability. What happens when we need to hire? Is the performance gain worth the potential increase in complexity and operational overhead?&rdquo;</> :
+                track === 'python' ? <>&ldquo;Before you add any library to a production codebase, check: when was the last commit, are issues being responded to, and are there known CVEs? A library is a long-term dependency. You are responsible for its security posture, not just its API. Run pip-audit in your venv and look up the package on the PyPI safety database.&rdquo;</> :
                 track === 'java' ? <>&ldquo;In Finova, we handle billions. Type safety, explicit contracts, and clear separation of concerns aren&apos;t luxuries; they&apos;re necessities for correctness and maintainability over decades. These patterns protect us from runtime errors and allow for robust testing. They&apos;re an investment in stability, not a hindrance.&rdquo;</> :
                 <>&ldquo;I mean, look at all the frameworks and libraries! We can build anything from real-time chat to complex APIs. And with TypeScript, we get all the type safety benefits that Java folks brag about. Plus, it&apos;s constantly evolving, way more exciting than those old, rigid languages.&rdquo;</>
               }
               question={level === 'advanced' ? ADV.s03[track].b2.question :
-                track === 'python' ? 'Riya encourages Aisha to consider the broader implications of adopting Rust. What is a significant non-technical factor in evaluating a new language for a core system?' :
+                track === 'python' ? 'Riya asks Aisha to evaluate a library properly. Which combination of signals best indicates a library is safe to use in a production Python project?' :
                 track === 'java' ? 'Suresh explains the rationale behind complex Java patterns. What is the primary benefit of extensive use of interfaces and abstract classes in a large enterprise application?' :
                 'Jordan highlights modern JavaScript\'s ecosystem. What is a key benefit of the extensive tooling and frameworks available in the Node.js ecosystem?'
               }
               options={level === 'advanced' ? ADV.s03[track].b2.opts :
                 track === 'python' ? [
-                  { text: 'The ability to integrate seamlessly with existing cloud provider services, ensuring optimal infrastructure utilization.', correct: false, feedback: 'While cloud integration is important, it\'s often more about SDKs and APIs, not a primary non-technical factor in language choice itself.' },
-                  { text: 'The size and activity of the language\'s community, which influences documentation, support, and available libraries.', correct: true, feedback: 'A strong community and rich ecosystem are crucial for long-term project health, developer support, and access to pre-built solutions.' },
-                  { text: 'The maximum number of concurrent users the application can support before requiring horizontal scaling.', correct: false, feedback: 'Concurrency is a technical performance metric. Riya\'s question is about non-technical aspects like team skill sets and community support.' },
+                  { text: 'High GitHub star count, a comprehensive README, and working code examples in the documentation.', correct: false, feedback: 'Popularity and documentation quality do not reflect security posture or maintenance status. A well-documented abandoned library can have critical unpatched CVEs.' },
+                  { text: 'Recent commits within the last 6 months, active issue responses, no known unpatched CVEs, and compatible licensing.', correct: true, feedback: 'These signals together confirm the library is actively maintained, security vulnerabilities will be patched, and the license allows use in your context.' },
+                  { text: 'A version number above 1.0 indicating the library is stable and no longer in active development.', correct: false, feedback: 'Version numbers indicate stability conventions, not security maintenance. A 2.x library can still be abandoned with unpatched security issues.' },
                 ] :
                 track === 'java' ? [
                   { text: 'They enable faster development by reducing the amount of code that needs to be written for new features.', correct: false, feedback: 'While some patterns can streamline development, heavy abstraction often increases initial development time, prioritizing maintainability.' },
@@ -2422,8 +2423,8 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
 
             {track === 'python' && (<>
-              {para(<>Riya&apos;s question is the right one. Python is not fast at CPU computation — compared to Java or C++, CPython is slow. But for most software engineering work, the bottleneck is <strong>network I/O and database queries</strong>, not raw CPU speed. A data pipeline that spends 90% of its time waiting for a database to respond is not going to run meaningfully faster in a compiled language.</>)}
-              {para(<>Python&apos;s real power is its ecosystem. The combination of <strong>pandas</strong> and <strong>NumPy</strong> for data, <strong>scikit-learn</strong> and <strong>PyTorch</strong> for ML, and <strong>FastAPI</strong> for web APIs means that Python is often the <em>only</em> language a data-heavy team needs. Instagram, Dropbox, and Spotify run Python backends at scale. The bottleneck is almost never the language.</>)}
+              {para(<>Riya&apos;s question is the right one. Python is not the fastest language at raw computation — CPython is significantly slower than Java or C++ in CPU-bound benchmarks. But for most web API and backend work, the bottleneck is <strong>network I/O and database queries</strong>, not CPU speed. A backend that spends 90% of its time waiting on a Postgres query is not going to run meaningfully faster in a compiled language.</>)}
+              {para(<>Python&apos;s real power is its ecosystem and developer velocity. <strong>Flask</strong> and <strong>FastAPI</strong> let you build a working API endpoint in minutes. <strong>SQLAlchemy</strong> handles database interactions cleanly. <strong>Celery</strong> handles background jobs like shift notifications. <strong>pytest</strong> makes testing straightforward. Teams can ship quickly, iterate fast, and hire from a massive talent pool. Instagram, Dropbox, and Spotify run Python backends at scale. The language is rarely the bottleneck.</>)}
             </>)}
             {track === 'java' && (<>
               {para(<>Kavya&apos;s point is about <em>what happens at scale</em>. Java is 30 years old and still powers the backend of most banks, telecoms, and large e-commerce systems. This is not inertia — it is intentional. Java&apos;s <strong>strong type system</strong> catches an entire class of bugs before they reach production. When a refactor touches 200 files, the compiler tells you every place that broke.</>)}
@@ -2436,10 +2437,10 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             {keyBox(track === 'python' ? 'Python ecosystem by domain' : track === 'java' ? 'Java ecosystem by domain' : 'Node.js ecosystem by domain',
               track === 'python' ? [
-                'Web APIs: FastAPI (modern, async), Flask (minimal), Django (batteries included)',
-                'Data analysis: pandas, NumPy, Polars (the fast modern alternative to pandas)',
-                'Machine learning: scikit-learn, PyTorch, TensorFlow, Hugging Face',
-                'Automation & scripting: subprocess, pathlib, shutil, schedule',
+                'Web APIs: Flask (minimal, explicit), FastAPI (async, auto-docs), Django (batteries included)',
+                'Database: SQLAlchemy (ORM + raw SQL), Alembic (migrations), psycopg2 (Postgres driver)',
+                'Background jobs: Celery (distributed tasks), APScheduler (simple scheduling), RQ (Redis Queue)',
+                'HTTP clients: requests (simple), httpx (async), aiohttp (high-performance async)',
                 'Testing: pytest (the standard — write it from day one)',
               ] : track === 'java' ? [
                 'Web APIs: Spring Boot (the industry standard), Quarkus, Micronaut',
@@ -2461,7 +2462,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             <CodeAnatomy track={track} accentColor={meta.accentColor} />
 
             {pullQuote(
-              track === 'python' ? 'In Python, there is almost always a library for what you need. The skill is knowing which one to trust — and when to reach for it versus writing it yourself.' :
+              track === 'python' ? 'Adding a library is a decision, not just a convenience. You are taking on its security history, its maintenance future, and its compatibility requirements. Choose deliberately.' :
               track === 'java' ? 'Java verbosity is a feature at scale. When six engineers are modifying the same service, explicit types and structure prevent the codebase from becoming incomprehensible.' :
               'The event loop is Node\'s superpower for I/O-heavy work. But CPU-intensive tasks block the single thread — know the difference, and know when to reach for worker threads or a separate service.'
             )}
@@ -2478,7 +2479,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <ApplyItBox prompt={
               track === 'python'
-                ? 'Pick a data task you are working on. Search PyPI for a library that handles it. Check: how many weekly downloads does it have, when was it last updated, and does it have a test suite? These three signals tell you whether to trust a library.'
+                ? 'Pick any library in your current project. Open its PyPI page and its GitHub repo. Check: when was the last release, how many open issues are there, and does it have recent commits? Run pip-audit in your venv. These signals tell you whether the library is safe to keep in production.'
                 : track === 'java'
                 ? 'Find one Spring Boot annotation you use but have not looked up (like @RestController or @Transactional). Read the official Spring docs for it. Write one sentence explaining what it actually does at runtime — not just what you assumed.'
                 : 'Identify one npm package in your current project. Check its npm page: weekly downloads, last publish date, number of open issues. Now look at the GitHub repo if it exists. Is this dependency well-maintained? Would you add it today?'
@@ -2487,10 +2488,10 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             <QuizEngine conceptId="swe-m1-ecosystem" conceptName="Language Ecosystem" moduleContext={meta.moduleContext}
               staticQuiz={track === 'python' ? {
                 conceptId: 'swe-m1-ecosystem',
-                question: 'A Python data pipeline is slow under load. A colleague suggests rewriting it in Rust. What is the stronger first investigation?',
-                options: ['A. Profile where the time is actually going — it is likely I/O or an inefficient query, not Python speed', 'B. Python is simply too slow for production pipelines and Rust is the right call', 'C. Switch from pandas to NumPy — NumPy is optimised for large datasets'],
-                correctIndex: 0,
-                explanation: 'Most pipeline slowness comes from blocking I/O, N+1 queries, or missing indexes — not the language runtime. Profile before rewriting. Instagram and Dropbox run Python backends at scale. Measure first.',
+                question: 'A PyPI library does exactly what you need, has a clean API, but its last commit was 18 months ago with 30 open issues. What is the most appropriate next step?',
+                options: ['A. Use it — no recent commits means the API is stable and mature', 'B. Check for known CVEs, assess maintainer responsiveness, and evaluate actively maintained alternatives', 'C. Avoid any library with open issues — they indicate poor code quality'],
+                correctIndex: 1,
+                explanation: 'A stale commit history and open issues can signal abandonment, which means known security vulnerabilities will never be patched. Investigate before committing: check CVE databases, see if maintainers respond to issues, and look for maintained alternatives.',
               } : track === 'java' ? {
                 conceptId: 'swe-m1-ecosystem',
                 question: 'A new team member asks why the Java codebase uses explicit interfaces everywhere instead of just concrete classes. What is the most accurate explanation?',
@@ -2517,7 +2518,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
               role={meta.protagonistRole}
               color={meta.accentColor}
               content={level === 'advanced' ? ADV.s04[track].open : <>
-                {track === 'python' && <>If a bug is dropping data there has to be some kind of error message. My code always throws an exception if something goes wrong. The logs should tell me exactly what happened.</>}
+                {track === 'python' && <>I added a duplicate check before the shift swap insert. Tested it, no more duplicates. The problem is clearly fixed — if there were still issues the DB would be throwing constraint errors.</>}
                 {track === 'java' && <>My validation logic is thorough. I covered null inputs in the unit tests. If there is a NullPointerException it is probably a malformed request from the test harness, something straightforward to fix.</>}
                 {track === 'nodejs' && <>My resend endpoint is simple — it fetches the notification record and calls the send function once. If users are getting duplicates it is probably a network retry from the delivery service, not anything wrong in my code.</>}
               </>}
@@ -2525,7 +2526,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
 
             <StoryCard protagonist={meta.protagonist.split(' ')[0]} accentColor={meta.accentColor}>
               {level === 'advanced' ? ADV.s04[track].story : <>
-                {track === "python" && <>Priya paces near the whiteboard, voice tight. Three days. Client Gamma is missing three days of revenue data with no errors thrown, no warnings logged, just a quiet absence in the numbers. Aisha stares at the pipeline logs: page after page of green SUCCESS checkmarks. Nothing red. Nothing wrong. Sam suggests sprinkling print statements everywhere until something shows up. Aisha looks at the volume of log output and feels completely lost.</>}
+                {track === "python" && <>Aisha&apos;s duplicate check passes review and deploys on Tuesday. For two days, no duplicates. Then on Thursday, a burst of shift swap requests during shift changeover creates a new wave of duplicate entries — different timestamps, same worker pairs. The application-layer check is racing: two concurrent requests both read &apos;no record exists&apos; and both insert. Dev says just catch the error and swallow it. Riya reads the thread and asks the one question Aisha has been avoiding: &apos;Do you actually know why duplicates were happening?&apos;</>}
                 {track === "java" && <>A real-world staging payment triggers against Vikram&apos;s new endpoint. The amount is significant. The call hangs for a beat, then fires a NullPointerException into the logs. The staging dashboard returns PAYMENT FAILED in red. Kavya, still calm: &lsquo;I need the exact input payload that caused this. Every field, every value.&rsquo; Suresh appears in the doorway. His expression does not communicate that this is fine.</>}
                 {track === "nodejs" && <>The Slack support channel fills up fast. Got this notification three times. Why did I get two identical emails. Leo opens his endpoint logs. No errors. Just a pattern of Notification sent followed immediately by another Notification sent for the same notification ID. Jordan: &lsquo;Maybe wrap it all in Promise.all, or add a setTimeout zero to debounce it?&rsquo; Mei reads the logs over Leo&apos;s shoulder and does not say anything for a long moment.</>}
               </>}
