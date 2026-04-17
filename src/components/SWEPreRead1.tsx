@@ -1657,21 +1657,21 @@ type SWECSData = { mentorName: string; mentorRole: string; mentorColor: string; 
 const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECSData>> = {
   s01: {
     python: {
-      mentorName: 'Riya', mentorRole: 'Data Engineering Lead', mentorColor: '#0369A1',
+      mentorName: 'Sam', mentorRole: 'Junior Data Engineer', mentorColor: '#059669',
       lines: [
         { speaker: 'protagonist', text: "The pipeline logged SUCCESS but Client Alpha's revenue is still zero. The fix deployed — maybe the dashboard takes time to update?" },
-        { speaker: 'mentor', text: "Aisha. Look at this report. Your pipeline ran through. What does 'ran successfully' truly mean here?" },
-        { speaker: 'protagonist', text: "Exit code zero. The logs showed nothing wrong. But the data is still bad." },
-        { speaker: 'mentor', text: "Exit code zero tells you the process terminated normally. It says nothing about whether the output is correct. Those are different questions." },
+        { speaker: 'mentor', text: "SUCCESS means it ran. If there was a problem it would have crashed. Dashboards take time to sync — give it another hour." },
+        { speaker: 'protagonist', text: "Three hours later. Still wrong. How can the output be bad if the pipeline logged no errors at all?" },
+        { speaker: 'mentor', text: "If there were no errors it probably worked. Might be a caching issue in the dashboard. I'd ask the frontend team." },
       ],
     },
     java: {
-      mentorName: 'Kavya', mentorRole: 'Senior Backend Engineer', mentorColor: '#7C3AED',
+      mentorName: 'Rahul', mentorRole: 'Junior Backend Engineer', mentorColor: '#0891B2',
       lines: [
-        { speaker: 'protagonist', text: "My code compiles, tests pass, endpoint returns 200 in my IDE. CI fails with ClassNotFoundException for a dependency that's right there in pom.xml." },
-        { speaker: 'mentor', text: "Vikram. Describe the precise difference in how your code executes in your IDE versus the CI environment." },
-        { speaker: 'protagonist', text: "I'm not sure. My IDE just runs it. CI must be setting up classpath differently somehow." },
-        { speaker: 'mentor', text: "Your IDE auto-manages the classpath, often including transitive dependencies. CI builds from a clean slate using only what's explicitly declared. That's not the same thing." },
+        { speaker: 'protagonist', text: "My code compiles, all tests pass, endpoint returns 200 in my IDE. CI fails with ClassNotFoundException for a dependency that is right there in pom.xml." },
+        { speaker: 'mentor', text: "CI is just flaky sometimes. Try re-running the pipeline — it usually fixes itself after a couple of runs." },
+        { speaker: 'protagonist', text: "I have re-run it four times. Same error every time. How is CI not finding a library I can see in pom.xml?" },
+        { speaker: 'mentor', text: "Maybe the CI runner is low on disk or its Maven cache got corrupted. Push a small dummy commit to force a fresh build." },
       ],
     },
     nodejs: {
@@ -1689,9 +1689,9 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
       mentorName: 'Dev', mentorRole: 'Senior Data Scientist', mentorColor: '#D97706',
       lines: [
         { speaker: 'protagonist', text: "Sam gets ModuleNotFoundError for fast_csv_parser on his machine. It works fine on mine — I installed it myself." },
-        { speaker: 'mentor', text: "Aisha, this is why we need to move everything to Kubernetes containers. Your local setup is just a mess. Probably some ancient library version conflict." },
-        { speaker: 'protagonist', text: "Containerization feels like a sledgehammer for this. What's actually different between my machine and Sam's right now?" },
-        { speaker: 'mentor', text: "It's probably a system-level conflict. Containerization just makes this whole class of problem disappear. We should just do it." },
+        { speaker: 'mentor', text: "Probably a Python version mismatch. Check you both have the same minor version — 3.11 vs 3.12 can behave differently for some packages." },
+        { speaker: 'protagonist', text: "We both have 3.11. But the module is clearly installed in my environment and not his. Shouldn't requirements.txt handle this?" },
+        { speaker: 'mentor', text: "Your requirements.txt is probably fine. Have Sam delete his environment and recreate it — a fresh install usually clears up one-off install quirks like this." },
       ],
     },
     java: {
@@ -1726,19 +1726,19 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
     java: {
       mentorName: 'Rahul', mentorRole: 'Junior Backend Engineer', mentorColor: '#0891B2',
       lines: [
-        { speaker: 'protagonist', text: "I've spent 40 minutes reading PaymentService. Interface, abstract class, factory. I haven't written a single line yet." },
-        { speaker: 'mentor', text: "Yeah, that codebase is a beast. Just find the interface you need, implement it, and try not to think too much about the rest." },
-        { speaker: 'protagonist', text: "But if I implement something I don't understand, what do I do when it breaks? What invariant might I be violating?" },
-        { speaker: 'mentor', text: "Honestly it's probably over-engineered. Just look for the methods you need to call. That's what I do." },
+        { speaker: 'protagonist', text: "PaymentService has an interface, an abstract class, and then an implementation. I just need to add a new payment method. Why not write a class directly instead of all this?" },
+        { speaker: 'mentor', text: "Java people just love interfaces. Find the concrete class — probably PaymentServiceImpl — and add your method directly there." },
+        { speaker: 'protagonist', text: "But if I change the implementation, am I supposed to update the interface too? I don't understand what the interface is actually for." },
+        { speaker: 'mentor', text: "Honestly the interface is probably overkill for this service. Just implement what you need in the class. The interface is mostly ceremony." },
       ],
     },
     nodejs: {
       mentorName: 'Jordan', mentorRole: 'Frontend Engineer', mentorColor: '#65A30D',
       lines: [
-        { speaker: 'protagonist', text: "I mentioned that JavaScript was originally designed as a toy language. The room went quiet. I think I said the wrong thing in front of the whole team." },
-        { speaker: 'mentor', text: "Dude, your professor must be living in the past! Modern JS is awesome — TypeScript, React, Next.js, the tooling is incredible." },
-        { speaker: 'protagonist', text: "But I wasn't arguing against the tools. I'm trying to understand why Launchly chose Node for the backend specifically." },
-        { speaker: 'mentor', text: "It's just popular and everyone knows it. That's basically the reason. Why overthink it?" },
+        { speaker: 'protagonist', text: "Launchly's entire backend is Node.js. Why Node specifically? If we wanted serious backend performance, wouldn't Python or Java handle it better?" },
+        { speaker: 'mentor', text: "It's because everyone on the team already knows JavaScript from the frontend. One language for the whole stack — super pragmatic." },
+        { speaker: 'protagonist', text: "So it's basically a convenience choice? Is there anything Node actually does better on the backend, technically?" },
+        { speaker: 'mentor', text: "Mostly the shared language thing. And npm has a package for everything. If the team already knows JS, adding another language is just overhead." },
       ],
     },
   },
@@ -1753,12 +1753,12 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
       ],
     },
     java: {
-      mentorName: 'Kavya', mentorRole: 'Senior Backend Engineer', mentorColor: '#7C3AED',
+      mentorName: 'Rahul', mentorRole: 'Junior Backend Engineer', mentorColor: '#0891B2',
       lines: [
-        { speaker: 'protagonist', text: "Staging NullPointerException on a real payment. My tests all covered null inputs. Where did this null come from?" },
-        { speaker: 'mentor', text: "Vikram — I need the exact input payload that triggered this. Every field, every value." },
-        { speaker: 'protagonist', text: "The staging test uses a real payment system. It might be sending a field in a format I never tested against." },
-        { speaker: 'mentor', text: "Exactly. Your unit tests covered the inputs you imagined. Staging reveals the inputs you didn't imagine. Those are different populations." },
+        { speaker: 'protagonist', text: "Staging NullPointerException on a real payment call. My tests all covered null inputs. Where did this null come from?" },
+        { speaker: 'mentor', text: "Standard fix: add a null check at the top of the method. Guard against null before you do anything and the NPE disappears." },
+        { speaker: 'protagonist', text: "But payment details should never be null. If I just guard against it, am I hiding whatever is actually wrong upstream?" },
+        { speaker: 'mentor', text: "A null check contains the damage. Better than crashing in staging. Fix the symptom now, find the root cause later when things are calmer." },
       ],
     },
     nodejs: {
@@ -2025,39 +2025,39 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <SWEAvatar
-              name={level === 'advanced' ? ADV.s01[track].b2.name : (track === 'python' ? 'Sam' : track === 'java' ? 'Rahul' : meta.mentor)}
-              role={level === 'advanced' ? ADV.s01[track].b2.role : (track === 'python' ? 'Junior Data Engineer' : track === 'java' ? 'Junior Backend Engineer' : meta.mentorRole)}
-              color={level === 'advanced' ? ADV.s01[track].b2.color : (track === 'python' ? '#059669' : track === 'java' ? '#0891B2' : meta.mentorColor)}
+              name={level === 'advanced' ? ADV.s01[track].b2.name : (track === 'python' ? 'Riya' : track === 'java' ? 'Kavya' : meta.mentor)}
+              role={level === 'advanced' ? ADV.s01[track].b2.role : (track === 'python' ? 'Data Engineering Lead' : track === 'java' ? 'Senior Backend Engineer' : meta.mentorRole)}
+              color={level === 'advanced' ? ADV.s01[track].b2.color : (track === 'python' ? '#0369A1' : track === 'java' ? '#7C3AED' : meta.mentorColor)}
               conceptId="swe-m1-execution"
               content={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b2.content}&rdquo;</> :
-                track === 'python' ? <>&ldquo;Hey Aisha, don&apos;t sweat it. If the pipeline logs say &lsquo;SUCCESS&rsquo; and it ran to completion, it&apos;s good. Riya&apos;s probably just overthinking it.&rdquo;</> :
-                track === 'java' ? <>&ldquo;Oh, that&apos;s normal. CI is always a bit finicky. Did you try cleaning your local Maven repository and rebuilding? Sometimes that fixes it.&rdquo;</> :
+                track === 'python' ? <>&ldquo;Aisha. A process that exits with code zero has done exactly one thing: it ended without crashing. That is all. It says nothing about whether the data it wrote is correct. Those are two entirely different questions.&rdquo;</> :
+                track === 'java' ? <>&ldquo;Vikram. Your IDE and CI are not the same environment. Your IDE has been accumulating state — cached jars, resolved transitives, IDE-managed classpaths — for months. CI starts clean, building only from what is explicitly declared in pom.xml.&rdquo;</> :
                 <>&ldquo;Leo, the <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>ReferenceError</code> for <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> tells you something fundamental. Where does browser JavaScript execute, and where does Node.js execute? What&apos;s the context for each?&rdquo;</>
               }
               expandedContent={level === 'advanced' ? <>&ldquo;{ADV.s01[track].b2.expanded}&rdquo;</> :
-                track === 'python' ? <>&ldquo;I mean, I&apos;ve had pipelines run for hours, and as long as they don&apos;t crash, that&apos;s a win, right? We&apos;ve got monitoring, but if it didn&apos;t yell at us, it&apos;s probably fine. Maybe it&apos;s an upstream data issue, not your code.&rdquo;</> :
-                track === 'java' ? <>&ldquo;I&apos;ve had that happen a bunch of times. My code works fine, but CI just acts up. Maybe the CI server has a cached version of your code or something? I&apos;d just try re-running the build a couple of times, or check if anyone else deployed something weird recently.&rdquo;</> :
-                <>&ldquo;Think about what <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> is designed to do. It&apos;s for persisting data on a user&apos;s browser. Now, consider the server. Does it have a &lsquo;user&apos;s browser&rsquo; in the same way? The runtime environment dictates which global objects and APIs are available.&rdquo;</>
+                track === 'python' ? <>&ldquo;Define what success means before you run. For this pipeline, success is not exit code zero — it is Client Alpha&apos;s revenue appearing correctly in the dashboard. Write that assertion explicitly. A pipeline that exits cleanly while writing wrong data is worse than one that crashes, because at least a crash is visible.&rdquo;</> :
+                track === 'java' ? <>&ldquo;A ClassNotFoundException in CI that does not appear locally almost always means a dependency is available in your IDE&apos;s classpath but not explicitly declared in pom.xml. Run mvn dependency:tree to see exactly what Maven resolves. Then read the CI log line by line to find what it is missing and why.&rdquo;</> :
+                <>&ldquo;Think about what <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', background: 'rgba(0,0,0,0.06)', padding: '1px 5px', borderRadius: '3px' }}>localStorage</code> is designed to do. It persists data on a user&apos;s browser. A Node.js server has no browser, no DOM, no window object. Same language syntax, entirely different runtime globals. The environment your code runs in determines which APIs exist.&rdquo;</>
               }
               question={level === 'advanced' ? ADV.s01[track].b2.question :
-                track === 'python' ? 'Sam suggests that a \'SUCCESS\' log message is sufficient proof of a pipeline\'s successful operation. What fundamental aspect does this perspective overlook?' :
-                track === 'java' ? 'Rahul suggests general troubleshooting steps for CI failures. What is a more focused initial action Vikram should take when facing a ClassNotFoundException in CI?' :
-                'Mei prompts Leo to consider the execution context. What is the fundamental difference in the global objects available in a browser versus a Node.js environment?'
+                track === 'python' ? 'A data pipeline exits with code 0 and logs show no errors. The output data is wrong. What does this reveal about relying on exit codes to verify pipeline success?' :
+                track === 'java' ? 'A dependency is visible in pom.xml and resolves correctly in the IDE, but CI throws ClassNotFoundException. What is the most likely explanation?' :
+                'Mei asks Leo to consider execution context. What is the fundamental reason localStorage works in the browser but not in Node.js?'
               }
               options={level === 'advanced' ? ADV.s01[track].b2.opts :
                 track === 'python' ? [
-                  { text: 'The importance of optimizing runtime performance, as a slow success is still considered a failure by some metrics.', correct: false, feedback: 'While performance is important, Sam\'s statement overlooks data correctness, which is more fundamental than speed for pipeline success.' },
-                  { text: 'The potential for logical errors or unhandled edge cases to produce incorrect output without crashing the process.', correct: true, feedback: 'A \'SUCCESS\' log only indicates completion, not correctness. Silent data corruption or missed records are common issues that don\'t always trigger errors.' },
-                  { text: 'The need for comprehensive unit tests to ensure every function works independently before integration into the pipeline.', correct: false, feedback: 'Unit tests are valuable, but Sam\'s point is about runtime verification, not pre-deployment testing, although they are related.' },
+                  { text: 'Exit code 0 only means the process did not crash — it does not verify that the output data is correct or complete.', correct: true, feedback: 'Correct. A pipeline can write zero rows, wrong rows, or corrupted data and still exit cleanly. Success must be defined and verified explicitly, not inferred from the exit code.' },
+                  { text: 'Exit code 0 is unreliable — pipelines should use a non-zero exit code to signal completion regardless of output correctness.', correct: false, feedback: 'Exit codes follow a standard convention: 0 = clean termination. The problem is not the convention — it is assuming termination equals correctness.' },
+                  { text: 'The pipeline likely has a bug that causes it to skip the output step silently, which would require rewriting the error handling logic.', correct: false, feedback: 'This may be true but it is not what Riya is pointing at. Her insight is that "success" must be defined in terms of output correctness, not process termination.' },
                 ] :
                 track === 'java' ? [
-                  { text: 'Review the CI build logs for specific messages about dependency resolution or artifact packaging, not just the exception.', correct: true, feedback: 'Detailed CI logs provide crucial information about the build process, including dependency downloads, classpath construction, and packaging errors.' },
-                  { text: 'Revert to a previous commit that passed CI successfully, then reapply changes incrementally to identify the breaking point.', correct: false, feedback: 'While sometimes necessary, this is a reactive step. Understanding the current failure from logs is more efficient first.' },
-                  { text: 'Check if the CI server\'s operating system has been recently updated, as this can affect Java classpath resolution.', correct: false, feedback: 'OS updates rarely affect Java classpath resolution directly. Build tool configuration and dependency declarations are far more common causes.' },
+                  { text: 'The dependency is declared in pom.xml but the CI environment builds from a clean Maven repository and the jar is not downloading correctly.', correct: true, feedback: 'Correct. CI starts with an empty Maven cache. If the dependency is undeclared, mis-scoped, or not published to the configured repository, CI will fail where the IDE succeeded.' },
+                  { text: 'The CI environment uses a different JDK version that does not support the class format compiled locally.', correct: false, feedback: 'A JDK version mismatch would produce an UnsupportedClassVersionError, not a ClassNotFoundException. ClassNotFoundException specifically means the JVM cannot find the class at all.' },
+                  { text: 'The pom.xml was not committed to the repository, so CI is building against an older version of the dependency declarations.', correct: false, feedback: 'If pom.xml was not committed the build would fail earlier. ClassNotFoundException means CI found the pom.xml but the class it references is not on the resulting classpath.' },
                 ] : [
-                  { text: 'Node.js provides global for server-side utilities, whereas browsers expose window for client-side interactions.', correct: true, feedback: 'Node.js uses global (or globalThis) as its global object, providing access to OS-level functionalities, while browsers use window for DOM manipulation and browser-specific APIs.' },
-                  { text: 'Browsers automatically include all Node.js modules, making them universally accessible without explicit imports.', correct: false, feedback: 'Browsers do not automatically include Node.js modules. Node.js has its own module system (require or import), separate from browser-specific modules.' },
-                  { text: 'The browser environment has no concept of a file system, while Node.js inherently supports file I/O operations.', correct: false, feedback: 'While true that browsers don\'t have direct filesystem access, Mei\'s question is about global objects and APIs, not specific capabilities like file I/O.' },
+                  { text: 'localStorage is a browser API tied to the window object — Node.js has no window, so the API does not exist in that runtime.', correct: true, feedback: 'Correct. Browser and Node.js share the JavaScript language but have entirely different global objects and APIs. localStorage is a browser-only API with no equivalent in the Node.js runtime.' },
+                  { text: 'Node.js does not support persistent storage of any kind, so localStorage-style functionality requires a database instead.', correct: false, feedback: 'Node.js has full access to the file system and databases. The issue is not that Node cannot persist data — it is that localStorage is a browser-specific API, not a universal JavaScript API.' },
+                  { text: 'localStorage was deprecated in modern JavaScript and replaced by the IndexedDB API, which works in both environments.', correct: false, feedback: 'localStorage is not deprecated. IndexedDB is also a browser-only API. The issue is a fundamental runtime difference between browser and Node.js, not a deprecation.' },
                 ]
               }
             />
