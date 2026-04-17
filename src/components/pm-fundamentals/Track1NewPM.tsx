@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -935,7 +935,7 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          <div style={{ margin: '8px 0 24px' }}><PMRoleChecker /></div>
+          <TiltCard style={{ margin: '32px 0' }}><PMRoleChecker /></TiltCard>
 
           {keyBox('What a PM owns — and what they don\'t', [
             'WHAT gets built — which problem to solve, and why now',
@@ -1027,13 +1027,9 @@ export default function Track1NewPM() {
           />
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <SymptomOrProblem />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><SymptomOrProblem /></TiltCard>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <ProblemStatementBuilder />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><ProblemStatementBuilder /></TiltCard>
 
         <div className="rv">
           <PMPrincipleBox principle="Define the problem before you define the solution. Users describe symptoms — not root causes." color="var(--teal)" />
@@ -1237,13 +1233,9 @@ export default function Track1NewPM() {
           />
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <PriorityCall />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><PriorityCall /></TiltCard>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <RICELab />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><RICELab /></TiltCard>
 
         <div className="rv">
           <PMPrincipleBox principle="Before you prioritize features, know what outcome you're trying to drive. Then choose what most directly gets you there." color="var(--coral)" />
@@ -1334,9 +1326,7 @@ export default function Track1NewPM() {
           <ApplyItBox prompt="Think of the last thing you handed off to someone. What word or phrase in your brief could have been misunderstood? What would you clarify next time?" color="var(--green)" />
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <AlignmentSim />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><AlignmentSim /></TiltCard>
 
         <div className="rv" style={{ marginTop: '28px' }}>
           <QuizEngine conceptId="collaboration" conceptName="Building & Alignment" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[4]} />
@@ -1412,9 +1402,7 @@ export default function Track1NewPM() {
           />
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <MetricPicker />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><MetricPicker /></TiltCard>
 
         <div className="rv">
           {keyBox('How to measure like a PM', [

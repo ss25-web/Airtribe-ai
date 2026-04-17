@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -816,9 +816,7 @@ export default function Track2APM() {
           ], 'var(--purple)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}>
-          <TradeoffMatrix />
-        </div>
+        <TiltCard style={{ margin: '32px 0' }}><TradeoffMatrix /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -874,7 +872,7 @@ export default function Track2APM() {
           ], 'var(--purple)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><PMTriangleDiagramAPM /></div>
+        <TiltCard style={{ margin: '32px 0' }}><PMTriangleDiagramAPM /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -931,7 +929,7 @@ export default function Track2APM() {
           ], 'var(--teal)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><ProblemFramingSimulator /></div>
+        <TiltCard style={{ margin: '32px 0' }}><ProblemFramingSimulator /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -988,7 +986,7 @@ export default function Track2APM() {
           ], 'var(--teal)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><ResearchBiasIdentifier /></div>
+        <TiltCard style={{ margin: '32px 0' }}><ResearchBiasIdentifier /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -1045,7 +1043,7 @@ export default function Track2APM() {
           ], 'var(--blue)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><StrategyTradeoffScenario /></div>
+        <TiltCard style={{ margin: '32px 0' }}><StrategyTradeoffScenario /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -1102,7 +1100,7 @@ export default function Track2APM() {
           ], 'var(--blue)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><PMFLocalMaximaDemo /></div>
+        <TiltCard style={{ margin: '32px 0' }}><PMFLocalMaximaDemo /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -1159,7 +1157,7 @@ export default function Track2APM() {
           ], 'var(--coral)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><StakeholderNegotiation /></div>
+        <TiltCard style={{ margin: '32px 0' }}><StakeholderNegotiation /></TiltCard>
 
         <div className="rv">
           <ConversationScene
@@ -1438,7 +1436,7 @@ export default function Track2APM() {
           {pullQuote("When a measure becomes a target, it ceases to be a good measure. — Charles Goodhart", 'var(--purple)')}
         </div>
 
-        <div className="rv" style={{ margin: '24px 0' }}><GuardrailMetricsDemo /></div>
+        <TiltCard style={{ margin: '32px 0' }}><GuardrailMetricsDemo /></TiltCard>
 
         <div className="rv">
           <ConversationScene
