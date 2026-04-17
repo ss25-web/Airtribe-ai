@@ -415,15 +415,16 @@ const ADV: Record<'s01'|'s02'|'s03'|'s04', AdvSection> = {
 
 // ─── Custom story + character components ───────────────────────────────────
 
-const ProtagonistAvatar = ({ name, role, color, content, expandedContent }: {
+const ProtagonistAvatar = ({ name, role, color, content, expandedContent, compact }: {
   name: string; role: string; color: string;
   content: React.ReactNode;
   expandedContent?: React.ReactNode;
+  compact?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
     <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
-      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
       {/* Header */}
       <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -818,10 +819,11 @@ const SWEMentorFace = ({ name, size = 66 }: { name: string; size?: number }) => 
 };
 
 // ─── SWEAvatar — interactive mentor card with face + question ────────────────
-const SWEAvatar = ({ name, role, color, content, expandedContent, question, options, conceptId }: {
+const SWEAvatar = ({ name, role, color, content, expandedContent, question, options, conceptId, compact }: {
   name: string; role: string; color: string;
   content: React.ReactNode;
   expandedContent?: React.ReactNode;
+  compact?: boolean;
   question?: string;
   options?: { text: string; correct: boolean; feedback: string }[];
   conceptId?: string;
@@ -838,7 +840,7 @@ const SWEAvatar = ({ name, role, color, content, expandedContent, question, opti
   };
   return (
     <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
-      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
       {/* Header */}
       <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -2003,17 +2005,22 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             </StoryCard>
 
             {level === 'advanced' ? (<>
-              <SWEAvatar
-                name={ADV.s01[track].b1.name} role={ADV.s01[track].b1.role} color={ADV.s01[track].b1.color}
-                content={<>&ldquo;{ADV.s01[track].b1.content}&rdquo;</>}
-                expandedContent={<>&ldquo;{ADV.s01[track].b1.expanded}&rdquo;</>}
-                question={ADV.s01[track].b1.question} options={ADV.s01[track].b1.opts}
-              />
-              <ProtagonistAvatar
-                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
-                role={meta.protagonistRole} color={meta.accentColor}
-                content={<>{ADV.s01[track].bridge}</>}
-              />
+              <div style={{ borderLeft: `3px solid ${meta.accentColor}40`, paddingLeft: '18px', marginTop: '24px', paddingBottom: '4px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: meta.accentColor, opacity: 0.6, marginBottom: '4px' }}>Advanced · Narrative Thread</div>
+                <SWEAvatar
+                  name={ADV.s01[track].b1.name} role={ADV.s01[track].b1.role} color={ADV.s01[track].b1.color}
+                  content={<>&ldquo;{ADV.s01[track].b1.content}&rdquo;</>}
+                  expandedContent={<>&ldquo;{ADV.s01[track].b1.expanded}&rdquo;</>}
+                  question={ADV.s01[track].b1.question} options={ADV.s01[track].b1.opts}
+                  compact
+                />
+                <ProtagonistAvatar
+                  name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                  role={meta.protagonistRole} color={meta.accentColor}
+                  content={<>{ADV.s01[track].bridge}</>}
+                  compact
+                />
+              </div>
             </>) : (
               <SWEConversationScene
                 track={track}
@@ -2025,6 +2032,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <SWEAvatar
+              compact={level === 'advanced'}
               name={level === 'advanced' ? ADV.s01[track].b2.name : (track === 'python' ? 'Riya' : track === 'java' ? 'Kavya' : meta.mentor)}
               role={level === 'advanced' ? ADV.s01[track].b2.role : (track === 'python' ? 'Data Engineering Lead' : track === 'java' ? 'Senior Backend Engineer' : meta.mentorRole)}
               color={level === 'advanced' ? ADV.s01[track].b2.color : (track === 'python' ? '#0369A1' : track === 'java' ? '#7C3AED' : meta.mentorColor)}
@@ -2147,17 +2155,22 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             </StoryCard>
 
             {level === 'advanced' ? (<>
-              <SWEAvatar
-                name={ADV.s02[track].b1.name} role={ADV.s02[track].b1.role} color={ADV.s02[track].b1.color}
-                content={<>&ldquo;{ADV.s02[track].b1.content}&rdquo;</>}
-                expandedContent={<>&ldquo;{ADV.s02[track].b1.expanded}&rdquo;</>}
-                question={ADV.s02[track].b1.question} options={ADV.s02[track].b1.opts}
-              />
-              <ProtagonistAvatar
-                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
-                role={meta.protagonistRole} color={meta.accentColor}
-                content={<>{ADV.s02[track].bridge}</>}
-              />
+              <div style={{ borderLeft: `3px solid ${meta.accentColor}40`, paddingLeft: '18px', marginTop: '24px', paddingBottom: '4px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: meta.accentColor, opacity: 0.6, marginBottom: '4px' }}>Advanced · Narrative Thread</div>
+                <SWEAvatar
+                  name={ADV.s02[track].b1.name} role={ADV.s02[track].b1.role} color={ADV.s02[track].b1.color}
+                  content={<>&ldquo;{ADV.s02[track].b1.content}&rdquo;</>}
+                  expandedContent={<>&ldquo;{ADV.s02[track].b1.expanded}&rdquo;</>}
+                  question={ADV.s02[track].b1.question} options={ADV.s02[track].b1.opts}
+                  compact
+                />
+                <ProtagonistAvatar
+                  name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                  role={meta.protagonistRole} color={meta.accentColor}
+                  content={<>{ADV.s02[track].bridge}</>}
+                  compact
+                />
+              </div>
             </>) : (
               <SWEConversationScene
                 track={track}
@@ -2169,6 +2182,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <SWEAvatar
+              compact={level === 'advanced'}
               name={level === 'advanced' ? ADV.s02[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Ananya' : meta.mentor)}
               role={level === 'advanced' ? ADV.s02[track].b2.role : (track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Product Manager' : meta.mentorRole)}
               color={level === 'advanced' ? ADV.s02[track].b2.color : (track === 'python' ? '#7C3AED' : track === 'java' ? '#DB2777' : meta.mentorColor)}
@@ -2341,17 +2355,22 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             </StoryCard>
 
             {level === 'advanced' ? (<>
-              <SWEAvatar
-                name={ADV.s03[track].b1.name} role={ADV.s03[track].b1.role} color={ADV.s03[track].b1.color}
-                content={<>&ldquo;{ADV.s03[track].b1.content}&rdquo;</>}
-                expandedContent={<>&ldquo;{ADV.s03[track].b1.expanded}&rdquo;</>}
-                question={ADV.s03[track].b1.question} options={ADV.s03[track].b1.opts}
-              />
-              <ProtagonistAvatar
-                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
-                role={meta.protagonistRole} color={meta.accentColor}
-                content={<>{ADV.s03[track].bridge}</>}
-              />
+              <div style={{ borderLeft: `3px solid ${meta.accentColor}40`, paddingLeft: '18px', marginTop: '24px', paddingBottom: '4px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: meta.accentColor, opacity: 0.6, marginBottom: '4px' }}>Advanced · Narrative Thread</div>
+                <SWEAvatar
+                  name={ADV.s03[track].b1.name} role={ADV.s03[track].b1.role} color={ADV.s03[track].b1.color}
+                  content={<>&ldquo;{ADV.s03[track].b1.content}&rdquo;</>}
+                  expandedContent={<>&ldquo;{ADV.s03[track].b1.expanded}&rdquo;</>}
+                  question={ADV.s03[track].b1.question} options={ADV.s03[track].b1.opts}
+                  compact
+                />
+                <ProtagonistAvatar
+                  name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                  role={meta.protagonistRole} color={meta.accentColor}
+                  content={<>{ADV.s03[track].bridge}</>}
+                  compact
+                />
+              </div>
             </>) : (
               <SWEConversationScene
                 track={track}
@@ -2363,6 +2382,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <SWEAvatar
+              compact={level === 'advanced'}
               name={level === 'advanced' ? ADV.s03[track].b2.name : (track === 'python' ? meta.mentor : track === 'java' ? 'Suresh' : 'Jordan')}
               role={level === 'advanced' ? ADV.s03[track].b2.role : (track === 'python' ? meta.mentorRole : track === 'java' ? 'Principal Architect' : 'Frontend Engineer')}
               color={level === 'advanced' ? ADV.s03[track].b2.color : (track === 'python' ? meta.mentorColor : track === 'java' ? '#2563EB' : '#65A30D')}
@@ -2512,17 +2532,22 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             </StoryCard>
 
             {level === 'advanced' ? (<>
-              <SWEAvatar
-                name={ADV.s04[track].b1.name} role={ADV.s04[track].b1.role} color={ADV.s04[track].b1.color}
-                content={<>&ldquo;{ADV.s04[track].b1.content}&rdquo;</>}
-                expandedContent={<>&ldquo;{ADV.s04[track].b1.expanded}&rdquo;</>}
-                question={ADV.s04[track].b1.question} options={ADV.s04[track].b1.opts}
-              />
-              <ProtagonistAvatar
-                name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
-                role={meta.protagonistRole} color={meta.accentColor}
-                content={<>{ADV.s04[track].bridge}</>}
-              />
+              <div style={{ borderLeft: `3px solid ${meta.accentColor}40`, paddingLeft: '18px', marginTop: '24px', paddingBottom: '4px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase' as const, color: meta.accentColor, opacity: 0.6, marginBottom: '4px' }}>Advanced · Narrative Thread</div>
+                <SWEAvatar
+                  name={ADV.s04[track].b1.name} role={ADV.s04[track].b1.role} color={ADV.s04[track].b1.color}
+                  content={<>&ldquo;{ADV.s04[track].b1.content}&rdquo;</>}
+                  expandedContent={<>&ldquo;{ADV.s04[track].b1.expanded}&rdquo;</>}
+                  question={ADV.s04[track].b1.question} options={ADV.s04[track].b1.opts}
+                  compact
+                />
+                <ProtagonistAvatar
+                  name={track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo'}
+                  role={meta.protagonistRole} color={meta.accentColor}
+                  content={<>{ADV.s04[track].bridge}</>}
+                  compact
+                />
+              </div>
             </>) : (
               <SWEConversationScene
                 track={track}
@@ -2534,6 +2559,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
             )}
 
             <SWEAvatar
+              compact={level === 'advanced'}
               name={level === 'advanced' ? ADV.s04[track].b2.name : (track === 'python' ? 'Priya' : track === 'java' ? 'Suresh' : meta.mentor)}
               role={level === 'advanced' ? ADV.s04[track].b2.role : (track === 'python' ? 'Engineering Manager' : track === 'java' ? 'Principal Architect' : meta.mentorRole)}
               color={level === 'advanced' ? ADV.s04[track].b2.color : (track === 'python' ? '#7C3AED' : track === 'java' ? '#2563EB' : meta.mentorColor)}
