@@ -51,7 +51,7 @@ const MODULES = [
     desc: 'Advanced workflow patterns: data transformation, conditional logic, loops, batching, human-in-the-loop systems, and building chat-based AI agents with memory.',
     duration: 'Live sessions · 2',
     tools: ['n8n', 'OpenAI', 'Gmail'],
-    available: false,
+    available: true,
     accent: '#059669',
   },
   {
@@ -61,7 +61,7 @@ const MODULES = [
     desc: 'EI agent automation, HR evaluation workflows, Gmail draft automation, LinkedIn content generation, approval flows, SERP-based content, and complaint categorization with RAG scoring.',
     duration: 'Live sessions · 2',
     tools: ['n8n', 'Gemini', 'LinkedIn'],
-    available: false,
+    available: true,
     accent: '#7C3AED',
   },
   {
@@ -282,7 +282,7 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
             <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-reads 01–04 are available now. More modules unlock week by week as the cohort progresses.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            4 of 6 available
+            6 of 6 available
           </div>
         </div>
 
