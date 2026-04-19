@@ -330,6 +330,194 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
+// ── M5 TiltCard Mockups ──────────────────────────────────────────────────────
+
+const SplitBatchesCard = ({ track }: { track: GenAITrack }) => {
+  const inputCount = track === 'tech' ? 20 : 80;
+  const batchSize = track === 'tech' ? 5 : 10;
+  const batches = Math.ceil(inputCount / batchSize);
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>SPLITINBATCHES — LOOP MECHANICS & FEEDBACK EDGE</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)', borderRadius: '8px', padding: '12px 14px' }}>
+          <div style={{ fontSize: '9px', color: '#059669', letterSpacing: '0.08em', marginBottom: '6px' }}>INPUT ARRAY</div>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: '#C9D1D9' }}>{inputCount} items</div>
+          <div style={{ fontSize: '9px', color: '#6B7280', marginTop: '4px' }}>{track === 'tech' ? 'claims to classify' : 'renewals to process'}</div>
+        </div>
+        <div style={{ textAlign: 'center' as const, color: '#059669', fontSize: '20px' }}>→</div>
+        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.35)', borderRadius: '8px', padding: '12px 14px', boxShadow: '0 0 16px rgba(245,158,11,0.15)' }}>
+          <div style={{ fontSize: '9px', color: '#F59E0B', letterSpacing: '0.08em', marginBottom: '4px' }}>SPLITINBATCHES</div>
+          <div style={{ fontSize: '11px', color: '#C9D1D9', marginBottom: '6px' }}>batch_size = {batchSize}</div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ flex: 1, padding: '4px 6px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: '4px', fontSize: '8px', color: '#16A34A', textAlign: 'center' as const }}>batch →<br/>AI Node</div>
+            <div style={{ flex: 1, padding: '4px 6px', background: 'rgba(245,158,11,0.1)', border: '1px dashed rgba(245,158,11,0.4)', borderRadius: '4px', fontSize: '8px', color: '#F59E0B', textAlign: 'center' as const }}>has items<br/>↺ self</div>
+          </div>
+          <div style={{ marginTop: '6px', fontSize: '8px', color: '#DC2626', fontWeight: 700 }}>↺ = the feedback edge (critical)</div>
+        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(batches, 4)}, 1fr)`, gap: '6px', marginBottom: '12px' }}>
+        {Array.from({ length: Math.min(batches, 4) }, (_, i) => (
+          <div key={i} style={{ padding: '6px 8px', background: i < batches - 1 ? 'rgba(22,163,74,0.08)' : 'rgba(5,150,105,0.08)', border: `1px solid ${i < batches - 1 ? 'rgba(22,163,74,0.2)' : 'rgba(5,150,105,0.3)'}`, borderRadius: '6px', textAlign: 'center' as const }}>
+            <div style={{ fontSize: '8px', color: '#6B7280' }}>Iteration {i + 1}</div>
+            <div style={{ fontSize: '10px', color: '#C9D1D9', fontWeight: 600 }}>items {i * batchSize + 1}–{Math.min((i + 1) * batchSize, inputCount)}</div>
+            <div style={{ fontSize: '8px', color: i < batches - 1 ? '#16A34A' : '#059669' }}>{i < batches - 1 ? 'has items ↺' : '✓ done'}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding: '8px 10px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)', borderRadius: '6px', fontSize: '9px', color: '#FCA5A5' }}>Without the feedback edge: processes batch 1 only — then stops. With it: loops {batches}× until 0 items remain.</div>
+    </div>
+  );
+};
+
+const TransformPreviewCard = ({ track }: { track: GenAITrack }) => {
+  const before = track === 'tech'
+    ? { claimID: 'CLM-4412', subject: 'Urgent: Pharmacy override', body: 'Patient requests...', policyCode: undefined }
+    : { row_id: 14, exception_date: '2026-03-10', 'Renewal Manager': 'Singh, A.', Status: 'PEND', Notes: 'Awaiting docs' };
+  const after = track === 'tech'
+    ? { claim_id: 'CLM-4412', policy_code: 'NONE', classification_input: 'SUBJECT: Urgent: Pharmacy override\nBODY: Patient requests...' }
+    : { exception_id: '14', date: '2026-03-10', manager: 'Singh, A.', status: 'pending', summary_input: 'Exception 14 (2026-03-10): PEND — Awaiting docs' };
+  const formatVal = (v: unknown) => v === undefined ? '<empty>' : typeof v === 'string' ? `"${v}"` : String(v);
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>SET NODE — DATA TRANSFORMATION BEFORE AI CALL</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 32px 1fr', gap: '10px', alignItems: 'start' }}>
+        <div>
+          <div style={{ fontSize: '9px', color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>RAW INPUT</div>
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '10px 12px' }}>
+            {Object.entries(before).map(([k, v]) => (
+              <div key={k} style={{ marginBottom: '4px' }}>
+                <span style={{ color: '#7C3AED' }}>{k}</span>
+                <span style={{ color: '#6B7280' }}>: </span>
+                <span style={{ color: v === undefined ? '#DC2626' : '#C9D1D9', fontStyle: v === undefined ? 'italic' : 'normal' }}>{formatVal(v)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', fontSize: '16px', paddingTop: '30px' }}>⟹</div>
+        <div>
+          <div style={{ fontSize: '9px', color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>SET NODE OUTPUT</div>
+          <div style={{ background: 'rgba(5,150,105,0.05)', border: '1px solid rgba(5,150,105,0.2)', borderRadius: '6px', padding: '10px 12px' }}>
+            {Object.entries(after).map(([k, v]) => (
+              <div key={k} style={{ marginBottom: '4px' }}>
+                <span style={{ color: '#059669' }}>{k}</span>
+                <span style={{ color: '#6B7280' }}>: </span>
+                <span style={{ color: '#C9D1D9', wordBreak: 'break-all' as const }}>{formatVal(v)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ marginTop: '10px', fontSize: '9px', color: '#6B7280' }}>The AI node receives only the clean output — no raw field names, no undefined values, no inconsistent casing.</div>
+    </div>
+  );
+};
+
+const RouterCard = ({ track }: { track: GenAITrack }) => {
+  const routes = track === 'tech' ? [
+    { label: 'confidence ≥ 0.85', action: 'Auto-write to tracker', color: '#16A34A', count: '~68%' },
+    { label: '0.60 ≤ confidence < 0.85', action: 'Slack → human review queue', color: '#F59E0B', count: '~24%' },
+    { label: 'confidence < 0.60', action: 'Alert + manual triage', color: '#DC2626', count: '~8%' },
+  ] : [
+    { label: 'status = "critical"', action: 'Immediate escalation email', color: '#DC2626', count: 'flagged' },
+    { label: 'status = "pending" + days > 3', action: 'Manager follow-up Slack', color: '#F59E0B', count: 'overdue' },
+    { label: 'status = "pending" + days ≤ 3', action: 'Add to weekly summary', color: '#16A34A', count: 'normal' },
+  ];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>IF / SWITCH ROUTING — CONDITIONAL BRANCHING</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+        <div style={{ padding: '8px 14px', background: '#F5F5F4', border: '1px solid #D6D3D1', borderRadius: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#292524', fontWeight: 600 }}>{track === 'tech' ? 'IF/Switch' : 'Switch'} Node</div>
+        <div style={{ color: '#A8A29E', fontSize: '12px' }}>evaluates:</div>
+        <div style={{ padding: '6px 10px', background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)', borderRadius: '6px', fontSize: '11px', color: '#059669', fontFamily: "'JetBrains Mono', monospace" }}>{track === 'tech' ? '{{ $json.confidence }}' : '{{ $json.status }}, {{ $json.days_open }}'}</div>
+      </div>
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {routes.map((r, i) => (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '10px', alignItems: 'center' }}>
+            <div style={{ padding: '8px 12px', background: `${r.color}10`, border: `1px solid ${r.color}30`, borderRadius: '6px', fontSize: '10px', color: r.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{r.label}</div>
+            <div style={{ color: '#D1D5DB', fontSize: '14px' }}>→</div>
+            <div style={{ padding: '8px 12px', background: '#fff', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#44403C' }}>
+              {r.action}
+              <span style={{ marginLeft: '6px', fontSize: '9px', color: '#A8A29E' }}>({r.count})</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const HITLQueueCard = ({ track }: { track: GenAITrack }) => {
+  return (
+    <div style={{ background: '#1A1D21', borderRadius: '12px', padding: '0', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ background: '#19171D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #2D2D2D' }}>
+        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#4A154B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>⧬</div>
+        <div style={{ color: '#D1D1D1', fontSize: '12px', fontWeight: 600 }}># {track === 'tech' ? 'claims-review' : 'ops-approvals'}</div>
+        <div style={{ marginLeft: 'auto', fontSize: '9px', color: '#616061', letterSpacing: '0.08em' }}>HUMAN-IN-THE-LOOP APPROVAL</div>
+      </div>
+      <div style={{ padding: '16px' }}>
+        <div style={{ background: '#222529', border: '1px solid #2D2D2D', borderRadius: '8px', padding: '12px 14px', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#fff', fontWeight: 700, flexShrink: 0 }}>n8</div>
+            <div>
+              <div style={{ fontSize: '11px', color: '#D1D1D1', fontWeight: 600 }}>n8n Workflow Bot</div>
+              <div style={{ fontSize: '9px', color: '#616061' }}>Today at 09:14</div>
+            </div>
+          </div>
+          <div style={{ fontSize: '11px', color: '#D1D1D1', lineHeight: 1.6, marginBottom: '10px' }}>
+            {track === 'tech'
+              ? <>⚑ <strong>Review Required</strong><br />Claim <span style={{ color: '#059669' }}>CLM-4412</span> — confidence score: <span style={{ color: '#F59E0B' }}>0.71</span> (below 0.85 threshold)<br />Category suggested: <span style={{ color: '#A78BFA' }}>Pharmacy override · Tier 2</span><br />SLA deadline: <strong>Thursday 17:00</strong></>
+              : <>⚑ <strong>Approval Required</strong><br />Exception <span style={{ color: '#059669' }}>#4412</span> — 6 days open (SLA: 5d)<br />Recommended action: <span style={{ color: '#A78BFA' }}>Escalate to regional manager</span><br />Please approve or reject before <strong>Thursday 12:00</strong></>}
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ padding: '6px 16px', background: '#007A5A', borderRadius: '4px', fontSize: '10px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>✓ Approve</div>
+            <div style={{ padding: '6px 16px', background: '#transparent', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>✗ Reject</div>
+            <div style={{ padding: '6px 16px', background: 'transparent', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>⤢ View Case</div>
+          </div>
+        </div>
+        <div style={{ fontSize: '9px', color: '#616061' }}>Timeout 48h → auto-escalate to team lead. Resume webhook: wf-approval-4412.n8n.cloud/webhook/…</div>
+      </div>
+    </div>
+  );
+};
+
+const AgentMemoryCard = ({ track }: { track: GenAITrack }) => {
+  const turns = track === 'tech' ? [
+    { role: 'user', text: 'What is the deductible for Plan B, Tier 2?' },
+    { role: 'agent', text: 'The Tier 2 deductible for Plan B is $1,400 per year. (Retrieved from plan schedule.)' },
+    { role: 'user', text: 'What about Tier 3?' },
+    { role: 'agent', text: 'Tier 3 deductible for Plan B is $2,100. (Context: user previously asked about Plan B.)' },
+    { role: 'user', text: 'Is there a family cap?' },
+    { role: 'agent', text: 'Family out-of-pocket max for Plan B is $8,700 across all tiers.' },
+  ] : [
+    { role: 'user', text: 'Summarise the open exceptions for account Northstar West.' },
+    { role: 'agent', text: '3 open exceptions: #4412 (6d), #4419 (2d), #4433 (1d). SLA threshold: 5 days.' },
+    { role: 'user', text: 'Which of those is highest priority?' },
+    { role: 'agent', text: '#4412 — 6 days open, 1 day past SLA. (Context retained from previous turn.)' },
+    { role: 'user', text: 'Draft an escalation note for it.' },
+    { role: 'agent', text: 'Drafting escalation for #4412 (Northstar West, 6d open) to regional manager…' },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E' }}>AI AGENT — WINDOW BUFFER MEMORY (last 4 turns)</div>
+        <div style={{ fontSize: '9px', color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: '4px' }}>session: user-{track === 'tech' ? '7821' : 'rhea-3'}</div>
+      </div>
+      <div style={{ display: 'grid', gap: '6px', maxHeight: '220px', overflowY: 'auto' as const }}>
+        {turns.map((t, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', opacity: i < turns.length - 4 ? 0.4 : 1 }}>
+            <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: t.role === 'user' ? 'rgba(124,58,237,0.2)' : 'rgba(5,150,105,0.2)', border: `1px solid ${t.role === 'user' ? '#7C3AED' : '#059669'}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: t.role === 'user' ? '#A78BFA' : '#6EE7B7', fontWeight: 700 }}>{t.role === 'user' ? 'U' : 'A'}</div>
+            <div style={{ fontSize: '10px', color: i < turns.length - 4 ? '#484F58' : '#C9D1D9', lineHeight: 1.5, flex: 1 }}>{t.text}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '10px', padding: '6px 10px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '4px', fontSize: '9px', color: '#D97706' }}>Faded turns = outside the 4-turn window. Still stored in buffer — but not injected into next prompt. Session ID isolates this memory from other users.</div>
+    </div>
+  );
+};
+
+// ── End M5 TiltCard Mockups ───────────────────────────────────────────────────
+
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
   return (
@@ -441,6 +629,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-loops"
         />
+        <TiltCard style={{ margin: '28px 0' }}><SplitBatchesCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take a workflow that processes a single item. Add a SplitInBatches node with batch size 5. Connect the feedback edge. Run it on an array of 20 test items. Verify all 20 are processed — not just the first 5."
           : "Take your renewal workflow. Replace the single-item trigger with a loop that reads all rows from the spreadsheet. Run it on 10 test rows. Confirm 10 outputs are produced — not just 1."} />
@@ -500,6 +689,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-transforms"
         />
+        <TiltCard style={{ margin: '28px 0' }}><TransformPreviewCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take two HTTP nodes with different response schemas. Add a Set node after each that maps both to a shared canonical schema. Connect both to a Merge node. Verify the merged output has consistent field names and no undefined values."
           : "Create a small test: two data sources with different field names for the same concept. Add Set nodes to normalize both. Merge them on the shared field name. Confirm the merge finds matches — print the output before and after."} />
@@ -559,6 +749,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-routing"
         />
+        <TiltCard style={{ margin: '28px 0' }}><RouterCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take a workflow that routes on an AI confidence score. Print the actual confidence values before the If node. Confirm they are numbers, not strings. Test with boundary values: 0.84, 0.85, 0.86. Verify each routes correctly."
           : "Take a routing workflow. Before the Switch node, add a Set node that prints the routing field value. Run it on 5 test items. Confirm the values match what the Switch conditions expect — same case, no spaces, correct format."} />
@@ -618,6 +809,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-hitl"
         />
+        <TiltCard style={{ margin: '28px 0' }}><HITLQueueCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Build a minimal approval flow: an HTTP trigger → a Wait node → a Slack message with an interactive button. The button's action URL is the Wait node's resume webhook. Test it manually: trigger the workflow, click the Slack button, confirm the workflow resumes."
           : "Design an approval flow for your report workflow: email containing an approval link → Wait node → continue on click. Map out what happens on timeout (48 hours, no click). Write the timeout branch action before you build the happy path."} />
@@ -677,6 +869,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-agents"
         />
+        <TiltCard style={{ margin: '28px 0' }}><AgentMemoryCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Build a chat agent with Window Buffer Memory. Set the session ID to a dynamic user identifier from the request. Test with two different user IDs simultaneously. Confirm context from one session does not appear in the other."
           : "Design the session ID strategy for your FAQ chatbot. What unique identifier is available per user? Map it. Test with two team members using the chatbot at the same time. Confirm their conversations are isolated."} />

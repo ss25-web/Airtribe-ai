@@ -330,6 +330,190 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
+// ── M6 TiltCard Mockups ──────────────────────────────────────────────────────
+
+const AgentArchCard = ({ track }: { track: GenAITrack }) => {
+  const tools = track === 'tech'
+    ? ['get_claim_data', 'query_policy_db', 'write_tracker', 'send_slack']
+    : ['get_exception_data', 'lookup_policy', 'send_email', 'escalate_to_manager'];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '16px' }}>AI AGENT ARCHITECTURE — ORCHESTRATOR + TOOLS + MEMORY</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', alignItems: 'start' }}>
+        <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: '8px', padding: '14px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '10px' }}>MEMORY</div>
+          <div style={{ fontSize: '10px', color: '#44403C', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: '4px' }}>· Window Buffer (chat turns)</div>
+            <div style={{ marginBottom: '4px' }}>· Session ID per user</div>
+            <div>· Context injected into each prompt</div>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.3)', borderRadius: '8px', padding: '14px', textAlign: 'center' as const, boxShadow: '0 0 20px rgba(245,158,11,0.12)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#F59E0B', letterSpacing: '0.1em', marginBottom: '8px' }}>ORCHESTRATOR (LLM)</div>
+          <div style={{ fontSize: '10px', color: '#44403C', lineHeight: 1.6 }}>
+            <div>Decides which tool to call</div>
+            <div>Reads tool output</div>
+            <div>Reasons → acts → repeats</div>
+            <div>Returns final response</div>
+          </div>
+        </div>
+        <div style={{ background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.2)', borderRadius: '8px', padding: '14px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#059669', letterSpacing: '0.1em', marginBottom: '10px' }}>TOOLS</div>
+          {tools.map((t, i) => (
+            <div key={i} style={{ fontSize: '9px', color: '#44403C', marginBottom: '4px', padding: '3px 6px', background: 'rgba(5,150,105,0.06)', borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace" }}>{t}()</div>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginTop: '12px', padding: '8px 12px', background: '#F5F5F4', borderRadius: '6px', fontSize: '10px', color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>Chain = same steps every time. Agent = orchestrator decides steps based on intermediate results.</div>
+    </div>
+  );
+};
+
+const ToolRegistryCard = ({ track }: { track: GenAITrack }) => {
+  const tools = track === 'tech' ? [
+    { name: 'get_claim_data', when: 'User asks about a specific claim ID', whenNot: 'User asks a general policy question', input: 'claim_id: string', color: '#7C3AED' },
+    { name: 'query_policy_db', when: 'User needs a policy clause or coverage rule', whenNot: 'Claim data already contains the policy text', input: 'query: string, policy_type: string', color: '#2563EB' },
+    { name: 'write_tracker', when: 'Classification is confirmed with confidence ≥ 0.85', whenNot: 'Confidence < 0.85 or user is still exploring', input: 'claim_id, category, confidence: number', color: '#0F766E' },
+  ] : [
+    { name: 'get_exception_data', when: 'User asks about a specific exception or account', whenNot: 'User wants a general report or trend', input: 'account_id: string', color: '#7C3AED' },
+    { name: 'send_email', when: 'Escalation is confirmed and recipient is specified', whenNot: 'Draft not approved or recipient unclear', input: 'to: string, subject: string, body: string', color: '#2563EB' },
+    { name: 'escalate_to_manager', when: 'SLA breach confirmed AND standard path exhausted', whenNot: 'Exception is within SLA or first contact', input: 'exception_id, reason: string', color: '#DC2626' },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>TOOL REGISTRY — DESCRIPTION IS THE AGENT&apos;S DECISION RULE</div>
+      <div style={{ display: 'grid', gap: '10px' }}>
+        {tools.map((t) => (
+          <div key={t.name} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${t.color}25`, borderRadius: '8px', padding: '12px 14px', borderLeft: `3px solid ${t.color}` }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: t.color, marginBottom: '6px' }}>{t.name}()</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '6px' }}>
+              <div>
+                <div style={{ fontSize: '8px', color: '#16A34A', letterSpacing: '0.08em', marginBottom: '2px' }}>CALL WHEN</div>
+                <div style={{ fontSize: '9px', color: '#9CA3AF', lineHeight: 1.5 }}>{t.when}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '8px', color: '#DC2626', letterSpacing: '0.08em', marginBottom: '2px' }}>DO NOT CALL WHEN</div>
+                <div style={{ fontSize: '9px', color: '#9CA3AF', lineHeight: 1.5 }}>{t.whenNot}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: '9px', color: '#6B7280' }}>Input: <span style={{ color: '#A78BFA' }}>{t.input}</span></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ReActTraceCard = ({ track }: { track: GenAITrack }) => {
+  const steps = track === 'tech' ? [
+    { type: 'REASON', text: 'User asked about claim CLM-4412. I need to fetch claim data first before I can classify or answer.', color: '#7C3AED' },
+    { type: 'ACT', text: 'get_claim_data(claim_id="CLM-4412")', color: '#F59E0B' },
+    { type: 'OBS', text: 'Returns: {category: "pharmacy", policy_code: "4.2c", status: "disputed", amount: 1840}', color: '#059669' },
+    { type: 'REASON', text: 'Claim is a pharmacy dispute. Policy code 4.2c is in the amendment — I should verify the current clause before classifying.', color: '#7C3AED' },
+    { type: 'ACT', text: 'query_policy_db(query="clause 4.2c pharmacy override", policy_type="amendment")', color: '#F59E0B' },
+    { type: 'OBS', text: 'Returns: {clause: "4.2c", permits: "Tier 2 CA override", effective: "2022-02-01"}', color: '#059669' },
+    { type: 'REASON', text: 'Claim qualifies for override under §4.2c. Confidence: high. I can now write the classification.', color: '#7C3AED' },
+  ] : [
+    { type: 'REASON', text: 'User asked for the highest-priority exception. I need to fetch exception data for the specified account first.', color: '#7C3AED' },
+    { type: 'ACT', text: 'get_exception_data(account_id="northstar-west")', color: '#F59E0B' },
+    { type: 'OBS', text: 'Returns: [{id: 4412, days_open: 6, sla: 5}, {id: 4419, days_open: 2}, {id: 4433, days_open: 1}]', color: '#059669' },
+    { type: 'REASON', text: 'Exception 4412 is 1 day over SLA — highest priority. Should I also check escalation history before recommending action?', color: '#7C3AED' },
+    { type: 'ACT', text: 'get_exception_data(account_id="northstar-west", exception_id=4412, include_history=true)', color: '#F59E0B' },
+    { type: 'OBS', text: 'Returns: {escalations: [], last_contact: "2026-03-08", notes: "awaiting docs from insured"}', color: '#059669' },
+    { type: 'REASON', text: 'No prior escalations, last contact 5 days ago. Standard first escalation is appropriate.', color: '#7C3AED' },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>ReAct PATTERN — REASON → ACT → OBSERVE → REPEAT</div>
+      <div style={{ display: 'grid', gap: '6px' }}>
+        {steps.map((s, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+            <div style={{ minWidth: '52px', padding: '2px 6px', background: `${s.color}15`, border: `1px solid ${s.color}30`, borderRadius: '4px', fontSize: '8px', fontWeight: 700, color: s.color, textAlign: 'center' as const, flexShrink: 0 }}>{s.type}</div>
+            <div style={{ fontSize: '10px', color: s.type === 'ACT' ? '#F59E0B' : s.type === 'OBS' ? '#6EE7B7' : '#C9D1D9', lineHeight: 1.5, fontStyle: s.type === 'REASON' ? 'italic' : 'normal' }}>{s.text}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const RAGPipelineCard = ({ track }: { track: GenAITrack }) => {
+  const query = track === 'tech' ? 'Does Plan B Tier 2 cover physician overrides?' : 'What is the SLA for Northstar West escalations?';
+  const retrieved = track === 'tech' ? ['§4.2c: Tier 2 CA override permitted... (score: 0.91)', '§3.1: Standard pharmacy benefit schedule... (score: 0.84)', '§4.2b: Tier 1 physician override rules... (score: 0.79)'] : ['Northstar SLA policy v2: escalation SLA is 5 business days... (score: 0.93)', 'Escalation matrix 2026: West region contact: ops-lead@ns... (score: 0.87)', 'Exception handling guide §2: SLA breach triggers manager... (score: 0.82)'];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>RAG PIPELINE — QUERY → EMBED → RETRIEVE → GROUND → GENERATE</div>
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {[
+          { step: '1. QUERY', content: query, color: '#7C3AED', bg: 'rgba(124,58,237,0.06)' },
+          { step: '2. EMBED', content: 'query → vector [0.21, -0.84, 0.53, … 1536 dims]', color: '#2563EB', bg: 'rgba(37,99,235,0.06)' },
+          { step: '3. RETRIEVE (top-3)', content: retrieved, color: '#0891B2', bg: 'rgba(8,145,178,0.06)' },
+          { step: '4. GROUND', content: 'System: "Answer using ONLY the provided documents. If the answer is not in the documents, say: I don\'t have that information."', color: '#0F766E', bg: 'rgba(15,118,110,0.06)' },
+          { step: '5. GENERATE', content: track === 'tech' ? 'Yes — §4.2c (amendment, Feb 2022) permits Tier 2 physician overrides for CA-based plans. This applies to Plan B.' : 'SLA for Northstar West escalations is 5 business days (Northstar SLA policy v2). A breach triggers manager-level escalation per §2 of the exception guide.', color: '#16A34A', bg: 'rgba(22,163,74,0.06)' },
+        ].map((s) => (
+          <div key={s.step} style={{ display: 'grid', gridTemplateColumns: '110px 1fr', gap: '10px', alignItems: 'start' }}>
+            <div style={{ padding: '4px 8px', background: s.bg, border: `1px solid ${s.color}30`, borderRadius: '4px', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: s.color, textAlign: 'center' as const }}>{s.step}</div>
+            <div style={{ fontSize: '10px', color: '#44403C', lineHeight: 1.5, background: '#fff', border: '1px solid #E7E5E4', borderRadius: '6px', padding: '6px 10px' }}>
+              {Array.isArray(s.content) ? s.content.map((c, i) => <div key={i} style={{ marginBottom: i < s.content.length - 1 ? '3px' : 0 }}>{c}</div>) : s.content}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const TokenCostCard = ({ track }: { track: GenAITrack }) => {
+  const rows = track === 'tech' ? [
+    { id: 'run-001', model: 'claude-3-5-sonnet', in: 1240, out: 380, tools: 2, cost: '$0.018' },
+    { id: 'run-002', model: 'claude-3-5-sonnet', in: 8920, out: 2100, tools: 11, cost: '$0.134', flag: true },
+    { id: 'run-003', model: 'claude-3-5-sonnet', in: 1180, out: 340, tools: 2, cost: '$0.017' },
+    { id: 'run-004', model: 'claude-3-5-sonnet', in: 1310, out: 410, tools: 3, cost: '$0.020' },
+  ] : [
+    { id: 'run-001', model: 'claude-3-5-sonnet', in: 980, out: 290, tools: 1, cost: '$0.013' },
+    { id: 'run-002', model: 'claude-3-5-sonnet', in: 1100, out: 320, tools: 1, cost: '$0.015' },
+    { id: 'run-003', model: 'claude-3-5-sonnet', in: 6840, out: 1900, tools: 7, cost: '$0.103', flag: true },
+    { id: 'run-004', model: 'claude-3-5-sonnet', in: 990, out: 300, tools: 1, cost: '$0.014' },
+  ];
+  const flagged = rows.find(r => r.flag);
+  return (
+    <div style={{ background: '#172B4D', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8993A4' }}>PER-RUN TOKEN LOG — COST ATTRIBUTION & ANOMALY DETECTION</div>
+        <div style={{ fontSize: '9px', color: '#F59E0B', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '4px' }}>1 anomaly flagged</div>
+      </div>
+      <div style={{ overflowX: 'auto' as const }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '10px' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #253858' }}>
+              {['run_id', 'model', 'in_tokens', 'out_tokens', 'tool_calls', 'cost'].map(h => (
+                <th key={h} style={{ padding: '4px 8px', textAlign: 'left' as const, color: '#8993A4', fontWeight: 600, fontSize: '9px', letterSpacing: '0.06em' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} style={{ borderBottom: '1px solid #1E3A5F', background: r.flag ? 'rgba(245,158,11,0.06)' : 'transparent' }}>
+                <td style={{ padding: '6px 8px', color: r.flag ? '#F59E0B' : '#C1C7D0' }}>{r.id}{r.flag ? ' ⚑' : ''}</td>
+                <td style={{ padding: '6px 8px', color: '#8993A4', fontSize: '9px' }}>{r.model}</td>
+                <td style={{ padding: '6px 8px', color: r.flag ? '#F59E0B' : '#C1C7D0' }}>{r.in.toLocaleString()}</td>
+                <td style={{ padding: '6px 8px', color: r.flag ? '#F59E0B' : '#C1C7D0' }}>{r.out.toLocaleString()}</td>
+                <td style={{ padding: '6px 8px', color: r.flag ? '#DC2626' : '#C1C7D0', fontWeight: r.flag ? 700 : 400 }}>{r.tools}</td>
+                <td style={{ padding: '6px 8px', color: r.flag ? '#F59E0B' : '#C1C7D0', fontWeight: r.flag ? 700 : 400 }}>{r.cost}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div style={{ marginTop: '10px', padding: '8px 10px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '6px', fontSize: '9px', color: '#D97706' }}>
+        {flagged?.id} used {flagged?.tools}× tool calls vs avg 1–3. Input tokens {(flagged?.in ?? 0).toLocaleString()} vs avg ~1,100. Investigate: agent in a tool-calling loop?
+      </div>
+    </div>
+  );
+};
+
+// ── End M6 TiltCard Mockups ───────────────────────────────────────────────────
+
 function CoreContent({ track }: { track: GenAITrack }) {
   return (
     <>
@@ -441,6 +625,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m6-architecture"
         />
+        <TiltCard style={{ margin: '28px 0' }}><AgentArchCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "List 3 tasks you have automated or are considering. For each, answer: does the sequence of steps change based on intermediate results? Mark each as 'chain' or 'agent'. Build a chain for one of the chain tasks before touching agent architecture."
           : "List 3 automation tasks relevant to your role. For each: does the task need to make decisions mid-run based on what it finds, or does it follow the same steps every time? Mark each chain vs. agent. This is your decision framework."} />
@@ -500,6 +685,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m6-tools"
         />
+        <TiltCard style={{ margin: '28px 0' }}><ToolRegistryCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take one tool in your agent. Rewrite its description to include: what it does, when to call it, when NOT to call it, and expected input format. Test: give the agent a prompt where the tool should NOT fire. Verify the new description prevents the call."
           : "List the tools in your agent or planned agent. For each, write a one-sentence 'when to call' and a one-sentence 'when NOT to call.' These two sentences are the minimum for a useful tool description."} />
@@ -559,6 +745,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m6-reasoning"
         />
+        <TiltCard style={{ margin: '28px 0' }}><ReActTraceCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take an agent that makes a ranking or classification decision. Add a scratchpad instruction to its system prompt. Run it on 5 test cases. Read the scratchpad output. Identify one case where the reasoning reveals a gap in the tool's data or the prompt's framing."
           : "Take a recommendation your agent makes. Add a one-sentence-per-item reasoning requirement to the system prompt. Run it on 3 test cases. Could you explain each recommendation to a stakeholder? If not, the prompt needs more specificity."} />
@@ -618,6 +805,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m6-rag"
         />
+        <TiltCard style={{ margin: '28px 0' }}><RAGPipelineCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Build a minimal RAG flow: HTTP trigger → embedding lookup → top-3 retrieval → grounded response. Test with: 1) a question answerable from docs, 2) a question NOT in the docs. Verify the second returns 'I don't have that information' — not a hallucinated answer."
           : "Identify one knowledge base your team relies on (policy docs, procedure guides, FAQs). Design a RAG flow for it: what gets chunked, what gets embedded, what threshold for retrieval. Then write the grounding prompt instruction. Start there before building anything."} />
@@ -677,6 +865,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m6-scale"
         />
+        <TiltCard style={{ margin: '28px 0' }}><TokenCostCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Add a logging step to your most complex agent workflow. Log: model, input tokens, output tokens, tool calls list. Run it 10 times on varied inputs. Build a simple view of the logs (a Google Sheet is fine). Identify the run with the highest token count — read its tool call list."
           : "Add a tool call log to your most-used agent workflow: tool name, timestamp, trigger condition, output summary. Run for one week. At the end of the week, answer: which tool was called most often, and were all those calls justified?"} />

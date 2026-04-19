@@ -333,6 +333,200 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
+// ── M4 TiltCard Mockups ──────────────────────────────────────────────────────
+
+const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
+  const nodes = track === 'tech' ? [
+    { label: 'Email\nTrigger', icon: '✉', color: '#0F766E', type: 'TRIGGER' },
+    { label: 'Extract\nFields', icon: '⬡', color: '#2563EB', type: 'DATA' },
+    { label: 'Format\nInput', icon: '⟳', color: '#7C3AED', type: 'TRANSFORM' },
+    { label: 'OpenAI\nClassify', icon: '✦', color: '#F59E0B', type: 'AI NODE', highlight: true },
+    { label: 'Write to\nTracker', icon: '⊞', color: '#16A34A', type: 'OUTPUT' },
+  ] : [
+    { label: 'Schedule\nTrigger', icon: '⏱', color: '#0F766E', type: 'TRIGGER' },
+    { label: 'Sheets\nFetch', icon: '⊞', color: '#2563EB', type: 'DATA' },
+    { label: 'Set\nFields', icon: '⟳', color: '#7C3AED', type: 'TRANSFORM' },
+    { label: 'Claude\nSummarise', icon: '✦', color: '#F59E0B', type: 'AI NODE', highlight: true },
+    { label: 'Send\nEmail', icon: '✉', color: '#16A34A', type: 'OUTPUT' },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '20px' }}>WORKFLOW ANATOMY — AI IS ONE NODE IN FIVE</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0', overflowX: 'auto' as const }}>
+        {nodes.map((n, i) => (
+          <React.Fragment key={i}>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px', minWidth: '72px' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '10px', background: n.highlight ? `rgba(245,158,11,0.15)` : 'rgba(255,255,255,0.04)', border: `2px solid ${n.highlight ? n.color : n.color + '50'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', boxShadow: n.highlight ? `0 0 16px ${n.color}40` : 'none' }}>{n.icon}</div>
+              <div style={{ fontSize: '8px', fontWeight: 700, color: n.highlight ? n.color : '#6B7280', letterSpacing: '0.06em', textAlign: 'center' as const }}>{n.type}</div>
+              <div style={{ fontSize: '10px', color: n.highlight ? '#C9D1D9' : '#9CA3AF', textAlign: 'center' as const, lineHeight: 1.3, whiteSpace: 'pre-line' as const }}>{n.label}</div>
+            </div>
+            {i < nodes.length - 1 && <div style={{ color: '#374151', fontSize: '18px', margin: '0 4px', paddingBottom: '28px', flexShrink: 0 }}>—</div>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{ marginTop: '16px', padding: '8px 12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '6px', fontSize: '10px', color: '#D97706' }}>The AI node (highlighted) executes whatever you pass it. The 4 surrounding nodes determine what it receives and what happens to its output.</div>
+    </div>
+  );
+};
+
+const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
+  const categories = [
+    {
+      label: 'TRIGGER NODES', color: '#0F766E', bg: 'rgba(15,118,110,0.08)', border: 'rgba(15,118,110,0.2)',
+      nodes: track === 'tech' ? ['Email / Gmail', 'Webhook (HTTP)', 'Schedule / Cron', 'Form submission'] : ['Schedule / Cron', 'Google Form', 'Webhook (HTTP)', 'Manual trigger'],
+      note: 'Start the workflow. One per workflow.',
+    },
+    {
+      label: 'DATA NODES', color: '#2563EB', bg: 'rgba(37,99,235,0.08)', border: 'rgba(37,99,235,0.2)',
+      nodes: track === 'tech' ? ['HTTP Request', 'Google Sheets', 'Postgres / MySQL', 'AWS S3'] : ['Google Sheets', 'Airtable', 'HTTP Request', 'Gmail read'],
+      note: 'Fetch or write external data.',
+    },
+    {
+      label: 'TRANSFORM NODES', color: '#7C3AED', bg: 'rgba(124,58,237,0.08)', border: 'rgba(124,58,237,0.2)',
+      nodes: ['Set (rename/format fields)', 'Code (custom JS/Python)', 'IF / Switch (branching)', 'Merge (combine inputs)'],
+      note: 'Shape data between nodes.',
+    },
+    {
+      label: 'AI NODES', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)',
+      nodes: ['OpenAI (GPT-4, GPT-3.5)', 'Anthropic (Claude)', 'Google AI (Gemini)', 'AI Agent (with tools)'],
+      note: 'Language work only. Needs clean input.',
+    },
+  ];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>n8n NODE TYPE MAP — WHAT EACH CATEGORY DOES</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        {categories.map((cat) => (
+          <div key={cat.label} style={{ background: cat.bg, border: `1px solid ${cat.border}`, borderRadius: '8px', padding: '12px 14px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: cat.color, letterSpacing: '0.1em', marginBottom: '8px' }}>{cat.label}</div>
+            {cat.nodes.map((n, i) => (
+              <div key={i} style={{ fontSize: '10px', color: '#44403C', marginBottom: '4px', paddingLeft: '8px', borderLeft: `2px solid ${cat.border}` }}>{n}</div>
+            ))}
+            <div style={{ marginTop: '8px', fontSize: '9px', color: '#78716C', fontStyle: 'italic' }}>{cat.note}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CredentialCard = ({ track }: { track: GenAITrack }) => {
+  const creds = [
+    {
+      type: 'API Key', color: '#2563EB', risk: 'LOW RISK', riskColor: '#16A34A',
+      owner: 'Shared team key — stored in n8n credential manager',
+      note: 'Key is scoped, revocable, not tied to any individual login.',
+    },
+    {
+      type: 'OAuth 2.0 (Personal Account)', color: '#F59E0B', risk: 'HIGH RISK', riskColor: '#DC2626',
+      owner: track === 'tech' ? "Aarav's personal Google account" : "Rhea's personal Google account",
+      note: 'Token invalidates on password change, 2FA update, or offboarding. Single point of failure.',
+    },
+    {
+      type: 'Service Account (Recommended)', color: '#0F766E', risk: 'RECOMMENDED', riskColor: '#0F766E',
+      owner: 'team-automation@northstar.iam — shared, no personal login dependency',
+      note: 'Team-owned, survives personnel changes, auditable in IAM console.',
+    },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>CREDENTIAL TYPES — OWNERSHIP & FAILURE RISK</div>
+      <div style={{ display: 'grid', gap: '10px' }}>
+        {creds.map((c) => (
+          <div key={c.type} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${c.color}30`, borderRadius: '8px', padding: '12px 14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: c.color }}>{c.type}</div>
+              <div style={{ fontSize: '8px', fontWeight: 700, color: c.riskColor, background: `${c.riskColor}15`, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.08em' }}>{c.risk}</div>
+            </div>
+            <div style={{ fontSize: '10px', color: '#9CA3AF', marginBottom: '4px' }}>Owner: <span style={{ color: '#C9D1D9' }}>{c.owner}</span></div>
+            <div style={{ fontSize: '10px', color: '#6B7280', fontStyle: 'italic' }}>{c.note}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
+  const trigger = track === 'tech' ? 'Email Trigger' : 'Schedule Trigger';
+  const aiNode = track === 'tech' ? 'OpenAI Classify' : 'Claude Summarise';
+  const output = track === 'tech' ? 'Write to Tracker' : 'Send Email';
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '16px' }}>ERROR ROUTING — EVERY NODE NEEDS A FAILURE PATH</div>
+      <div style={{ display: 'grid', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' as const }}>
+          {[trigger, 'Set Fields', aiNode, 'Validate Output', output].map((n, i, arr) => (
+            <React.Fragment key={i}>
+              <div style={{ padding: '6px 12px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', fontSize: '10px', color: '#166534', fontWeight: 500 }}>{n}</div>
+              {i < arr.length - 1 && <div style={{ color: '#16A34A', fontSize: '12px' }}>→</div>}
+            </React.Fragment>
+          ))}
+          <div style={{ marginLeft: '4px', padding: '4px 8px', background: '#F0FDF4', border: '1px dashed #BBF7D0', borderRadius: '4px', fontSize: '9px', color: '#16A34A', fontWeight: 700 }}>✓ SUCCESS PATH</div>
+        </div>
+        <div style={{ borderLeft: '2px solid #E7E5E4', marginLeft: '60px', paddingLeft: '12px', display: 'grid', gap: '6px' }}>
+          <div style={{ fontSize: '9px', color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>⤷ ANY NODE FAILURE →</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' as const }}>
+            {['Error Catch', 'Slack Alert', 'Dead Letter Queue'].map((n, i, arr) => (
+              <React.Fragment key={i}>
+                <div style={{ padding: '6px 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', fontSize: '10px', color: '#991B1B', fontWeight: 500 }}>{n}</div>
+                {i < arr.length - 1 && <div style={{ color: '#DC2626', fontSize: '12px' }}>→</div>}
+              </React.Fragment>
+            ))}
+            <div style={{ marginLeft: '4px', padding: '4px 8px', background: '#FEF2F2', border: '1px dashed #FECACA', borderRadius: '4px', fontSize: '9px', color: '#DC2626', fontWeight: 700 }}>✗ ERROR PATH</div>
+          </div>
+          <div style={{ fontSize: '9px', color: '#78716C', fontStyle: 'italic' }}>Slack alert fires → on-call reviews dead letter → manual reprocess. Nothing lost silently.</div>
+        </div>
+        <div style={{ padding: '8px 12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '6px', fontSize: '10px', color: '#92400E', fontFamily: "'JetBrains Mono', monospace" }}>Validate Output checks: output length &gt; 50 chars AND required fields present. Fails → error path, not silent send.</div>
+      </div>
+    </div>
+  );
+};
+
+const E2EWorkflowCanvas = ({ track }: { track: GenAITrack }) => {
+  const nodes = track === 'tech' ? [
+    { label: 'Email Trigger', sub: 'On receive', color: '#0F766E', icon: '✉' },
+    { label: 'Set Fields', sub: 'policy_code, body', color: '#7C3AED', icon: '⟳' },
+    { label: 'OpenAI', sub: 'classify → JSON', color: '#F59E0B', icon: '✦' },
+    { label: 'IF Node', sub: 'confidence ≥ 0.8', color: '#2563EB', icon: '⟨⟩' },
+    { label: 'Write Tracker', sub: 'Sheets row append', color: '#16A34A', icon: '⊞' },
+    { label: 'Human Review', sub: 'Slack alert', color: '#DC2626', icon: '⚑' },
+  ] : [
+    { label: 'Mon 7am', sub: 'Schedule trigger', color: '#0F766E', icon: '⏱' },
+    { label: 'Fetch Sheet', sub: 'Exception rows', color: '#2563EB', icon: '⊞' },
+    { label: 'Set Fields', sub: 'exception_text', color: '#7C3AED', icon: '⟳' },
+    { label: 'Claude', sub: 'summarise → text', color: '#F59E0B', icon: '✦' },
+    { label: 'Validate', sub: 'length + keywords', color: '#0891B2', icon: '✓' },
+    { label: 'Send Email', sub: 'Director + CC', color: '#16A34A', icon: '✉' },
+  ];
+  return (
+    <div style={{ background: '#172B4D', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8993A4' }}>n8n CANVAS — {track === 'tech' ? 'EXCEPTION CLASSIFICATION WORKFLOW' : 'MONDAY SUMMARY WORKFLOW'}</div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {['#FF5F57', '#FFBD2E', '#28CA41'].map((c, i) => <div key={i} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', flexWrap: 'wrap' as const }}>
+        {nodes.map((n, i) => (
+          <React.Fragment key={i}>
+            <div style={{ background: '#253858', border: `1.5px solid ${n.color}60`, borderRadius: '8px', padding: '10px 12px', minWidth: '80px', textAlign: 'center' as const, borderTop: `3px solid ${n.color}` }}>
+              <div style={{ fontSize: '16px', marginBottom: '4px' }}>{n.icon}</div>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#C1C7D0', marginBottom: '2px' }}>{n.label}</div>
+              <div style={{ fontSize: '8px', color: '#8993A4' }}>{n.sub}</div>
+            </div>
+            {i < nodes.length - 1 && i !== 3 && <div style={{ color: '#4C5F79', fontSize: '16px', paddingTop: '16px', flexShrink: 0 }}>→</div>}
+            {i === 3 && track === 'tech' && <div style={{ color: '#4C5F79', fontSize: '11px', paddingTop: '16px', flexShrink: 0 }}>→↓</div>}
+          </React.Fragment>
+        ))}
+      </div>
+      {track === 'tech' && <div style={{ marginTop: '10px', fontSize: '9px', color: '#8993A4' }}>IF confidence &lt; 0.8 → routes to Human Review (Slack). IF confidence ≥ 0.8 → writes to Tracker directly.</div>}
+    </div>
+  );
+};
+
+// ── End M4 TiltCard Mockups ───────────────────────────────────────────────────
+
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
   return (
@@ -484,6 +678,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Whether Rhea has n8n access set up already", correct: false, feedback: "Access is a setup task, not a design task. It's irrelevant until the workflow is designed." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><WorkflowAnatomy track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Take the exception classification workflow you've been asked to build. Draw a node diagram with: trigger node, data input node(s), any transformation nodes needed before the AI call, the AI node with its input/output contract, any transformation nodes after the AI call, and the final output node. Count how many nodes are not the AI node. For each non-AI node, write one sentence describing what it does and what it outputs. This is your workflow spec." : "Write out your Monday morning exception summary process as if handing it to someone new. Start with 'Every Monday at 7am, the first thing I do is...' and keep going until the email is sent. Count the distinct steps. Identify which step is the AI call. Identify which step is most likely to fail silently. That step needs error handling before you automate anything."} />
         <QuizEngine
           conceptId="genai-m4-mindset"
@@ -585,6 +780,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "The workflow needs to be re-activated after adding the Write node", correct: false, feedback: "Re-activation affects whether the workflow runs on the next trigger — it doesn't affect a run that already succeeded with a green status." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><NodeTypeMapCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "In n8n, add an Email Trigger node and run a test with one real exception email. Open the data panel and copy the JSON output. Write the exact Set node mapping you'd need to produce a single 'classification_input' field that handles both the 'subject has policy code' and 'subject has no policy code' cases. Verify the Set node output is correct for both cases before connecting the OpenAI node." : "In n8n, add a Schedule Trigger, a Google Sheets node connected to your exception sheet, and a Set node. Run the Sheets node and look at the data panel output. Write down: what fields does each row have? Which fields does your summary prompt actually need? Build the Set node to extract only those fields into a clean text block, and test it returns what you expect before adding the AI node."} />
         <QuizEngine
           conceptId="genai-m4-nodes"
@@ -683,6 +879,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "The workflow will only run when Rhea is logged in", correct: false, feedback: "OAuth tokens are stored by n8n and used server-side — the workflow runs independently of whether Rhea is logged into her browser. The risk is token invalidation when her account security changes." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><CredentialCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "List every credential your current or planned n8n workflow uses: AI API key, Slack token, Google Sheets OAuth, email send auth. For each, write down: (1) whose account owns it, (2) what happens if that person rotates or revokes it, (3) who can fix it at 2am if it breaks. Identify any credential where the answer to (3) is 'only one person' and redesign those as service accounts or shared team credentials." : "For the Monday summary workflow, list every external service it connects to and the credential type used for each. For each credential, answer: (1) whose personal account is it tied to, (2) what's the token expiry, (3) who can renew it if the owner is unavailable. If any credential is tied to a single person, create a team Google/Slack/email account and migrate the credential before the workflow goes live."} />
         <QuizEngine
           conceptId="genai-m4-connect"
@@ -780,6 +977,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "The email node sent successfully but the email client stripped the body", correct: false, feedback: "Email client rendering issues affect HTML formatting — they don't strip the entire body from a plain-text email. If the body arrived empty, it was sent empty." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><ErrorPathCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "For each node in your exception classification workflow, answer three questions: (1) what happens if this node times out — retry, skip, or halt? (2) what happens if it returns an unexpected format — log and continue, or alert and halt? (3) what happens if it succeeds but produces a wrong output — how would you know? Add an error branch to any node where your answer to any question is 'I don't know.' Add a dead-letter queue write step to capture any item that fails processing." : "Add a validation node to your Monday summary workflow. Before the email send, add an IF node that checks: (1) is the AI output more than 100 characters? (2) does it contain the word 'exceptions'? If either check fails, route to a Slack alert that says 'Monday summary validation failed — [output_length] characters, missing expected content.' Test it by temporarily modifying the prompt to return a short output and verify the alert fires."} />
         <QuizEngine
           conceptId="genai-m4-errors"
@@ -878,6 +1076,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Check that the email address is correct before going live", correct: false, feedback: "Email address verification is a pre-flight check — important but not the production readiness test. The production readiness question is whether the output quality justifies removing human oversight." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><E2EWorkflowCanvas track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Before marking any classification workflow production-ready, complete this checklist: (1) add a confidence field to AI output and set a threshold calibrated on 20+ labeled examples; (2) build a human review queue for below-threshold items with a defined daily SLA; (3) log workflow version, model version, and prompt hash for every classification; (4) test three explicit failure cases: empty input, ambiguous input, and input that belongs to two categories. Document the workflow's behaviour for each. Sign off only when all four are done." : "Pull last week's real exception sheet. Run your workflow on it and save the AI output. Then pull the brief you actually sent last week. Compare them line by line. For each difference, write one sentence: is this a prompt gap (the prompt doesn't ask for this), a data gap (the data wasn't in the sheet), or a quality bar gap (the AI version is acceptable but different)? Count the prompt gaps. Each one is a workflow improvement before go-live."} />
         <QuizEngine
           conceptId="genai-m4-e2e"

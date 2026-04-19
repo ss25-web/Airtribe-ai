@@ -333,6 +333,170 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
+// ── M3 TiltCard Mockups ──────────────────────────────────────────────────────
+
+const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
+  const sources = track === 'tech'
+    ? [{ label: 'Primary Policy Doc', status: 'read', color: '#0891B2' }, { label: 'Amendment (2022)', status: 'missing', color: '#DC2626' }, { label: 'Case Precedents', status: 'missing', color: '#DC2626' }, { label: 'Internal Guidelines', status: 'missing', color: '#DC2626' }]
+    : [{ label: 'Current Exception Ticket', status: 'read', color: '#0891B2' }, { label: 'Prior Week Thread', status: 'missing', color: '#DC2626' }, { label: 'Relevant Policy Clause', status: 'missing', color: '#DC2626' }, { label: 'Open Escalation Flags', status: 'missing', color: '#DC2626' }];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '16px' }}>SOURCE PIPELINE — CURRENT STATE vs. TRIANGULATED</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', gap: '12px', alignItems: 'start' }}>
+        <div>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>✗ SINGLE-SOURCE (CURRENT)</div>
+          {sources.slice(0, 1).map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: 'rgba(8,145,178,0.06)', border: '1px solid rgba(8,145,178,0.2)', borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#44403C' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color, flexShrink: 0 }} />{s.label}
+            </div>
+          ))}
+          {sources.slice(1).map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: 'rgba(220,38,38,0.04)', border: '1px dashed rgba(220,38,38,0.2)', borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#A8A29E' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#E7E5E4', flexShrink: 0 }} />{s.label}
+            </div>
+          ))}
+          <div style={{ marginTop: '10px', padding: '8px 10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', fontSize: '10px', color: '#991B1B' }}>→ Synthesis: fluent but incomplete</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#D1D5DB', paddingTop: '30px' }}>→</div>
+        <div>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>✓ TRIANGULATED (TARGET)</div>
+          {sources.map((s, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: i === 0 ? 'rgba(8,145,178,0.06)' : 'rgba(22,163,74,0.05)', border: `1px solid ${i === 0 ? 'rgba(8,145,178,0.2)' : 'rgba(22,163,74,0.2)'}`, borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#44403C' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? s.color : '#16A34A', flexShrink: 0 }} />{s.label}
+            </div>
+          ))}
+          <div style={{ marginTop: '10px', padding: '8px 10px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', fontSize: '10px', color: '#166534' }}>→ Synthesis: surfaced conflict on clause 4.2c</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
+  const genericOut = track === 'tech'
+    ? 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.'
+    : 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.';
+  const decisionOut = track === 'tech'
+    ? 'Category: Disputed pharmacy benefit. Action required: Escalate to pharmacy review — treating physician override requested, 48h SLA. Urgency: High. Blocking factor: amendment clause 4.2c (added Feb 2022) is absent from policy v3 which the pipeline read.'
+    : 'Director attention needed: 2 of 23 exceptions exceed SLA by >5 days (Accounts #4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed from you.';
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>COMPRESSION TYPE — SAME INPUT, DIFFERENT PURPOSE</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+        <div>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: '#DC2626', letterSpacing: '0.1em', marginBottom: '8px' }}>✗ GENERIC COMPRESSION</div>
+          <div style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: '8px', padding: '12px', fontSize: '11px', color: '#9CA3AF', lineHeight: 1.6 }}>{genericOut}</div>
+          <div style={{ marginTop: '8px', fontSize: '9px', color: '#6B7280' }}>Tells you: what happened. Doesn&apos;t tell you: what to do.</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: '#16A34A', letterSpacing: '0.1em', marginBottom: '8px' }}>✓ DECISION-GRADE COMPRESSION</div>
+          <div style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{decisionOut}</div>
+          <div style={{ marginTop: '8px', fontSize: '9px', color: '#16A34A' }}>Tells you: what to do next, and why, and when.</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
+  const rows = track === 'tech' ? [
+    { key: 'WHO', q: 'Who is affected?', val: 'Tier 2 claimant, treating physician, pharmacy benefit manager' },
+    { key: 'WHAT', q: 'What scenario exactly?', val: 'Physician override request — clause 4.2c, amendment Feb 2022' },
+    { key: 'WHEN', q: 'When does policy apply?', val: 'Claims submitted after 1 Jan 2022 under Plan B only' },
+    { key: 'WHERE', q: 'Which jurisdiction?', val: 'CA-only benefit schedule, not federal plan' },
+    { key: 'WHY', q: 'Why is this researched?', val: 'Escalation decision within 48h SLA — irreversible if missed' },
+    { key: 'HOW', q: 'How is output used?', val: 'Case worker decides: approve / escalate / request more info' },
+  ] : [
+    { key: 'WHO', q: 'Who reads this brief?', val: 'Regional Director — pre-meeting scan, 5 min read max' },
+    { key: 'WHAT', q: 'What question are they asking?', val: '"Is there anything I need to act on before Friday?"' },
+    { key: 'WHEN', q: 'When do they decide?', val: 'Thursday AM before weekly ops call' },
+    { key: 'WHERE', q: 'Where does this brief land?', val: 'Slack message → printed for call notes' },
+    { key: 'WHY', q: 'Why this week specifically?', val: '2 accounts breached SLA — board visibility risk' },
+    { key: 'HOW', q: 'How will they act on it?', val: 'Approve escalation or delegate — one decision, not five' },
+  ];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>5W1H BRIEF TEMPLATE — COMPLETE BEFORE WRITING THE PROMPT</div>
+      <div style={{ display: 'grid', gap: '6px' }}>
+        {rows.map((r) => (
+          <div key={r.key} style={{ display: 'grid', gridTemplateColumns: '52px 1fr', gap: '10px', alignItems: 'start' }}>
+            <div style={{ background: '#0891B2', color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, borderRadius: '4px', padding: '4px 6px', textAlign: 'center' as const }}>{r.key}</div>
+            <div style={{ background: '#fff', border: '1px solid #E7E5E4', borderRadius: '6px', padding: '6px 10px' }}>
+              <div style={{ fontSize: '9px', color: '#A8A29E', marginBottom: '2px' }}>{r.q}</div>
+              <div style={{ fontSize: '11px', color: '#292524', fontWeight: 500 }}>{r.val}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const COVECard = ({ track }: { track: GenAITrack }) => {
+  const items = track === 'tech' ? [
+    { letter: 'C', label: 'Correct', color: '#0891B2', check: 'Is every claim factually accurate given the source documents provided?', flag: '"Coverage rate is 78%" — verified against plan schedule. ✓' },
+    { letter: 'O', label: 'Original', color: '#7C3AED', check: 'Did the model retrieve this from sources, or pattern-complete from training?', flag: '"Industry average is 82%" — no source in pipeline. ✗ Model-generated.' },
+    { letter: 'V', label: 'Verifiable', color: '#2563EB', check: 'Can every specific statistic be traced to a sentence in a provided document?', flag: 'Clause reference: §4.2c, Amendment Feb 2022, p.3. ✓' },
+    { letter: 'E', label: 'Effective', color: '#0F766E', check: 'Does the output actually serve the decision the reader must make?', flag: 'Output ends with recommendation + SLA deadline. ✓' },
+  ] : [
+    { letter: 'C', label: 'Correct', color: '#0891B2', check: 'Is every claim factually accurate given the data you provided?', flag: 'Account #4412 SLA breach: confirmed in tracker export. ✓' },
+    { letter: 'O', label: 'Original', color: '#7C3AED', check: 'Did the model retrieve this from your data, or generate it from training?', flag: '"18% improvement in resolution time" — not in data export. ✗ Model-generated.' },
+    { letter: 'V', label: 'Verifiable', color: '#2563EB', check: 'Can you point to the specific row or document that supports each number?', flag: 'SLA count: row 14, exception tracker sheet, column F. ✓' },
+    { letter: 'E', label: 'Effective', color: '#0F766E', check: 'Does the brief answer the question the director actually brings to the meeting?', flag: 'Ends with: "2 items need your decision — rest is resolved." ✓' },
+  ];
+  return (
+    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>COVE EVALUATION SCORECARD — RUN BEFORE FORWARDING ANY AI OUTPUT</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        {items.map((item) => (
+          <div key={item.letter} style={{ background: '#fff', border: `1px solid ${item.color}30`, borderRadius: '8px', padding: '12px 14px', borderLeft: `3px solid ${item.color}` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: item.color, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.letter}</div>
+              <div style={{ fontWeight: 700, fontSize: '12px', color: item.color }}>{item.label}</div>
+            </div>
+            <div style={{ fontSize: '10px', color: '#78716C', lineHeight: 1.5, marginBottom: '8px' }}>{item.check}</div>
+            <div style={{ fontSize: '10px', color: '#44403C', background: '#F5F5F4', borderRadius: '4px', padding: '6px 8px', lineHeight: 1.5, fontStyle: 'italic' }}>{item.flag}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const AudienceDraftCard = ({ track }: { track: GenAITrack }) => {
+  const synthesis = track === 'tech'
+    ? 'Claim #A2241: pharmacy override requested by Dr. Mehta. Policy clause 4.2c (Feb 2022 amendment) permits override for Tier 2 plans in CA only. 48h SLA. Precedent: 3 similar approvals in Q4.'
+    : 'This week: 23 exceptions processed, 2 breached SLA (Accounts #4412, #7089 — 6 and 8 days respectively). 19 resolved within SLA. 2 pending analyst review, expected close by EOW.';
+  const audiences = track === 'tech' ? [
+    { label: 'Case Worker', color: '#0891B2', out: 'Action required: escalate Claim #A2241 to pharmacy review team. Use override form PH-7. Deadline: Thursday 5pm. Note clause 4.2c in submission.' },
+    { label: 'Compliance Officer', color: '#7C3AED', out: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241, override form PH-7.' },
+    { label: 'Product Manager', color: '#2563EB', out: 'Override flow triggered 4× in Q4. Clause 4.2c not surfaced in standard policy lookup — amendment not indexed. Indexing gap: estimated 12 cases/month affected.' },
+  ] : [
+    { label: 'Team Analyst', color: '#0891B2', out: 'Two accounts need your attention: #4412 (6 days over SLA) and #7089 (8 days). Check escalation history and prepare case notes by Thursday noon.' },
+    { label: 'Regional Director', color: '#7C3AED', out: 'No broad pattern concern this week. Two accounts (#4412, #7089) need same-day review — board visibility risk if unresolved by Friday. Recommend you flag to ops lead.' },
+    { label: 'Operations Lead', color: '#0F766E', out: 'SLA breach rate: 2/23 (8.7%) this week vs. 3.2% baseline. Recommend root-cause review for #4412 — third breach in 6 weeks. Systemic flag.' },
+  ];
+  return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '10px' }}>AUDIENCE-PARAMETERISED DRAFTING — ONE SYNTHESIS, THREE BRIEFS</div>
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
+        <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.08em', marginBottom: '4px' }}>SYNTHESIS INPUT</div>
+        <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{synthesis}</div>
+      </div>
+      <div style={{ display: 'grid', gap: '8px' }}>
+        {audiences.map((a) => (
+          <div key={a.label} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${a.color}30`, borderRadius: '8px', padding: '10px 12px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: a.color, letterSpacing: '0.08em', marginBottom: '4px' }}>→ {a.label.toUpperCase()}</div>
+            <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{a.out}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ── End M3 TiltCard Mockups ───────────────────────────────────────────────────
+
 function CoreContent({ track }: { track: GenAITrack }) {
   const moduleContext = TRACK_META[track].moduleContext;
   return (
@@ -473,6 +637,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Ask analysts to review AI summaries before acting on them", correct: false, feedback: "Human review catches errors after the fact. The goal is to give the model correct inputs so it produces useful outputs in the first place." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><SourcePipelineCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Take the last claim your research assistant got wrong or incomplete. Map every document a senior analyst would actually consult for that claim type — primary policy, amendments, case precedents, internal memos. Count how many your current pipeline reads. Identify the highest-value missing source and sketch a targeted extraction step to pull it." : "Pick one exception type your team handles weekly. List every piece of context a strong analyst would pull before making a recommendation: current ticket, prior thread, relevant policy clause, any open flags. Check which of those your current Claude prompt actually receives. The gap is your pipeline redesign."} />
         <QuizEngine
           conceptId="genai-m3-research"
@@ -573,6 +738,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Switch to a model better suited to executive communication", correct: false, feedback: "Model selection doesn't solve a structural prompt problem. Both models will produce a description if the prompt asks for a description." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><CompressionCompareCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Take your current summarisation prompt. Add three lines before the instruction: READER: [who uses this output], DECISION: [what they're deciding], CHANGES_DECISION_IF: [what information would flip the outcome]. Rewrite the instruction to produce an output that serves that decision. Compare analyst feedback on the old vs. new version." : "Take last week's exception brief. Identify the one recommendation you were implicitly making but didn't state. Rewrite the final section to state it explicitly with a confidence level (High/Medium/Low) and the one piece of information that would change your read. Send the rewritten version to your director and note the difference in how she responds."} />
         <QuizEngine
           conceptId="genai-m3-compression"
@@ -664,6 +830,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "HOW — she's not specifying the right output format", correct: false, feedback: "Format follows function. The format problem will resolve when the question being answered is correct. A well-formatted answer to the wrong question is still the wrong answer." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><FiveW1HCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Take the most common research query your claims analysts run. Write out the 5W1H for it: WHO is affected (tier/type), WHAT claim scenario, WHEN the policy applies, WHERE the jurisdiction, WHY this is being researched, HOW the output is used. Convert each answer into a parameter in the query template. Run the old and new template on the same policy document and compare output consistency across three runs." : "Pull last week's brief that got the most 'too much' feedback. Write the 5W1H for your reader: WHO is reading, WHAT question are they bringing, WHEN do they need to decide, WHERE in the process does this brief land, WHY this week vs. any other, HOW will they act on it. Count how many sentences in your brief don't directly answer her question. Those are the cuts."} />
         <QuizEngine
           conceptId="genai-m3-5w1h"
@@ -754,6 +921,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "Both Originality and Verifiability — the number is model-generated AND unverifiable", correct: true, feedback: "Correct. The 18% figure fails on two dimensions: Originality (generated, not retrieved) and Verifiability (cannot be traced to a source). Both flags should have triggered review before forwarding." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><COVECard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Take three outputs from your current research pipeline. For each, run COVE: (1) list the specific claims the output makes; (2) attempt to trace each claim to a specific sentence in the source documents; (3) flag any claim that can't be traced. Count the unverifiable claims per output. If it's more than one, redesign the prompt to ask the model to cite its source for each claim it makes." : "Pull the last brief you forwarded to your director. Identify every specific number, percentage, or trend statement in it. For each, spend 60 seconds trying to find the source in your data or documents. Mark each as Verified, Unverified, or Model-generated. Any Unverified or Model-generated claim that was forwarded is a process gap — decide what review step would catch it next time."} />
         <QuizEngine
           conceptId="genai-m3-cove"
@@ -854,6 +1022,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { text: "The regional manager is the problem — she doesn't engage with written briefs", correct: false, feedback: "The regional manager's silence is data, not a personality problem. She's not responding because the brief isn't answering her question. Fix the audience profile before diagnosing the reader." },
           ]}
         />
+        <TiltCard style={{ margin: '28px 0' }}><AudienceDraftCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Identify the three most different audiences for your research pipeline outputs (e.g., claims analyst, compliance officer, product manager). Write an AUDIENCE PROFILE for each: role, prior knowledge of the claim type, decision they make from the brief, format they use. Build a drafting prompt template where audience is a variable. Run the same synthesis through all three profiles and compare — which output would actually be used, and why?" : "Pick the brief you send to your regional manager that she never responds to. Write her AUDIENCE PROFILE: her role, what she already knows about your team's operations, the one decision she makes from your briefs, how she reads it (morning scan / pre-meeting prep). Rewrite the drafting prompt to produce a brief for that profile specifically — filtering to cross-region signals, framing as implications, ending with a flag or 'no action needed.' Send it and note the response rate change."} />
         <QuizEngine
           conceptId="genai-m3-draft"
