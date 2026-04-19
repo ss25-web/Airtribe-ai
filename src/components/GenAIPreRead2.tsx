@@ -1158,7 +1158,7 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
             );
           })}
         </div>
-        <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery</div>
+        <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery scores</div>
       </div>
     </aside>
   );

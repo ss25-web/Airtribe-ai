@@ -946,27 +946,62 @@ export default function GenAIPreRead4({ track, onBack }: Props) {
                 <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>&larr;</span>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
               </motion.button>
-              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden', maxWidth: '320px' }}>
-                <motion.div animate={{ width: `${progressPct}%` }} style={{ height: '100%', background: ACCENT }} transition={{ duration: 0.4 }} />
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: `linear-gradient(135deg, ${ACCENT} 0%, #0D9488 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 2px 8px rgba(${ACCENT_RGB},0.3)` }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1 }}>Airtribe</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Learn</div>
+                </div>
+              </div>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>GenAI Launchpad</span>
+                <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>&rsaquo;</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{TRACK_META[track].introTitle}</span>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', fontWeight: 600 }}>Pre-Read 04</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                {track === 'tech' ? 'TECH' : 'NON-TECH'}
+            <div style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
+              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
               </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
             </div>
+            <div style={{ width: '80px', flexShrink: 0 }} />
           </motion.div>
         </div>
       </div>
 
-      {/* 3-column grid */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '32px 28px', display: 'grid', gridTemplateColumns: '200px 1fr 220px', gap: '28px', alignItems: 'start' }}>
-        <LeftNav completedSections={completedSections} activeSection={activeSection} />
-        <main>
-          <CoreContent track={track} />
-        </main>
-        <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
+      {/* Body */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
+          <div style={{ alignSelf: 'stretch' }}>
+            <LeftNav completedSections={completedSections} activeSection={activeSection} />
+          </div>
+          <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
+            <CoreContent track={track} />
+            <AnimatePresence>
+              {progressPct >= 80 ? (
+                <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center' as const, position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
+                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>&#9678;</motion.div>
+                  <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "'Lora', 'Georgia', serif" }}>Pre-Read 04 Complete</h3>
+                  <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '430px', margin: '0 auto 24px' }}>
+                    {track === 'tech' ? 'You now have the workflow automation toolkit: process-first spec design, JSON edge handoffs, service-account credential hygiene, explicit error paths with dead-letter queues, and failure-path production readiness.' : 'You now know how to automate the Monday workflow reliably: trigger design, data transformation, output validation, team-owned credentials, and the baseline comparison test before going live.'}
+                  </p>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            <div style={{ height: '60px' }} />
+          </motion.main>
+          <div style={{ alignSelf: 'stretch' }}>
+            <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
+          </div>
+        </div>
       </div>
     </div>
   );
