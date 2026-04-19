@@ -155,8 +155,8 @@ export const keyBox = (title: string, items: string[], color?: string) => (
 // ─────────────────────────────────────────
 // SITUATION CARD (narrative beat)
 // ─────────────────────────────────────────
-export const SituationCard = ({ children, accent: _accent, accentRgb: _accentRgb }: {
-  children: React.ReactNode; accent?: string; accentRgb?: string;
+export const SituationCard = ({ children, accent: _accent, accentRgb: _accentRgb, label }: {
+  children: React.ReactNode; accent?: string; accentRgb?: string; label?: string;
 }) => (
   <div style={{
     position: 'relative', background: 'var(--ed-amber-bg)', borderRadius: '6px',
@@ -170,7 +170,7 @@ export const SituationCard = ({ children, accent: _accent, accentRgb: _accentRgb
       fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700,
       letterSpacing: '0.18em', textTransform: 'uppercase' as const,
       color: 'var(--ed-amber)', marginBottom: '10px',
-    }}>◎ Priya&apos;s Situation</div>
+    }}>{label ?? "◎ Priya\u2019s Situation"}</div>
     <div style={{
       fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.85,
       fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif",
@@ -201,7 +201,7 @@ export const ApplyItBox = ({ prompt, color: _color }: { prompt: string; color?: 
 // ─────────────────────────────────────────
 // PM PRINCIPLE BOX
 // ─────────────────────────────────────────
-export const PMPrincipleBox = ({ principle, color: _color }: { principle: string; color?: string }) => (
+export const PMPrincipleBox = ({ principle, color: _color, label }: { principle: string; color?: string; label?: string }) => (
   <div style={{
     background: 'var(--ed-indigo-bg)', borderRadius: '6px', padding: '18px 22px', margin: '28px 0',
     borderTop: '1px solid var(--ed-indigo-border)',
@@ -213,7 +213,7 @@ export const PMPrincipleBox = ({ principle, color: _color }: { principle: string
       fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
       letterSpacing: '0.16em', textTransform: 'uppercase' as const,
       color: 'var(--ed-indigo)', marginBottom: '8px',
-    }}>◈ PM Principle</div>
+    }}>{label ?? '◈ PM Principle'}</div>
     <div style={{
       fontSize: '16px', fontWeight: 600, color: 'var(--ed-ink)', lineHeight: 1.6,
       fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif",

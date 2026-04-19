@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene } from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
@@ -347,7 +347,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
             <div style={{ background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <GenAIMentorFace mentor={track === 'tech' ? 'kabir' : 'anika'} size={44} />
+                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{track === 'tech' ? 'Aarav' : 'Rhea'}</div>
                   <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health'}</div>
@@ -408,7 +408,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can identify every source a claims analyst would consult for a given query type and design a pipeline that reads all of them — not just the most obvious one."
           : "\u25b6 After this section, you can list the sources your team's research pipeline currently reads and the sources it should read — and close the gap."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav&apos;s claims research assistant has been live for one week. Three analysts have flagged the same issue in three different ways: the summaries are fluent, well-structured, and wrong in ways that aren&apos;t immediately visible. One analyst escalated a claim using a policy clause the AI cited — and it was overridden in a 2022 amendment that lives in a separate document the pipeline never read.</>
             : <>Rhea&apos;s team ran their first week of AI-assisted exception prep. Usage was high — 7 of 8 analysts used it. In Tuesday&apos;s review meeting, two escalation recommendations turned out to be based on summaries that missed the context from the prior week&apos;s thread. The AI had no knowledge of the prior thread because it only read the current exception ticket.</>}
@@ -497,7 +497,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can add a decision frame to any summarisation prompt and explain why the same source document produces different outputs for different decision types."
           : "\u25b6 After this section, you can rewrite a summary prompt to produce a brief that ends with a recommendation — not a description."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav fixes the source coverage problem. Three documents now feed the pipeline. Analysts say the outputs are better. But they still can&apos;t use the summaries to decide without re-reading the originals. The summaries are accurate three-bullet recaps. They&apos;re not decision support.</>
             : <>Rhea redesigns her pipeline to pull the prior thread alongside the current ticket. Her team is happier. But her director looked at last week&apos;s briefing and said: &ldquo;I can&apos;t tell if I&apos;m being asked to act on this or just informed.&rdquo; The summaries describe the situation. They don&apos;t frame the decision.</>}
@@ -597,7 +597,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can convert any open-ended research query into a 5W1H-structured query template and explain why it eliminates output variance that prompt changes can't fix."
           : "\u25b6 After this section, you can run 5W1H on your reader before writing a brief — and cut every line that doesn't answer the question they actually brought to it."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav has been asked to build a research brief template for the claims team before they run any AI query. The request came after two analysts ran the same query and got contradictory outputs — same documents, different summaries. Aarav realises the problem isn&apos;t in the pipeline. It&apos;s in how the query is formed.</>
             : <>Rhea&apos;s Monday briefings are consistently structured now, but her regional manager sent back three in a row with the same note: &ldquo;Too much. What am I supposed to do with this?&rdquo; Rhea realises she has been answering questions her manager didn&apos;t ask.</>}
@@ -643,7 +643,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { speaker: 'mentor', text: "Yes. Short and answered is worth more than long and comprehensive." },
           ]}
         />
-        {PMPrincipleBox({ principle: "Before writing a research brief or query, state in one sentence who is reading it, what decision they're making with it, and what would make them say 'this is exactly what I needed.' If you can't, the brief isn't ready to write." })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: "Before writing a research brief or query, state in one sentence who is reading it, what decision they're making with it, and what would make them say 'this is exactly what I needed.' If you can't, the brief isn't ready to write." })}
         <GenAIAvatar
           name={track === 'non-tech' ? 'Kabir' : 'Leela'}
           nameColor={track === 'non-tech' ? '#0F766E' : '#C2410C'}
@@ -688,7 +688,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can apply COVE to any AI output before it crosses a handoff point — and redesign the prompt to surface unverifiable claims before they reach compliance."
           : "\u25b6 After this section, you can run the verifiability check on any specific claim in a brief before forwarding it — and recognise the pattern of AI-generated statistics that sound sourced but aren't."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav&apos;s pipeline is producing well-structured, well-sourced summaries. His manager asks him to present the research assistant to the compliance team. Two days before the presentation, a compliance officer reviews five sample outputs and flags that three contain statistics presented as facts — with no traceable source in the documents provided.</>
             : <>Rhea sent her director a brief with a specific claim: &ldquo;Exception resolution time has improved 18% since implementing the new triage protocol.&rdquo; Her director quoted the figure in a leadership meeting. A week later, the data team asked where the 18% came from. Nobody could trace it. It came from a Claude output.</>}
@@ -733,7 +733,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { speaker: 'mentor', text: "You correct it proactively — before someone else does. And you add a standing rule: any specific statistic in a brief that will be forwarded gets a source citation in parentheses. If you can't write the citation, the number doesn't go in." },
           ]}
         />
-        {PMPrincipleBox({ principle: "Apply COVE at the handoff point — before output crosses from your workflow into someone else's decision. Completeness, Originality, Verifiability, Efficiency: four questions, five minutes, before you forward anything." })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: "Apply COVE at the handoff point — before output crosses from your workflow into someone else's decision. Completeness, Originality, Verifiability, Efficiency: four questions, five minutes, before you forward anything." })}
         <GenAIAvatar
           name="Leela"
           nameColor="#C2410C"
@@ -778,7 +778,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can write an audience profile for three different readers of the same research output and parameterise a drafting prompt so one synthesis produces three different briefs."
           : "\u25b6 After this section, you can design a briefing workflow where one synthesis feeds three different audience-specific drafting prompts — so your team, your director, and your regional manager each receive the brief they actually need."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav is building the final stage of the research pipeline — the drafting step. He has a synthesis prompt that produces a comprehensive, COVE-checked output from the triangulated sources. His manager says it reads like a technical document, not a decision brief. Aarav realises he has been designing for content completeness, not audience fit.</>
             : <>Rhea&apos;s pipeline now runs research, validates sources, and produces a structured summary. The final step is drafting the brief. She has three different audiences: her team (operational detail), her director (escalation decisions), her regional manager (strategic flags). She has been sending the same brief to all three.</>}
@@ -833,7 +833,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
             { speaker: 'mentor', text: "Yes. You design the audience profiles. The AI drafts from them. The work of drafting is deciding what the audience needs — not what the content contains." },
           ]}
         />
-        {PMPrincipleBox({ principle: "Design three audience profiles before you write one drafting prompt: who reads it, what they already know, what decision they're making, how they'll consume it. The model drafts from the profile, not from the content." })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: "Design three audience profiles before you write one drafting prompt: who reads it, what they already know, what decision they're making, how they'll consume it. The model drafts from the profile, not from the content." })}
         <GenAIAvatar
           name="Anika"
           nameColor="#7C3AED"

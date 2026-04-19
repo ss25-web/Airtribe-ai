@@ -177,6 +177,90 @@ export function GenAIMentorFace({ mentor, size = 66 }: { mentor: GenAIMentorId; 
 }
 
 // ─────────────────────────────────────────
+// PROTAGONIST FACES — Rhea (non-tech) and Aarav (tech)
+// ─────────────────────────────────────────
+export function RheaFace({ size = 44 }: { size?: number }) {
+  const [blink, setBlink] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => { setBlink(false); schedule(); }, 130);
+      }, 2800 + Math.random() * 2200);
+    };
+    schedule();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+  const eyeRy = blink ? 0.6 : 4.8;
+  return (
+    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', border: '2px solid #7C3AED', overflow: 'hidden', flexShrink: 0 }}>
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4F46E5" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#7C3AED" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#C98B5A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#C98B5A" />
+        <ellipse cx="50" cy="22" rx="28" ry="16" fill="#1A0D2E" />
+        <path d="M 22 30 Q 18 55 22 80 Q 26 72 26 55 Z" fill="#1A0D2E" />
+        <path d="M 78 30 Q 82 55 78 80 Q 74 72 74 55 Z" fill="#1A0D2E" />
+        <path d="M 22 28 Q 28 20 50 18 Q 72 20 78 28 L 76 42 Q 64 35 50 35 Q 36 35 24 42 Z" fill="#1A0D2E" />
+        <ellipse cx="24" cy="55" rx="4" ry="7" fill="#C98B5A" />
+        <ellipse cx="76" cy="55" rx="4" ry="7" fill="#C98B5A" />
+        <path d="M 31 42 Q 38 39 45 41" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 41 Q 62 39 69 42" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.4" fill="#2D1A6E" /><circle cx="62.5" cy="50.5" r="3.4" fill="#2D1A6E" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 48 57 Q 50 61 52 57" stroke="#A96938" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 74 60 67" stroke="#9C5D3B" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+export function AaravFace({ size = 44 }: { size?: number }) {
+  const [blink, setBlink] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const schedule = () => {
+      timerRef.current = setTimeout(() => {
+        setBlink(true);
+        setTimeout(() => { setBlink(false); schedule(); }, 130);
+      }, 2800 + Math.random() * 2200);
+    };
+    schedule();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+  const eyeRy = blink ? 0.6 : 4.8;
+  return (
+    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #0F766E 0%, #059669 100%)', border: '2px solid #0F766E', overflow: 'hidden', flexShrink: 0 }}>
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#065F46" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#0F766E" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#7A4A33" />
+        <ellipse cx="50" cy="52" rx="27" ry="30" fill="#7A4A33" />
+        <ellipse cx="50" cy="22" rx="27" ry="15" fill="#111" />
+        <path d="M 23 32 Q 24 20 50 18 Q 76 20 77 32 L 76 44 Q 64 36 50 36 Q 36 36 24 44 Z" fill="#111" />
+        <ellipse cx="24" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
+        <ellipse cx="76" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
+        <path d="M 30 41 Q 38 38 46 40" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+        <path d="M 54 40 Q 62 38 70 41" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+        <rect x="28" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
+        <rect x="52" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
+        <line x1="48" y1="49.5" x2="52" y2="49.5" stroke="#222" strokeWidth="1.7" />
+        <ellipse cx="38" cy="49.5" rx="6" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="49.5" rx="6" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.3" cy="50" r="2.9" fill="#1A2030" /><circle cx="62.3" cy="50" r="2.9" fill="#1A2030" /></>}
+        {!blink && <><circle cx="39.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /><circle cx="63.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /></>}
+        <path d="M 48 57 Q 50 61 52 57" stroke="#5C3420" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 72 60 67" stroke="#5C3420" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // CONVERSATION SCENE — protagonist ↔ mentor chat bubbles
 // ─────────────────────────────────────────
 type GenAITrack = 'tech' | 'non-tech';

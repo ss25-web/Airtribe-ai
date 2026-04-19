@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene } from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
@@ -320,98 +320,6 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
-function RheaFace({ size = 44 }: { size?: number }) {
-  const [blink, setBlink] = React.useState(false);
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  React.useEffect(() => {
-    const schedule = () => {
-      timerRef.current = setTimeout(() => {
-        setBlink(true);
-        setTimeout(() => { setBlink(false); schedule(); }, 130);
-      }, 2800 + Math.random() * 2200);
-    };
-    schedule();
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
-  const eyeRy = blink ? 0.6 : 4.8;
-  return (
-    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', border: '2px solid #7C3AED', overflow: 'hidden', flexShrink: 0 }}>
-      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
-        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4F46E5" />
-        <path d="M 34 90 Q 50 102 66 90" fill="#7C3AED" />
-        <rect x="42" y="76" width="16" height="18" rx="6" fill="#C98B5A" />
-        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#C98B5A" />
-        {/* Hair — long, flowing */}
-        <ellipse cx="50" cy="22" rx="28" ry="16" fill="#1A0D2E" />
-        <path d="M 22 30 Q 18 55 22 80 Q 26 72 26 55 Z" fill="#1A0D2E" />
-        <path d="M 78 30 Q 82 55 78 80 Q 74 72 74 55 Z" fill="#1A0D2E" />
-        <path d="M 22 28 Q 28 20 50 18 Q 72 20 78 28 L 76 42 Q 64 35 50 35 Q 36 35 24 42 Z" fill="#1A0D2E" />
-        <ellipse cx="24" cy="55" rx="4" ry="7" fill="#C98B5A" />
-        <ellipse cx="76" cy="55" rx="4" ry="7" fill="#C98B5A" />
-        {/* Eyebrows */}
-        <path d="M 31 42 Q 38 39 45 41" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-        <path d="M 55 41 Q 62 39 69 42" stroke="#1A0D2E" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-        {/* Eyes */}
-        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
-        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
-        {!blink && <><circle cx="38.5" cy="50.5" r="3.4" fill="#2D1A6E" /><circle cx="62.5" cy="50.5" r="3.4" fill="#2D1A6E" /></>}
-        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
-        {/* Nose */}
-        <path d="M 48 57 Q 50 61 52 57" stroke="#A96938" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        {/* Smile */}
-        <path d="M 40 67 Q 50 74 60 67" stroke="#9C5D3B" strokeWidth="2.1" fill="none" strokeLinecap="round" />
-      </svg>
-    </div>
-  );
-}
-
-function AaravFace({ size = 44 }: { size?: number }) {
-  const [blink, setBlink] = React.useState(false);
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  React.useEffect(() => {
-    const schedule = () => {
-      timerRef.current = setTimeout(() => {
-        setBlink(true);
-        setTimeout(() => { setBlink(false); schedule(); }, 130);
-      }, 2800 + Math.random() * 2200);
-    };
-    schedule();
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
-  const eyeRy = blink ? 0.6 : 4.8;
-  return (
-    <div style={{ width: size, height: size, borderRadius: Math.round(size * 0.27), background: 'linear-gradient(135deg, #0F766E 0%, #059669 100%)', border: '2px solid #0F766E', overflow: 'hidden', flexShrink: 0 }}>
-      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
-        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#065F46" />
-        <path d="M 34 90 Q 50 102 66 90" fill="#0F766E" />
-        <rect x="42" y="76" width="16" height="18" rx="6" fill="#7A4A33" />
-        <ellipse cx="50" cy="52" rx="27" ry="30" fill="#7A4A33" />
-        {/* Short cropped hair */}
-        <ellipse cx="50" cy="22" rx="27" ry="15" fill="#111" />
-        <path d="M 23 32 Q 24 20 50 18 Q 76 20 77 32 L 76 44 Q 64 36 50 36 Q 36 36 24 44 Z" fill="#111" />
-        <ellipse cx="24" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
-        <ellipse cx="76" cy="52" rx="4.5" ry="6.5" fill="#7A4A33" />
-        {/* Eyebrows */}
-        <path d="M 30 41 Q 38 38 46 40" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-        <path d="M 54 40 Q 62 38 70 41" stroke="#111" strokeWidth="2.6" strokeLinecap="round" fill="none" />
-        {/* Glasses */}
-        <rect x="28" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
-        <rect x="52" y="44" width="20" height="11" rx="3" fill="none" stroke="#222" strokeWidth="1.9" />
-        <line x1="48" y1="49.5" x2="52" y2="49.5" stroke="#222" strokeWidth="1.7" />
-        {/* Eyes (behind glasses) */}
-        <ellipse cx="38" cy="49.5" rx="6" ry={eyeRy} fill="white" />
-        <ellipse cx="62" cy="49.5" rx="6" ry={eyeRy} fill="white" />
-        {!blink && <><circle cx="38.3" cy="50" r="2.9" fill="#1A2030" /><circle cx="62.3" cy="50" r="2.9" fill="#1A2030" /></>}
-        {!blink && <><circle cx="39.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /><circle cx="63.2" cy="48.8" r="0.8" fill="rgba(255,255,255,0.85)" /></>}
-        {/* Nose */}
-        <path d="M 48 57 Q 50 61 52 57" stroke="#5C3420" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        {/* Smile */}
-        <path d="M 40 67 Q 50 72 60 67" stroke="#5C3420" strokeWidth="2" fill="none" strokeLinecap="round" />
-      </svg>
-    </div>
-  );
-}
-
 // ── GenAI TiltCard Mockups ────────────────────────────────────────────────
 
 const TokenProbCard = ({ track }: { track: GenAITrack }) => {
@@ -698,7 +606,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can explain why adding a stronger model won\u2019t fix a retrieval problem — and name the architectural component that actually is missing."
           : "\u25b6 After this section, you can tell the difference between a model problem and an information problem, and know which one to fix."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav&apos;s team shipped an LLM call that returns coverage rates during claims triage. Three days after demo, the data team flags it: the numbers look right but aren&apos;t. No one panics — it was a prototype. But Aarav pulls the API call apart looking for the bug. There is no bug. The model returned plausible rates because plausible rates are what the training data looked like. There is no claim system in the call. No policy database. Just a question and a model that answered it. He messages Rohan: <em>&ldquo;I think I fundamentally misunderstood what this thing actually does.&rdquo;</em></>
             : <>Rhea&apos;s team has been using an AI assistant for policy questions for three weeks. Good adoption, saves time. Then someone follows an AI-generated escalation procedure that turns out to be wrong. Rhea calls the vendor. The support rep says: <em>&ldquo;The model doesn&apos;t have access to your internal systems. It responds based on training data.&rdquo;</em> She sits with that for a while. They had been asking it questions as if it were a well-informed colleague who had read the Northstar handbook. It hadn&apos;t. It had read everything else. She messages Anika.</>}
@@ -800,7 +708,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'The simplest version: IT stores your policy documents in a searchable index. When a question comes in, the system finds the most relevant document and prepends it to the prompt. The model reads the document you gave it and answers from that.',
           'The signal that retrieval is working: ask the model a question whose answer only appears in your internal document. If the answer is correct, the document reached the model. If it hallucinated, the retrieval step failed or was skipped.',
         ], ACCENT)}
-        {PMPrincipleBox({ principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs to answer correctly.' })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: 'Before asking whether AI can do something, ask whether it has — or can be given — the information it needs to answer correctly.' })}
         <TiltCard style={{ margin: '28px 0' }}><TokenProbCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Look at the last AI API call your team shipped. Was the model doing language work (completing, transforming, classifying text you gave it) or implicitly expected to know live facts? If the latter — where would the retrieval layer need to sit?" : "Think of one task your team has tried with AI that gave unreliable results. Was it a language task or an information lookup? If it was a lookup — what would a correct design have looked like?"} />
         <QuizEngine conceptId="genai-m1-what-it-is" conceptName="What GenAI Is" moduleContext={moduleContext} staticQuiz={QUIZZES[0]} />
@@ -814,7 +722,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can classify any proposed LLM integration into Reliable, Extended, or Unreliable zone using three diagnostic questions — and explain what to do differently in each zone."
           : "\u25b6 After this section, you can map your team\u2019s AI tasks across the three zones and identify which ones need a retrieval layer or human review step to be safe."
         )}
-        <SituationCard accent="#2563EB" accentRgb="37,99,235">
+        <SituationCard accent="#2563EB" accentRgb="37,99,235" label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav takes a whiteboard and maps everything his team has tried with LLMs in the last quarter. Left side: worked reliably. Right side: failed or got flagged. Middle: inconsistent. He stares at the left side — classification, summarisation, extraction from forms, rewriting dense notes. He stares at the right side — arithmetic on claim amounts, questions about current patient records, contract language that had to be legally exact. The pattern is uncomfortable because it was obvious in retrospect. The model wasn&apos;t bad at some things and good at others randomly. It had a zone. Nobody had looked for it. He calls Rohan.</>
             : <>Rhea makes a list. Every AI experiment her team has run in the last two months — she writes them on a whiteboard and draws three columns. The left column fills quickly: draft an email, summarise a case note, reformat a form for a different audience. All of them language, no single right answer, easy for a human to review. The right column is slower but the pattern is just as clear: check an SLA window, look up a current premium, verify a policy was filed. All of them needing live data, all of them silently wrong when the model tried. She had never made this map before. She had been treating AI as either magic or useless. She calls Rohan.</>}
@@ -923,7 +831,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can diagnose a prompt variance problem and specify the missing dimensions — role, format, constraints, length, example — that collapse it."
           : "\u25b6 After this section, you can rewrite a vague prompt by identifying every unspecified dimension and filling it in deliberately."
         )}
-        <SituationCard accent="#0F766E" accentRgb="15,118,110">
+        <SituationCard accent="#0F766E" accentRgb="15,118,110" label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Priya&apos;s prompts. The bad ones came from Dev&apos;s. The model is the same. The prompts are not. Priya&apos;s specify a role, output format, required fields, and length. Dev&apos;s are three words followed by a case note. He messages Anika.</>
             : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Priya&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Dev&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Priya has some intuition Dev hasn&apos;t developed. She messages Anika to check.</>}
@@ -1013,7 +921,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Constraints: what to include, exclude, or prioritise.',
           'Example: one sample input-output pair that shows rather than describes.',
         ], '#0F766E')}
-        {PMPrincipleBox({ principle: 'Every gap in a prompt is a decision the model makes for you. Decide intentionally or accept whatever the model chooses.' })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: 'Every gap in a prompt is a decision the model makes for you. Decide intentionally or accept whatever the model chooses.' })}
         <ApplyItBox prompt={track === 'tech' ? "Take the worst-performing prompt in your current stack. List every unspecified dimension: role, output format, length, constraints, examples. Add them one at a time. Which change had the biggest effect on variance?" : "Find a prompt your team uses that gives inconsistent results. Count the gaps — format, length, perspective, what to exclude. Add specifications for each. Compare the output before and after."} />
         <QuizEngine conceptId="genai-m1-mental-model" conceptName="Mental Model Shift" moduleContext={moduleContext} staticQuiz={QUIZZES[2]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the specification mindset. But a well-specified prompt still fails when what the model receives is broken. The context packet is often where the real problem lives." : "Rhea can write better prompts now. But there's one more variable that determines whether a good prompt produces a good output — and it has nothing to do with the prompt itself."} />
@@ -1026,7 +934,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can identify a context assembly failure in a staging environment and know to fix the data pipeline before touching the prompt."
           : "\u25b6 After this section, you can audit what the model actually receives in a failing case and distinguish a context quality problem from a prompt problem."
         )}
-        <SituationCard accent="#C2410C" accentRgb="194,65,12">
+        <SituationCard accent="#C2410C" accentRgb="194,65,12" label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav&apos;s team has a prompt that works well in testing — sharp outputs, right format, right length. In staging, the same prompt produces degraded outputs on roughly one in five cases. He spends most of a day in the prompt, adding constraints, clarifying the format spec, running A/B tests. The outputs barely change. Finally, a colleague suggests inspecting the actual payloads. He pulls up a failing case. The context packet has a patient record where three fields are null, a case note truncated at the API limit, and an intake form where structured fields were flattened into a single unbroken string. He messages Rohan.</>
             : <>Rhea&apos;s team has been using the summary tool for six weeks. Mostly good. Then she notices the failure cases aren&apos;t random — they cluster around older cases, cases from before the system migration, cases where the PDF attachments didn&apos;t load. She pulls up a good summary and a bad one side by side. Same prompt. The bad one came from a case with half the fields blank and two attachments that show as &ldquo;unavailable.&rdquo; She&apos;d been assuming it was the prompt. She messages Rohan.</>}
@@ -1113,7 +1021,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Constraints: what to include, exclude, or flag in the output.',
           'Validation: required fields present, attachments loaded, data not truncated.',
         ], '#C2410C')}
-        {PMPrincipleBox({ principle: 'The model cannot produce what it does not have. Fix the context before you fix the prompt.' })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: 'The model cannot produce what it does not have. Fix the context before you fix the prompt.' })}
         <TiltCard style={{ margin: '28px 0' }}><ContextPacketCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Pick a production LLM call with inconsistent outputs. Compare the context packets across good and bad cases. What fields are present in good runs but missing or malformed in bad ones? What does the context assembly layer need to validate before inference?" : "Find a case where an AI tool gave you a surprisingly poor output. What was actually in the context it received? Was anything missing, truncated, or in the wrong format? What would a validated context packet look like for that case?"} />
         <QuizEngine conceptId="genai-m1-context" conceptName="Context as Input" moduleContext={moduleContext} staticQuiz={QUIZZES[3]} />
@@ -1127,7 +1035,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can apply three selection criteria to a list of AI candidates and make the case for which one is safe and learnable enough to build first."
           : "\u25b6 After this section, you can evaluate a proposed AI use case against three readiness criteria and identify the smallest version of the idea that passes all three."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? <>Aarav has three candidates for a first production AI integration. Option one: auto-approve routine claims exceptions when AI confidence is above a threshold — biggest efficiency gain, clearest ROI. Option two: classify inbound case requests by type and urgency, flagging low-confidence cases for human review. Option three: an autonomous intake agent that monitors the queue, routes requests, and takes action without human checkpoints — most technically interesting. He builds the ROI case for option one. Then he messages Anika before the presentation.</>
             : <>Rhea has three options to bring to her director. Option one: auto-resolve routine exception requests where the AI confidence is above 80% — biggest headline number, clearest headcount case. Option two: classify inbound escalations by category and urgency, with human review of anything below a confidence threshold. Option three: AI drafts responses to provider complaints, sent directly after a quick assistant spot-check. She&apos;s been building the case for option one. She calls Anika the night before the presentation.</>}
@@ -1238,7 +1146,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           'Recoverable: errors are caught before they affect anything downstream.',
           'Observable: you can see what the model gets wrong, not just what it gets right.',
         ], ACCENT)}
-        {PMPrincipleBox({ principle: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.' })}
+        {PMPrincipleBox({ label: '◈ Principle', principle: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.' })}
         <ApplyItBox prompt={track === 'tech' ? "Name three AI integration candidates from your current backlog. Run each through the five criteria: language-based, bounded output, easy to verify, recoverable, observable failures. Which one scores best? What does running it first teach you that the others can't?" : "Name one AI workflow you've been considering. Run it through the five criteria. Where does it pass, where does it fail? What's the smallest, most learnable version of the same idea that clears all five?"} />
         <QuizEngine conceptId="genai-m1-use-case-readiness" conceptName="Use-Case Readiness" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the mental model, the capability map, the specification habit, the context discipline, and a first use case worth building. Pre-Read 02 goes inside the model: how to write prompts that stay reliable when real, messy data is flowing through them." : "Rhea now has everything she needs to think clearly about GenAI. Pre-Read 02 goes deeper: how to write prompts that produce consistent, reliable outputs when the data is real and the stakes are higher."} />

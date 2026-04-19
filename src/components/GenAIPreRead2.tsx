@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, CSSProperties, useCallback } from '
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene } from './GenAIAvatar';
+import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
@@ -1182,7 +1182,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
             <div style={{ background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                <GenAIMentorFace mentor={track === 'tech' ? 'kabir' : 'anika'} size={44} />
+                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{track === 'tech' ? 'Aarav' : 'Rhea'}</div>
                   <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health'}</div>
@@ -1242,7 +1242,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can write a system message and user message that specify all five anatomy components for any LLM call — and annotate which component each line is doing."
           : "\u25b6 After this section, you can write a complete, structured prompt for your most-used AI task, with role, format, and constraints all explicitly specified."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'non-tech'
             ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent &mdash; sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
             : <>Aarav&apos;s first API call for entity extraction: just the raw user message, no system prompt, no output format. The result is verbose, occasionally hallucinated, and unpredictable in structure. He runs it again with the same input and gets a different response. Rohan points to the missing output contract instead.</>}
@@ -1340,7 +1340,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can identify which category in a classifier needs boundary examples, write those examples using a repeatable process, and know when to stop adding them."
           : "\u25b6 After this section, you can write a boundary example for your most-confused classification pair and explain why it works better than adding more clear-cut examples."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'non-tech'
             ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization &mdash; Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; &mdash; a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
             : <>Aarav&rsquo;s IT ticket classifier runs at 70% accuracy. Network connectivity tickets involving VPN authentication failures keep routing to the wrong team. The categories exist in the prompt. The problem is the model has never seen Northstar&rsquo;s specific failure patterns.</>}
@@ -1431,7 +1431,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can diagnose a context window failure from API logs and apply the correct fix — sliding window, front-loading, or periodic summarisation — to your specific situation."
           : "\u25b6 After this section, you can identify when a missed output was caused by context placement and restructure a prompt to front-load what the model must not miss."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'non-tech'
             ? <>Rhea feeds 10 pages of patient notes into her summarizer. The output is &ldquo;generally fine&rdquo; until a pharmacist flags a critical drug interaction on page 7 was not in the summary. The model processed the full document and still missed it. This is a context management problem.</>
             : <>Aarav&rsquo;s internal support chatbot forgets user instructions after 5&ndash;6 turns. He checks the API logs: the cumulative message history silently exceeds the model&rsquo;s 16k token limit. Older messages are dropped without any error.</>}
@@ -1506,7 +1506,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can define a quality bar for a task, run a structured 20-input evaluation, and make a cost-justified routing decision between model tiers."
           : "\u25b6 After this section, you can define what \u2018good enough\u2019 means for a specific task, test a cheaper model against that bar, and decide whether hybrid routing makes sense for your workflow."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'non-tech'
             ? <>Rhea assumes GPT-4o is right for everything. She runs it on 200 intake form summaries per day and 5 complex referral letters. Anika points out that for structured summarization at high volume, Claude Haiku produces nearly identical quality at a fraction of the cost.</>
             : <>Aarav\u2019s ticket classifier costs $12,000/month on GPT-4o. Rohan flags this as unsustainable. The task is classification with 7 categories and 5 few-shot examples per category. It doesn\u2019t require frontier reasoning.</>}
@@ -1596,7 +1596,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ? "\u25b6 After this section, you can set up a minimal prompt versioning workflow — git directory, golden dataset, eval script, promotion rule — before shipping any prompt change to production."
           : "\u25b6 After this section, you can maintain a version log and golden cases sheet that would have caught the V1\u2192V3 compliance regression before it reached production."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'non-tech'
             ? <>Rhea has improved her discharge summary prompt across three versions. V3 is more concise. But a compliance auditor flags a legal disclaimer always present in V1 is now missing. She has no record of what changed and no way to know which edit caused the regression.</>
             : <>Aarav deploys a prompt update (V2) that improves summary quality for most cases. Two days later, a team lead flags edge-case incident reports are missing the resolution step. No golden dataset, no version diff, no automated way to detect this regression before production.</>}
