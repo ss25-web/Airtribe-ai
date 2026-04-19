@@ -31,7 +31,7 @@ const MODULES = [
     desc: 'The Research → Summarize → Draft workflow, the 5W1H framework for summaries, COVE evaluation, and audience-specific insight compression.',
     duration: 'Live sessions · 2',
     tools: ['ChatGPT', 'Claude', 'Perplexity'],
-    available: false,
+    available: true,
     accent: '#0891B2',
   },
   {
@@ -41,7 +41,7 @@ const MODULES = [
     desc: 'n8n fundamentals: triggers, nodes, app integrations, cloud hosting, AI agents, and database setup for dynamic data handling.',
     duration: 'Live sessions · 2',
     tools: ['n8n', 'Webhooks', 'Google Sheets'],
-    available: false,
+    available: true,
     accent: '#0F766E',
   },
   {
@@ -279,10 +279,10 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-reads 01 and 02 are available now. More modules unlock week by week as the cohort progresses.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-reads 01–04 are available now. More modules unlock week by week as the cohort progresses.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
-            2 of 6 available
+            4 of 6 available
           </div>
         </div>
 

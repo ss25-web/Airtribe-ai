@@ -14,6 +14,8 @@ import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
 import GenAIPreRead2 from '@/components/GenAIPreRead2';
+import GenAIPreRead3 from '@/components/GenAIPreRead3';
+import GenAIPreRead4 from '@/components/GenAIPreRead4';
 import SWETrackSelection from '@/components/SWETrackSelection';
 import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
 import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
@@ -256,6 +258,8 @@ export default function Home() {
   }
 
   if (stage === 'genai-reading' && genaiTrack) {
+    if (genaiModule === '04') return <GenAIPreRead4 track={genaiTrack} onBack={goBackToGenAIOverview} />;
+    if (genaiModule === '03') return <GenAIPreRead3 track={genaiTrack} onBack={goBackToGenAIOverview} />;
     if (genaiModule === '02') return <GenAIPreRead2 track={genaiTrack} onBack={goBackToGenAIOverview} />;
     return <GenAIPreRead1 track={genaiTrack} onBack={goBackToGenAIOverview} />;
   }
