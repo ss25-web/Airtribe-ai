@@ -816,12 +816,11 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
               </div>
             ))}
           </div>
+          <div style={{ marginTop: '20px', padding: '16px 20px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid rgba(${ACCENT_RGB},0.18)` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
+            <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you build a reliable automated pipeline where the AI node is one piece of a well-engineered system — with proper credentials, error handling, and failure paths that work at 2am without anyone watching?" : "Your lens: how do you turn a manual Monday morning workflow into a reliable automated system — standardising the prompt, the data pull, the output check, and the send, so your director gets the right brief whether or not you're at your desk?"}</div>
+          </div>
         </div>
-      </div>
-
-      <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid rgba(${ACCENT_RGB},0.18)` }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
-        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you build a reliable automated pipeline where the AI node is one piece of a well-engineered system — with proper credentials, error handling, and failure paths that work at 2am without anyone watching?" : "Your lens: how do you turn a manual Monday morning workflow into a reliable automated system — standardising the prompt, the data pull, the output check, and the send, so your director gets the right brief whether or not you're at your desk?"}</div>
       </div>
       <div style={{ flexShrink: 0, width: '162px', paddingTop: '8px' }}>
         <div className="float3d" style={{ background: 'linear-gradient(145deg, #0F0A1E 0%, #1A0F2E 100%)', borderRadius: '14px', padding: '18px 16px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
