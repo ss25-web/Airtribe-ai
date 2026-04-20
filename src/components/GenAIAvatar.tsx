@@ -266,9 +266,9 @@ export function AaravFace({ size = 44 }: { size?: number }) {
 type GenAITrack = 'tech' | 'non-tech';
 type GenAICSLine = { speaker: 'protagonist' | 'mentor'; text: string };
 
-const PROTAGONIST_META: Record<GenAITrack, { name: string; initial: string; gradient: string; accent: string }> = {
-  tech: { name: 'Aarav', initial: 'A', gradient: 'linear-gradient(135deg, #1D4ED8 0%, #0F766E 100%)', accent: '#2563EB' },
-  'non-tech': { name: 'Rhea', initial: 'R', gradient: 'linear-gradient(135deg, #6D28D9 0%, #4F46E5 100%)', accent: '#7C3AED' },
+const PROTAGONIST_META: Record<GenAITrack, { name: string; accent: string }> = {
+  tech: { name: 'Aarav', accent: '#2563EB' },
+  'non-tech': { name: 'Rhea', accent: '#7C3AED' },
 };
 
 function ProtagonistFace({ track, size = 38 }: { track: GenAITrack; size?: number }) {
