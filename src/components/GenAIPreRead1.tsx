@@ -1204,14 +1204,12 @@ export default function GenAIPreRead1({ track, onBack }: Props) {
         const sectionId = entry.target.getAttribute('data-section');
         if (!sectionId) return;
         if (entry.isIntersecting) {
-          if (entry.intersectionRatio >= 0.1) setActiveSection(sectionId);
-          if (entry.intersectionRatio >= 0.25) {
-            setCompletedSections((prev) => new Set([...prev, sectionId]));
-            store.markSectionViewed(sectionId);
-          }
+          setActiveSection(sectionId);
+          setCompletedSections((prev) => new Set([...prev, sectionId]));
+          store.markSectionViewed(sectionId);
         }
       });
-    }, { threshold: [0.1, 0.25, 0.5] });
+    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
 
     const timer = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach((element) => sectionObserver.observe(element));

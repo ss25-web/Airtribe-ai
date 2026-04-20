@@ -321,14 +321,12 @@ export default function UXDesignModule({ onBack, track }: Props) {
         const sid = entry.target.getAttribute('data-section');
         if (!sid) return;
         if (entry.isIntersecting) {
-          if (entry.intersectionRatio >= 0.1) setActiveSection(sid);
-          if (entry.intersectionRatio >= 0.25) {
-            setCompletedSections(prev => new Set([...prev, sid]));
-            store.markSectionViewed(sid);
-          }
+          setActiveSection(sid);
+          setCompletedSections(prev => new Set([...prev, sid]));
+          store.markSectionViewed(sid);
         }
       });
-    }, { threshold: [0.1, 0.25, 0.5] });
+    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
 
     const tid = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => sectionObserver.observe(el));

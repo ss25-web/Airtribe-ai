@@ -1885,11 +1885,12 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
         const id = entry.target.getAttribute('data-section');
         if (!id) return;
         if (entry.isIntersecting) {
-          if (entry.intersectionRatio >= 0.1) setActiveSection(id);
-          if (entry.intersectionRatio >= 0.25) { setCompletedSections(p => new Set([...p, id])); store.markSectionViewed(id); }
+          setActiveSection(id);
+          setCompletedSections(p => new Set([...p, id]));
+          store.markSectionViewed(id);
         }
       });
-    }, { threshold: [0.1, 0.25, 0.5] });
+    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
     const t = setTimeout(() => { document.querySelectorAll('[data-section]').forEach(el => obs.observe(el)); }, 150);
     return () => { clearTimeout(t); obs.disconnect(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
