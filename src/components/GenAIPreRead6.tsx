@@ -632,7 +632,8 @@ function CoreContent({ track }: { track: GenAITrack }) {
   return (
     <>
       {/* Module Hero */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '28px' }}>
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none' as const, pointerEvents: 'none' as const }}>06</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 06</div>
@@ -684,9 +685,34 @@ function CoreContent({ track }: { track: GenAITrack }) {
           </div>
         </div>
       </div>
+      <div style={{ flexShrink: 0, width: '162px', paddingTop: '8px' }}>
+        <div className="float3d" style={{ background: 'linear-gradient(145deg, #0F0A1E 0%, #1A0F2E 100%)', borderRadius: '14px', padding: '18px 16px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 06</div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>AI Agent Workflows</div>
+          <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.45)', marginBottom: '14px' }}>GenAI Launchpad</div>
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '12px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {SECTIONS.map((s, i) => (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0, background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)', border: `1px solid ${i === 0 ? ACCENT : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: i === 0 ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>0{i + 1}</div>
+                <div style={{ fontSize: '8px', color: i === 0 ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1 }}>{s.label.replace(/^\d+\.\s+/, '')}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '12px', padding: '7px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
+            <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.6)' }}>{SECTIONS[0].label.replace(/^\d+\.\s+/, '')}</div>
+          </div>
+        </div>
+      </div>
+      </div>
 
       {/* ── Section 1: Agent Architecture ── */}
       <ChapterSection id="genai-m6-architecture" num="01" accentRgb={ACCENT_RGB} first>
+        {para(track === 'tech'
+          ? "In Pre-Read 05, Aarav upgraded the claims workflow to process batches of 200+ exceptions, remap inconsistent field names from source systems, route items by confidence score rather than category alone, queue low-confidence items for human review, and isolate conversation context per user session. The automation is production-grade. This pre-read is about a different class of problem: tasks where the steps needed aren't known until the model reads the data — and where a fixed workflow chain can't make that call."
+          : "In Pre-Read 05, Rhea's workflows can iterate over 80 spreadsheet rows, handle mismatched field names with a Code node, pause for her approval before any email is sent, and maintain separate memory per conversation session. The automation is solid. This pre-read is about the question her director keeps asking that no fixed workflow can answer — because answering it requires the system to decide what to look up, look it up, read the result, and decide whether to look up something else."
+        )}
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
             ? "A new task: build a system that takes an exception report, looks up the relevant policy, determines the correct resolution path, and drafts a response. The steps are unknown until the exception is read. Aarav reaches for an agent. Rohan asks: are you sure an agent is the right call here?"

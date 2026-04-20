@@ -272,20 +272,9 @@ const PROTAGONIST_META: Record<GenAITrack, { name: string; initial: string; grad
 };
 
 function ProtagonistFace({ track, size = 38 }: { track: GenAITrack; size?: number }) {
-  const meta = PROTAGONIST_META[track];
-  return (
-    <div style={{
-      width: size, height: size, borderRadius: Math.round(size * 0.27),
-      background: meta.gradient, flexShrink: 0,
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: Math.round(size * 0.38), fontWeight: 800, color: '#fff',
-      letterSpacing: '-0.02em', fontFamily: 'system-ui, sans-serif',
-      boxShadow: `0 4px 12px ${meta.accent}40`,
-      border: `2px solid ${meta.accent}55`,
-    }}>
-      {meta.initial}
-    </div>
-  );
+  return track === 'tech'
+    ? <AaravFace size={size} />
+    : <RheaFace size={size} />;
 }
 
 export function GenAIConversationScene({ mentor, track, accent, techLines, nonTechLines }: {
