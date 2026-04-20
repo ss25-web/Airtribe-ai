@@ -4,7 +4,14 @@ import { motion } from 'framer-motion';
 import type { SWETrack, SWELevel } from './sweTypes';
 
 // ── Shared module list (Python & Node.js) ──────────────────────────────────
-const SHARED_MODULES: { num: string; phase: string; label: string; baseDuration: string; tools: Record<string, string[]>; available: boolean; accent: string }[] = [
+const SHARED_MODULES: { num: string; phase: string; label: string; baseDuration: string; tools: Record<string, string[]>; available: boolean; accent: string; desc?: string }[] = [
+  {
+    num: '00', phase: 'Before You Begin', label: 'Language Basics',
+    baseDuration: 'Interactive · 30 min · 3D tools',
+    tools: { python: ['Variables', 'Types', 'Functions'], nodejs: ['let/const', 'Arrays', 'Async'] },
+    available: true, accent: '#7C3AED',
+    desc: 'Five interactive 3D sections covering variables, types, control flow, functions, and your first real program — with Three.js-powered visualisations for each concept. No experience required.',
+  },
   {
     num: '01', phase: 'Week 0', label: 'How Software Actually Works',
     baseDuration: 'Pre-read · 25 min',
@@ -45,6 +52,13 @@ const SHARED_MODULES: { num: string; phase: string; label: string; baseDuration:
 
 // ── Java-specific module list (12 pre-reads) ────────────────────────────────
 const JAVA_MODULES = [
+  {
+    num: '00', phase: 'Before You Begin', label: 'Language Basics: Java',
+    baseDuration: 'Interactive · 30 min · 3D tools',
+    tools: ['Variables', 'Types', 'OOP Intro'],
+    available: true, accent: '#7C3AED',
+    desc: 'Five interactive 3D sections covering Java variables, types, control flow, functions, and your first real Java program — with Three.js-powered 3D visualisations for each concept.',
+  },
   {
     num: '01', phase: 'Week 0', label: 'Web & Backend Foundations',
     baseDuration: 'Pre-read · 25 min',
@@ -193,7 +207,7 @@ interface Props {
   track: SWETrack;
   level: SWELevel;
   onBack: () => void;
-  onStartPreRead: () => void;
+  onStartPreRead: (moduleNum: string) => void;
 }
 
 const LEVEL_BADGE: Record<SWELevel, { label: string; color: string; bg: string }> = {
@@ -284,7 +298,7 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '4px' }}>Your Learning Path</h2>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Pre-read 01 is available now. More modules unlock as the cohort progresses.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)' }}>Language Basics is available now. More modules unlock as the cohort progresses.</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>
             {availableCount} of {modules.length} available
@@ -299,7 +313,7 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
-              onClick={mod.available ? onStartPreRead : undefined}
+              onClick={mod.available ? () => onStartPreRead(mod.num) : undefined}
               style={{
                 borderRadius: '10px', padding: '18px 20px',
                 background: 'var(--ed-card)',

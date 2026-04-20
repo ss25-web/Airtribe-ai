@@ -23,10 +23,11 @@ import SWETrackSelection from '@/components/SWETrackSelection';
 import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
 import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
 import SWEPreRead1 from '@/components/SWEPreRead1';
+import SWELanguageBasics from '@/components/SWELanguageBasics';
 import type { GenAITrack } from '@/components/genaiTypes';
 import type { SWETrack, SWELevel } from '@/components/sweTypes';
 
-type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading' | 'swe-select' | 'swe-quiz' | 'swe' | 'swe-reading';
+type Stage = 'home' | 'quiz' | 'overview' | 'reading' | 'genai-quiz' | 'genai' | 'genai-reading' | 'swe-select' | 'swe-quiz' | 'swe' | 'swe-reading' | 'swe-lang-basics';
 
 const LS_STAGE  = 'airtribe_stage';
 const LS_TRACK  = 'airtribe_track';
@@ -77,6 +78,12 @@ export default function Home() {
       if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
     } else if (savedStage === 'swe') {
       setStage('swe');
+      const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
+      const savedSWELevel = localStorage.getItem(LS_SWE_LEVEL) as SWELevel | null;
+      if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
+      if (savedSWELevel === 'beginner' || savedSWELevel === 'advanced') setSweLevel(savedSWELevel);
+    } else if (savedStage === 'swe-lang-basics') {
+      setStage('swe-lang-basics');
       const savedSWETrack = localStorage.getItem(LS_SWE_TRACK) as SWETrack | null;
       const savedSWELevel = localStorage.getItem(LS_SWE_LEVEL) as SWELevel | null;
       if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
@@ -183,9 +190,14 @@ export default function Home() {
     localStorage.setItem(LS_SWE_LEVEL, level);
   };
 
-  const goSWEPreRead = () => {
-    setStage('swe-reading');
-    localStorage.setItem(LS_STAGE, 'swe-reading');
+  const goSWEPreRead = (moduleNum: string) => {
+    if (moduleNum === '00') {
+      setStage('swe-lang-basics');
+      localStorage.setItem(LS_STAGE, 'swe-lang-basics');
+    } else {
+      setStage('swe-reading');
+      localStorage.setItem(LS_STAGE, 'swe-reading');
+    }
   };
 
   const goBackToSWEOverview = () => {
@@ -232,6 +244,12 @@ export default function Home() {
     if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
     if (!sweLevel) return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
     return <SWELaunchpadOverview track={sweTrack} level={sweLevel} onBack={goHome} onStartPreRead={goSWEPreRead} />;
+  }
+
+  if (stage === 'swe-lang-basics') {
+    if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
+    if (!sweLevel) return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
+    return <SWELanguageBasics track={sweTrack} level={sweLevel} onBack={goBackToSWEOverview} />;
   }
 
   if (stage === 'swe-reading') {
