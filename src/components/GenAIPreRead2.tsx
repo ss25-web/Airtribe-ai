@@ -1702,7 +1702,7 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
             keyInsight: QUIZZES[4].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the full prompt engineering stack: anatomy, few-shot transfer, context management, model routing, and safe iteration. Pre-Read 03 goes further: retrieval-augmented generation." : "Rhea now has everything she needs: structured prompts, domain examples, context management, the right model, and a safe way to improve. Pre-Read 03 goes deeper: connecting AI to live data through retrieval."} />
+        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the full prompt engineering stack. Pre-Read 03 is about a harder problem — his prompts are right but analysts still don't trust the outputs. The issue isn't prompting. It's what goes into the pipeline before the prompt ever runs." : "Rhea has reliable, structured prompts for every task tier. Pre-Read 03 is about a problem prompting alone can't fix — her AI outputs look complete but miss critical context. The issue isn't how she asks. It's what she's asking the model to read."} />
       </ChapterSection>
     </>
   );

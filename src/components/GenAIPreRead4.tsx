@@ -1350,7 +1350,7 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
             keyInsight: QUIZZES[4].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "The exception classification workflow is live at 20 records per day. Leadership wants 200. Aarav adds a Loop node. 200 OpenAI calls fire simultaneously — and hit the rate limit." : "The Monday summary workflow is live. Rhea wants individual briefings for all 8 analysts. She adds a Loop node. Three analysts get empty briefings. She doesn't know why."} />
+        <NextChapterTeaser text={track === 'tech' ? "The exception classification workflow is live at 20 records per day. Leadership wants 200. Aarav adds a Loop node. 200 OpenAI calls fire simultaneously — and hit the rate limit." : "The Monday summary workflow is live and working. Her manager asks for a second: a weekly renewal digest covering 80 accounts from a new spreadsheet. Rhea adds a Loop node. First run: one output. The other 79 renewals never processed."} />
       </ChapterSection>
     </>
   );
