@@ -557,50 +557,202 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   );
 };
 
-// Section 05: Production Readiness Checklist — interactive go/no-go decision tool
-const E2EWorkflowCanvas = ({ track }: { track: GenAITrack }) => {
-  const items = track === 'tech' ? [
-    { id: 'schema', label: 'Input schema defined for all 3 email formats (with policy code, without, malformed)', critical: true },
-    { id: 'output', label: 'Output contract specified: category (enum), confidence (float 0–1), fallback behavior', critical: true },
-    { id: 'threshold', label: 'Confidence threshold calibrated on 20+ labeled examples, not set arbitrarily', critical: true },
-    { id: 'review', label: 'Human review queue built for below-threshold items, with daily SLA defined', critical: true },
-    { id: 'error', label: 'Error branches added to every node: retry logic, dead-letter queue, Slack alert', critical: true },
-    { id: 'log', label: 'Per-run logging: workflow version, model, prompt hash, classification, confidence', critical: false },
-    { id: 'test', label: 'Three failure cases tested: empty input, ambiguous input, dual-category input', critical: false },
-  ] : [
-    { id: 'data', label: 'Tested on a full real week of data — not just 5 test rows', critical: true },
-    { id: 'validate', label: 'Validation node added before email send: length check + keyword check', critical: true },
-    { id: 'cred', label: 'All credentials migrated to service account (no personal OAuth tokens)', critical: true },
-    { id: 'error', label: 'Error path configured: Slack alert to Rhea if any node fails', critical: true },
-    { id: 'compare', label: 'AI output compared to last 3 manual briefs — quality gap documented', critical: false },
-    { id: 'timeout', label: 'Fallback defined if sheet is empty (holiday weeks)', critical: false },
-    { id: 'log', label: 'Run log in place: timestamp, row count, output length, send status', critical: false },
+// Section 05: n8n canvas explorer — full workflow as interactive n8n-style canvas
+interface M4Node { id: string; x: number; y: number; label: string; typeLabel: string; icon: string; color: string; desc: string; input: string; output: string; risk: string; }
+interface M4Conn { from: string; to: string; isError?: boolean; fromBottom?: boolean; }
+
+const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
+  const [selected, setSelected] = useState<string | null>(null);
+  const NW = 160, NH = 56;
+
+  const techNodes: M4Node[] = [
+    { id: 'trigger', x: 10, y: 30, label: 'Gmail Trigger', typeLabel: 'TRIGGER', icon: '✉', color: '#0F766E',
+      desc: 'Fires when an exception email lands in the monitored inbox. Passes sender, subject, and body downstream.',
+      input: 'event-driven — no input', output: '{ sender, subject, body, timestamp }',
+      risk: 'If the mailbox rule changes, this trigger stops firing with no alert.' },
+    { id: 'parse', x: 194, y: 30, label: 'Set Node', typeLabel: 'TRANSFORM', icon: '⚙', color: '#7C3AED',
+      desc: 'Extracts policy_code from subject. Assembles the structured prompt the AI will receive. No AI here — pure data engineering.',
+      input: '{ subject, body }', output: '{ policy_code, prompt_text }',
+      risk: 'When subject has no policy code, policy_code = "MISSING". The AI must handle this variant.' },
+    { id: 'ai', x: 378, y: 30, label: 'OpenAI Node', typeLabel: 'AI NODE', icon: '◈', color: '#F59E0B',
+      desc: 'Classifies the exception into 1 of 8 defined categories. Returns category name + confidence score (0.0–1.0).',
+      input: '{ prompt_text }', output: '{ category, confidence }',
+      risk: 'Rate limits return 429. Hallucinated categories can pass schema validation. Confidence score ≠ correctness.' },
+    { id: 'validate', x: 562, y: 30, label: 'Validate Output', typeLabel: 'TRANSFORM', icon: '✓', color: '#2563EB',
+      desc: 'Checks: confidence ≥ 0.72 AND category is a valid enum value. Routes to Sheets on pass, error path on fail.',
+      input: '{ category, confidence }', output: 'pass → Sheets | fail → Error path',
+      risk: 'Threshold must be calibrated on labeled data — 0.72 is an example, not a universal number.' },
+    { id: 'sheets', x: 746, y: 30, label: 'Google Sheets', typeLabel: 'OUTPUT', icon: '⊞', color: '#16A34A',
+      desc: 'Appends a row to the exception tracker: policy_code, category, confidence, run_id, timestamp.',
+      input: '{ policy_code, category, confidence }', output: 'Row appended to tracker sheet',
+      risk: 'Must use a service account credential — not personal OAuth. Personal tokens break on password reset.' },
+    { id: 'error', x: 562, y: 170, label: 'Slack + Dead-Letter', typeLabel: 'ERROR PATH', icon: '⚠', color: '#DC2626',
+      desc: 'Fires when validation fails. Sends alert to #exceptions-alert. Writes item to dead-letter sheet for manual triage.',
+      input: '{ error_reason, original_input }', output: 'Slack message + dead-letter row written',
+      risk: 'Nothing disappears silently. Every failed item must be retrievable for reprocessing.' },
   ];
-  const [checked, setChecked] = useState<Set<string>>(new Set());
-  const criticalItems = items.filter(i => i.critical);
-  const criticalDone = criticalItems.filter(i => checked.has(i.id)).length;
-  const totalDone = items.filter(i => checked.has(i.id)).length;
-  const canShip = criticalDone === criticalItems.length;
-  const toggle = (id: string) => setChecked(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+
+  const techConns: M4Conn[] = [
+    { from: 'trigger', to: 'parse' },
+    { from: 'parse', to: 'ai' },
+    { from: 'ai', to: 'validate' },
+    { from: 'validate', to: 'sheets' },
+    { from: 'validate', to: 'error', isError: true, fromBottom: true },
+  ];
+
+  const nonTechNodes: M4Node[] = [
+    { id: 'trigger', x: 10, y: 30, label: 'Schedule Trigger', typeLabel: 'TRIGGER', icon: '◷', color: '#0F766E',
+      desc: 'Fires every Monday at 07:00. Passes run timestamp downstream. No external event dependency.',
+      input: 'time-driven — no input', output: '{ run_timestamp }',
+      risk: 'Timezone must match team timezone — a mismatch silently delivers the brief at the wrong time.' },
+    { id: 'sheets', x: 194, y: 30, label: 'Google Sheets', typeLabel: 'DATA', icon: '⊞', color: '#16A34A',
+      desc: "Reads all exception rows from the current week's sheet. Returns an array of row objects.",
+      input: '{ spreadsheet_id, range }', output: '[{ date, type, SLA_status, notes }]',
+      risk: 'Service account required — not personal OAuth. Personal tokens fail when password changes.' },
+    { id: 'set', x: 378, y: 30, label: 'Set Node', typeLabel: 'TRANSFORM', icon: '⚙', color: '#7C3AED',
+      desc: 'Formats the row array into a single summary_input text block. Assembles the Claude prompt. No AI here.',
+      input: '[{ date, type, SLA_status, notes }]', output: '{ summary_input, row_count }',
+      risk: 'If sheet is empty (holiday week), summary_input is blank. The AI must receive an explicit empty-week instruction.' },
+    { id: 'ai', x: 562, y: 30, label: 'Claude Node', typeLabel: 'AI NODE', icon: '◈', color: '#F59E0B',
+      desc: 'Reads summary_input and drafts the weekly brief. This is the only AI call in the entire workflow.',
+      input: '{ summary_input }', output: '{ brief_text }',
+      risk: 'Sparse input → sparse output. An empty sheet produces a confident "no exceptions" — which may be factually wrong.' },
+    { id: 'validate', x: 746, y: 30, label: 'Validate Output', typeLabel: 'TRANSFORM', icon: '✓', color: '#2563EB',
+      desc: 'Checks brief_text length ≥ 100 chars AND contains the keyword "exception". Routes to Gmail on pass, Slack on fail.',
+      input: '{ brief_text }', output: 'pass → Gmail | fail → Slack alert',
+      risk: 'These checks verify form, not quality. A 100-char bad brief passes. Content review is always human work.' },
+    { id: 'gmail', x: 930, y: 30, label: 'Gmail Send', typeLabel: 'OUTPUT', icon: '✉', color: '#EA580C',
+      desc: 'Sends the validated brief to director@northstar.com. Subject includes run date and exception count.',
+      input: '{ brief_text, run_timestamp, row_count }', output: 'Email delivered to director inbox',
+      risk: 'Service account must have Gmail send permission with domain-wide delegation configured.' },
+    { id: 'error', x: 746, y: 170, label: 'Slack Alert → Rhea', typeLabel: 'ERROR PATH', icon: '⚠', color: '#DC2626',
+      desc: 'Fires on validation failure. Alerts Rhea via Slack before anything reaches the director. Better silence than a bad brief.',
+      input: '{ error_reason, brief_text }', output: 'Slack message to Rhea with failure details',
+      risk: 'Alerting Rhea, not the director, on failure is a deliberate design choice — Rhea decides the next step.' },
+  ];
+
+  const nonTechConns: M4Conn[] = [
+    { from: 'trigger', to: 'sheets' },
+    { from: 'sheets', to: 'set' },
+    { from: 'set', to: 'ai' },
+    { from: 'ai', to: 'validate' },
+    { from: 'validate', to: 'gmail' },
+    { from: 'validate', to: 'error', isError: true, fromBottom: true },
+  ];
+
+  const nodes = track === 'tech' ? techNodes : nonTechNodes;
+  const conns = track === 'tech' ? techConns : nonTechConns;
+  const sel = nodes.find(n => n.id === selected);
+  const CW = track === 'tech' ? 926 : 1110;
+
+  const getPath = (conn: M4Conn): string => {
+    const f = nodes.find(n => n.id === conn.from);
+    const t = nodes.find(n => n.id === conn.to);
+    if (!f || !t) return '';
+    if (conn.fromBottom) {
+      const x1 = f.x + NW / 2, y1 = f.y + NH;
+      const x2 = t.x + NW / 2, y2 = t.y;
+      const my = (y1 + y2) / 2;
+      return `M ${x1} ${y1} C ${x1} ${my} ${x2} ${my} ${x2} ${y2}`;
+    }
+    const x1 = f.x + NW, y1 = f.y + NH / 2;
+    const x2 = t.x, y2 = t.y + NH / 2;
+    const cx = (x1 + x2) / 2;
+    return `M ${x1} ${y1} C ${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+  };
+
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>PRODUCTION READINESS CHECKLIST</div>
-      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Check off what&apos;s done. All critical items must be complete before going live.</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>&#9940; = critical &nbsp;·&nbsp; &#9651; = recommended</div>
-      <div style={{ display: 'grid', gap: '6px', marginBottom: '14px' }}>
-        {items.map(item => (
-          <div key={item.id} onClick={() => toggle(item.id)} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '9px 12px', borderRadius: '7px', cursor: 'pointer', border: `1px solid ${checked.has(item.id) ? (item.critical ? '#16A34A' : '#0891B2') : '#E7E5E4'}`, background: checked.has(item.id) ? (item.critical ? '#F0FDF4' : '#EFF6FF') : '#fff', transition: 'all 0.15s' }}>
-            <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${checked.has(item.id) ? (item.critical ? '#16A34A' : '#0891B2') : '#D1D5DB'}`, background: checked.has(item.id) ? (item.critical ? '#16A34A' : '#0891B2') : '#fff', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>{checked.has(item.id) ? '✓' : ''}</div>
-            <div style={{ flex: 1, fontSize: '12px', color: '#292524', lineHeight: 1.5 }}>
-              <span style={{ marginRight: '6px' }}>{item.critical ? '🚫' : '△'}</span>{item.label}
+    <div style={{ background: '#0F1117', borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+      {/* Window chrome */}
+      <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '10px', background: '#141920' }}>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {(['#FF5F57', '#FFBD2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />)}
+        </div>
+        <div style={{ flex: 1, textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>
+          n8n — {track === 'tech' ? 'exception-classifier.json' : 'monday-brief.json'}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} />
+          <span style={{ fontSize: '9px', color: '#22C55E', fontFamily: "'JetBrains Mono', monospace" }}>ACTIVE</span>
+        </div>
+      </div>
+      {/* Canvas */}
+      <div style={{ overflowX: 'auto' as const, padding: '24px 20px 20px',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)',
+        backgroundSize: '22px 22px', backgroundColor: '#0F1117' }}>
+        <div style={{ position: 'relative' as const, width: CW, height: 260 }}>
+          <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: CW, height: 260, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+            {conns.map(conn => (
+              <path key={`${conn.from}-${conn.to}`}
+                d={getPath(conn)}
+                stroke={conn.isError ? '#DC262655' : 'rgba(255,255,255,0.15)'}
+                strokeWidth={1.5} fill="none"
+                strokeDasharray={conn.isError ? '5 4' : undefined} />
+            ))}
+          </svg>
+          {nodes.map(node => {
+            const isSel = selected === node.id;
+            return (
+              <div key={node.id} onClick={() => setSelected(isSel ? null : node.id)}
+                style={{ position: 'absolute' as const, left: node.x, top: node.y, width: NW, height: NH,
+                  background: isSel ? '#1C2333' : '#181F2E',
+                  border: `1.5px solid ${isSel ? node.color : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: '8px', cursor: 'pointer', overflow: 'hidden',
+                  boxShadow: isSel ? `0 0 0 2px ${node.color}25, 0 8px 28px rgba(0,0,0,0.35)` : '0 2px 8px rgba(0,0,0,0.2)',
+                  transition: 'all 0.2s' }}>
+                <div style={{ height: '3px', background: node.color }} />
+                <div style={{ padding: '7px 9px', display: 'flex', alignItems: 'center', gap: '8px', height: `${NH - 3}px` }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '6px', background: `${node.color}1A`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', flexShrink: 0, color: node.color }}>{node.icon}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#E2E8F0', lineHeight: 1.2, marginBottom: '3px',
+                      whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{node.label}</div>
+                    <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                      color: node.color, letterSpacing: '0.08em' }}>{node.typeLabel}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {/* Detail panel */}
+      {sel ? (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '16px 20px',
+          background: `linear-gradient(135deg, ${sel.color}0A 0%, transparent 60%)` }}>
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+            <div style={{ width: 36, height: 36, borderRadius: '9px', background: `${sel.color}1A`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '18px', flexShrink: 0, color: sel.color }}>{sel.icon}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' as const }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, color: '#E2E8F0' }}>{sel.label}</span>
+                <span style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                  color: sel.color, background: `${sel.color}18`, padding: '2px 7px', borderRadius: '4px' }}>{sel.typeLabel}</span>
+              </div>
+              <p style={{ fontSize: '12px', color: 'rgba(226,232,240,0.75)', lineHeight: 1.65, margin: '0 0 12px' }}>{sel.desc}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                {[{ label: 'INPUT', val: sel.input }, { label: 'OUTPUT', val: sel.output }].map(item => (
+                  <div key={item.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '7px', padding: '8px 10px' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'rgba(255,255,255,0.28)', fontWeight: 700, marginBottom: '4px', letterSpacing: '0.1em' }}>{item.label}</div>
+                    <div style={{ fontSize: '10px', color: 'rgba(226,232,240,0.65)', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.5 }}>{item.val}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)',
+                borderRadius: '6px', padding: '7px 10px', fontSize: '10px', color: 'rgba(252,165,165,0.85)', lineHeight: 1.6 }}>
+                <span style={{ fontWeight: 700 }}>&#9888; Risk: </span>{sel.risk}
+              </div>
             </div>
           </div>
-        ))}
-      </div>
-      <div style={{ padding: '12px 16px', borderRadius: '8px', background: canShip ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${canShip ? '#BBF7D0' : '#FECACA'}` }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: canShip ? '#166534' : '#991B1B', marginBottom: '4px' }}>{canShip ? '✓ Ready to go live' : `Not ready — ${criticalItems.length - criticalDone} critical item(s) outstanding`}</div>
-        <div style={{ fontSize: '11px', color: canShip ? '#166534' : '#991B1B' }}>{totalDone}/{items.length} total · {criticalDone}/{criticalItems.length} critical · {canShip ? 'All gates passed.' : 'Critical gates must all be checked before first production run.'}</div>
-      </div>
+        </div>
+      ) : (
+        <div style={{ padding: '10px 20px', borderTop: '1px solid rgba(255,255,255,0.05)',
+          fontSize: '10px', color: 'rgba(255,255,255,0.22)', fontFamily: "'JetBrains Mono', monospace", textAlign: 'center' as const }}>
+          Click any node to inspect its input schema, output contract, and production risk
+        </div>
+      )}
     </div>
   );
 };
@@ -1183,7 +1335,7 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
             { text: "Check that the email address is correct before going live", correct: false, feedback: "Email address verification is a pre-flight check — important but not the production readiness test. The production readiness question is whether the output quality justifies removing human oversight." },
           ]}
         />
-        <TiltCard style={{ margin: '28px 0' }}><E2EWorkflowCanvas track={track} /></TiltCard>
+        <div style={{ margin: '28px 0' }}><N8nCanvasExplorer track={track} /></div>
         <ApplyItBox prompt={track === 'tech' ? "Before marking any classification workflow production-ready, complete this checklist: (1) add a confidence field to AI output and set a threshold calibrated on 20+ labeled examples; (2) build a human review queue for below-threshold items with a defined daily SLA; (3) log workflow version, model version, and prompt hash for every classification; (4) test three explicit failure cases: empty input, ambiguous input, and input that belongs to two categories. Document the workflow's behaviour for each. Sign off only when all four are done." : "Pull last week's real exception sheet. Run your workflow on it and save the AI output. Then pull the brief you actually sent last week. Compare them line by line. For each difference, write one sentence: is this a prompt gap (the prompt doesn't ask for this), a data gap (the data wasn't in the sheet), or a quality bar gap (the AI version is acceptable but different)? Count the prompt gaps. Each one is a workflow improvement before go-live."} />
         <QuizEngine
           conceptId="genai-m4-e2e"
