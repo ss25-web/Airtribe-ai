@@ -71,7 +71,7 @@ const MODULES = [
     desc: 'MCP fundamentals, building MCP servers, integrating LLMs with Gmail and Calendar, n8n-based MCP workflows, browser and file-system automation, and Telegram bot setup.',
     duration: 'Live sessions · 2',
     tools: ['MCP', 'Claude', 'n8n'],
-    available: false,
+    available: true,
     accent: '#B45309',
   },
   {
