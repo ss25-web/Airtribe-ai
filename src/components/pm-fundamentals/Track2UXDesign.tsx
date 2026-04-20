@@ -799,7 +799,7 @@ const PitchBuilderMockup = () => {
 // ─────────────────────────────────────────
 export default function Track2UXDesign() {
   return (
-    <article style={{ maxWidth: '740px', margin: '0 auto', padding: '0 24px 80px' }}>
+    <article style={{ padding: '0 0 80px' }}>
 
       {/* ── HERO ── */}
       <div style={{ position: 'relative', padding: '72px 0 48px', overflow: 'hidden' }}>
