@@ -332,128 +332,201 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
 
 // ── M5 TiltCard Mockups ──────────────────────────────────────────────────────
 
-const SplitBatchesCard = ({ track }: { track: GenAITrack }) => {
-  const inputCount = track === 'tech' ? 20 : 80;
-  const batchSize = track === 'tech' ? 5 : 10;
-  const batches = Math.ceil(inputCount / batchSize);
+const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
+  const [arraySize, setArraySize] = useState(track === 'tech' ? 20 : 50);
+  const [batchSize, setBatchSize] = useState(track === 'tech' ? 5 : 10);
+  const [feedbackEdge, setFeedbackEdge] = useState(false);
+  const batches = Math.ceil(arraySize / batchSize);
   return (
     <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>SPLITINBATCHES — LOOP MECHANICS & FEEDBACK EDGE</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
-        <div style={{ background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)', borderRadius: '8px', padding: '12px 14px' }}>
-          <div style={{ fontSize: '9px', color: '#059669', letterSpacing: '0.08em', marginBottom: '6px' }}>INPUT ARRAY</div>
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#C9D1D9' }}>{inputCount} items</div>
-          <div style={{ fontSize: '9px', color: '#6B7280', marginTop: '4px' }}>{track === 'tech' ? 'claims to classify' : 'renewals to process'}</div>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>SPLITINBATCHES — BATCH SIMULATOR</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+        <div>
+          <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '6px' }}>ARRAY SIZE: <span style={{ color: '#C9D1D9', fontWeight: 700 }}>{arraySize} items</span></div>
+          <input type="range" min={10} max={track === 'tech' ? 50 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#059669' }} />
         </div>
-        <div style={{ textAlign: 'center' as const, color: '#059669', fontSize: '20px' }}>→</div>
-        <div style={{ background: 'rgba(245,158,11,0.08)', border: '2px solid rgba(245,158,11,0.35)', borderRadius: '8px', padding: '12px 14px', boxShadow: '0 0 16px rgba(245,158,11,0.15)' }}>
-          <div style={{ fontSize: '9px', color: '#F59E0B', letterSpacing: '0.08em', marginBottom: '4px' }}>SPLITINBATCHES</div>
-          <div style={{ fontSize: '11px', color: '#C9D1D9', marginBottom: '6px' }}>batch_size = {batchSize}</div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <div style={{ flex: 1, padding: '4px 6px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.25)', borderRadius: '4px', fontSize: '8px', color: '#16A34A', textAlign: 'center' as const }}>batch →<br/>AI Node</div>
-            <div style={{ flex: 1, padding: '4px 6px', background: 'rgba(245,158,11,0.1)', border: '1px dashed rgba(245,158,11,0.4)', borderRadius: '4px', fontSize: '8px', color: '#F59E0B', textAlign: 'center' as const }}>has items<br/>↺ self</div>
-          </div>
-          <div style={{ marginTop: '6px', fontSize: '8px', color: '#DC2626', fontWeight: 700 }}>↺ = the feedback edge (critical)</div>
+        <div>
+          <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '6px' }}>BATCH SIZE: <span style={{ color: '#C9D1D9', fontWeight: 700 }}>{batchSize} items</span></div>
+          <input type="range" min={2} max={20} value={batchSize} onChange={e => setBatchSize(+e.target.value)} style={{ width: '100%', accentColor: '#059669' }} />
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(batches, 4)}, 1fr)`, gap: '6px', marginBottom: '12px' }}>
-        {Array.from({ length: Math.min(batches, 4) }, (_, i) => (
-          <div key={i} style={{ padding: '6px 8px', background: i < batches - 1 ? 'rgba(22,163,74,0.08)' : 'rgba(5,150,105,0.08)', border: `1px solid ${i < batches - 1 ? 'rgba(22,163,74,0.2)' : 'rgba(5,150,105,0.3)'}`, borderRadius: '6px', textAlign: 'center' as const }}>
-            <div style={{ fontSize: '8px', color: '#6B7280' }}>Iteration {i + 1}</div>
-            <div style={{ fontSize: '10px', color: '#C9D1D9', fontWeight: 600 }}>items {i * batchSize + 1}–{Math.min((i + 1) * batchSize, inputCount)}</div>
-            <div style={{ fontSize: '8px', color: i < batches - 1 ? '#16A34A' : '#059669' }}>{i < batches - 1 ? 'has items ↺' : '✓ done'}</div>
-          </div>
-        ))}
+      <div style={{ marginBottom: '16px', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: `2px solid ${feedbackEdge ? 'rgba(5,150,105,0.4)' : 'rgba(220,38,38,0.3)'}`, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }} onClick={() => setFeedbackEdge(f => !f)}>
+        <div>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: feedbackEdge ? '#6EE7B7' : '#FCA5A5', marginBottom: '2px' }}>Feedback Edge (↺ has_items → self): {feedbackEdge ? 'CONNECTED' : 'DISCONNECTED'}</div>
+          <div style={{ fontSize: '9px', color: '#6B7280' }}>Click to toggle</div>
+        </div>
+        <div style={{ width: '36px', height: '20px', borderRadius: '10px', background: feedbackEdge ? '#059669' : '#374151', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+          <div style={{ position: 'absolute', top: '2px', left: feedbackEdge ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
+        </div>
       </div>
-      <div style={{ padding: '8px 10px', background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.15)', borderRadius: '6px', fontSize: '9px', color: '#FCA5A5' }}>Without the feedback edge: processes batch 1 only — then stops. With it: loops {batches}× until 0 items remain.</div>
+      <div style={{ display: 'grid', gap: '6px', marginBottom: '14px' }}>
+        {Array.from({ length: Math.min(batches, 5) }, (_, i) => {
+          const start = i * batchSize + 1;
+          const end = Math.min((i + 1) * batchSize, arraySize);
+          const willRun = feedbackEdge || i === 0;
+          return (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: willRun ? 'rgba(5,150,105,0.06)' : 'rgba(220,38,38,0.04)', border: `1px solid ${willRun ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.15)'}`, borderRadius: '6px', opacity: willRun ? 1 : 0.5 }}>
+              <div style={{ fontSize: '9px', color: willRun ? '#059669' : '#6B7280', width: '60px', flexShrink: 0 }}>Batch {i + 1}{batches > 5 && i === 4 ? '…' : ''}</div>
+              <div style={{ fontSize: '9px', color: '#C9D1D9', flex: 1 }}>items {start}–{end}</div>
+              <div style={{ fontSize: '8px', color: willRun ? '#6EE7B7' : '#EF4444' }}>{willRun ? (i < batches - 1 ? '↺ loops' : '✓ done') : '✗ skipped'}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ padding: '8px 12px', background: feedbackEdge ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.08)', border: `1px solid ${feedbackEdge ? 'rgba(5,150,105,0.25)' : 'rgba(220,38,38,0.25)'}`, borderRadius: '6px', fontSize: '10px', color: feedbackEdge ? '#6EE7B7' : '#FCA5A5', fontWeight: 600 }}>
+        {feedbackEdge
+          ? `✓ All ${arraySize} items processed across ${batches} batches`
+          : `✗ Only ${batchSize} of ${arraySize} items processed — feedback edge missing`}
+      </div>
     </div>
   );
 };
 
-const TransformPreviewCard = ({ track }: { track: GenAITrack }) => {
-  const before = track === 'tech'
-    ? { claimID: 'CLM-4412', subject: 'Urgent: Pharmacy override', body: 'Patient requests...', policyCode: undefined }
-    : { row_id: 14, exception_date: '2026-03-10', 'Renewal Manager': 'Singh, A.', Status: 'PEND', Notes: 'Awaiting docs' };
-  const after = track === 'tech'
-    ? { claim_id: 'CLM-4412', policy_code: 'NONE', classification_input: 'SUBJECT: Urgent: Pharmacy override\nBODY: Patient requests...' }
-    : { exception_id: '14', date: '2026-03-10', manager: 'Singh, A.', status: 'pending', summary_input: 'Exception 14 (2026-03-10): PEND — Awaiting docs' };
-  const formatVal = (v: unknown) => v === undefined ? '<empty>' : typeof v === 'string' ? `"${v}"` : String(v);
+const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
+  const sourceFields = track === 'tech'
+    ? ['claimID', 'subject', 'body', 'policyCode']
+    : ['row_id', 'exception_date', 'Renewal Manager', 'Status', 'Notes'];
+  const targetFields = track === 'tech'
+    ? ['claim_id', 'policy_code', 'classification_input']
+    : ['exception_id', 'date', 'manager', 'status', 'summary_input'];
+  const correct: Record<string, string> = track === 'tech'
+    ? { claimID: 'claim_id', policyCode: 'policy_code', subject: 'classification_input', body: 'classification_input' }
+    : { row_id: 'exception_id', exception_date: 'date', 'Renewal Manager': 'manager', Status: 'status', Notes: 'summary_input' };
+
+  const [selected, setSelected] = useState<string | null>(null);
+  const [mappings, setMappings] = useState<Record<string, string>>({});
+  const [checked, setChecked] = useState(false);
+
+  const mapTo = (target: string) => {
+    if (!selected) return;
+    setMappings(m => ({ ...m, [selected]: target }));
+    setSelected(null);
+    setChecked(false);
+  };
+
+  const score = Object.entries(mappings).filter(([src, tgt]) => correct[src] === tgt).length;
+  const total = Object.keys(correct).length;
+
   return (
     <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>SET NODE — DATA TRANSFORMATION BEFORE AI CALL</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 32px 1fr', gap: '10px', alignItems: 'start' }}>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>SET NODE — FIELD MAPPER</div>
+      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Click a source field, then click the target field to map it.</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '14px' }}>
         <div>
-          <div style={{ fontSize: '9px', color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>RAW INPUT</div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '10px 12px' }}>
-            {Object.entries(before).map(([k, v]) => (
-              <div key={k} style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#7C3AED' }}>{k}</span>
-                <span style={{ color: '#6B7280' }}>: </span>
-                <span style={{ color: v === undefined ? '#DC2626' : '#C9D1D9', fontStyle: v === undefined ? 'italic' : 'normal' }}>{formatVal(v)}</span>
-              </div>
-            ))}
-          </div>
+          <div style={{ fontSize: '9px', color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>RAW INPUT FIELDS</div>
+          {sourceFields.map(f => (
+            <div key={f} onClick={() => { setSelected(f === selected ? null : f); setChecked(false); }}
+              style={{ marginBottom: '6px', padding: '6px 10px', background: selected === f ? 'rgba(124,58,237,0.15)' : mappings[f] ? 'rgba(5,150,105,0.06)' : 'rgba(255,255,255,0.04)', border: `1px solid ${selected === f ? '#7C3AED' : mappings[f] ? 'rgba(5,150,105,0.25)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '5px', fontSize: '10px', color: selected === f ? '#A78BFA' : mappings[f] ? '#6EE7B7' : '#C9D1D9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>{f}</span>
+              {mappings[f] && <span style={{ fontSize: '8px', color: '#6B7280' }}>→ {mappings[f]}</span>}
+            </div>
+          ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', fontSize: '16px', paddingTop: '30px' }}>⟹</div>
         <div>
-          <div style={{ fontSize: '9px', color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>SET NODE OUTPUT</div>
-          <div style={{ background: 'rgba(5,150,105,0.05)', border: '1px solid rgba(5,150,105,0.2)', borderRadius: '6px', padding: '10px 12px' }}>
-            {Object.entries(after).map(([k, v]) => (
-              <div key={k} style={{ marginBottom: '4px' }}>
-                <span style={{ color: '#059669' }}>{k}</span>
-                <span style={{ color: '#6B7280' }}>: </span>
-                <span style={{ color: '#C9D1D9', wordBreak: 'break-all' as const }}>{formatVal(v)}</span>
+          <div style={{ fontSize: '9px', color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>TARGET SCHEMA</div>
+          {targetFields.map(f => {
+            const isMapped = Object.values(mappings).includes(f);
+            return (
+              <div key={f} onClick={() => mapTo(f)}
+                style={{ marginBottom: '6px', padding: '6px 10px', background: isMapped ? 'rgba(5,150,105,0.1)' : selected ? 'rgba(22,163,74,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isMapped ? 'rgba(5,150,105,0.35)' : selected ? 'rgba(22,163,74,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '5px', fontSize: '10px', color: isMapped ? '#6EE7B7' : selected ? '#4ADE80' : '#9CA3AF', cursor: selected ? 'pointer' : 'default' }}>
+                {f}
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
-      <div style={{ marginTop: '10px', fontSize: '9px', color: '#6B7280' }}>The AI node receives only the clean output — no raw field names, no undefined values, no inconsistent casing.</div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div onClick={() => setChecked(true)} style={{ padding: '6px 14px', background: '#059669', borderRadius: '5px', fontSize: '10px', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>Check Mappings</div>
+        <div onClick={() => { setMappings({}); setSelected(null); setChecked(false); }} style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '5px', fontSize: '10px', color: '#9CA3AF', cursor: 'pointer' }}>Reset</div>
+      </div>
+      {checked && (
+        <div style={{ marginTop: '12px', padding: '10px 12px', background: score === total ? 'rgba(5,150,105,0.08)' : 'rgba(245,158,11,0.08)', border: `1px solid ${score === total ? 'rgba(5,150,105,0.25)' : 'rgba(245,158,11,0.25)'}`, borderRadius: '6px', fontSize: '10px', color: score === total ? '#6EE7B7' : '#FCD34D' }}>
+          {score}/{total} mappings correct. {score < total ? 'Tip: look for the canonical field name the AI node expects.' : 'All fields mapped — Set node is ready.'}
+        </div>
+      )}
     </div>
   );
 };
 
-const RouterCard = ({ track }: { track: GenAITrack }) => {
-  const routes = track === 'tech' ? [
-    { label: 'confidence ≥ 0.85', action: 'Auto-write to tracker', color: '#16A34A', count: '~68%' },
-    { label: '0.60 ≤ confidence < 0.85', action: 'Slack → human review queue', color: '#F59E0B', count: '~24%' },
-    { label: 'confidence < 0.60', action: 'Alert + manual triage', color: '#DC2626', count: '~8%' },
+const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
+  const items = track === 'tech' ? [
+    { label: 'Claim CLM-4412', value: '0.71', key: 'confidence', correct: 'B' },
+    { label: 'Claim CLM-4413', value: '0.91', key: 'confidence', correct: 'A' },
+    { label: 'Claim CLM-4414', value: '0.55', key: 'confidence', correct: 'C' },
+    { label: 'Claim CLM-4415', value: '0.63', key: 'confidence', correct: 'B' },
   ] : [
-    { label: 'status = "critical"', action: 'Immediate escalation email', color: '#DC2626', count: 'flagged' },
-    { label: 'status = "pending" + days > 3', action: 'Manager follow-up Slack', color: '#F59E0B', count: 'overdue' },
-    { label: 'status = "pending" + days ≤ 3', action: 'Add to weekly summary', color: '#16A34A', count: 'normal' },
+    { label: 'Exception #4412', value: 'critical', key: 'status', correct: 'A' },
+    { label: 'Exception #4419', value: 'pending+2d', key: 'status', correct: 'C' },
+    { label: 'Exception #4433', value: 'pending+5d', key: 'status', correct: 'B' },
+    { label: 'Exception #4441', value: 'critical', key: 'status', correct: 'A' },
   ];
+  const branchLabels = track === 'tech'
+    ? { A: 'Auto-write (≥0.85)', B: 'Human review (0.60–0.85)', C: 'Manual triage (<0.60)' }
+    : { A: 'Immediate escalation', B: 'Manager follow-up', C: 'Weekly summary' };
+
+  const [picks, setPicks] = useState<Record<number, string>>({});
+  const [revealed, setRevealed] = useState(false);
+  const allPicked = items.every((_, i) => picks[i] !== undefined);
+  const score = revealed ? items.filter((item, i) => picks[i] === item.correct).length : 0;
+
   return (
     <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>IF / SWITCH ROUTING — CONDITIONAL BRANCHING</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-        <div style={{ padding: '8px 14px', background: '#F5F5F4', border: '1px solid #D6D3D1', borderRadius: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#292524', fontWeight: 600 }}>{track === 'tech' ? 'IF/Switch' : 'Switch'} Node</div>
-        <div style={{ color: '#A8A29E', fontSize: '12px' }}>evaluates:</div>
-        <div style={{ padding: '6px 10px', background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)', borderRadius: '6px', fontSize: '11px', color: '#059669', fontFamily: "'JetBrains Mono', monospace" }}>{track === 'tech' ? '{{ $json.confidence }}' : '{{ $json.status }}, {{ $json.days_open }}'}</div>
-      </div>
-      <div style={{ display: 'grid', gap: '8px' }}>
-        {routes.map((r, i) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '10px', alignItems: 'center' }}>
-            <div style={{ padding: '8px 12px', background: `${r.color}10`, border: `1px solid ${r.color}30`, borderRadius: '6px', fontSize: '10px', color: r.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{r.label}</div>
-            <div style={{ color: '#D1D5DB', fontSize: '14px' }}>→</div>
-            <div style={{ padding: '8px 12px', background: '#fff', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#44403C' }}>
-              {r.action}
-              <span style={{ marginLeft: '6px', fontSize: '9px', color: '#A8A29E' }}>({r.count})</span>
-            </div>
-          </div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>ROUTE PREDICTOR — IF/SWITCH NODE</div>
+      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>For each item, predict which branch it takes.</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '12px', padding: '8px 10px', background: '#F5F5F4', borderRadius: '6px' }}>
+        {(['A', 'B', 'C'] as const).map(l => (
+          <div key={l} style={{ fontSize: '9px', color: '#78716C' }}><strong>{l}:</strong> {branchLabels[l]}</div>
         ))}
+      </div>
+      <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
+        {items.map((item, i) => {
+          const userPick = picks[i];
+          const isRight = revealed && userPick === item.correct;
+          const isWrong = revealed && userPick && userPick !== item.correct;
+          return (
+            <div key={i} style={{ padding: '10px 12px', background: isRight ? 'rgba(22,163,74,0.06)' : isWrong ? 'rgba(220,38,38,0.04)' : '#fff', border: `1px solid ${isRight ? 'rgba(22,163,74,0.25)' : isWrong ? 'rgba(220,38,38,0.2)' : '#E7E5E4'}`, borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#292524' }}>{item.label}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#059669' }}>{item.key} = {item.value}</div>
+                </div>
+                {revealed && <div style={{ fontSize: '11px', fontWeight: 700, color: isRight ? '#16A34A' : '#DC2626' }}>{isRight ? '✓' : `✗ → ${item.correct}`}</div>}
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {['A', 'B', 'C'].map(b => (
+                  <div key={b} onClick={() => !revealed && setPicks(p => ({ ...p, [i]: b }))}
+                    style={{ flex: 1, padding: '5px 0', textAlign: 'center' as const, borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: revealed ? 'default' : 'pointer', background: userPick === b ? (revealed ? (b === item.correct ? '#16A34A' : '#DC2626') : '#059669') : '#F5F5F4', color: userPick === b ? '#fff' : '#78716C', border: `1px solid ${userPick === b ? 'transparent' : '#E7E5E4'}` }}>{b}</div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#059669' : '#D1FAE5', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#6B7280', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Reveal Routes</div>}
+        {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 4 ? '#16A34A' : '#F59E0B' }}>{score}/4 correct</div>}
+        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: '#F5F5F4', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
       </div>
     </div>
   );
 };
 
-const HITLQueueCard = ({ track }: { track: GenAITrack }) => {
+const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
+  type ItemState = 'pending' | 'approved' | 'rejected' | 'escalated';
+  const [state, setState] = useState<ItemState>('pending');
+  const item = track === 'tech'
+    ? { id: 'CLM-4412', label: 'Pharmacy override · Tier 2', confidence: '0.71', sla: 'Thursday 17:00', channel: 'claims-review' }
+    : { id: '#4412', label: 'Escalate to regional manager', days: '6d open (SLA: 5d)', sla: 'Thursday 12:00', channel: 'ops-approvals' };
+
+  const stateColor: Record<ItemState, string> = { pending: '#F59E0B', approved: '#16A34A', rejected: '#DC2626', escalated: '#7C3AED' };
+  const stateLabel: Record<ItemState, string> = { pending: 'PENDING', approved: '✓ APPROVED', rejected: '✗ REJECTED', escalated: '⇑ ESCALATED' };
+
   return (
     <div style={{ background: '#1A1D21', borderRadius: '12px', padding: '0', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
       <div style={{ background: '#19171D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #2D2D2D' }}>
         <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#4A154B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>⧬</div>
-        <div style={{ color: '#D1D1D1', fontSize: '12px', fontWeight: 600 }}># {track === 'tech' ? 'claims-review' : 'ops-approvals'}</div>
-        <div style={{ marginLeft: 'auto', fontSize: '9px', color: '#616061', letterSpacing: '0.08em' }}>HUMAN-IN-THE-LOOP APPROVAL</div>
+        <div style={{ color: '#D1D1D1', fontSize: '12px', fontWeight: 600 }}># {item.channel}</div>
+        <div style={{ marginLeft: 'auto', padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: `${stateColor[state]}20`, color: stateColor[state] }}>{stateLabel[state]}</div>
       </div>
       <div style={{ padding: '16px' }}>
         <div style={{ background: '#222529', border: '1px solid #2D2D2D', borderRadius: '8px', padding: '12px 14px', marginBottom: '10px' }}>
@@ -466,52 +539,77 @@ const HITLQueueCard = ({ track }: { track: GenAITrack }) => {
           </div>
           <div style={{ fontSize: '11px', color: '#D1D1D1', lineHeight: 1.6, marginBottom: '10px' }}>
             {track === 'tech'
-              ? <>⚑ <strong>Review Required</strong><br />Claim <span style={{ color: '#059669' }}>CLM-4412</span> — confidence score: <span style={{ color: '#F59E0B' }}>0.71</span> (below 0.85 threshold)<br />Category suggested: <span style={{ color: '#A78BFA' }}>Pharmacy override · Tier 2</span><br />SLA deadline: <strong>Thursday 17:00</strong></>
-              : <>⚑ <strong>Approval Required</strong><br />Exception <span style={{ color: '#059669' }}>#4412</span> — 6 days open (SLA: 5d)<br />Recommended action: <span style={{ color: '#A78BFA' }}>Escalate to regional manager</span><br />Please approve or reject before <strong>Thursday 12:00</strong></>}
+              ? <><strong>⚑ Review Required</strong><br />Claim <span style={{ color: '#059669' }}>{item.id}</span> — confidence: <span style={{ color: '#F59E0B' }}>{item.confidence}</span><br />Suggested: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>
+              : <><strong>⚑ Approval Required</strong><br />Exception <span style={{ color: '#059669' }}>{item.id}</span> — {item.days}<br />Action: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>}
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <div style={{ padding: '6px 16px', background: '#007A5A', borderRadius: '4px', fontSize: '10px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>✓ Approve</div>
-            <div style={{ padding: '6px 16px', background: '#transparent', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>✗ Reject</div>
-            <div style={{ padding: '6px 16px', background: 'transparent', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>⤢ View Case</div>
-          </div>
+          {state === 'approved' && <div style={{ padding: '8px 12px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '6px', fontSize: '10px', color: '#6EE7B7' }}>✓ Approved — workflow resumed. {track === 'tech' ? 'Classification written to tracker.' : 'Escalation email sent.'}</div>}
+          {state === 'rejected' && <div style={{ padding: '8px 12px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '6px', fontSize: '10px', color: '#FCA5A5' }}>✗ Rejected — workflow stopped. {track === 'tech' ? 'Claim returned to manual triage.' : 'Exception held for re-review.'}</div>}
+          {state === 'escalated' && <div style={{ padding: '8px 12px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: '6px', fontSize: '10px', color: '#C4B5FD' }}>⏱ 48h timeout — auto-escalated to team lead. Webhook: /webhook/escalate fired.</div>}
+          {state === 'pending' && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <div onClick={() => setState('approved')} style={{ padding: '6px 16px', background: '#007A5A', borderRadius: '4px', fontSize: '10px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>✓ Approve</div>
+              <div onClick={() => setState('rejected')} style={{ padding: '6px 16px', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>✗ Reject</div>
+              <div onClick={() => setState('escalated')} style={{ padding: '6px 16px', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#A78BFA', cursor: 'pointer' }}>⏱ Sim. 48h</div>
+            </div>
+          )}
+          {state !== 'pending' && <div onClick={() => setState('pending')} style={{ marginTop: '8px', padding: '5px 12px', border: '1px solid #2D2D2D', borderRadius: '4px', fontSize: '9px', color: '#616061', cursor: 'pointer', display: 'inline-block' }}>↺ Reset</div>}
         </div>
-        <div style={{ fontSize: '9px', color: '#616061' }}>Timeout 48h → auto-escalate to team lead. Resume webhook: wf-approval-4412.n8n.cloud/webhook/…</div>
+        <div style={{ fontSize: '9px', color: '#616061' }}>Wait node holds execution until response. Timeout 48h → escalation webhook fires automatically.</div>
       </div>
     </div>
   );
 };
 
-const AgentMemoryCard = ({ track }: { track: GenAITrack }) => {
-  const turns = track === 'tech' ? [
-    { role: 'user', text: 'What is the deductible for Plan B, Tier 2?' },
-    { role: 'agent', text: 'The Tier 2 deductible for Plan B is $1,400 per year. (Retrieved from plan schedule.)' },
-    { role: 'user', text: 'What about Tier 3?' },
-    { role: 'agent', text: 'Tier 3 deductible for Plan B is $2,100. (Context: user previously asked about Plan B.)' },
-    { role: 'user', text: 'Is there a family cap?' },
-    { role: 'agent', text: 'Family out-of-pocket max for Plan B is $8,700 across all tiers.' },
-  ] : [
-    { role: 'user', text: 'Summarise the open exceptions for account Northstar West.' },
-    { role: 'agent', text: '3 open exceptions: #4412 (6d), #4419 (2d), #4433 (1d). SLA threshold: 5 days.' },
-    { role: 'user', text: 'Which of those is highest priority?' },
-    { role: 'agent', text: '#4412 — 6 days open, 1 day past SLA. (Context retained from previous turn.)' },
-    { role: 'user', text: 'Draft an escalation note for it.' },
-    { role: 'agent', text: 'Drafting escalation for #4412 (Northstar West, 6d open) to regional manager…' },
-  ];
+const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
+  const users = track === 'tech'
+    ? [
+        { id: 'user-7821', name: 'Aarav', color: '#059669', questions: ['What is deductible for Plan B, Tier 2?', 'What about Tier 3?', 'Is there a family cap?'], answers: ['Plan B Tier 2 deductible: $1,400/yr (plan schedule)', 'Plan B Tier 3: $2,100/yr. (Context: Plan B from prior turn)', 'Family OOP max for Plan B: $8,700 across all tiers.'] },
+        { id: 'user-4203', name: 'Guest', color: '#7C3AED', questions: ['What is the deductible?', 'For which plan?'], answers: ['I need more context — which plan and tier are you asking about?', 'No prior context in this session. Please specify plan and tier.'] },
+      ]
+    : [
+        { id: 'rhea-3', name: 'Rhea', color: '#059669', questions: ['List open exceptions for Northstar West.', 'Which is highest priority?', 'Draft escalation for it.'], answers: ['3 open: #4412 (6d), #4419 (2d), #4433 (1d). SLA: 5d.', '#4412 — 6d open, 1d past SLA. (Context retained)', 'Drafting escalation for #4412 (Northstar West, 6d) to regional manager…'] },
+        { id: 'ops-9', name: 'Guest', color: '#7C3AED', questions: ['What is the highest priority exception?', 'Escalate it.'], answers: ['No account context in this session. Please specify account or exception ID.', 'I need an exception ID and account before escalating. (No prior context)'] },
+      ];
+
+  const [turns, setTurns] = useState<Record<string, number>>({});
+
+  const ask = (userId: string, user: typeof users[0]) => {
+    const current = turns[userId] ?? 0;
+    if (current < user.questions.length) {
+      setTurns(t => ({ ...t, [userId]: current + 1 }));
+    }
+  };
+
   return (
     <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E' }}>AI AGENT — WINDOW BUFFER MEMORY (last 4 turns)</div>
-        <div style={{ fontSize: '9px', color: '#059669', background: 'rgba(5,150,105,0.1)', padding: '2px 8px', borderRadius: '4px' }}>session: user-{track === 'tech' ? '7821' : 'rhea-3'}</div>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>AI AGENT — WINDOW BUFFER MEMORY · SESSION ISOLATION</div>
+      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Two users. Separate sessions. Click &quot;Ask Next&quot; to advance each conversation.</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        {users.map(user => {
+          const t = turns[user.id] ?? 0;
+          return (
+            <div key={user.id} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${user.color}30`, borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: user.color }}>{user.name}</div>
+                <div style={{ fontSize: '8px', color: '#374151', background: `${user.color}15`, padding: '2px 6px', borderRadius: '4px' }}>session: {user.id}</div>
+              </div>
+              <div style={{ minHeight: '120px', display: 'grid', gap: '5px', alignContent: 'start' }}>
+                {Array.from({ length: t }, (_, i) => (
+                  <React.Fragment key={i}>
+                    <div style={{ fontSize: '9px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', padding: '4px 8px', color: '#C9D1D9' }}>👤 {user.questions[i]}</div>
+                    <div style={{ fontSize: '9px', background: `${user.color}10`, border: `1px solid ${user.color}20`, borderRadius: '4px', padding: '4px 8px', color: '#9CA3AF' }}>🤖 {user.answers[i]}</div>
+                  </React.Fragment>
+                ))}
+                {t === 0 && <div style={{ fontSize: '9px', color: '#374151', fontStyle: 'italic', padding: '4px 0' }}>No conversation yet.</div>}
+              </div>
+              <div onClick={() => ask(user.id, user)} style={{ marginTop: 'auto', padding: '5px 10px', background: t < user.questions.length ? user.color : '#374151', borderRadius: '5px', fontSize: '9px', color: '#fff', cursor: t < user.questions.length ? 'pointer' : 'not-allowed', textAlign: 'center' as const, fontWeight: 700 }}>
+                {t < user.questions.length ? 'Ask Next →' : '✓ Session complete'}
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <div style={{ display: 'grid', gap: '6px', maxHeight: '220px', overflowY: 'auto' as const }}>
-        {turns.map((t, i) => (
-          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', opacity: i < turns.length - 4 ? 0.4 : 1 }}>
-            <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: t.role === 'user' ? 'rgba(124,58,237,0.2)' : 'rgba(5,150,105,0.2)', border: `1px solid ${t.role === 'user' ? '#7C3AED' : '#059669'}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: t.role === 'user' ? '#A78BFA' : '#6EE7B7', fontWeight: 700 }}>{t.role === 'user' ? 'U' : 'A'}</div>
-            <div style={{ fontSize: '10px', color: i < turns.length - 4 ? '#484F58' : '#C9D1D9', lineHeight: 1.5, flex: 1 }}>{t.text}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: '10px', padding: '6px 10px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '4px', fontSize: '9px', color: '#D97706' }}>Faded turns = outside the 4-turn window. Still stored in buffer — but not injected into next prompt. Session ID isolates this memory from other users.</div>
+      <div style={{ marginTop: '12px', padding: '6px 10px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '4px', fontSize: '9px', color: '#D97706' }}>Each session ID keeps memory separate. {users[0].name}&apos;s context doesn&apos;t leak into Guest&apos;s session — even on the same agent.</div>
     </div>
   );
 };
@@ -629,7 +727,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-loops"
         />
-        <TiltCard style={{ margin: '28px 0' }}><SplitBatchesCard track={track} /></TiltCard>
+        <TiltCard style={{ margin: '28px 0' }}><BatchSimulatorCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take a workflow that processes a single item. Add a SplitInBatches node with batch size 5. Connect the feedback edge. Run it on an array of 20 test items. Verify all 20 are processed — not just the first 5."
           : "Take your renewal workflow. Replace the single-item trigger with a loop that reads all rows from the spreadsheet. Run it on 10 test rows. Confirm 10 outputs are produced — not just 1."} />
@@ -689,7 +787,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-transforms"
         />
-        <TiltCard style={{ margin: '28px 0' }}><TransformPreviewCard track={track} /></TiltCard>
+        <TiltCard style={{ margin: '28px 0' }}><FieldMapperCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take two HTTP nodes with different response schemas. Add a Set node after each that maps both to a shared canonical schema. Connect both to a Merge node. Verify the merged output has consistent field names and no undefined values."
           : "Create a small test: two data sources with different field names for the same concept. Add Set nodes to normalize both. Merge them on the shared field name. Confirm the merge finds matches — print the output before and after."} />
@@ -749,7 +847,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-routing"
         />
-        <TiltCard style={{ margin: '28px 0' }}><RouterCard track={track} /></TiltCard>
+        <TiltCard style={{ margin: '28px 0' }}><RoutePredictorCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Take a workflow that routes on an AI confidence score. Print the actual confidence values before the If node. Confirm they are numbers, not strings. Test with boundary values: 0.84, 0.85, 0.86. Verify each routes correctly."
           : "Take a routing workflow. Before the Switch node, add a Set node that prints the routing field value. Run it on 5 test items. Confirm the values match what the Switch conditions expect — same case, no spaces, correct format."} />
@@ -809,7 +907,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-hitl"
         />
-        <TiltCard style={{ margin: '28px 0' }}><HITLQueueCard track={track} /></TiltCard>
+        <TiltCard style={{ margin: '28px 0' }}><ApprovalSimulatorCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Build a minimal approval flow: an HTTP trigger → a Wait node → a Slack message with an interactive button. The button's action URL is the Wait node's resume webhook. Test it manually: trigger the workflow, click the Slack button, confirm the workflow resumes."
           : "Design an approval flow for your report workflow: email containing an approval link → Wait node → continue on click. Map out what happens on timeout (48 hours, no click). Write the timeout branch action before you build the happy path."} />
@@ -869,7 +967,7 @@ function CoreContent({ track }: { track: GenAITrack }) {
           ]}
           conceptId="genai-m5-agents"
         />
-        <TiltCard style={{ margin: '28px 0' }}><AgentMemoryCard track={track} /></TiltCard>
+        <TiltCard style={{ margin: '28px 0' }}><SessionIsolationCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech'
           ? "Build a chat agent with Window Buffer Memory. Set the session ID to a dynamic user identifier from the request. Test with two different user IDs simultaneously. Confirm context from one session does not appear in the other."
           : "Design the session ID strategy for your FAQ chatbot. What unique identifier is available per user? Map it. Test with two team members using the chatbot at the same time. Confirm their conversations are isolated."} />
