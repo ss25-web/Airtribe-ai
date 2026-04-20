@@ -1173,7 +1173,8 @@ function CoreContent({ track }: { track: GenAITrack }) {
   return (
     <>
       {/* Module Hero */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '28px' }}>
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "\'Lora\',\'Georgia\',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>02</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 02</div>
@@ -1224,6 +1225,27 @@ function CoreContent({ track }: { track: GenAITrack }) {
             ))}
           </div>
         </div>
+      </div>
+      <div style={{ flexShrink: 0, width: '162px', paddingTop: '8px' }}>
+        <div className="float3d" style={{ background: 'linear-gradient(145deg, #0F0A1E 0%, #1A0F2E 100%)', borderRadius: '14px', padding: '18px 16px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 02</div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Prompting the Model</div>
+          <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.45)', marginBottom: '14px' }}>GenAI Launchpad</div>
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '12px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {SECTIONS.map((s, i) => (
+              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                <div style={{ width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0, background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)', border: `1px solid ${i === 0 ? ACCENT : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: i === 0 ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>0{i + 1}</div>
+                <div style={{ fontSize: '8px', color: i === 0 ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1 }}>{s.label.replace(/^\d+\.\s+/, '')}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '12px', padding: '7px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
+            <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.6)' }}>{SECTIONS[0].label.replace(/^\d+\.\s+/, '')}</div>
+          </div>
+        </div>
+      </div>
       </div>
 
       <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : `rgba(${ACCENT_RGB},0.18)`}` }}>
