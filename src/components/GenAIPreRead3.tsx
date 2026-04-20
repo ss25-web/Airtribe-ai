@@ -333,176 +333,257 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   );
 }
 
-// ── M3 TiltCard Mockups ──────────────────────────────────────────────────────
+// ── M3 Interactive Tools ─────────────────────────────────────────────────────
 
+// Section 01: Source Coverage Checker — user selects sources, pipeline evaluates coverage
 const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
   const sources = track === 'tech'
-    ? [{ label: 'Primary Policy Doc', status: 'read', color: '#0891B2' }, { label: 'Amendment (2022)', status: 'missing', color: '#DC2626' }, { label: 'Case Precedents', status: 'missing', color: '#DC2626' }, { label: 'Internal Guidelines', status: 'missing', color: '#DC2626' }]
-    : [{ label: 'Current Exception Ticket', status: 'read', color: '#0891B2' }, { label: 'Prior Week Thread', status: 'missing', color: '#DC2626' }, { label: 'Relevant Policy Clause', status: 'missing', color: '#DC2626' }, { label: 'Open Escalation Flags', status: 'missing', color: '#DC2626' }];
+    ? [
+        { id: 'primary', label: 'Primary Policy Document (v3)', required: true, note: 'Core terms — but doesn\'t include 2022 amendment' },
+        { id: 'amendment', label: 'Policy Amendment (Feb 2022)', required: true, note: 'Contains clause 4.2c — the override rule. Not in v3.' },
+        { id: 'precedents', label: 'Case Precedents Archive', required: true, note: 'Shows 3 prior approvals of same type — supports decision' },
+        { id: 'guidelines', label: 'Internal Claims Guidelines', required: false, note: 'Useful context but not decision-critical for this type' },
+        { id: 'faq', label: 'Benefits FAQ (public)', required: false, note: 'Member-facing language — not authoritative for triage' },
+      ]
+    : [
+        { id: 'ticket', label: 'Current Exception Ticket', required: true, note: 'The trigger — but context-free without history' },
+        { id: 'thread', label: 'Prior Week Context Thread', required: true, note: 'Contains the context the AI missed in your Tuesday review' },
+        { id: 'policy', label: 'Relevant Policy Clause', required: true, note: 'The rule governing this exception type — must be in scope' },
+        { id: 'flags', label: 'Open Escalation Flags', required: true, note: 'Other open items on this account that change the recommendation' },
+        { id: 'history', label: 'Account History (12 months)', required: false, note: 'Useful for patterns but not needed for weekly summary' },
+      ];
+  const [selected, setSelected] = useState<Set<string>>(new Set([track === 'tech' ? 'primary' : 'ticket']));
+  const [revealed, setRevealed] = useState(false);
+  const requiredIds = sources.filter(s => s.required).map(s => s.id);
+  const coveredRequired = requiredIds.filter(id => selected.has(id)).length;
+  const toggle = (id: string) => { if (revealed) return; setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); };
   return (
     <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '16px' }}>SOURCE PIPELINE — CURRENT STATE vs. TRIANGULATED</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 40px 1fr', gap: '12px', alignItems: 'start' }}>
-        <div>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>✗ SINGLE-SOURCE (CURRENT)</div>
-          {sources.slice(0, 1).map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: 'rgba(8,145,178,0.06)', border: '1px solid rgba(8,145,178,0.2)', borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#44403C' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color, flexShrink: 0 }} />{s.label}
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>SOURCE COVERAGE CHECKER</div>
+      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Which sources should your pipeline read for this query type? Check all that apply.</div>
+      <div style={{ display: 'grid', gap: '7px', marginBottom: '14px' }}>
+        {sources.map(s => {
+          const isSelected = selected.has(s.id);
+          const isMissing = revealed && s.required && !isSelected;
+          const isCorrect = revealed && s.required && isSelected;
+          const isExtra = revealed && !s.required && isSelected;
+          return (
+            <div key={s.id} onClick={() => toggle(s.id)} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1.5px solid ${isMissing ? '#DC2626' : isCorrect ? '#16A34A' : isExtra ? '#F59E0B' : isSelected ? '#0891B2' : '#E7E5E4'}`, background: isMissing ? '#FEF2F2' : isCorrect ? '#F0FDF4' : isExtra ? '#FFFBEB' : isSelected ? 'rgba(8,145,178,0.06)' : '#fff', cursor: revealed ? 'default' : 'pointer', transition: 'all 0.15s' }}>
+              <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isSelected ? '#0891B2' : '#D1D5DB'}`, background: isSelected ? '#0891B2' : '#fff', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>{isSelected ? '✓' : ''}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: '#292524' }}>{s.label}</div>
+                {revealed && <div style={{ fontSize: '11px', marginTop: '3px', color: isMissing ? '#DC2626' : isCorrect ? '#16A34A' : '#92400E' }}>{isMissing ? '✗ Required — missing from your pipeline' : isCorrect ? '✓ Required — good' : isExtra ? '→ Optional — useful but not critical' : ''} &nbsp;{s.note}</div>}
+              </div>
             </div>
-          ))}
-          {sources.slice(1).map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: 'rgba(220,38,38,0.04)', border: '1px dashed rgba(220,38,38,0.2)', borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#A8A29E' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#E7E5E4', flexShrink: 0 }} />{s.label}
-            </div>
-          ))}
-          <div style={{ marginTop: '10px', padding: '8px 10px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', fontSize: '10px', color: '#991B1B' }}>→ Synthesis: fluent but incomplete</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#D1D5DB', paddingTop: '30px' }}>→</div>
-        <div>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>✓ TRIANGULATED (TARGET)</div>
-          {sources.map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: i === 0 ? 'rgba(8,145,178,0.06)' : 'rgba(22,163,74,0.05)', border: `1px solid ${i === 0 ? 'rgba(8,145,178,0.2)' : 'rgba(22,163,74,0.2)'}`, borderRadius: '6px', marginBottom: '6px', fontSize: '11px', color: '#44403C' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === 0 ? s.color : '#16A34A', flexShrink: 0 }} />{s.label}
-            </div>
-          ))}
-          <div style={{ marginTop: '10px', padding: '8px 10px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', fontSize: '10px', color: '#166534' }}>→ Synthesis: surfaced conflict on clause 4.2c</div>
-        </div>
+          );
+        })}
       </div>
+      {!revealed
+        ? <div onClick={() => setRevealed(true)} style={{ padding: '9px 20px', background: '#0891B2', color: '#fff', borderRadius: '7px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', textAlign: 'center' as const }}>Evaluate My Pipeline</div>
+        : <div style={{ padding: '12px 16px', borderRadius: '8px', background: coveredRequired === requiredIds.length ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${coveredRequired === requiredIds.length ? '#BBF7D0' : '#FECACA'}`, fontSize: '13px', fontWeight: 600, color: coveredRequired === requiredIds.length ? '#166534' : '#991B1B' }}>
+            {coveredRequired}/{requiredIds.length} required sources covered. {coveredRequired < requiredIds.length ? `Your pipeline will produce fluent but incomplete output — missing ${requiredIds.length - coveredRequired} key source(s).` : 'Good triangulation. Your pipeline has the inputs it needs.'}
+          </div>}
     </div>
   );
 };
 
+// Section 02: Summary Classifier — user reads AI summaries and classifies each
 const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
-  const genericOut = track === 'tech'
-    ? 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.'
-    : 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.';
-  const decisionOut = track === 'tech'
-    ? 'Category: Disputed pharmacy benefit. Action required: Escalate to pharmacy review — treating physician override requested, 48h SLA. Urgency: High. Blocking factor: amendment clause 4.2c (added Feb 2022) is absent from policy v3 which the pipeline read.'
-    : 'Director attention needed: 2 of 23 exceptions exceed SLA by >5 days (Accounts #4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed from you.';
+  const summaries = track === 'tech' ? [
+    { text: 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.', answer: 'generic', explain: 'Correct — this describes what happened with no action, urgency, or decision frame. An analyst reads it and still has to decide everything themselves.' },
+    { text: 'Category: Disputed pharmacy benefit. Action: Escalate to pharmacy review — physician override requested, 48h SLA. Urgency: High. Key factor: amendment clause 4.2c absent from pipeline.', answer: 'decision', explain: 'Correct — every sentence serves a decision: category, action, deadline, blocking factor. Nothing for the reader to re-derive.' },
+    { text: 'Claim #A2241 has been processed. The relevant policy documents were reviewed and a summary was generated. Several factors were identified that may affect the outcome of the claim.', answer: 'generic', explain: 'Correct — "may affect" and "several factors" are content-free. This tells an analyst nothing actionable. Pure compression, zero decision grade.' },
+  ] : [
+    { text: 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.', answer: 'generic', explain: 'Correct — "several items" and "continuing to monitor" tell the director nothing they can act on. This is a status update, not a brief.' },
+    { text: 'Director attention needed: 2 of 23 exceptions exceed SLA (#4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed.', answer: 'decision', explain: 'Correct — two exceptions named, action stated, deadline given, the rest explicitly cleared. The director reads one sentence and knows what to do.' },
+    { text: 'The exception review for the week has been completed. Analysts have reviewed the items and made notes where applicable. Some items may require director-level attention.', answer: 'generic', explain: 'Correct — "may require" and "where applicable" are evasions. The director has to read the whole thing to find nothing. No decision possible from this.' },
+  ];
+  const [idx, setIdx] = useState(0);
+  const [choice, setChoice] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+  const [done, setDone] = useState(false);
+  const current = summaries[idx];
+  const handlePick = (pick: string) => {
+    if (choice) return;
+    setChoice(pick);
+    if (pick === current.answer) setScore(s => s + 1);
+  };
+  const handleNext = () => {
+    if (idx < summaries.length - 1) { setIdx(i => i + 1); setChoice(null); }
+    else setDone(true);
+  };
+  if (done) return (
+    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '24px', textAlign: 'center' as const }}>
+      <div style={{ fontSize: '32px', fontWeight: 700, color: score === 3 ? '#16A34A' : '#F59E0B', marginBottom: '8px' }}>{score}/3</div>
+      <div style={{ fontSize: '14px', color: '#C9D1D9', marginBottom: '16px' }}>{score === 3 ? 'Perfect — you can diagnose summary quality cold.' : 'The pattern: decision-grade summaries state the action, the actor, the deadline, and the urgency. No inferring required.'}</div>
+      <div onClick={() => { setIdx(0); setChoice(null); setScore(0); setDone(false); }} style={{ padding: '8px 20px', background: '#0891B2', color: '#fff', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'inline-block' }}>Retry</div>
+    </div>
+  );
   return (
     <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>COMPRESSION TYPE — SAME INPUT, DIFFERENT PURPOSE</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-        <div>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#DC2626', letterSpacing: '0.1em', marginBottom: '8px' }}>✗ GENERIC COMPRESSION</div>
-          <div style={{ background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: '8px', padding: '12px', fontSize: '11px', color: '#9CA3AF', lineHeight: 1.6 }}>{genericOut}</div>
-          <div style={{ marginTop: '8px', fontSize: '9px', color: '#6B7280' }}>Tells you: what happened. Doesn&apos;t tell you: what to do.</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#16A34A', letterSpacing: '0.1em', marginBottom: '8px' }}>✓ DECISION-GRADE COMPRESSION</div>
-          <div style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '8px', padding: '12px', fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{decisionOut}</div>
-          <div style={{ marginTop: '8px', fontSize: '9px', color: '#16A34A' }}>Tells you: what to do next, and why, and when.</div>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E' }}>SUMMARY CLASSIFIER — {idx + 1} of {summaries.length}</div>
+        <div style={{ fontSize: '10px', color: '#6B7280' }}>Score: {score}/{idx + (choice ? 1 : 0)}</div>
       </div>
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '14px 16px', fontSize: '13px', color: '#C9D1D9', lineHeight: 1.7, marginBottom: '16px', fontFamily: 'sans-serif' }}>{current.text}</div>
+      <div style={{ fontSize: '11px', color: '#8B949E', marginBottom: '10px' }}>Is this generic compression or decision-grade?</div>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+        {(['generic', 'decision'] as const).map(opt => (
+          <div key={opt} onClick={() => handlePick(opt)} style={{ flex: 1, padding: '10px', borderRadius: '7px', textAlign: 'center' as const, cursor: choice ? 'default' : 'pointer', fontWeight: 700, fontSize: '12px', border: `2px solid ${choice === opt ? (opt === current.answer ? '#16A34A' : '#DC2626') : choice && opt === current.answer ? '#16A34A' : '#374151'}`, background: choice === opt ? (opt === current.answer ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.12)') : choice && opt === current.answer ? 'rgba(22,163,74,0.08)' : 'rgba(255,255,255,0.03)', color: choice ? (opt === current.answer ? '#16A34A' : choice === opt ? '#DC2626' : '#6B7280') : '#C9D1D9' }}>
+            {opt === 'generic' ? 'Generic Compression' : 'Decision-Grade'}
+          </div>
+        ))}
+      </div>
+      {choice && <><div style={{ fontSize: '11px', color: choice === current.answer ? '#6EE7B7' : '#FCA5A5', lineHeight: 1.6, marginBottom: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '10px 12px' }}>{current.explain}</div>
+      <div onClick={handleNext} style={{ padding: '8px 20px', background: '#0891B2', color: '#fff', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', display: 'inline-block' }}>Next →</div></>}
     </div>
   );
 };
 
+// Section 03: 5W1H Query Builder — user fills in each dimension, sees live prompt update
 const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
-  const rows = track === 'tech' ? [
-    { key: 'WHO', q: 'Who is affected?', val: 'Tier 2 claimant, treating physician, pharmacy benefit manager' },
-    { key: 'WHAT', q: 'What scenario exactly?', val: 'Physician override request — clause 4.2c, amendment Feb 2022' },
-    { key: 'WHEN', q: 'When does policy apply?', val: 'Claims submitted after 1 Jan 2022 under Plan B only' },
-    { key: 'WHERE', q: 'Which jurisdiction?', val: 'CA-only benefit schedule, not federal plan' },
-    { key: 'WHY', q: 'Why is this researched?', val: 'Escalation decision within 48h SLA — irreversible if missed' },
-    { key: 'HOW', q: 'How is output used?', val: 'Case worker decides: approve / escalate / request more info' },
+  const dims = track === 'tech' ? [
+    { key: 'WHO', q: 'Who is affected?', opts: ['Select…', 'Tier 2 claimant only', 'Claimant + treating physician', 'Claimant + physician + pharmacy manager'], correct: 2 },
+    { key: 'WHAT', q: 'What claim scenario exactly?', opts: ['Select…', 'Any pharmacy claim', 'Physician override request, clause 4.2c', 'Billing dispute'], correct: 1 },
+    { key: 'WHEN', q: 'When does the policy apply?', opts: ['Select…', 'All claims after 2020', 'Claims after Jan 2022, Plan B only', 'Claims flagged by system'], correct: 1 },
+    { key: 'WHY', q: 'Why is this being researched?', opts: ['Select…', 'Routine summary', '48h SLA escalation decision — irreversible if missed', 'Model accuracy check'], correct: 1 },
+    { key: 'HOW', q: 'How will the output be used?', opts: ['Select…', 'Stored in archive', 'Case worker decides: approve / escalate / request info', 'Director review'], correct: 1 },
   ] : [
-    { key: 'WHO', q: 'Who reads this brief?', val: 'Regional Director — pre-meeting scan, 5 min read max' },
-    { key: 'WHAT', q: 'What question are they asking?', val: '"Is there anything I need to act on before Friday?"' },
-    { key: 'WHEN', q: 'When do they decide?', val: 'Thursday AM before weekly ops call' },
-    { key: 'WHERE', q: 'Where does this brief land?', val: 'Slack message → printed for call notes' },
-    { key: 'WHY', q: 'Why this week specifically?', val: '2 accounts breached SLA — board visibility risk' },
-    { key: 'HOW', q: 'How will they act on it?', val: 'Approve escalation or delegate — one decision, not five' },
+    { key: 'WHO', q: 'Who reads this brief?', opts: ['Select…', 'All analysts', 'Regional Director — pre-meeting scan, 5 min', 'Anyone on the team'], correct: 1 },
+    { key: 'WHAT', q: 'What question are they asking?', opts: ['Select…', 'What happened this week?', 'Is there anything I need to act on before Friday?', 'How many exceptions were there?'], correct: 1 },
+    { key: 'WHEN', q: 'When do they decide?', opts: ['Select…', 'Whenever convenient', 'Thursday AM before weekly ops call', 'End of month'], correct: 1 },
+    { key: 'WHY', q: 'Why is this week different?', opts: ['Select…', 'Routine weekly summary', '2 accounts breached SLA — board visibility risk', 'New exceptions added'], correct: 1 },
+    { key: 'HOW', q: 'How will they act on it?', opts: ['Select…', 'File for reference', 'Approve escalation or delegate — one decision', 'Forward to all managers'], correct: 1 },
   ];
+  const [vals, setVals] = useState<Record<string, number>>(Object.fromEntries(dims.map(d => [d.key, 0])));
+  const filled = dims.filter(d => vals[d.key] > 0).length;
+  const allCorrect = dims.every(d => vals[d.key] === d.correct);
+  const promptParts = dims.map(d => vals[d.key] > 0 ? `[${d.key}: ${d.opts[vals[d.key]]}]` : `[${d.key}: ???]`);
   return (
     <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>5W1H BRIEF TEMPLATE — COMPLETE BEFORE WRITING THE PROMPT</div>
-      <div style={{ display: 'grid', gap: '6px' }}>
-        {rows.map((r) => (
-          <div key={r.key} style={{ display: 'grid', gridTemplateColumns: '52px 1fr', gap: '10px', alignItems: 'start' }}>
-            <div style={{ background: '#0891B2', color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, borderRadius: '4px', padding: '4px 6px', textAlign: 'center' as const }}>{r.key}</div>
-            <div style={{ background: '#fff', border: '1px solid #E7E5E4', borderRadius: '6px', padding: '6px 10px' }}>
-              <div style={{ fontSize: '9px', color: '#A8A29E', marginBottom: '2px' }}>{r.q}</div>
-              <div style={{ fontSize: '11px', color: '#292524', fontWeight: 500 }}>{r.val}</div>
-            </div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>5W1H QUERY BUILDER</div>
+      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Fill in each dimension. Watch the research prompt build below.</div>
+      <div style={{ display: 'grid', gap: '8px', marginBottom: '16px' }}>
+        {dims.map(d => (
+          <div key={d.key} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: '10px', alignItems: 'center' }}>
+            <div style={{ background: vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4', color: vals[d.key] > 0 ? '#fff' : '#78716C', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, borderRadius: '4px', padding: '4px 6px', textAlign: 'center' as const, transition: 'background 0.2s' }}>{d.key}</div>
+            <select value={vals[d.key]} onChange={e => setVals(prev => ({ ...prev, [d.key]: Number(e.target.value) }))} style={{ padding: '7px 10px', borderRadius: '6px', border: `1.5px solid ${vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4'}`, fontSize: '12px', color: '#292524', background: '#fff', outline: 'none', cursor: 'pointer' }}>
+              {d.opts.map((opt, i) => <option key={i} value={i}>{opt}</option>)}
+            </select>
           </div>
         ))}
+      </div>
+      <div style={{ background: '#0D1117', borderRadius: '8px', padding: '12px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#C9D1D9', lineHeight: 1.7, marginBottom: '10px' }}>
+        <div style={{ color: '#8B949E', marginBottom: '6px' }}>RESULTING RESEARCH PROMPT:</div>
+        {promptParts.map((p, i) => <span key={i} style={{ color: p.includes('???') ? '#DC2626' : '#6EE7B7' }}>{p}{i < promptParts.length - 1 ? ' · ' : ''}</span>)}
+      </div>
+      <div style={{ fontSize: '12px', padding: '8px 12px', borderRadius: '6px', background: allCorrect ? '#F0FDF4' : filled === 0 ? '#F5F5F4' : '#FFFBEB', color: allCorrect ? '#166534' : filled === 0 ? '#78716C' : '#92400E', border: `1px solid ${allCorrect ? '#BBF7D0' : filled === 0 ? '#E7E5E4' : '#FDE68A'}` }}>
+        {allCorrect ? '✓ Complete 5W1H — the prompt has enough specificity to produce decision-grade output.' : filled < dims.length ? `${filled}/${dims.length} dimensions filled. Unfilled dimensions (???) produce vague, generic output.` : 'Some dimensions could be more specific — the most precise choices produce the most actionable output.'}
       </div>
     </div>
   );
 };
 
+// Section 04: COVE Auditor — user audits specific claims in an AI output
 const COVECard = ({ track }: { track: GenAITrack }) => {
-  const items = track === 'tech' ? [
-    { letter: 'C', label: 'Correct', color: '#0891B2', check: 'Is every claim factually accurate given the source documents provided?', flag: '"Coverage rate is 78%" — verified against plan schedule. ✓' },
-    { letter: 'O', label: 'Original', color: '#7C3AED', check: 'Did the model retrieve this from sources, or pattern-complete from training?', flag: '"Industry average is 82%" — no source in pipeline. ✗ Model-generated.' },
-    { letter: 'V', label: 'Verifiable', color: '#2563EB', check: 'Can every specific statistic be traced to a sentence in a provided document?', flag: 'Clause reference: §4.2c, Amendment Feb 2022, p.3. ✓' },
-    { letter: 'E', label: 'Effective', color: '#0F766E', check: 'Does the output actually serve the decision the reader must make?', flag: 'Output ends with recommendation + SLA deadline. ✓' },
+  const claims = track === 'tech' ? [
+    { id: 'a', text: 'Coverage rate for Tier 2 pharmacy benefits is 78%.', verdict: 'V', verdictLabel: 'Verifiable', explain: 'This figure appears verbatim in the plan schedule document in your pipeline. Trace: plan_schedule.pdf, row 14, column "Tier 2 pharmacy cover rate".' },
+    { id: 'b', text: 'The industry average override approval rate is 82%.', verdict: 'O', verdictLabel: 'Not Original (model-generated)', explain: 'This number is not in any document in your pipeline. It came from the model\'s training data — a hallucinated benchmark. Fails Originality check.' },
+    { id: 'c', text: 'Claim #A2241 requires escalation under clause 4.2c, February 2022 amendment.', verdict: 'C', verdictLabel: 'Correct', explain: 'Factually accurate — the amendment document confirms §4.2c applies to Tier 2 CA plans. Clause reference is exact and traceable.' },
+    { id: 'd', text: 'Recommended action: escalate to pharmacy review, 48h SLA.', verdict: 'E', verdictLabel: 'Effective', explain: 'This directly serves the case worker\'s decision. States the action, the queue, and the deadline. Nothing left to infer.' },
   ] : [
-    { letter: 'C', label: 'Correct', color: '#0891B2', check: 'Is every claim factually accurate given the data you provided?', flag: 'Account #4412 SLA breach: confirmed in tracker export. ✓' },
-    { letter: 'O', label: 'Original', color: '#7C3AED', check: 'Did the model retrieve this from your data, or generate it from training?', flag: '"18% improvement in resolution time" — not in data export. ✗ Model-generated.' },
-    { letter: 'V', label: 'Verifiable', color: '#2563EB', check: 'Can you point to the specific row or document that supports each number?', flag: 'SLA count: row 14, exception tracker sheet, column F. ✓' },
-    { letter: 'E', label: 'Effective', color: '#0F766E', check: 'Does the brief answer the question the director actually brings to the meeting?', flag: 'Ends with: "2 items need your decision — rest is resolved." ✓' },
+    { id: 'a', text: '23 exceptions were processed this week.', verdict: 'C', verdictLabel: 'Correct', explain: 'Verifiable against exception tracker export (row count, current week filter). Factually accurate.' },
+    { id: 'b', text: 'Resolution time improved 18% compared to last month.', verdict: 'O', verdictLabel: 'Not Original (model-generated)', explain: 'This figure does not appear in the data export you provided. The model generated it from training patterns — a hallucinated trend. Fails Originality check.' },
+    { id: 'c', text: 'Accounts #4412 and #7089 are 6 and 8 days over SLA respectively.', verdict: 'V', verdictLabel: 'Verifiable', explain: 'Traceable to exception tracker sheet, rows 14 and 23, column "Days Open" vs SLA column. Source is explicit.' },
+    { id: 'd', text: '2 accounts need your decision before Friday — rest is resolved.', verdict: 'E', verdictLabel: 'Effective', explain: 'Directly answers what the director is asking. Filters to action items only. Clears everything else explicitly.' },
   ];
+  const opts = [
+    { key: 'C', label: 'Correct', color: '#0891B2' },
+    { key: 'O', label: 'Not Original', color: '#7C3AED' },
+    { key: 'V', label: 'Verifiable', color: '#2563EB' },
+    { key: 'E', label: 'Effective', color: '#0F766E' },
+  ];
+  const [picks, setPicks] = useState<Record<string, string>>({});
+  const allPicked = claims.every(c => picks[c.id]);
+  const score = claims.filter(c => picks[c.id] === c.verdict).length;
   return (
     <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '14px' }}>COVE EVALUATION SCORECARD — RUN BEFORE FORWARDING ANY AI OUTPUT</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-        {items.map((item) => (
-          <div key={item.letter} style={{ background: '#fff', border: `1px solid ${item.color}30`, borderRadius: '8px', padding: '12px 14px', borderLeft: `3px solid ${item.color}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: item.color, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.letter}</div>
-              <div style={{ fontWeight: 700, fontSize: '12px', color: item.color }}>{item.label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>COVE AUDITOR — EVALUATE EACH CLAIM</div>
+      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Read each claim. Tag it with the COVE dimension it primarily tests.</div>
+      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>C = Correct · O = Original (not model-generated) · V = Verifiable · E = Effective</div>
+      <div style={{ display: 'grid', gap: '10px' }}>
+        {claims.map(c => {
+          const picked = picks[c.id];
+          const isRight = picked === c.verdict;
+          return (
+            <div key={c.id} style={{ background: '#fff', border: `1.5px solid ${picked ? (isRight ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, borderRadius: '8px', padding: '12px 14px' }}>
+              <div style={{ fontSize: '12px', color: '#292524', lineHeight: 1.6, marginBottom: '10px', fontStyle: 'italic' }}>&ldquo;{c.text}&rdquo;</div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+                {opts.map(opt => (
+                  <div key={opt.key} onClick={() => !picked && setPicks(prev => ({ ...prev, [c.id]: opt.key }))} style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '11px', fontWeight: 700, cursor: picked ? 'default' : 'pointer', background: picked === opt.key ? `${opt.color}15` : '#F5F5F4', border: `1.5px solid ${picked === opt.key ? opt.color : picked && opt.key === c.verdict ? opt.color : '#E7E5E4'}`, color: picked === opt.key ? opt.color : picked && opt.key === c.verdict ? opt.color : '#78716C' }}>{opt.key} — {opt.label}</div>
+                ))}
+              </div>
+              {picked && <div style={{ marginTop: '8px', fontSize: '11px', color: isRight ? '#166534' : '#991B1B', lineHeight: 1.5 }}>{isRight ? '✓' : '✗'} {c.explain}</div>}
             </div>
-            <div style={{ fontSize: '10px', color: '#78716C', lineHeight: 1.5, marginBottom: '8px' }}>{item.check}</div>
-            <div style={{ fontSize: '10px', color: '#44403C', background: '#F5F5F4', borderRadius: '4px', padding: '6px 8px', lineHeight: 1.5, fontStyle: 'italic' }}>{item.flag}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+      {allPicked && <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: score === 4 ? '#F0FDF4' : '#FFFBEB', border: `1px solid ${score === 4 ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === 4 ? '#166534' : '#92400E' }}>{score}/4 correct — {score === 4 ? 'Perfect COVE audit.' : 'Review the incorrect tags above. Each COVE dimension has a distinct failure mode.'}</div>}
     </div>
   );
 };
 
+// Section 05: Audience Selector — user picks audience, sees brief transform live
 const AudienceDraftCard = ({ track }: { track: GenAITrack }) => {
   const synthesis = track === 'tech'
-    ? 'Claim #A2241: pharmacy override requested by Dr. Mehta. Policy clause 4.2c (Feb 2022 amendment) permits override for Tier 2 plans in CA only. 48h SLA. Precedent: 3 similar approvals in Q4.'
-    : 'This week: 23 exceptions processed, 2 breached SLA (Accounts #4412, #7089 — 6 and 8 days respectively). 19 resolved within SLA. 2 pending analyst review, expected close by EOW.';
+    ? 'Claim #A2241: pharmacy override request by Dr. Mehta. §4.2c (Feb 2022 amendment) permits Tier 2 CA override. 48h SLA. 3 precedent approvals in Q4. Amendment not in current policy index.'
+    : 'Week of Mar 10: 23 exceptions, 2 SLA breaches (#4412: 6d, #7089: 8d), 19 within tolerance, 2 pending close EOW. #4412 is third breach in 6 weeks.';
   const audiences = track === 'tech' ? [
-    { label: 'Case Worker', color: '#0891B2', out: 'Action required: escalate Claim #A2241 to pharmacy review team. Use override form PH-7. Deadline: Thursday 5pm. Note clause 4.2c in submission.' },
-    { label: 'Compliance Officer', color: '#7C3AED', out: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241, override form PH-7.' },
-    { label: 'Product Manager', color: '#2563EB', out: 'Override flow triggered 4× in Q4. Clause 4.2c not surfaced in standard policy lookup — amendment not indexed. Indexing gap: estimated 12 cases/month affected.' },
+    { label: 'Case Worker', color: '#0891B2', key: 'action', brief: 'Escalate Claim #A2241 to pharmacy review. Form: PH-7. Deadline: Thursday 5pm. Note §4.2c in submission — amendment clause, not in standard index.', why: 'Action + form + deadline. Nothing else. The case worker executes — they don\'t need context or patterns.' },
+    { label: 'Compliance Officer', color: '#7C3AED', key: 'audit', brief: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241. Amendment currently unindexed — gap in standard policy lookup.', why: 'Clause, provision, audit trail, gap. The compliance lens is: is this defensible, is it documented?' },
+    { label: 'Product Manager', color: '#2563EB', key: 'pattern', brief: 'Override flow triggered 4× in Q4. Root cause: clause 4.2c (Feb 2022 amendment) not in policy index. Case workers are escalating manually each time. Fix: index the amendment. Estimated 12 affected cases/month.', why: 'Pattern + root cause + fix. Same synthesis, different question: "where does the system break and what do we build?"' },
   ] : [
-    { label: 'Team Analyst', color: '#0891B2', out: 'Two accounts need your attention: #4412 (6 days over SLA) and #7089 (8 days). Check escalation history and prepare case notes by Thursday noon.' },
-    { label: 'Regional Director', color: '#7C3AED', out: 'No broad pattern concern this week. Two accounts (#4412, #7089) need same-day review — board visibility risk if unresolved by Friday. Recommend you flag to ops lead.' },
-    { label: 'Operations Lead', color: '#0F766E', out: 'SLA breach rate: 2/23 (8.7%) this week vs. 3.2% baseline. Recommend root-cause review for #4412 — third breach in 6 weeks. Systemic flag.' },
+    { label: 'Team Analyst', color: '#0891B2', key: 'action', brief: '#4412 (6d over SLA) and #7089 (8d): both need case notes before Thursday noon. Check escalation history for each. #4412 is a repeat breach — flag for supervisor review.', why: 'Specific accounts, specific tasks, specific deadline. The analyst executes — they need exact next steps.' },
+    { label: 'Regional Director', color: '#7C3AED', key: 'decision', brief: 'Action needed before Friday: #4412 and #7089 exceed SLA — board visibility risk if unresolved. Recommend you flag to ops lead today. Other 21 exceptions within tolerance — no action needed from you.', why: 'One decision. Clear risk. Explicit "no action needed" for everything else. Director doesn\'t need account details.' },
+    { label: 'Operations Lead', color: '#0F766E', key: 'systemic', brief: 'SLA breach rate: 2/23 (8.7%) vs 3.2% baseline. #4412: third breach in 6 weeks — systemic flag. Recommend root-cause review for that account before next reporting cycle.', why: 'Trend + baseline + systemic flag. Ops lens is: "is this a one-off or a process problem?"' },
   ];
+  const [selected, setSelected] = useState<string | null>(null);
+  const chosen = audiences.find(a => a.key === selected);
   return (
     <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '10px' }}>AUDIENCE-PARAMETERISED DRAFTING — ONE SYNTHESIS, THREE BRIEFS</div>
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '10px 12px', marginBottom: '14px' }}>
-        <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.08em', marginBottom: '4px' }}>SYNTHESIS INPUT</div>
-        <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{synthesis}</div>
+      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>AUDIENCE-FIRST DRAFTING — ONE SYNTHESIS, THREE BRIEFS</div>
+      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px' }}>
+        <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.08em', marginBottom: '4px' }}>SYNTHESIS</div>
+        <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6, fontFamily: 'sans-serif' }}>{synthesis}</div>
       </div>
-      <div style={{ display: 'grid', gap: '8px' }}>
-        {audiences.map((a) => (
-          <div key={a.label} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${a.color}30`, borderRadius: '8px', padding: '10px 12px' }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: a.color, letterSpacing: '0.08em', marginBottom: '4px' }}>→ {a.label.toUpperCase()}</div>
-            <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{a.out}</div>
-          </div>
+      <div style={{ fontSize: '11px', color: '#8B949E', marginBottom: '10px' }}>Select an audience — see how the same synthesis becomes a completely different brief:</div>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        {audiences.map(a => (
+          <div key={a.key} onClick={() => setSelected(a.key)} style={{ flex: 1, padding: '10px 8px', borderRadius: '7px', textAlign: 'center' as const, cursor: 'pointer', border: `2px solid ${selected === a.key ? a.color : '#374151'}`, background: selected === a.key ? `${a.color}15` : 'rgba(255,255,255,0.03)', fontSize: '11px', fontWeight: 700, color: selected === a.key ? a.color : '#9CA3AF', transition: 'all 0.15s' }}>{a.label}</div>
         ))}
       </div>
+      {chosen && (
+        <><div style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${chosen.color}40`, borderRadius: '8px', padding: '12px 14px', marginBottom: '10px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: chosen.color, letterSpacing: '0.08em', marginBottom: '6px' }}>BRIEF FOR {chosen.label.toUpperCase()}</div>
+          <div style={{ fontSize: '12px', color: '#C9D1D9', lineHeight: 1.7, fontFamily: 'sans-serif' }}>{chosen.brief}</div>
+        </div>
+        <div style={{ fontSize: '11px', color: '#8B949E', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '10px 12px', lineHeight: 1.6 }}><span style={{ color: chosen.color, fontWeight: 700 }}>Why it&apos;s different:</span> {chosen.why}</div>
+        </>
+      )}
     </div>
   );
 };
 
-// ── End M3 TiltCard Mockups ───────────────────────────────────────────────────
+// ── End M3 Interactive Tools ──────────────────────────────────────────────────
 
-function CoreContent({ track }: { track: GenAITrack }) {
+function CoreContent({ track, completedSections, activeSection }: { track: GenAITrack; completedSections: Set<string>; activeSection: string | null }) {
+  const nextSection = SECTIONS.find(s => !completedSections.has(s.id));
   const moduleContext = TRACK_META[track].moduleContext;
   return (
     <>
       {/* Module Hero */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', marginBottom: '28px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '28px' }}>
+      <div style={{ flex: 1, minWidth: 0, background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', position: 'relative', overflow: 'hidden' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none' as const, pointerEvents: 'none' as const }}>03</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 03</div>
@@ -558,6 +639,31 @@ function CoreContent({ track }: { track: GenAITrack }) {
       <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : `rgba(${ACCENT_RGB},0.18)`}` }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: track === 'tech' ? '#0F766E' : ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you build a research pipeline that analysts can actually trust — one that triangulates sources, surfaces conflicts, and produces decision-grade briefs, not fluent summaries?" : "Your lens: how do you design an AI-assisted research workflow that saves real hours, not just minutes — by getting source selection, summarisation purpose, and audience fit right before touching the prompt?"}</div>
+      </div>
+      <div style={{ flexShrink: 0, width: '162px', paddingTop: '8px' }}>
+        <div className="float3d" style={{ background: 'linear-gradient(145deg, #0F0A1E 0%, #1A0F2E 100%)', borderRadius: '14px', padding: '18px 16px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 03</div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Research &amp; Drafting</div>
+          <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.45)', marginBottom: '14px' }}>GenAI Launchpad</div>
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '12px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {SECTIONS.map((s, i) => {
+              const done = completedSections.has(s.id);
+              const active = activeSection === s.id;
+              return (
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0, background: done ? '#22C55E' : active ? ACCENT : 'rgba(255,255,255,0.06)', border: `1px solid ${done ? '#22C55E' : active ? ACCENT : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: done || active ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, transition: 'all 0.3s' }}>{done ? '✓' : `0${i + 1}`}</div>
+                  <div style={{ fontSize: '8px', color: done ? 'rgba(240,232,216,0.55)' : active ? 'rgba(240,232,216,0.95)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1, transition: 'color 0.3s' }}>{s.label.replace(/^\d+\.\s+/, '')}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ marginTop: '12px', padding: '7px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>{nextSection ? 'NEXT UP' : 'COMPLETE ✓'}</div>
+            <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.6)' }}>{nextSection ? nextSection.label.replace(/^\d+\.\s+/, '') : 'All sections read!'}</div>
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* ── SECTION 01 ── */}
@@ -1129,7 +1235,7 @@ export default function GenAIPreRead3({ track, onBack }: Props) {
             <LeftNav completedSections={completedSections} activeSection={activeSection} />
           </div>
           <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            <CoreContent track={track} />
+            <CoreContent track={track} completedSections={completedSections} activeSection={activeSection} />
             <AnimatePresence>
               {progressPct >= 80 ? (
                 <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center' as const, position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>

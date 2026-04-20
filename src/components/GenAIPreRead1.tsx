@@ -502,7 +502,8 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
 
 // ── End TiltCard Mockups ─────────────────────────────────────────────────────
 
-function CoreContent({ track }: { track: GenAITrack }) {
+function CoreContent({ track, completedSections, activeSection }: { track: GenAITrack; completedSections: Set<string>; activeSection: string | null }) {
+  const nextSection = SECTIONS.find(s => !completedSections.has(s.id));
   const moduleContext = TRACK_META[track].moduleContext;
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
   const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
@@ -594,16 +595,20 @@ function CoreContent({ track }: { track: GenAITrack }) {
           <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.45)', marginBottom: '14px' }}>GenAI Launchpad</div>
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', marginBottom: '12px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-            {SECTIONS.map((s, i) => (
-              <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                <div style={{ width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0, background: i === 0 ? ACCENT : 'rgba(255,255,255,0.06)', border: `1px solid ${i === 0 ? ACCENT : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: i === 0 ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>0{i + 1}</div>
-                <div style={{ fontSize: '8px', color: i === 0 ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1 }}>{s.label.replace(/^\d+\.\s+/, '')}</div>
-              </div>
-            ))}
+            {SECTIONS.map((s, i) => {
+              const done = completedSections.has(s.id);
+              const active = activeSection === s.id;
+              return (
+                <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', flexShrink: 0, background: done ? '#22C55E' : active ? ACCENT : 'rgba(255,255,255,0.06)', border: `1px solid ${done ? '#22C55E' : active ? ACCENT : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '7px', color: done || active ? '#fff' : 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, transition: 'all 0.3s' }}>{done ? '✓' : `0${i + 1}`}</div>
+                  <div style={{ fontSize: '8px', color: done ? 'rgba(240,232,216,0.55)' : active ? 'rgba(240,232,216,0.95)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1, transition: 'color 0.3s' }}>{s.label.replace(/^\d+\.\s+/, '')}</div>
+                </div>
+              );
+            })}
           </div>
           <div style={{ marginTop: '12px', padding: '7px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>NEXT UP</div>
-            <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.6)' }}>{SECTIONS[0].label.replace(/^\d+\.\s+/, '')}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>{nextSection ? 'NEXT UP' : 'COMPLETE ✓'}</div>
+            <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.6)' }}>{nextSection ? nextSection.label.replace(/^\d+\.\s+/, '') : 'All sections read!'}</div>
           </div>
         </div>
       </div>
@@ -1258,7 +1263,7 @@ export default function GenAIPreRead1({ track, onBack }: Props) {
           </div>
 
           <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            <CoreContent track={track} />
+            <CoreContent track={track} completedSections={completedSections} activeSection={activeSection} />
             <AnimatePresence>
               {progressPct >= 80 ? (
                 <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center', position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
