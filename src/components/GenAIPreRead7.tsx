@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
+import GenAIAvatar, { GenAIConversationScene, AaravFace, RheaFace, GenAIMentorFace } from './GenAIAvatar';
+import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
@@ -614,6 +615,23 @@ const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
   );
 };
 
+function AirtribeLogo() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(124,58,237,0.3)' }}>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
+      <div>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1 }}>Airtribe</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' as const }}>Learn</div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Export ──────────────────────────────────────────────────────────────
 
 type Props = { track: GenAITrack; onBack: () => void };
@@ -662,91 +680,119 @@ export default function GenAIPreRead7({ track, onBack }: Props) {
     options: ((q.options as Record<string, { text: string; correct: boolean; feedback: string }[]>)[track] ?? q.options['tech']),
   }));
 
+  const MENTORS: { name: string; role: string; desc: string; color: string; mentorId: GenAIMentorId }[] = [
+    { name: 'Anika',  role: 'AI Workflow Strategist',   desc: 'Asks who owns the failure mode before anyone designs the happy path.',              color: '#7C3AED', mentorId: 'anika' },
+    { name: 'Rohan',  role: 'Automation Engineer',       desc: 'Thinks in payloads, retries, and what the system does at 2am.',                    color: '#2563EB', mentorId: 'rohan' },
+    { name: 'Leela',  role: 'Risk & Compliance',         desc: 'First to ask what happens to people when the workflow is wrong.',                   color: '#C2410C', mentorId: 'leela' },
+    { name: 'Kabir',  role: 'Operations Intelligence',   desc: 'Distinguishes repetitive work from work that is actually ready for AI.',            color: '#0F766E', mentorId: 'kabir' },
+  ];
+
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+  const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
+  const protagonistDesc = track === 'tech'
+    ? 'His claims routing agent classifies perfectly. But every time it tries to assign a case to an adjuster, it can\u2019t reach the HR system. The data exists. The bridge doesn\u2019t.'
+    : 'Her n8n workflows summarise and classify in seconds. But when her director asks \u2018is Hartwell Group in the CRM?\u2019 the AI can\u2019t answer. The CRM is there. The connection isn\u2019t.';
+
   return (
-    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
+    <div className="editorial" style={{ background: 'var(--ed-cream)', minHeight: '100vh' }}>
       {/* Top Nav */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit', padding: '4px 0', flexShrink: 0 }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              Back
-            </button>
-            <div style={{ width: '1px', height: '16px', background: 'var(--ed-rule)' }} />
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: ACCENT }}>PRE-READ {MODULE_NUM}</div>
-            <div style={{ width: '1px', height: '16px', background: 'var(--ed-rule)' }} />
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ed-ink2)' }}>Model Context Protocol</div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ padding: '4px 10px', borderRadius: '5px', background: `rgba(${ACCENT_RGB},0.1)`, border: `1px solid rgba(${ACCENT_RGB},0.25)`, fontSize: '10px', fontWeight: 700, color: ACCENT }}>{trackMeta.shortLabel}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>{progressPct}%</div>
-          </div>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', backdropFilter: 'blur(12px)' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+              <motion.button whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }} onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}>
+                <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
+              </motion.button>
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <AirtribeLogo />
+              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>GenAI Launchpad</span>
+                <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{trackMeta.introTitle}</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
+              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
+            </div>
+            <div style={{ width: '80px', flexShrink: 0 }} />
+          </motion.div>
         </div>
       </div>
 
-      {/* Hero */}
-      <div style={{ background: `linear-gradient(135deg, rgba(${ACCENT_RGB},0.08) 0%, rgba(${ACCENT_RGB},0.03) 100%)`, borderBottom: '1px solid var(--ed-rule)', padding: '48px 32px 40px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1, background: 'var(--ed-cream)', borderRadius: '14px', padding: '32px 36px', border: '1px solid var(--ed-rule)', position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                <div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '3px' }}>{trackMeta.label}</div>
-                  <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)' }}>{trackMeta.introTitle}</div>
-                </div>
-              </div>
-              <h1 style={{ fontSize: '32px', fontWeight: 900, lineHeight: 1.15, color: 'var(--ed-ink)', margin: '0 0 16px', letterSpacing: '-0.02em' }}>
-                Model Context Protocol
-              </h1>
-              {para(track === 'tech'
-                ? "Your AI agent can classify claims, draft responses, and reason through edge cases — but it can't look up a live adjuster workload or query the HR database. Not because it lacks the intelligence, but because there is no sanctioned bridge between the model and those systems. MCP is that bridge: a standard protocol for exposing tools to AI models in a way that is composable, auditable, and cross-model consistent."
-                : "Your n8n AI workflows summarise, classify, and draft — but every time someone asks 'is this account in our CRM?' or 'what's the current renewal status?', the AI has to say it doesn't know. MCP is the protocol layer that gives your AI access to live systems — through structured tools that n8n's Agent node can discover, call, and report on."
-              )}
-              <div style={{ marginTop: '20px', display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
-                {['Last-Mile Gap', 'Tool Anatomy', 'MCP Server', 'Permissions', 'Production Ops'].map(tag => (
-                  <div key={tag} style={{ padding: '4px 10px', borderRadius: '20px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid rgba(${ACCENT_RGB},0.2)`, fontSize: '10px', fontWeight: 600, color: ACCENT }}>{tag}</div>
-                ))}
-              </div>
-              <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                <div style={{ padding: '12px 14px', background: 'var(--ed-card)', borderRadius: '8px', border: '1px solid var(--ed-rule)' }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', textTransform: 'uppercase' as const, letterSpacing: '0.12em', marginBottom: '4px' }}>You will learn</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>
-                    {track === 'tech'
-                      ? 'How to build an MCP server, write tool schemas, scope permissions, and read production tool call logs.'
-                      : 'How to configure MCP tools in n8n, write effective tool descriptions, and monitor which tools fire in production.'}
+      {/* 3-column grid */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0,1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
+          <div style={{ alignSelf: 'stretch' }}>
+            <LeftNav completedSections={completedSections} activeSection={activeSection} />
+          </div>
+
+          <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
+
+            {/* ── Module Hero (inside grid) ── */}
+            <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', marginBottom: '28px' }}>
+              <div style={{ flex: 1, minWidth: 0, background: 'var(--ed-cream)', borderRadius: '14px', padding: '36px 36px 28px', position: 'relative', overflow: 'hidden' }}>
+                <div aria-hidden="true" style={{ position: 'absolute', right: '-12px', top: '-8px', fontSize: '140px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none' as const, pointerEvents: 'none' as const }}>07</div>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>
+                    GenAI Launchpad · Pre-Read 07
                   </div>
-                </div>
-                <div style={{ padding: '12px 14px', background: 'var(--ed-card)', borderRadius: '8px', border: '1px solid var(--ed-rule)' }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', textTransform: 'uppercase' as const, letterSpacing: '0.12em', marginBottom: '4px' }}>You will build</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>
-                    {track === 'tech'
-                      ? 'A working MCP tool definition for an HR adjuster-load endpoint — including schema, description, and permission scope.'
-                      : 'A configured n8n tool node for a live Salesforce lookup — including description, credential scope, and a human-approval gate for write actions.'}
+                  <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>
+                    Model Context Protocol
+                  </h1>
+                  <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>
+                    &ldquo;Before you expose a tool to a model, understand what the model will do when it calls it.&rdquo;
+                  </p>
+                  {/* Characters */}
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
+                    <div style={{ background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
+                      <div style={{ marginBottom: '8px' }}>
+                        <div style={{ display: 'inline-block', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em', marginBottom: '8px' }}>PROTAGONIST</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '14px', color: ACCENT }}>{protagonist}</div>
+                            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{protagonistDesc}</div>
+                    </div>
+                    {MENTORS.map(m => (
+                      <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                          <GenAIMentorFace mentor={m.mentorId} size={34} />
+                          <div>
+                            <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
+                            <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Learning objectives */}
+                  <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
+                    <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
+                    {[
+                      'Understand the last-mile gap — why capable models still can\u2019t reach live systems on their own',
+                      'Read an MCP tool schema and know exactly which part controls when it fires',
+                      'Scope tool permissions using the principle of least privilege',
+                      'Monitor production tool call logs to catch volume anomalies, auth failures, and latency drift',
+                    ].map((obj, i) => (
+                      <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
+                        <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", marginTop: '2px' }}>0{i + 1}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{obj}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-            <div style={{ flexShrink: 0, width: '162px' }}>
-              <div style={{ background: 'var(--ed-card)', border: `2px solid rgba(${ACCENT_RGB},0.2)`, borderRadius: '12px', padding: '16px', textAlign: 'center' as const }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: `rgba(${ACCENT_RGB},0.12)`, border: `1px solid rgba(${ACCENT_RGB},0.3)`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', fontSize: '22px' }}>🔌</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, marginBottom: '4px', letterSpacing: '0.1em' }}>PRE-READ 07</div>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '8px' }}>MCP</div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>Mar 21–27 · 25 min · 5 sections</div>
-                <div style={{ marginTop: '10px', height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <motion.div animate={{ width: `${progressPct}%` }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} transition={{ duration: 0.6 }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3-Column Layout */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 32px', display: 'grid', gridTemplateColumns: '200px 1fr 220px', gap: '32px' }}>
-        <LeftNav completedSections={completedSections} activeSection={activeSection} />
-
-        <article style={{ padding: '0 0 80px' }}>
 
           {/* ── Section 1: The Last-Mile Problem ── */}
           <ChapterSection id="genai-m7-lastmile" num="01" accentRgb={ACCENT_RGB} first>
@@ -1020,9 +1066,12 @@ export default function GenAIPreRead7({ track, onBack }: Props) {
               : "Pre-Read 08 covers the question Rhea's director will eventually ask: 'How do we know the AI is actually right?' Her workflows are producing outputs. Pre-Read 08 is about building the system that tells you which ones to trust."} />
           </ChapterSection>
 
-        </article>
+          </motion.main>
 
-        <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
+          <div style={{ alignSelf: 'stretch' }}>
+            <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
+          </div>
+        </div>
       </div>
     </div>
   );
