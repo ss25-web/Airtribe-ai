@@ -21,13 +21,31 @@ const buildSection = (open: string, story: string, lines: CSLine[], mentor: { na
   mentorColor: mentor.color,
 });
 
-const PYTHON_MENTOR = { name: 'Riya', role: 'Senior Software Engineer', color: '#0369A1' };
-const JAVA_MENTOR = { name: 'Kavya', role: 'Senior Backend Engineer', color: '#7C3AED' };
-const NODE_MENTOR = { name: 'Mei', role: 'Senior Full-Stack Engineer', color: '#DC2626' };
+const PYTHON_MENTOR = { name: 'Riya', role: 'Senior Software Engineer 🐍', color: '#0369A1' };
+const JAVA_MENTOR = { name: 'Kavya', role: 'Senior Backend Engineer ☕', color: '#7C3AED' };
+const NODE_MENTOR = { name: 'Mei', role: 'Senior Full-Stack Engineer ⚡', color: '#DC2626' };
 
 // We supply one excellent 'beginner' payload, and map advanced to match it for structural consistency, 
 // per user directive to focus on single, solid beginner execution.
 const pythonBeginner = {
+  identity: buildSection(
+    "What kind of language is Python, really?",
+    "Aisha joins the team and opens a Python file for the first time. She's written Java before, and everything looks strange  no braces, no semicolons, no type declarations.",
+    [
+      { speaker: 'protagonist', text: "Wait, there's no main class, no curly braces... how does Python even know where code blocks start and end?" },
+      { speaker: 'mentor', text: "That's Python's core identity: indentation IS structure. It's a dynamically-typed, interpreted language built for readability. Less ceremony, more expression." }
+    ],
+    PYTHON_MENTOR
+  ),
+  types: buildSection(
+    "Do I just assign values without declaring types?",
+    "Aisha is surprised to find Python doesn't require type declarations. She creates variables freely, then hits a TypeError when mixing types in an operation.",
+    [
+      { speaker: 'protagonist', text: "I did `print('Total: ' + 50)`. Why did it crash? Java would just convert that." },
+      { speaker: 'mentor', text: "Python is dynamically typed  variables can hold anything  but it's still strongly typed. It won't silently coerce a number to a string. Use f-strings: `f'Total: {50}'`." }
+    ],
+    PYTHON_MENTOR
+  ),
   variables: buildSection(
     "How do I print something? Also, where are the type definitions?",
     "Aisha begins her first ticket. She tries to print a formatted string but gets a TypeError when mixing a number with a string.",
@@ -93,6 +111,24 @@ const pythonBeginner = {
 };
 
 const javaBeginner = {
+  identity: buildSection(
+    "Java needs a class for everything? Even Hello World?",
+    "Vikram creates his first Java file. He expects to write a simple function, but the compiler demands everything live inside a class with a specific entry-point signature.",
+    [
+      { speaker: 'protagonist', text: "Why do I need `public static void main(String[] args)` just to print one line? That's 5 tokens of boilerplate!" },
+      { speaker: 'mentor', text: "Java is a strictly object-oriented, statically-typed, compiled language. Every execution starts from a class method. The verbosity is intentional  it makes behavior explicit and safe at scale." }
+    ],
+    JAVA_MENTOR
+  ),
+  types: buildSection(
+    "Why must I declare the type of every single variable?",
+    "Vikram creates his first Java file and realizes he must declare the type of every variable before it compiles.",
+    [
+      { speaker: 'protagonist', text: "I tried `age = 25` and the compiler immediately rejected it." },
+      { speaker: 'mentor', text: "Java demands explicit types. `int age = 25;`. This static typing ensures variables are securely tracked before the program even runs  no surprises at runtime." }
+    ],
+    JAVA_MENTOR
+  ),
   variables: buildSection(
     "Why must I declare everything? Int, String, Boolean...",
     "Vikram creates his first Java file and realizes he must declare the type of every variable before it compiles.",
@@ -116,7 +152,7 @@ const javaBeginner = {
     "Vikram writes a traditional C-style loop but gets an off-by-one array exception at the very end.",
     [
       { speaker: 'protagonist', text: "It crashed on the final loop because `i <= array.length` searched beyond the array boundary." },
-      { speaker: 'mentor', text: "Arrays are zero-indexed. Use the enhanced for-loop `for (String name : names)` when you don't need the index—it's completely immune to boundary errors." }
+      { speaker: 'mentor', text: "Arrays are zero-indexed. Use the enhanced for-loop `for (String name : names)` when you don't need the indexit's completely immune to boundary errors." }
     ],
     JAVA_MENTOR
   ),
@@ -158,6 +194,24 @@ const javaBeginner = {
 };
 
 const nodeBeginner = {
+  identity: buildSection(
+    "Is Node.js a language or a runtime?",
+    "Leo starts his first Node.js project. He's written frontend JavaScript before, but now wonders why there's no browser, no DOM, no window  yet it's still JavaScript.",
+    [
+      { speaker: 'protagonist', text: "Is Node.js a different language from JavaScript? The syntax looks identical but `document` doesn't exist." },
+      { speaker: 'mentor', text: "Node.js is a runtime  it runs JavaScript outside the browser using Chrome's V8 engine. No DOM, but you get the file system, network, and process APIs instead. Same language, different environment." }
+    ],
+    NODE_MENTOR
+  ),
+  types: buildSection(
+    "const vs let vs var  and are there real types in JS?",
+    "Leo starts building an Express route. His variable gets unexpectedly overwritten by another block of code, and he realizes he doesn't fully understand how JavaScript handles variables and scope.",
+    [
+      { speaker: 'protagonist', text: "I used `var` for the user ID, but it leaked outside the if-statement and overwrote my database key." },
+      { speaker: 'mentor', text: "JavaScript is dynamically typed and loosely scoped with `var`. Use `const` by default, `let` only when the value must reassign. And know your types  JS will silently coerce them if you don't." }
+    ],
+    NODE_MENTOR
+  ),
   variables: buildSection(
     "const vs let vs var. What's the difference?",
     "Leo starts building an Express route but his variable gets unexpectedly overwritten by another block of code.",
@@ -216,14 +270,13 @@ const nodeBeginner = {
     "Building an interactive script.",
     "Leo is assigned to build a CLI To-Do list using classes, arrays, and standard functions.",
     [
-      { speaker: 'mentor', text: "Structure the To-Do list. Add logic to prevent duplicates via Sets, and utilize arrow functions for your loops." }
+      { speaker: 'mentor', text: "Structure the To-Do list. Add logic to prevent duplicates via Sets, and utilize arrow functions for your loops. 🚀" }
     ],
     NODE_MENTOR
   ),
 };
 
-// Mirroring beginner payload to advanced simply to satisfy types without writing an entire parallel set,
-// as the explicit directive was to focus rigidly on a simplified, core pedagogical beginner track.
+// Mirroring beginner payload to advanced simply to satisfy types
 export const BASICS_STORY: Record<SWETrack, Record<SWELevel, Record<string, SweBasicsStorySection>>> = {
   python: { beginner: pythonBeginner, advanced: pythonBeginner },
   java: { beginner: javaBeginner, advanced: javaBeginner },

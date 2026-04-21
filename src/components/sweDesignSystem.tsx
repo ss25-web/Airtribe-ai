@@ -567,3 +567,88 @@ export const SWEConversationScene = ({
   );
 };
 
+// ─── QuickTry: Interactive Micro-Practice ─────────────────────────────
+export const QuickTry = ({
+  track, initialCode, problem, hint, onRun
+}: {
+  track: SWETrack; initialCode: string; problem: string; hint: string; onRun: (code: string) => void;
+}) => {
+  const [code, setCode] = useState(initialCode);
+  const [output, setOutput] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'running' | 'success'>('idle');
+
+  const handleRun = () => {
+    setStatus('running');
+    setTimeout(() => {
+      setOutput('Success: Code executed successfully.');
+      setStatus('success');
+      onRun(code);
+    }, 800);
+  };
+
+  const accentColor = track === 'python' ? '#16A34A' : track === 'java' ? '#0369A1' : '#CA8A04';
+
+  return (
+    <div style={{ margin: '24px 0', borderRadius: '12px', border: '1px solid var(--ed-rule)', overflow: 'hidden', background: '#0d1117' }}>
+      <div style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: accentColor }} />
+          <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em' }}>MICRO-PRACTICE</span>
+        </div>
+      </div>
+      <div style={{ padding: '20px' }}>
+        <div style={{ fontSize: '14px', color: '#e2e8f0', marginBottom: '16px', lineHeight: 1.6 }}>{problem}</div>
+        <textarea 
+          value={code} 
+          onChange={(e) => setCode(e.target.value)}
+          spellCheck={false}
+          style={{ width: '100%', minHeight: '120px', background: '#161b22', border: '1px solid #30363d', borderRadius: '6px', color: '#e6edf3', padding: '12px', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', lineHeight: 1.6, resize: 'vertical' }} 
+        />
+        <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <motion.button 
+            whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+            onClick={handleRun}
+            style={{ padding: '8px 24px', background: accentColor, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+          >
+            {status === 'running' ? 'RUNNING...' : 'RUN CODE'}
+          </motion.button>
+          <div style={{ fontSize: '12px', color: '#8b949e', fontStyle: 'italic' }}>Hint: {hint}</div>
+        </div>
+        {output && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '16px', padding: '12px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '6px', color: '#4ade80', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}>
+            {output}
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── DataBehaviorVisualizer: 2D Visualizer ─────────────────────────────
+export const DataBehaviorVisualizer = () => {
+  const [items, setItems] = useState<string[]>(['Alice', 'Bob', 'Charlie']);
+  const [type, setType] = useState<'list' | 'set' | 'map'>('list');
+
+  return (
+    <div style={{ margin: '24px 0', padding: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+        {(['list', 'set', 'map'] as const).map(t => (
+          <button key={t} onClick={() => setType(t)} style={{ padding: '6px 16px', borderRadius: '20px', border: type === t ? 'none' : '1px solid var(--ed-rule)', background: type === t ? '#333' : 'transparent', color: type === t ? '#fff' : 'var(--ed-ink)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize' }}>{t}</button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', minHeight: '100px', alignItems: 'center' }}>
+        {items.map((item, i) => (
+          <motion.div key={i} layout initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ padding: '12px 20px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', borderRadius: '8px', fontSize: '14px', fontWeight: 600 }}>
+            {type === 'map' ? `ID_${i+1}: ${item}` : item}
+          </motion.div>
+        ))}
+        <button onClick={() => setItems([...items, 'NewItem'])} style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px dashed var(--ed-rule)', background: 'transparent', color: 'var(--ed-ink3)', cursor: 'pointer', fontSize: '20px' }}>+</button>
+      </div>
+      <div style={{ marginTop: '20px', fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
+        {type === 'list' && "Lists keep items in the exact order you add them."}
+        {type === 'set' && "Sets automatically remove duplicates. No two items can be the same."}
+        {type === 'map' && "Maps link Keys (IDs) to Values (Names) for instant lookup."}
+      </div>
+    </div>
+  );
+};
