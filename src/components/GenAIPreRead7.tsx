@@ -173,7 +173,7 @@ function getNextLevel(total: number) {
 function LeftNav({ completedSections, activeSection }: { completedSections: Set<string>; activeSection: string | null }) {
   const donePct = Math.round((completedSections.size / SECTIONS.length) * 100);
   return (
-    <aside style={{ position: 'sticky', top: '80px' }}>
+    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
       <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '18px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid var(--ed-rule)' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
@@ -211,7 +211,7 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
   const nextLevel = getNextLevel(xp.total);
 
   return (
-    <aside style={{ position: 'sticky', top: '80px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
       <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
           <div>
@@ -663,9 +663,9 @@ export default function GenAIPreRead7({ track, onBack }: Props) {
   }));
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--ed-bg)', color: 'var(--ed-ink)' }}>
+    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
       {/* Top Nav */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(var(--ed-bg-rgb),0.92)', borderBottom: '1px solid var(--ed-rule)', backdropFilter: 'blur(12px)' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 32px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit', padding: '4px 0', flexShrink: 0 }}>

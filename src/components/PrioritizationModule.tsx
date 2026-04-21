@@ -409,7 +409,7 @@ export default function PrioritizationModule({ onBack, track }: Props) {
           </div>
 
           <motion.main key="m3-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            {track === 'apm' ? <Track2Prioritization /> : <Track1Prioritization />}
+            {track === 'apm' ? <Track2Prioritization /> : <Track1Prioritization completedSections={completedSections} />}
 
             <AnimatePresence>
               {progressPct >= 87 && (

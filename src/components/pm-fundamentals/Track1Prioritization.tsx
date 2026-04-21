@@ -14,6 +14,15 @@ import { MentorFace } from './MentorFaces';
 // ─────────────────────────────────────────
 const ACCENT = '#C85A40';
 const ACCENT_RGB = '200,90,64';
+const PARTS = [
+  { num: '01', id: 'm3-raw-inputs',  label: 'Raw Inputs' },
+  { num: '02', id: 'm3-reframe',     label: 'Reframe the List' },
+  { num: '03', id: 'm3-data',        label: 'Data Changes Everything' },
+  { num: '04', id: 'm3-rice',        label: 'RICE Framework' },
+  { num: '05', id: 'm3-call',        label: 'Making the Call' },
+  { num: '06', id: 'm3-stakeholder', label: "The PM's Real Job" },
+  { num: '07', id: 'm3-reflection',  label: 'Final Reflection' },
+];
 const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
 
@@ -853,83 +862,143 @@ const KiranMentorCard = ({
 // ─────────────────────────────────────────
 // INTRO HERO
 // ─────────────────────────────────────────
-const IntroHero = () => (
-  <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px', position: 'relative', overflow: 'hidden' }}>
-    <div aria-hidden="true" style={{
-      position: 'absolute', right: '-20px', top: '-10px',
-      fontSize: 'clamp(120px, 18vw, 220px)', fontWeight: 700, lineHeight: 1,
-      color: `rgba(${ACCENT_RGB},0.06)`,
-      fontFamily: "'Lora', 'Georgia', serif",
-      letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
-    }}>03</div>
+const IntroHero = ({ completedSections }: { completedSections: Set<string> }) => {
+  const donePct = Math.round((completedSections.size / PARTS.length) * 100);
+  const nextPart = PARTS.find(p => !completedSections.has(p.id));
+  return (
+    <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px', position: 'relative', overflow: 'hidden' }}>
+      <div aria-hidden="true" style={{
+        position: 'absolute', right: '-20px', top: '-10px',
+        fontSize: 'clamp(120px, 18vw, 220px)', fontWeight: 700, lineHeight: 1,
+        color: `rgba(${ACCENT_RGB},0.06)`,
+        fontFamily: "'Lora', 'Georgia', serif",
+        letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
+      }}>04</div>
 
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px', position: 'relative', zIndex: 1 }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '12px', textTransform: 'uppercase' as const }}>
-        MODULE 03 &middot; NEW TO PM TRACK
-      </div>
-      <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px', letterSpacing: '-0.02em' }}>
-        Problem Framing &amp;<br />Prioritization
-      </h1>
-      <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '28px', maxWidth: '640px' }}>
-        Sprint planning Monday. Four stakeholders. Four &ldquo;urgent&rdquo; requests. One engineer for two weeks.
-        Priya has to pick one. This is how she does it without guessing.
-      </div>
-      <div style={{ marginBottom: '28px', background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', maxWidth: '600px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px', textTransform: 'uppercase' as const }}>You will learn</div>
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-          {[
-            'Turn feature requests into problem statements',
-            'Use data to compare wildly different inputs',
-            'Score priorities with the RICE framework',
-            'Communicate hard calls without apologising',
-          ].map(obj => (
-            <div key={obj} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-              <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>&#10003;</span>
-              <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>{obj}</span>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '12px', textTransform: 'uppercase' as const }}>
+              MODULE 04 &middot; NEW TO PM TRACK
             </div>
-          ))}
-        </div>
-      </div>
+            <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px', letterSpacing: '-0.02em' }}>
+              Problem Framing &amp;<br />Prioritization
+            </h1>
+            <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '28px', maxWidth: '560px' }}>
+              Sprint planning Monday. Four stakeholders. Four &ldquo;urgent&rdquo; requests. One engineer for two weeks.
+              Priya has to pick one. This is how she does it without guessing.
+            </div>
+            <div style={{ marginBottom: '28px', background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', maxWidth: '520px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px', textTransform: 'uppercase' as const }}>You will learn</div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                {[
+                  'Turn feature requests into problem statements',
+                  'Use data to compare wildly different inputs',
+                  'Score priorities with the RICE framework',
+                  'Communicate hard calls without apologising',
+                ].map(obj => (
+                  <div key={obj} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>&#10003;</span>
+                    <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>{obj}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: '20px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
-          {([
-            { mentor: 'priya'  as const, desc: 'Navigating four conflicting priorities with one engineer.' },
-            { mentor: 'rohan'  as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },
-            { mentor: 'kiran'  as const, desc: 'Pulls the Amplitude numbers that change the whole conversation.' },
-            { mentor: 'dev'    as const, desc: 'Marcus from Sales. Pushes back hard when his CRM feature gets deprioritised.' },
-            { mentor: 'asha'   as const, desc: 'Keeps asking "what outcome does that actually move?"' },
-          ]).map(c => {
-            const accent = { priya: ACCENT, rohan: '#E67E22', kiran: '#3A86FF', dev: '#FF5630', asha: '#0097A7' }[c.mentor];
-            const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', dev: 'Marcus', asha: 'Asha' }[c.mentor];
-            const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', dev: 'Sales · EdSpark', asha: 'AI Mentor' }[c.mentor];
-            return (
-              <div key={c.mentor} style={{ background: `${accent}0D`, border: `1px solid ${accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <MentorFace mentor={c.mentor} size={44} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: accent, lineHeight: 1.2 }}>{name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{role}</div>
+            <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: '20px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+                {([
+                  { mentor: 'priya'  as const, desc: 'Navigating four conflicting priorities with one engineer.' },
+                  { mentor: 'rohan'  as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },
+                  { mentor: 'kiran'  as const, desc: 'Pulls the Amplitude numbers that change the whole conversation.' },
+                  { mentor: 'dev'    as const, desc: 'Marcus from Sales. Pushes back hard when his CRM feature gets deprioritised.' },
+                  { mentor: 'asha'   as const, desc: 'Keeps asking "what outcome does that actually move?"' },
+                ]).map(c => {
+                  const accent = { priya: ACCENT, rohan: '#E67E22', kiran: '#3A86FF', dev: '#FF5630', asha: '#0097A7' }[c.mentor];
+                  const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', dev: 'Marcus', asha: 'Asha' }[c.mentor];
+                  const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', dev: 'Sales · EdSpark', asha: 'AI Mentor' }[c.mentor];
+                  return (
+                    <div key={c.mentor} style={{ background: `${accent}0D`, border: `1px solid ${accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                        <MentorFace mentor={c.mentor} size={44} />
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '13px', color: accent, lineHeight: 1.2 }}>{name}</div>
+                          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{role}</div>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Floating module card */}
+          <div style={{ flexShrink: 0, width: '168px', paddingTop: '48px' }}>
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <div className="float3d" style={{ transformStyle: 'preserve-3d' as const }}>
+                <div style={{
+                  background: 'linear-gradient(145deg, #1A1218 0%, #241228 100%)',
+                  borderRadius: '14px', padding: '20px 18px',
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 04</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Problem Framing &amp; Prioritization</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>Foundations Track</div>
+                  <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
+                    <motion.div animate={{ width: `${donePct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }}
+                      style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                    {PARTS.map(p => {
+                      const done = completedSections.has(p.id);
+                      const isNext = p.id === nextPart?.id;
+                      return (
+                        <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                          <div style={{
+                            width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                            background: done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.06)',
+                            border: `1px solid ${done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.1)'}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                            fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                            transition: 'background 0.3s, border-color 0.3s',
+                          }}>{done ? '✓' : p.num}</div>
+                          <div style={{ fontSize: '9px', color: done ? 'rgba(240,232,216,0.5)' : isNext ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1, transition: 'color 0.3s' }}>
+                            {p.label}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>
+                      {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+                    </div>
+                    <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>
+                      {donePct === 100 ? 'All 7 parts done' : nextPart ? nextPart.label : 'Raw Inputs'}
+                    </div>
                   </div>
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
               </div>
-            );
-          })}
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 // ─────────────────────────────────────────
 // MAIN EXPORT
 // ─────────────────────────────────────────
-export default function Track1Prioritization() {
+export default function Track1Prioritization({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) {
   return (
     <article>
-      <IntroHero />
+      <IntroHero completedSections={completedSections} />
 
       {/* ── PART I ── Too Many "Urgent" Problems ── */}
       <ChapterSection id="m3-raw-inputs" num="01" accentRgb={ACCENT_RGB} first>
