@@ -221,11 +221,32 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
 
   const modules = track === 'java'
     ? JAVA_MODULES
-    : SHARED_MODULES.map(mod => ({
-        ...mod,
-        tools: mod.tools[track] ?? [],
-        desc: mod.num === '01' ? meta.module01Desc : getModuleDesc(mod.num, track),
-      }));
+    : SHARED_MODULES.map(mod => {
+        let label = mod.label;
+        let available = mod.available;
+        let baseDuration = mod.baseDuration;
+        
+        if (track === 'python') {
+          if (mod.num === '01') {
+            label = 'Core Language & Data Model';
+          } else if (mod.num === '02') {
+            label = 'Functions, OOP, and Code Organization';
+            available = true;
+          } else if (mod.num === '03') {
+            label = 'Reliability, Environments, and Readiness';
+            available = true;
+          }
+        }
+
+        return {
+          ...mod,
+          label,
+          available,
+          baseDuration,
+          tools: mod.tools[track] ?? [],
+          desc: mod.num === '01' ? meta.module01Desc : getModuleDesc(mod.num, track),
+        };
+      });
 
   const availableCount = modules.filter(m => m.available).length;
 
@@ -386,11 +407,11 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
 function getModuleDesc(num: string, track: SWETrack): string {
   const descs: Record<string, Partial<Record<SWETrack, string>>> = {
     '02': {
-      python: 'Variables, data types, control flow, functions, and object-oriented programming in Python. You will learn when to use classes vs functions and how to write Pythonic code that other engineers will want to read.',
+      python: 'Functions, parameters, first-class objects, lambda expressions, and object-oriented programming. You will learn encapsulation, inheritance, polymorphism, and how to structure code into modular packages.',
       nodejs: 'ES6+ syntax, closures, prototypes, async/await, and the event loop in depth. You will learn how JavaScript\'s flexibility works for you — and when it works against you.',
     },
     '03': {
-      python: 'Build a REST API with FastAPI including request validation, response models, and automatic documentation. You will understand how HTTP works, what a route handler does, and how to structure a real backend.',
+      python: 'Handling exceptions, file I/O, writing production-grade defensive code, creating virtual environments, and ensuring reproducibility. You will understand what it takes to write Python code that runs reliably.',
       nodejs: 'Build a REST API with Express.js including routing, middleware, error handling, and request validation. You will understand the request-response cycle and how middleware chains compose into a real backend.',
     },
     '04': {

@@ -1,318 +1,377 @@
 'use client';
 
-import React, { useRef, useState, useEffect, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Text, Float, RoundedBox, Sphere } from '@react-three/drei';
-import { motion, AnimatePresence } from 'framer-motion';
-import * as THREE from 'three';
+import React, { useEffect, useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
 import type { SWETrack, SWELevel } from './sweTypes';
 import { BASICS_STORY } from './sweBasicsStoryData';
-import { StoryCard, SWEConversationScene, SWEAvatar, QuickTry, DataBehaviorVisualizer } from './sweDesignSystem';
+import SWEPreReadLayout from './SWEPreReadLayout';
+import { 
+  SWEConversationScene, 
+  QuickTry, 
+  ProtagonistAvatar,
+  SWEMentorFace,
+  DataBehaviorVisualizer
+} from './sweDesignSystem';
+import { 
+  chLabel, 
+  h2, 
+  ChapterSection, 
+} from './pm-fundamentals/designSystem';
 
-// --- Types ---
-interface Props { track: SWETrack; level: SWELevel; onBack: () => void; }
-
-const TRACK_CONFIG: Record<SWETrack, {
-  name: string; emoji: string; color: string; colorHex: number;
-  gradientA: string; gradientB: string; bg: string;
-}> = {
-  java: { name: 'Java', emoji: '☕', color: '#0369A1', colorHex: 0x0369a1, gradientA: '#0369A1', gradientB: '#7C3AED', bg: 'rgba(3,105,161,0.06)' },
-  python: { name: 'Python', emoji: '🐍', color: '#16A34A', colorHex: 0x16a34a, gradientA: '#16A34A', gradientB: '#0D9488', bg: 'rgba(22,163,74,0.06)' },
-  nodejs: { name: 'Node.js', emoji: '⚡', color: '#CA8A04', colorHex: 0xca8a04, gradientA: '#CA8A04', gradientB: '#16A34A', bg: 'rgba(202,138,4,0.06)' },
-};
-
-// --- Navigation ---
-const SECTIONS = [
-  { id: 'identity', label: 'Language Identity' },
-  { id: 'types', label: 'Variables & Types' },
-  { id: 'flow', label: 'Control Flow' },
-  { id: 'loops', label: 'Loops' },
-  { id: 'functions', label: 'Functions' },
-  { id: 'objects', label: 'Objects & Memory' },
-  { id: 'dataStructures', label: 'Data Structures' },
-  { id: 'challenge', label: 'Final Challenge' },
-];
-
-// --- 3D Visualizer Components ---
-
-function MemoryBox3D({ label, value, color, delay }: any) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [scale, setScale] = useState(0);
-  useEffect(() => { const t = setTimeout(() => setScale(1), delay); return () => clearTimeout(t); }, [delay]);
-
-  return (
-    <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
-      <mesh ref={meshRef} scale={[scale, scale, scale]}>
-        <RoundedBox args={[2, 1.2, 0.4]} radius={0.1} smoothness={4}>
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.2} />
-        </RoundedBox>
-        <Text position={[0, 0.2, 0.25]} fontSize={0.15} color="#ffffff">{label}</Text>
-        <Text position={[0, -0.2, 0.25]} fontSize={0.2} color="#ffffff" font={undefined}>{value}</Text>
-      </mesh>
-    </Float>
-  );
+interface Props {
+  track: SWETrack;
+  level: SWELevel;
+  onBack: () => void;
 }
 
-// --- Section Helper Component ---
-
-function StoryBlock({ sectionId, track, level, children }: { sectionId: string; track: SWETrack; level: SWELevel; children?: React.ReactNode }) {
-  const story = BASICS_STORY[track]?.[level]?.[sectionId];
-  const cfg = TRACK_CONFIG[track];
-  
-  if (!story) return null;
-
-  return (
-    <div style={{ marginBottom: '80px', paddingTop: '20px' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px', textTransform: 'uppercase' }}>
-          SECTION: {sectionId}
-        </div>
-        <h2 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '12px', lineHeight: 1.1 }}>
-          {story.open}
-        </h2>
-      </div>
-
-      <StoryCard protagonist="Protagonist" accentColor={cfg.color}>
-         {story.story}
-      </StoryCard>
-
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-
-      <div style={{ marginTop: '32px' }}>
-        {children}
-      </div>
-
-      {story.quiz && (
-        <div style={{ marginTop: '32px' }}>
-          <SWEAvatar 
-            name={story.mentorName} 
-            role={story.mentorRole} 
-            color={story.mentorColor} 
-            content="Before we move on, let's test your understanding." 
-            question={story.quiz.question} 
-            options={story.quiz.options} 
-            conceptId={story.quiz.conceptId} 
-          />
-        </div>
-      )}
-    </div>
-  );
-}
+const MODULE_ID = 'swe-pr-00';
 
 export default function SWELanguageBasics({ track, level, onBack }: Props) {
-  const cfg = TRACK_CONFIG[track];
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [activeSection, setActiveSection] = useState<string>('identity');
+  const store = useLearnerStore();
+  const [hydrated, setHydrated] = useState(false);
+  const [activeSection, setActiveSection] = useState('identity');
+
+  // Sync with global store
+  const completedModules = useMemo(() => {
+    return new Set(store.completedSections[MODULE_ID] || ['identity']);
+  }, [store.completedSections]);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        const id = entry.target.getAttribute('data-section');
-        if (id && entry.isIntersecting) {
-          setActiveSection(id);
-          setCompletedSections(p => new Set([...p, id]));
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('data-nav-id');
+          if (id) {
+            setActiveSection(id);
+            store.markSectionCompleted(MODULE_ID, id);
+          }
         }
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -20% 0px' });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
     
-    const elements = document.querySelectorAll('[data-section]');
-    elements.forEach(el => obs.observe(el));
+    document.querySelectorAll('[data-nav-id]').forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [track, level]);
+  }, [hydrated]);
 
-  const totalXP = completedSections.size * 100;
-  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
+  if (!hydrated) return null;
+
+  const trackConfig = {
+    python: {
+      name: 'Python',
+      accent: '#16A34A',
+      accentRgb: '22,163,74',
+      protagonist: 'Aisha',
+      role: 'Junior Software Engineer',
+      company: 'Vela',
+      mentor: 'Riya',
+      mentorRole: 'Senior Software Engineer',
+      mentorColor: '#0369A1'
+    },
+    java: {
+      name: 'Java',
+      accent: '#0369A1',
+      accentRgb: '3,105,161',
+      protagonist: 'Vikram',
+      role: 'Junior Backend Engineer',
+      company: 'Finova Systems',
+      mentor: 'Kavya',
+      mentorRole: 'Senior Backend Engineer',
+      mentorColor: '#7C3AED'
+    },
+    nodejs: {
+      name: 'Node.js',
+      accent: '#CA8A04',
+      accentRgb: '202,138,4',
+      protagonist: 'Leo',
+      role: 'Junior Full-Stack Developer',
+      company: 'Launchly',
+      mentor: 'Mei',
+      mentorRole: 'Senior Full-Stack Engineer',
+      mentorColor: '#DC2626'
+    }
+  }[track];
+
+  const SECTIONS = [
+    { id: 'identity', label: 'Language Identity' },
+    { id: 'types', label: 'Variables & Types' },
+    { id: 'flow', label: 'Control Flow' },
+    { id: 'loops', label: 'Loops & Iteration' },
+    { id: 'functions', label: 'Functions & Scope' },
+    { id: 'objects', label: 'Objects & Data' },
+    { id: 'dataStructures', label: 'Data Structures' },
+    { id: 'challenge', label: 'Final Challenge' }
+  ];
+
+  const getStory = (id: string) => {
+    return BASICS_STORY[track]?.[level]?.[id] || null;
+  };
 
   return (
-    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
-      
-      {/* Premium Top Bar */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(252, 251, 247, 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--ed-rule)', padding: '12px 28px' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <motion.button whileHover={{ x: -2 }} onClick={onBack} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '6px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace" }}>
-              ← BACK
-            </motion.button>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: cfg.color }}>{cfg.emoji} {cfg.name} Basics</div>
+    <SWEPreReadLayout
+      trackConfig={trackConfig}
+      moduleLabel={`${trackConfig.name.toUpperCase()} PRE-READ 00`}
+      title={`Language Basics: The ${trackConfig.name} Lens`}
+      sections={SECTIONS}
+      completedModules={completedModules}
+      activeSection={activeSection}
+      onBack={onBack}
+    >
+      {/* ── MODULE HERO ── */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', marginBottom: '56px', flexWrap: 'wrap' }}
+      >
+        <div style={{ flex: 1, minWidth: '320px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '28px', letterSpacing: '0.04em' }}>
+            Software Engineering <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
+            <span style={{ color: 'var(--ed-ink2)' }}>{trackConfig.name} Track</span>
+            <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
+            <span style={{ color: 'var(--ed-ink3)' }}>25 min · 8 parts</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>PROGRESS</div>
-              <div style={{ fontSize: '14px', fontWeight: 900, color: cfg.color }}>{progressPct}%</div>
-            </div>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: cfg.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px', fontWeight: 900 }}>
-              {totalXP / 100}
+
+          <h1 style={{ 
+            fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, lineHeight: 1.1, 
+            letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '18px',
+            fontFamily: "'Lora', serif" 
+          }}>
+            Computational Foundations:<br />
+            <span style={{ color: trackConfig.accent }}>The {trackConfig.name} Mindset</span>
+          </h1>
+
+          <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '540px', marginBottom: '36px', fontStyle: 'italic', fontFamily: "'Lora', serif" }}>
+            &ldquo;Software engineering isn&apos;t about memorizing syntax. It&apos;s about understanding how a language thinks and models reality.&rdquo;
+          </p>
+
+          <div style={{ 
+            background: 'var(--ed-card)', borderRadius: '10px', padding: '24px', 
+            border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${trackConfig.accent}`,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.03)'
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: trackConfig.accent, letterSpacing: '0.15em', marginBottom: '16px', textTransform: 'uppercase' }}>Learning Objectives</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              {[
+                'Identify a language\'s core identity and design goals',
+                'Master variables and the underlying type system',
+                'Orchestrate logic with control flow and iteration',
+                'Model complex data relationships using objects'
+              ].map((obj, i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <span style={{ color: trackConfig.accent, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', marginTop: '2px' }}>0{i+1}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.5 }}>{obj}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </nav>
 
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '60px 28px', display: 'grid', gridTemplateColumns: '220px 1fr 260px', gap: '60px' }}>
-        
-        {/* Left ScrollSpy Nav */}
-        <aside style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.2em', marginBottom: '24px' }}>STRUCTURE</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {SECTIONS.map((s, i) => {
-              const active = activeSection === s.id;
-              const done = completedSections.has(s.id);
-              return (
-                <div key={s.id} onClick={() => document.querySelector(`[data-section="${s.id}"]`)?.scrollIntoView({ behavior: 'smooth' })} style={{ 
-                  fontSize: '13px', padding: '8px 0', cursor: 'pointer', color: active ? cfg.color : done ? 'var(--ed-ink)' : 'var(--ed-ink3)',
-                  fontWeight: active ? 800 : 400, borderLeft: `2px solid ${active ? cfg.color : 'transparent'}`, paddingLeft: '12px',
-                  transition: 'all 0.2s'
-                }}>
-                  {String(i + 1).padStart(2, '0')}. {s.label} {done ? '✓' : ''}
+        <div style={{ flexShrink: 0, width: '200px', paddingTop: '40px' }}>
+          <div className="float3d" style={{ 
+            background: `linear-gradient(145deg, #1e293b 0%, #0f172a 100%)`, 
+            borderRadius: '16px', padding: '24px 20px', 
+            boxShadow: '0 32px 64px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: trackConfig.accent, letterSpacing: '0.2em', marginBottom: '12px' }}>MODULE 00</div>
+            <div style={{ fontSize: '14px', fontWeight: 800, color: '#F1F5F9', fontFamily: "'Lora', serif", lineHeight: 1.3, marginBottom: '6px' }}>Computational Thinking</div>
+            <div style={{ fontSize: '10px', color: 'rgba(241,245,249,0.5)', marginBottom: '20px' }}>SWE Launchpad</div>
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', marginBottom: '16px' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {SECTIONS.slice(0, 5).map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: i === 0 ? trackConfig.accent : 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ fontSize: '9px', color: i === 0 ? '#F1F5F9' : 'rgba(241,245,249,0.4)', fontWeight: i === 0 ? 700 : 400 }}>{s.label}</div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </aside>
+        </div>
+      </motion.div>
 
-        {/* Main Content Flow */}
-        <main style={{ maxWidth: '800px' }}>
-          <header style={{ marginBottom: '80px' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: cfg.color, letterSpacing: '0.3em', marginBottom: '16px' }}>MODULE 00</div>
-            <h1 style={{ fontSize: '56px', fontWeight: 900, fontFamily: "'Lora', serif", lineHeight: 1.05, marginBottom: '24px', letterSpacing: '-0.03em' }}>
-              The First Principles of {cfg.name}
-            </h1>
-            <p style={{ fontSize: '20px', lineHeight: 1.6, color: 'var(--ed-ink2)', maxWidth: '600px' }}>
-              Software engineering isn't about memorizing syntax. It's about understanding <strong>how a language thinks</strong>.
-            </p>
-          </header>
-
-          <div data-section="identity">
-            <StoryBlock sectionId="identity" track={track} level={level}>
-               <div style={{ height: '300px', background: 'var(--ed-card)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--ed-rule)' }}>
-                 <Canvas camera={{ position: [0, 0, 5] }}>
-                    <ambientLight intensity={0.5} />
-                    <pointLight position={[10, 10, 10]} />
-                    <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
-                       <Sphere args={[1.5, 32, 32]}>
-                          <meshStandardMaterial color={cfg.color} wireframe />
-                       </Sphere>
-                    </Float>
-                 </Canvas>
-               </div>
-            </StoryBlock>
-          </div>
-
-          <div data-section="types">
-            <StoryBlock sectionId="types" track={track} level={level}>
-              <QuickTry 
-                track={track} 
-                initialCode={track === 'python' ? 'x = 10\ny = "20"\nprint(f"Result: {x + int(y)}")' : 'int x = 10;\nString y = "20";\nSystem.out.println("Result: " + (x + Integer.parseInt(y)));'}
-                problem="Types define how data interacts. Try adding a number to a string-wrapped value."
-                hint="You must explicitly convert types in most professional languages."
-                onRun={() => {}}
-              />
-            </StoryBlock>
-          </div>
-
-          <div data-section="flow">
-            <StoryBlock sectionId="flow" track={track} level={level}>
-              <QuickTry 
-                track={track} 
-                initialCode={track === 'python' ? 'age = 22\nif age >= 18:\n    print("Access Granted")\nelse:\n    print("Access Denied")' : 'int age = 22;\nif (age >= 18) {\n    System.out.println("Access Granted");\n} else {\n    System.out.println("Access Denied");\n}'}
-                problem="Control flow creates the decision trees of your software."
-                hint="Change the age variable to trigger the else block."
-                onRun={() => {}}
-              />
-            </StoryBlock>
-          </div>
-
-          <div data-section="loops">
-            <StoryBlock sectionId="loops" track={track} level={level}>
-              <QuickTry 
-                track={track} 
-                initialCode={track === 'python' ? 'for i in range(1, 6):\n    print(f"Processing record {i}...")' : 'for (int i = 1; i <= 5; i++) {\n    System.out.println("Processing record " + i + "...");\n}'}
-                problem="Automation is why we write code. Process five records in a single block."
-                hint="The loop condition determines when to stop."
-                onRun={() => {}}
-              />
-            </StoryBlock>
-          </div>
-
-          <div data-section="functions">
-            <StoryBlock sectionId="functions" track={track} level={level}>
-               <div style={{ height: '300px', background: '#0a0f1e', borderRadius: '16px', overflow: 'hidden', marginBottom: '24px' }}>
-                  <Canvas camera={{ position: [0, 0, 5] }}>
-                    <ambientLight intensity={0.5} />
-                    <pointLight position={[5, 5, 5]} />
-                    <MemoryBox3D label="Stack Trace" value={track === 'python' ? 'def func()...' : 'public void...'} color={cfg.color} delay={0} />
-                  </Canvas>
-               </div>
-              <QuickTry 
-                track={track} 
-                initialCode={track === 'python' ? 'def solve(a, b):\n    return a * b\n\nprint(f"Product: {solve(5, 5)}")' : 'public static int solve(int a, int b) {\n    return a * b;\n}\n\nSystem.out.println("Product: " + solve(5, 5));'}
-                problem="Functions are the building blocks of reusable logic."
-                hint="Return the result of your calculation."
-                onRun={() => {}}
-              />
-            </StoryBlock>
-          </div>
-
-          <div data-section="objects">
-            <StoryBlock sectionId="objects" track={track} level={level}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
-                 <div style={{ padding: '24px', background: 'var(--ed-card)', border: `2px solid ${cfg.color}`, borderRadius: '12px' }}>
-                    <div style={{ fontSize: '10px', color: cfg.color, fontWeight: 800, marginBottom: '8px' }}>THE HEAP</div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>Complex Object Data</div>
-                 </div>
-                 <div style={{ padding: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px' }}>
-                    <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontWeight: 800, marginBottom: '8px' }}>THE STACK</div>
-                    <div style={{ fontSize: '14px', fontWeight: 600 }}>Memory References</div>
-                 </div>
-              </div>
-            </StoryBlock>
-          </div>
-
-          <div data-section="dataStructures">
-            <StoryBlock sectionId="dataStructures" track={track} level={level}>
-              <DataBehaviorVisualizer />
-            </StoryBlock>
-          </div>
-
-          <div data-section="challenge">
-            <StoryBlock sectionId="challenge" track={track} level={level}>
-              <div style={{ padding: '60px 40px', background: 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)', borderRadius: '20px', textAlign: 'center', border: `1px solid ${cfg.color}40`, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🎯</div>
-                <h3 style={{ color: '#fff', fontSize: '28px', fontWeight: 800, marginBottom: '16px', fontFamily: "'Lora', serif" }}>
-                  First Milestone Reached.
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: 1.6, maxWidth: '400px', margin: '0 auto 32px' }}>
-                  You've decoded the identity of {cfg.name}. Now, let's see how professional software is actually built.
-                </p>
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onBack} style={{ 
-                  padding: '16px 48px', background: cfg.color, color: '#fff', border: 'none', borderRadius: '12px', 
-                  fontSize: '16px', fontWeight: 700, cursor: 'pointer', boxShadow: `0 8px 24px ${cfg.color}40`
-                }}>
-                  UNLOCK PRE-READ 01 →
-                </motion.button>
-              </div>
-            </StoryBlock>
-          </div>
-        </main>
-
-        {/* Right Info Column */}
-        <aside style={{ position: 'sticky', top: '100px', height: 'fit-content' }}>
-          <div style={{ background: 'var(--ed-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--ed-rule)', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-             <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '16px' }}>LEARNING STATS</div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* ── CHARACTERS LINEUP ── */}
+      <div style={{ marginBottom: '56px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.15em', marginBottom: '16px', textTransform: 'uppercase' }}>Characters in this Module</div>
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          {[
+            { name: trackConfig.protagonist, role: `${trackConfig.role} · ${trackConfig.company}`, desc: `Just joined ${trackConfig.company}. Needs to bridge the gap between "knowing code" and "engineering systems" in ${trackConfig.name}.`, color: trackConfig.accent, mentor: false },
+            { name: trackConfig.mentor, role: trackConfig.mentorRole, desc: "A veteran engineer who prioritizes clarity over cleverness. She'll be guiding you through the architectural decisions of this language.", color: trackConfig.mentorColor, mentor: true }
+          ].map((c, i) => (
+            <div key={i} style={{ 
+              flex: 1, minWidth: '240px', background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '20px', 
+              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${c.color}` }}>
+                  {c.mentor ? <SWEMentorFace name={c.name} size={44} /> : <div style={{ width: 44, height: 44, background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '14px' }}>AI</div>}
+                </div>
                 <div>
-                   <div style={{ fontSize: '24px', fontWeight: 900 }}>{totalXP}</div>
-                   <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>TOTAL XP EARNED</div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: c.color }}>{c.name}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>{c.role}</div>
                 </div>
-                <div style={{ height: '1px', background: 'var(--ed-rule)' }} />
-                <div>
-                   <div style={{ fontSize: '16px', fontWeight: 800 }}>{completedSections.size} / {SECTIONS.length}</div>
-                   <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>SECTIONS MASTERED</div>
-                </div>
-             </div>
-          </div>
-        </aside>
-
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6, fontStyle: 'italic' }}>{c.desc}</div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {SECTIONS.map((section, idx) => {
+        const s = getStory(section.id);
+        if (!s) return null;
+
+        return (
+          <div key={section.id} id={section.id} data-nav-id={section.id} style={{ marginBottom: '100px' }}>
+            <ChapterSection id={`ch-${idx}`} num={(idx + 1).toString().padStart(2, '0')} accentRgb={trackConfig.accentRgb}>
+              {chLabel(section.label)}
+              {h2(<>{s.open}</>)}
+              
+              <ProtagonistAvatar
+                name={trackConfig.protagonist}
+                role={trackConfig.role}
+                color={trackConfig.accent}
+                content={s.story}
+              />
+              
+              <SWEConversationScene
+                track={track}
+                lines={s.avatarLines}
+                mentorName={s.mentorName}
+                mentorRole={s.mentorRole}
+                mentorColor={s.mentorColor}
+              />
+
+              {section.id === 'types' && (
+                <QuickTry
+                  track={track}
+                  problem="Define variables and observe behavior."
+                  initialCode={track === 'python' ? 'x = 10\ny = "20"\n# Try print(x + y)' : track === 'java' ? 'int x = 10;\nString y = "20";\n// Try System.out.println(x + y);' : 'const x = 10;\nconst y = "20";\n// Try console.log(x + y);'}
+                  hint="Check the types before adding."
+                  onRun={() => store.markSectionCompleted(MODULE_ID, 'types')}
+                  evaluateOutput={(code) => {
+                    if (track === 'python') {
+                      if (code.includes('print(x + y)') && code.includes('"20"')) return { status: 'error', text: 'TypeError: unsupported operand type(s) for +: \'int\' and \'str\'' };
+                      if (code.includes('print(x + y)')) return { status: 'success', text: '30' };
+                      return { status: 'success', text: '(No output. Try adding print(x + y)!)' };
+                    }
+                    const hasOutput = code.includes('console.log(x + y)') || code.includes('System.out.println(x + y)');
+                    if (hasOutput && code.includes('"20"')) return { status: 'success', text: '1020' };
+                    if (hasOutput) return { status: 'success', text: '30' };
+                    return { status: 'success', text: '(No output.)' };
+                  }}
+                />
+              )}
+
+              {section.id === 'flow' && (
+                <QuickTry
+                  track={track}
+                  problem="Trigger the alternate logic block."
+                  initialCode={track === 'python' ? 'active = False\nif active:\n    print("System ON")\nelse:\n    print("System OFF")' : track === 'java' ? 'boolean active = false;\nif (active) {\n    System.out.println("System ON");\n} else {\n    System.out.println("System OFF");\n}' : 'const active = false;\nif (active) {\n    console.log("System ON");\n} else {\n    console.log("System OFF");\n}'}
+                  hint="Change active to true."
+                  onRun={() => store.markSectionCompleted(MODULE_ID, 'flow')}
+                  evaluateOutput={(code) => {
+                    const isActive = code.includes('True') || code.includes('true') && !code.includes('False') && !code.includes('false');
+                    return { status: 'success', text: isActive ? 'System ON' : 'System OFF' };
+                  }}
+                />
+              )}
+
+              {section.id === 'loops' && (
+                <QuickTry
+                  track={track}
+                  problem="Automate a repetitive task with a loop."
+                  initialCode={track === 'python' ? 'for i in range(1, 4):\n    print(f"Loading record {i}...")' : track === 'java' ? 'for (int i = 1; i <= 3; i++) {\n    System.out.println("Loading record " + i + "...");\n}' : 'for (let i = 1; i <= 3; i++) {\n    console.log("Loading record " + i + "...");\n}'}
+                  hint="Change the range or limit to 10."
+                  onRun={() => store.markSectionCompleted(MODULE_ID, 'loops')}
+                  evaluateOutput={(code) => {
+                    const match = code.match(/range\(\s*\d+\s*,\s*(\d+)\s*\)|<=\s*(\d+)/);
+                    let limit = 4;
+                    if (match) limit = parseInt(match[1] || match[2], 10);
+                    let res = '';
+                    for (let i = 1; i < Math.min(limit, 20); i++) res += `Loading record ${i}...\n`;
+                    if (limit > 20) res += '... (truncated)';
+                    return { status: 'success', text: res.trim() || 'No output.' };
+                  }}
+                />
+              )}
+
+              {section.id === 'functions' && (
+                <QuickTry
+                  track={track}
+                  problem="Encapsulate logic in a reusable function."
+                  initialCode={track === 'python' ? 'def greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Aisha"))' : track === 'java' ? 'public static String greet(String name) {\n    return "Hello, " + name + "!";\n}\n\nSystem.out.println(greet("Vikram"));' : 'const greet = (name) => `Hello, ${name}!`;\n\nconsole.log(greet("Leo"));'}
+                  hint="Call the function with your own name."
+                  onRun={() => store.markSectionCompleted(MODULE_ID, 'functions')}
+                  evaluateOutput={(code) => {
+                    const match = code.match(/greet\(\s*['"]([^'"]+)['"]\s*\)/);
+                    const name = match ? match[1] : (track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo');
+                    return { status: 'success', text: `Hello, ${name}!` };
+                  }}
+                />
+              )}
+
+              {section.id === 'objects' && (
+                <div style={{ margin: '24px 0' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                    <div style={{ padding: '16px', borderRadius: '12px', background: `${trackConfig.accent}12`, border: `1px solid ${trackConfig.accent}30` }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: trackConfig.accent, marginBottom: '8px', textTransform: 'uppercase' }}>Memory Heap</div>
+                      <div style={{ fontSize: '12px', color: 'var(--ed-ink2)' }}>Complex object data sits here forever until garbage collected.</div>
+                    </div>
+                    <div style={{ padding: '16px', borderRadius: '12px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+                      <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--ed-ink3)', marginBottom: '8px', textTransform: 'uppercase' }}>Execution Stack</div>
+                      <div style={{ fontSize: '12px', color: 'var(--ed-ink2)' }}>Small pointers to the heap objects. Lightweight and fast.</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {section.id === 'dataStructures' && (
+                <div style={{ margin: '24px 0' }}>
+                  <DataBehaviorVisualizer />
+                  <QuickTry
+                    track={track}
+                    problem="Use a fast-lookup structure (Dictionary/Map)."
+                    initialCode={track === 'python' ? 'prices = {"apple": 50, "berry": 120}\nprint(f"Price of berry: {prices[\'berry\']}")' : track === 'java' ? 'Map<String, Integer> prices = Map.of("apple", 50, "berry", 120);\nSystem.out.println("Price of berry: " + prices.get("berry"));' : 'const prices = { apple: 50, berry: 120 };\nconsole.log("Price of berry:", prices.berry);'}
+                    hint="Look up the price of an apple."
+                    onRun={() => store.markSectionCompleted(MODULE_ID, 'dataStructures')}
+                    evaluateOutput={(code) => {
+                      if (code.includes('apple')) return { status: 'success', text: 'Price of apple: 50' };
+                      return { status: 'success', text: 'Price of berry: 120' };
+                    }}
+                  />
+                </div>
+              )}
+            </ChapterSection>
+          </div>
+        );
+      })}
+
+      {/* Final Challenge UI */}
+      <div id="challenge" data-nav-id="challenge" style={{ marginTop: '60px' }}>
+        <section style={{ padding: '60px 40px', background: 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)', borderRadius: '20px', textAlign: 'center', border: `1px solid ${trackConfig.accent}40`, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+          <div style={{ fontSize: '48px', marginBottom: '20px' }}>🌟</div>
+          <h3 style={{ color: '#fff', fontSize: '28px', fontWeight: 800, marginBottom: '16px', fontFamily: "'Lora', serif" }}>
+            Foundations Mastered!
+          </h3>
+          <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: 1.6, maxWidth: '400px', margin: '0 auto 32px' }}>
+            You have a solid lens on {trackConfig.name}. You&apos;re ready to dive into the professional patterns of Software Engineering.
+          </p>
+          <motion.button 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }} 
+            onClick={onBack} 
+            style={{ 
+              padding: '16px 48px', background: trackConfig.accent, color: '#fff', border: 'none', borderRadius: '12px', 
+              fontSize: '16px', fontWeight: 700, cursor: 'pointer', boxShadow: `0 8px 24px ${trackConfig.accent}40`
+            }}
+          >
+            GO TO PRE-READ 01 →
+          </motion.button>
+        </section>
+      </div>
+    </SWEPreReadLayout>
   );
 }

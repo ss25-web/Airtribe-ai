@@ -43,12 +43,16 @@ interface LearnerStore {
   // Theme
   theme: 'dark' | 'light';
 
+  // Persistence for module progress
+  completedSections: Record<string, string[]>;
+
   // Actions
   initSession: () => void;
   trackEvent: (event: Omit<LearnerEvent, 'timestamp'>) => void;
   recordQuizAttempt: (conceptId: string, correct: boolean) => void;
   updateScrollDepth: (depth: number) => void;
   markSectionViewed: (sectionId: string) => void;
+  markSectionCompleted: (moduleId: string, sectionId: string) => void;
   reviewCard: (cardId: string, rating: Rating) => void;
   ensureConceptState: (conceptId: string) => void;
   ensureCard: (cardId: string, conceptId: string) => void;
@@ -58,7 +62,7 @@ interface LearnerStore {
 
 type PersistedLearnerStore = Partial<Pick<
   LearnerStore,
-  'learnerId' | 'conceptStates' | 'recentAnswers' | 'cards' | 'preferredDifficulty' | 'streakDays' | 'lastActiveDate' | 'theme'
+  'learnerId' | 'conceptStates' | 'recentAnswers' | 'cards' | 'preferredDifficulty' | 'streakDays' | 'lastActiveDate' | 'theme' | 'completedSections'
 >>;
 
 export const useLearnerStore = create<LearnerStore>()(
@@ -75,6 +79,7 @@ export const useLearnerStore = create<LearnerStore>()(
       streakDays: 0,
       lastActiveDate: '',
       theme: 'dark',
+      completedSections: {},
 
       initSession: () => {
         const today = new Date().toISOString().split('T')[0];
@@ -151,6 +156,19 @@ export const useLearnerStore = create<LearnerStore>()(
         get().trackEvent({ type: 'section_view', data: { sectionId } });
       },
 
+      markSectionCompleted: (moduleId, sectionId) => {
+        set(state => {
+          const current = state.completedSections[moduleId] ?? [];
+          if (current.includes(sectionId)) return state;
+          return {
+            completedSections: {
+              ...state.completedSections,
+              [moduleId]: [...current, sectionId],
+            },
+          };
+        });
+      },
+
       reviewCard: (cardId, rating) => {
         set(state => {
           const card = state.cards[cardId];
@@ -202,7 +220,7 @@ export const useLearnerStore = create<LearnerStore>()(
     }),
     {
       name: 'airtribe-learner',
-      version: 2, // bumped: conceptStates now start at 0% not 35%
+      version: 3, // bumped for completedSections
       migrate: (persistedState: unknown, _version) => {
         const state = (persistedState as PersistedLearnerStore | undefined) ?? {};
         return {
@@ -214,6 +232,7 @@ export const useLearnerStore = create<LearnerStore>()(
           streakDays: state.streakDays ?? 0,
           lastActiveDate: state.lastActiveDate ?? '',
           theme: state.theme ?? 'dark',
+          completedSections: state.completedSections ?? {},
         };
       },
       partialize: (state) => ({
@@ -225,6 +244,7 @@ export const useLearnerStore = create<LearnerStore>()(
         streakDays: state.streakDays,
         lastActiveDate: state.lastActiveDate,
         theme: state.theme,
+        completedSections: state.completedSections,
       }),
     }
   )

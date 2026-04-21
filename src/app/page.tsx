@@ -24,6 +24,9 @@ import SWEPlacementQuiz from '@/components/SWEPlacementQuiz';
 import SWELaunchpadOverview from '@/components/SWELaunchpadOverview';
 import SWEPreRead1 from '@/components/SWEPreRead1';
 import SWELanguageBasics from '@/components/SWELanguageBasics';
+import PythonPreRead1 from '@/components/PythonPreRead1';
+import PythonPreRead2 from '@/components/PythonPreRead2';
+import PythonPreRead3 from '@/components/PythonPreRead3';
 import type { GenAITrack } from '@/components/genaiTypes';
 import type { SWETrack, SWELevel } from '@/components/sweTypes';
 
@@ -45,6 +48,7 @@ export default function Home() {
   const [sweLevel, setSweLevel] = useState<SWELevel | null>(null);
   const [activeModule, setActiveModule] = useState<string>('01');
   const [genaiModule, setGenaiModule] = useState<string>('01');
+  const [sweModule, setSweModule] = useState<string>('01');
   const [darkMode, setDarkMode] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -94,6 +98,7 @@ export default function Home() {
       const savedSWELevel = localStorage.getItem(LS_SWE_LEVEL) as SWELevel | null;
       if (savedSWETrack === 'python' || savedSWETrack === 'java' || savedSWETrack === 'nodejs') setSweTrack(savedSWETrack);
       if (savedSWELevel === 'beginner' || savedSWELevel === 'advanced') setSweLevel(savedSWELevel);
+      setSweModule(localStorage.getItem('airtribe_swe_module') ?? '01');
     } else if (savedStage === 'quiz') {
       setStage('quiz');
     }
@@ -195,8 +200,10 @@ export default function Home() {
       setStage('swe-lang-basics');
       localStorage.setItem(LS_STAGE, 'swe-lang-basics');
     } else {
+      setSweModule(moduleNum);
       setStage('swe-reading');
       localStorage.setItem(LS_STAGE, 'swe-reading');
+      localStorage.setItem('airtribe_swe_module', moduleNum);
     }
   };
 
@@ -255,6 +262,13 @@ export default function Home() {
   if (stage === 'swe-reading') {
     if (!sweTrack) return <SWETrackSelection onSelect={goSWEQuiz} onBack={goHome} />;
     if (!sweLevel) return <SWEPlacementQuiz track={sweTrack} onComplete={goSWEOverview} onBack={goBackToSWESelect} />;
+    
+    if (sweTrack === 'python') {
+      if (sweModule === '03') return <PythonPreRead3 onBack={goBackToSWEOverview} />;
+      if (sweModule === '02') return <PythonPreRead2 onBack={goBackToSWEOverview} />;
+      return <PythonPreRead1 onBack={goBackToSWEOverview} />;
+    }
+
     return <SWEPreRead1 track={sweTrack} level={sweLevel} onBack={goBackToSWEOverview} />;
   }
 

@@ -43,3 +43,4 @@ next-env.d.ts
 # private — do not push
 CLAUDE.md
 .devwebpack2.log
+.mcp.json

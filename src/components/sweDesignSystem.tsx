@@ -16,7 +16,7 @@ export const ProtagonistAvatar = ({ name, role, color, content, expandedContent,
     <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
       style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
       {/* Header */}
-      <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+      <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream2)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, display: 'inline-block' }} />
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color }}>You</span>
@@ -48,10 +48,43 @@ export const ProtagonistAvatar = ({ name, role, color, content, expandedContent,
   );
 };
 
-export const StoryCard = ({ protagonist, accentColor, children, open, story }: { protagonist?: string; accentColor?: string; children?: React.ReactNode; open?: string; story?: string }) => (
-  <div style={{ position: 'relative', background: 'var(--ed-amber-bg)', borderRadius: '6px', padding: '20px 24px', margin: '0 0 28px', borderTop: '1px solid var(--ed-amber-border)', borderRight: '1px solid var(--ed-amber-border)', borderBottom: '1px solid var(--ed-amber-border)', borderLeft: `4px solid ${accentColor ?? '#B45309'}` }}>
-    {(protagonist || open) && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: accentColor ?? '#B45309', marginBottom: '10px' }}>{open ? `◎ ${open}` : `◎ ${protagonist}\u2019s Situation`}</div>}
-    <div style={{ fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.85, fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif" }}>{story ?? children}</div>
+export const SituationCard = ({ protagonist, accentColor, children, label, story }: { protagonist?: string; accentColor?: string; children?: React.ReactNode; label?: string; story?: string }) => (
+  <div style={{
+    position: 'relative',
+    background: 'var(--ed-amber-bg)',
+    borderRadius: '10px',
+    padding: '24px 28px',
+    margin: '32px 0',
+    border: '1px solid var(--ed-amber-border)',
+    borderLeft: `4px solid ${accentColor ?? '#B45309'}`
+  }}>
+    <div style={{
+      display: 'inline-block',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: '8px',
+      fontWeight: 800,
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase' as const,
+      color: accentColor ?? '#B45309',
+      background: 'var(--ed-card)',
+      padding: '2px 8px',
+      borderRadius: '4px',
+      border: `1px solid ${accentColor ?? '#B45309'}33`,
+      marginBottom: '16px',
+      marginTop: '-36px',
+      marginLeft: '-4px'
+    }}>
+      {label ?? (protagonist ? `◎ ${protagonist}\u2019s Situation` : "◎ THE SITUATION")}
+    </div>
+    <div style={{
+      fontSize: '15px',
+      color: 'var(--ed-ink)',
+      lineHeight: '1.85',
+      fontStyle: 'italic',
+      fontFamily: "'Lora', 'Georgia', serif"
+    }}>
+      {story ?? children}
+    </div>
   </div>
 );export const SWEMentorFace = ({ name, size = 66 }: { name: string; size?: number }) => {
   const [blink, setBlink] = useState(false);
@@ -428,7 +461,7 @@ export const SWEAvatar = ({ name, role, color, content, expandedContent, questio
     <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
       style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
       {/* Header */}
-      <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+      <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream2)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 2.5, repeat: Infinity }} style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, display: 'inline-block' }} />
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color }}>Mentor</span>
@@ -453,13 +486,13 @@ export const SWEAvatar = ({ name, role, color, content, expandedContent, questio
         {open && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
             {expandedContent && (
-              <div style={{ padding: '16px 18px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream)', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+              <div style={{ padding: '16px 18px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream2)', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                 <div style={{ width: '3px', flexShrink: 0, background: color, borderRadius: '2px', alignSelf: 'stretch', opacity: 0.35 }} />
                 <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.9 }}>{expandedContent}</div>
               </div>
             )}
             {question && options && (
-              <div style={{ padding: '18px 20px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream)' }}>
+              <div style={{ padding: '18px 20px 20px', borderTop: '1px solid var(--ed-rule)', background: 'var(--ed-cream2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                   <div style={{ width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0, background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 700, color: '#fff' }}>{name[0]}</div>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em' }}>{name.toUpperCase().split(' ')[0]} ASKS</div>
@@ -514,51 +547,73 @@ export const SWEConversationScene = ({
   const protagonistRole = track === 'python' ? 'Junior Software Engineer' : track === 'java' ? 'Junior Backend Engineer' : 'Junior Full-Stack Developer';
 
   return (
-    <div style={{ margin: '28px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div style={{ margin: '32px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {lines.map((l, i) => {
         const isProtagonist = l.speaker === 'protagonist';
         const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
-        const bubble = (
-          <motion.div
-            whileHover={isProtagonist ? {} : { y: -2, boxShadow: `0 6px 20px ${mentorColor}22` }}
-            transition={{ duration: 0.2 }}
-            style={{
-              background: isProtagonist ? `${protagonistColor}12` : 'var(--ed-card)',
-              border: `1px solid ${isProtagonist ? `${protagonistColor}28` : mentorColor + '30'}`,
-              borderLeft: isProtagonist ? undefined : `3px solid ${mentorColor}`,
-              borderRadius: isProtagonist ? '14px 14px 4px 14px' : '4px 14px 14px 14px',
-              padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.68,
-              boxShadow: isProtagonist ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
-            }}
-          >
-            {l.text}
-          </motion.div>
-        );
+        
         return (
-          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '12px', alignItems: 'flex-end' }}>
+          <div key={i} style={{ 
+            display: 'flex', 
+            flexDirection: isProtagonist ? 'row-reverse' : 'row', 
+            gap: '16px', 
+            alignItems: 'flex-start' 
+          }}>
             {/* Avatar */}
             {prevDifferent ? (
               isProtagonist ? (
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: protagonistColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0, boxShadow: `0 2px 8px ${protagonistColor}40` }}>
-                  {protagonistName.slice(0, 2)}
+                <div style={{ 
+                  width: 44, height: 44, borderRadius: '12px', 
+                  background: 'var(--ed-card)', border: `1.5px solid ${protagonistColor}33`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  fontSize: '12px', fontWeight: 800, color: protagonistColor, 
+                  flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' 
+                }}>
+                  {protagonistName.slice(0, 2).toUpperCase()}
                 </div>
               ) : (
-                <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${mentorColor}`, boxShadow: `0 2px 10px ${mentorColor}30` }}>
-                  <SWEMentorFace name={mentorName} size={48} />
+                <div style={{ 
+                  width: 44, height: 44, flexShrink: 0, borderRadius: '12px', 
+                  overflow: 'hidden', border: `1.5px solid ${mentorColor}33`,
+                  background: 'var(--ed-card)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' 
+                }}>
+                  <SWEMentorFace name={mentorName} size={44} />
                 </div>
               )
             ) : (
-              <div style={{ width: isProtagonist ? 42 : 48, flexShrink: 0 }} />
+              <div style={{ width: 44, flexShrink: 0 }} />
             )}
-            {/* Bubble + name */}
-            <div style={{ maxWidth: '70%' }}>
+
+            {/* Bubble */}
+            <div style={{ maxWidth: '75%', minWidth: 0 }}>
               {prevDifferent && (
-                <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistColor : mentorColor, marginBottom: '5px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.05em', fontFamily: "'JetBrains Mono', monospace" }}>
+                <div style={{ 
+                  fontSize: '9px', fontWeight: 800, color: isProtagonist ? protagonistColor : mentorColor, 
+                  marginBottom: '6px', textAlign: isProtagonist ? 'right' : 'left', 
+                  letterSpacing: '0.08em', fontFamily: "'JetBrains Mono', monospace",
+                  textTransform: 'uppercase'
+                }}>
                   {isProtagonist ? protagonistName : mentorName}
-                  <span style={{ fontWeight: 400, opacity: 0.65 }}> &middot; {isProtagonist ? protagonistRole : mentorRole}</span>
+                  <span style={{ fontWeight: 400, opacity: 0.5, marginLeft: '6px' }}>&middot; {isProtagonist ? protagonistRole : mentorRole}</span>
                 </div>
               )}
-              {bubble}
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                style={{
+                  background: isProtagonist ? `${protagonistColor}08` : 'var(--ed-card)',
+                  border: `1.5px solid ${isProtagonist ? `${protagonistColor}22` : 'var(--ed-rule)'}`,
+                  borderRadius: isProtagonist ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
+                  padding: '12px 18px', 
+                  fontSize: '14px', 
+                  color: 'var(--ed-ink)', 
+                  lineHeight: 1.7,
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
+                }}
+              >
+                {l.text}
+              </motion.div>
             </div>
           </div>
         );
@@ -569,18 +624,25 @@ export const SWEConversationScene = ({
 
 // ─── QuickTry: Interactive Micro-Practice ─────────────────────────────
 export const QuickTry = ({
-  track, initialCode, problem, hint, onRun
+  track, initialCode, problem, hint, onRun, evaluateOutput
 }: {
   track: SWETrack; initialCode: string; problem: string; hint: string; onRun: (code: string) => void;
+  evaluateOutput?: (code: string) => { status: 'success' | 'error'; text: string };
 }) => {
   const [code, setCode] = useState(initialCode);
-  const [output, setOutput] = useState<string | null>(null);
+  const [output, setOutput] = useState<{ status: 'success' | 'error'; text: string } | null>(null);
   const [status, setStatus] = useState<'idle' | 'running' | 'success'>('idle');
 
   const handleRun = () => {
     setStatus('running');
     setTimeout(() => {
-      setOutput('Success: Code executed successfully.');
+      let result;
+      if (evaluateOutput) {
+        result = evaluateOutput(code);
+      } else {
+        result = { status: 'success' as const, text: 'Code executed successfully. (Mock Output)' };
+      }
+      setOutput(result);
       setStatus('success');
       onRun(code);
     }, 800);
@@ -615,8 +677,9 @@ export const QuickTry = ({
           <div style={{ fontSize: '12px', color: '#8b949e', fontStyle: 'italic' }}>Hint: {hint}</div>
         </div>
         {output && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '16px', padding: '12px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: '6px', color: '#4ade80', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}>
-            {output}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '16px', padding: '12px', background: output.status === 'success' ? 'rgba(22,163,74,0.1)' : 'rgba(220,38,38,0.1)', border: `1px solid ${output.status === 'success' ? 'rgba(22,163,74,0.2)' : 'rgba(220,38,38,0.2)'}`, borderRadius: '6px', color: output.status === 'success' ? '#4ade80' : '#f87171', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}>
+            <span style={{ fontWeight: 700, marginRight: '8px' }}>{output.status === 'success' ? 'OUTPUT:' : 'ERROR:'}</span>
+            {output.text}
           </motion.div>
         )}
       </div>

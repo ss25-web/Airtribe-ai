@@ -1,0 +1,357 @@
+'use client';
+
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
+import { SWEMentorFace } from './sweDesignSystem';
+
+// ─── Constants ───
+const SECTION_XP = 50;
+const QUIZ_XP = 100;
+
+const LEVELS = [
+  { min: 600, label: 'Lead Engineer', color: '#7C3AED' },
+  { min: 350, label: 'Senior Developer', color: '#2563EB' },
+  { min: 150, label: 'Junior Dev', color: '#0F766E' },
+  { min: 0,   label: 'Intern', color: 'var(--ed-ink3)' },
+];
+
+function getLevel(total: number) {
+  for (const lvl of LEVELS) {
+    if (total >= lvl.min) return lvl;
+  }
+  return LEVELS[LEVELS.length - 1];
+}
+
+function getNextLevel(total: number) {
+  const idx = LEVELS.findIndex(l => l.min <= total);
+  if (idx === 0) return null; // Max level
+  return LEVELS[idx - 1];
+}
+
+// ─── Components ───
+
+function AirtribeLogo() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ 
+        width: '28px', height: '28px', borderRadius: '7px', 
+        background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        boxShadow: '0 2px 8px rgba(124,58,237,0.3)' 
+      }}>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+          <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </div>
+      <div>
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1 }}>Airtribe</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Learn</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Layout Component ───
+
+export interface SWEPreReadLayoutProps {
+  trackConfig: {
+    name: string;
+    accent: string;
+    accentRgb: string;
+    protagonist: string;
+    role: string;
+    company: string;
+    mentor: string;
+    mentorRole: string;
+    mentorColor: string;
+  };
+  moduleLabel: string;
+  title: string;
+  sections: { id: string; label: string }[];
+  completedModules: Set<string>;
+  activeSection: string | null;
+  onBack: () => void;
+  children: React.ReactNode;
+}
+
+export default function SWEPreReadLayout({
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, children
+}: SWEPreReadLayoutProps) {
+  const store = useLearnerStore();
+  const [hydrated, setHydrated] = useState(false);
+  
+  // XP Calculations
+  const xp = useMemo(() => {
+    const readingXP = completedModules.size * SECTION_XP;
+    const quizXP = Object.values(store.conceptStates)
+      .reduce((sum, s) => sum + Math.round(s.pKnow * QUIZ_XP), 0);
+    return { readingXP, quizXP, total: readingXP + quizXP };
+  }, [completedModules, store.conceptStates]);
+
+  const [totalXP, setTotalXP] = useState(0);
+  const [showGain, setShowGain] = useState(false);
+  const [gainAmt, setGainAmt] = useState(0);
+  const prevXpRef = useRef(0);
+
+  useEffect(() => {
+    setHydrated(true);
+    setTotalXP(xp.total);
+    prevXpRef.current = xp.total;
+  }, []);
+
+  useEffect(() => {
+    if (hydrated && xp.total > prevXpRef.current) {
+      setGainAmt(xp.total - prevXpRef.current);
+      setShowGain(true);
+      setTotalXP(xp.total);
+      prevXpRef.current = xp.total;
+      const t = setTimeout(() => setShowGain(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, [xp.total, hydrated]);
+
+  if (!hydrated) return <div style={{ minHeight: '100vh', background: 'var(--ed-cream)' }} />;
+
+  const currentLevel = getLevel(totalXP);
+  const nextLevel = getNextLevel(totalXP);
+  const levelPct = nextLevel ? Math.round(((totalXP - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100) : 100;
+  const progressPct = Math.round((completedModules.size / sections.length) * 100);
+
+  return (
+    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
+      {/* ─── Sticky Header ─── */}
+      <header style={{ 
+        position: 'sticky', top: 0, zIndex: 100, 
+        background: 'var(--ed-cream)', opacity: 0.9, backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--ed-rule)', padding: '12px 0' 
+      }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <button 
+              onClick={onBack} 
+              style={{ 
+                background: 'none', border: 'none', cursor: 'pointer', 
+                color: 'var(--ed-ink3)', fontSize: '11px', fontWeight: 700, 
+                textTransform: 'uppercase', letterSpacing: '0.1em' 
+              }}
+            >
+              ← Back
+            </button>
+            <div style={{ width: '1px', height: '16px', background: 'var(--ed-rule)' }} />
+            <AirtribeLogo />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+               <div style={{ display: 'flex', gap: '2px' }}>
+                 {sections.map((s, i) => (
+                   <div key={i} style={{ width: '20px', height: '3px', borderRadius: '1.5px', background: completedModules.has(s.id) ? trackConfig.accent : 'var(--ed-rule)' }} />
+                 ))}
+               </div>
+               <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.05em' }}>
+                 MODULE PROGRESS · {progressPct}%
+               </div>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase' }}>XP Gain</div>
+                <div style={{ position: 'relative' }}>
+                   <motion.div key={totalXP} animate={{ scale: [1.1, 1] }} style={{ fontSize: '18px', fontWeight: 900, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{totalXP}</motion.div>
+                   <AnimatePresence>
+                     {showGain && (
+                       <motion.div 
+                         initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -25 }} exit={{ opacity: 0 }}
+                         style={{ position: 'absolute', right: 0, top: -10, fontSize: '12px', fontWeight: 900, color: '#0D7A5A', fontFamily: "'JetBrains Mono', monospace" }}
+                       >
+                         +{gainAmt}
+                       </motion.div>
+                     )}
+                   </AnimatePresence>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ─── Main Content Grid ─── */}
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '32px 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 260px', gap: '48px', alignItems: 'flex-start' }}>
+          
+          {/* Left: Contents Nav */}
+          <aside style={{ position: 'sticky', top: '100px' }}>
+            <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+              <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid var(--ed-rule)' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '10px' }}>Contents</div>
+                <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                  <motion.div style={{ height: '100%', background: trackConfig.accent }} animate={{ width: `${progressPct}%` }} />
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '8px', fontWeight: 600 }}>{progressPct}% · {completedModules.size}/{sections.length} parts</div>
+              </div>
+
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {sections.map((s, i) => {
+                  const done = completedModules.has(s.id);
+                  const active = activeSection === s.id;
+                  return (
+                    <motion.button
+                      key={s.id}
+                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })}
+                      whileHover={{ x: 2 }}
+                      style={{ 
+                        display: 'flex', alignItems: 'center', gap: '12px', width: '100%', 
+                        background: active ? `${trackConfig.accent}08` : 'none', 
+                        border: 'none', cursor: 'pointer', padding: '10px 12px', textAlign: 'left',
+                        borderRadius: '6px', borderLeft: `3px solid ${active ? trackConfig.accent : 'transparent'}`,
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      <span style={{ 
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, 
+                        color: done || active ? trackConfig.accent : 'var(--ed-rule)', width: '20px' 
+                      }}>
+                        {done ? '✓' : (i + 1).toString().padStart(2, '0')}.
+                      </span>
+                      <span style={{ 
+                        fontSize: '13px', fontWeight: active ? 700 : 500, 
+                        color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', 
+                        lineHeight: 1.3 
+                      }}>
+                        {s.label}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </nav>
+              <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--ed-rule)', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>
+                SWE track · {trackConfig.name}
+              </div>
+            </div>
+          </aside>
+
+          {/* Center: Main Article */}
+          <main style={{ minWidth: 0 }}>
+            <div style={{ marginBottom: '60px' }}>
+              <div style={{ 
+                fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, 
+                color: trackConfig.accent, letterSpacing: '0.15em', marginBottom: '20px', 
+                textTransform: 'uppercase' 
+              }}>
+                {moduleLabel}
+              </div>
+              <h1 style={{ 
+                fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, color: 'var(--ed-ink)', 
+                lineHeight: 1.05, marginBottom: '28px', fontFamily: "'Lora', serif",
+                letterSpacing: '-0.03em' 
+              }}>
+                {title}
+              </h1>
+              <div style={{ width: '60px', height: '4px', background: trackConfig.accent, borderRadius: '2px' }} />
+            </div>
+
+            {children}
+          </main>
+
+          {/* Right: Stats & Gamification */}
+          <aside style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            
+            {/* XP and Level Card */}
+            <div style={{ 
+              background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', 
+              borderTop: `4px solid ${trackConfig.accent}`, borderRadius: '12px', 
+              padding: '20px', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' 
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Current Rank</div>
+                  <div style={{ fontSize: '16px', fontWeight: 900, color: currentLevel.color }}>{currentLevel.label}</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total XP</div>
+                  <motion.div key={totalXP} animate={{ scale: [1.1, 1] }} style={{ fontSize: '28px', fontWeight: 900, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{totalXP}</motion.div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ flex: 1, padding: '8px 10px', background: 'var(--ed-cream)', borderRadius: '8px', border: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', textTransform: 'uppercase', marginBottom: '2px' }}>Reading</div>
+                  <div style={{ fontSize: '13px', fontWeight: 900, color: trackConfig.accent }}>{xp.readingXP} <span style={{ fontSize: '9px', fontWeight: 500 }}>xp</span></div>
+                </div>
+                <div style={{ flex: 1, padding: '8px 10px', background: 'var(--ed-cream)', borderRadius: '8px', border: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', textTransform: 'uppercase', marginBottom: '2px' }}>Quizzes</div>
+                  <div style={{ fontSize: '13px', fontWeight: 900, color: '#0D7A5A' }}>{xp.quizXP} <span style={{ fontSize: '9px', fontWeight: 500 }}>xp</span></div>
+                </div>
+              </div>
+
+              {nextLevel ? (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)' }}>
+                    <span>{levelPct}% to {nextLevel.label}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{nextLevel.min - totalXP} XP LEFT</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden' }}>
+                    <motion.div animate={{ width: `${levelPct}%` }} style={{ height: '100%', background: trackConfig.accent }} />
+                  </div>
+                </>
+              ) : (
+                <div style={{ fontSize: '11px', fontWeight: 800, color: trackConfig.accent }}>✦ TOP RANK ACHIEVED</div>
+              )}
+            </div>
+
+            {/* Badges card */}
+            <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '18px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Badges</div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: trackConfig.accent }}>{completedModules.size}/{sections.length}</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                {sections.map((s, i) => {
+                  const done = completedModules.has(s.id);
+                  return (
+                    <div key={i} style={{ 
+                      aspectRatio: '1', borderRadius: '8px', 
+                      background: done ? `${trackConfig.accent}12` : 'var(--ed-cream)',
+                      border: done ? `1.5px solid ${trackConfig.accent}44` : '1px solid var(--ed-rule)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '14px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
+                      transition: 'all 0.3s'
+                    }}>
+                      {done ? '✨' : '🔒'}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Concept Mastery card */}
+            <div style={{ 
+              background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', 
+              borderLeft: `4px solid ${trackConfig.accent}`, borderRadius: '12px', 
+              padding: '20px' 
+            }}>
+              <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '18px' }}>Concept Mastery</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {Object.entries(store.conceptStates).slice(0, 5).map(([id, state], i) => (
+                  <div key={id}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 700 }}>
+                      <span style={{ color: 'var(--ed-ink2)' }}>Concept {i + 1}</span>
+                      <span style={{ color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(state.pKnow * 100)}%</span>
+                    </div>
+                    <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '1.5px', overflow: 'hidden' }}>
+                      <motion.div animate={{ width: `${state.pKnow * 100}%` }} style={{ height: '100%', background: trackConfig.accent }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </div>
+    </div>
+  );
+}
