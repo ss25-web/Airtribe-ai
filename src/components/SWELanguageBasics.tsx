@@ -10,7 +10,6 @@ import { BASICS_STORY } from './sweBasicsStoryData';
 import { StoryCard, SWEConversationScene, SWEAvatar } from './sweDesignSystem';
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Props { track: SWETrack; level: SWELevel; onBack: () => void; }
-type SectionProps = { track: SWETrack; level: SWELevel; };
 
 // ─── Track palette & identity ─────────────────────────────────────────────────
 const TRACK_CONFIG: Record<SWETrack, {
@@ -370,11 +369,10 @@ function LanguageDNA3D({ track }: { track: SWETrack }) {
 }
 
 // ── Tool 2: MemoryVisualizer — 3D boxes ───────────────────────────────────────
-function MemoryBox({ position, label, value = '', typeColor: typeColorProp = '#60A5FA', filled = true, delay = 0, color: colorProp }: {
-  position: [number, number, number]; label: string; value?: string;
-  typeColor?: string; filled?: boolean; delay?: number; color?: string;
+function MemoryBox({ position, label, value, typeColor, filled, delay }: {
+  position: [number, number, number]; label: string; value: string;
+  typeColor: string; filled: boolean; delay: number;
 }) {
-  const typeColor = colorProp ?? typeColorProp;
   const meshRef = useRef<THREE.Mesh>(null);
   const [scale, setScale] = useState(0);
 
@@ -605,199 +603,457 @@ const canvas3dStyle: React.CSSProperties = {
 };
 
 // ── Section 1: Language Identity ──────────────────────────────────────────────
+function Section1Identity({ track, level }: { track: SWETrack; level: SWELevel }) {
+  const cfg = TRACK_CONFIG[track];
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const cards = DNA_CARDS[track];
+  const storyBlock = BASICS_STORY[track][level].identity;
 
-// ─── Micro-Practice ────────────────────────────────────────────────────────
-function QuickTry({ track, conceptId, label, placeholder, solution }: { track: SWETrack, conceptId: string, label: string, placeholder: string, solution: string }) {
-  const [code, setCode] = React.useState(placeholder);
-  const [complete, setComplete] = React.useState(false);
-  
-  const check = () => {
-    if (code.replace(/\s+/g, '').includes(solution.replace(/\s+/g, ''))) {
-      setComplete(true);
-    }
-  };
-  
   return (
-    <div style={{ marginTop: '24px', marginBottom: '24px', border: '1px solid var(--ed-rule)', borderRadius: '10px', overflow: 'hidden', background: '#0f172a' }}>
-      <div style={{ background: '#1e293b', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>⚡ QUICK TRY: {label}</span>
-        {complete && <span style={{ color: '#10b981', fontSize: '12px' }}>✓ +50 XP</span>}
+    <section style={{ marginBottom: '64px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px' }}>
+          SECTION 01 · LANGUAGE IDENTITY
+        </div>
+        <h2 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.25 }}>
+          What makes {cfg.name} {cfg.name === 'Node.js' ? '' : 'the language it is'}?
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '640px' }}>
+          {level === 'beginner'
+            ? `Before writing a single line, understand ${cfg.name}'s core identity. These six characteristics shape every decision you'll make as a ${cfg.name} developer.`
+            : `You already code. What you need is the mental model that separates ${cfg.name} practitioners from ${cfg.name} power-users. These characteristics have deep implications — click each to understand why.`
+          }
+        </p>
       </div>
-      <div style={{ padding: '16px' }}>
-        <textarea 
-          value={code} 
-          onChange={(e) => setCode(e.target.value)}
-          spellCheck="false"
-          disabled={complete}
-          style={{ width: '100%', minHeight: '60px', background: 'transparent', border: 'none', color: '#cbd5e1', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', outline: 'none', resize: 'vertical' }}
+
+      <StoryCard protagonist={storyBlock.avatarLines[0].speaker === 'protagonist' ? storyBlock.avatarLines[0].speaker : 'Protagonist'} accentColor={cfg.color}>
+         <span style={{ fontWeight: 700, color: cfg.color }}>{storyBlock.open}</span> &mdash; {storyBlock.story}
+      </StoryCard>
+
+      <SWEConversationScene track={track} lines={storyBlock.avatarLines} mentorName={storyBlock.mentorName} mentorRole={storyBlock.mentorRole} mentorColor={storyBlock.mentorColor} />
+
+      {storyBlock.quiz && (
+        <SWEAvatar name={storyBlock.mentorName} role={storyBlock.mentorRole} color={storyBlock.mentorColor} content="Are you sure you completely understand this principle before moving on?" question={storyBlock.quiz.question} options={storyBlock.quiz.options} conceptId={storyBlock.quiz.conceptId} />
+      )}
+
+      {/* 3D carousel */}
+      <div style={canvas3dStyle}>
+        <Canvas camera={{ position: [0, 0.8, 6.5], fov: 52 }}>
+          <Suspense fallback={null}>
+            <LanguageDNA3D track={track} />
+          </Suspense>
+        </Canvas>
+      </div>
+      <p style={{ fontSize: '11px', color: 'var(--ed-ink3)', textAlign: 'center', marginTop: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+        ↻ Cards rotate automatically · click any card to read more
+      </p>
+
+      {/* Detail cards below */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px', marginTop: '24px' }}>
+        {cards.map((card, i) => (
+          <motion.div
+            key={i}
+            whileHover={{ y: -3, boxShadow: `0 8px 24px ${card.color}20` }}
+            onClick={() => setActiveCard(activeCard === i ? null : i)}
+            style={{
+              padding: '16px 18px', borderRadius: '10px',
+              background: activeCard === i ? `${card.color}15` : 'var(--ed-card)',
+              border: `1.5px solid ${activeCard === i ? card.color : 'var(--ed-rule)'}`,
+              cursor: 'pointer', transition: 'border 0.2s',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '18px' }}>{card.icon}</span>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{card.label}</span>
+            </div>
+            <AnimatePresence>
+              {activeCard === i && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginTop: '6px', paddingTop: '6px', borderTop: `1px solid ${card.color}30` }}>
+                    {card.detail}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Section 2: Variables & Types ──────────────────────────────────────────────
+function Section2Types({ track, level }: { track: SWETrack; level: SWELevel }) {
+  const cfg = TRACK_CONFIG[track];
+  const types = TYPE_DATA[track];
+  const [activeType, setActiveType] = useState(0);
+  const storyBlock = BASICS_STORY[track][level].types;
+
+  useEffect(() => {
+    const t = setInterval(() => setActiveType(i => (i + 1) % types.length), 2200);
+    return () => clearInterval(t);
+  }, [types.length]);
+
+  return (
+    <section style={{ marginBottom: '64px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px' }}>
+          SECTION 02 · VARIABLES & TYPES
+        </div>
+        <h2 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.25 }}>
+          How {cfg.name} stores and types data
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '640px' }}>
+          {level === 'beginner'
+            ? `Types determine what kind of data a variable can hold. In ${cfg.name}, understanding types early saves you hours of confusing errors.`
+            : `Types are a contract. ${track === 'java' ? 'Java enforces this contract at compile time — violations never reach production.' : track === 'python' ? "Python enforces it at runtime — which is why type hints exist." : "JavaScript coerces types silently — which is why you need to know the rules."}`
+          }
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
+        {/* 3D memory visualizer */}
+        <div>
+          <div style={canvas3dStyle}>
+            <Canvas camera={{ position: [0, 0, 5.5], fov: 50 }}>
+              <Suspense fallback={null}>
+                <MemoryVisualizer3D track={track} activeType={activeType} />
+              </Suspense>
+            </Canvas>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--ed-ink3)', textAlign: 'center', marginTop: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+            highlighted box cycles through types automatically
+          </p>
+        </div>
+
+        {/* Type list */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {types.map((t, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ x: 4 }}
+              onClick={() => setActiveType(i)}
+              style={{
+                padding: '12px 16px', borderRadius: '8px', cursor: 'pointer',
+                background: activeType === i ? `${t.color}15` : 'var(--ed-card)',
+                border: `1.5px solid ${activeType === i ? t.color : 'var(--ed-rule)'}`,
+                borderLeft: `4px solid ${t.color}`,
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2px' }}>
+                <code style={{ fontSize: '12px', fontWeight: 700, color: t.color, fontFamily: "'JetBrains Mono', monospace" }}>{t.name}</code>
+                <code style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.example}</code>
+              </div>
+              {activeType === i && (
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.55, marginTop: '4px' }}>{t.note}</div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Section 3: Control Flow ───────────────────────────────────────────────────
+function Section3Flow({ track, level }: { track: SWETrack; level: SWELevel }) {
+  const cfg = TRACK_CONFIG[track];
+  const flows = FLOW_DATA[track];
+  const [activeFlow, setActiveFlow] = useState(0);
+  const current = flows[activeFlow];
+  const storyBlock = BASICS_STORY[track][level].flow;
+
+  return (
+    <section style={{ marginBottom: '64px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px' }}>
+          SECTION 03 · CONTROL FLOW
+        </div>
+        <h2 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.25 }}>
+          How {cfg.name} controls execution
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '640px' }}>
+          {level === 'beginner'
+            ? `Control flow is how you make decisions in code. These four patterns cover 90% of what you'll write in ${cfg.name}.`
+            : `Control flow is where language philosophy shows. ${track === 'java' ? "Java's traditional C-style syntax is maximally explicit. With Java 14+, switch expressions and pattern matching are closing the gap." : track === 'python' ? "Python's list comprehensions and walrus operator reward fluency. But readability counts — a clever one-liner that confuses your team is bad code." : "JavaScript's map/filter/reduce chains are functional and expressive. Know when they serve the reader and when a plain loop is clearer."}`
+          }
+        </p>
+      </div>
+
+      <StoryCard protagonist={storyBlock.avatarLines[0].speaker === 'protagonist' ? storyBlock.avatarLines[0].speaker : 'Protagonist'} accentColor={cfg.color}>
+         <span style={{ fontWeight: 700, color: cfg.color }}>{storyBlock.open}</span> &mdash; {storyBlock.story}
+      </StoryCard>
+
+      <SWEConversationScene track={track} lines={storyBlock.avatarLines} mentorName={storyBlock.mentorName} mentorRole={storyBlock.mentorRole} mentorColor={storyBlock.mentorColor} />
+
+      {storyBlock.quiz && (
+        <SWEAvatar name={storyBlock.mentorName} role={storyBlock.mentorRole} color={storyBlock.mentorColor} content="Control flow dictates execution context. Ensure you understand this." question={storyBlock.quiz.question} options={storyBlock.quiz.options} conceptId={storyBlock.quiz.conceptId} />
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start', marginTop: '28px' }}>
+        {/* Code + flow tabs */}
+        <div>
+          {/* tabs */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            {flows.map((f, i) => (
+              <button key={i} onClick={() => setActiveFlow(i)} style={{
+                padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: activeFlow === i ? 700 : 400,
+                background: activeFlow === i ? cfg.color : 'var(--ed-card)',
+                color: activeFlow === i ? '#fff' : 'var(--ed-ink3)',
+                border: `1px solid ${activeFlow === i ? cfg.color : 'var(--ed-rule)'}`,
+                cursor: 'pointer',
+              }}>{f.title}</button>
+            ))}
+          </div>
+          {/* code block */}
+          <AnimatePresence mode="wait">
+            <motion.div key={activeFlow} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+              <div style={{ background: '#0d1117', borderRadius: '10px', padding: '20px', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', lineHeight: 1.75, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#6b7280', marginBottom: '10px', letterSpacing: '0.1em' }}>
+                  {track === 'java' ? 'Main.java' : track === 'python' ? 'flow.py' : 'flow.js'} · {current.title}
+                </div>
+                {current.code.map((line, i) => (
+                  <div key={i} style={{ color: '#e2e8f0' }}>
+                    <span style={{ color: '#374151', marginRight: '14px', fontSize: '11px', userSelect: 'none' }}>{String(i + 1).padStart(2, ' ')}</span>
+                    <span style={{ color: line.trim().startsWith('//') || line.trim().startsWith('#') ? '#6b7280' : '#e2e8f0' }}>{line}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* 3D flow animator */}
+        <div>
+          <div style={canvas3dStyle}>
+            <Canvas camera={{ position: [0, 0, 6], fov: 48 }}>
+              <Suspense fallback={null}>
+                <FlowAnimator3D track={track} activeFlow={activeFlow} />
+              </Suspense>
+            </Canvas>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--ed-ink3)', textAlign: 'center', marginTop: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+            particle traces execution path as code runs
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Section 4: Functions & Scope ──────────────────────────────────────────────
+function Section4Functions({ track, level }: { track: SWETrack; level: SWELevel }) {
+  const cfg = TRACK_CONFIG[track];
+  const fn = FUNCTION_DATA[track][level];
+  const storyBlock = BASICS_STORY[track][level].functions;
+
+  return (
+    <section style={{ marginBottom: '64px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px' }}>
+          SECTION 04 · FUNCTIONS & SCOPE
+        </div>
+        <h2 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.25 }}>
+          How {cfg.name} handles functions and the call stack
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '640px' }}>{fn.desc}</p>
+      </div>
+
+      <StoryCard protagonist={storyBlock.avatarLines[0].speaker === 'protagonist' ? storyBlock.avatarLines[0].speaker : 'Protagonist'} accentColor={cfg.color}>
+         <span style={{ fontWeight: 700, color: cfg.color }}>{storyBlock.open}</span> &mdash; {storyBlock.story}
+      </StoryCard>
+
+      <SWEConversationScene track={track} lines={storyBlock.avatarLines} mentorName={storyBlock.mentorName} mentorRole={storyBlock.mentorRole} mentorColor={storyBlock.mentorColor} />
+
+      {storyBlock.quiz && (
+        <SWEAvatar name={storyBlock.mentorName} role={storyBlock.mentorRole} color={storyBlock.mentorColor} content="Do you grok the stack traces and function closures yet?" question={storyBlock.quiz.question} options={storyBlock.quiz.options} conceptId={storyBlock.quiz.conceptId} />
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start', marginTop: '28px' }}>
+        {/* Code */}
+        <div>
+          <div style={{ background: '#0d1117', borderRadius: '10px', padding: '20px', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', lineHeight: 1.75, border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#6b7280', marginBottom: '10px', letterSpacing: '0.1em' }}>
+              {track === 'java' ? (level === 'beginner' ? 'Main.java' : 'Calculator.java') : track === 'python' ? (level === 'beginner' ? 'funcs.py' : 'closures.py') : (level === 'beginner' ? 'funcs.js' : 'closures.js')} · {level === 'advanced' ? 'advanced' : 'beginner'}
+            </div>
+            {fn.code.map((line, i) => (
+              <div key={i} style={{ color: line.includes('//') ? '#6b7280' : line.includes('#') ? '#6b7280' : '#e2e8f0' }}>
+                <span style={{ color: '#374151', marginRight: '14px', fontSize: '11px', userSelect: 'none' }}>{String(i + 1).padStart(2, ' ')}</span>
+                {line}
+              </div>
+            ))}
+          </div>
+
+          {/* result pill */}
+          <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.2)' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#94a3b8' }}>{fn.callLine}</span>
+            <span style={{ color: '#059669', fontSize: '14px' }}>→</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 700, color: '#059669' }}>{fn.returnLine.replace('→ ', '')}</span>
+          </div>
+        </div>
+
+        {/* 3D Stack */}
+        <div>
+          <div style={canvas3dStyle}>
+            <Canvas camera={{ position: [0, 1, 6], fov: 50 }}>
+              <Suspense fallback={null}>
+                <StackFrame3D track={track} level={level} />
+              </Suspense>
+            </Canvas>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--ed-ink3)', textAlign: 'center', marginTop: '8px', fontFamily: "'JetBrains Mono', monospace" }}>
+            frames push onto the call stack as functions are called
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Section 5: Code Challenge ─────────────────────────────────────────────────
+function Section5Challenge({ track, level }: { track: SWETrack; level: SWELevel }) {
+  const cfg = TRACK_CONFIG[track];
+  const challenge = CHALLENGE_DATA[track][level];
+  const [answers, setAnswers] = useState<string[]>(challenge.blanks.map(() => ''));
+  const storyBlock = BASICS_STORY[track][level].challenge;
+  const [checked, setChecked] = useState(false);
+  const [showOutput, setShowOutput] = useState(false);
+
+  const allCorrect = challenge.blanks.every((b, i) => answers[i].trim() === b.answer.trim());
+
+  const handleCheck = () => {
+    setChecked(true);
+    if (allCorrect) setTimeout(() => setShowOutput(true), 600);
+  };
+
+  const reset = () => { setAnswers(challenge.blanks.map(() => '')); setChecked(false); setShowOutput(false); };
+
+  let blankIdx = 0;
+  const renderedLines = challenge.lines.map((line, lineIdx) => {
+    const blank = challenge.blanks.find(b => b.line === lineIdx);
+    if (!blank) {
+      return (
+        <div key={lineIdx}>
+          <span style={{ color: '#374151', marginRight: '14px', fontSize: '11px', userSelect: 'none' }}>{String(lineIdx + 1).padStart(2, ' ')}</span>
+          <span style={{ color: '#e2e8f0' }}>{line}</span>
+        </div>
+      );
+    }
+    const bIdx = blankIdx++;
+    const ans = answers[bIdx];
+    const isCorrect = checked && ans.trim() === blank.answer.trim();
+    const isWrong = checked && ans.trim() !== blank.answer.trim();
+    const parts = line.split(blank.placeholder);
+
+    return (
+      <div key={lineIdx} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '2px' }}>
+        <span style={{ color: '#374151', marginRight: '14px', fontSize: '11px', userSelect: 'none' }}>{String(lineIdx + 1).padStart(2, ' ')}</span>
+        <span style={{ color: '#e2e8f0' }}>{parts[0]}</span>
+        <input
+          value={ans}
+          onChange={e => { const next = [...answers]; next[bIdx] = e.target.value; setAnswers(next); setChecked(false); setShowOutput(false); }}
+          placeholder={blank.placeholder}
+          style={{
+            background: isCorrect ? 'rgba(5,150,105,0.2)' : isWrong ? 'rgba(220,38,38,0.2)' : 'rgba(255,255,255,0.07)',
+            border: `1.5px solid ${isCorrect ? '#059669' : isWrong ? '#DC2626' : 'rgba(255,255,255,0.15)'}`,
+            borderRadius: '4px', color: '#f8fafc', fontFamily: "'JetBrains Mono', monospace",
+            fontSize: '13px', padding: '1px 6px',
+            width: `${Math.max(blank.answer.length * 10 + 20, 60)}px`,
+            outline: 'none', transition: 'border 0.2s',
+          }}
         />
-        {!complete && (
-          <button onClick={check} style={{ marginTop: '12px', padding: '6px 16px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace" }}>
-            Run
-          </button>
+        <span style={{ color: '#e2e8f0' }}>{parts[1]}</span>
+        {isWrong && (
+          <span style={{ fontSize: '10px', color: '#f87171', fontFamily: "'JetBrains Mono', monospace", marginLeft: '6px' }}>hint: {blank.hint}</span>
         )}
       </div>
-    </div>
-  );
-}
-
-// ─── Visualizers ──────────────────────────────────────────────────────────
-function DataBehaviorVisualizer() {
-  const [mode, setMode] = React.useState<'array' | 'set' | 'map'>('array');
-  const [items, setItems] = React.useState<any[]>(['apple', 'banana', 'apple']);
-  
-  const pushToStruct = () => {
-    if (mode === 'array') setItems([...items, 'apple']);
-    if (mode === 'set') {
-      const idx = items.indexOf('apple');
-      if (idx !== -1) {
-        // Flash collision
-        const el = document.getElementById('set-box');
-        if (el) { el.style.border = '2px solid red'; setTimeout(() => el.style.border = '2px solid #059669', 300); }
-      } else {
-        setItems([...items, 'apple']);
-      }
-    }
-    if (mode === 'map') setItems([...items.filter(i => i.k !== 'usr1'), {k: 'usr1', v: 'Aisha'}]);
-  };
-  
-  React.useEffect(() => {
-    if (mode === 'array') setItems(['apple', 'banana', 'apple']);
-    if (mode === 'set') setItems(['apple', 'banana']);
-    if (mode === 'map') setItems([{k: 'usr1', v: 'Aisha'}, {k: 'usr2', v: 'Leo'}]);
-  }, [mode]);
+    );
+  });
 
   return (
-    <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '24px', margin: '32px 0' }}>
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-        {['array', 'set', 'map'].map(m => (
-          <button key={m} onClick={() => setMode(m as any)} style={{ padding: '8px 16px', borderRadius: '20px', border: mode === m ? '2px solid #0369a1' : '1px solid var(--ed-rule)', background: mode === m ? '#e0f2fe' : 'var(--ed-cream)', color: mode === m ? '#0369a1' : 'var(--ed-ink)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', textTransform: 'uppercase' }}>
-            {m}
-          </button>
-        ))}
+    <section style={{ marginBottom: '40px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: cfg.color, marginBottom: '8px' }}>
+          SECTION 05 · WRITE IT YOURSELF
+        </div>
+        <h2 style={{ fontSize: '26px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.25 }}>
+          Your first {cfg.name} program
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '640px' }}>{challenge.intro}</p>
       </div>
-      
-      <div id="set-box" style={{ display: 'flex', gap: '10px', alignItems: 'center', transition: 'all 0.3s', minHeight: '60px', padding: '16px', background: 'var(--ed-cream)', borderRadius: '8px', border: '2px solid #059669' }}>
-        {items.map((it, i) => (
-          <div key={i} style={{ padding: '8px 16px', background: '#d1fae5', color: '#065f46', borderRadius: '6px', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace" }}>
-            {mode === 'map' ? `${it.k} : ${it.v}` : it}
-          </div>
-        ))}
-        {mode !== 'map' && <button onClick={pushToStruct} style={{ padding: '4px 8px', borderRadius: '4px', background: '#3b82f6', color: '#fff', border: 'none', cursor: 'pointer' }}>+ Add 'apple'</button>}
+
+      <StoryCard protagonist={storyBlock.avatarLines[0].speaker === 'protagonist' ? storyBlock.avatarLines[0].speaker : 'Protagonist'} accentColor={cfg.color}>
+         <span style={{ fontWeight: 700, color: cfg.color }}>{storyBlock.open}</span> &mdash; {storyBlock.story}
+      </StoryCard>
+
+      <SWEConversationScene track={track} lines={storyBlock.avatarLines} mentorName={storyBlock.mentorName} mentorRole={storyBlock.mentorRole} mentorColor={storyBlock.mentorColor} />
+
+      {/* Code editor */}
+      <div style={{ background: '#0d1117', borderRadius: '10px', padding: '0', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+        {/* Editor header */}
+        <div style={{ background: '#161b22', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f87171' }} />
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#fbbf24' }} />
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#34d399' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#6b7280', marginLeft: '8px' }}>{challenge.filename}</span>
+        </div>
+        <div style={{ padding: '20px', fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', lineHeight: 2.1 }}>
+          {renderedLines}
+        </div>
       </div>
-      
-      <p style={{ marginTop: '16px', fontSize: '13px', color: 'var(--ed-ink2)' }}>
-        {mode === 'array' && "Arrays blindly append. Notice how 'apple' appears multiple times."}
-        {mode === 'set' && "Sets mathematically enforce uniqueness. Try adding 'apple' — it's blocked instantly."}
-        {mode === 'map' && "Maps link distinct keys to values for O(1) lookups. No looping required to find 'usr1'."}
-      </p>
-    </div>
-  );
-}
 
-// ════════════════════════════════════════════════════════════════════════════════
-// 7 Sections Pedagogy
-// ════════════════════════════════════════════════════════════════════════════════
-
-function Section1Variables({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].variables || BASICS_STORY['python']['beginner'].variables;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>1. Variables & Output</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <QuickTry track={track} conceptId="variables" label="Declare & Print" placeholder={track==='python'?"# Assign 42 to x, then print it\nx =":track==='java'?"// Assign 42 to x, then print it\nint x =":"// Assign 42 to x, then print it\nconst x ="} solution="42" />
-    </section>
-  );
-}
-
-function Section2ControlFlow({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].flow || BASICS_STORY['python']['beginner'].flow;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>2. Control Flow</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <QuickTry track={track} conceptId="flow" label="If/Else Branching" placeholder={track==='python'?"score = 80\n# Write an if/else to print 'Pass' if score > 50":"const score = 80;\n// Write an if/else to log 'Pass' if score > 50"} solution={track==='java'?"System.out.println":"print"} />
-    </section>
-  );
-}
-
-function Section3Loops({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].loops || BASICS_STORY['python']['beginner'].loops;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>3. Iteration & Loops</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <QuickTry track={track} conceptId="loops" label="Loop 1 to 5" placeholder={track==='python'?"# Write a loop to print 1 to 5\n":"// Write a loop to print 1 to 5\n"} solution="5" />
-    </section>
-  );
-}
-
-function Section4Functions({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].functions || BASICS_STORY['python']['beginner'].functions;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>4. Encapsulation (Functions)</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <QuickTry track={track} conceptId="fx" label="Write add()" placeholder={track==='python'?"# def add(a, b): return a + b\n":"// function add(a, b) { return a + b; }\n"} solution="+" />
-    </section>
-  );
-}
-
-function Section5Objects({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].objects || BASICS_STORY['python']['beginner'].objects;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>5. Objects & Memory</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      {/* Retain 3D Memory Box to show references */}
-      <div style={{ height: '300px', background: '#000', borderRadius: '12px', marginTop: '24px', position: 'relative' }}>
-          <div style={{ position: 'absolute', top: 12, left: 16, zIndex: 10, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', letterSpacing: '0.1em' }}>HEAP VISUALIZER (3D)</div>
-          <Suspense fallback={null}>
-            <Canvas camera={{ position: [0, 4, 8], fov: 40 }}>
-              <ambientLight intensity={0.5} />
-              <pointLight position={[5, 10, 5]} intensity={0.8} />
-              <MemoryBox position={[-2, 0, 0]} label="Stack" color="#ef4444" />
-              <MemoryBox position={[2, 0, 0]} label="Heap (Object)" color="#10b981" />
-              <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={0.5} />
-            </Canvas>
-          </Suspense>
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: '10px', marginTop: '16px', alignItems: 'center' }}>
+        <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleCheck} style={{
+          padding: '10px 24px', borderRadius: '8px', background: cfg.color, color: '#fff',
+          fontSize: '13px', fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+          ▶ Run
+        </motion.button>
+        <motion.button whileHover={{ opacity: 0.75 }} onClick={reset} style={{
+          padding: '10px 18px', borderRadius: '8px', background: 'var(--ed-card)',
+          color: 'var(--ed-ink3)', fontSize: '13px', border: '1px solid var(--ed-rule)',
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+          Reset
+        </motion.button>
+        {checked && !allCorrect && (
+          <span style={{ fontSize: '12px', color: '#f87171', fontFamily: "'JetBrains Mono', monospace" }}>
+            ✗ Some answers need fixing — check the hints
+          </span>
+        )}
       </div>
+
+      {/* Terminal output */}
+      <AnimatePresence>
+        {showOutput && allCorrect && (
+          <motion.div initial={{ opacity: 0, y: 16, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}>
+            <div style={{ marginTop: '16px', background: '#0d1117', borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(5,150,105,0.3)' }}>
+              <div style={{ background: '#161b22', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: '#059669', fontWeight: 700 }}>✓ OUTPUT</span>
+              </div>
+              <div style={{ padding: '16px 20px' }}>
+                {challenge.output.split('\n').map((line, i) => (
+                  <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.12 }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', color: line.startsWith('>') || line.startsWith('$') ? '#94a3b8' : '#34d399', lineHeight: 1.9 }}>
+                      {line}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginTop: '12px', padding: '12px 16px', borderRadius: '8px', background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.2)', fontSize: '13px', color: '#059669', fontWeight: 600 }}>
+              🎉 Perfect. Your first {cfg.name} program runs correctly.
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
 
-function Section6DataStructures({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].dataStructures || BASICS_STORY['python']['beginner'].dataStructures;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>6. Fast Data (Sets & Maps)</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <DataBehaviorVisualizer />
-    </section>
-  );
-}
-
-function Section7Challenge({ track, level }: SectionProps) {
-  const story = BASICS_STORY[track][level].challenge || BASICS_STORY['python']['beginner'].challenge;
-  return (
-    <section>
-      <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: "'Lora', serif", color: 'var(--ed-ink)', marginBottom: '24px' }}>7. Final Challenge: Build it.</h2>
-      <StoryCard open={story.open} story={story.story} />
-      <SWEConversationScene track={track} lines={story.avatarLines} mentorName={story.mentorName} mentorRole={story.mentorRole} mentorColor={story.mentorColor} />
-      <div style={{ background: 'var(--ed-card)', padding: '24px', border: '1px solid var(--ed-rule)', borderRadius: '12px', marginTop: '24px' }}>
-        <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '12px' }}>Real World Task</h3>
-        <p style={{ fontSize: '14px', color: 'var(--ed-ink2)' }}>{track === 'java' ? 'Build a simple Contact Manager Class using a HashMap to store IDs and fetch Names instantly.' : track === 'python' ? 'Build a Number Guessing loop using a Set to block duplicate guesses.' : 'Build a To-Do list using Array methods and Map structures.'}</p>
-        <QuickTry track={track} conceptId="challenge" label="Build App" placeholder={"// Scaffold structure loaded...\n"} solution={track === 'python' ? 'def' : 'return'} />
-      </div>
-    </section>
-  );
-}
 // ════════════════════════════════════════════════════════════════════════════════
 // Main Export
 // ════════════════════════════════════════════════════════════════════════════════
@@ -805,30 +1061,26 @@ const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
 const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 const ACHIEVEMENTS = [
-  { id: 'variables', label: 'Variables', icon: '📝', desc: 'Declared state' },
-  { id: 'flow', label: 'Flow', icon: '🔀', desc: 'Control logic' },
-  { id: 'loops', label: 'Loops', icon: '🔄', desc: 'Iteration logic' },
-  { id: 'functions', label: 'Functions', icon: '📦', desc: 'Encapsulated code' },
-  { id: 'objects', label: 'Objects', icon: '🧩', desc: 'State instances' },
-  { id: 'dataStructures', label: 'Sets & Maps', icon: '⚡', desc: 'O(1) Data lookup' },
-  { id: 'challenge', label: 'Scaffold Built', icon: '🏗️', desc: 'First mini-app' },
+  { id: 'identity', label: 'DNA Decode', icon: '🧬', desc: 'Explored language identity' },
+  { id: 'types', label: 'Type Safe', icon: '🔒', desc: 'Mastered data types' },
+  { id: 'flow', label: 'Flow Control', icon: '🔀', desc: 'Tested control flow branching' },
+  { id: 'functions', label: 'Stack Master', icon: '🥞', desc: 'Pushed limits of the call stack' },
+  { id: 'challenge', label: 'First Blood', icon: '💻', desc: 'Wrote your first program' },
 ];
 
 export default function SWELanguageBasics({ track, level, onBack }: Props) {
   const cfg = TRACK_CONFIG[track];
   
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [activeSection, setActiveSection] = useState<string>('variables');
+  const [activeSection, setActiveSection] = useState<string>('identity');
 
   const SECTIONS = [
-  { id: 'variables', label: 'Variables & Output' },
-  { id: 'flow', label: 'Control Flow' },
-  { id: 'loops', label: 'Loops' },
-  { id: 'functions', label: 'Functions' },
-  { id: 'objects', label: 'Objects & Memory' },
-  { id: 'dataStructures', label: 'Data Structures' },
-  { id: 'challenge', label: 'Final Challenge' },
-];
+    { id: 'identity', label: 'Language Identity' },
+    { id: 'types', label: 'Variables & Types' },
+    { id: 'flow', label: 'Control Flow' },
+    { id: 'functions', label: 'Functions & Scope' },
+    { id: 'challenge', label: 'Write It Yourself' },
+  ];
 
   const totalXP = completedSections.size * 100; // 100 xp per section
   const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
@@ -937,13 +1189,11 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
               </div>
             </motion.div>
 
-            <div data-section="variables"><Section1Variables track={track} level={level} /></div>
-<div data-section="flow"><Section2ControlFlow track={track} level={level} /></div>
-<div data-section="loops"><Section3Loops track={track} level={level} /></div>
-<div data-section="functions"><Section4Functions track={track} level={level} /></div>
-<div data-section="objects"><Section5Objects track={track} level={level} /></div>
-<div data-section="dataStructures"><Section6DataStructures track={track} level={level} /></div>
-<div data-section="challenge"><Section7Challenge track={track} level={level} /></div>
+            <div data-section="identity"><Section1Identity track={track} level={level} /></div>
+            <div data-section="types"><Section2Types track={track} level={level} /></div>
+            <div data-section="flow"><Section3Flow track={track} level={level} /></div>
+            <div data-section="functions"><Section4Functions track={track} level={level} /></div>
+            <div data-section="challenge"><Section5Challenge track={track} level={level} /></div>
 
             {/* Completion CTA */}
             <div style={{ padding: '28px 32px', borderRadius: '14px', background: `linear-gradient(135deg, ${cfg.gradientA}10, ${cfg.gradientB}08)`, border: `1.5px solid ${cfg.color}25`, textAlign: 'center', marginTop: '64px' }}>
