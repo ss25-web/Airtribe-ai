@@ -505,7 +505,8 @@ interface Props {
 
 export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
   const store = useLearnerStore();
-  const [track] = useState<Track>(startTrack);
+const [track] = useState<Track>(startTrack);
+  const [activeModule, setActiveModule] = useState('01');
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
@@ -513,6 +514,12 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
   useEffect(() => {
     store.initSession();
     ALL_CONCEPT_IDS.forEach(id => store.ensureConceptState(id));
+}, []);
+
+  // Restore activeModule
+  useEffect(() => {
+    const savedModule = localStorage.getItem('airtribe_module') ?? '01';
+    setActiveModule(savedModule);
   }, []);
 
   useEffect(() => {
@@ -657,7 +664,7 @@ export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
               transition={{ duration: 0.3 }}
               style={{ minWidth: 0 }}>
 
-              {track === 'new-pm' ? <Track1NewPM /> : <Track2APM />}
+{track === 'new-pm' ? <Track1NewPM /> : <Track2APM />}
 
               {/* Completion card */}
               <AnimatePresence>

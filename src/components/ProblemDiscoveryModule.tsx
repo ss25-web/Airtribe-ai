@@ -166,6 +166,7 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
   }, [total]);
 
   const unlockedCount = ACHIEVEMENTS.filter(a => completedSections.has(a.id)).length;
+  const latestUnlock = ACHIEVEMENTS.slice().reverse().find(a => completedSections.has(a.id));
 
   const cardStyle: React.CSSProperties = { background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' };
 
@@ -255,6 +256,18 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
             );
           })}
         </div>
+        {latestUnlock && (
+          <div style={{ marginTop: '10px', padding: '8px 10px', borderRadius: '6px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '3px' }}>LATEST</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '14px', flexShrink: 0 }}>{latestUnlock.icon}</span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3 }}>{latestUnlock.label}</div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.4, wordBreak: 'break-word' as const }}>{latestUnlock.desc}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Concept Mastery */}

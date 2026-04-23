@@ -14,6 +14,17 @@ import { MentorFace } from './MentorFaces';
 // ─────────────────────────────────────────
 const ACCENT = '#E07A5F';
 const ACCENT_RGB = '224,122,95';
+
+const PARTS = [
+  { num: '01', id: 'm4-illusion',    label: "The Illusion of Done — shipping isn’t the same as fixing" },
+  { num: '02', id: 'm4-session',     label: "Session Recordings — see what users actually do" },
+  { num: '03', id: 'm4-45sec',       label: "The 45-Second Drop-Off — the moment you lose them" },
+  { num: '04', id: 'm4-spec-gap',    label: "Spec Completeness — loading, error, empty, success" },
+  { num: '05', id: 'm4-small-fix',   label: "Small Fix, Big Impact — one label, 18-point lift" },
+  { num: '06', id: 'm4-outcome',     label: "The UX Debug Loop — metric to friction to fix" },
+  { num: '07', id: 'm4-reflection',  label: "Reflection — what you’ll carry forward" },
+];
+
 const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: diagnosing UX failures vs feature failures, session recordings, the 45-second drop-off problem, spec completeness (loading/error/empty/success states), and how small feedback changes drive massive metric improvements.`;
 
@@ -1151,7 +1162,14 @@ const SlackUpdateMockup = () => {
 // ─────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────
-export default function Track1UXDesign() {
+export default function Track1UXDesign({
+  completedSections = new Set<string>(),
+}: {
+  completedSections?: Set<string>;
+}) {
+  const donePct = Math.round((completedSections.size / PARTS.length) * 100);
+  const nextPart = PARTS.find(p => !completedSections.has(p.id));
+
   return (
     <article style={{ padding: '0 0 80px' }}>
 
@@ -1166,7 +1184,8 @@ export default function Track1UXDesign() {
           letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
         }}>04</div>
 
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>
             PM Fundamentals &middot; Module 04
           </div>
@@ -1220,6 +1239,59 @@ export default function Track1UXDesign() {
                 <span style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
               </div>
             ))}
+          </div>
+          </div>{/* end flex-1 */}
+
+          {/* Right: floating dark module card */}
+          <div style={{ flexShrink: 0, width: '168px', paddingTop: '48px' }}>
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+              <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
+                <div style={{
+                  background: 'linear-gradient(145deg, #1A1218 0%, #241228 100%)',
+                  borderRadius: '14px', padding: '20px 18px',
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE 04</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>UX &amp; Design</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>Foundations Track</div>
+                  <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
+                    <motion.div animate={{ width: `${donePct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }}
+                      style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {PARTS.map(p => {
+                      const done = completedSections.has(p.id);
+                      const isNext = p.id === nextPart?.id;
+                      return (
+                        <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                          <div style={{
+                            width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                            background: done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.06)',
+                            border: `1px solid ${done ? '#0D7A5A' : isNext ? ACCENT : 'rgba(255,255,255,0.1)'}`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                            fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                            transition: 'background 0.3s, border-color 0.3s',
+                          }}>{done ? '✓' : p.num}</div>
+                          <div style={{ fontSize: '9px', color: done ? 'rgba(240,232,216,0.5)' : isNext ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)', lineHeight: 1.3, flex: 1, transition: 'color 0.3s' }}>
+                            {p.label.split(' — ')[0]}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${ACCENT}22`, border: `1px solid ${ACCENT}44` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: ACCENT, fontWeight: 700, marginBottom: '2px' }}>
+                      {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+                    </div>
+                    <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>
+                      {donePct === 100 ? 'All 7 parts done' : nextPart ? nextPart.label.split(' — ')[0] : 'The Illusion of Done'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
