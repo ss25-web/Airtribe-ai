@@ -76,8 +76,8 @@ const MODULES = [
     desc: 'Stakeholder communication, PRD writing with AI, storytelling for PMs, and B2B communication — sales enablement, exec QBRs, customer roadmaps.',
     duration: '40 min',
     tools: ['Claude', 'ChatGPT'],
-    available: false,
-    accent: '#0891B2',
+    available: true,
+    accent: '#E07A5F',
   },
   {
     num: '07',
