@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { StakeholderCalibrationRoom, ExecReviewTheater, RoadmapPressureChamber } from './CommTools3D';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
@@ -493,7 +494,7 @@ export default function Track2CommunicationPM({
 
         {para(<>The junior PM instinct is to find a middle message — something that nobody objects to. The senior PM move is different: understand what each stakeholder actually needs to act well, and give them that — even if the messages look different on the surface. This is not spin. It is precision.</>)}
 
-        <StakeholderTensionMap />
+        <StakeholderCalibrationRoom />
 
         <ConversationScene
           mentor="asha" name="Sana" role="Strategy · CloudBridge" accent="#0097A7"
@@ -619,7 +620,7 @@ export default function Track2CommunicationPM({
           ])}
         </div>
 
-        <QBRCommandDeck />
+        <ExecReviewTheater />
 
         <ConversationScene
           mentor="kiran" name="Leena" role="VP Product · CloudBridge" accent="#7843EE"
@@ -661,7 +662,7 @@ export default function Track2CommunicationPM({
 
         {para(<>In B2B, a PM&apos;s words can shape pipeline, renewals, and trust at scale. One overcommit in a customer call can become a contractual obligation. One vague answer can cost a renewal. The discipline is not saying less — it is saying exactly the right amount with the right precision.</>)}
 
-        <RoadmapNegotiationRoom />
+        <RoadmapPressureChamber />
 
         <div style={glassCard(ACCENT, ACCENT_RGB)}>
           {demoLabel('The B2B PM communication toolkit', ACCENT)}

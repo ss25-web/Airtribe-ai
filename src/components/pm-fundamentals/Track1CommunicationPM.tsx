@@ -8,6 +8,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
+import { CommunicationPrism, NarrativeStaircase, RoadmapPressureChamber } from './CommTools3D';
 
 const ACCENT     = '#E07A5F';
 const ACCENT_RGB = '224,122,95';
@@ -698,7 +699,7 @@ export default function Track1CommunicationPM({
 
         {para(<>A PM is usually trying to do one or more of these things: explain the problem clearly, align people on what matters now, reduce ambiguity before work begins, make tradeoffs legible, prevent false assumptions, or create trust in uncertainty. That is why communication is not polish. It is operating leverage. A weak PM update creates noise. A strong PM update changes how decisions get made.</>)}
 
-        <StakeholderSignalRoom />
+        <CommunicationPrism />
 
         {keyBox('What each stakeholder needs from you', [
           'Engineering: what problem, what constraints, what is in scope right now',
@@ -883,7 +884,7 @@ export default function Track1CommunicationPM({
           '6. Ask — what decision, support, or alignment is needed now?',
         ])}
 
-        <NarrativeBoardroom />
+        <NarrativeStaircase />
 
         <PMPrinciple text="Storytelling is how PMs turn scattered information into aligned decisions." />
 
@@ -931,7 +932,7 @@ export default function Track1CommunicationPM({
           '"Not currently prioritised" — not in scope for now',
         ])}
 
-        <SalesEnablementDesk />
+        <RoadmapPressureChamber />
 
         <PMPrinciple text="Helpful communication is not the same as optimistic communication. In B2B product work, precision builds trust." />
 
