@@ -11,8 +11,8 @@ import {
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
 
-const ACCENT     = '#E07A5F';
-const ACCENT_RGB = '224,122,95';
+const ACCENT     = '#0284C7';
+const ACCENT_RGB = '2,132,199';
 const MODULE_NUM = '06';
 const MODULE_LABEL = 'Effective Communication';
 const MODULE_CONTEXT = `Module 06 of Airtribe PM Fundamentals — Scale Track. Follows Aarav Menon, Senior PM at CloudBridge (B2B workflow SaaS), leading a high-stakes launch of an AI Workflow Assistant. Covers communication as leverage, stakeholder calibration in ambiguous environments, PRD writing with AI at senior level, exec QBRs, B2B sales enablement and roadmap negotiation, and building a communication operating system.`;

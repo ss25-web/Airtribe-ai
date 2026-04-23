@@ -10,8 +10,8 @@ import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
 import { CommunicationPrism, NarrativeStaircase, RoadmapPressureChamber } from './CommTools3D';
 
-const ACCENT     = '#E07A5F';
-const ACCENT_RGB = '224,122,95';
+const ACCENT     = '#0284C7';
+const ACCENT_RGB = '2,132,199';
 const MODULE_NUM = '06';
 const MODULE_LABEL = 'Effective Communication';
 

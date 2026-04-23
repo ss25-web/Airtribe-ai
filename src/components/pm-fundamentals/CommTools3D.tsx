@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ─────────────────────────────────────────
 // SHARED CONSTANTS
 // ─────────────────────────────────────────
-const ACCENT = '#E07A5F';
+const ACCENT = '#0284C7';
 
 const canvasStyle: React.CSSProperties = {
   width: '100%',

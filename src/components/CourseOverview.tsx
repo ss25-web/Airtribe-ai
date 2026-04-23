@@ -77,7 +77,7 @@ const MODULES = [
     duration: '40 min',
     tools: ['Claude', 'ChatGPT'],
     available: true,
-    accent: '#E07A5F',
+    accent: '#0284C7',
   },
   {
     num: '07',

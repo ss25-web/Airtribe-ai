@@ -6,8 +6,8 @@ import Track1CommunicationPM from './pm-fundamentals/Track1CommunicationPM';
 import Track2CommunicationPM from './pm-fundamentals/Track2CommunicationPM';
 
 const CONFIG: ModuleConfig = {
-  accent: '#E07A5F',
-  accentRgb: '224,122,95',
+  accent: '#0284C7',
+  accentRgb: '2,132,199',
   moduleNum: '06',
   moduleLabel: 'Effective Communication',
   moduleTime: '40 min · 7 parts',
@@ -23,7 +23,7 @@ const CONFIG: ModuleConfig = {
     { id: 'm6-executive',    label: 'Executive Communication' },
   ],
   concepts: [
-    { id: 'pm-communication-basics', label: 'PM Communication',      color: '#E07A5F' },
+    { id: 'pm-communication-basics', label: 'PM Communication',      color: '#0284C7' },
     { id: 'stakeholder-communication', label: 'Stakeholder Comms',   color: '#3A86FF' },
     { id: 'prd-with-ai',              label: 'PRD with AI',          color: '#7843EE' },
     { id: 'pm-storytelling',          label: 'PM Storytelling',      color: '#C85A40' },
