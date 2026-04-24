@@ -83,9 +83,9 @@ const MODULES = [
     num: '07',
     label: 'Analytics & Metrics',
     desc: 'North star metrics, funnel and cohort analysis, B2B metrics (NRR, expansion revenue), AI-powered dashboards and A/B testing.',
-    duration: '50 min',
+    duration: '40 min',
     tools: ['Amplitude', 'ChatGPT'],
-    available: false,
+    available: true,
     accent: '#158158',
   },
   {
