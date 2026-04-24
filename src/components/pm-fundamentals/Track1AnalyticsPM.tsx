@@ -8,6 +8,14 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
+import {
+  MetricConsequenceSimulator,
+  MetricBehaviorLab,
+  FunnelDecomposer,
+  ProductChangeSimulator,
+  AccountHealthExplorer,
+  ExperimentConsequenceEngine,
+} from './AnalyticsTools';
 
 const ACCENT     = '#158158';
 const ACCENT_RGB = '21,129,88';
@@ -879,7 +887,7 @@ export default function Track1AnalyticsPM({
           'Secondary metrics: diagnostics that help explain why things are moving',
         ])}
 
-        <MetricMapBuilder />
+        <MetricConsequenceSimulator />
 
         <PMPrinciple text="Your north star tells you what success looks like. Your guardrails make sure you don't get there the wrong way." />
 
@@ -919,7 +927,7 @@ export default function Track1AnalyticsPM({
 
         {para(<>A weak success metric tracks visible activity. A strong one tracks the user behavior that would prove the product got better. The upgrade is simple: stop asking what is easy to measure. Start asking what behavior would prove the problem is actually solved.</>)}
 
-        <NorthStarSimulator />
+        <MetricBehaviorLab />
 
         <PMPrinciple text="Do not ask what is easiest to measure. Ask what behaviour would prove the problem is actually solved." />
 
@@ -957,7 +965,7 @@ export default function Track1AnalyticsPM({
 
         {h2(<>Funnels show where. Investigation tells you why.</>)}
 
-        <FunnelExplorer />
+        <FunnelDecomposer />
 
         <PMPrinciple text="A funnel tells you where the journey breaks. It does not automatically tell you why." />
 
@@ -995,7 +1003,7 @@ export default function Track1AnalyticsPM({
 
         {h2(<>Cohorts bring time and comparison back into the picture</>)}
 
-        <CohortPlayground />
+        <ProductChangeSimulator />
 
         <PMPrinciple text="If averages flatten the story, cohorts often reveal it." />
 
@@ -1033,7 +1041,7 @@ export default function Track1AnalyticsPM({
 
         {h2(<>In B2B, product health is measured at the account level</>)}
 
-        <B2BHealthDashboard />
+        <AccountHealthExplorer />
 
         <PMPrinciple text="In B2B, product health is often measured at the account level, not just the user level." />
 
@@ -1071,7 +1079,7 @@ export default function Track1AnalyticsPM({
 
         {h2(<>A/B tests are evidence systems, not decision machines</>)}
 
-        <ExperimentDecisionStudio />
+        <ExperimentConsequenceEngine />
 
         <PMPrinciple text="A/B tests do not make product decisions for you. They improve the quality of the decision." />
 
