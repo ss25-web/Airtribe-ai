@@ -1,824 +1,608 @@
 'use client';
 
 /**
- * CommTools3D — Phase 1 3D visual teaching tools for Module 06.
+ * CommTools3D — Interactive teaching tools for Module 06: Effective Communication.
  *
- * T1-01  CommunicationPrism      — one message split into 4 stakeholder beams
- * T1-04  NarrativeStaircase      — storytelling as an ascending platform sequence
- * T1-05  RoadmapPressureChamber  — roadmap wording creates ripple effects on stakeholder pods
- * T2-02  StakeholderCalibrationRoom — inspect stakeholder motives before the meeting
- * T2-04  ExecReviewTheater       — sort content into exec narrative vs appendix
+ * Visual style: light, colorful, product-workspace feel.
+ * No dark backgrounds. No spinning WebGL objects.
+ * Teaching through direct manipulation, visible cause-and-effect, live meters.
+ *
+ * Track 1 (Beginner):
+ *   CommunicationPrism      → StakeholderTranslationTool
+ *   NarrativeStaircase      → NarrativeStaircase (kept — staircase metaphor is sound)
+ *   RoadmapPressureChamber  → RoadmapPressureSimulator (redesigned)
+ *
+ * Track 2 (Experienced):
+ *   StakeholderCalibrationRoom → StakeholderCalibrationRoom (kept)
+ *   ExecReviewTheater          → ExecAltitudeTool (redesigned)
  */
 
-import React, { useRef, useState, Suspense, useMemo } from 'react';
-import { Canvas, useFrame, ThreeElements } from '@react-three/fiber';
-import { OrbitControls, Float, Html, Line } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ─────────────────────────────────────────
-// SHARED CONSTANTS
+// SHARED DESIGN TOKENS
 // ─────────────────────────────────────────
-const ACCENT = '#0284C7';
-
-const canvasStyle: React.CSSProperties = {
-  width: '100%',
-  height: '420px',
-  borderRadius: '12px',
-  overflow: 'hidden',
-  background: 'linear-gradient(160deg, #060F1A 0%, #0A1628 60%, #0D0A1E 100%)',
+const STAKEHOLDER_COLORS = {
+  engineering: '#3A86FF',
+  design:      '#0097A7',
+  sales:       '#E67E22',
+  leadership:  '#7843EE',
 };
 
-const CanvasShell = ({ children, label }: { children: React.ReactNode; label: string }) => (
-  <div style={{ margin: '32px 0' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>{label}</div>
-      <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>· drag to rotate · scroll to zoom</div>
+const toolCard: React.CSSProperties = {
+  background: '#fff',
+  borderRadius: '16px',
+  boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+  overflow: 'hidden',
+  margin: '32px 0',
+};
+
+const toolHeader = (color: string): React.CSSProperties => ({
+  padding: '14px 20px',
+  background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`,
+  borderBottom: `1px solid ${color}20`,
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+});
+
+const Meter = ({ label, value, color, inverse = false }: { label: string; value: number; color: string; inverse?: boolean }) => (
+  <div style={{ flex: 1 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em' }}>{label.toUpperCase()}</span>
+      <span style={{ fontSize: '10px', fontWeight: 700, color, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(value * 100)}%</span>
     </div>
-    <div style={canvasStyle}>
-      {children}
+    <div style={{ height: '6px', borderRadius: '3px', background: '#e2e8f0', overflow: 'hidden' }}>
+      <motion.div animate={{ width: `${value * 100}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', borderRadius: '3px', background: color }} />
     </div>
   </div>
 );
 
+const Avatar = ({ emoji, label, color, size = 44 }: { emoji: string; label: string; color: string; size?: number }) => (
+  <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px' }}>
+    <div style={{ width: size, height: size, borderRadius: '50%', background: `${color}18`, border: `2px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.45 }}>
+      {emoji}
+    </div>
+    <div style={{ fontSize: '9px', fontWeight: 700, color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', textTransform: 'uppercase' as const, whiteSpace: 'nowrap' }}>{label}</div>
+  </div>
+);
+
+const SpeechBubble = ({ text, color, align = 'left' }: { text: string; color: string; align?: 'left' | 'right' }) => (
+  <div style={{ background: `${color}12`, border: `1px solid ${color}30`, borderRadius: align === 'left' ? '0 10px 10px 10px' : '10px 0 10px 10px', padding: '8px 12px', fontSize: '12px', color: '#334155', lineHeight: 1.5, maxWidth: '180px', position: 'relative' as const }}>
+    {text}
+  </div>
+);
+
 // ─────────────────────────────────────────
-// T1-01 · COMMUNICATION PRISM
+// TOOL 1 · STAKEHOLDER TRANSLATION TOOL (T1-01)
 // ─────────────────────────────────────────
-const BEAM_DATA = [
-  { id: 'eng',        label: 'Engineering', color: '#3A86FF', angle: Math.PI * 0.15,  desc: 'Problem, constraints, scope, dependencies, success criteria' },
-  { id: 'design',     label: 'Design',      color: '#C85A40', angle: Math.PI * 0.38,  desc: 'User need, friction points, edge cases, experience intent' },
-  { id: 'sales',      label: 'Sales / CS',  color: '#E67E22', angle: Math.PI * 0.62,  desc: 'Value statement, readiness signal, safe claims, limitations' },
-  { id: 'leadership', label: 'Leadership',  color: '#7843EE', angle: Math.PI * 0.85,  desc: 'Business outcome, tradeoff, risk, why-now logic' },
-];
+type StakeholderKey = 'engineering' | 'design' | 'sales' | 'leadership';
 
-function PrismMesh({ onClick }: { onClick: () => void }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  useFrame((_, dt) => { ref.current.rotation.y += dt * 0.3; });
-  return (
-    <mesh ref={ref} onClick={onClick} position={[0, 0, 0]}>
-      <octahedronGeometry args={[0.9, 0]} />
-      <meshPhysicalMaterial
-        color="#ffffff"
-        transparent opacity={0.18}
-        metalness={0.0} roughness={0.0}
-        transmission={0.95}
-        thickness={1.5}
-        ior={1.5}
-        wireframe={false}
-      />
-    </mesh>
-  );
-}
-
-function PrismWireframe() {
-  const ref = useRef<THREE.Mesh>(null!);
-  useFrame((_, dt) => { ref.current.rotation.y += dt * 0.3; });
-  return (
-    <mesh ref={ref}>
-      <octahedronGeometry args={[0.92, 0]} />
-      <meshBasicMaterial color="#88aaff" transparent opacity={0.35} wireframe />
-    </mesh>
-  );
-}
-
-function InputBeam() {
-  const points = useMemo(() => [new THREE.Vector3(-4, 0, 0), new THREE.Vector3(-0.9, 0, 0)], []);
-  return <Line points={points} color="white" lineWidth={2} dashed={false} />;
-}
-
-function OutputBeam({ angle, color, active }: { angle: number; color: string; active: boolean }) {
-  const len = 3.2;
-  const x = Math.cos(angle) * len;
-  const y = (Math.sin(angle) - 0.5) * len * 0.8;
-  const points = useMemo(() => [new THREE.Vector3(0.9, 0, 0), new THREE.Vector3(x, y, 0)], [x, y]);
-  return (
-    <Line
-      points={points}
-      color={color}
-      lineWidth={active ? 3.5 : 1.5}
-      dashed={false}
-      transparent
-      opacity={active ? 1 : 0.4}
-    />
-  );
-}
-
-function BeamLabel({ angle, color, label, active, onClick }: { angle: number; color: string; label: string; active: boolean; onClick: () => void }) {
-  const len = 3.6;
-  const x = Math.cos(angle) * len;
-  const y = (Math.sin(angle) - 0.5) * len * 0.8;
-  return (
-    <Html position={[x, y, 0]} center>
-      <div
-        onClick={onClick}
-        style={{
-          padding: '5px 12px', borderRadius: '20px', cursor: 'pointer',
-          background: active ? color : 'rgba(255,255,255,0.07)',
-          border: `1.5px solid ${color}`,
-          color: active ? '#fff' : color,
-          fontSize: '11px', fontWeight: 700,
-          fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: '0.06em', whiteSpace: 'nowrap',
-          transition: 'all 0.2s',
-          boxShadow: active ? `0 0 16px ${color}60` : 'none',
-        }}
-      >
-        {label}
-      </div>
-    </Html>
-  );
-}
-
-function InputLabel() {
-  return (
-    <Html position={[-4.5, 0, 0]} center>
-      <div style={{ padding: '5px 12px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.4)', color: '#fff', fontSize: '10px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap' }}>
-        Product Initiative
-      </div>
-    </Html>
-  );
-}
+const TRANSLATIONS: Record<StakeholderKey, { icon: string; label: string; points: string[]; noNeed: string; action: string }> = {
+  engineering: {
+    icon: '⚙️', label: 'Engineering',
+    points: ['Problem: users fail to retrieve old call recordings', 'Primary use case: search by contact name', 'Scope for v1: contact-first retrieval only', 'Constraints: transcript search is out of scope', 'Success metric: retrieval success rate ≥85%'],
+    noNeed: 'Business strategy, sales positioning',
+    action: 'Build with clear scope and constraints',
+  },
+  design: {
+    icon: '🎨', label: 'Design',
+    points: ['User trying to find older calls in a workflow', 'Current friction: no clear search entry point by contact', 'Likely confusion: date vs name search intent', 'Edge cases: no results, partial name matches', 'Experience goal: fewer than 2 steps to retrieve a call'],
+    noNeed: 'Business metrics, technical constraints',
+    action: 'Design the search experience for the right user intent',
+  },
+  sales: {
+    icon: '💼', label: 'Sales / CS',
+    points: ['Customer value: faster access to past conversations', 'Safe phrasing: "improved call retrieval experience"', 'Do not promise: transcript search, advanced filters', 'Who benefits most: teams with high call volume', 'What to say externally: available in next release'],
+    noNeed: 'Technical scope, implementation detail',
+    action: 'Communicate value without overcommitting',
+  },
+  leadership: {
+    icon: '📊', label: 'Leadership',
+    points: ['Why now: 34% of searches fail — high-frequency friction', 'User pain tied to repeat usage and retention', 'Why prioritized: highest-confidence fix this quarter', 'Expected outcome: search success rate +20pts', 'Key tradeoff: transcript search deferred to v2'],
+    noNeed: 'Implementation detail, design specifics',
+    action: 'Approve scope and priority direction',
+  },
+};
 
 export function CommunicationPrism() {
-  const [active, setActive] = useState<string | null>(null);
-  const activeBeam = BEAM_DATA.find(b => b.id === active);
+  const [selected, setSelected] = useState<StakeholderKey | null>(null);
+  const [showGeneric, setShowGeneric] = useState(false);
+
+  const RAW_MESSAGE = 'We are improving search because users struggle to find past call recordings.';
+  const GENERIC_PROBLEM = 'This message gives everyone the same high-level context — no one gets what they need to act.';
 
   return (
-    <div>
-      <CanvasShell label="T1-01 · Communication Prism">
-        <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-          <ambientLight intensity={0.4} />
-          <pointLight position={[-5, 2, 3]} intensity={1.2} color="#8899ff" />
-          <pointLight position={[5, -2, 3]} intensity={0.8} color="#ffaa55" />
-          <Suspense fallback={null}>
-            <Float speed={1.2} rotationIntensity={0.1} floatIntensity={0.3}>
-              <PrismMesh onClick={() => setActive(null)} />
-              <PrismWireframe />
-            </Float>
-            <InputBeam />
-            <InputLabel />
-            {BEAM_DATA.map(b => (
-              <React.Fragment key={b.id}>
-                <OutputBeam angle={b.angle} color={b.color} active={active === b.id} />
-                <BeamLabel angle={b.angle} color={b.color} label={b.label} active={active === b.id} onClick={() => setActive(active === b.id ? null : b.id)} />
-              </React.Fragment>
-            ))}
-          </Suspense>
-          <OrbitControls enablePan={false} minDistance={5} maxDistance={14} />
-        </Canvas>
-      </CanvasShell>
+    <div style={toolCard}>
+      <div style={toolHeader('#0284C7')}>
+        <span style={{ fontSize: '18px' }}>🔀</span>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#0284C7', textTransform: 'uppercase' as const }}>Stakeholder Translation Tool</div>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>One message. Different framing. Click a stakeholder to see the translation.</div>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
+          {(['Generic', 'Tailored'] as const).map(mode => (
+            <button key={mode} onClick={() => setShowGeneric(mode === 'Generic')}
+              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${(mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7'}`, background: (mode === 'Generic') === showGeneric ? '#fef2f2' : '#eff6ff', color: (mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7', fontFamily: "'JetBrains Mono', monospace" }}>
+              {mode}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* Info panel below canvas */}
-      <AnimatePresence mode="wait">
-        {activeBeam ? (
-          <motion.div key={activeBeam.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            style={{ marginTop: '12px', padding: '14px 18px', borderRadius: '10px', border: `1.5px solid ${activeBeam.color}50`, background: `${activeBeam.color}0D`, display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeBeam.color, flexShrink: 0, marginTop: '3px', boxShadow: `0 0 10px ${activeBeam.color}` }} />
-            <div>
-              <div style={{ fontWeight: 700, color: activeBeam.color, fontSize: '13px', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>{activeBeam.label} needs to know:</div>
-              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{activeBeam.desc}</div>
-            </div>
+      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%)' }}>
+        {/* Raw message */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>RAW PRODUCT MESSAGE</div>
+          <div style={{ background: '#fff', borderRadius: '10px', padding: '14px 18px', border: '2px solid #0284C730', boxShadow: '0 2px 12px rgba(2,132,199,0.1)', fontSize: '14px', color: '#1e293b', lineHeight: 1.6, fontStyle: 'italic' }}>
+            &ldquo;{RAW_MESSAGE}&rdquo;
+          </div>
+        </div>
+
+        {showGeneric ? (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            style={{ padding: '16px 18px', borderRadius: '10px', background: '#fef2f2', border: '1px solid #fca5a5', marginBottom: '20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#dc2626', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>⚠ GENERIC VERSION</div>
+            <div style={{ fontSize: '13px', color: '#7f1d1d', lineHeight: 1.6 }}>{GENERIC_PROBLEM}</div>
           </motion.div>
-        ) : (
-          <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ marginTop: '12px', padding: '10px 16px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' as const }}>
-            One product initiative enters the prism. Four different messages emerge. Click any beam to see what each stakeholder needs.
+        ) : null}
+
+        {/* Stakeholder panels */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {(Object.keys(TRANSLATIONS) as StakeholderKey[]).map(key => {
+            const t = TRANSLATIONS[key];
+            const color = STAKEHOLDER_COLORS[key];
+            const isSelected = selected === key;
+            return (
+              <motion.div key={key} whileHover={{ y: -2, boxShadow: `0 8px 24px ${color}25` }} onClick={() => setSelected(isSelected ? null : key)}
+                style={{ background: isSelected ? `${color}0A` : '#fff', borderRadius: '12px', border: `2px solid ${isSelected ? color : color + '30'}`, cursor: 'pointer', overflow: 'hidden', transition: 'border 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                {/* Panel header */}
+                <div style={{ padding: '12px 16px', background: `${color}10`, borderBottom: `1px solid ${color}20`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>{t.icon}</span>
+                  <div style={{ fontWeight: 700, fontSize: '13px', color, fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{t.label}</div>
+                  <div style={{ marginLeft: 'auto', width: '18px', height: '18px', borderRadius: '50%', background: isSelected ? color : 'transparent', border: `2px solid ${color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: isSelected ? '#fff' : color, transition: 'all 0.2s' }}>
+                    {isSelected ? '✓' : '→'}
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {isSelected && !showGeneric && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      style={{ overflow: 'hidden' }}>
+                      <div style={{ padding: '14px 16px' }}>
+                        <div style={{ fontSize: '9px', fontWeight: 700, color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>WHAT THEY NEED TO HEAR</div>
+                        {t.points.map((p, i) => (
+                          <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '5px', alignItems: 'flex-start' }}>
+                            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, flexShrink: 0, marginTop: '6px' }} />
+                            <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.55 }}>{p}</div>
+                          </div>
+                        ))}
+                        <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                          <div style={{ padding: '8px 12px', borderRadius: '7px', background: '#fef2f2', fontSize: '11px', color: '#7f1d1d' }}>
+                            <strong>Not needed:</strong> {t.noNeed}
+                          </div>
+                          <div style={{ padding: '8px 12px', borderRadius: '7px', background: `${color}10`, fontSize: '11px', color, fontWeight: 600 }}>
+                            → {t.action}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                  {!isSelected && !showGeneric && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                      style={{ padding: '10px 16px' }}>
+                      <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.5 }}>What they care about · What helps them act</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {!selected && !showGeneric && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{ marginTop: '14px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+            Same initiative — four different translations. Click any panel to see what that stakeholder needs to act well.
           </motion.div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────
-// T1-04 · NARRATIVE STAIRCASE
+// TOOL 2 · NARRATIVE STAIRCASE (T1-04)
 // ─────────────────────────────────────────
 const STEPS = [
-  { id: 0, label: 'Context',         color: '#94a3b8', y: -2.4, x: -3.0, desc: 'What is happening in the product or business?' },
-  { id: 1, label: 'Problem',         color: '#fb923c', y: -1.6, x: -2.0, desc: 'What is not working, and why is it worth attention?' },
-  { id: 2, label: 'Evidence',        color: '#facc15', y: -0.8, x: -1.0, desc: 'What do users, data, or observations show?' },
-  { id: 3, label: 'Why Now',         color: ACCENT,    y:  0.0, x:  0.0, desc: 'Why does this matter at this specific moment?' },
-  { id: 4, label: 'Proposed Path',   color: '#34d399', y:  0.8, x:  1.0, desc: 'What are you recommending?' },
-  { id: 5, label: 'Expected Impact', color: '#60a5fa', y:  1.6, x:  2.0, desc: 'What should change if this works?' },
-  { id: 6, label: 'Ask',            color: '#c084fc', y:  2.4, x:  3.0, desc: 'What decision, support, or alignment is needed now?' },
+  { id: 0, label: 'Context',         emoji: '🌍', color: '#64748b', desc: 'What is happening in the product or business right now?' },
+  { id: 1, label: 'Problem',         emoji: '⚡', color: '#E67E22', desc: 'What is not working, and why does it deserve attention?' },
+  { id: 2, label: 'Evidence',        emoji: '📊', color: '#E67E22', desc: 'What does data, user behaviour, or research show?' },
+  { id: 3, label: 'Why Now',         emoji: '⏱',  color: '#0284C7', desc: 'Why does this matter at this specific moment?' },
+  { id: 4, label: 'Proposed Path',   emoji: '🗺️', color: '#059669', desc: 'What are you recommending the team do?' },
+  { id: 5, label: 'Expected Impact', emoji: '📈', color: '#059669', desc: 'What should measurably change if this works?' },
+  { id: 6, label: 'Ask',            emoji: '✋', color: '#7843EE', desc: 'What decision, support, or alignment do you need now?' },
 ];
 
-const WEAK_MISSING = new Set([0, 1]); // weak narrative: context + problem missing
-
-function StepPlatform({ step, active, weakMode, onClick }: { step: typeof STEPS[0]; active: boolean; weakMode: boolean; onClick: () => void }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const isMissing = weakMode && WEAK_MISSING.has(step.id);
-
-  useFrame((_, dt) => {
-    if (ref.current) {
-      const mat = ref.current.material as THREE.MeshStandardMaterial;
-      mat.opacity = THREE.MathUtils.lerp(mat.opacity, isMissing ? 0.08 : active ? 0.9 : 0.55, dt * 4);
-    }
-  });
-
-  return (
-    <group position={[step.x, step.y, 0]}>
-      <mesh ref={ref} onClick={onClick}>
-        <boxGeometry args={[1.6, 0.22, 1.2]} />
-        <meshStandardMaterial
-          color={isMissing ? '#334155' : step.color}
-          transparent opacity={0.6}
-          emissive={step.color}
-          emissiveIntensity={active ? 0.5 : isMissing ? 0 : 0.1}
-        />
-      </mesh>
-      {/* Step edge glow */}
-      {!isMissing && (
-        <mesh position={[0, 0.12, 0]}>
-          <boxGeometry args={[1.62, 0.03, 1.22]} />
-          <meshBasicMaterial color={step.color} transparent opacity={active ? 0.9 : 0.3} />
-        </mesh>
-      )}
-      <Html position={[0, 0.28, 0]} center>
-        <div style={{
-          fontSize: '9px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
-          color: isMissing ? '#334155' : active ? '#fff' : step.color,
-          letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap',
-          cursor: 'pointer', padding: '2px 6px',
-          textShadow: active ? `0 0 12px ${step.color}` : 'none',
-          transition: 'all 0.2s',
-        }}>
-          {isMissing ? '· · ·' : step.label}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function GlowSphere({ step, weakMode }: { step: typeof STEPS[0] | null; weakMode: boolean }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const targetY = useRef(0);
-  const targetX = useRef(0);
-
-  if (step) {
-    targetY.current = step.y + 0.5;
-    targetX.current = step.x;
-  }
-
-  useFrame((_, dt) => {
-    if (!ref.current || !step) return;
-    ref.current.position.y = THREE.MathUtils.lerp(ref.current.position.y, targetY.current, dt * 3);
-    ref.current.position.x = THREE.MathUtils.lerp(ref.current.position.x, targetX.current, dt * 3);
-    ref.current.rotation.y += dt * 1.5;
-  });
-
-  if (!step || (weakMode && WEAK_MISSING.has(step.id))) return null;
-
-  return (
-    <mesh ref={ref} position={[step?.x ?? 0, (step?.y ?? 0) + 0.5, 0]}>
-      <sphereGeometry args={[0.18, 16, 16]} />
-      <meshStandardMaterial color={step?.color ?? '#fff'} emissive={step?.color ?? '#fff'} emissiveIntensity={2} />
-    </mesh>
-  );
-}
+const WEAK_MISSING = new Set([0, 1]);
 
 export function NarrativeStaircase() {
   const [activeStep, setActiveStep] = useState<number | null>(null);
   const [weakMode, setWeakMode] = useState(false);
-  const active = STEPS.find(s => s.id === activeStep) ?? null;
 
   return (
-    <div>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '0', alignItems: 'center' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>T1-04 · Narrative Staircase</div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-          {(['Strong', 'Weak'] as const).map(mode => (
-            <button key={mode} onClick={() => setWeakMode(mode === 'Weak')}
-              style={{ padding: '4px 14px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${(mode === 'Weak') === weakMode ? (mode === 'Weak' ? '#dc2626' : ACCENT) : 'var(--ed-rule)'}`, background: (mode === 'Weak') === weakMode ? (mode === 'Weak' ? '#dc262620' : `${ACCENT}20`) : 'var(--ed-card)', color: (mode === 'Weak') === weakMode ? (mode === 'Weak' ? '#dc2626' : ACCENT) : 'var(--ed-ink3)' }}>
-              {mode} Narrative
+    <div style={toolCard}>
+      <div style={toolHeader('#7843EE')}>
+        <span style={{ fontSize: '18px' }}>🪜</span>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Narrative Staircase</div>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>PM storytelling works in sequence. You cannot start at the wrong layer.</div>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
+          {(['Strong', 'Weak'] as const).map(m => (
+            <button key={m} onClick={() => { setWeakMode(m === 'Weak'); setActiveStep(null); }}
+              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `1.5px solid ${(m === 'Weak') === weakMode ? '#dc2626' : '#7843EE'}`, background: (m === 'Weak') === weakMode ? '#fef2f2' : '#f5f3ff', color: (m === 'Weak') === weakMode ? '#dc2626' : '#7843EE' }}>
+              {m} Narrative
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ ...canvasStyle, marginTop: '10px' }}>
-        <Canvas camera={{ position: [0, 0, 10], fov: 48 }}>
-          <ambientLight intensity={0.3} />
-          <pointLight position={[0, 6, 4]} intensity={1.0} color="#ffffff" />
-          <pointLight position={[0, -6, 4]} intensity={0.4} color="#334466" />
-          <Suspense fallback={null}>
-            {STEPS.map(step => (
-              <StepPlatform
-                key={step.id}
-                step={step}
-                active={activeStep === step.id}
-                weakMode={weakMode}
-                onClick={() => setActiveStep(activeStep === step.id ? null : step.id)}
-              />
-            ))}
-            <GlowSphere step={active} weakMode={weakMode} />
-          </Suspense>
-          <OrbitControls enablePan={false} minDistance={6} maxDistance={16} />
-        </Canvas>
+      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f9ff 100%)' }}>
+        {weakMode && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{ marginBottom: '16px', padding: '12px 16px', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fca5a5', fontSize: '13px', color: '#7f1d1d' }}>
+            ⚠ <strong>Weak narrative:</strong> Steps 1–2 (Context + Problem) are missing. The audience has no reason to care before you reach the solution. The upper steps have no foundation to stand on.
+          </motion.div>
+        )}
+
+        {/* Staircase visual */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px', marginBottom: '16px' }}>
+          {STEPS.map((step, idx) => {
+            const isMissing = weakMode && WEAK_MISSING.has(step.id);
+            const isActive = activeStep === step.id;
+            const indent = idx * 28;
+            return (
+              <motion.div key={step.id} whileHover={!isMissing ? { x: 4 } : {}}
+                onClick={() => !isMissing && setActiveStep(isActive ? null : step.id)}
+                style={{ marginLeft: indent, opacity: isMissing ? 0.2 : 1, cursor: isMissing ? 'default' : 'pointer', transition: 'opacity 0.3s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: isActive ? `${step.color}12` : '#fff', border: `2px solid ${isActive ? step.color : step.color + '25'}`, boxShadow: isActive ? `0 4px 16px ${step.color}20` : '0 1px 4px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}>
+                  <span style={{ fontSize: '18px', flexShrink: 0 }}>{isMissing ? '···' : step.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: isMissing ? '#cbd5e1' : step.color }}>
+                      {isMissing ? '[ Missing ]' : `Step ${idx + 1} · ${step.label}`}
+                    </div>
+                    {isActive && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '12px', color: '#475569', marginTop: '3px', lineHeight: 1.5 }}>
+                        {step.desc}
+                      </motion.div>
+                    )}
+                  </div>
+                  {!isMissing && (
+                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: isActive ? step.color : 'transparent', border: `2px solid ${step.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', color: isActive ? '#fff' : step.color, flexShrink: 0, transition: 'all 0.2s' }}>
+                      {isActive ? '✓' : idx + 1}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+          {weakMode
+            ? 'When foundations are missing, no amount of evidence or solution detail creates alignment.'
+            : 'Click any step to see what it contributes. Toggle to Weak Narrative to see what breaks without foundations.'}
+        </div>
       </div>
-
-      {weakMode && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-          style={{ marginTop: '10px', padding: '10px 16px', borderRadius: '8px', background: '#fef2f220', border: '1px solid #dc262640', fontSize: '12px', color: '#fca5a5' }}>
-          ⚠ Without Context and Problem as your foundation, the audience has nothing to care about. Starting with the solution first feels efficient — it lands as noise.
-        </motion.div>
-      )}
-
-      <AnimatePresence mode="wait">
-        {active && !weakMode ? (
-          <motion.div key={active.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            style={{ marginTop: '10px', padding: '14px 18px', borderRadius: '10px', border: `1.5px solid ${active.color}50`, background: `${active.color}0D`, display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: active.color, flexShrink: 0, marginTop: '3px', boxShadow: `0 0 10px ${active.color}` }} />
-            <div>
-              <div style={{ fontWeight: 700, color: active.color, fontSize: '12px', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em' }}>STEP {active.id + 1} · {active.label.toUpperCase()}</div>
-              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{active.desc}</div>
-            </div>
-          </motion.div>
-        ) : !active && !weakMode ? (
-          <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ marginTop: '10px', padding: '10px 16px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' as const }}>
-            Click any step to understand what it adds to the narrative. Toggle to see what happens when foundations are missing.
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
     </div>
   );
 }
 
 // ─────────────────────────────────────────
-// T1-05 · ROADMAP PRESSURE CHAMBER
+// TOOL 3 · ROADMAP PRESSURE SIMULATOR (T1-05 / T1-03)
 // ─────────────────────────────────────────
-const ROADMAP_STATES = [
-  {
-    id: 'exploring',
-    label: 'Exploring',
-    color: '#94a3b8',
-    rippleIntensity: 0.3,
-    pods: [
-      { name: 'Customer',    reaction: 'Uncertain. May not rely on this.', tension: 0.2 },
-      { name: 'Sales',       reaction: 'Cannot make a promise.',           tension: 0.3 },
-      { name: 'CS',          reaction: 'Will manage expectations down.',   tension: 0.2 },
-      { name: 'Leadership',  reaction: 'Noted as possible direction.',     tension: 0.1 },
-      { name: 'Engineering', reaction: 'Not yet in planning.',             tension: 0.1 },
-    ],
-  },
-  {
-    id: 'planned',
-    label: 'Planned',
-    color: '#facc15',
-    rippleIntensity: 0.55,
-    pods: [
-      { name: 'Customer',    reaction: 'Hopeful. Will ask for dates.',     tension: 0.5 },
-      { name: 'Sales',       reaction: 'Will signal it is coming.',        tension: 0.4 },
-      { name: 'CS',          reaction: 'Needs clearer timeline.',          tension: 0.4 },
-      { name: 'Leadership',  reaction: 'Expects progress updates.',        tension: 0.3 },
-      { name: 'Engineering', reaction: 'Will begin rough scoping.',        tension: 0.3 },
-    ],
-  },
-  {
-    id: 'committed',
-    label: 'Committed',
-    color: '#34d399',
-    rippleIntensity: 0.85,
-    pods: [
-      { name: 'Customer',    reaction: 'Will hold you to this.',           tension: 0.8 },
-      { name: 'Sales',       reaction: 'Will promise it to prospects.',    tension: 0.7 },
-      { name: 'CS',          reaction: 'Will set customer expectations.',  tension: 0.6 },
-      { name: 'Leadership',  reaction: 'Will track against delivery.',     tension: 0.5 },
-      { name: 'Engineering', reaction: 'Must be in current sprint plan.',  tension: 0.8 },
-    ],
-  },
-  {
-    id: 'available',
-    label: 'Available Now',
-    color: '#60a5fa',
-    rippleIntensity: 1.0,
-    pods: [
-      { name: 'Customer',    reaction: 'Expects it immediately.',          tension: 1.0 },
-      { name: 'Sales',       reaction: 'Selling it today.',                tension: 0.9 },
-      { name: 'CS',          reaction: 'Onboarding customers on it now.',  tension: 0.9 },
-      { name: 'Leadership',  reaction: 'Expects adoption metrics.',        tension: 0.6 },
-      { name: 'Engineering', reaction: 'Must be fully shipped and stable.', tension: 1.0 },
-    ],
-  },
-];
+type RoadmapStatus = 'Exploring' | 'Planned' | 'Committed' | 'Available Now';
 
-const POD_POSITIONS: [number, number, number][] = [
-  [0, 2.8, 0],   // top — Customer
-  [2.6, 1.0, 0], // top-right — Sales
-  [2.6, -1.0, 0], // bottom-right — CS
-  [-2.6, 1.0, 0], // top-left — Leadership
-  [-2.6, -1.0, 0], // bottom-left — Engineering
-];
-
-function PressurePod({ position, tension, color, name, active }: {
-  position: [number, number, number];
-  tension: number;
+const STATUS_DATA: Record<RoadmapStatus, {
   color: string;
-  name: string;
-  active: boolean;
-}) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const targetScale = 0.35 + tension * 0.45;
+  trust: number;
+  clarity: number;
+  expectationRisk: number;
+  deliveryPressure: number;
+  interpretations: { name: string; emoji: string; quote: string }[];
+}> = {
+  'Exploring': {
+    color: '#64748b', trust: 0.6, clarity: 0.35, expectationRisk: 0.2, deliveryPressure: 0.15,
+    interpretations: [
+      { name: 'Customer',    emoji: '🧑‍💼', quote: 'Probably not coming soon...' },
+      { name: 'Sales',       emoji: '🤝', quote: 'Can\'t really promise this.' },
+      { name: 'CS',          emoji: '💬', quote: 'Will manage expectations down.' },
+      { name: 'Leadership',  emoji: '📋', quote: 'Noted as possible direction.' },
+      { name: 'Engineering', emoji: '⚙️', quote: 'Not in our planning yet.' },
+    ],
+  },
+  'Planned': {
+    color: '#E67E22', trust: 0.65, clarity: 0.55, expectationRisk: 0.5, deliveryPressure: 0.4,
+    interpretations: [
+      { name: 'Customer',    emoji: '🧑‍💼', quote: 'So I can buy this soon?' },
+      { name: 'Sales',       emoji: '🤝', quote: 'Can I promise this?' },
+      { name: 'CS',          emoji: '💬', quote: 'Customers will keep asking.' },
+      { name: 'Leadership',  emoji: '📋', quote: 'Why is this not priority?' },
+      { name: 'Engineering', emoji: '⚙️', quote: 'What\'s the real plan?' },
+    ],
+  },
+  'Committed': {
+    color: '#059669', trust: 0.8, clarity: 0.8, expectationRisk: 0.75, deliveryPressure: 0.85,
+    interpretations: [
+      { name: 'Customer',    emoji: '🧑‍💼', quote: 'We\'re building our plan around this.' },
+      { name: 'Sales',       emoji: '🤝', quote: 'I\'m telling prospects it\'s coming.' },
+      { name: 'CS',          emoji: '💬', quote: 'Customers will hold us to this.' },
+      { name: 'Leadership',  emoji: '📋', quote: 'We\'ll track this as a delivery.' },
+      { name: 'Engineering', emoji: '⚙️', quote: 'This needs to be in the sprint.' },
+    ],
+  },
+  'Available Now': {
+    color: '#0284C7', trust: 0.9, clarity: 0.95, expectationRisk: 1.0, deliveryPressure: 1.0,
+    interpretations: [
+      { name: 'Customer',    emoji: '🧑‍💼', quote: 'I need access today.' },
+      { name: 'Sales',       emoji: '🤝', quote: 'Selling it on calls right now.' },
+      { name: 'CS',          emoji: '💬', quote: 'Customers are asking where to find it.' },
+      { name: 'Leadership',  emoji: '📋', quote: 'Expecting adoption metrics.' },
+      { name: 'Engineering', emoji: '⚙️', quote: 'Must be fully shipped and stable.' },
+    ],
+  },
+};
 
-  useFrame((_, dt) => {
-    if (!ref.current) return;
-    const mat = ref.current.material as THREE.MeshStandardMaterial;
-    ref.current.scale.x = THREE.MathUtils.lerp(ref.current.scale.x, targetScale, dt * 3);
-    ref.current.scale.y = THREE.MathUtils.lerp(ref.current.scale.y, targetScale, dt * 3);
-    ref.current.scale.z = THREE.MathUtils.lerp(ref.current.scale.z, targetScale, dt * 3);
-    mat.emissiveIntensity = THREE.MathUtils.lerp(mat.emissiveIntensity, tension * 0.8, dt * 3);
-    // gentle pulse
-    ref.current.rotation.y += dt * (0.5 + tension * 0.8);
-  });
-
-  return (
-    <group position={position}>
-      <mesh ref={ref}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial
-          color={color}
-          transparent opacity={0.7}
-          emissive={color}
-          emissiveIntensity={tension * 0.5}
-          wireframe={false}
-        />
-      </mesh>
-      {/* Wireframe overlay */}
-      <mesh scale={[targetScale * 1.05, targetScale * 1.05, targetScale * 1.05]}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshBasicMaterial color={color} transparent opacity={0.25} wireframe />
-      </mesh>
-      <Html position={[0, 0.9, 0]} center>
-        <div style={{ fontSize: '9px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: active ? '#fff' : color, letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap', textShadow: `0 0 8px ${color}` }}>
-          {name}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function RippleRing({ intensity, color }: { intensity: number; color: string }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  const scale = useRef(0.1);
-
-  useFrame((_, dt) => {
-    if (!ref.current) return;
-    scale.current += dt * (0.8 + intensity * 1.2);
-    if (scale.current > 4.5) scale.current = 0.1;
-    ref.current.scale.set(scale.current, scale.current, scale.current);
-    const mat = ref.current.material as THREE.MeshBasicMaterial;
-    mat.opacity = Math.max(0, (1 - scale.current / 4.5) * intensity * 0.6);
-  });
-
-  return (
-    <mesh ref={ref} rotation={[Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[0.9, 1.0, 32]} />
-      <meshBasicMaterial color={color} transparent opacity={0.3} side={THREE.DoubleSide} />
-    </mesh>
-  );
-}
-
-function CentralStatement({ label, color }: { label: string; color: string }) {
-  return (
-    <Html position={[0, 0, 0]} center>
-      <div style={{ padding: '8px 16px', borderRadius: '10px', border: `2px solid ${color}`, background: `${color}18`, backdropFilter: 'blur(8px)', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color, letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap', boxShadow: `0 0 24px ${color}40` }}>
-        {label}
-      </div>
-    </Html>
-  );
-}
+const RISK_LEVEL = (v: number) => v < 0.35 ? '#059669' : v < 0.65 ? '#E67E22' : '#dc2626';
 
 export function RoadmapPressureChamber() {
-  const [stateIdx, setStateIdx] = useState(0);
-  const [activePod, setActivePod] = useState<number | null>(null);
-  const current = ROADMAP_STATES[stateIdx];
+  const [status, setStatus] = useState<RoadmapStatus>('Planned');
+  const data = STATUS_DATA[status];
 
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>T1-05 · Roadmap Pressure Chamber</div>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
-          {ROADMAP_STATES.map((s, i) => (
-            <button key={s.id} onClick={() => { setStateIdx(i); setActivePod(null); }}
-              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${stateIdx === i ? s.color : 'var(--ed-rule)'}`, background: stateIdx === i ? `${s.color}20` : 'var(--ed-card)', color: stateIdx === i ? s.color : 'var(--ed-ink3)', transition: 'all 0.15s', fontFamily: "'JetBrains Mono', monospace" }}>
-              {s.label}
-            </button>
-          ))}
+    <div style={toolCard}>
+      <div style={toolHeader(data.color)}>
+        <span style={{ fontSize: '18px' }}>📡</span>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: data.color, textTransform: 'uppercase' as const }}>Roadmap Pressure Simulator</div>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>One word on your roadmap creates a different system effect for every stakeholder.</div>
         </div>
       </div>
 
-      <div style={canvasStyle}>
-        <Canvas camera={{ position: [0, 0, 9], fov: 52 }}>
-          <ambientLight intensity={0.3} />
-          <pointLight position={[0, 0, 4]} intensity={0.8} color={current.color} />
-          <Suspense fallback={null}>
-            <CentralStatement label={current.label} color={current.color} />
-            <RippleRing intensity={current.rippleIntensity} color={current.color} />
-            <RippleRing intensity={current.rippleIntensity * 0.6} color={current.color} />
-            {current.pods.map((pod, i) => (
-              <PressurePod
-                key={pod.name}
-                position={POD_POSITIONS[i]}
-                tension={pod.tension}
-                color={current.color}
-                name={pod.name}
-                active={activePod === i}
-              />
-            ))}
-          </Suspense>
-          <OrbitControls enablePan={false} minDistance={6} maxDistance={14} />
-        </Canvas>
-      </div>
-
-      {/* Pod reactions */}
-      <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
-        {current.pods.map((pod, i) => (
-          <div key={pod.name} style={{ padding: '10px 12px', borderRadius: '8px', background: 'var(--ed-card)', border: `1px solid ${current.color}30`, borderTop: `3px solid ${current.color}` }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: current.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '4px' }}>{pod.name.toUpperCase()}</div>
-            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>{pod.reaction}</div>
-            <div style={{ marginTop: '6px', height: '3px', borderRadius: '2px', background: 'var(--ed-rule)', overflow: 'hidden' }}>
-              <motion.div animate={{ width: `${pod.tension * 100}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: current.color, borderRadius: '2px' }} />
-            </div>
+      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%)' }}>
+        {/* Central statement */}
+        <div style={{ textAlign: 'center' as const, marginBottom: '24px' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>ROADMAP STATEMENT</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '12px', padding: '14px 20px', border: `2px solid ${data.color}40`, boxShadow: `0 4px 20px ${data.color}15`, fontSize: '14px', color: '#1e293b', fontStyle: 'italic' }}>
+            &ldquo;Advanced reporting is&nbsp;<span style={{ fontWeight: 800, color: data.color, fontStyle: 'normal', padding: '2px 10px', borderRadius: '6px', background: `${data.color}15` }}>{status}</span>&#46;&rdquo;
           </div>
-        ))}
-      </div>
 
-      <div style={{ marginTop: '10px', padding: '10px 16px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' as const }}>
-        One word changes everything. The same feature — different label — creates completely different pressure across every team.
+          {/* Status toggle */}
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
+            {(Object.keys(STATUS_DATA) as RoadmapStatus[]).map(s => (
+              <motion.button key={s} whileHover={{ y: -1 }} onClick={() => setStatus(s)}
+                style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `2px solid ${STATUS_DATA[s].color}`, background: status === s ? STATUS_DATA[s].color : '#fff', color: status === s ? '#fff' : STATUS_DATA[s].color, transition: 'all 0.2s', boxShadow: status === s ? `0 4px 12px ${STATUS_DATA[s].color}40` : 'none' }}>
+                {s}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* Stakeholder interpretations */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
+          {data.interpretations.map((interp, i) => (
+            <motion.div key={interp.name} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+              style={{ background: '#fff', borderRadius: '12px', padding: '14px 10px', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${data.color}20` }}>
+              <div style={{ fontSize: '28px', marginBottom: '6px' }}>{interp.emoji}</div>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', marginBottom: '8px' }}>{interp.name.toUpperCase()}</div>
+              <div style={{ background: `${data.color}10`, border: `1px solid ${data.color}25`, borderRadius: '7px', padding: '6px 8px', fontSize: '11px', color: '#334155', lineHeight: 1.45, fontStyle: 'italic' }}>
+                &ldquo;{interp.quote}&rdquo;
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Live meters */}
+        <div style={{ background: '#fff', borderRadius: '12px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '12px' }}>LIVE SYSTEM IMPACT</div>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            <Meter label="Trust" value={data.trust} color={data.trust > 0.65 ? '#059669' : '#E67E22'} />
+            <Meter label="Clarity" value={data.clarity} color={data.clarity > 0.65 ? '#059669' : '#E67E22'} />
+            <Meter label="Expectation Risk" value={data.expectationRisk} color={RISK_LEVEL(data.expectationRisk)} />
+            <Meter label="Delivery Pressure" value={data.deliveryPressure} color={RISK_LEVEL(data.deliveryPressure)} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: '12px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+          &ldquo;Planned&rdquo; and &ldquo;Committed&rdquo; are not the same word. Toggle between them to see the system difference.
+        </div>
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────
-// T2-02 · STAKEHOLDER CALIBRATION ROOM
+// TOOL 4 · STAKEHOLDER CALIBRATION ROOM (T2-02)
 // ─────────────────────────────────────────
 const CAL_PODS = [
-  {
-    name: 'Sales',    color: '#E67E22',
-    wants: 'Broader feature promises to close deals',
-    fears: 'Losing deals to competitors with a stronger roadmap story',
-    trusts: 'Customer quotes, competitive comparison, pipeline data',
-    position: [2.5, 1.5, 0] as [number, number, number],
-  },
-  {
-    name: 'Engineering', color: '#3A86FF',
-    wants: 'Narrower, stable scope to hit committed date',
-    fears: 'Scope creep that breaks the delivery promise',
-    trusts: 'Technical feasibility data, clear non-goals, locked scope',
-    position: [2.5, -1.5, 0] as [number, number, number],
-  },
-  {
-    name: 'Leadership', color: '#7843EE',
-    wants: 'Clear business outcome with defined risk',
-    fears: 'Wasted investment or a miss that looks bad to the board',
-    trusts: 'Outcome metrics, strategic tradeoff logic, confidence levels',
-    position: [0, 2.8, 0] as [number, number, number],
-  },
-  {
-    name: 'CS', color: '#059669',
-    wants: 'Predictable timeline to manage customer expectations',
-    fears: 'Getting caught off-guard by a customer asking about something not shipped',
-    trusts: 'Specific language guides, launch briefs, clear scope boundaries',
-    position: [-2.5, 1.5, 0] as [number, number, number],
-  },
-  {
-    name: 'Design', color: '#C85A40',
-    wants: 'Clear user problem and enough discovery time',
-    fears: 'Being handed a solution and asked to design around it',
-    trusts: 'User research, problem statements, defined constraints',
-    position: [-2.5, -1.5, 0] as [number, number, number],
-  },
+  { name: 'Sales',       color: '#E67E22', emoji: '🤝', wants: 'Broader feature promises to close deals', fears: 'Losing deals to competitors with a stronger roadmap story', trusts: 'Customer quotes, competitive comparison, pipeline data' },
+  { name: 'Engineering', color: '#3A86FF', emoji: '⚙️', wants: 'Narrower, stable scope to hit the committed date', fears: 'Scope creep that breaks the delivery promise', trusts: 'Technical feasibility data, clear non-goals, locked scope' },
+  { name: 'Leadership',  color: '#7843EE', emoji: '📋', wants: 'Clear business outcome with defined risk', fears: 'Wasted investment or a miss that looks bad to the board', trusts: 'Outcome metrics, strategic tradeoff logic, confidence levels' },
+  { name: 'CS',          color: '#059669', emoji: '💬', wants: 'Predictable timeline to manage customer expectations', fears: 'Getting caught off-guard by a customer asking about something not shipped', trusts: 'Specific language guides, launch briefs, clear scope boundaries' },
+  { name: 'Design',      color: '#C85A40', emoji: '🎨', wants: 'Clear user problem and enough discovery time', fears: 'Being handed a solution and asked to design around it', trusts: 'User research, problem statements, defined constraints' },
 ];
-
-function CalibrationPod({ pod, active, onClick }: { pod: typeof CAL_PODS[0]; active: boolean; onClick: () => void }) {
-  const ref = useRef<THREE.Mesh>(null!);
-  useFrame((_, dt) => {
-    if (!ref.current) return;
-    ref.current.rotation.y += dt * (active ? 1.2 : 0.4);
-    const mat = ref.current.material as THREE.MeshStandardMaterial;
-    mat.emissiveIntensity = THREE.MathUtils.lerp(mat.emissiveIntensity, active ? 0.6 : 0.1, dt * 5);
-  });
-
-  return (
-    <group position={pod.position}>
-      <mesh ref={ref} onClick={onClick} scale={active ? 1.2 : 1}>
-        <dodecahedronGeometry args={[0.55, 0]} />
-        <meshStandardMaterial color={pod.color} transparent opacity={0.8} emissive={pod.color} emissiveIntensity={0.1} />
-      </mesh>
-      <Html position={[0, 0.85, 0]} center>
-        <div onClick={onClick} style={{ fontSize: '10px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: active ? '#fff' : pod.color, letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap', cursor: 'pointer', padding: '3px 8px', borderRadius: '4px', background: active ? `${pod.color}40` : 'transparent', transition: 'all 0.2s' }}>
-          {pod.name}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function CentralTable() {
-  return (
-    <group position={[0, 0, 0]}>
-      <mesh position={[0, -0.12, 0]}>
-        <cylinderGeometry args={[1.2, 1.2, 0.08, 32]} />
-        <meshStandardMaterial color="#1e293b" metalness={0.4} roughness={0.6} />
-      </mesh>
-      <mesh position={[0, -0.08, 0]}>
-        <cylinderGeometry args={[1.22, 1.22, 0.02, 32]} />
-        <meshBasicMaterial color={ACCENT} transparent opacity={0.5} />
-      </mesh>
-      <Html position={[0, 0.2, 0]} center>
-        <div style={{ fontSize: '9px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: ACCENT, letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.4 }}>
-          AI Workflow<br />Assistant Launch
-        </div>
-      </Html>
-    </group>
-  );
-}
 
 export function StakeholderCalibrationRoom() {
   const [active, setActive] = useState<number | null>(null);
   const pod = active !== null ? CAL_PODS[active] : null;
 
   return (
-    <div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const, marginBottom: '10px' }}>
-        T2-02 · Stakeholder Calibration Room · Click each pod to inspect their incentives
-      </div>
-      <div style={canvasStyle}>
-        <Canvas camera={{ position: [0, 1.5, 9], fov: 50 }}>
-          <ambientLight intensity={0.4} />
-          <pointLight position={[0, 4, 4]} intensity={0.8} color="#ffffff" />
-          {CAL_PODS.map((pod, i) => (
-            <pointLight key={pod.name} position={pod.position} intensity={active === i ? 0.6 : 0.1} color={pod.color} />
-          ))}
-          <Suspense fallback={null}>
-            <CentralTable />
-            {CAL_PODS.map((pod, i) => (
-              <CalibrationPod key={pod.name} pod={pod} active={active === i} onClick={() => setActive(active === i ? null : i)} />
-            ))}
-          </Suspense>
-          <OrbitControls enablePan={false} minDistance={6} maxDistance={14} />
-        </Canvas>
+    <div style={toolCard}>
+      <div style={toolHeader('#7843EE')}>
+        <span style={{ fontSize: '18px' }}>🗺️</span>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Stakeholder Calibration Room</div>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Good alignment starts before the meeting. Inspect each stakeholder.</div>
+        </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {pod ? (
-          <motion.div key={pod.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            style={{ marginTop: '12px', borderRadius: '10px', border: `1.5px solid ${pod.color}50`, overflow: 'hidden' }}>
-            <div style={{ padding: '10px 16px', background: `${pod.color}15`, borderBottom: `1px solid ${pod.color}30` }}>
-              <span style={{ fontWeight: 700, color: pod.color, fontFamily: "'JetBrains Mono', monospace", fontSize: '12px' }}>{pod.name.toUpperCase()}</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
-              {[
-                { k: 'Wants', v: pod.wants, icon: '→' },
-                { k: 'Fears', v: pod.fears, icon: '⚠' },
-                { k: 'Trusts', v: pod.trusts, icon: '✓' },
-              ].map((row, i) => (
-                <div key={row.k} style={{ padding: '12px 16px', borderRight: i < 2 ? `1px solid ${pod.color}20` : 'none' }}>
-                  <div style={{ fontSize: '9px', fontWeight: 700, color: pod.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '6px' }}>{row.icon} {row.k.toUpperCase()}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{row.v}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ marginTop: '12px', padding: '10px 16px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' as const }}>
-            Good alignment starts before the meeting. Inspect each stakeholder — understand what they want, fear, and trust before you frame your message.
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%)' }}>
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
+          {CAL_PODS.map((pod, i) => (
+            <motion.div key={pod.name} whileHover={{ y: -3, boxShadow: `0 8px 24px ${pod.color}25` }} onClick={() => setActive(active === i ? null : i)}
+              style={{ flex: 1, minWidth: '100px', background: active === i ? `${pod.color}0D` : '#fff', borderRadius: '12px', padding: '14px 12px', textAlign: 'center' as const, cursor: 'pointer', border: `2px solid ${active === i ? pod.color : pod.color + '30'}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}>
+              <div style={{ fontSize: '28px', marginBottom: '6px' }}>{pod.emoji}</div>
+              <div style={{ fontWeight: 700, fontSize: '12px', color: pod.color }}>{pod.name}</div>
+              <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{active === i ? 'click to close' : 'click to inspect'}</div>
+            </motion.div>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {pod ? (
+            <motion.div key={pod.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+              style={{ background: '#fff', borderRadius: '12px', border: `2px solid ${pod.color}30`, overflow: 'hidden', boxShadow: `0 4px 20px ${pod.color}15` }}>
+              <div style={{ padding: '12px 18px', background: `${pod.color}10`, borderBottom: `1px solid ${pod.color}20`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '22px' }}>{pod.emoji}</span>
+                <span style={{ fontWeight: 700, color: pod.color, fontSize: '14px' }}>{pod.name}</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+                {[{ k: '→ Wants', v: pod.wants }, { k: '⚠ Fears', v: pod.fears }, { k: '✓ Trusts', v: pod.trusts }].map((row, i) => (
+                  <div key={row.k} style={{ padding: '14px 16px', borderRight: i < 2 ? `1px solid ${pod.color}15` : 'none' }}>
+                    <div style={{ fontSize: '9px', fontWeight: 700, color: pod.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>{row.k.toUpperCase()}</div>
+                    <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.65 }}>{row.v}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              style={{ padding: '14px 18px', borderRadius: '10px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+              Click each stakeholder to understand what they want, fear, and trust before you walk into the room.
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────
-// T2-04 · EXEC REVIEW THEATER
+// TOOL 5 · EXEC ALTITUDE TOOL (T2-04)
 // ─────────────────────────────────────────
-type BlockType = 'main' | 'appendix';
-const EXEC_BLOCKS: { id: string; label: string; correct: BlockType; color: string; why: string }[] = [
-  { id: 'e1', label: 'Enterprise churn: 8% → 5.2%', correct: 'main',     color: '#059669', why: 'This is a business result with direct board relevance. Lead with this.' },
-  { id: 'e2', label: 'Sprint velocity: 42 pts avg',  correct: 'appendix', color: '#6b7280', why: 'Velocity is execution data. It belongs in working notes, not exec narrative.' },
-  { id: 'e3', label: 'AI adoption: 34% of accounts', correct: 'main',     color: '#60a5fa', why: 'A direct outcome metric — exactly what leadership needs to see.' },
-  { id: 'e4', label: '14 feature updates shipped',   correct: 'appendix', color: '#6b7280', why: 'Activity, not outcome. Leadership does not need a feature diary.' },
-  { id: 'e5', label: 'SSO delay — 2 deals at risk',  correct: 'main',     color: '#dc2626', why: 'A risk with direct revenue impact. Must be surfaced, not buried.' },
-  { id: 'e6', label: 'Design token system launched', correct: 'appendix', color: '#6b7280', why: 'A process improvement. Useful internally, not exec-level.' },
-  { id: 'e7', label: 'Q3: AI custom workflow expand', correct: 'main',    color: '#7843EE', why: 'Forward direction. Leadership needs this to allocate resources.' },
-  { id: 'e8', label: 'Need eng headcount approval',  correct: 'main',     color: ACCENT,    why: 'A clear leadership ask. This is exactly what a QBR must surface.' },
+const ALTITUDE_LEVELS = [
+  {
+    id: 'team',
+    label: 'Team View',
+    icon: '👷',
+    color: '#64748b',
+    altitude: 0,
+    content: [
+      { emoji: '🎫', text: 'Sprint: 14 tickets in progress, 6 in review' },
+      { emoji: '🎨', text: 'Figma handoff complete for onboarding screens' },
+      { emoji: '🔧', text: 'Backend indexing dependency — Neeraj estimates 3 days' },
+      { emoji: '📝', text: 'Edge cases documented for empty-state handling' },
+    ],
+    note: 'Execution detail. Valuable for the team. Noise for leadership.',
+  },
+  {
+    id: 'cross',
+    label: 'Cross-functional',
+    icon: '🤝',
+    color: '#0097A7',
+    altitude: 1,
+    content: [
+      { emoji: '📊', text: 'Onboarding completion: trending from 30% → 38%' },
+      { emoji: '⚠️', text: 'Risk: CS not yet briefed on new feature scope' },
+      { emoji: '📅', text: 'Launch readiness: GTM brief needs sign-off by Thu' },
+      { emoji: '🔗', text: 'Dependency on design review — blocking 2 tickets' },
+    ],
+    note: 'Impact and readiness. Useful for alignment across teams.',
+  },
+  {
+    id: 'exec',
+    label: 'Executive View',
+    icon: '📋',
+    color: '#7843EE',
+    altitude: 2,
+    content: [
+      { emoji: '🎯', text: 'Objective: improve onboarding completion from 30% to 60%' },
+      { emoji: '📈', text: 'Current state: 38% — on trajectory, 2 weeks to launch' },
+      { emoji: '⚡', text: 'Key risk: SSO dependency could delay enterprise rollout' },
+      { emoji: '✋', text: 'Ask: approval to deprioritise reporting in this cycle' },
+    ],
+    note: 'Outcome, risk, direction, ask. This is what leadership needs.',
+  },
 ];
 
-function ExecBlock({ block, placed, correct, feedback, onClick }: { block: typeof EXEC_BLOCKS[0]; placed: boolean; correct: boolean | null; feedback: boolean; onClick: () => void }) {
-  const border = feedback ? (correct ? '#059669' : '#dc2626') : placed ? 'var(--ed-rule)' : ACCENT;
-  const bg = feedback ? (correct ? '#05966910' : '#dc262610') : placed ? 'var(--ed-card)' : `${ACCENT}08`;
-
-  return (
-    <motion.div whileHover={!placed ? { y: -2 } : {}} onClick={!placed ? onClick : undefined}
-      style={{ padding: '8px 14px', borderRadius: '8px', fontSize: '12px', color: 'var(--ed-ink)', cursor: placed ? 'default' : 'pointer', border: `1.5px solid ${border}`, background: bg, opacity: placed ? 0.5 : 1, transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: '8px' }}>
-      {feedback && <span style={{ color: correct ? '#059669' : '#dc2626', fontWeight: 700 }}>{correct ? '✓' : '✗'}</span>}
-      <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: block.color, flexShrink: 0 }} />
-      {block.label}
-    </motion.div>
-  );
-}
-
 export function ExecReviewTheater() {
-  const [mainSlots, setMainSlots] = useState<string[]>([]);
-  const [appendixSlots, setAppendixSlots] = useState<string[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [revealed, setRevealed] = useState(false);
-
-  const placed = new Set([...mainSlots, ...appendixSlots]);
-  const allPlaced = placed.size === EXEC_BLOCKS.length;
-
-  const place = (zone: BlockType) => {
-    if (!selected) return;
-    if (zone === 'main') setMainSlots(prev => [...prev, selected]);
-    else setAppendixSlots(prev => [...prev, selected]);
-    setSelected(null);
-  };
-
-  const correctFor = (id: string) => EXEC_BLOCKS.find(b => b.id === id)!.correct;
-  const score = mainSlots.filter(id => correctFor(id) === 'main').length + appendixSlots.filter(id => correctFor(id) === 'appendix').length;
+  const [level, setLevel] = useState(1);
+  const current = ALTITUDE_LEVELS[level];
 
   return (
-    <div style={{ margin: '32px 0', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', overflow: 'hidden' }}>
-      <div style={{ background: `rgba(${ACCENT.slice(1).match(/../g)!.map(h => parseInt(h, 16)).join(',')},0.08)`, borderBottom: '1px solid var(--ed-rule)', padding: '14px 20px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>T2-04 · Exec Review Theater</div>
-        <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '3px' }}>
-          {selected ? `"${EXEC_BLOCKS.find(b => b.id === selected)!.label}" selected — click Executive Narrative or Appendix to place it` : 'Click a content block to select it, then place it in the right zone.'}
+    <div style={toolCard}>
+      <div style={toolHeader('#7843EE')}>
+        <span style={{ fontSize: '18px' }}>🏔️</span>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Exec Altitude Tool</div>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Leadership communication is not less detail. It is different altitude.</div>
         </div>
       </div>
-      <div style={{ padding: '20px', display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '16px' }}>
-        {/* Available blocks */}
-        <div>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>RAW CONTENT</div>
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-            {EXEC_BLOCKS.filter(b => !placed.has(b.id)).map(block => (
-              <ExecBlock key={block.id} block={block} placed={false} correct={null} feedback={false}
-                onClick={() => setSelected(selected === block.id ? null : block.id)} />
-            ))}
-          </div>
-        </div>
 
-        {/* Drop zones */}
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-          {(['main', 'appendix'] as const).map(zone => (
-            <motion.div key={zone} whileHover={selected ? { scale: 1.01 } : {}} onClick={() => place(zone)}
-              style={{ flex: 1, padding: '14px', borderRadius: '10px', border: `2px dashed ${selected ? (zone === 'main' ? '#059669' : '#6b7280') : 'var(--ed-rule)'}`, cursor: selected ? 'pointer' : 'default', background: selected ? (zone === 'main' ? '#05966908' : 'rgba(107,114,128,0.05)') : 'var(--ed-card)', minHeight: '140px', transition: 'all 0.2s' }}>
-              <div style={{ fontSize: '10px', fontWeight: 700, color: zone === 'main' ? '#059669' : '#6b7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>
-                {zone === 'main' ? '⬡ EXECUTIVE NARRATIVE' : '≡ APPENDIX'}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-                {(zone === 'main' ? mainSlots : appendixSlots).map(id => {
-                  const block = EXEC_BLOCKS.find(b => b.id === id)!;
-                  const isCorrect = block.correct === zone;
-                  return (
-                    <div key={id} style={{ padding: '6px 12px', borderRadius: '6px', fontSize: '11px', background: revealed ? (isCorrect ? '#05966915' : '#dc262615') : 'var(--ed-cream)', border: `1px solid ${revealed ? (isCorrect ? '#059669' : '#dc2626') : 'var(--ed-rule)'}`, color: 'var(--ed-ink)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {revealed && <span style={{ color: isCorrect ? '#059669' : '#dc2626', fontWeight: 700 }}>{isCorrect ? '✓' : '✗'}</span>}
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: block.color, flexShrink: 0 }} />
-                      {block.label}
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
+      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%)' }}>
+        {/* Altitude selector */}
+        <div style={{ display: 'flex', gap: '0', marginBottom: '24px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+          {ALTITUDE_LEVELS.map((l, i) => (
+            <motion.button key={l.id} whileHover={{ opacity: 0.9 }} onClick={() => setLevel(i)}
+              style={{ flex: 1, padding: '12px 16px', border: 'none', cursor: 'pointer', background: level === i ? l.color : '#fff', color: level === i ? '#fff' : '#64748b', fontWeight: level === i ? 700 : 400, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRight: i < 2 ? '1px solid #e2e8f0' : 'none', transition: 'all 0.2s' }}>
+              <span>{l.icon}</span> {l.label}
+            </motion.button>
           ))}
         </div>
 
-        {/* Score / instructions */}
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>EXEC RULE</div>
-          <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>
-            Executive Narrative = outcomes, risk, direction, ask.<br /><br />
-            Appendix = activity, implementation, internal process.
-          </div>
-          {allPlaced && !revealed && (
-            <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} onClick={() => setRevealed(true)}
-              style={{ marginTop: 'auto', padding: '10px', borderRadius: '8px', background: ACCENT, color: '#fff', fontSize: '12px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-              Check answers →
-            </motion.button>
-          )}
-          {revealed && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ marginTop: 'auto', padding: '12px', borderRadius: '8px', background: score >= 6 ? `${ACCENT}15` : 'var(--ed-cream)', border: `1px solid ${score >= 6 ? ACCENT : 'var(--ed-rule)'}`, textAlign: 'center' as const }}>
-              <div style={{ fontSize: '22px', marginBottom: '6px' }}>{score >= 6 ? '🎯' : '📊'}</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '14px', fontWeight: 700, color: ACCENT }}>{score}/8</div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '4px' }}>correct placements</div>
-            </motion.div>
-          )}
+        {/* Layered platforms */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px', marginBottom: '20px' }}>
+          {[...ALTITUDE_LEVELS].reverse().map((l, ri) => {
+            const i = 2 - ri;
+            const isCurrent = level === i;
+            const isBelow = i < level;
+            return (
+              <motion.div key={l.id} animate={{ opacity: isCurrent ? 1 : isBelow ? 0.4 : 0.65, scale: isCurrent ? 1 : 0.97 }} transition={{ duration: 0.3 }}
+                onClick={() => setLevel(i)}
+                style={{ borderRadius: '12px', border: `2px solid ${isCurrent ? l.color : l.color + '30'}`, overflow: 'hidden', cursor: 'pointer', background: isCurrent ? `${l.color}08` : '#fff', boxShadow: isCurrent ? `0 4px 16px ${l.color}20` : 'none' }}>
+                <div style={{ padding: '10px 14px', background: isCurrent ? `${l.color}15` : '#f8fafc', borderBottom: `1px solid ${l.color}20`, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '16px' }}>{l.icon}</span>
+                  <span style={{ fontWeight: 700, fontSize: '12px', color: l.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{l.label.toUpperCase()}</span>
+                  {isCurrent && <span style={{ marginLeft: 'auto', fontSize: '10px', color: l.color, fontWeight: 600 }}>← CURRENT ALTITUDE</span>}
+                </div>
+                <AnimatePresence>
+                  {isCurrent && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden' }}>
+                      <div style={{ padding: '14px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        {l.content.map((c, ci) => (
+                          <div key={ci} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', padding: '8px 10px', borderRadius: '8px', background: `${l.color}08`, border: `1px solid ${l.color}15` }}>
+                            <span style={{ fontSize: '14px', flexShrink: 0 }}>{c.emoji}</span>
+                            <span style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>{c.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ padding: '8px 16px 14px', fontSize: '12px', color: l.color, fontWeight: 600, fontStyle: 'italic' }}>
+                        → {l.note}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div style={{ padding: '10px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+          Move between altitudes to see how the same initiative changes. Executive communication compresses without distorting — not just fewer words.
         </div>
       </div>
-
-      {/* Reasoning for wrong placements */}
-      {revealed && [...mainSlots, ...appendixSlots].filter(id => EXEC_BLOCKS.find(b => b.id === id)!.correct !== (mainSlots.includes(id) ? 'main' : 'appendix')).map(id => {
-        const block = EXEC_BLOCKS.find(b => b.id === id)!;
-        return (
-          <div key={id} style={{ margin: '0 20px 10px', padding: '10px 14px', borderRadius: '8px', background: '#fef2f220', border: '1px solid #dc262640', fontSize: '12px', color: '#fca5a5' }}>
-            <strong>{block.label}</strong> — {block.why}
-          </div>
-        );
-      })}
     </div>
   );
 }
