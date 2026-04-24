@@ -31,7 +31,7 @@ const STAKEHOLDER_COLORS = {
 };
 
 const toolCard: React.CSSProperties = {
-  background: '#fff',
+  background: 'var(--ed-card)',
   borderRadius: '16px',
   boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
   overflow: 'hidden',
@@ -50,10 +50,10 @@ const toolHeader = (color: string): React.CSSProperties => ({
 const Meter = ({ label, value, color, inverse = false }: { label: string; value: number; color: string; inverse?: boolean }) => (
   <div style={{ flex: 1 }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em' }}>{label.toUpperCase()}</span>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em' }}>{label.toUpperCase()}</span>
       <span style={{ fontSize: '10px', fontWeight: 700, color, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(value * 100)}%</span>
     </div>
-    <div style={{ height: '6px', borderRadius: '3px', background: '#e2e8f0', overflow: 'hidden' }}>
+    <div style={{ height: '6px', borderRadius: '3px', background: 'var(--ed-rule)', overflow: 'hidden' }}>
       <motion.div animate={{ width: `${value * 100}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', borderRadius: '3px', background: color }} />
     </div>
   </div>
@@ -69,7 +69,7 @@ const Avatar = ({ emoji, label, color, size = 44 }: { emoji: string; label: stri
 );
 
 const SpeechBubble = ({ text, color, align = 'left' }: { text: string; color: string; align?: 'left' | 'right' }) => (
-  <div style={{ background: `${color}12`, border: `1px solid ${color}30`, borderRadius: align === 'left' ? '0 10px 10px 10px' : '10px 0 10px 10px', padding: '8px 12px', fontSize: '12px', color: '#334155', lineHeight: 1.5, maxWidth: '180px', position: 'relative' as const }}>
+  <div style={{ background: `${color}12`, border: `1px solid ${color}30`, borderRadius: align === 'left' ? '0 10px 10px 10px' : '10px 0 10px 10px', padding: '8px 12px', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.5, maxWidth: '180px', position: 'relative' as const }}>
     {text}
   </div>
 );
@@ -119,32 +119,32 @@ export function CommunicationPrism() {
         <span style={{ fontSize: '18px' }}>🔀</span>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#0284C7', textTransform: 'uppercase' as const }}>Stakeholder Translation Tool</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>One message. Different framing. Click a stakeholder to see the translation.</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>One message. Different framing. Click a stakeholder to see the translation.</div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
           {(['Generic', 'Tailored'] as const).map(mode => (
             <button key={mode} onClick={() => setShowGeneric(mode === 'Generic')}
-              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${(mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7'}`, background: (mode === 'Generic') === showGeneric ? '#fef2f2' : '#eff6ff', color: (mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7', fontFamily: "'JetBrains Mono', monospace" }}>
+              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${(mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7'}`, background: (mode === 'Generic') === showGeneric ? 'rgba(220,38,38,0.1)' : 'rgba(2,132,199,0.1)', color: (mode === 'Generic') === showGeneric ? '#dc2626' : '#0284C7', fontFamily: "'JetBrains Mono', monospace" }}>
               {mode}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #f0f9ff 0%, #eff6ff 100%)' }}>
+      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
         {/* Raw message */}
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>RAW PRODUCT MESSAGE</div>
-          <div style={{ background: '#fff', borderRadius: '10px', padding: '14px 18px', border: '2px solid #0284C730', boxShadow: '0 2px 12px rgba(2,132,199,0.1)', fontSize: '14px', color: '#1e293b', lineHeight: 1.6, fontStyle: 'italic' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>RAW PRODUCT MESSAGE</div>
+          <div style={{ background: 'var(--ed-card)', borderRadius: '10px', padding: '14px 18px', border: '2px solid #0284C730', boxShadow: '0 2px 12px rgba(2,132,199,0.1)', fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.6, fontStyle: 'italic' }}>
             &ldquo;{RAW_MESSAGE}&rdquo;
           </div>
         </div>
 
         {showGeneric ? (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-            style={{ padding: '16px 18px', borderRadius: '10px', background: '#fef2f2', border: '1px solid #fca5a5', marginBottom: '20px' }}>
+            style={{ padding: '16px 18px', borderRadius: '10px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.3)', marginBottom: '20px' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#dc2626', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>⚠ GENERIC VERSION</div>
-            <div style={{ fontSize: '13px', color: '#7f1d1d', lineHeight: 1.6 }}>{GENERIC_PROBLEM}</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.6 }}>{GENERIC_PROBLEM}</div>
           </motion.div>
         ) : null}
 
@@ -156,7 +156,7 @@ export function CommunicationPrism() {
             const isSelected = selected === key;
             return (
               <motion.div key={key} whileHover={{ y: -2, boxShadow: `0 8px 24px ${color}25` }} onClick={() => setSelected(isSelected ? null : key)}
-                style={{ background: isSelected ? `${color}0A` : '#fff', borderRadius: '12px', border: `2px solid ${isSelected ? color : color + '30'}`, cursor: 'pointer', overflow: 'hidden', transition: 'border 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                style={{ background: isSelected ? `${color}0A` : 'var(--ed-card)', borderRadius: '12px', border: `2px solid ${isSelected ? color : color + '30'}`, cursor: 'pointer', overflow: 'hidden', transition: 'border 0.2s', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 {/* Panel header */}
                 <div style={{ padding: '12px 16px', background: `${color}10`, borderBottom: `1px solid ${color}20`, display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '20px' }}>{t.icon}</span>
@@ -175,11 +175,11 @@ export function CommunicationPrism() {
                         {t.points.map((p, i) => (
                           <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '5px', alignItems: 'flex-start' }}>
                             <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: color, flexShrink: 0, marginTop: '6px' }} />
-                            <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.55 }}>{p}</div>
+                            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>{p}</div>
                           </div>
                         ))}
                         <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-                          <div style={{ padding: '8px 12px', borderRadius: '7px', background: '#fef2f2', fontSize: '11px', color: '#7f1d1d' }}>
+                          <div style={{ padding: '8px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.08)', fontSize: '11px', color: 'var(--ed-ink)' }}>
                             <strong>Not needed:</strong> {t.noNeed}
                           </div>
                           <div style={{ padding: '8px 12px', borderRadius: '7px', background: `${color}10`, fontSize: '11px', color, fontWeight: 600 }}>
@@ -192,7 +192,7 @@ export function CommunicationPrism() {
                   {!isSelected && !showGeneric && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                       style={{ padding: '10px 16px' }}>
-                      <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.5 }}>What they care about · What helps them act</div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>What they care about · What helps them act</div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -203,7 +203,7 @@ export function CommunicationPrism() {
 
         {!selected && !showGeneric && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ marginTop: '14px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+            style={{ marginTop: '14px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: 'var(--ed-ink2)', textAlign: 'center' as const }}>
             Same initiative — four different translations. Click any panel to see what that stakeholder needs to act well.
           </motion.div>
         )}
@@ -216,7 +216,7 @@ export function CommunicationPrism() {
 // TOOL 2 · NARRATIVE STAIRCASE (T1-04)
 // ─────────────────────────────────────────
 const STEPS = [
-  { id: 0, label: 'Context',         emoji: '🌍', color: '#64748b', desc: 'What is happening in the product or business right now?' },
+  { id: 0, label: 'Context',         emoji: '🌍', color: 'var(--ed-ink3)', desc: 'What is happening in the product or business right now?' },
   { id: 1, label: 'Problem',         emoji: '⚡', color: '#E67E22', desc: 'What is not working, and why does it deserve attention?' },
   { id: 2, label: 'Evidence',        emoji: '📊', color: '#E67E22', desc: 'What does data, user behaviour, or research show?' },
   { id: 3, label: 'Why Now',         emoji: '⏱',  color: '#0284C7', desc: 'Why does this matter at this specific moment?' },
@@ -237,22 +237,22 @@ export function NarrativeStaircase() {
         <span style={{ fontSize: '18px' }}>🪜</span>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Narrative Staircase</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>PM storytelling works in sequence. You cannot start at the wrong layer.</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>PM storytelling works in sequence. You cannot start at the wrong layer.</div>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
           {(['Strong', 'Weak'] as const).map(m => (
             <button key={m} onClick={() => { setWeakMode(m === 'Weak'); setActiveStep(null); }}
-              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `1.5px solid ${(m === 'Weak') === weakMode ? '#dc2626' : '#7843EE'}`, background: (m === 'Weak') === weakMode ? '#fef2f2' : '#f5f3ff', color: (m === 'Weak') === weakMode ? '#dc2626' : '#7843EE' }}>
+              style={{ padding: '4px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `1.5px solid ${(m === 'Weak') === weakMode ? '#dc2626' : '#7843EE'}`, background: (m === 'Weak') === weakMode ? 'rgba(220,38,38,0.1)' : 'rgba(120,67,238,0.1)', color: (m === 'Weak') === weakMode ? '#dc2626' : '#7843EE' }}>
               {m} Narrative
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f0f9ff 100%)' }}>
+      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
         {weakMode && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ marginBottom: '16px', padding: '12px 16px', borderRadius: '8px', background: '#fef2f2', border: '1px solid #fca5a5', fontSize: '13px', color: '#7f1d1d' }}>
+            style={{ marginBottom: '16px', padding: '12px 16px', borderRadius: '8px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.3)', fontSize: '13px', color: 'var(--ed-ink)' }}>
             ⚠ <strong>Weak narrative:</strong> Steps 1–2 (Context + Problem) are missing. The audience has no reason to care before you reach the solution. The upper steps have no foundation to stand on.
           </motion.div>
         )}
@@ -267,14 +267,14 @@ export function NarrativeStaircase() {
               <motion.div key={step.id} whileHover={!isMissing ? { x: 4 } : {}}
                 onClick={() => !isMissing && setActiveStep(isActive ? null : step.id)}
                 style={{ marginLeft: indent, opacity: isMissing ? 0.2 : 1, cursor: isMissing ? 'default' : 'pointer', transition: 'opacity 0.3s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: isActive ? `${step.color}12` : '#fff', border: `2px solid ${isActive ? step.color : step.color + '25'}`, boxShadow: isActive ? `0 4px 16px ${step.color}20` : '0 1px 4px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: isActive ? `${step.color}12` : 'var(--ed-card)', border: `2px solid ${isActive ? step.color : step.color + '25'}`, boxShadow: isActive ? `0 4px 16px ${step.color}20` : '0 1px 4px rgba(0,0,0,0.05)', transition: 'all 0.2s' }}>
                   <span style={{ fontSize: '18px', flexShrink: 0 }}>{isMissing ? '···' : step.emoji}</span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: '13px', color: isMissing ? '#cbd5e1' : step.color }}>
                       {isMissing ? '[ Missing ]' : `Step ${idx + 1} · ${step.label}`}
                     </div>
                     {isActive && (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '12px', color: '#475569', marginTop: '3px', lineHeight: 1.5 }}>
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: '12px', color: 'var(--ed-ink2)', marginTop: '3px', lineHeight: 1.5 }}>
                         {step.desc}
                       </motion.div>
                     )}
@@ -290,7 +290,7 @@ export function NarrativeStaircase() {
           })}
         </div>
 
-        <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+        <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: 'var(--ed-ink2)', textAlign: 'center' as const }}>
           {weakMode
             ? 'When foundations are missing, no amount of evidence or solution detail creates alignment.'
             : 'Click any step to see what it contributes. Toggle to Weak Narrative to see what breaks without foundations.'}
@@ -314,7 +314,7 @@ const STATUS_DATA: Record<RoadmapStatus, {
   interpretations: { name: string; emoji: string; quote: string }[];
 }> = {
   'Exploring': {
-    color: '#64748b', trust: 0.6, clarity: 0.35, expectationRisk: 0.2, deliveryPressure: 0.15,
+    color: 'var(--ed-ink3)', trust: 0.6, clarity: 0.35, expectationRisk: 0.2, deliveryPressure: 0.15,
     interpretations: [
       { name: 'Customer',    emoji: '🧑‍💼', quote: 'Probably not coming soon...' },
       { name: 'Sales',       emoji: '🤝', quote: 'Can\'t really promise this.' },
@@ -367,15 +367,15 @@ export function RoadmapPressureChamber() {
         <span style={{ fontSize: '18px' }}>📡</span>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: data.color, textTransform: 'uppercase' as const }}>Roadmap Pressure Simulator</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>One word on your roadmap creates a different system effect for every stakeholder.</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>One word on your roadmap creates a different system effect for every stakeholder.</div>
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%)' }}>
+      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
         {/* Central statement */}
         <div style={{ textAlign: 'center' as const, marginBottom: '24px' }}>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>ROADMAP STATEMENT</div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#fff', borderRadius: '12px', padding: '14px 20px', border: `2px solid ${data.color}40`, boxShadow: `0 4px 20px ${data.color}15`, fontSize: '14px', color: '#1e293b', fontStyle: 'italic' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>ROADMAP STATEMENT</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: 'var(--ed-card)', borderRadius: '12px', padding: '14px 20px', border: `2px solid ${data.color}40`, boxShadow: `0 4px 20px ${data.color}15`, fontSize: '14px', color: 'var(--ed-ink)', fontStyle: 'italic' }}>
             &ldquo;Advanced reporting is&nbsp;<span style={{ fontWeight: 800, color: data.color, fontStyle: 'normal', padding: '2px 10px', borderRadius: '6px', background: `${data.color}15` }}>{status}</span>&#46;&rdquo;
           </div>
 
@@ -383,7 +383,7 @@ export function RoadmapPressureChamber() {
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
             {(Object.keys(STATUS_DATA) as RoadmapStatus[]).map(s => (
               <motion.button key={s} whileHover={{ y: -1 }} onClick={() => setStatus(s)}
-                style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `2px solid ${STATUS_DATA[s].color}`, background: status === s ? STATUS_DATA[s].color : '#fff', color: status === s ? '#fff' : STATUS_DATA[s].color, transition: 'all 0.2s', boxShadow: status === s ? `0 4px 12px ${STATUS_DATA[s].color}40` : 'none' }}>
+                style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", border: `2px solid ${STATUS_DATA[s].color}`, background: status === s ? STATUS_DATA[s].color : 'var(--ed-card)', color: status === s ? '#fff' : STATUS_DATA[s].color, transition: 'all 0.2s', boxShadow: status === s ? `0 4px 12px ${STATUS_DATA[s].color}40` : 'none' }}>
                 {s}
               </motion.button>
             ))}
@@ -394,10 +394,10 @@ export function RoadmapPressureChamber() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
           {data.interpretations.map((interp, i) => (
             <motion.div key={interp.name} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              style={{ background: '#fff', borderRadius: '12px', padding: '14px 10px', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${data.color}20` }}>
+              style={{ background: 'var(--ed-card)', borderRadius: '12px', padding: '14px 10px', textAlign: 'center' as const, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', border: `1px solid ${data.color}20` }}>
               <div style={{ fontSize: '28px', marginBottom: '6px' }}>{interp.emoji}</div>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', marginBottom: '8px' }}>{interp.name.toUpperCase()}</div>
-              <div style={{ background: `${data.color}10`, border: `1px solid ${data.color}25`, borderRadius: '7px', padding: '6px 8px', fontSize: '11px', color: '#334155', lineHeight: 1.45, fontStyle: 'italic' }}>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', marginBottom: '8px' }}>{interp.name.toUpperCase()}</div>
+              <div style={{ background: `${data.color}10`, border: `1px solid ${data.color}25`, borderRadius: '7px', padding: '6px 8px', fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.45, fontStyle: 'italic' }}>
                 &ldquo;{interp.quote}&rdquo;
               </div>
             </motion.div>
@@ -405,8 +405,8 @@ export function RoadmapPressureChamber() {
         </div>
 
         {/* Live meters */}
-        <div style={{ background: '#fff', borderRadius: '12px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '12px' }}>LIVE SYSTEM IMPACT</div>
+        <div style={{ background: 'var(--ed-card)', borderRadius: '12px', padding: '16px 20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '12px' }}>LIVE SYSTEM IMPACT</div>
           <div style={{ display: 'flex', gap: '20px' }}>
             <Meter label="Trust" value={data.trust} color={data.trust > 0.65 ? '#059669' : '#E67E22'} />
             <Meter label="Clarity" value={data.clarity} color={data.clarity > 0.65 ? '#059669' : '#E67E22'} />
@@ -415,7 +415,7 @@ export function RoadmapPressureChamber() {
           </div>
         </div>
 
-        <div style={{ marginTop: '12px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+        <div style={{ marginTop: '12px', padding: '10px 16px', borderRadius: '8px', background: 'rgba(2,132,199,0.06)', border: '1px solid #0284C720', fontSize: '12px', color: 'var(--ed-ink2)', textAlign: 'center' as const }}>
           &ldquo;Planned&rdquo; and &ldquo;Committed&rdquo; are not the same word. Toggle between them to see the system difference.
         </div>
       </div>
@@ -444,18 +444,18 @@ export function StakeholderCalibrationRoom() {
         <span style={{ fontSize: '18px' }}>🗺️</span>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Stakeholder Calibration Room</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Good alignment starts before the meeting. Inspect each stakeholder.</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Good alignment starts before the meeting. Inspect each stakeholder.</div>
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%)' }}>
+      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
           {CAL_PODS.map((pod, i) => (
             <motion.div key={pod.name} whileHover={{ y: -3, boxShadow: `0 8px 24px ${pod.color}25` }} onClick={() => setActive(active === i ? null : i)}
-              style={{ flex: 1, minWidth: '100px', background: active === i ? `${pod.color}0D` : '#fff', borderRadius: '12px', padding: '14px 12px', textAlign: 'center' as const, cursor: 'pointer', border: `2px solid ${active === i ? pod.color : pod.color + '30'}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}>
+              style={{ flex: 1, minWidth: '100px', background: active === i ? `${pod.color}0D` : 'var(--ed-card)', borderRadius: '12px', padding: '14px 12px', textAlign: 'center' as const, cursor: 'pointer', border: `2px solid ${active === i ? pod.color : pod.color + '30'}`, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', transition: 'all 0.2s' }}>
               <div style={{ fontSize: '28px', marginBottom: '6px' }}>{pod.emoji}</div>
               <div style={{ fontWeight: 700, fontSize: '12px', color: pod.color }}>{pod.name}</div>
-              <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{active === i ? 'click to close' : 'click to inspect'}</div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '3px' }}>{active === i ? 'click to close' : 'click to inspect'}</div>
             </motion.div>
           ))}
         </div>
@@ -463,7 +463,7 @@ export function StakeholderCalibrationRoom() {
         <AnimatePresence mode="wait">
           {pod ? (
             <motion.div key={pod.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              style={{ background: '#fff', borderRadius: '12px', border: `2px solid ${pod.color}30`, overflow: 'hidden', boxShadow: `0 4px 20px ${pod.color}15` }}>
+              style={{ background: 'var(--ed-card)', borderRadius: '12px', border: `2px solid ${pod.color}30`, overflow: 'hidden', boxShadow: `0 4px 20px ${pod.color}15` }}>
               <div style={{ padding: '12px 18px', background: `${pod.color}10`, borderBottom: `1px solid ${pod.color}20`, display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '22px' }}>{pod.emoji}</span>
                 <span style={{ fontWeight: 700, color: pod.color, fontSize: '14px' }}>{pod.name}</span>
@@ -472,14 +472,14 @@ export function StakeholderCalibrationRoom() {
                 {[{ k: '→ Wants', v: pod.wants }, { k: '⚠ Fears', v: pod.fears }, { k: '✓ Trusts', v: pod.trusts }].map((row, i) => (
                   <div key={row.k} style={{ padding: '14px 16px', borderRight: i < 2 ? `1px solid ${pod.color}15` : 'none' }}>
                     <div style={{ fontSize: '9px', fontWeight: 700, color: pod.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>{row.k.toUpperCase()}</div>
-                    <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.65 }}>{row.v}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{row.v}</div>
                   </div>
                 ))}
               </div>
             </motion.div>
           ) : (
             <motion.div key="prompt" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ padding: '14px 18px', borderRadius: '10px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+              style={{ padding: '14px 18px', borderRadius: '10px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: 'var(--ed-ink2)', textAlign: 'center' as const }}>
               Click each stakeholder to understand what they want, fear, and trust before you walk into the room.
             </motion.div>
           )}
@@ -497,7 +497,7 @@ const ALTITUDE_LEVELS = [
     id: 'team',
     label: 'Team View',
     icon: '👷',
-    color: '#64748b',
+    color: 'var(--ed-ink3)',
     altitude: 0,
     content: [
       { emoji: '🎫', text: 'Sprint: 14 tickets in progress, 6 in review' },
@@ -547,16 +547,16 @@ export function ExecReviewTheater() {
         <span style={{ fontSize: '18px' }}>🏔️</span>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#7843EE', textTransform: 'uppercase' as const }}>Exec Altitude Tool</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Leadership communication is not less detail. It is different altitude.</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Leadership communication is not less detail. It is different altitude.</div>
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%)' }}>
+      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
         {/* Altitude selector */}
         <div style={{ display: 'flex', gap: '0', marginBottom: '24px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           {ALTITUDE_LEVELS.map((l, i) => (
             <motion.button key={l.id} whileHover={{ opacity: 0.9 }} onClick={() => setLevel(i)}
-              style={{ flex: 1, padding: '12px 16px', border: 'none', cursor: 'pointer', background: level === i ? l.color : '#fff', color: level === i ? '#fff' : '#64748b', fontWeight: level === i ? 700 : 400, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRight: i < 2 ? '1px solid #e2e8f0' : 'none', transition: 'all 0.2s' }}>
+              style={{ flex: 1, padding: '12px 16px', border: 'none', cursor: 'pointer', background: level === i ? l.color : 'var(--ed-card)', color: level === i ? '#fff' : 'var(--ed-ink3)', fontWeight: level === i ? 700 : 400, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRight: i < 2 ? '1px solid var(--ed-rule)' : 'none', transition: 'all 0.2s' }}>
               <span>{l.icon}</span> {l.label}
             </motion.button>
           ))}
@@ -571,8 +571,8 @@ export function ExecReviewTheater() {
             return (
               <motion.div key={l.id} animate={{ opacity: isCurrent ? 1 : isBelow ? 0.4 : 0.65, scale: isCurrent ? 1 : 0.97 }} transition={{ duration: 0.3 }}
                 onClick={() => setLevel(i)}
-                style={{ borderRadius: '12px', border: `2px solid ${isCurrent ? l.color : l.color + '30'}`, overflow: 'hidden', cursor: 'pointer', background: isCurrent ? `${l.color}08` : '#fff', boxShadow: isCurrent ? `0 4px 16px ${l.color}20` : 'none' }}>
-                <div style={{ padding: '10px 14px', background: isCurrent ? `${l.color}15` : '#f8fafc', borderBottom: `1px solid ${l.color}20`, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                style={{ borderRadius: '12px', border: `2px solid ${isCurrent ? l.color : l.color + '30'}`, overflow: 'hidden', cursor: 'pointer', background: isCurrent ? `${l.color}08` : 'var(--ed-card)', boxShadow: isCurrent ? `0 4px 16px ${l.color}20` : 'none' }}>
+                <div style={{ padding: '10px 14px', background: isCurrent ? `${l.color}15` : 'var(--ed-cream2)', borderBottom: `1px solid ${l.color}20`, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '16px' }}>{l.icon}</span>
                   <span style={{ fontWeight: 700, fontSize: '12px', color: l.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{l.label.toUpperCase()}</span>
                   {isCurrent && <span style={{ marginLeft: 'auto', fontSize: '10px', color: l.color, fontWeight: 600 }}>← CURRENT ALTITUDE</span>}
@@ -584,7 +584,7 @@ export function ExecReviewTheater() {
                         {l.content.map((c, ci) => (
                           <div key={ci} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', padding: '8px 10px', borderRadius: '8px', background: `${l.color}08`, border: `1px solid ${l.color}15` }}>
                             <span style={{ fontSize: '14px', flexShrink: 0 }}>{c.emoji}</span>
-                            <span style={{ fontSize: '12px', color: '#334155', lineHeight: 1.5 }}>{c.text}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.5 }}>{c.text}</span>
                           </div>
                         ))}
                       </div>
@@ -599,7 +599,7 @@ export function ExecReviewTheater() {
           })}
         </div>
 
-        <div style={{ padding: '10px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: '#475569', textAlign: 'center' as const }}>
+        <div style={{ padding: '10px 16px', borderRadius: '8px', background: 'rgba(120,67,238,0.06)', border: '1px solid #7843EE20', fontSize: '12px', color: 'var(--ed-ink2)', textAlign: 'center' as const }}>
           Move between altitudes to see how the same initiative changes. Executive communication compresses without distorting — not just fewer words.
         </div>
       </div>
