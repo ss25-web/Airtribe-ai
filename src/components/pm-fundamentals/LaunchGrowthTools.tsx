@@ -708,3 +708,241 @@ export function GTMPathVisualizer() {
     </ToolCard>
   );
 }
+
+// ─────────────────────────────────────────
+// TOOL T2-02 · RELEASE CONTROL TOWER
+// ─────────────────────────────────────────
+type Cohort = 'internal' | 'partners' | 'pilot' | 'segment' | 'broad';
+const COHORT_CONFIG: Record<Cohort, { label: string; emoji: string; size: number; color: string }> = {
+  internal: { label: 'Internal Team',    emoji: '🏠', size: 5,   color: '#64748b' },
+  partners: { label: 'Design Partners',  emoji: '🤝', size: 15,  color: '#3A86FF' },
+  pilot:    { label: 'Pilot Accounts',   emoji: '🎯', size: 30,  color: '#E67E22' },
+  segment:  { label: 'Segment Rollout',  emoji: '🌊', size: 60,  color: '#7843EE' },
+  broad:    { label: 'Broad Release',    emoji: '🚀', size: 100, color: ACCENT },
+};
+
+export function ReleaseControlTower() {
+  const [cohort, setCohort] = useState<Cohort>('pilot');
+  const [planType, setPlanType] = useState<'smb' | 'enterprise' | 'all'>('all');
+  const [featureFlags, setFeatureFlags] = useState(true);
+  const [support, setSupport] = useState(65);
+  const [instrumentation, setInstrumentation] = useState(70);
+  const [rollback, setRollback] = useState(60);
+  const [onboarding, setOnboarding] = useState<'none' | 'basic' | 'full'>('basic');
+
+  const cohortCfg = COHORT_CONFIG[cohort];
+  const sizeRisk = cohortCfg.size / 100;
+  const enterpriseRisk = planType === 'enterprise' ? 0.25 : planType === 'all' ? 0.15 : 0;
+  const flagSafety = featureFlags ? 0.2 : 0;
+  const onboardingMult = onboarding === 'full' ? 1 : onboarding === 'basic' ? 0.65 : 0.3;
+
+  const riskExposure  = Math.round(Math.max(0, (sizeRisk * 70 + enterpriseRisk * 30) * (1 - flagSafety) * (1 - (rollback / 400))));
+  const learningSpeed = Math.round((instrumentation / 100) * 60 + (sizeRisk * 40));
+  const userTrust     = Math.round((support / 100) * 50 + onboardingMult * 40 + (featureFlags ? 10 : 0));
+  const supportBurden = Math.round(sizeRisk * 55 * (1 - (support / 200)) * (onboarding === 'none' ? 1.4 : 0.8));
+  const healthScore   = Math.round((userTrust + learningSpeed + (100 - riskExposure) + (100 - supportBurden)) / 4);
+  const rec = healthScore >= 72 ? { label: 'Proceed',              color: ACCENT,    emoji: '✅' }
+    : healthScore >= 52          ? { label: 'Proceed with caution', color: '#E67E22', emoji: '⚠️' }
+    : healthScore >= 35          ? { label: 'Pause and fix gaps',   color: '#dc2626', emoji: '🔴' }
+    :                              { label: 'Not ready',             color: '#dc2626', emoji: '❌' };
+
+  const riskColor = (v: number) => v > 65 ? '#dc2626' : v > 40 ? '#E67E22' : ACCENT;
+
+  return (
+    <ToolCard title="Release Control Tower" subtitle="Configure rollout controls. Watch risk, learning, and trust shift — then get a governance recommendation." icon="🗼" color={ACCENT}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>AUDIENCE COHORT</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
+              {(Object.entries(COHORT_CONFIG) as [Cohort, typeof COHORT_CONFIG[Cohort]][]).map(([key, cfg]) => (
+                <motion.div key={key} whileHover={{ x: 3 }} onClick={() => setCohort(key)}
+                  style={{ padding: '7px 12px', borderRadius: '7px', cursor: 'pointer', background: cohort === key ? `${cfg.color}15` : 'var(--ed-card)', border: `1.5px solid ${cohort === key ? cfg.color : 'var(--ed-rule)'}`, display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.15s' }}>
+                  <span style={{ fontSize: '14px' }}>{cfg.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '11px', fontWeight: cohort === key ? 700 : 400, color: cohort === key ? cfg.color : 'var(--ed-ink)' }}>{cfg.label}</div>
+                    <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{cfg.size}% of users</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '5px' }}>PLAN TYPE</div>
+              {(['smb', 'enterprise', 'all'] as const).map(p => (
+                <button key={p} onClick={() => setPlanType(p)} style={{ display: 'block', width: '100%', padding: '5px 8px', borderRadius: '5px', marginBottom: '3px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${planType === p ? (p === 'enterprise' ? '#7843EE' : ACCENT) : 'var(--ed-rule)'}`, background: planType === p ? (p === 'enterprise' ? 'rgba(120,67,238,0.12)' : `rgba(${ACCENT_RGB},0.12)`) : 'var(--ed-card)', color: planType === p ? (p === 'enterprise' ? '#7843EE' : ACCENT) : 'var(--ed-ink3)', textAlign: 'left' as const }}>
+                  {p === 'smb' ? 'SMB only' : p === 'enterprise' ? 'Enterprise ⚠' : 'All plans'}
+                </button>
+              ))}
+              <div style={{ marginTop: '8px', fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '5px' }}>ONBOARDING</div>
+              {(['none', 'basic', 'full'] as const).map(o => (
+                <button key={o} onClick={() => setOnboarding(o)} style={{ display: 'block', width: '100%', padding: '5px 8px', borderRadius: '5px', marginBottom: '3px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${onboarding === o ? ACCENT : 'var(--ed-rule)'}`, background: onboarding === o ? `rgba(${ACCENT_RGB},0.12)` : 'var(--ed-card)', color: onboarding === o ? ACCENT : 'var(--ed-ink3)', textAlign: 'left' as const }}>
+                  {o === 'none' ? '❌ None' : o === 'basic' ? '📄 Basic' : '✅ Full support'}
+                </button>
+              ))}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '6px' }}>FEATURE FLAGS</div>
+              <motion.button whileHover={{ scale: 1.02 }} onClick={() => setFeatureFlags(x => !x)}
+                style={{ width: '100%', padding: '8px', borderRadius: '7px', border: `2px solid ${featureFlags ? ACCENT : '#dc2626'}`, background: featureFlags ? `rgba(${ACCENT_RGB},0.1)` : 'rgba(220,38,38,0.08)', color: featureFlags ? ACCENT : '#dc2626', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}>
+                {featureFlags ? '🏴 Flags ON' : '🚫 Flags OFF'}
+              </motion.button>
+              <div style={{ marginTop: '14px' }}>
+                <Slider label="Support Readiness"       value={support}          onChange={setSupport} />
+                <Slider label="Instrumentation Quality" value={instrumentation}  onChange={setInstrumentation} color="#7843EE" />
+                <Slider label="Rollback Confidence"     value={rollback}         onChange={setRollback} color="#E67E22" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+          <motion.div key={rec.label} initial={{ scale: 0.97 }} animate={{ scale: 1 }}
+            style={{ padding: '16px', borderRadius: '12px', background: `${rec.color}14`, border: `2px solid ${rec.color}50`, textAlign: 'center' as const, boxShadow: `0 4px 20px ${rec.color}25` }}>
+            <div style={{ fontSize: '24px', marginBottom: '6px' }}>{rec.emoji}</div>
+            <div style={{ fontWeight: 800, fontSize: '15px', color: rec.color, marginBottom: '4px' }}>{rec.label}</div>
+            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>Governance score: {healthScore}/100</div>
+          </motion.div>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '12px' }}>ROLLOUT CONSEQUENCES</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              <ForceMeter label="Risk Exposure"  value={Math.min(100, riskExposure)} color={riskColor(riskExposure)} />
+              <ForceMeter label="Learning Speed" value={learningSpeed}                color={learningSpeed > 60 ? ACCENT : '#E67E22'} />
+              <ForceMeter label="User Trust"     value={userTrust}                   color={userTrust > 65 ? ACCENT : '#E67E22'} />
+              <ForceMeter label="Support Burden" value={Math.min(100, supportBurden)} color={riskColor(supportBurden)} />
+            </div>
+          </div>
+          <div style={{ padding: '10px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid ${ACCENT}20`, fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
+            Mature rollout is not just sequencing. It is governance — who gets in, when, with what control logic, and what triggers a pause or rollback.
+          </div>
+        </div>
+      </div>
+    </ToolCard>
+  );
+}
+
+// ─────────────────────────────────────────
+// TOOL T2-07 · ENTERPRISE EXPANSION ENGINE
+// ─────────────────────────────────────────
+const EXPANSION_STAGES = [
+  { id: 'champion',   label: 'Champion Identified',    emoji: '⭐', desc: 'The right internal sponsor found and engaged.' },
+  { id: 'onboarding', label: 'Onboarding Complete',    emoji: '🏗️', desc: 'Setup done. Product configured for the account.' },
+  { id: 'adoption',   label: 'Workflow Adopted',       emoji: '⚡', desc: 'Core workflow used consistently by the first team.' },
+  { id: 'proof',      label: 'Proof of Value',         emoji: '📊', desc: 'Measurable improvement visible to stakeholders.' },
+  { id: 'alignment',  label: 'Stakeholder Alignment',  emoji: '🤝', desc: 'Decision-makers see and believe in the value.' },
+  { id: 'conversion', label: 'Paid Conversion',        emoji: '💳', desc: 'Pilot converts to paid contract.' },
+  { id: 'expansion',  label: 'Seat Expansion',         emoji: '📈', desc: 'Usage grows beyond the initial team.' },
+  { id: 'adjacency',  label: 'Adjacent Team Adoption', emoji: '🏢', desc: 'Second team onboarded. Land-and-expand achieved.' },
+];
+
+type InvestLevel = 'light' | 'standard' | 'full';
+const INVEST_CONFIG: Record<InvestLevel, { label: string; color: string; passRate: number; healthDelta: number }> = {
+  light:    { label: 'Light touch',  color: '#E67E22', passRate: 0.55, healthDelta: -5  },
+  standard: { label: 'Standard',     color: '#3A86FF', passRate: 0.72, healthDelta: +5  },
+  full:     { label: 'Full support', color: ACCENT,    passRate: 0.90, healthDelta: +12 },
+};
+
+export function EnterpriseExpansionEngine() {
+  const [stageIdx, setStageIdx] = useState(0);
+  const [investments, setInvestments] = useState<Record<string, InvestLevel>>({});
+  const [accountHealth, setAccountHealth] = useState(70);
+  const [stalled, setStalled] = useState(false);
+  const [complete, setComplete] = useState(false);
+
+  const currentStage = EXPANSION_STAGES[stageIdx];
+  const healthColor = accountHealth >= 65 ? ACCENT : accountHealth >= 40 ? '#E67E22' : '#dc2626';
+
+  const invest = (level: InvestLevel) => {
+    if (!currentStage || stalled || complete) return;
+    const cfg = INVEST_CONFIG[level];
+    const newHealth = Math.max(0, Math.min(100, accountHealth + cfg.healthDelta));
+    setInvestments(prev => ({ ...prev, [currentStage.id]: level }));
+    setAccountHealth(newHealth);
+    if (newHealth < 30) { setStalled(true); return; }
+    if (stageIdx >= EXPANSION_STAGES.length - 1) { setComplete(true); return; }
+    setTimeout(() => setStageIdx(i => i + 1), 500);
+  };
+
+  const reset = () => { setStageIdx(0); setInvestments({}); setAccountHealth(70); setStalled(false); setComplete(false); };
+
+  return (
+    <ToolCard title="Enterprise Expansion Engine" subtitle="Guide an account from pilot to land-and-expand. Every investment decision shapes whether it advances, stalls, or churns." icon="🏢" color={ACCENT}>
+      <div style={{ padding: '10px 16px', borderRadius: '10px', background: `${healthColor}12`, border: `1.5px solid ${healthColor}40`, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: healthColor, letterSpacing: '0.1em' }}>ACCOUNT HEALTH</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 900, fontSize: '16px', color: healthColor }}>{accountHealth}/100</span>
+          </div>
+          <div style={{ height: '8px', borderRadius: '4px', background: 'var(--ed-rule)', overflow: 'hidden' }}>
+            <motion.div animate={{ width: `${accountHealth}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', borderRadius: '4px', background: healthColor }} />
+          </div>
+        </div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: healthColor, fontWeight: 700 }}>{stageIdx}/{EXPANSION_STAGES.length} stages</div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ position: 'relative' as const, paddingLeft: '20px' }}>
+          <div style={{ position: 'absolute' as const, left: '8px', top: 0, bottom: 0, width: '2px', background: `${ACCENT}30`, borderRadius: '1px' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
+            {EXPANSION_STAGES.map((stage, i) => {
+              const inv = investments[stage.id];
+              const isPast = i < stageIdx;
+              const isCurrent = i === stageIdx && !stalled && !complete;
+              const dotColor = isPast ? (INVEST_CONFIG[inv]?.color ?? ACCENT) : isCurrent ? ACCENT : 'var(--ed-rule)';
+              return (
+                <div key={stage.id} style={{ position: 'relative' as const }}>
+                  <div style={{ position: 'absolute' as const, left: '-16px', top: '10px', width: '10px', height: '10px', borderRadius: '50%', background: dotColor, border: '2px solid var(--ed-card)', boxShadow: isCurrent ? `0 0 0 2px ${ACCENT}50` : 'none', transition: 'background 0.3s' }} />
+                  <div style={{ padding: '7px 10px', borderRadius: '7px', background: isCurrent ? `rgba(${ACCENT_RGB},0.1)` : 'transparent', border: isCurrent ? `1.5px solid ${ACCENT}40` : '1.5px solid transparent', opacity: i > stageIdx ? 0.35 : 1, transition: 'all 0.3s' }}>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px' }}>{stage.emoji}</span>
+                      <div>
+                        <div style={{ fontSize: '11px', fontWeight: isCurrent ? 700 : 400, color: isCurrent ? ACCENT : 'var(--ed-ink)' }}>{stage.label}</div>
+                        {isPast && inv && <div style={{ fontSize: '9px', color: INVEST_CONFIG[inv].color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{INVEST_CONFIG[inv].label}</div>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+          {!stalled && !complete && currentStage && (
+            <>
+              <div style={{ padding: '12px 14px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid ${ACCENT}35`, marginBottom: '4px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.1em', marginBottom: '3px' }}>CURRENT STAGE</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px' }}>{currentStage.emoji} {currentStage.label}</div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>{currentStage.desc}</div>
+              </div>
+              <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink)', marginBottom: '4px' }}>Investment level at this stage:</div>
+              {(Object.entries(INVEST_CONFIG) as [InvestLevel, typeof INVEST_CONFIG[InvestLevel]][]).map(([level, cfg]) => (
+                <motion.button key={level} whileHover={{ x: 3 }} onClick={() => invest(level)}
+                  style={{ padding: '10px 14px', borderRadius: '8px', border: `1.5px solid ${cfg.color}50`, background: `${cfg.color}10`, color: cfg.color, fontSize: '12px', fontWeight: 700, cursor: 'pointer', textAlign: 'left' as const, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{cfg.label}</span>
+                  <span style={{ fontSize: '10px', opacity: 0.7 }}>Health {cfg.healthDelta > 0 ? '+' : ''}{cfg.healthDelta}</span>
+                </motion.button>
+              ))}
+            </>
+          )}
+          {stalled && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              style={{ padding: '14px', borderRadius: '10px', background: 'rgba(220,38,38,0.1)', border: '1.5px solid rgba(220,38,38,0.3)' }}>
+              <div style={{ fontWeight: 700, fontSize: '13px', color: '#dc2626', marginBottom: '6px' }}>🔴 Account stalled at &ldquo;{currentStage?.label}&rdquo;</div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>Under-investment at critical stages creates compounding risk. Each weak stage makes the next harder to advance.</div>
+              <button onClick={reset} style={{ marginTop: '10px', width: '100%', padding: '8px', borderRadius: '7px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)', fontSize: '12px', cursor: 'pointer' }}>↺ Try again</button>
+            </motion.div>
+          )}
+          {complete && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              style={{ padding: '14px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.1)`, border: `1.5px solid ${ACCENT}40` }}>
+              <div style={{ fontWeight: 700, fontSize: '13px', color: ACCENT, marginBottom: '6px' }}>🎯 Land-and-expand achieved. Final health: {accountHealth}/100</div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>Enterprise expansion is a product-and-GTM system. Each stage requires deliberate investment in onboarding, proof, alignment, and adoption support.</div>
+              <button onClick={reset} style={{ marginTop: '10px', width: '100%', padding: '8px', borderRadius: '7px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)', fontSize: '12px', cursor: 'pointer' }}>↺ Try different investments</button>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </ToolCard>
+  );
+}

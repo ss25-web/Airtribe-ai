@@ -498,3 +498,123 @@ export function GTMMotionAnimation() {
     </AnimationShell>
   );
 }
+
+// ─────────────────────────────────────────
+// T2-A · PHASED ROLLOUT CONTROL ANIMATION
+// ─────────────────────────────────────────
+const ROLLOUT_LAYERS = [
+  { label: 'Internal Team',   emoji: '🏠', color: '#64748b', risk: 5,  signal: 20, support: 95 },
+  { label: 'Design Partners', emoji: '🤝', color: '#3A86FF', risk: 15, signal: 45, support: 85 },
+  { label: 'Pilot Accounts',  emoji: '🎯', color: '#E67E22', risk: 30, signal: 65, support: 75 },
+  { label: 'Segmented',       emoji: '🌊', color: '#7843EE', risk: 55, signal: 80, support: 60 },
+  { label: 'Broad Launch',    emoji: '🚀', color: ACCENT,    risk: 90, signal: 95, support: 45 },
+];
+
+export function PhasedRolloutControlAnimation() {
+  const [active, setActive] = useState(1);
+
+  useEffect(() => {
+    const t = setInterval(() => setActive(a => (a + 1) % ROLLOUT_LAYERS.length), 2200);
+    return () => clearInterval(t);
+  }, []);
+
+  const layer = ROLLOUT_LAYERS[active];
+
+  return (
+    <AnimationShell title="Phased Rollout Control" caption="Mature rollout is a governance system — each stage expands exposure while improving signal quality, with a defined blast radius at every step.">
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginBottom: '20px' }}>
+        {ROLLOUT_LAYERS.map((l, i) => {
+          const isActive = i === active;
+          const isPast = i < active;
+          return (
+            <div key={l.label} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px' }}>
+              <motion.div animate={{ height: `${20 + l.risk * 1.3}px`, opacity: isActive ? 1 : isPast ? 0.45 : 0.25 }} transition={{ duration: 0.5 }}
+                style={{ width: '100%', borderRadius: '5px 5px 0 0', background: isActive ? l.color : l.color + '60', boxShadow: isActive ? `0 0 16px ${l.color}50` : 'none' }} />
+              <div style={{ fontSize: '18px' }}>{l.emoji}</div>
+              <div style={{ fontSize: '9px', fontWeight: isActive ? 700 : 400, color: isActive ? l.color : 'var(--ed-ink3)', textAlign: 'center' as const, lineHeight: 1.3 }}>{l.label}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      <motion.div key={active} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+        {[
+          { label: 'Blast Radius', value: layer.risk, color: layer.risk > 50 ? '#dc2626' : '#E67E22', invert: false },
+          { label: 'Signal Quality', value: layer.signal, color: layer.signal > 60 ? ACCENT : '#E67E22', invert: false },
+          { label: 'Support Capacity', value: layer.support, color: layer.support > 70 ? ACCENT : '#E67E22', invert: false },
+        ].map(m => (
+          <div key={m.label} style={{ padding: '10px', borderRadius: '8px', background: `${m.color}12`, border: `1px solid ${m.color}35`, textAlign: 'center' as const }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: m.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', marginBottom: '4px' }}>{m.label}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 900, fontSize: '20px', color: m.color }}>{m.value}%</div>
+          </div>
+        ))}
+      </motion.div>
+    </AnimationShell>
+  );
+}
+
+// ─────────────────────────────────────────
+// T2-B · LAND AND EXPAND ANIMATION
+// ─────────────────────────────────────────
+const EXPAND_STAGES = [
+  { label: 'Champion',          emoji: '⭐', color: '#E67E22', nodes: 1 },
+  { label: 'First Team',        emoji: '👥', color: '#3A86FF', nodes: 4 },
+  { label: 'Proof of Value',    emoji: '📊', color: '#7843EE', nodes: 4 },
+  { label: 'Paid Conversion',   emoji: '💳', color: ACCENT,    nodes: 4 },
+  { label: 'Adjacent Team',     emoji: '🏢', color: ACCENT,    nodes: 8 },
+  { label: 'Org-Wide Adoption', emoji: '🚀', color: ACCENT,    nodes: 16 },
+];
+
+export function LandAndExpandAnimation() {
+  const [stageIdx, setStageIdx] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setStageIdx(i => (i + 1) % EXPAND_STAGES.length), 1800);
+    return () => clearInterval(t);
+  }, []);
+
+  const stage = EXPAND_STAGES[stageIdx];
+
+  return (
+    <AnimationShell title="Land-and-Expand Flow" caption="Enterprise expansion is not a sales outcome — it is a product-and-GTM system where each stage deliberately builds the conditions for the next.">
+      {/* Visual org spread */}
+      <div style={{ textAlign: 'center' as const, marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', flexWrap: 'wrap' as const, minHeight: '80px', alignItems: 'center' }}>
+          {Array.from({ length: Math.min(stage.nodes, 16) }, (_, i) => (
+            <motion.div key={`${stageIdx}-${i}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: i * 0.06, type: 'spring', stiffness: 300 }}
+              style={{ width: i === 0 ? '40px' : '28px', height: i === 0 ? '40px' : '28px', borderRadius: '50%', background: i === 0 ? '#E67E22' : stage.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: i === 0 ? '18px' : '12px', boxShadow: i === 0 ? `0 0 16px ${stage.color}60` : `0 2px 8px ${stage.color}30`, border: i === 0 ? '2px solid white' : 'none' }}>
+              {i === 0 ? '⭐' : '👤'}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stage progress */}
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', justifyContent: 'center' }}>
+        {EXPAND_STAGES.map((s, i) => (
+          <div key={s.label} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', flex: 1 }}>
+            <motion.div animate={{ scale: i === stageIdx ? 1.2 : 1, opacity: i > stageIdx ? 0.3 : 1 }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', background: i <= stageIdx ? s.color : 'var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', boxShadow: i === stageIdx ? `0 0 12px ${s.color}60` : 'none', transition: 'background 0.4s' }}>
+              {i < stageIdx ? '✓' : s.emoji}
+            </motion.div>
+            <div style={{ fontSize: '8px', color: i === stageIdx ? s.color : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: i === stageIdx ? 700 : 400, textAlign: 'center' as const, lineHeight: 1.3 }}>
+              {s.label.split(' ')[0]}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <motion.div key={stageIdx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+        style={{ padding: '12px 16px', borderRadius: '8px', background: `${stage.color}12`, border: `1px solid ${stage.color}40`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <span style={{ fontSize: '20px' }}>{stage.emoji}</span>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: '12px', color: stage.color }}>{stage.label}</div>
+          <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '2px' }}>
+            {stage.nodes} user{stage.nodes > 1 ? 's' : ''} in the product · {stageIdx < EXPAND_STAGES.length - 1 ? 'advancing →' : 'expansion complete ✓'}
+          </div>
+        </div>
+      </motion.div>
+    </AnimationShell>
+  );
+}
