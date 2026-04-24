@@ -16,6 +16,13 @@ import {
   PricingModelExplorer,
   GTMPathVisualizer,
 } from './LaunchGrowthTools';
+import {
+  LaunchPipelineAnimation,
+  AhaMomentFlowAnimation,
+  GrowthFlywheelAnimation,
+  MonetizationLadderAnimation,
+  GTMMotionAnimation,
+} from './LaunchGrowthAnimations';
 
 const ACCENT     = '#0D7A5A';
 const ACCENT_RGB = '13,122,90';
@@ -268,6 +275,7 @@ export default function Track1LaunchGrowth({
           'Build confidence without committing certainty you don\'t have yet',
         ])}
 
+        <LaunchPipelineAnimation />
         <LaunchReadinessSimulator />
 
         <PMPrinciple text="Phased release is not lack of confidence. It is disciplined exposure." />
@@ -308,6 +316,7 @@ export default function Track1LaunchGrowth({
 
         {para(<>A product can be discoverable and still not be compelling. A product can be well built and still take too long to prove its value. That is why distribution and activation belong in the same conversation. Getting users into the product is not enough — you need to get them to the moment where the product clicks.</>)}
 
+        <AhaMomentFlowAnimation />
         <AhaMomentJourneyLab />
 
         <PMPrinciple text="Getting users in is not the same as getting users to value." />
@@ -348,6 +357,7 @@ export default function Track1LaunchGrowth({
 
         {para(<>Not every product has true network effects. And PLG is not always the right answer. But every PM should be able to ask: if we stop pushing from the outside, does this product continue to grow? If the answer is no, that is not a failure — but it is a strategic fact that shapes how you resource growth and plan GTM.</>)}
 
+        <GrowthFlywheelAnimation />
         <GrowthLoopPlayground />
 
         <PMPrinciple text="Strong growth systems do not just bring users in. They create conditions for usage to generate more usage." />
@@ -388,6 +398,7 @@ export default function Track1LaunchGrowth({
 
         {para(<>A freemium model can widen adoption but may delay revenue. Usage-based pricing can align with value but make costs feel uncertain. Enterprise pricing can deepen account value but slow initial access. A trial can accelerate discovery but create urgency before habit forms. None of these are purely finance decisions — they are product decisions with behavioral consequences.</>)}
 
+        <MonetizationLadderAnimation />
         <PricingModelExplorer />
 
         <PMPrinciple text="Monetization is not just a business decision. It is a product design decision with behavioral consequences." />
@@ -428,6 +439,7 @@ export default function Track1LaunchGrowth({
 
         {para(<>If the product is easy to understand, low-friction, and can prove value quickly — product-led motion can work well. If the product is higher-value, more complex, needs setup help, or requires stakeholder buying — sales-led motion may make more sense. Many products live in between, and the hybrid path is often the most honest answer.</>)}
 
+        <GTMMotionAnimation />
         <GTMPathVisualizer />
 
         <PMPrinciple text="The right GTM motion is not the one that sounds modern. It is the one that fits the product's complexity, value, and adoption path." />
