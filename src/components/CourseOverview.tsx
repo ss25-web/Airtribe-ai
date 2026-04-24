@@ -92,9 +92,9 @@ const MODULES = [
     num: '08',
     label: 'Product Launch, Growth & Monetization',
     desc: 'GTM strategy, PLG, growth loops, network effects, monetization models (freemium, usage-based, enterprise), and B2B go-to-market.',
-    duration: '45 min',
+    duration: '40 min',
     tools: ['Amplitude', 'ChatGPT'],
-    available: false,
+    available: true,
     accent: '#0D7A5A',
   },
   {

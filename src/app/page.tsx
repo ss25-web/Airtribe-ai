@@ -12,6 +12,7 @@ import PrioritizationModule from '@/components/PrioritizationModule';
 import UXDesignModule from '@/components/UXDesignModule';
 import CommunicationPMModule from '@/components/CommunicationPMModule';
 import AnalyticsPMModule from '@/components/AnalyticsPMModule';
+import LaunchGrowthModule from '@/components/LaunchGrowthModule';
 import GenAIPlacementQuiz from '@/components/GenAIPlacementQuiz';
 import GenAILaunchpadOverview from '@/components/GenAILaunchpadOverview';
 import GenAIPreRead1 from '@/components/GenAIPreRead1';
@@ -337,6 +338,9 @@ export default function Home() {
     }
     if (activeModule === '07') {
       return <AnalyticsPMModule track={assignedTrack} onBack={goBackToOverview} />;
+    }
+    if (activeModule === '08') {
+      return <LaunchGrowthModule track={assignedTrack} onBack={goBackToOverview} />;
     }
     return (
       <PMFundamentalsModule
