@@ -131,7 +131,7 @@ export function CommunicationPrism() {
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(160deg, rgba(2,132,199,0.05) 0%, rgba(2,132,199,0.02) 100%)' }}>
         {/* Raw message */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>RAW PRODUCT MESSAGE</div>
@@ -249,7 +249,7 @@ export function NarrativeStaircase() {
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(160deg, rgba(120,67,238,0.05) 0%, rgba(120,67,238,0.02) 100%)' }}>
         {weakMode && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             style={{ marginBottom: '16px', padding: '12px 16px', borderRadius: '8px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.3)', fontSize: '13px', color: 'var(--ed-ink)' }}>
@@ -371,7 +371,7 @@ export function RoadmapPressureChamber() {
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(160deg, rgba(21,129,88,0.05) 0%, rgba(21,129,88,0.02) 100%)' }}>
         {/* Central statement */}
         <div style={{ textAlign: 'center' as const, marginBottom: '24px' }}>
           <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>ROADMAP STATEMENT</div>
@@ -448,7 +448,7 @@ export function StakeholderCalibrationRoom() {
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(160deg, rgba(120,67,238,0.05) 0%, rgba(120,67,238,0.02) 100%)' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
           {CAL_PODS.map((pod, i) => (
             <motion.div key={pod.name} whileHover={{ y: -3, boxShadow: `0 8px 24px ${pod.color}25` }} onClick={() => setActive(active === i ? null : i)}
@@ -551,9 +551,9 @@ export function ExecReviewTheater() {
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>
+      <div style={{ padding: '24px', background: 'linear-gradient(160deg, rgba(120,67,238,0.05) 0%, rgba(120,67,238,0.02) 100%)' }}>
         {/* Altitude selector */}
-        <div style={{ display: 'flex', gap: '0', marginBottom: '24px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', gap: '0', marginBottom: '24px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--ed-rule)' }}>
           {ALTITUDE_LEVELS.map((l, i) => (
             <motion.button key={l.id} whileHover={{ opacity: 0.9 }} onClick={() => setLevel(i)}
               style={{ flex: 1, padding: '12px 16px', border: 'none', cursor: 'pointer', background: level === i ? l.color : 'var(--ed-card)', color: level === i ? '#fff' : 'var(--ed-ink3)', fontWeight: level === i ? 700 : 400, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', borderRight: i < 2 ? '1px solid var(--ed-rule)' : 'none', transition: 'all 0.2s' }}>

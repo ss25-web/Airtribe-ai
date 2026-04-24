@@ -35,18 +35,23 @@ const PMPrinciple = ({ text }: { text: string }) => (
 );
 
 // shared tool card shell
-const ToolCard = ({ title, subtitle, icon, color, children }: { title: string; subtitle: string; icon: string; color: string; children: React.ReactNode }) => (
-  <div style={{ background: 'var(--ed-card)', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden', margin: '32px 0' }}>
-    <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${color}15 0%, ${color}08 100%)`, borderBottom: `1px solid ${color}20`, display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <span style={{ fontSize: '18px' }}>{icon}</span>
-      <div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color, textTransform: 'uppercase' as const }}>{title}</div>
-        <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>{subtitle}</div>
+const ToolCard = ({ title, subtitle, icon, color, children }: { title: string; subtitle: string; icon: string; color: string; children: React.ReactNode }) => {
+  // Parse hex to rgb for the tint
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06)', overflow: 'hidden', margin: '32px 0', border: `1px solid ${color}20` }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${color}20 0%, ${color}0C 100%)`, borderBottom: `1px solid ${color}25`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: `${color}20`, border: `1px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>{icon}</div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color, textTransform: 'uppercase' as const }}>{title}</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>{subtitle}</div>
+        </div>
       </div>
+      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${r},${g},${b},0.05) 0%, rgba(${r},${g},${b},0.02) 100%)` }}>{children}</div>
     </div>
-    <div style={{ padding: '24px', background: 'var(--ed-cream)' }}>{children}</div>
-  </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────
 // TOOL 1 · METRIC MAP BUILDER (Part 2)
@@ -249,9 +254,10 @@ export function FunnelExplorer() {
 
   return (
     <ToolCard title="Funnel Explorer" subtitle="Click any stage to inspect the drop-off. Notice that each one has multiple plausible explanations." icon="📉" color="#E67E22">
-      <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
         {/* Bar chart */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '12px' }}>ONBOARDING FUNNEL · EDSPARK</div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '200px', marginBottom: '8px' }}>
             {FUNNEL_STEPS.map((step, i) => {
               const prev = i > 0 ? FUNNEL_STEPS[i - 1].users : step.users;
@@ -276,15 +282,15 @@ export function FunnelExplorer() {
           <div style={{ display: 'flex', gap: '8px' }}>
             {FUNNEL_STEPS.map(step => (
               <div key={step.id} style={{ flex: 1, textAlign: 'center' as const }}>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace' " }}>{step.users}</div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.3 }}>{step.label}</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'JetBrains Mono', monospace" }}>{step.users}</div>
+                <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', lineHeight: 1.4, marginTop: '2px' }}>{step.label}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Interpretations panel */}
-        <div style={{ width: '220px', flexShrink: 0 }}>
+        <div style={{ width: '220px', flexShrink: 0, background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
           <AnimatePresence mode="wait">
             {active ? (
               <motion.div key={active} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
@@ -343,44 +349,65 @@ export function CohortPlayground() {
       </div>
 
       {/* Chart */}
-      <div style={{ position: 'relative' as const, marginBottom: '16px' }}>
-        {/* Y axis labels */}
-        <div style={{ position: 'absolute' as const, left: 0, top: 0, bottom: '24px', width: '36px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          {[100, 75, 50, 25, 0].map(v => (
-            <div key={v} style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", paddingRight: '6px' }}>{v}%</div>
-          ))}
+      <div style={{ background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '16px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>RETENTION RATE OVER TIME</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>EdSpark · Onboarding Cohorts</div>
         </div>
-        <div style={{ marginLeft: '40px' }}>
-          <svg width="100%" height="200" viewBox="0 0 560 200" preserveAspectRatio="none">
-            {/* Grid lines */}
-            {[0, 50, 100, 150, 200].map(y => (
-              <line key={y} x1="0" y1={y} x2="560" y2={y} stroke="var(--ed-rule)" strokeWidth="1" />
+        <div style={{ position: 'relative' as const }}>
+          {/* Y axis labels */}
+          <div style={{ position: 'absolute' as const, left: 0, top: 0, bottom: '24px', width: '32px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            {[100, 75, 50, 25, 0].map(v => (
+              <div key={v} style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", paddingRight: '4px' }}>{v}%</div>
             ))}
-            <AnimatePresence mode="wait">
-              {view === 'overall' ? (
-                <g key="overall">
-                  <polyline points={COHORT_DATA.overall.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.overall} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  {COHORT_DATA.overall.map((v, i) => (
-                    <circle key={i} cx={i * 93.3} cy={200 - (v / 100) * 200} r="5" fill={colors.overall} />
-                  ))}
-                </g>
-              ) : (
-                <g key="cohort">
-                  <polyline points={COHORT_DATA.before.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.before} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  {COHORT_DATA.before.map((v, i) => (
-                    <circle key={`b${i}`} cx={i * 93.3} cy={200 - (v / 100) * 200} r="4" fill={colors.before} />
-                  ))}
-                  <polyline points={COHORT_DATA.after.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.after} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  {COHORT_DATA.after.map((v, i) => (
-                    <circle key={`a${i}`} cx={i * 93.3} cy={200 - (v / 100) * 200} r="4" fill={colors.after} />
-                  ))}
-                </g>
-              )}
-            </AnimatePresence>
-          </svg>
-          {/* X labels */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-            {WEEKS.map(w => <div key={w} style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{w}</div>)}
+          </div>
+          <div style={{ marginLeft: '36px' }}>
+            <svg width="100%" height="200" viewBox="0 0 560 200" preserveAspectRatio="none" style={{ display: 'block' }}>
+              {/* Grid lines */}
+              {[0, 50, 100, 150, 200].map(y => (
+                <line key={y} x1="0" y1={y} x2="560" y2={y} stroke="var(--ed-rule)" strokeWidth="1" strokeDasharray={y === 200 ? 'none' : '4 4'} />
+              ))}
+              <AnimatePresence mode="wait">
+                {view === 'overall' ? (
+                  <g key="overall">
+                    {/* Filled area */}
+                    <polygon
+                      points={`0,200 ${COHORT_DATA.overall.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} ${(COHORT_DATA.overall.length - 1) * 93.3},200`}
+                      fill={`${colors.overall}18`}
+                    />
+                    <polyline points={COHORT_DATA.overall.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.overall} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {COHORT_DATA.overall.map((v, i) => (
+                      <circle key={i} cx={i * 93.3} cy={200 - (v / 100) * 200} r="4" fill={colors.overall} stroke="var(--ed-card)" strokeWidth="2" />
+                    ))}
+                  </g>
+                ) : (
+                  <g key="cohort">
+                    {/* Before fill */}
+                    <polygon
+                      points={`0,200 ${COHORT_DATA.before.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} ${(COHORT_DATA.before.length - 1) * 93.3},200`}
+                      fill={`${colors.before}15`}
+                    />
+                    {/* After fill */}
+                    <polygon
+                      points={`0,200 ${COHORT_DATA.after.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} ${(COHORT_DATA.after.length - 1) * 93.3},200`}
+                      fill="rgba(220,38,38,0.1)"
+                    />
+                    <polyline points={COHORT_DATA.before.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.before} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {COHORT_DATA.before.map((v, i) => (
+                      <circle key={`b${i}`} cx={i * 93.3} cy={200 - (v / 100) * 200} r="4" fill={colors.before} stroke="var(--ed-card)" strokeWidth="2" />
+                    ))}
+                    <polyline points={COHORT_DATA.after.map((v, i) => `${i * 93.3},${200 - (v / 100) * 200}`).join(' ')} fill="none" stroke={colors.after} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="6 3" />
+                    {COHORT_DATA.after.map((v, i) => (
+                      <circle key={`a${i}`} cx={i * 93.3} cy={200 - (v / 100) * 200} r="4" fill={colors.after} stroke="var(--ed-card)" strokeWidth="2" />
+                    ))}
+                  </g>
+                )}
+              </AnimatePresence>
+            </svg>
+            {/* X labels */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+              {WEEKS.map(w => <div key={w} style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{w}</div>)}
+            </div>
           </div>
         </div>
       </div>
