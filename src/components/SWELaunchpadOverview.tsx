@@ -228,9 +228,9 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
         
         if (track === 'python') {
           if (mod.num === '01') {
-            label = 'Core Language & Data Model';
+            label = 'Python Foundations for Backend Engineers';
           } else if (mod.num === '02') {
-            label = 'Functions, OOP, and Code Organization';
+            label = 'Writing Structured Python: Classes & Modules';
             available = true;
           } else if (mod.num === '03') {
             label = 'Reliability, Environments, and Readiness';
