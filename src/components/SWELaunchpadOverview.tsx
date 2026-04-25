@@ -13,9 +13,9 @@ const SHARED_MODULES: { num: string; phase: string; label: string; baseDuration:
     desc: 'Five interactive 3D sections covering variables, types, control flow, functions, and your first real program — with Three.js-powered visualisations for each concept. No experience required.',
   },
   {
-    num: '01', phase: 'Week 0', label: 'How Software Actually Works',
-    baseDuration: 'Pre-read · 25 min',
-    tools: { python: ['Python 3', 'pip', 'VS Code'], nodejs: ['Node.js', 'npm', 'VS Code'] },
+    num: '01', phase: 'Week 0', label: 'Python Foundations for Backend Engineers',
+    baseDuration: 'Pre-read · 35–40 min',
+    tools: { python: ['Variables', 'Data Types', 'Functions', 'Lambda', 'Type Hints'], nodejs: ['Node.js', 'npm', 'VS Code'] },
     available: true, accent: '#16A34A',
   },
   {
@@ -164,7 +164,7 @@ const TRACK_META: Record<SWETrack, {
     bg: 'rgba(22,163,74,0.08)',
     border: 'rgba(22,163,74,0.2)',
     emoji: '🐍',
-    module01Desc: 'How Python code runs through the CPython interpreter, what pip and virtual environments do, how to read a traceback, and what makes Python different from compiled languages — before writing your first script.',
+    module01Desc: 'Variables as names not boxes, choosing the right data structure, functions and reuse, lambda and transformation, and type hints — the habits that make Python code readable, reusable, and trustworthy.',
     stats: [
       { label: 'Duration', value: 'Weeks 0–14' },
       { label: 'Modules', value: '6 modules' },
