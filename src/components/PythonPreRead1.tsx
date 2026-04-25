@@ -323,86 +323,178 @@ print(total)`;
 }
 
 // ─────────────────────────────────────────
-// ANIMATION · DATA TRANSFORMATION FLOW
 // ─────────────────────────────────────────
-const RAW_USERS = [
-  { name: 'Aman', age: 28, active: true },
-  { name: 'Priya', age: 24, active: false },
-  { name: 'Ravi', age: 31, active: true },
-  { name: 'Neha', age: 22, active: true },
+// ANIMATION · DATA TRANSFORMATION FLOW
+// Genuine animated pipeline: data flows through sort → filter → map
+// ─────────────────────────────────────────
+const USERS_RAW = [
+  { id: 'a', name: 'Aman',  age: 28, active: true  },
+  { id: 'b', name: 'Priya', age: 24, active: false },
+  { id: 'c', name: 'Ravi',  age: 31, active: true  },
+  { id: 'd', name: 'Neha',  age: 22, active: true  },
 ];
 
-function DataTransformationFlow() {
-  const [stage, setStage] = useState<'raw' | 'sorted' | 'filtered' | 'mapped'>('raw');
+type PipelineStage = 'sort' | 'filter' | 'map';
 
-  const sorted = [...RAW_USERS].sort((a, b) => a.age - b.age);
-  const filtered = RAW_USERS.filter(u => u.active);
-  const mapped = RAW_USERS.map(u => u.name.toUpperCase());
+const PIPELINE_META: Record<PipelineStage, { emoji: string; color: string; label: string; code: string; desc: string }> = {
+  sort:   { emoji: '↑↓', color: '#3A86FF', label: 'sort()', code: 'users.sort(key=lambda u: u["age"])', desc: 'Lambda defines what to sort by. Cards rearrange by age — youngest first.' },
+  filter: { emoji: '🔍', color: '#E67E22', label: 'filter()', code: 'list(filter(lambda u: u["active"], users))', desc: 'Lambda defines what to keep. Inactive users fade out and are removed.' },
+  map:    { emoji: '🔄', color: '#7843EE', label: 'map()', code: 'list(map(lambda u: u["name"].upper(), users))', desc: 'Lambda defines how to transform each item. Every card becomes its uppercase name.' },
+};
 
-  const display = stage === 'raw' ? RAW_USERS : stage === 'sorted' ? sorted : stage === 'filtered' ? filtered : null;
-  const displayStrings = stage === 'mapped' ? mapped : null;
-
-  const CODE = {
-    raw:      'users  # raw list',
-    sorted:   'users.sort(key=lambda u: u["age"])',
-    filtered: 'list(filter(lambda u: u["active"], users))',
-    mapped:   'list(map(lambda u: u["name"].upper(), users))',
-  };
+function UserCard({ user, stage, order }: { user: typeof USERS_RAW[0]; stage: PipelineStage; order: number }) {
+  const isFading = stage === 'filter' && !user.active;
+  const isMapped = stage === 'map';
+  const sortedOrder = stage === 'sort' ? [22, 24, 28, 31].indexOf(user.age) : order;
 
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>⚡</div>
-        <div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Data Transformation Flow</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>See sort, filter, and map in action. Lambda makes each transformation concise and local.</div>
+    <motion.div
+      layout
+      key={user.id}
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: isFading ? 0.12 : 1, scale: isFading ? 0.85 : 1, filter: isFading ? 'grayscale(1)' : 'none' }}
+      transition={{ duration: 0.55, ease: 'easeInOut', layout: { duration: 0.55, ease: 'easeInOut' } }}
+      style={{ padding: isMapped ? '12px 18px' : '10px 14px', borderRadius: '10px', background: isMapped ? `rgba(120,67,238,0.12)` : 'var(--ed-card)', border: `1.5px solid ${isMapped ? '#7843EE' : isFading ? '#e2e8f0' : ACCENT}50`, minWidth: isMapped ? '80px' : '110px', textAlign: 'center' as const, boxShadow: isFading ? 'none' : '0 3px 10px rgba(0,0,0,0.08)', position: 'relative' as const }}>
+      {isMapped ? (
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 800, color: '#7843EE', letterSpacing: '0.04em' }}>
+          &ldquo;{user.name.toUpperCase()}&rdquo;
         </div>
+      ) : (
+        <>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: isFading ? '#94a3b8' : ACCENT, marginBottom: '3px' }}>{user.name}</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginBottom: '2px' }}>age: <strong style={{ color: stage === 'sort' ? '#3A86FF' : 'var(--ed-ink3)' }}>{user.age}</strong></div>
+          <div style={{ fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: user.active ? ACCENT : '#dc2626' }}>{user.active ? '● active' : '● inactive'}</div>
+        </>
+      )}
+    </motion.div>
+  );
+}
+
+function DataTransformationFlow() {
+  const [stage, setStage] = useState<PipelineStage>('sort');
+  const [playing, setPlaying] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const meta = PIPELINE_META[stage];
+  const stages: PipelineStage[] = ['sort', 'filter', 'map'];
+
+  // Auto-cycle through stages
+  useEffect(() => {
+    if (!playing) return;
+    timerRef.current = setTimeout(() => {
+      setStage(s => {
+        const idx = stages.indexOf(s);
+        return stages[(idx + 1) % stages.length];
+      });
+    }, 3000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [stage, playing]);
+
+  const displayUsers = stage === 'sort'
+    ? [...USERS_RAW].sort((a, b) => a.age - b.age)
+    : USERS_RAW;
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${meta.color}35`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 6px 32px ${meta.color}18` }}>
+      {/* Header */}
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${meta.color}20 0%, ${meta.color}0C 100%)`, borderBottom: `1.5px solid ${meta.color}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: `${meta.color}25`, border: `1.5px solid ${meta.color}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 900, color: meta.color, fontFamily: "'JetBrains Mono', monospace" }}>
+          {meta.emoji}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: meta.color, textTransform: 'uppercase' as const }}>Data Transformation Flow · {meta.label}</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Watch data change shape as it passes through each operation.</div>
+        </div>
+        <button onClick={() => setPlaying(p => !p)}
+          style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${meta.color}50`, background: `${meta.color}12`, color: meta.color, fontFamily: "'JetBrains Mono', monospace" }}>
+          {playing ? '⏸' : '▶'}
+        </button>
       </div>
+
       <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
-        {/* Stage buttons */}
-        <div style={{ display: 'flex', gap: '0', marginBottom: '20px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--ed-rule)' }}>
-          {(['raw', 'sorted', 'filtered', 'mapped'] as const).map((s, i) => (
-            <button key={s} onClick={() => setStage(s)}
-              style={{ flex: 1, padding: '10px', border: 'none', cursor: 'pointer', background: stage === s ? ACCENT : 'var(--ed-card)', color: stage === s ? '#fff' : 'var(--ed-ink3)', fontWeight: stage === s ? 700 : 400, fontSize: '12px', borderRight: i < 3 ? '1px solid var(--ed-rule)' : 'none', transition: 'all 0.2s' }}>
-              {s === 'raw' ? '📋 Raw' : s === 'sorted' ? '↑ sort()' : s === 'filtered' ? '🔍 filter()' : '🔄 map()'}
-            </button>
+        {/* Stage selector */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+          {stages.map(s => {
+            const m = PIPELINE_META[s];
+            return (
+              <motion.button key={s} whileHover={{ y: -1 }} onClick={() => { setStage(s); setPlaying(false); }}
+                style={{ flex: 1, padding: '9px 6px', borderRadius: '8px', border: `2px solid ${stage === s ? m.color : 'var(--ed-rule)'}`, background: stage === s ? `${m.color}15` : 'var(--ed-card)', color: stage === s ? m.color : 'var(--ed-ink3)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: stage === s ? `0 4px 14px ${m.color}25` : 'none' }}>
+                {m.emoji} {m.label}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {/* Pipeline visualization */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 1fr', gap: '0', alignItems: 'center', marginBottom: '20px', minHeight: '140px' }}>
+          {/* Input */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px', textAlign: 'center' as const }}>INPUT</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px', alignItems: 'center' }}>
+              {USERS_RAW.map((u, i) => (
+                <motion.div key={u.id} style={{ padding: '6px 12px', borderRadius: '7px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', width: '100%', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: ACCENT, flex: 1 }}>{u.name}</div>
+                  <div style={{ fontSize: '9px', color: 'var(--ed-ink3)' }}>age:{u.age}</div>
+                  <div style={{ fontSize: '8px', fontWeight: 700, color: u.active ? ACCENT : '#dc2626', fontFamily: "'JetBrains Mono', monospace" }}>{u.active ? '●' : '○'}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pipeline arrow + operator */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '8px' }}>
+            <motion.div key={stage} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3 }}
+              style={{ width: '52px', height: '52px', borderRadius: '14px', background: `${meta.color}20`, border: `2px solid ${meta.color}60`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: meta.color, boxShadow: `0 0 20px ${meta.color}30` }}>
+              {meta.emoji}
+            </motion.div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: meta.color, textAlign: 'center' as const }}>{meta.label}</div>
+            {/* Animated arrow */}
+            <div style={{ position: 'relative' as const, width: '60px', height: '4px', overflow: 'hidden', borderRadius: '2px', background: 'var(--ed-rule)' }}>
+              <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 1, repeat: Infinity, ease: 'linear', repeatDelay: 0 }}
+                style={{ position: 'absolute' as const, width: '40px', height: '100%', background: `linear-gradient(90deg, transparent, ${meta.color}, transparent)`, borderRadius: '2px' }} />
+            </div>
+          </div>
+
+          {/* Output */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: meta.color, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '10px', textAlign: 'center' as const }}>OUTPUT</div>
+            <AnimatePresence mode="popLayout">
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px', alignItems: 'center' }}>
+                {(stage === 'sort' ? [...USERS_RAW].sort((a,b) => a.age - b.age) : stage === 'filter' ? USERS_RAW.filter(u => u.active) : USERS_RAW).map((u, i) => (
+                  <motion.div key={`${stage}-${u.id}`}
+                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: i * 0.08, duration: 0.4 }}
+                    style={{ padding: '6px 12px', borderRadius: '7px', background: `${meta.color}10`, border: `1.5px solid ${meta.color}40`, width: '100%', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {stage === 'map' ? (
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: meta.color, flex: 1 }}>&ldquo;{u.name.toUpperCase()}&rdquo;</div>
+                    ) : (
+                      <>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: meta.color, flex: 1 }}>{u.name}</div>
+                        {stage === 'sort' && <div style={{ fontSize: '9px', fontWeight: 800, color: '#3A86FF', fontFamily: "'JetBrains Mono', monospace" }}>age:{u.age}</div>}
+                        {stage === 'filter' && <div style={{ fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>● active</div>}
+                      </>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Code + description */}
+        <div style={{ background: '#0f172a', borderRadius: '8px', padding: '10px 16px', marginBottom: '12px', border: `1px solid ${meta.color}25` }}>
+          <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#86efac' }}>{meta.code}</code>
+        </div>
+        <div style={{ padding: '10px 14px', borderRadius: '8px', background: `${meta.color}08`, border: `1px solid ${meta.color}25`, fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
+          {meta.desc}
+        </div>
+
+        {/* Stage progress dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
+          {stages.map(s => (
+            <div key={s} onClick={() => { setStage(s); setPlaying(false); }}
+              style={{ width: stage === s ? '24px' : '8px', height: '8px', borderRadius: '4px', background: stage === s ? meta.color : 'var(--ed-rule)', cursor: 'pointer', transition: 'all 0.3s' }} />
           ))}
         </div>
-
-        {/* Code */}
-        <div style={{ background: '#0f172a', borderRadius: '8px', padding: '10px 16px', marginBottom: '16px', border: `1px solid ${ACCENT}25` }}>
-          <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#86efac' }}>
-            {CODE[stage]}
-          </code>
-        </div>
-
-        {/* Data items */}
-        <AnimatePresence mode="wait">
-          <motion.div key={stage} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '8px' }}>
-            {displayStrings ? displayStrings.map((s, i) => (
-              <motion.div key={i} initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ delay: i * 0.06 }}
-                style={{ padding: '8px 16px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.12)`, border: `1.5px solid ${ACCENT}40`, fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 700, color: ACCENT }}>
-                "{s}"
-              </motion.div>
-            )) : display?.map((user, i) => (
-              <motion.div key={i} initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ delay: i * 0.08 }}
-                style={{ padding: '10px 14px', borderRadius: '10px', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}35`, minWidth: '120px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: ACCENT, marginBottom: '2px' }}>{user.name}</div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>age: {user.age}</div>
-                {'active' in user && <div style={{ fontSize: '9px', color: user.active ? ACCENT : '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, marginTop: '2px' }}>{user.active ? 'active' : 'inactive'}</div>}
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
-
-        {stage !== 'raw' && (
-          <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid ${ACCENT}25`, fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-            {stage === 'sorted'   && 'sorted() with lambda key — reorders by age without creating a separate function. The logic is tiny and local.'}
-            {stage === 'filtered' && 'filter() with lambda — keeps only active users. One small condition, no need for a named function.'}
-            {stage === 'mapped'   && 'map() with lambda — transforms every name. Each item in → each item out, transformed.'}
-          </div>
-        )}
       </div>
     </div>
   );
