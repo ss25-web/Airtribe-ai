@@ -85,10 +85,12 @@ const FRAGMENTS = [
   { id: 'discount_rate',label: 'discount_rate',       type: 'attr', belongs: false, why: 'This belongs in pricing logic, not a User class.' },
 ];
 
+// vibrant palette — solid opaque only
+const C = { blue: '#2563EB', purple: '#7C3AED', green: '#059669', red: '#DC2626', amber: '#D97706', teal: '#0891B2', pink: '#DB2777', indigo: '#4F46E5', orange: '#EA580C' };
 const INSTANCES = [
-  { name: 'Ravi',  email: 'ravi@example.com',  active: true  },
-  { name: 'Priya', email: 'priya@example.com', active: true  },
-  { name: 'Aman',  email: 'aman@example.com',  active: false },
+  { name: 'Ravi',  email: 'ravi@example.com',  active: true,  color: C.blue   },
+  { name: 'Priya', email: 'priya@example.com', active: true,  color: C.purple },
+  { name: 'Aman',  email: 'aman@example.com',  active: false, color: C.orange },
 ];
 
 function ClassBuilderStudio() {
@@ -100,12 +102,10 @@ function ClassBuilderStudio() {
   const place = (zone: 'attr' | 'method') => {
     if (!selected) return;
     const frag = FRAGMENTS.find(f => f.id === selected)!;
-    const correct = frag.belongs;
     setPlaced(prev => ({ ...prev, [selected]: zone }));
-    setFeedback(prev => ({ ...prev, [selected]: correct }));
+    setFeedback(prev => ({ ...prev, [selected]: frag.belongs }));
     setSelected(null);
   };
-
   const remove = (id: string) => setPlaced(prev => { const n = {...prev}; delete n[id]; return n; });
   const unplaced = FRAGMENTS.filter(f => !placed[f.id]);
   const attrs = FRAGMENTS.filter(f => placed[f.id] === 'attr');
@@ -113,93 +113,88 @@ function ClassBuilderStudio() {
   const wrongItems = FRAGMENTS.filter(f => placed[f.id] && !feedback[f.id]);
   const coreBuilt = attrs.filter(f => feedback[f.id]).length >= 2 && methods.filter(f => feedback[f.id]).length >= 1;
 
+  const Tag = ({ label, type, selected: isSel, correct, onRemove }: { label: string; type: string; selected?: boolean; correct?: boolean | null; onRemove?: () => void }) => {
+    const baseColor = type === 'attr' ? C.blue : C.purple;
+    const bg = correct === true ? C.green : correct === false ? C.red : isSel ? C.indigo : baseColor;
+    return (
+      <motion.div whileHover={!onRemove ? { y: -2 } : {}} style={{ display: 'inline-flex', gap: '6px', alignItems: 'center', padding: '5px 11px', borderRadius: '6px', background: bg, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, cursor: 'pointer', boxShadow: `0 2px 8px ${bg}60`, transition: 'all 0.2s' }}>
+        <span style={{ opacity: 0.7, fontSize: '9px' }}>{type}</span>
+        {correct === true && '✓ '}{correct === false && '✗ '}{label}
+        {onRemove && <span onClick={e => { e.stopPropagation(); onRemove(); }} style={{ opacity: 0.7, marginLeft: '2px', cursor: 'pointer' }}>×</span>}
+      </motion.div>
+    );
+  };
+
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏗️</div>
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `2px solid ${C.blue}`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 8px 32px ${C.blue}25` }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${C.blue} 0%, ${C.purple} 100%)`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🏗️</div>
         <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Class Builder Studio</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Click a code fragment, then place it in Attributes or Methods. Remove anything that doesn&apos;t belong.</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#fff', textTransform: 'uppercase' as const }}>Class Builder Studio</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>Click a fragment, then click Attributes or Methods. Remove anything that doesn&apos;t belong.</div>
         </div>
       </div>
-      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+      <div style={{ padding: '24px', background: '#0F172A' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           {/* Fragment pool */}
           <div>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>CODE FRAGMENTS</div>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '10px' }}>CODE FRAGMENTS</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
               {unplaced.map(f => (
-                <motion.div key={f.id} whileHover={{ x: 3 }} onClick={() => setSelected(selected === f.id ? null : f.id)}
-                  style={{ padding: '8px 12px', borderRadius: '7px', cursor: 'pointer', background: selected === f.id ? `rgba(${ACCENT_RGB},0.12)` : 'var(--ed-card)', border: `1.5px solid ${selected === f.id ? ACCENT : 'var(--ed-rule)'}`, fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: 'var(--ed-ink)', display: 'flex', gap: '8px', alignItems: 'center', transition: 'all 0.15s' }}>
-                  <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: f.type === 'attr' ? 'rgba(58,134,255,0.15)' : 'rgba(120,67,238,0.15)', color: f.type === 'attr' ? '#3A86FF' : '#7843EE', fontFamily: "'JetBrains Mono',monospace" }}>{f.type}</span>
-                  {f.label}
+                <motion.div key={f.id} whileHover={{ x: 4 }} onClick={() => setSelected(selected === f.id ? null : f.id)}>
+                  <Tag label={f.label} type={f.type} selected={selected === f.id} />
                 </motion.div>
               ))}
             </div>
           </div>
-
           {/* Class builder */}
           <div>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>
-              class <span style={{ fontWeight: 900 }}>User</span>:
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 700, color: ACCENT, marginBottom: '10px' }}>
+              class <span style={{ color: '#60a5fa' }}>User</span>:
             </div>
-            {/* Attributes zone */}
             <motion.div whileHover={selected ? { scale: 1.01 } : {}} onClick={() => place('attr')}
-              style={{ borderRadius: '8px', border: `2px dashed ${selected ? '#3A86FF' : 'var(--ed-rule)'}`, padding: '10px 12px', cursor: selected ? 'pointer' : 'default', background: selected ? 'rgba(58,134,255,0.05)' : 'var(--ed-card)', marginBottom: '8px', minHeight: '60px', transition: 'all 0.2s' }}>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: '#3A86FF', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '6px' }}>ATTRIBUTES</div>
+              style={{ borderRadius: '10px', border: `2px solid ${selected ? C.blue : '#1e293b'}`, padding: '12px', cursor: selected ? 'pointer' : 'default', background: '#1e293b', marginBottom: '8px', minHeight: '65px', transition: 'border-color 0.2s' }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: C.blue, letterSpacing: '0.1em', marginBottom: '8px' }}>ATTRIBUTES {selected ? '← DROP HERE' : ''}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
-                {attrs.map(f => (
-                  <div key={f.id} style={{ padding: '3px 8px', borderRadius: '5px', fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", background: feedback[f.id] ? 'rgba(58,134,255,0.12)' : 'rgba(220,38,38,0.1)', border: `1px solid ${feedback[f.id] ? '#3A86FF50' : 'rgba(220,38,38,0.4)'}`, color: feedback[f.id] ? '#3A86FF' : '#dc2626', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    {feedback[f.id] ? '✓' : '✗'} {f.label}
-                    <span onClick={e => { e.stopPropagation(); remove(f.id); }} style={{ cursor: 'pointer', opacity: 0.6, marginLeft: '2px' }}>×</span>
-                  </div>
-                ))}
+                {attrs.map(f => <Tag key={f.id} label={f.label} type={f.type} correct={feedback[f.id] ? true : false} onRemove={() => remove(f.id)} />)}
               </div>
             </motion.div>
-            {/* Methods zone */}
             <motion.div whileHover={selected ? { scale: 1.01 } : {}} onClick={() => place('method')}
-              style={{ borderRadius: '8px', border: `2px dashed ${selected ? '#7843EE' : 'var(--ed-rule)'}`, padding: '10px 12px', cursor: selected ? 'pointer' : 'default', background: selected ? 'rgba(120,67,238,0.05)' : 'var(--ed-card)', minHeight: '60px', transition: 'all 0.2s' }}>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: '#7843EE', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '6px' }}>METHODS</div>
+              style={{ borderRadius: '10px', border: `2px solid ${selected ? C.purple : '#1e293b'}`, padding: '12px', cursor: selected ? 'pointer' : 'default', background: '#1e293b', minHeight: '65px', transition: 'border-color 0.2s' }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: C.purple, letterSpacing: '0.1em', marginBottom: '8px' }}>METHODS {selected ? '← DROP HERE' : ''}</div>
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '5px' }}>
-                {methods.map(f => (
-                  <div key={f.id} style={{ padding: '3px 8px', borderRadius: '5px', fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", background: feedback[f.id] ? 'rgba(120,67,238,0.12)' : 'rgba(220,38,38,0.1)', border: `1px solid ${feedback[f.id] ? '#7843EE50' : 'rgba(220,38,38,0.4)'}`, color: feedback[f.id] ? '#7843EE' : '#dc2626', display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    {feedback[f.id] ? '✓' : '✗'} {f.label}
-                    <span onClick={e => { e.stopPropagation(); remove(f.id); }} style={{ cursor: 'pointer', opacity: 0.6, marginLeft: '2px' }}>×</span>
-                  </div>
-                ))}
+                {methods.map(f => <Tag key={f.id} label={f.label} type={f.type} correct={feedback[f.id] ? true : false} onRemove={() => remove(f.id)} />)}
               </div>
             </motion.div>
           </div>
         </div>
 
-        {/* Wrong item explanations */}
         {wrongItems.map(f => (
           <motion.div key={f.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-            style={{ marginTop: '8px', padding: '8px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.25)', fontSize: '12px', color: '#dc2626' }}>
-            <code style={{ fontFamily: "'JetBrains Mono',monospace" }}>{f.label}</code> — {f.why}
+            style={{ marginTop: '8px', padding: '9px 14px', borderRadius: '8px', background: C.red, color: '#fff', fontSize: '12px', fontWeight: 600 }}>
+            ✗ <code style={{ fontFamily: "'JetBrains Mono',monospace" }}>{f.label}</code> — {f.why}
           </motion.div>
         ))}
 
-        {/* Create instances */}
         {coreBuilt && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '16px' }}>
-            <motion.button whileHover={{ scale: 1.01 }} onClick={() => setShowInstances(x => !x)}
-              style={{ width: '100%', padding: '10px', borderRadius: '8px', background: showInstances ? `rgba(${ACCENT_RGB},0.1)` : ACCENT, color: showInstances ? ACCENT : '#fff', border: `1.5px solid ${ACCENT}`, fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginBottom: showInstances ? '12px' : '0' }}>
-              {showInstances ? '← Back to class' : '▶ Create object instances →'}
+            <motion.button whileHover={{ scale: 1.02 }} onClick={() => setShowInstances(x => !x)}
+              style={{ width: '100%', padding: '11px', borderRadius: '8px', background: `linear-gradient(135deg, ${C.blue}, ${C.purple})`, color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer', boxShadow: `0 4px 16px ${C.blue}50`, marginBottom: showInstances ? '14px' : '0' }}>
+              {showInstances ? '← Back to class' : '▶ Create object instances from this class →'}
             </motion.button>
             {showInstances && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
                 {INSTANCES.map((inst, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                    style={{ padding: '14px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid ${ACCENT}40`, boxShadow: `0 2px 10px ${ACCENT}18` }}>
-                    <div style={{ fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px' }}>user_{i + 1} = User(...)</div>
-                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: ACCENT, fontWeight: 700, marginBottom: '3px' }}>{inst.name}</div>
-                    <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{inst.email}</div>
-                    <div style={{ fontSize: '9px', fontWeight: 700, color: inst.active ? ACCENT : '#dc2626', marginTop: '4px', fontFamily: "'JetBrains Mono',monospace" }}>{inst.active ? '● active' : '● inactive'}</div>
+                  <motion.div key={i} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.12, type: 'spring', stiffness: 300 }}
+                    style={{ padding: '14px', borderRadius: '10px', background: inst.color, color: '#fff', boxShadow: `0 6px 20px ${inst.color}50` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, opacity: 0.8, marginBottom: '8px' }}>user_{i+1} = User(...)</div>
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '14px', fontWeight: 800, marginBottom: '3px' }}>{inst.name}</div>
+                    <div style={{ fontSize: '10px', opacity: 0.8 }}>{inst.email}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, marginTop: '6px', opacity: 0.9 }}>{inst.active ? '● active' : '● inactive'}</div>
                   </motion.div>
                 ))}
-                <div style={{ gridColumn: '1/-1', padding: '10px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid ${ACCENT}25`, fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-                  Same class blueprint → three different objects. Each instance holds its own state, but shares the same structure and methods.
+                <div style={{ gridColumn: '1/-1', padding: '10px 14px', borderRadius: '8px', background: ACCENT, color: '#fff', fontSize: '12px', fontWeight: 600, lineHeight: 1.6 }}>
+                  ✓ Same class blueprint → three different objects. Same structure, different state.
                 </div>
               </div>
             )}
@@ -210,73 +205,135 @@ function ClassBuilderStudio() {
   );
 }
 
+// ─── ANIMATION A · CLASS STRUCTURE VISUALIZER ────────────────────────────────
+function ClassStructureAnimation() {
+  const [phase, setPhase] = useState(0);
+  const phases = [
+    { label: 'Scattered variables', color: '#dc2626', items: [{ text: 'name = "Ravi"', kind: 'loose' }, { text: 'email = "ravi@x.com"', kind: 'loose' }, { text: 'is_active = True', kind: 'loose' }, { text: 'def display_info():', kind: 'loose' }] },
+    { label: 'Grouped into a class', color: C.blue, items: [{ text: 'name', kind: 'attr' }, { text: 'email', kind: 'attr' }, { text: 'is_active', kind: 'attr' }, { text: 'display_info()', kind: 'method' }] },
+    { label: 'Instantiated as objects', color: C.green, items: [] },
+  ];
+  const cur = phases[phase];
+
+  useEffect(() => {
+    const t = setInterval(() => setPhase(p => (p + 1) % phases.length), 2800);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div style={{ background: '#0F172A', borderRadius: '14px', border: `2px solid ${cur.color}`, padding: '20px 24px', margin: '28px 0', boxShadow: `0 8px 32px ${cur.color}30`, transition: 'border-color 0.5s, box-shadow 0.5s' }}>
+      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: cur.color, letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '16px' }}>
+        Class Structure Visualizer · {cur.label}
+      </div>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+        {phase === 0 && phases[0].items.map((item, i) => (
+          <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+            style={{ padding: '8px 14px', borderRadius: '8px', background: '#dc2626', color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 700, boxShadow: '0 4px 12px rgba(220,38,38,0.5)' }}>
+            {item.text}
+          </motion.div>
+        ))}
+        {phase === 1 && (
+          <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} style={{ padding: '20px 24px', borderRadius: '14px', background: '#1e293b', border: `2px solid ${C.blue}`, minWidth: '240px' }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800, color: '#60a5fa', marginBottom: '12px' }}>class User:</div>
+            <div style={{ marginBottom: '10px' }}>
+              {phases[1].items.filter(i => i.kind === 'attr').map((item, i) => (
+                <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}
+                  style={{ padding: '4px 12px', marginBottom: '4px', borderRadius: '6px', background: C.blue, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, display: 'inline-block', marginRight: '6px', boxShadow: `0 2px 8px ${C.blue}60` }}>
+                  {item.text}
+                </motion.div>
+              ))}
+            </div>
+            {phases[1].items.filter(i => i.kind === 'method').map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.1 }}
+                style={{ padding: '4px 12px', borderRadius: '6px', background: C.purple, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, display: 'inline-block', boxShadow: `0 2px 8px ${C.purple}60` }}>
+                {item.text}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+        {phase === 2 && INSTANCES.map((inst, i) => (
+          <motion.div key={i} initial={{ opacity: 0, y: 12, scale: 0.8 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: i * 0.15, type: 'spring', stiffness: 250 }}
+            style={{ padding: '14px 18px', borderRadius: '12px', background: inst.color, color: '#fff', minWidth: '120px', textAlign: 'center' as const, boxShadow: `0 6px 20px ${inst.color}60` }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', opacity: 0.8, marginBottom: '6px' }}>user_{i + 1}</div>
+            <div style={{ fontWeight: 800, fontSize: '14px', marginBottom: '3px' }}>{inst.name}</div>
+            <div style={{ fontSize: '10px', opacity: 0.8 }}>{inst.active ? '● active' : '● inactive'}</div>
+          </motion.div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px' }}>
+        {phases.map((p, i) => <div key={i} onClick={() => setPhase(i)} style={{ width: phase === i ? '28px' : '8px', height: '8px', borderRadius: '4px', background: phase === i ? cur.color : '#334155', cursor: 'pointer', transition: 'all 0.3s' }} />)}
+      </div>
+    </div>
+  );
+}
+
 // ─── ANIMATION 1 · BLUEPRINT TO OBJECT ──────────────────────────────────────
 function BlueprintToObjectAnimation() {
   const [phase, setPhase] = useState<'blueprint' | 'spawning' | 'calling'>('blueprint');
   const [callTarget, setCallTarget] = useState<number | null>(null);
   const instances = [
-    { name: 'Ravi',  color: '#3A86FF' },
-    { name: 'Priya', color: '#7843EE' },
-    { name: 'Aman',  color: '#E67E22' },
+    { name: 'Ravi',  color: C.blue   },
+    { name: 'Priya', color: C.purple },
+    { name: 'Aman',  color: C.orange },
   ];
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('spawning'), 1400);
+    const t1 = setTimeout(() => setPhase('spawning'), 1200);
     return () => clearTimeout(t1);
   }, []);
 
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${ACCENT}20 0%, ${ACCENT}0C 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: `${ACCENT}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>📐</div>
+    <div style={{ background: '#0F172A', borderRadius: '16px', border: `2px solid ${C.blue}`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 8px 32px ${C.blue}30` }}>
+      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${C.blue} 0%, ${C.purple} 100%)`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>📐</div>
         <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Blueprint to Object — class, instance, and self</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '1px' }}>Click &ldquo;call greet()&rdquo; on each instance to see how self resolves differently.</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#fff', textTransform: 'uppercase' as const }}>Blueprint to Object — class, instance, and self</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginTop: '1px' }}>Click greet() on each instance — watch self resolve to that instance&apos;s own name.</div>
         </div>
       </div>
-      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+      <div style={{ padding: '24px' }}>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
           {/* Blueprint */}
           <div style={{ flexShrink: 0 }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px', textAlign: 'center' as const }}>CLASS (blueprint)</div>
-            <motion.div animate={{ boxShadow: phase === 'blueprint' ? `0 0 24px ${ACCENT}50` : `0 2px 12px ${ACCENT}20` }}
-              style={{ padding: '16px 18px', borderRadius: '12px', background: `rgba(${ACCENT_RGB},0.1)`, border: `2px solid ${ACCENT}60`, minWidth: '160px', textAlign: 'center' as const }}>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '14px', fontWeight: 800, color: ACCENT, marginBottom: '10px' }}>class User:</div>
-              <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", color: 'var(--ed-ink3)', lineHeight: 1.8, textAlign: 'left' as const }}>
-                <div>  self.name</div>
-                <div>  self.email</div>
-                <div style={{ color: '#7843EE', marginTop: '4px' }}>  def greet(self):</div>
-                <div style={{ color: '#7843EE' }}>    return self.name</div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px', textAlign: 'center' as const }}>CLASS BLUEPRINT</div>
+            <motion.div animate={{ boxShadow: phase === 'blueprint' ? `0 0 28px ${C.blue}80` : `0 4px 16px ${C.blue}30` }}
+              style={{ padding: '16px 18px', borderRadius: '12px', background: '#1e293b', border: `2px solid ${C.blue}`, minWidth: '170px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800, color: '#60a5fa', marginBottom: '10px' }}>class User:</div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+                <span style={{ padding: '3px 9px', borderRadius: '5px', background: C.blue, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, display: 'inline-block' }}>self.name</span>
+                <span style={{ padding: '3px 9px', borderRadius: '5px', background: C.blue, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, display: 'inline-block' }}>self.email</span>
+                <span style={{ padding: '3px 9px', borderRadius: '5px', background: C.purple, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, display: 'inline-block', marginTop: '4px' }}>def greet(self)</span>
               </div>
             </motion.div>
           </div>
 
           {/* Arrow */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', paddingTop: '48px', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', paddingTop: '52px', gap: '4px' }}>
             {phase !== 'blueprint' && (
-              <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={{ opacity: 1, scaleX: 1 }} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '40px', height: '2px', background: ACCENT, borderRadius: '1px' }} />
-                <div style={{ fontSize: '9px', color: ACCENT, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>instantiate</div>
-                <div style={{ fontSize: '14px' }}>→</div>
+              <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={{ opacity: 1, scaleX: 1 }} transition={{ duration: 0.4 }}
+                style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '3px' }}>
+                <div style={{ width: '36px', height: '3px', background: `linear-gradient(to right, ${C.blue}, ${C.purple})`, borderRadius: '2px' }} />
+                <div style={{ fontSize: '8px', color: '#60a5fa', fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>instantiate</div>
+                <div style={{ color: '#60a5fa', fontSize: '16px' }}>→</div>
               </motion.div>
             )}
           </div>
 
           {/* Instances */}
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px', textAlign: 'center' as const }}>OBJECTS (instances)</div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px', textAlign: 'center' as const }}>OBJECT INSTANCES</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
               {instances.map((inst, i) => (
                 <AnimatePresence key={inst.name}>
                   {phase !== 'blueprint' && (
-                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.2 }}
-                      style={{ padding: '12px 14px', borderRadius: '10px', background: `${inst.color}10`, border: `1.5px solid ${inst.color}40`, display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <motion.div initial={{ opacity: 0, x: 24, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ delay: i * 0.18, type: 'spring', stiffness: 300 }}
+                      style={{ padding: '12px 14px', borderRadius: '10px', background: inst.color, color: '#fff', display: 'flex', gap: '12px', alignItems: 'center', boxShadow: `0 4px 16px ${inst.color}50` }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, color: inst.color, marginBottom: '2px' }}>user_{i+1} = User(&quot;{inst.name}&quot;, ...)</div>
-                        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>self.name = &quot;<strong style={{ color: inst.color }}>{inst.name}</strong>&quot;</div>
+                        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, opacity: 0.85, marginBottom: '2px' }}>user_{i+1} = User(&quot;{inst.name}&quot;, ...)</div>
+                        <div style={{ fontSize: '11px', opacity: 0.9 }}>self.name = &quot;<strong>{inst.name}</strong>&quot;</div>
                       </div>
-                      <motion.button whileHover={{ scale: 1.05 }} onClick={() => setCallTarget(callTarget === i ? null : i)}
-                        style={{ padding: '5px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${inst.color}60`, background: callTarget === i ? `${inst.color}20` : `${inst.color}08`, color: inst.color, fontFamily: "'JetBrains Mono',monospace" }}>
+                      <motion.button whileHover={{ scale: 1.08 }} onClick={() => setCallTarget(callTarget === i ? null : i)}
+                        style={{ padding: '6px 12px', borderRadius: '7px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', background: 'rgba(255,255,255,0.25)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono',monospace" }}>
                         greet()
                       </motion.button>
                     </motion.div>
@@ -284,15 +341,14 @@ function BlueprintToObjectAnimation() {
                 </AnimatePresence>
               ))}
             </div>
-            {/* Call result */}
             <AnimatePresence>
               {callTarget !== null && (
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  style={{ marginTop: '10px', padding: '10px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${ACCENT}35`, fontFamily: "'JetBrains Mono',monospace", fontSize: '12px' }}>
-                  <span style={{ color: '#64748b' }}>user_{callTarget + 1}.greet() → </span>
-                  <span style={{ color: ACCENT, fontWeight: 700 }}>&quot;Hello, {instances[callTarget].name}&quot;</span>
-                  <div style={{ marginTop: '6px', fontSize: '11px', color: 'var(--ed-ink3)' }}>
-                    <code style={{ color: '#7843EE' }}>self.name</code> resolves to <strong>&quot;{instances[callTarget].name}&quot;</strong> — this instance&apos;s own value, not any other.
+                  style={{ marginTop: '10px', padding: '12px 14px', borderRadius: '10px', background: instances[callTarget].color, color: '#fff', boxShadow: `0 4px 16px ${instances[callTarget].color}50` }}>
+                  <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', opacity: 0.8 }}>user_{callTarget + 1}.greet() → </code>
+                  <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800 }}>&quot;Hello, {instances[callTarget].name}&quot;</code>
+                  <div style={{ marginTop: '6px', fontSize: '11px', opacity: 0.85 }}>
+                    <code style={{ fontFamily: "'JetBrains Mono',monospace", background: 'rgba(255,255,255,0.2)', padding: '1px 5px', borderRadius: '3px' }}>self.name</code> resolves to <strong>&quot;{instances[callTarget].name}&quot;</strong> — this instance&apos;s own value.
                   </div>
                 </motion.div>
               )}
@@ -304,66 +360,122 @@ function BlueprintToObjectAnimation() {
   );
 }
 
+// ─── ANIMATION B · INHERITANCE TREE ──────────────────────────────────────────
+function InheritanceTreeAnimation() {
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setRevealed(true), 800); return () => clearTimeout(t); }, []);
+
+  const child1 = { name: 'AdminUser', color: C.blue,   extra: 'permission_level' };
+  const child2 = { name: 'GuestUser', color: C.teal,   extra: 'expiry_date' };
+
+  return (
+    <div style={{ background: '#0F172A', borderRadius: '14px', border: `2px solid ${C.purple}`, padding: '20px 24px', margin: '28px 0', boxShadow: `0 8px 32px ${C.purple}30` }}>
+      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: C.purple, letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '20px' }}>
+        Inheritance Tree Visualizer · One parent — two specialized children
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '0' }}>
+        {/* Parent */}
+        <motion.div animate={{ boxShadow: `0 0 24px ${C.purple}60` }}
+          style={{ padding: '14px 22px', borderRadius: '12px', background: C.purple, color: '#fff', textAlign: 'center' as const, minWidth: '180px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', opacity: 0.7, marginBottom: '3px' }}>parent class</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '14px', fontWeight: 800, marginBottom: '8px' }}>User</div>
+          <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+            {['name', 'email'].map(a => <span key={a} style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: "'JetBrains Mono',monospace" }}>{a}</span>)}
+            <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(255,255,255,0.22)', fontSize: '10px', fontFamily: "'JetBrains Mono',monospace" }}>greet()</span>
+          </div>
+        </motion.div>
+
+        {/* Connector */}
+        {revealed && (
+          <motion.div initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ duration: 0.3 }}
+            style={{ width: '2px', height: '24px', background: '#334155', transformOrigin: 'top' }} />
+        )}
+
+        {/* Children */}
+        {revealed && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+            style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+            {[child1, child2].map((child, i) => (
+              <div key={child.name} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
+                <div style={{ width: '2px', height: '20px', background: '#334155' }} />
+                <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4 + i * 0.15, type: 'spring', stiffness: 300 }}
+                  style={{ padding: '12px 18px', borderRadius: '10px', background: child.color, color: '#fff', textAlign: 'center' as const, minWidth: '160px', boxShadow: `0 4px 16px ${child.color}50` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', opacity: 0.7, marginBottom: '3px' }}>extends User</div>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800, marginBottom: '8px' }}>{child.name}</div>
+                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+                    <span style={{ padding: '2px 7px', borderRadius: '4px', background: 'rgba(255,255,255,0.15)', fontSize: '9px', fontFamily: "'JetBrains Mono',monospace', opacity: 0.7" }}>name ✓</span>
+                    <span style={{ padding: '2px 7px', borderRadius: '4px', background: 'rgba(255,255,255,0.15)', fontSize: '9px', fontFamily: "'JetBrains Mono',monospace', opacity: 0.7" }}>greet() ✓</span>
+                    <span style={{ padding: '2px 7px', borderRadius: '4px', background: 'rgba(255,255,255,0.3)', fontSize: '9px', fontFamily: "'JetBrains Mono',monospace'", fontWeight: 700 }}>{child.extra} ★</span>
+                  </div>
+                </motion.div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+
+        {revealed && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
+            style={{ marginTop: '16px', padding: '10px 16px', borderRadius: '8px', background: C.purple, color: '#fff', fontSize: '12px', fontWeight: 600, textAlign: 'center' as const, boxShadow: `0 4px 12px ${C.purple}40` }}>
+            ✓ Children inherit name + greet(). Each adds only what makes it specialized.
+          </motion.div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── TOOL 2 · INHERITANCE RELATIONSHIP LAB ──────────────────────────────────
 const PAIRS = [
-  { id: 'p1', parent: 'User', child: 'AdminUser',           valid: true,  sharedAttrs: ['name','email'], childAttr: 'permission_level', reason: 'AdminUser IS a User — it adds permissions but shares core identity. Real is-a relationship.' },
-  { id: 'p2', parent: 'Vehicle', child: 'Car',              valid: true,  sharedAttrs: ['make','speed'], childAttr: 'num_doors', reason: 'Car IS a Vehicle — it specializes the concept. Shared structure makes sense.' },
-  { id: 'p3', parent: 'Notification', child: 'EmailNotification', valid: true, sharedAttrs: ['message','timestamp'], childAttr: 'recipient_email', reason: 'EmailNotification IS a Notification — different delivery, same concept.' },
-  { id: 'p4', parent: 'Product', child: 'DiscountCalculator', valid: false, sharedAttrs: ['price'], childAttr: 'discount_rate', reason: 'DiscountCalculator is not a type of Product — it performs a calculation. This is utility, not identity.' },
+  { id: 'p1', parent: 'User',    child: 'AdminUser',         valid: true,  reason: 'AdminUser IS a User — it adds permissions but shares core identity. Real is-a relationship.' },
+  { id: 'p2', parent: 'Vehicle', child: 'Car',               valid: true,  reason: 'Car IS a Vehicle — it specializes the concept. Shared structure makes sense.' },
+  { id: 'p3', parent: 'Notification', child: 'EmailNotification', valid: true, reason: 'EmailNotification IS a Notification — different delivery, same concept.' },
+  { id: 'p4', parent: 'Product', child: 'DiscountCalculator', valid: false, reason: 'DiscountCalculator is not a type of Product — it performs a calculation. Utility, not identity.' },
 ];
 
 function InheritanceRelationshipLab() {
   const [answers, setAnswers] = useState<Record<string, boolean | null>>({});
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
-
-  const submit = (id: string, choice: boolean) => {
-    setAnswers(prev => ({ ...prev, [id]: choice }));
-    setRevealed(prev => ({ ...prev, [id]: true }));
-  };
-
+  const submit = (id: string, choice: boolean) => { setAnswers(prev => ({ ...prev, [id]: choice })); setRevealed(prev => ({ ...prev, [id]: true })); };
   const score = PAIRS.filter(p => answers[p.id] === p.valid).length;
 
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🔗</div>
+    <div style={{ background: '#0F172A', borderRadius: '16px', border: `2px solid ${C.indigo}`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 8px 32px ${C.indigo}30` }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${C.indigo} 0%, ${C.purple} 100%)`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>🔗</div>
         <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Inheritance Relationship Lab</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>For each pair: is this a valid is-a relationship? Decide before revealing the answer.</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#fff', textTransform: 'uppercase' as const }}>Inheritance Relationship Lab</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>For each pair: Valid is-a relationship or not? Decide — then reveal.</div>
         </div>
       </div>
-      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)`, display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
         {PAIRS.map(pair => {
           const isRevealed = revealed[pair.id];
-          const userChoice = answers[pair.id];
-          const correct = userChoice === pair.valid;
+          const correct = answers[pair.id] === pair.valid;
+          const bgColor = isRevealed ? (correct ? C.green : C.red) : '#1e293b';
           return (
-            <div key={pair.id} style={{ borderRadius: '12px', border: `1.5px solid ${isRevealed ? (correct ? ACCENT : '#dc2626') : 'var(--ed-rule)'}40`, background: isRevealed ? (correct ? `rgba(${ACCENT_RGB},0.06)` : 'rgba(220,38,38,0.05)') : 'var(--ed-card)', overflow: 'hidden', transition: 'all 0.3s' }}>
-              {/* Class relationship visual */}
+            <div key={pair.id} style={{ borderRadius: '12px', background: bgColor, overflow: 'hidden', transition: 'background 0.4s', boxShadow: isRevealed ? `0 4px 16px ${bgColor}50` : 'none' }}>
               <div style={{ padding: '12px 16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <div style={{ padding: '8px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.1)`, border: `1.5px solid ${ACCENT}40`, fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 700, color: ACCENT }}>{pair.parent}</div>
-                <div style={{ fontSize: '18px', color: 'var(--ed-ink3)' }}>⟵?</div>
-                <div style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(120,67,238,0.1)', border: '1.5px solid rgba(120,67,238,0.4)', fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 700, color: '#7843EE' }}>{pair.child}</div>
-                <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', flex: 1, fontStyle: 'italic' }}>{pair.child} is a type of {pair.parent}?</div>
-                {!isRevealed && (
+                <div style={{ padding: '8px 14px', borderRadius: '8px', background: C.purple, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800 }}>{pair.parent}</div>
+                <div style={{ fontSize: '18px', color: '#64748b' }}>⟵?</div>
+                <div style={{ padding: '8px 14px', borderRadius: '8px', background: C.teal, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800 }}>{pair.child}</div>
+                <div style={{ fontSize: '12px', color: isRevealed ? '#fff' : '#94a3b8', flex: 1, fontStyle: 'italic', opacity: 0.9 }}>{pair.child} is a type of {pair.parent}?</div>
+                {!isRevealed ? (
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    <motion.button whileHover={{ y: -1 }} onClick={() => submit(pair.id, true)}
-                      style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${ACCENT}`, background: `rgba(${ACCENT_RGB},0.1)`, color: ACCENT }}>
+                    <motion.button whileHover={{ scale: 1.05 }} onClick={() => submit(pair.id, true)}
+                      style={{ padding: '7px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', background: C.green, color: '#fff', border: 'none', boxShadow: `0 3px 10px ${C.green}60` }}>
                       ✓ Valid
                     </motion.button>
-                    <motion.button whileHover={{ y: -1 }} onClick={() => submit(pair.id, false)}
-                      style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', border: '1.5px solid #dc2626', background: 'rgba(220,38,38,0.08)', color: '#dc2626' }}>
+                    <motion.button whileHover={{ scale: 1.05 }} onClick={() => submit(pair.id, false)}
+                      style={{ padding: '7px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: 800, cursor: 'pointer', background: C.red, color: '#fff', border: 'none', boxShadow: `0 3px 10px ${C.red}60` }}>
                       ✗ Invalid
                     </motion.button>
                   </div>
-                )}
-                {isRevealed && <span style={{ fontSize: '20px' }}>{correct ? '✓' : '✗'}</span>}
+                ) : <span style={{ fontSize: '22px' }}>{correct ? '✓' : '✗'}</span>}
               </div>
-              {/* Reveal */}
               {isRevealed && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ overflow: 'hidden' }}>
-                  <div style={{ padding: '10px 16px', borderTop: `1px solid ${correct ? ACCENT : '#dc2626'}20`, fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>
-                    <span style={{ fontWeight: 700, color: pair.valid ? ACCENT : '#dc2626' }}>{pair.valid ? '✓ Valid is-a relationship.' : '✗ Not a true is-a relationship.'}</span> {pair.reason}
+                  <div style={{ padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.15)', fontSize: '12px', color: '#fff', lineHeight: 1.6, fontWeight: 600 }}>
+                    {pair.valid ? '✓ Valid.' : '✗ Not a true is-a.'} {pair.reason}
                   </div>
                 </motion.div>
               )}
@@ -372,8 +484,8 @@ function InheritanceRelationshipLab() {
         })}
         {Object.keys(revealed).length === PAIRS.length && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            style={{ padding: '12px 16px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${ACCENT}30`, textAlign: 'center' as const, fontSize: '13px', fontWeight: 700, color: ACCENT }}>
-            {score}/{PAIRS.length} correct — Inheritance works when one class is truly a specialized form of another.
+            style={{ padding: '12px 16px', borderRadius: '10px', background: C.indigo, color: '#fff', textAlign: 'center' as const, fontSize: '13px', fontWeight: 800, boxShadow: `0 4px 16px ${C.indigo}50` }}>
+            {score}/{PAIRS.length} correct — Inheritance works when one class IS truly a specialized form of another.
           </motion.div>
         )}
       </div>
@@ -381,76 +493,70 @@ function InheritanceRelationshipLab() {
   );
 }
 
-// ─── ANIMATION 2 · SHARED STRUCTURE VS REQUIRED CONTRACT ────────────────────
+// ─── ANIMATION 2 · ABSTRACT CONTRACT ─────────────────────────────────────────
 function AbstractContractAnimation() {
   const [step, setStep] = useState(0);
   const [calledPayment, setCalledPayment] = useState<string | null>(null);
-
   const children = [
-    { name: 'CardPayment',   color: '#3A86FF', impl: 'Processed card payment of ₹500'  },
-    { name: 'UPIPayment',    color: '#7843EE', impl: 'Processed UPI payment of ₹500'   },
-    { name: 'WalletPayment', color: '#E67E22', impl: 'Processed wallet payment of ₹500' },
+    { name: 'CardPayment',   color: C.blue,   impl: 'Processed card payment of ₹500'   },
+    { name: 'UPIPayment',    color: C.purple, impl: 'Processed UPI payment of ₹500'    },
+    { name: 'WalletPayment', color: C.teal,   impl: 'Processed wallet payment of ₹500'  },
   ];
-
-  useEffect(() => {
-    const t = setTimeout(() => setStep(s => Math.min(s + 1, 2)), 1000);
-    return () => clearTimeout(t);
-  }, [step]);
+  useEffect(() => { const t = setTimeout(() => setStep(s => Math.min(s + 1, 2)), 900); return () => clearTimeout(t); }, [step]);
 
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${ACCENT}20 0%, ${ACCENT}0C 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: `${ACCENT}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>📋</div>
+    <div style={{ background: '#0F172A', borderRadius: '16px', border: `2px solid ${C.amber}`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 8px 32px ${C.amber}30` }}>
+      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${C.amber} 0%, ${C.orange} 100%)`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>📋</div>
         <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Abstract Contract — Required Behavior</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '1px' }}>Click each payment type to call process_payment() — same contract, different implementation.</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#fff', textTransform: 'uppercase' as const }}>Abstract Contract — Required Behavior</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.85)', marginTop: '1px' }}>Click each payment type to call process_payment() — same contract, different implementation.</div>
         </div>
       </div>
-      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+      <div style={{ padding: '24px' }}>
         {/* Abstract class */}
         <div style={{ textAlign: 'center' as const, marginBottom: '16px' }}>
-          <motion.div animate={{ boxShadow: step === 0 ? `0 0 24px rgba(${ACCENT_RGB},0.5)` : `0 2px 10px rgba(${ACCENT_RGB},0.2)` }}
-            style={{ display: 'inline-block', padding: '12px 24px', borderRadius: '12px', background: `rgba(${ACCENT_RGB},0.1)`, border: `2px dashed ${ACCENT}80` }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>@abstractclass</div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '14px', fontWeight: 800, color: ACCENT }}>class Payment(ABC):</div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: '#7843EE', marginTop: '6px' }}>@abstractmethod</div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: '#7843EE' }}>process_payment(amount) → required</div>
+          <motion.div animate={{ boxShadow: step === 0 ? `0 0 32px ${C.amber}80` : `0 4px 16px ${C.amber}40` }}
+            style={{ display: 'inline-block', padding: '14px 28px', borderRadius: '14px', background: C.amber, border: `2px solid ${C.amber}` }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginBottom: '4px' }}>@abstractclass</div>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '15px', fontWeight: 800, color: '#fff' }}>class Payment(ABC):</div>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginTop: '6px' }}>@abstractmethod</div>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', color: '#fff', fontWeight: 700 }}>process_payment(amount) → required</div>
           </motion.div>
-          <div style={{ fontSize: '10px', color: '#dc2626', fontWeight: 700, marginTop: '6px', fontFamily: "'JetBrains Mono',monospace" }}>Cannot be instantiated directly</div>
+          <div style={{ fontSize: '10px', color: C.red, fontWeight: 800, marginTop: '6px', fontFamily: "'JetBrains Mono',monospace" }}>❌ Cannot be instantiated directly</div>
         </div>
 
-        {/* Flowing contract lines */}
         {step >= 1 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginBottom: '12px' }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', justifyContent: 'center', gap: '60px', marginBottom: '12px' }}>
             {children.map((c, i) => (
               <motion.div key={c.name} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: i * 0.1 }}
-                style={{ transformOrigin: 'top', width: '2px', height: '28px', background: `linear-gradient(to bottom, ${ACCENT}, ${c.color})`, borderRadius: '1px' }} />
+                style={{ transformOrigin: 'top', width: '3px', height: '28px', background: `linear-gradient(to bottom, ${C.amber}, ${c.color})`, borderRadius: '2px' }} />
             ))}
           </motion.div>
         )}
 
-        {/* Concrete classes */}
         {step >= 2 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
             {children.map(c => (
-              <motion.div key={c.name} whileHover={{ y: -2 }} onClick={() => setCalledPayment(calledPayment === c.name ? null : c.name)}
-                style={{ padding: '12px 14px', borderRadius: '10px', cursor: 'pointer', background: calledPayment === c.name ? `${c.color}15` : `${c.color}08`, border: `1.5px solid ${c.color}50`, textAlign: 'center' as const, boxShadow: calledPayment === c.name ? `0 4px 16px ${c.color}30` : 'none', transition: 'all 0.2s' }}>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 700, color: c.color, marginBottom: '6px' }}>{c.name}</div>
-                <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", marginBottom: '8px' }}>inherits Payment</div>
-                <div style={{ padding: '5px 8px', borderRadius: '6px', background: `${c.color}15`, fontSize: '10px', fontFamily: "'JetBrains Mono',monospace", color: c.color, fontWeight: 700 }}>def process_payment(self)</div>
+              <motion.div key={c.name} whileHover={{ y: -3, boxShadow: `0 8px 24px ${c.color}60` }} onClick={() => setCalledPayment(calledPayment === c.name ? null : c.name)}
+                style={{ padding: '14px', borderRadius: '12px', cursor: 'pointer', background: calledPayment === c.name ? c.color : '#1e293b', border: `2px solid ${c.color}`, textAlign: 'center' as const, boxShadow: `0 4px 12px ${c.color}30`, transition: 'all 0.2s', color: calledPayment === c.name ? '#fff' : c.color }}>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 800, marginBottom: '6px' }}>{c.name}</div>
+                <div style={{ fontSize: '9px', opacity: 0.7, fontFamily: "'JetBrains Mono',monospace", marginBottom: '8px' }}>extends Payment</div>
+                <div style={{ padding: '5px 8px', borderRadius: '6px', background: calledPayment === c.name ? 'rgba(255,255,255,0.25)' : `${c.color}20`, fontSize: '10px', fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>
+                  def process_payment(self)
+                </div>
               </motion.div>
             ))}
           </motion.div>
         )}
 
-        {/* Call result */}
         <AnimatePresence>
           {calledPayment && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${ACCENT}35` }}>
-              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: '#64748b' }}>{calledPayment}().process_payment(500) → </code>
-              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: ACCENT, fontWeight: 700 }}>&quot;{children.find(c => c.name === calledPayment)?.impl}&quot;</code>
-              <div style={{ marginTop: '5px', fontSize: '11px', color: 'var(--ed-ink3)' }}>Same contract from the abstract class — different implementation here.</div>
+              style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '10px', background: children.find(c => c.name === calledPayment)!.color, color: '#fff', boxShadow: `0 4px 16px ${children.find(c => c.name === calledPayment)!.color}50` }}>
+              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', opacity: 0.85 }}>{calledPayment}().process_payment(500) → </code>
+              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', fontWeight: 800 }}>&quot;{children.find(c => c.name === calledPayment)?.impl}&quot;</code>
+              <div style={{ marginTop: '5px', fontSize: '11px', opacity: 0.85 }}>Same contract enforced by the abstract class — different implementation each time.</div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -459,24 +565,87 @@ function AbstractContractAnimation() {
   );
 }
 
+// ─── ANIMATION C · MODULE FILING ANIMATION ───────────────────────────────────
+function ModuleFilingAnimation() {
+  const [step, setStep] = useState(0);
+  const files = [
+    { name: 'User', pkg: 'users/',    color: C.green  },
+    { name: 'CardPayment', pkg: 'payments/', color: C.purple },
+    { name: 'auth_helper', pkg: 'auth/',    color: C.blue   },
+    { name: 'Order',       pkg: 'orders/',  color: C.orange },
+  ];
+  useEffect(() => {
+    const t = setInterval(() => setStep(s => (s + 1) % (files.length + 2)), 1800);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div style={{ background: '#0F172A', borderRadius: '14px', border: `2px solid ${C.teal}`, padding: '20px 24px', margin: '28px 0', boxShadow: `0 8px 32px ${C.teal}30` }}>
+      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: C.teal, letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '18px' }}>
+        Module Filing Animation · Code organized by responsibility
+      </div>
+      <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+        {/* Incoming files */}
+        <div style={{ flexShrink: 0, width: '140px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono',monospace", marginBottom: '8px' }}>CODE UNITS</div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {files.map((f, i) => (
+              <motion.div key={f.name} animate={{ opacity: step > i ? 0.3 : 1, x: step === i + 1 ? 20 : 0 }} transition={{ duration: 0.4 }}
+                style={{ padding: '6px 12px', borderRadius: '7px', background: step > i ? '#1e293b' : f.color, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, boxShadow: step <= i ? `0 2px 8px ${f.color}50` : 'none', transition: 'background 0.3s' }}>
+                {f.name}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div style={{ paddingTop: '40px', color: C.teal, fontSize: '22px' }}>→</div>
+
+        {/* Package folders */}
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          {[
+            { name: 'users/',    color: C.green,  files: ['User'] },
+            { name: 'payments/', color: C.purple, files: ['CardPayment'] },
+            { name: 'auth/',     color: C.blue,   files: ['auth_helper'] },
+            { name: 'orders/',   color: C.orange, files: ['Order'] },
+          ].map(pkg => {
+            const filled = files.filter((f, i) => f.pkg === pkg.name && step > i + 1).length > 0;
+            return (
+              <div key={pkg.name} style={{ padding: '10px 12px', borderRadius: '10px', border: `2px solid ${pkg.color}`, background: filled ? `${pkg.color}15` : '#1e293b', transition: 'background 0.4s' }}>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: pkg.color, marginBottom: '5px' }}>📁 {pkg.name}</div>
+                {pkg.files.filter(f => files.find(fi => fi.name === f && step > files.findIndex(x => x.name === f) + 1)).map(f => (
+                  <motion.div key={f} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                    style={{ padding: '3px 8px', borderRadius: '5px', background: pkg.color, color: '#fff', fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, display: 'inline-block', boxShadow: `0 2px 8px ${pkg.color}60` }}>
+                    {f}.py
+                  </motion.div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── TOOL 3 · MODULE & PACKAGE ARCHITECTURE LAB ──────────────────────────────
 const CODE_UNITS = [
-  { id: 'User',          label: 'User',              type: 'class',   correct: 'users',    color: ACCENT },
-  { id: 'AdminUser',     label: 'AdminUser',         type: 'class',   correct: 'users',    color: ACCENT },
-  { id: 'auth_helper',   label: 'auth_helper()',      type: 'func',    correct: 'auth',     color: '#3A86FF' },
-  { id: 'CardPayment',   label: 'CardPayment',        type: 'class',   correct: 'payments', color: '#7843EE' },
-  { id: 'invoice_gen',   label: 'generate_invoice()', type: 'func',    correct: 'payments', color: '#7843EE' },
-  { id: 'Order',         label: 'Order',              type: 'class',   correct: 'orders',   color: '#E67E22' },
-  { id: 'price_rule',    label: 'apply_pricing_rule()', type: 'func', correct: 'orders',   color: '#E67E22' },
-  { id: 'validate_email',label: 'validate_email()',   type: 'func',    correct: 'utils',    color: '#64748b' },
+  { id: 'User',          label: 'User',               type: 'class', correct: 'users',    color: C.green  },
+  { id: 'AdminUser',     label: 'AdminUser',          type: 'class', correct: 'users',    color: C.green  },
+  { id: 'auth_helper',   label: 'auth_helper()',      type: 'func',  correct: 'auth',     color: C.blue   },
+  { id: 'CardPayment',   label: 'CardPayment',        type: 'class', correct: 'payments', color: C.purple },
+  { id: 'invoice_gen',   label: 'generate_invoice()', type: 'func',  correct: 'payments', color: C.purple },
+  { id: 'Order',         label: 'Order',              type: 'class', correct: 'orders',   color: C.orange },
+  { id: 'price_rule',    label: 'apply_pricing()',    type: 'func',  correct: 'orders',   color: C.orange },
+  { id: 'validate_email',label: 'validate_email()',   type: 'func',  correct: 'utils',    color: C.teal   },
 ];
 
 const PACKAGES = [
-  { id: 'users',    label: 'users/',    color: ACCENT,    emoji: '👤' },
-  { id: 'payments', label: 'payments/', color: '#7843EE', emoji: '💳' },
-  { id: 'orders',   label: 'orders/',   color: '#E67E22', emoji: '📦' },
-  { id: 'auth',     label: 'auth/',     color: '#3A86FF', emoji: '🔐' },
-  { id: 'utils',    label: 'utils/',    color: '#64748b', emoji: '🔧' },
+  { id: 'users',    label: 'users/',    color: C.green,  emoji: '👤' },
+  { id: 'payments', label: 'payments/', color: C.purple, emoji: '💳' },
+  { id: 'orders',   label: 'orders/',   color: C.orange, emoji: '📦' },
+  { id: 'auth',     label: 'auth/',     color: C.blue,   emoji: '🔐' },
+  { id: 'utils',    label: 'utils/',    color: C.teal,   emoji: '🔧' },
 ];
 
 function ModuleArchitectureLab() {
@@ -497,24 +666,24 @@ function ModuleArchitectureLab() {
   const allDone = CODE_UNITS.every(u => placements[u.id]);
 
   return (
-    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.10)' }}>
-      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>📁</div>
+    <div style={{ background: '#0F172A', borderRadius: '16px', border: `2px solid ${C.teal}`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 8px 32px ${C.teal}30` }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${C.teal} 0%, ${C.blue} 100%)`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>📁</div>
         <div>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Module & Package Architecture Lab</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Place each code unit into the right package. Organize by system responsibility.</div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#fff', textTransform: 'uppercase' as const }}>Module & Package Architecture Lab</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>Click a code unit, then click the right package. Organize by system responsibility.</div>
         </div>
       </div>
-      <div style={{ padding: '24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+      <div style={{ padding: '20px 24px' }}>
         {/* Pool */}
         {unplaced.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>CODE UNITS</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>CODE UNITS — click to select</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '7px' }}>
               {unplaced.map(u => (
                 <motion.div key={u.id} whileHover={{ y: -2 }} onClick={() => setSelected(selected === u.id ? null : u.id)}
-                  style={{ padding: '6px 12px', borderRadius: '7px', cursor: 'pointer', background: selected === u.id ? `${u.color}18` : 'var(--ed-card)', border: `1.5px solid ${selected === u.id ? u.color : 'var(--ed-rule)'}`, fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: selected === u.id ? u.color : 'var(--ed-ink)', fontWeight: selected === u.id ? 700 : 400, transition: 'all 0.15s', display: 'flex', gap: '6px', alignItems: 'center' }}>
-                  <span style={{ padding: '1px 5px', borderRadius: '3px', fontSize: '8px', fontWeight: 700, background: u.type === 'class' ? `${u.color}18` : 'var(--ed-cream)', color: u.type === 'class' ? u.color : 'var(--ed-ink3)' }}>{u.type}</span>
+                  style={{ padding: '6px 13px', borderRadius: '7px', cursor: 'pointer', background: selected === u.id ? u.color : '#1e293b', border: `2px solid ${u.color}`, fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: selected === u.id ? '#fff' : u.color, fontWeight: 700, transition: 'all 0.15s', display: 'flex', gap: '6px', alignItems: 'center', boxShadow: selected === u.id ? `0 4px 14px ${u.color}60` : 'none' }}>
+                  <span style={{ padding: '1px 5px', borderRadius: '3px', background: 'rgba(255,255,255,0.2)', fontSize: '8px', fontWeight: 700 }}>{u.type}</span>
                   {u.label}
                 </motion.div>
               ))}
@@ -526,20 +695,18 @@ function ModuleArchitectureLab() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '8px' }}>
           {PACKAGES.map(pkg => {
             const items = CODE_UNITS.filter(u => placements[u.id] === pkg.id);
-            const overloaded = items.length > 3;
             return (
-              <motion.div key={pkg.id} whileHover={selected ? { scale: 1.02 } : {}} onClick={() => place(pkg.id)}
-                style={{ borderRadius: '10px', border: `2px dashed ${selected ? pkg.color : 'var(--ed-rule)'}`, padding: '10px 8px', cursor: selected ? 'pointer' : 'default', background: selected ? `${pkg.color}08` : 'var(--ed-card)', minHeight: '100px', transition: 'all 0.2s' }}>
-                <div style={{ fontSize: '16px', textAlign: 'center' as const, marginBottom: '4px' }}>{pkg.emoji}</div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, color: pkg.color, letterSpacing: '0.08em', marginBottom: '6px', textAlign: 'center' as const }}>{pkg.label}</div>
+              <motion.div key={pkg.id} whileHover={selected ? { scale: 1.03 } : {}} onClick={() => place(pkg.id)}
+                style={{ borderRadius: '10px', border: `2px solid ${selected ? pkg.color : '#334155'}`, padding: '10px 8px', cursor: selected ? 'pointer' : 'default', background: selected ? `${pkg.color}18` : '#1e293b', minHeight: '110px', transition: 'all 0.2s', boxShadow: selected ? `0 4px 16px ${pkg.color}30` : 'none' }}>
+                <div style={{ fontSize: '18px', textAlign: 'center' as const, marginBottom: '4px' }}>{pkg.emoji}</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: pkg.color, letterSpacing: '0.06em', marginBottom: '7px', textAlign: 'center' as const }}>{pkg.label}</div>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '3px' }}>
                   {items.map(u => (
-                    <div key={u.id} style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontFamily: "'JetBrains Mono',monospace", background: feedback[u.id] ? `${pkg.color}15` : 'rgba(220,38,38,0.1)', border: `1px solid ${feedback[u.id] ? pkg.color + '40' : 'rgba(220,38,38,0.3)'}`, color: feedback[u.id] ? pkg.color : '#dc2626' }}>
+                    <div key={u.id} style={{ padding: '3px 7px', borderRadius: '5px', fontSize: '9px', fontFamily: "'JetBrains Mono',monospace", background: feedback[u.id] ? pkg.color : C.red, color: '#fff', fontWeight: 700, boxShadow: `0 2px 6px ${feedback[u.id] ? pkg.color : C.red}50` }}>
                       {feedback[u.id] ? '✓' : '✗'} {u.label}
                     </div>
                   ))}
                 </div>
-                {overloaded && <div style={{ marginTop: '4px', fontSize: '9px', color: '#dc2626', fontWeight: 700, textAlign: 'center' as const }}>⚠ Too many responsibilities</div>}
               </motion.div>
             );
           })}
@@ -550,17 +717,17 @@ function ModuleArchitectureLab() {
           const correctPkg = PACKAGES.find(p => p.id === u.correct)!;
           return (
             <motion.div key={u.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-              style={{ marginTop: '6px', padding: '7px 12px', borderRadius: '7px', background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.25)', fontSize: '12px', color: '#dc2626' }}>
-              <code style={{ fontFamily: "'JetBrains Mono',monospace" }}>{u.label}</code> belongs in <code style={{ fontFamily: "'JetBrains Mono',monospace", color: correctPkg.color }}>{correctPkg.label}</code> — that&apos;s where {u.type === 'class' ? 'this entity' : 'this logic'} lives.
+              style={{ marginTop: '7px', padding: '9px 14px', borderRadius: '8px', background: C.red, color: '#fff', fontSize: '12px', fontWeight: 600, boxShadow: `0 3px 10px ${C.red}50` }}>
+              ✗ <code style={{ fontFamily: "'JetBrains Mono',monospace", background: 'rgba(255,255,255,0.2)', padding: '1px 5px', borderRadius: '3px' }}>{u.label}</code> belongs in <strong>{correctPkg.label}</strong> — that&apos;s where {u.type === 'class' ? 'this entity' : 'this logic'} lives.
             </motion.div>
           );
         })}
 
         {allDone && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-            style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '10px', background: score >= 6 ? `rgba(${ACCENT_RGB},0.08)` : 'rgba(230,126,34,0.08)', border: `1.5px solid ${score >= 6 ? ACCENT : '#E67E22'}40`, textAlign: 'center' as const }}>
-            <div style={{ fontWeight: 700, fontSize: '14px', color: score >= 6 ? ACCENT : '#E67E22' }}>{score}/{CODE_UNITS.length} correct</div>
-            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '4px' }}>A file should answer: what kind of logic lives here? A package should answer: what part of the system this belongs to.</div>
+            style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '10px', background: score >= 6 ? C.green : C.amber, color: '#fff', textAlign: 'center' as const, boxShadow: `0 4px 16px ${score >= 6 ? C.green : C.amber}50` }}>
+            <div style={{ fontWeight: 800, fontSize: '15px' }}>{score}/{CODE_UNITS.length} correct</div>
+            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '3px' }}>A file answers: what logic lives here? A package answers: what system area this belongs to.</div>
           </motion.div>
         )}
       </div>
@@ -663,6 +830,7 @@ print(user_1.display_info())`} />
 
         {para(<>Instead of data floating around as separate variables, the system now has a coherent object with related data and related behavior together. Classes help when data and behavior belong together.</>)}
 
+        <ClassStructureAnimation />
         <ClassBuilderStudio />
 
         <PythonPrinciple text="Classes help when the code needs to represent real entities with both data and behavior." />
@@ -731,6 +899,7 @@ print(admin.display_info())  # inherited from User`} />
           { speaker: 'mentor', text: "That's forced. A discount calculator is not a type of product — it just uses product data. Wrong relationship." },
         ]} mentorName="Nisha" mentorColor="#0369A1" />
 
+        <InheritanceTreeAnimation />
         <InheritanceRelationshipLab />
 
         <PythonPrinciple text="Inheritance works best when one class is truly a more specific version of another." />
@@ -793,6 +962,7 @@ CardPayment().process_payment(500)   # works`} />
 from users.user import User
 from payments.gateway import CardPayment`} />
 
+        <ModuleFilingAnimation />
         <ModuleArchitectureLab />
 
         <PythonPrinciple text="Modules separate logic. Packages organize system responsibility." />
