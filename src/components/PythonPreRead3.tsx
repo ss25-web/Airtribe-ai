@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
+import { MentorFace } from './pm-fundamentals/MentorFaces';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -787,9 +788,9 @@ export default function PythonPreRead3({ onBack }: Props) {
 
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { const id = e.target.getAttribute('data-nav-id'); if (id) { setActiveSection(id); store.markSectionCompleted(MODULE_ID, id); } } });
+      entries.forEach(e => { if (e.isIntersecting) { const id = e.target.getAttribute("data-section"); if (id) { setActiveSection(id); store.markSectionCompleted(MODULE_ID, id); } } });
     }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
-    document.querySelectorAll('[data-nav-id]').forEach(el => obs.observe(el));
+    document.querySelectorAll('[data-section]').forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
@@ -798,15 +799,18 @@ export default function PythonPreRead3({ onBack }: Props) {
 
       {/* HERO */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '52px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>Python Foundations &middot; Pre-Read 03</div>
-        <h1 style={{ fontSize: 'clamp(26px,4.5vw,46px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '14px', fontFamily: "'Lora',Georgia,serif" }}>Python in the Real World:<br />Files, Errors &amp; Environments</h1>
         <p style={{ fontSize: '17px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora',Georgia,serif", marginBottom: '34px', maxWidth: '580px' }}>
           &ldquo;Backend code is not just judged by whether it runs. It is judged by whether it can be run, shared, debugged, and trusted.&rdquo;
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '34px' }}>
-          {[{ n:'Arjun', r:'Backend Learner', d:'Can write Python. Now discovering that real development includes much more.', c:ACCENT }, { n:'Nisha', r:'Backend Mentor', d:'Helps understand the why behind engineering workflow and discipline.', c:'#0369A1' }, { n:'Kabir', r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' }, { n:'Meera', r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' }].map(c => (
+          {([
+            { n:'Arjun', face:'priya' as const, r:'Backend Learner', d:'Can write Python. Now discovering that real development includes much more.', c:ACCENT },
+            { n:'Nisha', face:'asha'  as const, r:'Backend Mentor', d:'Helps understand the why behind engineering workflow and discipline.', c:'#0369A1' },
+            { n:'Kabir', face:'kiran' as const, r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' },
+            { n:'Meera', face:'maya'  as const, r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' },
+          ]).map(c => (
             <div key={c.n} style={{ background: `${c.c}0D`, border: `1px solid ${c.c}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '7px', background: `${c.c}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', color: c.c, marginBottom: '6px' }}>{c.n[0]}</div>
+              <div style={{ marginBottom: '6px' }}><MentorFace mentor={c.face} size={38} /></div>
               <div style={{ fontWeight: 700, fontSize: '12px', color: c.c, marginBottom: '2px' }}>{c.n}</div>
               <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.r}</div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.d}</div>

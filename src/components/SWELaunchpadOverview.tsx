@@ -407,11 +407,11 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
 function getModuleDesc(num: string, track: SWETrack): string {
   const descs: Record<string, Partial<Record<SWETrack, string>>> = {
     '02': {
-      python: 'Functions, parameters, first-class objects, lambda expressions, and object-oriented programming. You will learn encapsulation, inheritance, polymorphism, and how to structure code into modular packages.',
+      python: 'Classes, self, inheritance, abstract classes, and Python project structure. You will learn how to group data and behavior, reuse code safely, enforce contracts with abstract classes, and organise a backend project using modules and packages.',
       nodejs: 'ES6+ syntax, closures, prototypes, async/await, and the event loop in depth. You will learn how JavaScript\'s flexibility works for you — and when it works against you.',
     },
     '03': {
-      python: 'Handling exceptions, file I/O, writing production-grade defensive code, creating virtual environments, and ensuring reproducibility. You will understand what it takes to write Python code that runs reliably.',
+      python: 'File I/O, exception handling, virtual environments, pip, and requirements.txt — the real-world workflow that turns a Python script into code that can be run, shared, debugged, and trusted by other engineers.',
       nodejs: 'Build a REST API with Express.js including routing, middleware, error handling, and request validation. You will understand the request-response cycle and how middleware chains compose into a real backend.',
     },
     '04': {

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
+import { MentorFace } from './pm-fundamentals/MentorFaces';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -747,12 +748,12 @@ export default function PythonPreRead2({ onBack }: Props) {
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
-          const id = e.target.getAttribute('data-nav-id');
+          const id = e.target.getAttribute("data-section");
           if (id) { setActiveSection(id); store.markSectionCompleted(MODULE_ID, id); }
         }
       });
     }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
-    document.querySelectorAll('[data-nav-id]').forEach(el => obs.observe(el));
+    document.querySelectorAll('[data-section]').forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
@@ -761,20 +762,18 @@ export default function PythonPreRead2({ onBack }: Props) {
 
       {/* ── HERO ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '52px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>Python Foundations &middot; Pre-Read 02</div>
-        <h1 style={{ fontSize: 'clamp(26px,4.5vw,46px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '14px', fontFamily: "'Lora',Georgia,serif" }}>Writing Structured Python:<br />From Functions to Classes and Modules</h1>
         <p style={{ fontSize: '17px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora',Georgia,serif", marginBottom: '34px', maxWidth: '580px' }}>
           &ldquo;Code can work and still be too messy to build on. Structure is what makes code safe to grow.&rdquo;
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '34px' }}>
-          {[
-            { name: 'Arjun', role: 'Backend Learner', desc: 'Understands Python basics. Now hitting the pain of unstructured code.', color: ACCENT },
-            { name: 'Nisha', role: 'Backend Mentor', desc: 'Structure is not style. It is engineering safety.', color: '#0369A1' },
-            { name: 'Kabir', role: 'Senior Backend Engineer', desc: 'Pushes for code organization, cleaner boundaries, stronger design.', color: '#7843EE' },
-            { name: 'Meera', role: 'Data-focused Teammate', desc: 'Helps model code around real entities and relationships.', color: '#C85A40' },
-          ].map(c => (
+          {([
+            { name: 'Arjun', face: 'priya' as const, role: 'Backend Learner', desc: 'Understands Python basics. Now hitting the pain of unstructured code.', color: ACCENT },
+            { name: 'Nisha', face: 'asha'  as const, role: 'Backend Mentor', desc: 'Structure is not style. It is engineering safety.', color: '#0369A1' },
+            { name: 'Kabir', face: 'kiran' as const, role: 'Senior Backend Engineer', desc: 'Pushes for code organization, cleaner boundaries, stronger design.', color: '#7843EE' },
+            { name: 'Meera', face: 'maya'  as const, role: 'Data-focused Teammate', desc: 'Helps model code around real entities and relationships.', color: '#C85A40' },
+          ]).map(c => (
             <div key={c.name} style={{ background: `${c.color}0D`, border: `1px solid ${c.color}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '7px', background: `${c.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', color: c.color, marginBottom: '6px' }}>{c.name[0]}</div>
+              <div style={{ marginBottom: '6px' }}><MentorFace mentor={c.face} size={38} /></div>
               <div style={{ fontWeight: 700, fontSize: '12px', color: c.color, marginBottom: '2px' }}>{c.name}</div>
               <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.role}</div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
