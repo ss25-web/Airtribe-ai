@@ -1,352 +1,994 @@
 'use client';
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLearnerStore } from '@/lib/learnerStore';
-import { motion } from 'framer-motion';
-import {
-  ChapterSection, para, h2, TiltCard, ApplyItBox, keyBox, PMPrincipleBox
-} from './pm-fundamentals/designSystem';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
-import { QuickTry, SituationCard, SWEConversationScene, SWEMentorFace } from './sweDesignSystem';
+import QuizEngine from './QuizEngine';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-03';
 
 const SECTIONS = [
-  { id: 'intro', label: 'Why this pre-read matters' },
-  { id: 'reliability', label: '1. Reliability' },
-  { id: 'io-formats', label: '2–3. File I/O & Formats' },
-  { id: 'exceptions', label: '4–5. Exceptions & Defensive Code' },
-  { id: 'environments', label: '6–8. Venvs, PIP, Reproducibility' },
-  { id: 'types-integration', label: '9–11. Types, Example & Exercise' },
+  { id: 'pr3-file-io',       label: 'File I/O: Code Meets the Outside World' },
+  { id: 'pr3-exceptions',    label: 'Errors Are Part of the System' },
+  { id: 'pr3-except-handle', label: 'Handling Exceptions Well' },
+  { id: 'pr3-environments',  label: 'Virtual Environments' },
+  { id: 'pr3-pip',           label: 'pip and Dependencies' },
+  { id: 'pr3-requirements',  label: 'requirements.txt: Making It Sharable' },
+  { id: 'pr3-reflection',    label: 'Backend Engineering Is More Than Logic' },
 ];
 
 const TRACK_CONFIG = {
-  name: 'Python',
-  accent: '#16A34A',
-  accentRgb: '22,163,74',
-  protagonist: 'Aisha',
-  role: 'Junior Software Engineer',
-  company: 'Vela',
-  mentor: 'Riya',
-  mentorRole: 'Senior Software Engineer',
-  mentorColor: '#0369A1'
+  name: 'Python', accent: ACCENT, accentRgb: ACCENT_RGB,
+  protagonist: 'Arjun', role: 'Aspiring Backend Engineer', company: 'Learning Python',
+  mentor: 'Nisha', mentorRole: 'Backend Mentor', mentorColor: '#0369A1',
 };
 
-const CodeBlock = ({ code }: { code: string }) => (
-  <pre style={{
-    background: '#0f172a', color: '#86efac', fontFamily: "'JetBrains Mono', monospace",
-    fontSize: '14px', lineHeight: 1.7, borderRadius: '10px', padding: '20px 24px',
-    margin: '24px 0', overflowX: 'auto', border: '1px solid rgba(134,239,172,0.12)',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-  }}>
-    <code>{code}</code>
-  </pre>
-);
-
-const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ marginBottom: '24px' }}>
-    {h2(children)}
-    <div style={{ width: '40px', height: '3px', background: ACCENT, borderRadius: '2px', marginTop: '-8px' }} />
+const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
+  <div style={{ margin: '18px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(134,239,172,0.15)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+    {filename && <div style={{ background: '#1e293b', padding: '7px 16px', fontSize: '10px', fontFamily: "'JetBrains Mono',monospace", color: '#64748b', letterSpacing: '0.08em', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>{filename}</div>}
+    <pre style={{ background: '#0f172a', color: '#86efac', fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', lineHeight: 1.75, padding: '18px 22px', margin: 0, overflowX: 'auto' as const }}>
+      <code>{code}</code>
+    </pre>
   </div>
 );
 
-interface Props { onBack: () => void }
+const SceneSetter = ({ title, story, mentorQuote, mentorName, mentorColor }: { title: string; story: string; mentorQuote: string; mentorName: string; mentorColor: string }) => (
+  <div style={{ margin: '0 0 26px', padding: '18px 22px', background: `rgba(${ACCENT_RGB},0.05)`, borderLeft: `4px solid ${ACCENT}`, borderRadius: '0 10px 10px 0', border: `1px solid ${ACCENT}25`, borderLeftWidth: '4px' }}>
+    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, marginBottom: '7px', textTransform: 'uppercase' as const }}>{title}</div>
+    <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.75, marginBottom: '12px' }}>{story}</div>
+    <div style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', padding: '9px 12px', borderRadius: '7px', background: `${mentorColor}10`, border: `1px solid ${mentorColor}30` }}>
+      <div style={{ width: '26px', height: '26px', borderRadius: '6px', background: `${mentorColor}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '11px', color: mentorColor, flexShrink: 0 }}>{mentorName[0]}</div>
+      <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontStyle: 'italic', lineHeight: 1.6 }}>
+        <span style={{ fontWeight: 700, color: mentorColor, fontStyle: 'normal' }}>{mentorName}: </span>&ldquo;{mentorQuote}&rdquo;
+      </div>
+    </div>
+  </div>
+);
+
+const ConvoScene = ({ lines, mentorName, mentorColor }: { lines: { speaker: 'arjun' | 'mentor'; text: string }[]; mentorName: string; mentorColor: string }) => (
+  <div style={{ margin: '22px 0', display: 'flex', flexDirection: 'column' as const, gap: '9px' }}>
+    {lines.map((line, i) => {
+      const isMentor = line.speaker === 'mentor';
+      return (
+        <div key={i} style={{ display: 'flex', gap: '9px', alignItems: 'flex-start', flexDirection: isMentor ? 'row-reverse' : 'row' as const }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: '7px', background: isMentor ? `${mentorColor}22` : `rgba(${ACCENT_RGB},0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '11px', color: isMentor ? mentorColor : ACCENT, flexShrink: 0 }}>{isMentor ? mentorName[0] : 'A'}</div>
+          <div style={{ maxWidth: '80%' }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: isMentor ? mentorColor : ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '3px', textAlign: isMentor ? 'right' as const : 'left' as const }}>{isMentor ? mentorName.toUpperCase() : 'ARJUN'}</div>
+            <div style={{ padding: '9px 13px', borderRadius: isMentor ? '12px 4px 12px 12px' : '4px 12px 12px 12px', background: isMentor ? `${mentorColor}10` : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${isMentor ? mentorColor : ACCENT}22`, fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{line.text}</div>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+);
+
+const PythonPrinciple = ({ text }: { text: string }) => (
+  <div style={{ margin: '26px 0', padding: '18px 22px', background: `rgba(${ACCENT_RGB},0.07)`, borderLeft: `4px solid ${ACCENT}`, borderRadius: '0 8px 8px 0' }}>
+    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, marginBottom: '7px', textTransform: 'uppercase' as const }}>Python Principle</div>
+    <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ed-ink)', lineHeight: 1.65, fontStyle: 'italic', fontFamily: "'Lora',serif" }}>&ldquo;{text}&rdquo;</div>
+  </div>
+);
+
+// ── SHARED TERMINAL SHELL ────────────────────────────────────────────────────
+const Terminal = ({ title, lines, height = 180 }: { title: string; lines: { text: string; color?: string }[]; height?: number }) => (
+  <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}>
+    <div style={{ background: '#1e293b', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ display: 'flex', gap: '5px' }}>
+        {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+      </div>
+      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: '#64748b', letterSpacing: '0.06em' }}>{title}</span>
+    </div>
+    <div style={{ background: '#0f172a', padding: '14px 16px', minHeight: height, fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', lineHeight: 1.75, overflowY: 'auto' as const }}>
+      {lines.map((l, i) => (
+        <div key={i} style={{ color: l.color ?? '#94a3b8', whiteSpace: 'pre' as const }}>{l.text || ' '}</div>
+      ))}
+    </div>
+  </div>
+);
+
+// ── TOOL 1: EXCEPTION CODE EXECUTOR — live step-by-step execution ───────────
+type HandlingStrategy = 'none' | 'broad' | 'specific' | 'finally';
+
+const EXEC_DATA: Record<HandlingStrategy, {
+  label: string; good: boolean;
+  codeLines: { text: string; color?: string }[];
+  execution: { line: number; output: { text: string; color: string }[] }[];
+}> = {
+  none: {
+    label: 'No handling', good: false,
+    codeLines: [
+      { text: 'with open("orders.txt") as f:',   color: '#86efac' },
+      { text: '    data = f.read()',              color: '#86efac' },
+      { text: 'print(data)',                      color: '#86efac' },
+    ],
+    execution: [
+      { line: 0, output: [{ text: '→ Attempting to open orders.txt...', color: '#94a3b8' }] },
+      { line: 1, output: [{ text: '✗ FileNotFoundError: [Errno 2] No such file or directory: \'orders.txt\'', color: '#f87171' }, { text: 'Traceback (most recent call last):', color: '#f87171' }, { text: '  File "script.py", line 1, in <module>', color: '#f87171' }, { text: 'Process finished with exit code 1', color: '#94a3b8' }] },
+    ],
+  },
+  broad: {
+    label: 'Broad except', good: false,
+    codeLines: [
+      { text: 'try:',                              color: '#86efac' },
+      { text: '    with open("orders.txt") as f:', color: '#86efac' },
+      { text: '        data = f.read()',            color: '#86efac' },
+      { text: 'except:',                           color: '#fbbf24' },
+      { text: '    print("Something went wrong")',  color: '#fbbf24' },
+    ],
+    execution: [
+      { line: 0, output: [{ text: '→ Entering try block...', color: '#94a3b8' }] },
+      { line: 1, output: [{ text: '→ Attempting to open orders.txt...', color: '#94a3b8' }] },
+      { line: 3, output: [{ text: '→ Error occurred — caught by broad except', color: '#fbbf24' }] },
+      { line: 4, output: [{ text: 'Something went wrong', color: '#94a3b8' }, { text: '⚠ Real cause hidden. Could be any error — including bugs in your own code.', color: '#fbbf24' }] },
+    ],
+  },
+  specific: {
+    label: 'Specific except', good: true,
+    codeLines: [
+      { text: 'try:',                                  color: '#86efac' },
+      { text: '    with open("orders.txt") as f:',     color: '#86efac' },
+      { text: '        data = f.read()',                color: '#86efac' },
+      { text: 'except FileNotFoundError:',             color: '#4ade80' },
+      { text: '    print("File not found — check path.")', color: '#4ade80' },
+    ],
+    execution: [
+      { line: 0, output: [{ text: '→ Entering try block...', color: '#94a3b8' }] },
+      { line: 1, output: [{ text: '→ Attempting to open orders.txt...', color: '#94a3b8' }] },
+      { line: 3, output: [{ text: '→ FileNotFoundError caught specifically', color: '#4ade80' }] },
+      { line: 4, output: [{ text: 'File not found — check path.', color: '#4ade80' }, { text: '✓ Exact error handled. All other errors still surface.', color: '#4ade80' }] },
+    ],
+  },
+  finally: {
+    label: 'With finally', good: true,
+    codeLines: [
+      { text: 'try:',                                  color: '#86efac' },
+      { text: '    with open("orders.txt") as f:',     color: '#86efac' },
+      { text: '        data = f.read()',                color: '#86efac' },
+      { text: 'except FileNotFoundError:',             color: '#4ade80' },
+      { text: '    print("File not found.")',           color: '#4ade80' },
+      { text: 'finally:',                              color: '#60a5fa' },
+      { text: '    print("Cleanup — always runs.")',    color: '#60a5fa' },
+    ],
+    execution: [
+      { line: 0, output: [{ text: '→ Entering try block...', color: '#94a3b8' }] },
+      { line: 1, output: [{ text: '→ Attempting to open orders.txt...', color: '#94a3b8' }] },
+      { line: 3, output: [{ text: '→ FileNotFoundError caught', color: '#4ade80' }] },
+      { line: 4, output: [{ text: 'File not found.', color: '#4ade80' }] },
+      { line: 5, output: [{ text: '→ finally block — always executes', color: '#60a5fa' }] },
+      { line: 6, output: [{ text: 'Cleanup — always runs.', color: '#60a5fa' }, { text: '✓ Cleanup guaranteed regardless of success or failure.', color: '#4ade80' }] },
+    ],
+  },
+};
+
+function ExceptionFlowLab() {
+  const [strategy, setStrategy] = useState<HandlingStrategy>('none');
+  const [execStep, setExecStep] = useState(-1);
+  const [running, setRunning] = useState(false);
+  const [outputLines, setOutputLines] = useState<{ text: string; color: string }[]>([]);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const d = EXEC_DATA[strategy];
+
+  const run = () => {
+    setRunning(true);
+    setExecStep(0);
+    setOutputLines([{ text: '$ python script.py', color: '#64748b' }]);
+  };
+
+  useEffect(() => {
+    if (!running) return;
+    const steps = d.execution;
+    if (execStep < steps.length) {
+      timerRef.current = setTimeout(() => {
+        const step = steps[execStep];
+        setOutputLines(prev => [...prev, ...step.output]);
+        setExecStep(s => s + 1);
+      }, 900);
+    } else {
+      setRunning(false);
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [running, execStep, d]);
+
+  const reset = () => { setExecStep(-1); setRunning(false); setOutputLines([]); };
+  const activeCodeLine = running && execStep < d.execution.length ? d.execution[execStep]?.line ?? -1 : -1;
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💻</div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Exception Code Executor</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Choose a handling strategy. Run the script. Watch execution step through the code live.</div>
+        </div>
+      </div>
+      <div style={{ padding: '20px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+        {/* Strategy selector */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '16px' }}>
+          {(Object.keys(EXEC_DATA) as HandlingStrategy[]).map(key => {
+            const item = EXEC_DATA[key];
+            return (
+              <motion.button key={key} whileHover={{ y: -1 }} onClick={() => { setStrategy(key); reset(); }}
+                style={{ flex: 1, padding: '8px 6px', borderRadius: '8px', border: `2px solid ${strategy === key ? (item.good ? ACCENT : '#dc2626') : 'var(--ed-rule)'}`, background: strategy === key ? (item.good ? `rgba(${ACCENT_RGB},0.12)` : 'rgba(220,38,38,0.1)') : 'var(--ed-card)', color: strategy === key ? (item.good ? ACCENT : '#dc2626') : 'var(--ed-ink3)', fontSize: '11px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '3px' }}>
+                <span>{item.good ? '✓' : '⚠'}</span>
+                <span style={{ fontSize: '10px' }}>{item.label}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+          {/* Code editor */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '6px' }}>script.py</div>
+            <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}>
+              <div style={{ background: '#1e293b', padding: '7px 14px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: '#64748b' }}>script.py</span>
+              </div>
+              <div style={{ background: '#0f172a', padding: '14px 0' }}>
+                {d.codeLines.map((line, i) => {
+                  const isActive = activeCodeLine === i;
+                  return (
+                    <motion.div key={`${strategy}-${i}`} animate={{ background: isActive ? 'rgba(96,165,250,0.12)' : 'transparent' }}
+                      style={{ display: 'flex', alignItems: 'center', paddingLeft: '0', transition: 'background 0.3s' }}>
+                      <span style={{ width: '32px', textAlign: 'right' as const, paddingRight: '12px', fontSize: '10px', color: '#374151', fontFamily: "'JetBrains Mono',monospace", flexShrink: 0, userSelect: 'none' as const }}>{i + 1}</span>
+                      {isActive && <motion.div animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 0.6, repeat: Infinity }} style={{ width: '3px', height: '14px', background: '#60a5fa', borderRadius: '1px', marginRight: '6px', flexShrink: 0 }} />}
+                      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: line.color ?? '#86efac', paddingRight: '16px', whiteSpace: 'pre' as const }}>{line.text}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Terminal output */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '6px' }}>Terminal Output</div>
+            <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 4px 16px rgba(0,0,0,0.3)' }}>
+              <div style={{ background: '#1e293b', padding: '7px 14px', display: 'flex', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: '#64748b' }}>bash</span>
+                {running && <motion.div animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#28C840' }} />}
+              </div>
+              <div style={{ background: '#0a0f1e', padding: '14px 16px', minHeight: '160px', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', lineHeight: 1.8 }}>
+                {outputLines.length === 0 ? (
+                  <span style={{ color: '#374151' }}>Click Run to execute the script...</span>
+                ) : (
+                  outputLines.map((l, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }}
+                      style={{ color: l.color, whiteSpace: 'pre-wrap' as const }}>{l.text}</motion.div>
+                  ))
+                )}
+                {running && <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} style={{ color: ACCENT }}>▋</motion.span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <motion.button whileHover={{ scale: 1.02 }} onClick={run} disabled={running}
+            style={{ padding: '10px 22px', borderRadius: '8px', background: running ? '#1e293b' : ACCENT, color: '#fff', fontSize: '13px', fontWeight: 700, border: 'none', cursor: running ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {running ? '⏳ Running...' : '▶  Run script.py'}
+          </motion.button>
+          {outputLines.length > 0 && !running && (
+            <button onClick={reset} style={{ padding: '10px 16px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)', fontSize: '12px', cursor: 'pointer' }}>↺ Reset</button>
+          )}
+          {!EXEC_DATA[strategy].good && outputLines.length > 0 && !running && (
+            <div style={{ marginLeft: 'auto', fontSize: '11px', color: '#E67E22', fontWeight: 600 }}>⚠ Try &ldquo;Specific except&rdquo; or &ldquo;With finally&rdquo;</div>
+          )}
+          {EXEC_DATA[strategy].good && outputLines.length > 0 && !running && (
+            <div style={{ marginLeft: 'auto', fontSize: '11px', color: ACCENT, fontWeight: 600 }}>✓ This is good exception handling</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ANIMATION 1: EXCEPTION PATHWAYS ─────────────────────────────────────────
+type ExPath = 'none' | 'broad' | 'specific' | 'finally';
+
+const PATH_META: Record<ExPath, { label: string; color: string; emoji: string; steps: string[]; desc: string }> = {
+  none:     { label: 'No handling',     color: '#dc2626', emoji: '💥', steps: ['risky code', 'CRASH ✗'], desc: 'Unhandled exception. Traceback printed. Execution stops completely.' },
+  broad:    { label: 'Broad except',    color: '#E67E22', emoji: '⚠️', steps: ['risky code', 'fails', 'except: (vague)', 'continues ⚠'], desc: "Script continues — but the real cause is hidden. Debugging becomes much harder." },
+  specific: { label: 'Specific except', color: ACCENT,    emoji: '✓',  steps: ['risky code', 'fails', 'except FileNotFoundError', 'clear message ✓'], desc: 'Only the expected error is caught. Clear, targeted. Everything else still surfaces.' },
+  finally:  { label: 'With finally',    color: ACCENT,    emoji: '✓',  steps: ['risky code', 'fails', 'except — handled ✓', 'finally: cleanup ✓'], desc: 'Specific handling + cleanup that always runs, whether success or failure.' },
+};
+
+function ExceptionPathwaysAnimation() {
+  const [active, setActive] = useState<ExPath>('none');
+  const paths: ExPath[] = ['none', 'broad', 'specific', 'finally'];
+  const d = PATH_META[active];
+
+  useEffect(() => {
+    const t = setInterval(() => setActive(a => paths[(paths.indexOf(a) + 1) % paths.length]), 3200);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${d.color}35`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 6px 24px ${d.color}18`, transition: 'border-color 0.4s, box-shadow 0.4s' }}>
+      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${d.color}20 0%, ${d.color}0C 100%)`, borderBottom: `1px solid ${d.color}25`, display: 'flex', gap: '10px', alignItems: 'center', transition: 'background 0.4s' }}>
+        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: `${d.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🔀</div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: d.color, textTransform: 'uppercase' as const }}>Exception Pathways · {d.label}</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '1px' }}>Click any path or wait — auto-cycles through all four approaches.</div>
+        </div>
+      </div>
+      <div style={{ padding: '20px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '18px' }}>
+          {paths.map(p => (
+            <motion.button key={p} whileHover={{ y: -1 }} onClick={() => setActive(p)}
+              style={{ flex: 1, padding: '7px 5px', borderRadius: '7px', border: `2px solid ${active === p ? PATH_META[p].color : 'var(--ed-rule)'}`, background: active === p ? `${PATH_META[p].color}15` : 'var(--ed-card)', color: active === p ? PATH_META[p].color : 'var(--ed-ink3)', fontSize: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}>
+              {PATH_META[p].emoji} {PATH_META[p].label}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Pipeline */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' as const, marginBottom: '16px' }}>
+          <div style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(58,134,255,0.12)', border: '1.5px solid rgba(58,134,255,0.4)', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, color: '#3A86FF', whiteSpace: 'nowrap' as const }}>try:</div>
+          {d.steps.map((step, i) => (
+            <React.Fragment key={i}>
+              <motion.div key={`arrow-${active}-${i}`} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: i * 0.15, duration: 0.3 }}
+                style={{ width: '16px', height: '2px', background: d.color, borderRadius: '1px', flexShrink: 0, transformOrigin: 'left' }} />
+              <motion.div key={`step-${active}-${i}`} initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.15 + 0.1 }}
+                style={{ padding: '7px 11px', borderRadius: '7px', background: `${d.color}14`, border: `1.5px solid ${d.color}50`, fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 700, color: d.color, whiteSpace: 'nowrap' as const }}>
+                {step}
+              </motion.div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div key={active} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            style={{ padding: '10px 14px', borderRadius: '8px', background: d.color === ACCENT ? `rgba(${ACCENT_RGB},0.07)` : `${d.color}10`, border: `1px solid ${d.color}30`, fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>
+            {d.desc}
+          </motion.div>
+        </AnimatePresence>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '14px' }}>
+          {paths.map(p => <div key={p} onClick={() => setActive(p)} style={{ width: active === p ? '24px' : '8px', height: '8px', borderRadius: '4px', background: active === p ? d.color : 'var(--ed-rule)', cursor: 'pointer', transition: 'all 0.3s' }} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── TOOL 2: PACKAGE MANAGER SIMULATOR ───────────────────────────────────────
+const PROJ_DATA = [
+  { name: 'project-a', needs: { name: 'requests', version: '2.28' }, color: '#3A86FF' },
+  { name: 'project-b', needs: { name: 'requests', version: '2.31' }, color: '#7843EE' },
+  { name: 'project-c', needs: { name: 'flask',    version: '2.0'  }, color: '#E67E22' },
+];
+const AVAILABLE_PKGS = [
+  { name: 'requests', version: '2.31', emoji: '📡' },
+  { name: 'flask',    version: '2.0',  emoji: '🌶️' },
+  { name: 'numpy',    version: '1.24', emoji: '🔢' },
+];
+
+function EnvironmentIsolationLab() {
+  const [mode, setMode] = useState<'global' | 'isolated'>('global');
+  const [globalPkgs, setGlobalPkgs] = useState<string[]>([]);
+  const [isolated, setIsolated] = useState<Record<string, string[]>>({});
+  const [cmdOutput, setCmdOutput] = useState<{ text: string; color: string }[]>([{ text: '$ ', color: '#64748b' }]);
+  const [selectedProj, setSelectedProj] = useState<string | null>(null);
+
+  const installGlobal = (pkgName: string) => {
+    if (globalPkgs.includes(pkgName)) return;
+    const pkg = AVAILABLE_PKGS.find(p => p.name === pkgName)!;
+    setCmdOutput(prev => [
+      ...prev,
+      { text: `pip install ${pkgName}`, color: '#94a3b8' },
+      { text: `Collecting ${pkgName}==${pkg.version}...`, color: '#60a5fa' },
+      { text: `Successfully installed ${pkgName}-${pkg.version}`, color: '#4ade80' },
+      { text: '$ ', color: '#64748b' },
+    ]);
+    setGlobalPkgs(prev => [...prev, pkgName]);
+  };
+
+  const installIsolated = (proj: string, pkgName: string) => {
+    const pkg = AVAILABLE_PKGS.find(p => p.name === pkgName)!;
+    setCmdOutput(prev => [
+      ...prev,
+      { text: `(${proj}) pip install ${pkgName}`, color: '#94a3b8' },
+      { text: `Installing into ${proj}/venv...`, color: '#60a5fa' },
+      { text: `Successfully installed ${pkgName}-${pkg.version}`, color: '#4ade80' },
+      { text: '$ ', color: '#64748b' },
+    ]);
+    setIsolated(prev => ({ ...prev, [proj]: [...(prev[proj] ?? []), pkgName] }));
+  };
+
+  const resetAll = () => { setGlobalPkgs([]); setIsolated({}); setCmdOutput([{ text: '$ ', color: '#64748b' }]); setSelectedProj(null); };
+
+  const conflicts = mode === 'global' && globalPkgs.includes('requests')
+    ? PROJ_DATA.filter(p => p.needs.name === 'requests')
+    : [];
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📦</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Package Manager Simulator</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Install packages globally or into isolated environments. See conflicts happen — then fix them.</div>
+        </div>
+        <button onClick={resetAll} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', border: '1px solid var(--ed-rule)', background: 'var(--ed-card)', color: 'var(--ed-ink3)' }}>↺ Reset</button>
+      </div>
+      <div style={{ padding: '20px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+        {/* Mode toggle */}
+        <div style={{ display: 'flex', gap: '0', marginBottom: '16px', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--ed-rule)' }}>
+          {(['global', 'isolated'] as const).map(m => (
+            <button key={m} onClick={() => { setMode(m); resetAll(); }}
+              style={{ flex: 1, padding: '10px', border: 'none', cursor: 'pointer', background: mode === m ? (m === 'global' ? '#dc2626' : ACCENT) : 'var(--ed-card)', color: mode === m ? '#fff' : 'var(--ed-ink3)', fontWeight: mode === m ? 700 : 400, fontSize: '12px', borderRight: m === 'global' ? '1px solid var(--ed-rule)' : 'none', transition: 'all 0.2s' }}>
+              {m === 'global' ? '🌐 Global environment' : '📦 Virtual environments (venv)'}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          {/* Left: projects + install controls */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+            {mode === 'global' && (
+              <div style={{ padding: '12px 14px', borderRadius: '10px', background: 'rgba(220,38,38,0.08)', border: '1.5px solid rgba(220,38,38,0.3)' }}>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: '#dc2626', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', marginBottom: '8px' }}>🌐 GLOBAL PYTHON ENVIRONMENT</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px', marginBottom: '8px' }}>
+                  {globalPkgs.length === 0 ? <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>Nothing installed yet</span> : globalPkgs.map(p => {
+                    const pkg = AVAILABLE_PKGS.find(x => x.name === p)!;
+                    return <span key={p} style={{ padding: '3px 9px', borderRadius: '5px', fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.35)', color: '#f87171' }}>{pkg.emoji} {p}=={pkg.version}</span>;
+                  })}
+                </div>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: '#dc2626', fontFamily: "'JetBrains Mono',monospace", marginBottom: '5px' }}>pip install →</div>
+                <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' as const }}>
+                  {AVAILABLE_PKGS.map(pkg => (
+                    <motion.button key={pkg.name} whileHover={{ y: -1 }} onClick={() => installGlobal(pkg.name)} disabled={globalPkgs.includes(pkg.name)}
+                      style={{ padding: '4px 10px', borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: globalPkgs.includes(pkg.name) ? 'default' : 'pointer', fontFamily: "'JetBrains Mono',monospace", border: `1px solid ${globalPkgs.includes(pkg.name) ? 'var(--ed-rule)' : 'rgba(220,38,38,0.4)'}`, background: globalPkgs.includes(pkg.name) ? 'var(--ed-card)' : 'rgba(220,38,38,0.08)', color: globalPkgs.includes(pkg.name) ? 'var(--ed-ink3)' : '#f87171', opacity: globalPkgs.includes(pkg.name) ? 0.5 : 1 }}>
+                      {globalPkgs.includes(pkg.name) ? '✓' : '+'} {pkg.name}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Project containers */}
+            {PROJ_DATA.map(proj => {
+              const isConflict = conflicts.some(c => c.name === proj.name);
+              const projPkgs = isolated[proj.name] ?? [];
+              const needsMet = mode === 'isolated' ? projPkgs.includes(proj.needs.name) : globalPkgs.includes(proj.needs.name);
+              const hasConflictHere = mode === 'global' && isConflict;
+
+              return (
+                <motion.div key={proj.name} animate={{ borderColor: hasConflictHere ? '#dc2626' : needsMet && !hasConflictHere ? `${ACCENT}60` : `${proj.color}30` }}
+                  onClick={() => mode === 'isolated' && setSelectedProj(selectedProj === proj.name ? null : proj.name)}
+                  style={{ padding: '12px 14px', borderRadius: '10px', border: '1.5px solid', background: hasConflictHere ? 'rgba(220,38,38,0.06)' : needsMet && !hasConflictHere ? `rgba(${ACCENT_RGB},0.06)` : 'var(--ed-card)', cursor: mode === 'isolated' ? 'pointer' : 'default', transition: 'all 0.3s' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+                    <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 700, color: proj.color }}>{proj.name}/</code>
+                    {mode === 'isolated' && <span style={{ fontSize: '9px', fontFamily: "'JetBrains Mono',monospace", color: ACCENT, padding: '1px 6px', borderRadius: '4px', background: `rgba(${ACCENT_RGB},0.1)` }}>venv/</span>}
+                    {hasConflictHere && <span style={{ fontSize: '10px', color: '#dc2626', fontWeight: 700, marginLeft: 'auto' }}>⚠ conflict</span>}
+                    {needsMet && !hasConflictHere && <span style={{ fontSize: '10px', color: ACCENT, fontWeight: 700, marginLeft: 'auto' }}>✓ ready</span>}
+                  </div>
+                  <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>needs: {proj.needs.name}=={proj.needs.version}</code>
+                  {mode === 'isolated' && projPkgs.length > 0 && (
+                    <div style={{ marginTop: '5px', display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
+                      {projPkgs.map(p => { const pkg = AVAILABLE_PKGS.find(x => x.name === p)!; return <span key={p} style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '10px', fontFamily: "'JetBrains Mono',monospace", background: `rgba(${ACCENT_RGB},0.1)`, color: ACCENT }}>{pkg.emoji} {p}=={pkg.version}</span>; })}
+                    </div>
+                  )}
+                  {mode === 'isolated' && selectedProj === proj.name && !projPkgs.includes(proj.needs.name) && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ overflow: 'hidden', marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' as const }}>
+                      {AVAILABLE_PKGS.map(pkg => (
+                        <motion.button key={pkg.name} whileHover={{ y: -1 }} onClick={e => { e.stopPropagation(); installIsolated(proj.name, pkg.name); }}
+                          disabled={projPkgs.includes(pkg.name)}
+                          style={{ padding: '3px 9px', borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace", border: `1px solid ${ACCENT}40`, background: `rgba(${ACCENT_RGB},0.08)`, color: ACCENT, opacity: projPkgs.includes(pkg.name) ? 0.4 : 1 }}>
+                          {projPkgs.includes(pkg.name) ? '✓' : '+'} pip install {pkg.name}
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </motion.div>
+              );
+            })}
+
+            {conflicts.length >= 2 && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.35)', fontSize: '12px', color: '#f87171', fontWeight: 600, lineHeight: 1.6 }}>
+                ⚠ project-a needs requests==2.28 but project-b needs requests==2.31. Global env can only hold one — one project will get the wrong version.
+              </motion.div>
+            )}
+          </div>
+
+          {/* Right: terminal */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '6px' }}>Terminal</div>
+            <Terminal title="bash" lines={cmdOutput} height={220} />
+            {mode === 'isolated' && !selectedProj && (
+              <div style={{ marginTop: '8px', padding: '8px 12px', borderRadius: '7px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid ${ACCENT}20`, fontSize: '11px', color: 'var(--ed-ink3)' }}>
+                Click a project container to install packages into its isolated environment.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ANIMATION 2: PACKAGE INSTALLATION FLOW ───────────────────────────────────
+function PackageInstallationFlow() {
+  const [phase, setPhase] = useState(0);
+  const phases = [
+    { label: 'Clean environment',     color: '#64748b', desc: 'No external packages yet. Only stdlib available.' },
+    { label: 'pip install requests',  color: '#3A86FF', desc: 'requests downloads and enters the environment.' },
+    { label: 'Machine A: works ✓',   color: ACCENT,    desc: 'import requests succeeds. Code runs.' },
+    { label: 'Machine B: fails ✗',   color: '#dc2626', desc: 'requests not installed. ModuleNotFoundError.' },
+  ];
+  const cur = phases[phase];
+
+  useEffect(() => {
+    const t = setInterval(() => setPhase(p => (p + 1) % phases.length), 2200);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${cur.color}35`, overflow: 'hidden', margin: '28px 0', boxShadow: `0 6px 24px ${cur.color}18`, transition: 'all 0.4s' }}>
+      <div style={{ padding: '12px 20px', background: `linear-gradient(135deg, ${cur.color}20 0%, ${cur.color}0C 100%)`, borderBottom: `1px solid ${cur.color}25`, display: 'flex', gap: '10px', alignItems: 'center', transition: 'background 0.4s' }}>
+        <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: `${cur.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>📦</div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: cur.color, textTransform: 'uppercase' as const }}>Package Installation Flow</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '1px' }}>Watch how pip changes the project — and what happens without it on another machine.</div>
+        </div>
+      </div>
+      <div style={{ padding: '20px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '14px' }}>
+          {/* Environment box */}
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '8px' }}>PYTHON ENVIRONMENT (venv/)</div>
+            <div style={{ padding: '14px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', minHeight: '80px', position: 'relative' as const }}>
+              <AnimatePresence>
+                {phase >= 1 && (
+                  <motion.div initial={{ opacity: 0, y: 8, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }}
+                    style={{ display: 'flex', gap: '8px', alignItems: 'center', padding: '8px 12px', borderRadius: '7px', background: 'rgba(58,134,255,0.12)', border: '1.5px solid rgba(58,134,255,0.4)' }}>
+                    <span style={{ fontSize: '14px' }}>📦</span>
+                    <div>
+                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 700, color: '#3A86FF' }}>requests</div>
+                      <div style={{ fontSize: '9px', color: 'var(--ed-ink3)' }}>installed ✓</div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {phase === 0 && <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>Empty — no packages yet</div>}
+            </div>
+          </div>
+          {/* Two machines */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+            <motion.div animate={{ background: phase >= 2 ? `rgba(${ACCENT_RGB},0.1)` : 'var(--ed-card)', borderColor: phase >= 2 ? `${ACCENT}50` : 'rgba(226,232,240,1)' }}
+              style={{ padding: '10px 12px', borderRadius: '8px', border: '1.5px solid', transition: 'all 0.5s' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: phase >= 2 ? ACCENT : 'var(--ed-ink3)' }}>💻 Machine A</div>
+              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: phase >= 2 ? ACCENT : '#64748b' }}>{phase >= 2 ? 'import requests  # ✓ works' : 'import requests  # ...'}</code>
+            </motion.div>
+            <motion.div animate={{ background: phase >= 3 ? 'rgba(220,38,38,0.08)' : 'var(--ed-card)', borderColor: phase >= 3 ? 'rgba(220,38,38,0.4)' : 'rgba(226,232,240,1)' }}
+              style={{ padding: '10px 12px', borderRadius: '8px', border: '1.5px solid', transition: 'all 0.5s' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: phase >= 3 ? '#dc2626' : 'var(--ed-ink3)' }}>💻 Machine B (no pip install)</div>
+              <code style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: phase >= 3 ? '#dc2626' : '#64748b' }}>{phase >= 3 ? 'ModuleNotFoundError  # ✗' : 'import requests  # ...'}</code>
+            </motion.div>
+          </div>
+        </div>
+        <AnimatePresence mode="wait">
+          <motion.div key={phase} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+            style={{ padding: '10px 14px', borderRadius: '8px', background: `${cur.color}10`, border: `1px solid ${cur.color}30`, fontSize: '12px', color: cur.color, lineHeight: 1.6, fontWeight: 600 }}>
+            {cur.label} — {cur.desc}
+          </motion.div>
+        </AnimatePresence>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '14px' }}>
+          {phases.map((_, i) => <div key={i} onClick={() => setPhase(i)} style={{ width: phase === i ? '24px' : '8px', height: '8px', borderRadius: '4px', background: phase === i ? cur.color : 'var(--ed-rule)', cursor: 'pointer', transition: 'all 0.3s' }} />)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── TOOL 3: TWO-MACHINE TERMINAL WORKSPACE ───────────────────────────────────
+const MACHINE_A_HISTORY = [
+  { text: '(venv) $ pip install requests flask pydantic', color: '#94a3b8' },
+  { text: 'Successfully installed requests-2.31.0 flask-3.0.0 pydantic-2.0.0', color: '#4ade80' },
+  { text: '(venv) $ python app.py', color: '#94a3b8' },
+  { text: 'Server running at http://localhost:8000', color: '#4ade80' },
+];
+
+type ReproPhase = 0 | 1 | 2 | 3 | 4;
+
+const REPRO_PHASES: { btnLabel: string; machineAExtra: { text: string; color: string }[]; machineBLines: { text: string; color: string }[]; insight: string; insightColor: string }[] = [
+  {
+    btnLabel: 'Try running on Machine B →',
+    machineAExtra: [],
+    machineBLines: [
+      { text: '$ git clone repo && cd project', color: '#94a3b8' },
+      { text: "Cloning into 'project'...", color: '#60a5fa' },
+      { text: '$ python app.py', color: '#94a3b8' },
+      { text: "ModuleNotFoundError: No module named 'requests'", color: '#f87171' },
+      { text: 'Error: Missing dependencies. Which ones? What versions?', color: '#f87171' },
+    ],
+    insight: 'Machine B has the code but not the dependencies. There is no record of what to install.',
+    insightColor: '#f87171',
+  },
+  {
+    btnLabel: 'Guess the dependencies →',
+    machineAExtra: [],
+    machineBLines: [
+      { text: '$ pip install requests', color: '#94a3b8' },
+      { text: 'Installed requests-2.31.0', color: '#4ade80' },
+      { text: '$ python app.py', color: '#94a3b8' },
+      { text: "ModuleNotFoundError: No module named 'flask'", color: '#f87171' },
+      { text: '$ pip install flask', color: '#94a3b8' },
+      { text: 'Installed flask-3.0.0', color: '#4ade80' },
+      { text: '$ python app.py', color: '#94a3b8' },
+      { text: "ModuleNotFoundError: No module named 'pydantic'", color: '#f87171' },
+      { text: 'Still guessing...', color: '#fbbf24' },
+    ],
+    insight: 'Guessing dependencies one error at a time. Slow, error-prone, and version mismatches are likely.',
+    insightColor: '#fbbf24',
+  },
+  {
+    btnLabel: 'Generate requirements.txt →',
+    machineAExtra: [
+      { text: '(venv) $ pip freeze > requirements.txt', color: '#94a3b8' },
+      { text: '📄 requirements.txt created', color: '#60a5fa' },
+      { text: 'requests==2.31.0', color: '#60a5fa' },
+      { text: 'flask==3.0.0', color: '#60a5fa' },
+      { text: 'pydantic==2.0.0', color: '#60a5fa' },
+    ],
+    machineBLines: [],
+    insight: 'pip freeze captures every package and its exact version. Machine A now has a reproducibility contract.',
+    insightColor: '#60a5fa',
+  },
+  {
+    btnLabel: 'Install on Machine B with requirements.txt →',
+    machineAExtra: [
+      { text: '(venv) $ pip freeze > requirements.txt', color: '#94a3b8' },
+      { text: '📄 requirements.txt → pushed to repo', color: '#4ade80' },
+    ],
+    machineBLines: [
+      { text: '$ git pull  # requirements.txt now in repo', color: '#94a3b8' },
+      { text: '$ python -m venv venv && source venv/bin/activate', color: '#94a3b8' },
+      { text: '$ pip install -r requirements.txt', color: '#94a3b8' },
+      { text: 'Collecting requests==2.31.0...', color: '#60a5fa' },
+      { text: 'Collecting flask==3.0.0...', color: '#60a5fa' },
+      { text: 'Collecting pydantic==2.0.0...', color: '#60a5fa' },
+      { text: 'Successfully installed all packages ✓', color: '#4ade80' },
+      { text: '$ python app.py', color: '#94a3b8' },
+      { text: 'Server running at http://localhost:8000 ✓', color: '#4ade80' },
+    ],
+    insight: '✓ Exact same environment. requirements.txt turned a local setup into a reproducible contract.',
+    insightColor: ACCENT,
+  },
+];
+
+function ReproducibilityWorkspace() {
+  const [phase, setPhase] = useState<ReproPhase>(0);
+  const [running, setRunning] = useState(false);
+  const [visibleBLines, setVisibleBLines] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cur = REPRO_PHASES[phase];
+
+  const advance = () => {
+    if (phase >= REPRO_PHASES.length - 1) return;
+    const nextPhase = (phase + 1) as ReproPhase;
+    setPhase(nextPhase);
+    setRunning(true);
+    setVisibleBLines(0);
+  };
+
+  useEffect(() => {
+    if (!running) return;
+    const target = REPRO_PHASES[phase].machineBLines.length;
+    if (visibleBLines < target) {
+      timerRef.current = setTimeout(() => setVisibleBLines(v => v + 1), 500);
+    } else {
+      setRunning(false);
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [running, visibleBLines, phase]);
+
+  const machineALines: { text: string; color: string }[] = [
+    ...MACHINE_A_HISTORY,
+    ...cur.machineAExtra,
+  ];
+
+  return (
+    <div style={{ background: 'var(--ed-card)', borderRadius: '16px', border: `1.5px solid ${ACCENT}35`, overflow: 'hidden', margin: '28px 0', boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}>
+      <div style={{ padding: '14px 20px', background: `linear-gradient(135deg, ${ACCENT}22 0%, ${ACCENT}10 100%)`, borderBottom: `1px solid ${ACCENT}25`, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: `${ACCENT}28`, fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🖥️</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>Two-Machine Workspace</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '2px' }}>Share a Python project — watch what breaks without requirements.txt, then fix it.</div>
+        </div>
+        <button onClick={() => { setPhase(0); setVisibleBLines(0); setRunning(false); }} style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', border: '1px solid var(--ed-rule)', background: 'var(--ed-card)', color: 'var(--ed-ink3)' }}>↺ Restart</button>
+      </div>
+      <div style={{ padding: '20px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)` }}>
+        {/* Progress steps */}
+        <div style={{ display: 'flex', gap: '4px', marginBottom: '16px' }}>
+          {['No req', 'Guess', 'Capture', 'Transfer'].map((lbl, i) => (
+            <div key={lbl} style={{ flex: 1, padding: '5px', borderRadius: '6px', background: i <= phase ? (i < 2 ? 'rgba(220,38,38,0.12)' : `rgba(${ACCENT_RGB},0.12)`) : 'var(--ed-card)', border: `1px solid ${i <= phase ? (i < 2 ? 'rgba(220,38,38,0.4)' : `${ACCENT}40`) : 'var(--ed-rule)'}`, textAlign: 'center' as const }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: i <= phase ? (i < 2 ? '#dc2626' : ACCENT) : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace" }}>{lbl}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Two terminals */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '6px' }}>💻 Arjun&apos;s Machine</div>
+            <Terminal title="arjun@macbook: ~/project" lines={machineALines} height={200} />
+          </div>
+          <div>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: phase >= 3 ? ACCENT : '#dc2626', fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '6px' }}>
+              💻 Another Engineer&apos;s Machine {phase === 0 && '— clone + run'}
+            </div>
+            <div style={{ borderRadius: '10px', overflow: 'hidden', border: `1px solid ${phase >= 3 ? 'rgba(74,222,128,0.2)' : 'rgba(248,113,113,0.2)'}`, boxShadow: '0 8px 32px rgba(0,0,0,0.35)', transition: 'border-color 0.4s' }}>
+              <div style={{ background: '#1e293b', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: '#64748b' }}>engineer@laptop: ~/project</span>
+                {running && <motion.div animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }} style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#28C840' }} />}
+              </div>
+              <div style={{ background: '#0a0f1e', padding: '14px 16px', minHeight: '200px', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', lineHeight: 1.8 }}>
+                {cur.machineBLines.slice(0, visibleBLines).map((l, i) => (
+                  <motion.div key={`${phase}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ color: l.color, whiteSpace: 'pre-wrap' as const }}>{l.text}</motion.div>
+                ))}
+                {running && <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.5, repeat: Infinity }} style={{ color: ACCENT }}>▋</motion.span>}
+                {cur.machineBLines.length === 0 && phase === 2 && (
+                  <span style={{ color: '#374151', fontStyle: 'italic' }}>requirements.txt received — ready to install...</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Insight + advance button */}
+        <AnimatePresence mode="wait">
+          <motion.div key={phase} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+            style={{ padding: '10px 14px', borderRadius: '8px', background: `${cur.insightColor}10`, border: `1px solid ${cur.insightColor}35`, fontSize: '12px', color: cur.insightColor, lineHeight: 1.65, marginBottom: '12px', fontWeight: 600 }}>
+            {cur.insight}
+          </motion.div>
+        </AnimatePresence>
+
+        {phase < REPRO_PHASES.length - 1 && (
+          <motion.button whileHover={{ scale: 1.02 }} onClick={advance} disabled={running}
+            style={{ padding: '10px 22px', borderRadius: '8px', background: running ? '#1e293b' : ACCENT, color: '#fff', fontSize: '12px', fontWeight: 700, border: 'none', cursor: running ? 'default' : 'pointer' }}>
+            {running ? '⏳ Running...' : cur.btnLabel}
+          </motion.button>
+        )}
+        {phase === REPRO_PHASES.length - 1 && (
+          <div style={{ fontSize: '12px', color: ACCENT, fontWeight: 700 }}>
+            🎯 Both machines now have identical environments. requirements.txt is the reproducibility contract.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
+interface Props { onBack: () => void; }
 
 export default function PythonPreRead3({ onBack }: Props) {
   const store = useLearnerStore();
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
-  
-  const completedModules = useMemo(() => {
-    return new Set(store.completedSections[MODULE_ID] || [SECTIONS[0].id]);
-  }, [store.completedSections]);
+  const completedModules = useMemo(() => new Set(store.completedSections[MODULE_ID] || [SECTIONS[0].id]), [store.completedSections]);
 
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          const id = e.target.getAttribute('data-nav-id');
-          if (id) {
-            setActiveSection(id);
-            store.markSectionCompleted(MODULE_ID, id);
-          }
-        }
-      });
+      entries.forEach(e => { if (e.isIntersecting) { const id = e.target.getAttribute('data-nav-id'); if (id) { setActiveSection(id); store.markSectionCompleted(MODULE_ID, id); } } });
     }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
-    
     document.querySelectorAll('[data-nav-id]').forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
   return (
-    <SWEPreReadLayout
-      trackConfig={TRACK_CONFIG}
-      moduleLabel="PYTHON PRE-READ 03"
-      title="Reliability, Environments, and Readiness"
-      sections={SECTIONS}
-      completedModules={completedModules}
-      activeSection={activeSection}
-      onBack={onBack}
-    >
-      {/* ── MODULE HERO ── */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', marginBottom: '56px', flexWrap: 'wrap' }}
-      >
-        {/* Left Column: Title & Objectives */}
-        <div style={{ flex: 1, minWidth: '320px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '28px', letterSpacing: '0.04em' }}>
-            Software Engineering <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
-            <span style={{ color: 'var(--ed-ink2)' }}>Python Track</span>
-            <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
-            <span style={{ color: 'var(--ed-ink3)' }}>50 min · 6 parts</span>
-          </div>
+    <SWEPreReadLayout trackConfig={TRACK_CONFIG} moduleLabel="PYTHON PRE-READ 03" title="Python in the Real World" sections={SECTIONS} completedModules={completedModules} activeSection={activeSection} onBack={onBack}>
 
-          <h1 style={{ 
-            fontSize: 'clamp(32px, 4vw, 48px)', fontWeight: 900, lineHeight: 1.1, 
-            letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '18px',
-            fontFamily: "'Lora', serif" 
-          }}>
-            Reliability &<br />
-            <span style={{ color: ACCENT }}>Production Readiness</span>
-          </h1>
-
-          <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '540px', marginBottom: '36px', fontStyle: 'italic', fontFamily: "'Lora', serif" }}>
-            &ldquo;Ready in dev is not ready in production. Software that lasts is software that anticipates failure.&rdquo;
-          </p>
-
-          {/* Learning Objectives Card */}
-          <div style={{ 
-            background: 'var(--ed-card)', borderRadius: '10px', padding: '24px', 
-            border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${ACCENT}`,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.03)'
-          }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: ACCENT, letterSpacing: '0.15em', marginBottom: '16px', textTransform: 'uppercase' }}>Learning Objectives</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-              {[
-                'Build resilient systems with Exception Handling',
-                'Isolate dependencies using Virtual Environments',
-                'Prepare for scale with Type Hinting',
-                'Standardize IO with proper File Handling and JSON'
-              ].map((obj, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                  <span style={{ color: ACCENT, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', marginTop: '2px' }}>0{i+1}</span>
-                  <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.5 }}>{obj}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Floating Module Card */}
-        <div style={{ flexShrink: 0, width: '200px', paddingTop: '40px' }}>
-          <div className="float3d" style={{ 
-            background: 'linear-gradient(145deg, #1E3A8A 0%, #1E40AF 100%)', 
-            borderRadius: '16px', padding: '24px 20px', 
-            boxShadow: '0 32px 64px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#BFDBFE', letterSpacing: '0.2em', marginBottom: '12px' }}>MODULE 03</div>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#F1F5F9', fontFamily: "'Lora', serif", lineHeight: 1.3, marginBottom: '6px' }}>Production Readiness</div>
-            <div style={{ fontSize: '10px', color: 'rgba(241,245,249,0.5)', marginBottom: '20px' }}>Python Track</div>
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', marginBottom: '16px' }} />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {SECTIONS.map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: i === 0 ? '#60A5FA' : 'rgba(255,255,255,0.2)' }} />
-                  <div style={{ fontSize: '9px', color: i === 0 ? '#F1F5F9' : 'rgba(241,245,249,0.4)', fontWeight: i === 0 ? 700 : 400 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── CHARACTERS LINEUP ── */}
-      <div style={{ marginBottom: '56px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.15em', marginBottom: '16px', textTransform: 'uppercase' }}>Characters in this Module</div>
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {[
-            { name: 'Aisha', role: 'Junior SE · Blue Basket', desc: "Feeling confident after finishing her logic. Now Aisha faces the reality of production: missing files, wrong library versions, and data edge cases.", color: ACCENT, mentor: false },
-            { name: 'Riya', role: 'Senior SE · Mentor', desc: "Known for code that 'never breaks'. Riya will teach Aisha how to build defensive shells around her functions.", color: '#0369A1', mentor: true }
-          ].map((c, i) => (
-            <div key={i} style={{ 
-              flex: 1, minWidth: '240px', background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '20px', 
-              boxShadow: '0 2px 8px rgba(0,0,0,0.02)', position: 'relative'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${c.color}` }}>
-                  {c.mentor ? <SWEMentorFace name={c.name} size={44} /> : <div style={{ width: 44, height: 44, background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '14px' }}>AI</div>}
-                </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: c.color }}>{c.name}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>{c.role}</div>
-                </div>
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6, fontStyle: 'italic' }}>{c.desc}</div>
+      {/* HERO */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '52px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>Python Foundations &middot; Pre-Read 03</div>
+        <h1 style={{ fontSize: 'clamp(26px,4.5vw,46px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '14px', fontFamily: "'Lora',Georgia,serif" }}>Python in the Real World:<br />Files, Errors &amp; Environments</h1>
+        <p style={{ fontSize: '17px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora',Georgia,serif", marginBottom: '34px', maxWidth: '580px' }}>
+          &ldquo;Backend code is not just judged by whether it runs. It is judged by whether it can be run, shared, debugged, and trusted.&rdquo;
+        </p>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '34px' }}>
+          {[{ n:'Arjun', r:'Backend Learner', d:'Can write Python. Now discovering that real development includes much more.', c:ACCENT }, { n:'Nisha', r:'Backend Mentor', d:'Helps understand the why behind engineering workflow and discipline.', c:'#0369A1' }, { n:'Kabir', r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' }, { n:'Meera', r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' }].map(c => (
+            <div key={c.n} style={{ background: `${c.c}0D`, border: `1px solid ${c.c}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '7px', background: `${c.c}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', color: c.c, marginBottom: '6px' }}>{c.n[0]}</div>
+              <div style={{ fontWeight: 700, fontSize: '12px', color: c.c, marginBottom: '2px' }}>{c.n}</div>
+              <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.r}</div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.d}</div>
             </div>
           ))}
         </div>
-      </div>
+        <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '18px 22px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>What this pre-read covers</div>
+          {['File I/O — how code interacts with data that lives outside the script', 'Exception handling — designing for failure, not just success', 'Environments, pip, and requirements.txt — making Python projects reproducible'].map((obj, i) => (
+            <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 2 ? '8px' : 0, alignItems: 'flex-start' }}>
+              <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', marginTop: '2px' }}>0{i+1}</span>
+              <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
 
-      <ChapterSection id="intro" data-nav-id="intro" num="01" accentRgb={ACCENT_RGB} first>
-        <SectionTitle>The Reality Check</SectionTitle>
-        <SituationCard protagonist="Aisha" accentColor={ACCENT}>
-          Aisha's inventory system is finally logic-complete. It runs perfectly on her laptop. She hands it to the operations team, but an hour later, she gets a Slack message: "The script crashed. Something about a missing CSV file." Then another: "Wait, it says I'm missing a library called 'pandas'." Riya smiles—this is the rite of passage.
-        </SituationCard>
+      {/* PART 1 */}
+      <ChapterSection id="pr3-file-io" data-nav-id="pr3-file-io" num="01" accentRgb={ACCENT_RGB} first>
+        <SceneSetter title="The script that worked until it needed real input." story="Arjun writes a small script to process order data. Until now, he hardcoded values: names, prices, discounts. Now he wants the script to read from a file. He creates orders.txt, reads it, and it works. Then Kabir asks: what happens when the file is huge? Or missing? Or structured differently than expected?" mentorQuote="File I/O is where your code stops talking only to itself." mentorName="Nisha" mentorColor="#0369A1" />
+        <CodeBlock filename="file_io.py" code={`# Reading
+with open("orders.txt", "r") as file:
+    content = file.read()
+    print(content)
 
-        <SWEConversationScene
-          track="python"
-          mentorName="Riya"
-          mentorRole="Senior Software Engineer"
-          mentorColor="#0369A1"
-          lines={[
-            { speaker: 'protagonist', text: "It works on my machine! I don't understand why they're getting errors. They're just supposed to run 'python main.py'." },
-            { speaker: 'mentor', text: "Welcome to the real world. Your machine is a curated garden. Production is a wild jungle of different versions, missing files, and bad inputs." },
-            { speaker: 'protagonist', text: "So I have to write code that 'expects' to fail? That sounds like I'm not confident in my logic." },
-            { speaker: 'mentor', text: "Confidence comes from knowing exactly how your code will fail. Reliability isn't about code that never crashes—it's about code that explains why it crashed and doesn't take the whole server down with it." },
-          ]}
-        />
+# Writing (overwrites)
+with open("notes.txt", "w") as file:
+    file.write("Hello, backend world")
+
+# Appending
+with open("log.txt", "a") as file:
+    file.write("New entry\\n")`} />
+        {para(<>The <code>with open(...)</code> pattern handles file closing cleanly even when something goes wrong. A file is not just text — it is input. And input changes what the program must be ready for.</>)}
+        {keyBox('Why file I/O matters', ['Backend systems constantly interact with files: logs, uploads, reports, exports, config', 'Outside data can be missing, malformed, or larger than expected', '"r" = read, "w" = write (overwrites), "a" = append', 'with open(...) ensures clean file handling even on failure'])}
+        <PythonPrinciple text="File I/O matters because real programs work with data that lives outside the code." />
+        <ApplyItBox prompt="Think of one backend scenario where data would naturally come from or go to a file — logs, order exports, configuration, uploaded data. What could go wrong?" />
+        <QuizEngine conceptId="python-file-io" conceptName="File I/O" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-file-io", question: "Why is file I/O an important shift for beginners?", options: ['It makes Python more complex', 'Code starts interacting with data that lives outside the script itself', 'Files replace all Python variables', 'Backend engineers never use variables'], correctIndex: 1, explanation: "Hardcoded values only test logic in isolation. File I/O introduces the reality that data comes from outside — and outside data can be missing, wrong-shaped, or unpredictably large." }} />
       </ChapterSection>
 
-      <ChapterSection id="reliability" data-nav-id="reliability" num="01" accentRgb={ACCENT_RGB}>
-        <SectionTitle>1. Reliability in Python Programs</SectionTitle>
-        {para('Reliable programs behave sensibly in both normal and abnormal conditions.')}
-        {para('That means:')}
-        <ul style={{ fontSize: '16px', lineHeight: 1.85, color: 'var(--ed-ink2)', paddingLeft: '24px' }}>
-          <li>they work for expected input,</li>
-          <li>they fail clearly for bad input,</li>
-          <li>they remain maintainable,</li>
-          <li>they communicate problems well.</li>
-        </ul>
+      {/* PART 2 */}
+      <ChapterSection id="pr3-exceptions" data-nav-id="pr3-exceptions" num="02" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The day a missing file taught Arjun that errors are part of the system." story="Arjun runs the script again. It crashes — the file path is wrong. He stares at the traceback feeling the usual beginner reaction: something is broken. Kabir looks at the error and says something unexpected." mentorQuote="This is not a weird interruption. This is part of the system." mentorName="Kabir" mentorColor="#7843EE" />
+        <ConvoScene lines={[
+          { speaker: 'arjun', text: "If my code crashes, doesn't that mean it's broken?" },
+          { speaker: 'mentor', text: "Not necessarily. In real systems, things go wrong constantly: files missing, values invalid, network timing out. Code that assumes perfection becomes fragile very quickly." },
+          { speaker: 'arjun', text: "So I should design for things going wrong?" },
+          { speaker: 'mentor', text: "Design for the failures you can anticipate. That's what exception handling is for." },
+        ]} mentorName="Kabir" mentorColor="#7843EE" />
+        <CodeBlock filename="exception_basic.py" code={`try:
+    with open("orders.txt", "r") as file:
+        content = file.read()
+        print(content)
+except FileNotFoundError:
+    print("The file was not found. Check the path.")`} />
+        <ExceptionFlowLab />
+        <PythonPrinciple text="Exceptions are not a side topic. They are part of how real programs survive imperfect conditions." />
+        <ApplyItBox prompt="Think of one thing that can go wrong in a backend system. What would graceful handling look like — not just stopping the crash, but making the failure useful and informative?" />
+        <QuizEngine conceptId="python-exceptions" conceptName="Exception Handling" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-exceptions", question: "Why is exception handling important in backend code?", options: ['It makes code look more advanced', 'It helps the program deal with failure conditions more intentionally and clearly', 'It removes all bugs from the program', 'It avoids the need to use files'], correctIndex: 1, explanation: "Real programs face constant failure conditions. Exception handling makes failure explicit and manageable — rather than letting programs crash or fail silently." }} />
       </ChapterSection>
 
-      <ChapterSection id="io-formats" data-nav-id="io-formats" num="02" accentRgb={ACCENT_RGB}>
-        <SectionTitle>2. File Input/Output (I/O)</SectionTitle>
-        {para(<strong>File modes</strong>)}
-        <ul style={{ fontSize: '16px', lineHeight: 1.85, color: 'var(--ed-ink2)', paddingLeft: '24px', marginBottom: '24px' }}>
-          <li>r read</li>
-          <li>w write</li>
-          <li>a append</li>
-          <li>b binary</li>
-        </ul>
+      {/* PART 3 */}
+      <ChapterSection id="pr3-except-handle" data-nav-id="pr3-except-handle" num="03" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The error that should not have been silenced." story="Arjun starts wrapping everything in try/except. At first it feels like progress. Then Kabir sees: try: amount = int('abc') — except: print('Something went wrong'). He stops Arjun immediately." mentorQuote="What exactly went wrong? 'I don't know, but at least the script didn't crash.' — This is where exception handling becomes dangerous." mentorName="Kabir" mentorColor="#7843EE" />
+        <CodeBlock filename="except_comparison.py" code={`# ✗ Bad: catches everything, hides the real cause
+try:
+    amount = int("abc")
+except:
+    print("Something went wrong")
 
-        {para(<strong>Safe file handling with with</strong>)}
-        
-        <QuickTry
-          track="python"
-          problem="Open a file safely and print its contents."
-          initialCode={`# Safe way to handle files\nwith open("inventory.txt", "w") as f:\n    f.write("Milk: 20\\nBread: 10")\n\n# Now read it back\nwith open("inventory.txt", "r") as f:\n    print(f.read())`}
-          hint="Try printing f.read()"
-          onRun={() => {}}
-          evaluateOutput={(code) => {
-            if (code.includes('f.read()')) return { status: 'success', text: 'Milk: 20\nBread: 10' };
-            return { status: 'success', text: '(File system simulation active)' };
-          }}
-        />
+# ✓ Better: specific exception with clear message
+try:
+    amount = int("abc")
+except ValueError:
+    print("Invalid number format — expected a number.")
 
-        <div style={{ height: '40px' }} />
-
-        <SectionTitle>3. Working with File Formats</SectionTitle>
-        {para(<strong>Text files</strong>)}
-        {para('Good for logs and simple outputs.')}
-
-        {para(<strong>CSV files</strong>)}
-        <CodeBlock code={`import csv\nwith open("products.csv", "r") as file:\n    reader = csv.DictReader(file)\n    for row in reader:\n        print(row["name"], row["price"])`} />
-
-        {para(<strong>JSON files</strong>)}
-        
-        <QuickTry
-          track="python"
-          problem="Load data from a JSON string."
-          initialCode={`import json\n\ndata_str = '{"name": "Milk", "price": 40}'\n# Load the data into a dictionary\ndata = json.loads(data_str)\nprint(data["name"])`}
-          hint="Try print(data['price'])"
-          onRun={() => {}}
-          evaluateOutput={(code) => {
-            if (code.includes('data["name"]') || code.includes("data['name']")) return { status: 'success', text: 'Milk' };
-            if (code.includes('data["price"]') || code.includes("data['price']")) return { status: 'success', text: '40' };
-            return { status: 'success', text: '(JSON parsed!)' };
-          }}
-        />
-
-        <TiltCard style={{ marginTop: '32px' }}>
-          <ApplyItBox color={ACCENT} prompt="Create a 3D comparative educational mockup showing three file formats used in Python: text, CSV, and JSON. Display three floating cards side by side with readable sample structure on each. Text should look like simple lines, CSV should look like rows and columns, JSON should look like nested key-value objects. Make it premium, clean, and clearly instructional. Avoid clutter and keep labels highly readable." />
-        </TiltCard>
+# ✓ With finally: cleanup always runs
+try:
+    with open("orders.txt") as f:
+        data = f.read()
+except FileNotFoundError:
+    print("File not found.")
+finally:
+    print("Cleanup — always runs, success or failure.")`} />
+        <ExceptionPathwaysAnimation />
+        <ConvoScene lines={[
+          { speaker: 'mentor', text: "The goal is not to suppress errors. It is to understand and handle the right errors at the right level." },
+          { speaker: 'arjun', text: "So broad except treats a missing file, a bad input, and a bug as if they're the same?" },
+          { speaker: 'mentor', text: "Exactly. Each deserves a different response. Treating them identically makes debugging much harder." },
+        ]} mentorName="Meera" mentorColor="#C85A40" />
+        <PythonPrinciple text="Good exception handling does not hide failure. It makes failure understandable and manageable." />
+        <ApplyItBox prompt="What is one error in a small Python program that should be caught with a specific exception — and what information should the error message provide to be useful?" />
+        <QuizEngine conceptId="python-specific-exceptions" conceptName="Specific Exception Handling" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-specific-exceptions", question: "What is the biggest risk of using a broad except everywhere?", options: ['Makes the program run too fast', 'Hides useful debugging information and lets unexpected problems pass silently', 'Replaces all named functions', 'Prevents file reading from working'], correctIndex: 1, explanation: "Broad except treats all failures as identical. FileNotFoundError, ValueError, and programming bugs all look the same — making debugging harder and behavior less predictable." }} />
       </ChapterSection>
 
-      <ChapterSection id="exceptions" data-nav-id="exceptions" num="03" accentRgb={ACCENT_RGB}>
-        <SectionTitle>4. Exception Handling</SectionTitle>
-        {para('Python uses exceptions to handle failure.')}
-        
-        <QuickTry
-          track="python"
-          problem="Use try/except to handle a division by zero error."
-          initialCode={`try:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print("Cannot divide by zero!")`}
-          hint="Try adding result = 10 / 2 inside the try block to see the difference."
-          onRun={() => {}}
-          evaluateOutput={(code) => {
-            if (code.includes('10 / 0')) return { status: 'success', text: 'Cannot divide by zero!' };
-            if (code.includes('10 / 2')) return { status: 'success', text: '5.0' };
-            return { status: 'success', text: '(Exception handled!)' };
-          }}
-        />
+      {/* PART 4 */}
+      <ChapterSection id="pr3-environments" data-nav-id="pr3-environments" num="04" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The day Arjun installed a package and accidentally learned about environments." story="Arjun needs a third-party package. He installs it. It works on his machine. Then Kabir asks: where exactly did you install it? If I clone your project right now, will my machine behave the same way?" mentorQuote="A virtual environment protects one project from leaking into another." mentorName="Nisha" mentorColor="#0369A1" />
+        <ConvoScene lines={[
+          { speaker: 'arjun', text: "Why does it matter where the package is installed? It works, doesn't it?" },
+          { speaker: 'mentor', text: "Project A needs requests 2.28. Project B needs 2.31. A third breaks when you upgrade. If everything is global, you can't have both — and another machine has neither." },
+          { speaker: 'arjun', text: "So every project needs its own Python setup?" },
+          { speaker: 'mentor', text: "That's exactly what a virtual environment gives you — an isolated package space per project." },
+        ]} mentorName="Kabir" mentorColor="#7843EE" />
+        <CodeBlock filename="venv_setup.sh" code={`# Create a virtual environment
+python -m venv venv
 
-        {para(<strong>else and finally</strong>)}
-        <CodeBlock code={`try:\n    value = int("42")\nexcept ValueError:\n    print("Invalid")\nelse:\n    print("Success", value)\nfinally:\n    print("Done")`} />
+# Activate (macOS/Linux)
+source venv/bin/activate
 
-        <TiltCard style={{ marginTop: '32px' }}>
-          <ApplyItBox color={ACCENT} prompt="Create a 3D educational mockup visualizing Python exception handling. Show a main execution path entering a “try” block, branching to clearly labeled “except” handlers for different error types, an “else” success path, and a “finally” cleanup path. The composition should clearly teach flow of control. Use polished technical styling, readable labels, subtle depth." />
-        </TiltCard>
+# Activate (Windows)
+venv\\Scripts\\activate
 
-        <div style={{ height: '40px' }} />
-
-        <SectionTitle>5. Defensive Programming</SectionTitle>
-        {para('Defensive programming means planning for bad input and failure.')}
-
-        {para(<strong>Input validation</strong>)}
-        <CodeBlock code={`def calculate_total(price, quantity):\n    if not isinstance(quantity, int):\n        raise TypeError("quantity must be an integer")\n    if quantity < 0:\n        raise ValueError("quantity cannot be negative")\n    return price * quantity`} />
+# Now pip only installs into THIS project's environment
+pip install requests`} />
+        <EnvironmentIsolationLab />
+        <PythonPrinciple text="Virtual environments matter because real projects need isolated, reproducible dependency setups." />
+        <ApplyItBox prompt="Why might two Python projects on the same machine need different dependency setups? What happens to both if only one version of a shared package can exist globally?" />
+        <QuizEngine conceptId="python-venv" conceptName="Virtual Environments" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-venv", question: "What problem does a virtual environment solve?", options: ['Makes Python execute faster', "Isolates a project's dependencies from other projects and the global Python install", 'Replaces the need for pip entirely', 'Removes the need for any packages'], correctIndex: 1, explanation: "Different projects need different package versions. Without isolation, upgrading for one project breaks another. A virtual environment gives each project its own clean package space." }} />
       </ChapterSection>
 
-      <ChapterSection id="environments" data-nav-id="environments" num="04" accentRgb={ACCENT_RGB}>
-        <SectionTitle>6. Virtual Environments</SectionTitle>
-        {para('Virtual environments isolate dependencies for each project.')}
-        <CodeBlock code={`python -m venv venv`} />
-        
-        <SectionTitle>7. Package Management (pip)</SectionTitle>
-        <CodeBlock code={`pip install requests\npip install --upgrade requests`} />
+      {/* PART 5 */}
+      <ChapterSection id="pr3-pip" data-nav-id="pr3-pip" num="05" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The pip conversation that finally made dependencies feel real." story="Once Arjun understands environments, pip starts making more sense. Before, 'pip install' felt like something you typed because tutorials said to. Kabir wants him to stop treating it casually." mentorQuote="When you install a package, you're changing the project's dependency state. If your code depends on it and the environment doesn't have it, your code isn't truly runnable yet." mentorName="Kabir" mentorColor="#7843EE" />
+        <CodeBlock filename="pip_usage.py" code={`# Install a package into the active environment
+pip install requests
 
-        <SectionTitle>8. Reproducible Environments</SectionTitle>
-        {para('A requirements.txt file helps keep environments consistent.')}
-        <CodeBlock code={`requests==2.32.0\npandas==2.2.2`} />
+# Your code can now use it:
+import requests
+
+response = requests.get("https://api.example.com/orders")
+print(response.json())`} />
+        <PackageInstallationFlow />
+        <PythonPrinciple text="Installing a package is not just a setup action. It changes the dependency state your project relies on." />
+        <ApplyItBox prompt="Think of one package a backend project might depend on. What error would another engineer see if they cloned the code but did not install that package?" />
+        <QuizEngine conceptId="python-pip" conceptName="pip and Dependencies" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-pip", question: "Why does 'pip install' matter beyond just making imports work?", options: ["It changes the project's dependency environment — other machines need the same packages", 'It changes Python syntax rules for the project', 'It replaces all variables', 'It speeds up file reading'], correctIndex: 0, explanation: "pip install changes the environment state the project relies on. Without that package on another machine — or in another environment — the code cannot run." }} />
       </ChapterSection>
 
-      <ChapterSection id="types-integration" data-nav-id="types-integration" num="05" accentRgb={ACCENT_RGB}>
-        <SectionTitle>9. Type Hints</SectionTitle>
-        {para('Type hints improve readability and tooling.')}
-        <CodeBlock code={`def calculate_total(price: float, quantity: int) -> float:\n    return price * quantity`} />
+      {/* PART 6 */}
+      <ChapterSection id="pr3-requirements" data-nav-id="pr3-requirements" num="06" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The file that made the project shareable." story="Kabir asks: what happens if I clone your project today? Arjun starts listing steps: create venv, install packages, maybe guess the right versions... Kabir nods. 'And that is exactly the problem.'" mentorQuote="requirements.txt is one of the simplest ways a Python project explains how to recreate itself." mentorName="Nisha" mentorColor="#0369A1" />
+        <CodeBlock filename="requirements_workflow.sh" code={`# Generate requirements.txt from current environment
+pip freeze > requirements.txt
 
-        <TiltCard style={{ marginTop: '32px' }}>
-          <ApplyItBox color={ACCENT} prompt="Create a 3D educational mockup explaining Python type hints. Show a code card with a function signature using annotations, and surrounding helper panels representing IDE suggestions, error checking. The visual should communicate that type hints improve clarity and tooling." />
-        </TiltCard>
+# It looks like:
+# requests==2.31.0
+# flask==3.0.0
+# pydantic==2.0.0
 
-        <div style={{ height: '40px' }} />
-
-        <SectionTitle>10. Bringing everything together</SectionTitle>
-        <CodeBlock code={`import json\n\nclass InvalidOrderError(Exception):\n    pass\n\n\ndef save_order(order: dict, filename: str) -> None:\n    if "customer" not in order or "items" not in order:\n        raise InvalidOrderError("order must include customer and items")\n\n    with open(filename, "w") as file:\n        json.dump(order, file)\n\n\ntry:\n    order_data = {\n        "customer": "Riya",\n        "items": ["milk", "bread"]\n    }\n    save_order(order_data, "order.json")\nexcept InvalidOrderError as e:\n    print("Order error:", e)\nexcept OSError as e:\n    print("File error:", e)\nelse:\n    print("Order saved successfully")`} />
-
-        <div style={{ height: '40px' }} />
-
-        <SectionTitle>11. Thought exercise</SectionTitle>
-        {para('Imagine Blue Basket is about to be used by real customers.')}
-        {para('What could go wrong in these situations, and how would you design for safety?')}
-        <ul style={{ fontSize: '16px', lineHeight: 1.85, color: 'var(--ed-ink2)', paddingLeft: '24px' }}>
-          <li>a product file is missing,</li>
-          <li>a customer enters text instead of quantity,</li>
-          <li>a JSON file has incomplete order data,</li>
-          <li>a teammate runs the project without the right packages,</li>
-          <li>a developer misunderstands what type a function expects.</li>
-        </ul>
+# Another engineer reproduces the exact environment:
+pip install -r requirements.txt`} />
+        <ReproducibilityWorkspace />
+        {keyBox('The full reproducible workflow', ['1. python -m venv venv — create an isolated environment', '2. source venv/bin/activate — enter the environment', '3. pip install <packages> — add what the project needs', '4. pip freeze > requirements.txt — capture the dependency state', '5. pip install -r requirements.txt — any machine recreates it exactly'])}
+        <PythonPrinciple text="A Python project is not truly shareable until its dependency setup is reproducible." />
+        <ApplyItBox prompt="Why is 'it works on my machine' a warning sign in software engineering? What would need to be true for it to work on any machine?" />
+        <QuizEngine conceptId="python-requirements" conceptName="requirements.txt" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-requirements", question: "What is the main purpose of requirements.txt?", options: ['To store Python function definitions', "To record the project's package dependencies so any machine can reproduce the setup", 'To replace the pip command entirely', 'To manage file reading operations'], correctIndex: 1, explanation: "requirements.txt captures exact packages and versions. pip install -r requirements.txt recreates the same environment on any machine — turning 'it works on my machine' into 'it works everywhere.'" }} />
       </ChapterSection>
+
+      {/* PART 7 */}
+      <ChapterSection id="pr3-reflection" data-nav-id="pr3-reflection" num="07" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="The week Arjun realized backend engineering is more than writing logic." story="At the end of the week, Arjun says: 'I think I kept treating Python like a language only.' Nisha asks: 'And now?' Arjun thinks for a second." mentorQuote="Now it feels more like a working environment." mentorName="Kabir" mentorColor="#7843EE" />
+        <ConvoScene lines={[
+          { speaker: 'mentor', text: "Backend code is not just judged by whether it runs. It is judged by whether it can be run, shared, debugged, and trusted." },
+          { speaker: 'arjun', text: "I always thought the hard part was the logic. Now I see that making it reliable, shareable, and predictable is just as hard." },
+          { speaker: 'mentor', text: "And that's what separates scripts from engineering." },
+        ]} mentorName="Kabir" mentorColor="#7843EE" />
+        {keyBox('What real Python development actually includes', ['File I/O — interacting with data outside the code', 'Exception handling — designing for failure, not just success', 'Virtual environments — isolation that prevents dependency chaos', 'pip and requirements — project state management, not just setup', 'Reproducibility — code that works everywhere, not just on your laptop'])}
+        <PythonPrinciple text="Real Python development is not just about writing logic. It is about making code runnable, reliable, and reproducible in the real world." />
+        <div style={{ margin: '28px 0', padding: '22px', background: 'var(--ed-card)', borderRadius: '12px', border: `1.5px solid ${ACCENT}25` }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>Thought Exercise</div>
+          {para(<>Imagine you are sharing a small Python backend project with another engineer. Your project reads input from a file, handles invalid data, uses a third-party package, runs inside a virtual environment, and depends on a requirements file.</>)}
+          {para(<>Ask yourself: what would break if the file were missing? What exceptions should be handled? What would happen without environment isolation? What would happen if dependencies were not recorded? Write the full setup flow from scratch.</>)}
+        </div>
+        <QuizEngine conceptId="python-realworld" conceptName="Python Real-World Workflow" moduleContext="Python Pre-Read 03."
+          staticQuiz={{ conceptId: "python-realworld", question: "Which sequence best reflects strong beginner backend-Python workflow thinking?", options: ['Write code — run locally — hope it works elsewhere', 'Write logic — ignore failure — install packages globally', 'Write code — handle expected failures — isolate environment — manage dependencies — make setup reproducible', 'Use one global environment for all projects forever'], correctIndex: 2, explanation: "Real backend workflow includes anticipating failures, isolating environments, managing dependencies explicitly, and ensuring another engineer can run the same code on a different machine." }} />
+      </ChapterSection>
+
     </SWEPreReadLayout>
   );
 }
