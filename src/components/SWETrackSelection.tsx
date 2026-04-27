@@ -61,15 +61,15 @@ interface Props {
 
 export default function SWETrackSelection({ onSelect, onBack }: Props) {
   return (
-    <div style={{ minHeight: '100vh', background: '#F6F1E7' }}>
+    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
 
       {/* Top bar */}
       <div className="screen-topbar" style={{
         position: 'sticky', top: 0, zIndex: 10,
-        background: '#FFFFFF', borderBottom: '1px solid #D4CEC6',
+        background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)',
         padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: '#9A9490', fontSize: '13px', fontFamily: 'inherit' }}>
+        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit' }}>
           ← Back
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -83,7 +83,7 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
               <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#9A9490', letterSpacing: '0.1em' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
             SOFTWARE ENGINEERING LAUNCHPAD
           </span>
         </div>
@@ -98,12 +98,12 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
           style={{ textAlign: 'center', marginBottom: '48px' }}>
           <h1 style={{
             fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700, lineHeight: 1.1,
-            letterSpacing: '-0.03em', color: '#1C1814', textAlign: 'center',
+            letterSpacing: '-0.03em', color: 'var(--ed-ink)', textAlign: 'center',
             fontFamily: "'Lora', 'Georgia', serif", marginBottom: '16px',
           }}>
             Choose your language track
           </h1>
-          <p style={{ fontSize: '16px', color: '#6A6560', lineHeight: 1.65, maxWidth: '480px', margin: '0 auto' }}>
+          <p style={{ fontSize: '16px', color: 'var(--ed-ink3)', lineHeight: 1.65, maxWidth: '480px', margin: '0 auto' }}>
             Pick the track that fits your goals. A short placement quiz will then set your starting level — beginner or advanced.
           </p>
         </motion.div>
@@ -117,17 +117,17 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
               onClick={() => onSelect(t.id)}
-              whileHover={{ y: -4, boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}
+              whileHover={{ y: -4, boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}
               style={{
                 borderRadius: '12px', overflow: 'hidden',
-                border: '1px solid #D4CEC6',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                border: '1px solid var(--ed-rule)',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
                 cursor: 'pointer',
-                background: '#FFFFFF',
+                background: 'var(--ed-card)',
                 transition: 'box-shadow 0.3s, transform 0.3s',
               }}>
 
-              {/* Colored header */}
+              {/* Colored header — keeps its own dark gradient in both modes */}
               <div style={{
                 background: t.headerBg, padding: '28px 24px 24px',
                 minHeight: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
@@ -167,14 +167,14 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
 
               {/* Card body */}
               <div style={{ padding: '20px 24px 22px' }}>
-                <p style={{ fontSize: '13px', color: '#6A6560', lineHeight: 1.75, marginBottom: '16px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75, marginBottom: '16px' }}>
                   {t.description}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                   {t.tags.map(tag => (
                     <span key={tag} style={{
                       padding: '3px 10px', borderRadius: '20px', fontSize: '11px',
-                      color: '#6A6560', border: '1px solid #D4CEC6', background: '#F6F1E7',
+                      color: 'var(--ed-ink3)', border: '1px solid var(--ed-rule)', background: 'var(--ed-cream)',
                     }}>{tag}</span>
                   ))}
                 </div>
@@ -186,7 +186,7 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
         {/* Footer note */}
         <motion.p
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-          style={{ textAlign: 'center', fontSize: '13px', color: '#9A9490', marginTop: '36px', fontFamily: "'JetBrains Mono', monospace" }}>
+          style={{ textAlign: 'center', fontSize: '13px', color: 'var(--ed-ink3)', marginTop: '36px', fontFamily: "'JetBrains Mono', monospace" }}>
           Not sure? Python is the most beginner-friendly starting point.
         </motion.p>
       </div>
