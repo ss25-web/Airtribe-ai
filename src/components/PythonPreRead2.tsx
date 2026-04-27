@@ -742,19 +742,19 @@ interface Props { onBack: () => void; }
 export default function PythonPreRead2({ onBack }: Props) {
   const store = useLearnerStore();
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
-  const completedModules = useMemo(() => new Set(store.completedSections[MODULE_ID] || [SECTIONS[0].id]), [store.completedSections]);
+  const [completedModules, setCompletedModules] = useState<Set<string>>(new Set(['pr2-structure']));
 
   useEffect(() => {
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           const id = e.target.getAttribute("data-section");
-          if (id) { setActiveSection(id); store.markSectionCompleted(MODULE_ID, id); }
+          if (id) { setActiveSection(id); setCompletedModules(prev => new Set([...prev, id])); store.markSectionCompleted(MODULE_ID, id); }
         }
       });
     }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
-    document.querySelectorAll('[data-section]').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
+    const tid = setTimeout(() => { document.querySelectorAll('[data-section]').forEach(el => obs.observe(el)); }, 150);
+    return () => { clearTimeout(tid); obs.disconnect(); };
   }, []);
 
   return (

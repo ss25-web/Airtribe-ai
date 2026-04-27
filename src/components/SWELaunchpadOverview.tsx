@@ -233,7 +233,7 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
             label = 'Writing Structured Python: Classes & Modules';
             available = true;
           } else if (mod.num === '03') {
-            label = 'Reliability, Environments, and Readiness';
+            label = 'Python in the Real World';
             available = true;
           }
         }
