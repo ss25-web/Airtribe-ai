@@ -69,7 +69,7 @@ export interface SWEPreReadLayoutProps {
   };
   moduleLabel: string;
   title: string;
-  sections: { id: string; label: string }[];
+  sections: { id: string; label: string; icon?: string }[];
   completedModules: Set<string>;
   activeSection: string | null;
   onBack: () => void;
@@ -319,7 +319,7 @@ export default function SWEPreReadLayout({
                       fontSize: '14px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
                       transition: 'all 0.3s'
                     }}>
-                      {done ? '✨' : '🔒'}
+                      {done ? (s.icon ?? '✨') : '🔒'}
                     </div>
                   );
                 })}

@@ -13,13 +13,13 @@ const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-02';
 
 const SECTIONS = [
-  { id: 'pr2-structure',   label: 'The Script That Became a Mess' },
-  { id: 'pr2-classes',     label: 'Classes: Blueprint for Real Things' },
-  { id: 'pr2-self',        label: 'Understanding self' },
-  { id: 'pr2-inheritance', label: 'Inheritance: Reuse with Care' },
-  { id: 'pr2-abstract',    label: 'Abstract Classes: Required Behavior' },
-  { id: 'pr2-modules',     label: 'Modules & Packages' },
-  { id: 'pr2-reflection',  label: 'What Arjun Finally Understood' },
+  { id: 'pr2-structure',   label: 'The Script That Became a Mess',       icon: '🗂️' },
+  { id: 'pr2-classes',     label: 'Classes: Blueprint for Real Things',   icon: '🏛️' },
+  { id: 'pr2-self',        label: 'Understanding self',                   icon: '🪞' },
+  { id: 'pr2-inheritance', label: 'Inheritance: Reuse with Care',         icon: '🌳' },
+  { id: 'pr2-abstract',    label: 'Abstract Classes: Required Behavior',  icon: '📋' },
+  { id: 'pr2-modules',     label: 'Modules & Packages',                   icon: '📁' },
+  { id: 'pr2-reflection',  label: 'What Arjun Finally Understood',        icon: '💡' },
 ];
 
 const TRACK_CONFIG = {

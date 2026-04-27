@@ -16,13 +16,13 @@ const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-01';
 
 const SECTIONS = [
-  { id: 'variables',    label: 'Variables — Names, Not Boxes' },
-  { id: 'data-types',   label: 'Data Types & Structures' },
-  { id: 'functions',    label: 'Functions & Reuse' },
-  { id: 'lambda',       label: 'Lambda & Transformation' },
-  { id: 'type-hints',   label: 'Type Hints' },
-  { id: 'synthesis',    label: 'Putting It Together' },
-  { id: 'reflection',   label: 'What Arjun Finally Understood' },
+  { id: 'variables',    label: 'Variables — Names, Not Boxes',     icon: '🏷️' },
+  { id: 'data-types',   label: 'Data Types & Structures',          icon: '📦' },
+  { id: 'functions',    label: 'Functions & Reuse',                icon: '🔧' },
+  { id: 'lambda',       label: 'Lambda & Transformation',          icon: '⚡' },
+  { id: 'type-hints',   label: 'Type Hints',                       icon: '📖' },
+  { id: 'synthesis',    label: 'Putting It Together',              icon: '🏗️' },
+  { id: 'reflection',   label: 'What Arjun Finally Understood',    icon: '🎯' },
 ];
 
 const TRACK_CONFIG = {

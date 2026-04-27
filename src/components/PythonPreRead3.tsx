@@ -13,13 +13,13 @@ const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-03';
 
 const SECTIONS = [
-  { id: 'pr3-file-io',       label: 'File I/O: Code Meets the Outside World' },
-  { id: 'pr3-exceptions',    label: 'Errors Are Part of the System' },
-  { id: 'pr3-except-handle', label: 'Handling Exceptions Well' },
-  { id: 'pr3-environments',  label: 'Virtual Environments' },
-  { id: 'pr3-pip',           label: 'pip and Dependencies' },
-  { id: 'pr3-requirements',  label: 'requirements.txt: Making It Sharable' },
-  { id: 'pr3-reflection',    label: 'Backend Engineering Is More Than Logic' },
+  { id: 'pr3-file-io',       label: 'File I/O: Code Meets the Outside World', icon: '📂' },
+  { id: 'pr3-exceptions',    label: 'Errors Are Part of the System',           icon: '⚠️' },
+  { id: 'pr3-except-handle', label: 'Handling Exceptions Well',                icon: '🛡️' },
+  { id: 'pr3-environments',  label: 'Virtual Environments',                    icon: '🔒' },
+  { id: 'pr3-pip',           label: 'pip and Dependencies',                    icon: '📦' },
+  { id: 'pr3-requirements',  label: 'requirements.txt: Making It Sharable',   icon: '📄' },
+  { id: 'pr3-reflection',    label: 'Backend Engineering Is More Than Logic',  icon: '🌍' },
 ];
 
 const TRACK_CONFIG = {
