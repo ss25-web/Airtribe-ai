@@ -73,11 +73,12 @@ export interface SWEPreReadLayoutProps {
   completedModules: Set<string>;
   activeSection: string | null;
   onBack: () => void;
+  immersive?: boolean;
   children: React.ReactNode;
 }
 
 export default function SWEPreReadLayout({
-  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, children
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, immersive = false, children
 }: SWEPreReadLayoutProps) {
   const store = useLearnerStore();
   const [hydrated, setHydrated] = useState(false);
@@ -118,6 +119,9 @@ export default function SWEPreReadLayout({
   const nextLevel = getNextLevel(totalXP);
   const levelPct = nextLevel ? Math.round(((totalXP - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100) : 100;
   const progressPct = Math.round((completedModules.size / sections.length) * 100);
+  const showRightRail = !immersive;
+  const layoutMaxWidth = immersive ? '1760px' : '1440px';
+  const contentGrid = immersive ? '220px minmax(0, 1fr)' : '220px minmax(0, 1fr) 260px';
 
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
@@ -127,7 +131,7 @@ export default function SWEPreReadLayout({
         background: 'var(--ed-cream)', opacity: 0.9, backdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--ed-rule)', padding: '12px 0' 
       }}>
-        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: layoutMaxWidth, margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <button 
               onClick={onBack} 
@@ -178,8 +182,8 @@ export default function SWEPreReadLayout({
       </header>
 
       {/* ─── Main Content Grid ─── */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '32px 28px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 260px', gap: '48px', alignItems: 'flex-start' }}>
+      <div style={{ maxWidth: layoutMaxWidth, margin: '0 auto', padding: '32px 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: contentGrid, gap: immersive ? '34px' : '48px', alignItems: 'flex-start' }}>
           
           {/* Left: Contents Nav */}
           <aside style={{ position: 'sticky', top: '100px' }}>
@@ -256,6 +260,7 @@ export default function SWEPreReadLayout({
           </main>
 
           {/* Right: Stats & Gamification */}
+          {showRightRail && (
           <aside style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* XP and Level Card */}
@@ -349,6 +354,7 @@ export default function SWEPreReadLayout({
             </div>
 
           </aside>
+          )}
 
         </div>
       </div>

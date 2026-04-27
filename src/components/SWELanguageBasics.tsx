@@ -1462,31 +1462,30 @@ function DataStructureDecisionStudio() {
   return (
     <StudioChrome
       title="Data Structure Decision Studio"
-      subtitle="Drag the scenario mentally into the right structure. Different containers produce different behavior."
+      subtitle="Compare how the same data behaves in different containers. The goal is not to recognize labels. The goal is to choose the structure whose behavior matches the job."
       accent="#F97316"
       actions={
         <>
           <button onClick={() => setSelectedScenario(scenarios[0])} style={studioButtonStyle}>
             Reset Lab
           </button>
-          <div
-            style={{
-              borderRadius: '16px',
-              background: '#7C3AED',
-              color: '#ffffff',
-              padding: '10px 14px',
-              fontWeight: 800,
-            }}
-          >
-            Score: 860
-          </div>
+          <button style={{ ...studioButtonStyle, background: '#F97316', color: '#ffffff' }}>
+            Compare Behavior
+          </button>
         </>
       }
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '0.78fr 1.5fr 0.65fr', gap: '18px' }}>
-        <div style={panelStyle}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '320px minmax(0, 1fr)',
+          gap: '20px',
+          alignItems: 'start',
+        }}
+      >
+        <div style={{ ...panelStyle, position: 'sticky', top: '120px' }}>
           <div style={panelTitleStyle}>Data Scenarios</div>
-          <div style={panelSubtitleStyle}>Pick the case you want to classify.</div>
+          <div style={panelSubtitleStyle}>Start with the scenario. Then ask what behavior matters most: order, uniqueness, fixed shape, or lookup by key.</div>
           <div style={{ display: 'grid', gap: '12px', marginTop: '18px' }}>
             {scenarios.map((scenario) => (
               <button
@@ -1509,11 +1508,64 @@ function DataStructureDecisionStudio() {
               </button>
             ))}
           </div>
+
+          <div
+            style={{
+              marginTop: '18px',
+              borderRadius: '18px',
+              background: '#FFF7ED',
+              border: '1px solid #FED7AA',
+              padding: '16px',
+            }}
+          >
+            <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#C2410C', marginBottom: '8px' }}>
+              Current question
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: '#7C2D12', lineHeight: 1.5 }}>
+              What matters most for <span style={{ color: '#0f172a' }}>{selectedScenario.label}</span>?
+            </div>
+            <div style={{ marginTop: '10px', fontSize: '13px', lineHeight: 1.7, color: '#9A3412' }}>
+              {selectedScenario.target === 'list' && 'The sequence itself matters, and duplicates are acceptable.'}
+              {selectedScenario.target === 'tuple' && 'The data is fixed in shape and should stay stable after creation.'}
+              {selectedScenario.target === 'set' && 'Uniqueness matters more than original order.'}
+              {selectedScenario.target === 'dict' && 'You need names or keys to access values instantly.'}
+            </div>
+          </div>
         </div>
 
-        <div style={panelStyle}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '14px' }}>
-            {(Object.keys(structures) as Array<keyof typeof structures>).map((key) => {
+        <div style={{ display: 'grid', gap: '18px' }}>
+          <div
+            style={{
+              ...panelStyle,
+              padding: '20px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', marginBottom: '18px', flexWrap: 'wrap' }}>
+              <div>
+                <div style={panelTitleStyle}>Explore and Compare</div>
+                <div style={panelSubtitleStyle}>Every structure below is shown at a readable size so the learner can compare behavior instead of squinting at vertical labels.</div>
+              </div>
+              <div
+                style={{
+                  borderRadius: '16px',
+                  background: '#F5F3FF',
+                  border: '1px solid #DDD6FE',
+                  padding: '12px 14px',
+                  minWidth: '260px',
+                }}
+              >
+                <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6D28D9', marginBottom: '6px' }}>
+                  Selected scenario
+                </div>
+                <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{selectedScenario.label}</div>
+                <div style={{ marginTop: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', lineHeight: 1.7, color: '#475569' }}>
+                  {selectedScenario.values}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(220px, 1fr))', gap: '16px' }}>
+              {(Object.keys(structures) as Array<keyof typeof structures>).map((key) => {
               const structure = structures[key];
               const active = selectedScenario.target === key;
               return (
@@ -1526,6 +1578,9 @@ function DataStructureDecisionStudio() {
                     border: `2px solid ${active ? structure.color : '#E2E8F0'}`,
                     boxShadow: active ? `0 24px 50px ${structure.color}26` : '0 10px 20px rgba(15, 23, 42, 0.04)',
                     overflow: 'hidden',
+                    minHeight: '480px',
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
                 >
                   <div
@@ -1538,7 +1593,7 @@ function DataStructureDecisionStudio() {
                     <div style={{ fontSize: '30px', fontWeight: 900, lineHeight: 1 }}>{structure.title}</div>
                     <div style={{ fontSize: '12px', marginTop: '8px', opacity: 0.92 }}>{structure.summary}</div>
                   </div>
-                  <div style={{ padding: '16px' }}>
+                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
                     {key === 'list' && (
                       <div style={{ display: 'grid', gap: '8px' }}>
                         {['120.50', '89.00', '120.50', '75.25'].map((value, index) => (
@@ -1572,68 +1627,95 @@ function DataStructureDecisionStudio() {
                         ))}
                       </div>
                     )}
-                    <div style={{ marginTop: '14px', display: 'grid', gap: '6px' }}>
+                    <div style={{ marginTop: 'auto', display: 'grid', gap: '6px' }}>
                       {structure.detail.map((item) => (
                         <div key={item} style={{ fontSize: '12px', color: '#475569' }}>
                           {item}
                         </div>
                       ))}
                     </div>
+                    <div
+                      style={{
+                        borderRadius: '14px',
+                        background: active ? `${structure.color}12` : '#F8FAFC',
+                        border: `1px solid ${active ? `${structure.color}33` : '#E2E8F0'}`,
+                        padding: '12px',
+                        fontSize: '12px',
+                        lineHeight: 1.6,
+                        color: active ? '#0f172a' : '#475569',
+                      }}
+                    >
+                      {active ? 'Best fit for the selected scenario.' : 'Useful when its behavior matches the problem.'}
+                    </div>
                   </div>
                 </motion.div>
               );
-            })}
-          </div>
-          <div
-            style={{
-              marginTop: '18px',
-              borderRadius: '18px',
-              background: '#ffffff',
-              border: '1px dashed #C4B5FD',
-              padding: '16px',
-              fontSize: '13px',
-              lineHeight: 1.7,
-              color: '#475569',
-              textAlign: 'center',
-            }}
-          >
-            Selected scenario: <strong style={{ color: '#0f172a' }}>{selectedScenario.label}</strong>. Best fit: <strong style={{ color: structures[selectedScenario.target].color }}>{structures[selectedScenario.target].title}</strong>.
-          </div>
-        </div>
-
-        <div style={panelStyle}>
-          <div style={panelTitleStyle}>Why this matters</div>
-          <div style={panelSubtitleStyle}>Choosing the wrong container slows programs down and muddies intent.</div>
-          <div
-            style={{
-              marginTop: '18px',
-              borderRadius: '18px',
-              background: '#F5F3FF',
-              border: '1px solid #DDD6FE',
-              padding: '16px',
-            }}
-          >
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#6D28D9' }}>{structures[selectedScenario.target].title} fits because</div>
-            <div style={{ marginTop: '10px', fontSize: '13px', lineHeight: 1.7, color: '#4C1D95' }}>
-              {selectedScenario.target === 'list' && 'Order matters and duplicates are allowed. Lists preserve sequence exactly as items arrive.'}
-              {selectedScenario.target === 'tuple' && 'The data is fixed in shape and should not change after creation. Tuples signal stable, structured records.'}
-              {selectedScenario.target === 'set' && 'Uniqueness matters more than order. Sets remove duplicate tags or coupon codes automatically.'}
-              {selectedScenario.target === 'dict' && 'You need named lookup by key. Dictionaries make it obvious what each value represents.'}
+              })}
             </div>
           </div>
-          <div
-            style={{
-              marginTop: '16px',
-              borderRadius: '18px',
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-              padding: '16px',
-              fontSize: '12px',
-              lineHeight: 1.7,
-              color: '#475569',
-            }}
-          >
-            Good Python style is not just valid syntax. It is matching the shape of the data to the shape of the structure.
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '18px' }}>
+            <div style={panelStyle}>
+              <div style={panelTitleStyle}>Behavior Lens</div>
+              <div style={panelSubtitleStyle}>Use this checklist instead of memorizing one-off examples.</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '10px', marginTop: '18px' }}>
+                {[
+                  ['Order matters', 'List'],
+                  ['Fixed and stable', 'Tuple'],
+                  ['Uniqueness matters', 'Set'],
+                  ['Named lookup matters', 'Dictionary'],
+                ].map(([label, answer]) => (
+                  <div
+                    key={label}
+                    style={{
+                      borderRadius: '16px',
+                      background: '#F8FAFC',
+                      border: '1px solid #E2E8F0',
+                      padding: '14px',
+                    }}
+                  >
+                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>{label}</div>
+                    <div style={{ fontSize: '12px', lineHeight: 1.6, color: '#64748b' }}>{answer}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={panelStyle}>
+              <div style={panelTitleStyle}>Why this matters</div>
+              <div style={panelSubtitleStyle}>Choosing the wrong container slows programs down and muddies intent.</div>
+              <div
+                style={{
+                  marginTop: '18px',
+                  borderRadius: '18px',
+                  background: '#F5F3FF',
+                  border: '1px solid #DDD6FE',
+                  padding: '16px',
+                }}
+              >
+                <div style={{ fontSize: '14px', fontWeight: 800, color: '#6D28D9' }}>{structures[selectedScenario.target].title} fits because</div>
+                <div style={{ marginTop: '10px', fontSize: '13px', lineHeight: 1.7, color: '#4C1D95' }}>
+                  {selectedScenario.target === 'list' && 'Order matters and duplicates are allowed. Lists preserve sequence exactly as items arrive.'}
+                  {selectedScenario.target === 'tuple' && 'The data is fixed in shape and should not change after creation. Tuples signal stable, structured records.'}
+                  {selectedScenario.target === 'set' && 'Uniqueness matters more than order. Sets remove duplicate tags or coupon codes automatically.'}
+                  {selectedScenario.target === 'dict' && 'You need named lookup by key. Dictionaries make it obvious what each value represents.'}
+                </div>
+              </div>
+              <div
+                style={{
+                  marginTop: '16px',
+                  borderRadius: '18px',
+                  background: '#F8FAFC',
+                  border: '1px solid #E2E8F0',
+                  padding: '16px',
+                  fontSize: '12px',
+                  lineHeight: 1.7,
+                  color: '#475569',
+                }}
+              >
+                Good Python style is not just valid syntax. It is matching the shape of the data to the shape of the structure.
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1692,6 +1774,7 @@ function PythonLanguageBasics({ onBack }: { onBack: () => void }) {
       completedModules={completedModules}
       activeSection={activeSection}
       onBack={onBack}
+      immersive
     >
       <motion.div
         initial={{ opacity: 0, y: 18 }}
