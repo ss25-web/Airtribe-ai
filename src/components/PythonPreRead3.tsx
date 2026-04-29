@@ -845,6 +845,66 @@ with open("log.txt", "a") as file:
     file.write("New entry\\n")`} />
         {para(<>The <code>with open(...)</code> pattern handles file closing cleanly even when something goes wrong. A file is not just text — it is input. And input changes what the program must be ready for.</>)}
         {keyBox('Why file I/O matters', ['Backend systems constantly interact with files: logs, uploads, reports, exports, config', 'Outside data can be missing, malformed, or larger than expected', '"r" = read, "w" = write (overwrites), "a" = append', 'with open(...) ensures clean file handling even on failure'])}
+
+        {h2(<>Real data formats: pathlib, JSON, and CSV</>)}
+
+        {para(<>Most backend file work is not plain text. Data arrives as JSON from APIs, CSV from spreadsheets and exports, or structured configs. Python has built-in support for all three — plus <code>pathlib</code> for writing paths that work across operating systems without string hacks.</>)}
+
+        <CodeBlock filename="pathlib_usage.py" code={`from pathlib import Path
+
+# pathlib gives you cross-platform path handling
+base = Path("data")
+file = base / "orders.json"  # joins paths correctly on all OSes
+
+print(file.exists())         # True / False — no guessing
+print(file.suffix)           # ".json"
+print(file.stem)             # "orders"
+print(file.parent)           # "data"
+
+# Safe to open with context manager
+with file.open("r") as f:
+    content = f.read()`} />
+
+        <CodeBlock filename="json_io.py" code={`import json
+
+# Reading JSON from a file
+with open("order.json", "r") as f:
+    order = json.load(f)          # parse JSON -> Python dict/list
+    print(order["customer"])
+
+# Writing a Python object as JSON
+result = {"order_id": 101, "total": 499.0, "paid": True}
+with open("result.json", "w") as f:
+    json.dump(result, f, indent=2) # indent=2 makes it human-readable`} />
+
+        <CodeBlock filename="csv_io.py" code={`import csv
+
+# Reading a CSV file into rows
+with open("orders.csv", "r") as f:
+    reader = csv.DictReader(f)    # each row becomes a dict using headers
+    for row in reader:
+        print(row["customer"], row["amount"])
+
+# Writing rows to a CSV file
+with open("report.csv", "w", newline="") as f:
+    writer = csv.DictWriter(f, fieldnames=["customer", "amount"])
+    writer.writeheader()
+    writer.writerow({"customer": "Ravi", "amount": "499.0"})`} />
+
+        <div style={{ margin: '16px 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
+          {[
+            { label: 'Plain text', desc: 'Logs, config, simple output', color: ACCENT, example: 'open("log.txt")' },
+            { label: 'JSON', desc: 'APIs, configs, nested data', color: '#3B82F6', example: 'json.load(f)' },
+            { label: 'CSV', desc: 'Reports, exports, tabular data', color: '#7C3AED', example: 'csv.DictReader(f)' },
+          ].map((item, i) => (
+            <div key={i} style={{ padding: '12px 14px', borderRadius: '10px', background: `${item.color}0D`, border: `1px solid ${item.color}30` }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: item.color, marginBottom: '4px' }}>{item.label}</div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginBottom: '6px' }}>{item.desc}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: item.color }}>{item.example}</div>
+            </div>
+          ))}
+        </div>
+
         <PythonPrinciple text="File I/O matters because real programs work with data that lives outside the code." />
         <ApplyItBox prompt="Think of one backend scenario where data would naturally come from or go to a file — logs, order exports, configuration, uploaded data. What could go wrong?" />
         <QuizEngine conceptId="python-file-io" conceptName="File I/O" moduleContext="Python Pre-Read 03."
@@ -867,6 +927,39 @@ with open("log.txt", "a") as file:
 except FileNotFoundError:
     print("The file was not found. Check the path.")`} />
         <ExceptionFlowLab />
+
+        {h2(<>Reading a traceback</>)}
+
+        {para(<>A traceback is not an enemy — it is a diagnostic report. Python prints the full call stack, the file and line where the error occurred, and the error type with its message. Learning to read one top-to-bottom (or bottom-to-top for the cause) turns a crash into a clear diagnosis.</>)}
+
+        <CodeBlock filename="traceback_example.txt" code={`Traceback (most recent call last):          <- 1. Start here: call stack
+  File "main.py", line 12, in <module>       <- 2. Which file and line
+    result = process_order("abc")
+  File "orders.py", line 7, in process_order <- 3. Which function
+    total = int(amount) + 50
+ValueError: invalid literal for int()        <- 4. Error type and message
+with base 10: 'abc'
+
+# How to read it:
+# 1. Go to the BOTTOM — that's the actual error
+# 2. Error type: ValueError (not a file issue — a data issue)
+# 3. Line 7 in orders.py: int(amount) where amount = 'abc'
+# 4. Fix: validate input before passing it, or catch ValueError explicitly`} />
+
+        <div style={{ margin: '16px 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+          {[
+            { num: '1', label: 'Traceback header', desc: 'Shows the call stack top-to-bottom', color: '#3B82F6' },
+            { num: '2', label: 'File + line', desc: 'Exact location in your codebase', color: ACCENT },
+            { num: '3', label: 'Error type', desc: 'ValueError, TypeError, FileNotFoundError...', color: '#CA8A04' },
+            { num: '4', label: 'Error message', desc: 'Specific description of what failed', color: '#EF4444' },
+          ].map((item, i) => (
+            <div key={i} style={{ padding: '10px 12px', borderRadius: '8px', background: `${item.color}0D`, border: `1px solid ${item.color}25` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: item.color, marginBottom: '4px' }}>{item.num} {item.label}</div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
         <PythonPrinciple text="Exceptions are not a side topic. They are part of how real programs survive imperfect conditions." />
         <ApplyItBox prompt="Think of one thing that can go wrong in a backend system. What would graceful handling look like — not just stopping the crash, but making the failure useful and informative?" />
         <QuizEngine conceptId="python-exceptions" conceptName="Exception Handling" moduleContext="Python Pre-Read 03."
@@ -968,6 +1061,29 @@ pip freeze > requirements.txt
 pip install -r requirements.txt`} />
         <ReproducibilityWorkspace />
         {keyBox('The full reproducible workflow', ['1. python -m venv venv — create an isolated environment', '2. source venv/bin/activate — enter the environment', '3. pip install <packages> — add what the project needs', '4. pip freeze > requirements.txt — capture the dependency state', '5. pip install -r requirements.txt — any machine recreates it exactly'])}
+
+        <div style={{ margin: '16px 0', padding: '14px 18px', borderRadius: '10px', background: 'rgba(202,138,4,0.08)', border: '1px solid rgba(202,138,4,0.3)' }}>
+          <div style={{ fontSize: '10px', fontWeight: 800, color: '#CA8A04', marginBottom: '6px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Warning: pip freeze can capture too much</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
+            If your virtual environment is messy or has leftover packages from experiments, <code>pip freeze</code> captures all of them — not just what your project actually needs. A clean venv with only the necessary packages installed gives a more reliable <code>requirements.txt</code>.
+          </div>
+        </div>
+
+        <div style={{ margin: '16px 0', padding: '14px 18px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.07)`, border: `1px solid rgba(${ACCENT_RGB},0.25)` }}>
+          <div style={{ fontSize: '10px', fontWeight: 800, color: ACCENT, marginBottom: '6px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Modern note: pyproject.toml</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: '8px' }}>
+            <code>requirements.txt</code> is beginner-friendly and very common. Increasingly, modern Python projects use <code>pyproject.toml</code> — a single file that declares the project name, version, dependencies, and build configuration in one place. Tools like <code>poetry</code>, <code>hatch</code>, and <code>uv</code> all use this format.
+          </div>
+          <CodeBlock code={`# pyproject.toml (modern approach — increasingly common)
+[project]
+name = "order-service"
+version = "0.1.0"
+dependencies = [
+    "requests>=2.28",
+    "fastapi>=0.100"
+]`} />
+        </div>
+
         <PythonPrinciple text="A Python project is not truly shareable until its dependency setup is reproducible." />
         <ApplyItBox prompt="Why is 'it works on my machine' a warning sign in software engineering? What would need to be true for it to work on any machine?" />
         <QuizEngine conceptId="python-requirements" conceptName="requirements.txt" moduleContext="Python Pre-Read 03."

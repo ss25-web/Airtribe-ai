@@ -16,13 +16,14 @@ const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-01';
 
 const SECTIONS = [
-  { id: 'variables',    label: 'Variables — Names, Not Boxes',     icon: '🏷️' },
-  { id: 'data-types',   label: 'Data Types & Structures',          icon: '📦' },
-  { id: 'functions',    label: 'Functions & Reuse',                icon: '🔧' },
-  { id: 'lambda',       label: 'Lambda & Transformation',          icon: '⚡' },
-  { id: 'type-hints',   label: 'Type Hints',                       icon: '📖' },
-  { id: 'synthesis',    label: 'Putting It Together',              icon: '🏗️' },
-  { id: 'reflection',   label: 'What Arjun Finally Understood',    icon: '🎯' },
+  { id: 'what-python', label: 'What Python Is',                  icon: '🐍' },
+  { id: 'variables',   label: 'Variables — Names, Not Boxes',    icon: '🏷️' },
+  { id: 'typing',      label: 'Dynamic &amp; Strong Typing',     icon: '⚖️' },
+  { id: 'data-types',  label: 'Data Types &amp; Structures',     icon: '📦' },
+  { id: 'functions',   label: 'Functions &amp; Reuse',           icon: '🔧' },
+  { id: 'type-hints',  label: 'Type Hints',                      icon: '📖' },
+  { id: 'synthesis',   label: 'Putting It Together',             icon: '🏗️' },
+  { id: 'reflection',  label: 'What Arjun Finally Understood',   icon: '🎯' },
 ];
 
 const TRACK_CONFIG = {
@@ -665,7 +666,7 @@ export default function PythonPreRead1({ onBack }: Props) {
 
         <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
           <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>What this pre-read covers</div>
-          {['Variables as names, not boxes — and why that distinction matters later', 'Python\'s data types and how to match structure to the shape of the data', 'Functions, lambda, and type hints — the habits that make code trustworthy'].map((obj, i) => (
+          {['What Python is and how it runs code: source → bytecode → virtual machine', 'Variables, and Python\'s dynamic and strong typing rules', 'Data structures: choosing list, tuple, set, or dict based on data shape', 'Functions and type hints — the habits that make code trustworthy'].map((obj, i) => (
             <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 2 ? '10px' : 0, alignItems: 'flex-start' }}>
               <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '12px', marginTop: '2px' }}>0{i + 1}</span>
               <span style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
@@ -674,8 +675,63 @@ export default function PythonPreRead1({ onBack }: Props) {
         </div>
       </motion.div>
 
-      {/* ── PART 1 · VARIABLES ── */}
-      <ChapterSection id="variables" data-nav-id="variables" num="01" accentRgb={ACCENT_RGB} first>
+      {/* ── PART 1 · WHAT PYTHON IS ── */}
+      <ChapterSection id="what-python" data-nav-id="what-python" num="01" accentRgb={ACCENT_RGB} first>
+        <SceneSetter title="Day one — Arjun asks a basic question." story="Arjun sits down to learn Python properly. Before he writes a single line, Nisha asks: what do you think Python actually is? He gives the answer he learned from tutorials: a programming language. Nisha nods — and then asks the harder question." mentorQuote="More precisely: Python is an interpreted, dynamically typed, general-purpose language designed to be readable above all else. Every one of those words will matter as you go deeper." mentorName="Nisha" mentorColor="#0369A1" />
+
+        {h2(<>Where Python runs</>)}
+
+        {para(<>Python is used across the entire backend stack: web APIs and services with frameworks like Django and FastAPI, data pipelines and ETL scripts, automation and tooling, and increasingly as the glue that connects AI models to real systems. Its design prioritizes clarity — there should be one obvious way to do something.</>)}
+
+        <div style={{ margin: '20px 0', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
+          {[
+            { label: 'Web APIs', desc: 'FastAPI, Django, Flask', color: '#3B82F6' },
+            { label: 'Data Pipelines', desc: 'ETL, pandas, SQLAlchemy', color: '#7C3AED' },
+            { label: 'Automation', desc: 'Scripts, cron, tooling', color: '#CA8A04' },
+            { label: 'AI Integration', desc: 'LLM calls, agents, ML serving', color: ACCENT },
+          ].map((item, i) => (
+            <div key={i} style={{ padding: '12px 14px', borderRadius: '10px', background: `${item.color}0D`, border: `1px solid ${item.color}30` }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: item.color, marginBottom: '4px' }}>{item.label}</div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
+        {h2(<>How Python runs your code</>)}
+
+        {para(<>When you run <code>python main.py</code>, Python does not run your source directly. It first compiles it to bytecode — a compact, platform-independent set of instructions. Then the Python Virtual Machine (PVM) reads that bytecode and executes it instruction by instruction. You never see this process, but it explains why Python is portable: the bytecode runs on any machine that has a Python VM.</>)}
+
+        <CodeBlock filename="main.py" code={`# Source code you write
+print("Order system started")
+
+# Python compiles this to bytecode (.pyc internally)
+# Then the PVM executes: LOAD_NAME print → LOAD_CONST → CALL_FUNCTION`} />
+
+        <PythonPrinciple text="Python translates your readable source code into compact bytecode, then the PVM executes it. This is why the same .py file runs on any machine with Python installed." />
+
+        <ApplyItBox prompt="You run python script.py. The terminal says SyntaxError. At which stage did this fail — source code, bytecode compilation, or PVM execution? Why does it matter to know the difference?" />
+
+        <QuizEngine
+          conceptId="python-what-is"
+          conceptName="What Python Is"
+          moduleContext="Python Pre-Read 01: Python Foundations for Backend Engineers."
+          staticQuiz={{
+            conceptId: "python-what-is",
+            question: "What does the Python Virtual Machine (PVM) actually execute?",
+            options: [
+              'Raw source code from your .py file directly as written',
+              'Compiled bytecode produced from your source code',
+              'Machine code generated by the operating system kernel',
+              'A JavaScript bundle produced by the Python compiler',
+            ],
+            correctIndex: 1,
+            explanation: "Python first compiles source code to bytecode, then the PVM executes that bytecode. You write source code; Python runs bytecode. This is why Python is portable across platforms.",
+          }}
+        />
+      </ChapterSection>
+
+      {/* ── PART 2 · VARIABLES ── */}
+      <ChapterSection id="variables" data-nav-id="variables" num="02" accentRgb={ACCENT_RGB}>
         <SceneSetter title="What is a variable, really?" story="Arjun is writing a small script to manage user data — name, age, is_admin. Kabir walks past and asks: 'What is name here?' Arjun gives the usual answer: a place where data is stored. Kabir pauses — that answer works at the beginning, but Python is more precise than that." mentorQuote="A variable is better understood as a name bound to a value. A label. Not a magical storage box with independent existence." mentorName="Kabir" mentorColor="#7843EE" />
 
         <ConvoScene
@@ -720,8 +776,76 @@ is_admin = True`} />
         />
       </ChapterSection>
 
-      {/* ── PART 2 · DATA TYPES ── */}
-      <ChapterSection id="data-types" data-nav-id="data-types" num="02" accentRgb={ACCENT_RGB}>
+      {/* ── PART 3 · DYNAMIC & STRONG TYPING ── */}
+      <ChapterSection id="typing" data-nav-id="typing" num="03" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="Arjun changes a variable mid-program and something unexpected happens." story="Arjun writes score = 10, then later score = 'ten'. No error. The program keeps running. He shows Kabir: Python just let me change the type. Kabir grins: yes — and then asks: what happens when you try print(score + 5)? Arjun runs it. TypeError. Now he starts seeing two things at once." mentorQuote="Python is dynamically typed — names can rebind to any value. But it is also strongly typed — it refuses to silently combine incompatible types. Both matter." mentorName="Kabir" mentorColor="#7843EE" />
+
+        {h2(<>Dynamic typing: names can rebind</>)}
+
+        {para(<>In Python, a name is not locked to a type. <code>score</code> can hold an integer today and a string tomorrow. Python figures out the type at runtime, not at write-time. This makes code flexible — but also means type errors appear at runtime rather than before you run the code.</>)}
+
+        <CodeBlock filename="dynamic_typing.py" code={`score = 10          # score points to an int
+print(type(score))  # <class 'int'>
+
+score = "ten"       # score now points to a str — Python allows this
+print(type(score))  # <class 'str'>`} />
+
+        {h2(<>Strong typing: Python refuses silent coercion</>)}
+
+        {para(<>Python will not quietly convert types to make an operation work. <code>&ldquo;10&rdquo; + 5</code> raises a <code>TypeError</code> rather than producing <code>&ldquo;105&rdquo;</code> or <code>15</code>. This is intentional. Silent coercion hides bugs. Python makes the mismatch explicit so you fix it deliberately.</>)}
+
+        <CodeBlock filename="strong_typing.py" code={`# Dynamic: the name can rebind — this is fine
+score = 10
+score = "ten"
+
+# Strong: Python refuses to silently combine incompatible types
+try:
+    result = "10" + 5   # TypeError: can only concatenate str (not "int") to str
+except TypeError as e:
+    print(f"Caught: {e}")
+
+# To combine them you must be explicit
+result = int("10") + 5  # -> 15
+result = "10" + str(5)  # -> "105"`} />
+
+        <div style={{ margin: '20px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.07)`, border: `1px solid rgba(${ACCENT_RGB},0.25)` }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: ACCENT, marginBottom: '6px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Dynamic Typing</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>Names can rebind to any type at runtime. Types are checked when operations run, not when code is written.</div>
+            <div style={{ marginTop: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: ACCENT }}>score = 10 &#x2192; score = &quot;ten&quot; &#x2713;</div>
+          </div>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.25)' }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: '#EF4444', marginBottom: '6px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Strong Typing</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>Python will not coerce types silently. Mixing incompatible types raises a TypeError, forcing you to be explicit.</div>
+            <div style={{ marginTop: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#EF4444' }}>&quot;10&quot; + 5 &#x2192; TypeError &#x2717;</div>
+          </div>
+        </div>
+
+        <PythonPrinciple text="Python's dynamic typing gives flexibility. Its strong typing prevents silent bugs. Together they mean: you can change your mind, but you must be deliberate about type operations." />
+
+        <ApplyItBox prompt="You receive a user input from a web form. It always arrives as a string. You need to add it to an integer counter. What must you do first, and why would skipping that step cause a problem even though Python is dynamically typed?" />
+
+        <QuizEngine
+          conceptId="python-typing"
+          conceptName="Python Typing"
+          moduleContext="Python Pre-Read 01: Python Foundations for Backend Engineers."
+          staticQuiz={{
+            conceptId: "python-typing",
+            question: "Why does Python raise a TypeError for '10' + 5, even though it is dynamically typed?",
+            options: [
+              'Because Python is secretly statically typed and checks types at compile time',
+              'Because dynamic typing means all types are converted to strings by default',
+              'Because Python is strongly typed and refuses to coerce incompatible types silently',
+              'Because the + operator is not defined in Python for mixed types under any conditions',
+            ],
+            correctIndex: 2,
+            explanation: "Dynamic typing means types are checked at runtime, not at write-time. Strong typing means Python will not silently coerce types. '10' + 5 fails at runtime because str + int is not defined — you must convert explicitly.",
+          }}
+        />
+      </ChapterSection>
+
+      {/* ── PART 4 · DATA TYPES ── */}
+      <ChapterSection id="data-types" data-nav-id="data-types" num="04" accentRgb={ACCENT_RGB}>
         <SceneSetter title="One user — four possible Python shapes" story="Arjun is asked to represent a user in code. He starts with user = 'Ravi'. Meera laughs: that's a name, not a user. He tries a list: [name, age, email, is_admin]. Kabir asks: do you know what each position means without remembering the order? Arjun stares at the list. Not really." mentorQuote="Backend engineering is full of choosing the right structure for the right kind of information." mentorName="Kabir" mentorColor="#7843EE" />
 
         {h2(<>Python&apos;s simple values</>)}
@@ -769,8 +893,8 @@ user = {
         />
       </ChapterSection>
 
-      {/* ── PART 3 · FUNCTIONS ── */}
-      <ChapterSection id="functions" data-nav-id="functions" num="03" accentRgb={ACCENT_RGB}>
+      {/* ── PART 5 · FUNCTIONS ── */}
+      <ChapterSection id="functions" data-nav-id="functions" num="05" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The code works. But I keep repeating myself." story="Arjun has written enough lines to notice a pattern — the same price calculation logic appears in three different places. The code works. It also feels messy. Nisha looks at the file and asks: what part of this logic do you expect to reuse?" mentorQuote="Then that is exactly what should become a function. A function is not just a syntax feature — it is a way of naming reusable logic." mentorName="Nisha" mentorColor="#0369A1" />
 
         <ConvoScene
@@ -789,26 +913,21 @@ user = {
         <CodeBlock filename="better_function.py" code={`def calculate_total_price(base_price: float, tax_amount: float) -> float:
     return base_price + tax_amount`} />
 
-        {h2(<>Higher-order functions and lambda</>)}
+        {h2(<>Functions as values — and when to use lambda</>)}
 
-        {para(<>Some functions do not just take data. Some take other functions. Python can treat functions like values — passing them around, storing them, and using them as arguments.</>)}
+        {para(<>Python treats functions as values. You can pass them as arguments, store them, and use them as sort keys or filter rules. Lambda is the shorthand for tiny, local, one-off functions — use it when the logic fits on one line and giving it a full name would add more ceremony than clarity.</>)}
 
-        <CodeBlock filename="higher_order.py" code={`def apply_function(func, value):
-    return func(value)
+        <CodeBlock filename="lambda_usage.py" code={`# Lambda: good for short, local, one-off transformations
+users = [{"name": "Aman", "age": 28}, {"name": "Priya", "age": 24}]
+users.sort(key=lambda u: u["age"])   # cleaner than defining a separate function
 
-def square(x):
-    return x * x
-
-print(apply_function(square, 5))  # 25`} />
-
-        {para(<>Lambda is the concise version for tiny, local, one-off transformations. Use it when the logic fits on one line and adding a full function name would add more ceremony than clarity.</>)}
-
-        <CodeBlock filename="lambda_example.py" code={`# Lambda: good for short, local transformations
-square = lambda x: x * x
-
-# Named function: good for anything that needs to be reused or explained
+# Named function: always better when logic needs to be reused or tested
 def calculate_discount(price: float, rate: float) -> float:
-    return price - (price * rate)`} />
+    return price - (price * rate)    # this is called in 5 places — name it`} />
+
+        <div style={{ margin: '16px 0', padding: '12px 16px', borderRadius: '8px', background: 'rgba(202,138,4,0.08)', border: '1px solid rgba(202,138,4,0.25)', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
+          <strong style={{ color: '#CA8A04' }}>Lambda judgment call:</strong> use it when the logic fits on one line and is only needed locally. If the logic grows, is reused, or needs a docstring — write a named function instead. Clever one-liners that need a comment to explain are a sign to switch.
+        </div>
 
         <FunctionBuilderStudio />
 
@@ -830,58 +949,8 @@ def calculate_discount(price: float, rate: float) -> float:
         />
       </ChapterSection>
 
-      {/* ── PART 4 · LAMBDA ── */}
-      <ChapterSection id="lambda" data-nav-id="lambda" num="04" accentRgb={ACCENT_RGB}>
-        <SceneSetter title="Lambda stopped feeling fancy — it started feeling practical." story="Meera shows Arjun a list of users and asks him to sort by age. He starts writing a full function. Kabir stops him: you can, but do you need to? He shows users.sort(key=lambda user: user['age']). This is the first time lambda feels genuinely useful — not mysterious, not decorative." mentorQuote="The logic is tiny, only needed here. Giving it a full function name would add more ceremony than clarity." mentorName="Meera" mentorColor="#C85A40" />
-
-        {h2(<>Sort, filter, map — the three transformation patterns</>)}
-
-        <CodeBlock filename="transformations.py" code={`users = [
-    {"name": "Aman", "age": 28},
-    {"name": "Priya", "age": 24},
-    {"name": "Ravi", "age": 31}
-]
-
-# Sort by age
-users.sort(key=lambda user: user["age"])
-
-# Filter: keep only items matching a rule
-numbers = [1, 2, 3, 4]
-even_numbers = list(filter(lambda x: x % 2 == 0, numbers))
-
-# Map: transform every item
-squared = list(map(lambda x: x * x, numbers))`} />
-
-        {para(<>These patterns show up constantly in backend work. Data is always being reshaped, filtered, selected, sorted, and prepared for responses. Lambda keeps the transformation local and readable — as long as it stays short.</>)}
-
-        <DataTransformationFlow />
-
-        {keyBox('The lambda rule', [
-          'Use lambda when the logic fits on one line and the intent is obvious',
-          'Use a named function when you need to reuse it, test it, or explain it',
-          'If it stops being obvious, stop using lambda',
-        ])}
-
-        <PythonPrinciple text="Lambda is useful when it makes a tiny transformation clearer — not when it makes code more clever than readable." />
-
-        <ApplyItBox prompt="Which of these is a good lambda use case — and which needs a named function? Sorting users by age. One small filter rule. A long multi-step permission check. Why does the length and reuse matter?" />
-
-        <QuizEngine
-          conceptId="python-lambda"
-          conceptName="Python Lambda"
-          moduleContext="Python Pre-Read 01: Python Foundations for Backend Engineers."
-          staticQuiz={{
-            conceptId: "python-lambda",
-            question: "When is lambda usually most useful in Python?",
-            options: ['For long, complex business logic with multiple steps', 'For short one-off functions used locally — like a sort key', 'To replace all named functions in a program', 'For writing class definitions'],
-            correctIndex: 1,
-            explanation: "Lambda shines when the logic is tiny, local, and obvious. users.sort(key=lambda u: u['age']) is cleaner than defining a separate function for a one-liner. If it grows, convert it.",
-          }}
-        />
-      </ChapterSection>
-
-      {/* ── PART 5 · TYPE HINTS ── */}
-      <ChapterSection id="type-hints" data-nav-id="type-hints" num="05" accentRgb={ACCENT_RGB}>
+      {/* ── PART 6 · TYPE HINTS ── */}
+      <ChapterSection id="type-hints" data-nav-id="type-hints" num="06" accentRgb={ACCENT_RGB}>
         <SceneSetter title="Arjun understood the function before reading the implementation." story="Arjun opens a function written by Kabir with full type hints: prices: list[float], discount: float, return type float. He reads it once and realizes something unusual — he understands the shape of the function before even thinking about the implementation. That is new." mentorQuote="Type hints don't make Python stop being Python. They make code easier to reason about — which matters when functions become interfaces between layers." mentorName="Kabir" mentorColor="#7843EE" />
 
         <ConvoScene
@@ -930,8 +999,8 @@ def format_user(user: dict[str, str]) -> str:
         />
       </ChapterSection>
 
-      {/* ── PART 6 · SYNTHESIS ── */}
-      <ChapterSection id="synthesis" data-nav-id="synthesis" num="06" accentRgb={ACCENT_RGB}>
+      {/* ── PART 7 · SYNTHESIS ── */}
+      <ChapterSection id="synthesis" data-nav-id="synthesis" num="07" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The small script that finally felt like real backend code." story="By end of week, Arjun decides to combine everything into one small example — a cart processor. This time he thinks in pieces: what data types? what structure? what function? where would type hints help? what names make the code readable?" mentorQuote="Real backend engineering is not built from giant leaps. It is built from stacking simple concepts correctly." mentorName="Kabir" mentorColor="#7843EE" />
 
         <CodeBlock filename="cart_processor.py" code={`def calculate_final_price(prices: list[float], discount: float) -> float:
@@ -944,6 +1013,12 @@ final_price = calculate_final_price(cart_prices, 0.10)
 print(final_price)  # 718.2`} />
 
         {para(<>What matters here is not that the code is complex — it isn&apos;t. What matters is that it is structured. Arjun used: a list for related values, floats for prices, a function for reusable logic, a clear return value, type hints for readability, and names that explain intention.</>)}
+
+        {h2(<>Data transformation in practice</>)}
+
+        {para(<>Synthesis also means knowing how to reshape data. Sort, filter, and map are the three patterns that appear everywhere in backend work — preparing data for responses, filtering records, and transforming each item in a collection.</>)}
+
+        <DataTransformationFlow />
 
         {keyBox('What makes this feel like engineering code', [
           'A list for related values (not a tuple — cart prices change)',
@@ -970,8 +1045,8 @@ print(final_price)  # 718.2`} />
         />
       </ChapterSection>
 
-      {/* ── PART 7 · REFLECTION ── */}
-      <ChapterSection id="reflection" data-nav-id="reflection" num="07" accentRgb={ACCENT_RGB}>
+      {/* ── PART 8 · REFLECTION ── */}
+      <ChapterSection id="reflection" data-nav-id="reflection" num="08" accentRgb={ACCENT_RGB}>
         <SceneSetter title="At the end of the week, Arjun rereads his notes." story="At the beginning, Python still felt like syntax, brackets, snippets, tutorial exercises. Now it feels different. He sees variables as names, structures as choices, functions as named logic, transformations as careful reshaping, and type hints as clarity tools." mentorQuote="What do you think Python foundations actually are?" mentorName="Nisha" mentorColor="#0369A1" />
 
         <ConvoScene
@@ -987,11 +1062,11 @@ print(final_price)  # 718.2`} />
         />
 
         {keyBox('What Python foundations are really about', [
-          'Representing values properly — choosing names, not just labels',
+          'How Python runs: source code compiles to bytecode, the PVM executes it',
+          'Dynamic typing (names can rebind) vs strong typing (no silent coercion)',
           'Choosing the right structure for the shape of the data',
           'Organizing logic into reusable, well-named functions',
-          'Transforming data carefully with map, filter, sort, and lambda',
-          'Making code readable for future work with type hints',
+          'Making code readable for future engineers with type hints',
         ])}
 
         <PythonPrinciple text="Python foundations are not about memorizing syntax. They are about learning the habits that make code readable, reusable, and trustworthy." />

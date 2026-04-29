@@ -227,7 +227,7 @@ export default function SWEPreReadLayout({
                 })}
               </nav>
               <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--ed-rule)', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>
-                SWE track · {trackConfig.name}
+                {trackConfig.name === 'Python' ? 'Backend Python Track' : `SWE track · ${trackConfig.name}`}
               </div>
             </div>
           </aside>

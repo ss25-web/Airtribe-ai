@@ -13,13 +13,14 @@ const ACCENT_RGB = '22,163,74';
 const MODULE_ID = 'python-pr-02';
 
 const SECTIONS = [
-  { id: 'pr2-structure',   label: 'The Script That Became a Mess',       icon: '🗂️' },
-  { id: 'pr2-classes',     label: 'Classes: Blueprint for Real Things',   icon: '🏛️' },
-  { id: 'pr2-self',        label: 'Understanding self',                   icon: '🪞' },
-  { id: 'pr2-inheritance', label: 'Inheritance: Reuse with Care',         icon: '🌳' },
-  { id: 'pr2-abstract',    label: 'Abstract Classes: Required Behavior',  icon: '📋' },
-  { id: 'pr2-modules',     label: 'Modules & Packages',                   icon: '📁' },
-  { id: 'pr2-reflection',  label: 'What Arjun Finally Understood',        icon: '💡' },
+  { id: 'pr2-structure',     label: 'The Script That Became a Mess',       icon: '🗂️' },
+  { id: 'pr2-classes',       label: 'Classes: Blueprint for Real Things',   icon: '🏛️' },
+  { id: 'pr2-self',          label: 'Understanding self',                   icon: '🪞' },
+  { id: 'pr2-composition',   label: 'Composition before Inheritance',       icon: '🧩' },
+  { id: 'pr2-inheritance',   label: 'Inheritance: Reuse with Care',         icon: '🌳' },
+  { id: 'pr2-abstract',      label: 'Abstract Classes: Required Behavior',  icon: '📋' },
+  { id: 'pr2-modules',       label: 'Modules &amp; Packages',               icon: '📁' },
+  { id: 'pr2-reflection',    label: 'What Arjun Finally Understood',        icon: '💡' },
 ];
 
 const TRACK_CONFIG = {
@@ -872,8 +873,111 @@ print(user_2.greet())  # Hello, Priya
           staticQuiz={{ conceptId: "python-self", question: "What does self represent in a Python method?", options: ['The whole program', 'The current object instance', 'The class name', 'The return value'], correctIndex: 1, explanation: "self is how each object instance refers to its own data. It is not magic — it is instance-specific reference. user_1.greet() passes user_1 as self automatically." }} />
       </ChapterSection>
 
-      {/* ── PART 4 · INHERITANCE ── */}
-      <ChapterSection id="pr2-inheritance" data-nav-id="pr2-inheritance" num="04" accentRgb={ACCENT_RGB}>
+      {/* ── PART 4 · COMPOSITION ── */}
+      <ChapterSection id="pr2-composition" data-nav-id="pr2-composition" num="04" accentRgb={ACCENT_RGB}>
+        <SceneSetter title="Arjun reaches for inheritance — Kabir reaches for a whiteboard." story="Arjun has an Order class. Now he needs to add payment processing and discounting. His instinct: make DiscountedOrder extend Order, and PayableOrder extend that. Kabir stops him. 'An order does not become a kind of payment processor just because it needs one. That is not inheritance — that is composing capabilities.'" mentorQuote="Ask one question before inheriting: is this new class truly a more specific type of the parent — or does it just need some of the parent's behavior?" mentorName="Kabir" mentorColor="#7843EE" />
+
+        <ConvoScene lines={[
+          { speaker: 'mentor', text: "Composition means: the class has another object — it uses it. Inheritance means: the class is another object — it extends it." },
+          { speaker: 'arjun', text: "So Order has a PaymentProcessor and has a DiscountPolicy — not inherits from them?" },
+          { speaker: 'mentor', text: "Exactly. Order uses those capabilities. It is not a type of either. That distinction prevents a lot of tangled class trees." },
+          { speaker: 'arjun', text: "When would inheritance actually be correct here?" },
+          { speaker: 'mentor', text: "If you had CorporateOrder — a more specific kind of Order with extra fields — that is is-a. But PaymentProcessor is a completely different domain concept." },
+        ]} mentorName="Nisha" mentorColor="#0369A1" />
+
+        {h2(<>Composition: uses-a vs Inheritance: is-a</>)}
+
+        <CodeBlock filename="composition_example.py" code={`# COMPOSITION: Order uses payment and discount — does not inherit from them
+class DiscountPolicy:
+    def apply(self, total: float, rate: float) -> float:
+        return total - (total * rate)
+
+class PaymentProcessor:
+    def charge(self, amount: float, method: str) -> str:
+        return f"Charged {amount} via {method}"
+
+class Order:
+    def __init__(self, items: list[float]):
+        self.items = items
+        self.discount_policy = DiscountPolicy()    # has-a
+        self.payment_processor = PaymentProcessor() # has-a
+
+    def checkout(self, method: str) -> str:
+        total = sum(self.items)
+        discounted = self.discount_policy.apply(total, 0.10)
+        return self.payment_processor.charge(discounted, method)
+
+# INHERITANCE: only when CorporateOrder IS genuinely a more specific Order
+class CorporateOrder(Order):
+    def __init__(self, items: list[float], company: str):
+        super().__init__(items)
+        self.company = company  # adds corporate-specific state`} />
+
+        <div style={{ margin: '20px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid rgba(${ACCENT_RGB},0.25)` }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: ACCENT, marginBottom: '8px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Composition (uses-a)</div>
+            {['Order uses DiscountPolicy', 'Order uses PaymentProcessor', 'Notification uses EmailClient', 'Report uses DataFormatter'].map((ex, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '11px', color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: ACCENT, flexShrink: 0 }} />
+                {ex}
+              </div>
+            ))}
+            <div style={{ marginTop: '8px', fontSize: '10px', color: ACCENT, fontWeight: 700 }}>One change does not cascade through the whole tree.</div>
+          </div>
+          <div style={{ padding: '14px 16px', borderRadius: '10px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)' }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: '#7C3AED', marginBottom: '8px', textTransform: 'uppercase' as const, fontFamily: "'JetBrains Mono', monospace" }}>Inheritance (is-a)</div>
+            {['AdminUser is-a User', 'CorporateOrder is-a Order', 'UPIPayment is-a Payment', 'PremiumSubscription is-a Subscription'].map((ex, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', fontSize: '11px', color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#7C3AED', flexShrink: 0 }} />
+                {ex}
+              </div>
+            ))}
+            <div style={{ marginTop: '8px', fontSize: '10px', color: '#7C3AED', fontWeight: 700 }}>Reserve this for true specialization, not code reuse.</div>
+          </div>
+        </div>
+
+        {h2(<>Class or dictionary? The simpler question first.</>)}
+
+        {para(<>Before reaching for a class, ask: do I need behavior (methods), or just named data? If you only need to pass around named fields with no methods attached, a dictionary or dataclass is simpler and cleaner. A class adds value when it bundles state and behavior together.</>)}
+
+        <CodeBlock filename="class_or_dict.py" code={`# Use a dict: just named data, no behavior needed
+product_info = {"name": "Headset", "price": 1299.0, "sku": "HS-04"}
+
+# Use a class: state + behavior together — methods that use the state
+class Product:
+    def __init__(self, name: str, price: float, sku: str):
+        self.name = name
+        self.price = price
+        self.sku = sku
+
+    def discounted_price(self, rate: float) -> float:
+        return self.price * (1 - rate)  # behavior that uses state
+
+    def display(self) -> str:
+        return f"{self.name} ({self.sku}) — {self.price}"`} />
+
+        {keyBox('Composition and class judgment', [
+          'Ask is-a or uses-a before choosing inheritance vs composition',
+          'Prefer composition: it keeps objects loosely coupled and easier to change',
+          'Use inheritance only when the specialized class is truly a type of the parent',
+          'Use a dict when you only need named data — add a class when you need methods',
+        ])}
+
+        <PythonPrinciple text="Composition keeps objects loosely coupled. Inheritance locks them into a hierarchy. Choose based on the real relationship, not convenience." />
+
+        <ApplyItBox prompt="You are building a notification system. You have Email, SMS, and Push as delivery channels. Should these inherit from a Notification class, or should Notification compose with a delivery channel? Justify your choice using is-a and uses-a." />
+
+        <QuizEngine conceptId="python-composition" conceptName="Composition vs Inheritance" moduleContext="Python Pre-Read 02."
+          staticQuiz={{ conceptId: "python-composition", question: "An Order class needs discount logic and payment logic. What is the better design choice?", options: [
+            'Make Order inherit from both DiscountCalculator and PaymentProcessor',
+            'Copy the logic from both into Order directly to avoid complexity',
+            'Give Order a DiscountPolicy object and a PaymentProcessor object as fields',
+            'Use a single monolithic function that handles order, discount, and payment together',
+          ], correctIndex: 2, explanation: "Composition: Order has a DiscountPolicy and has a PaymentProcessor. Order uses their behavior without becoming a type of either. This keeps classes loosely coupled and individually testable." }} />
+      </ChapterSection>
+
+      {/* ── PART 5 · INHERITANCE ── */}
+      <ChapterSection id="pr2-inheritance" data-nav-id="pr2-inheritance" num="05" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The inheritance shortcut that almost became copy-paste design." story="Arjun needs to add AdminUser. His instinct: copy the User class and make a second version. Kabir stops him immediately." mentorQuote="Copy-paste is not structure. It is hidden duplication. If AdminUser is really a more specific kind of User, inheritance can make sense." mentorName="Kabir" mentorColor="#7843EE" />
 
         <CodeBlock filename="inheritance_example.py" code={`class User:
@@ -908,8 +1012,8 @@ print(admin.display_info())  # inherited from User`} />
           staticQuiz={{ conceptId: "python-inheritance", question: "When is inheritance most appropriate?", options: ['Whenever two classes share a few fields', 'When one class is a true specialized form of another', 'Whenever you want shorter code', 'Only in Java, not in Python'], correctIndex: 1, explanation: "Inheritance should reflect real specialization. AdminUser is-a User. Car is-a Vehicle. But DiscountCalculator is not-a Product — it uses product data but is not a type of product." }} />
       </ChapterSection>
 
-      {/* ── PART 5 · ABSTRACT CLASSES ── */}
-      <ChapterSection id="pr2-abstract" data-nav-id="pr2-abstract" num="05" accentRgb={ACCENT_RGB}>
+      {/* ── PART 6 · ABSTRACT CLASSES ── */}
+      <ChapterSection id="pr2-abstract" data-nav-id="pr2-abstract" num="06" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The moment Arjun learned the difference between shared code and required behavior." story="The project now has multiple payment types: card, UPI, wallet. They all need process_payment() behavior, but the implementation differs. Nisha asks: what if you want to guarantee that every payment type defines process_payment(), even if each does it differently?" mentorQuote="Abstract classes define a required contract. Children must implement it. Inheritance can share structure — abstract classes can also enforce required behavior." mentorName="Kabir" mentorColor="#7843EE" />
 
         <CodeBlock filename="abstract_example.py" code={`from abc import ABC, abstractmethod
@@ -939,8 +1043,8 @@ CardPayment().process_payment(500)   # works`} />
           staticQuiz={{ conceptId: "python-abstract", question: "Why would you use an abstract class?", options: ['To make all child classes identical', 'To guarantee that child classes implement required behavior', 'To avoid using inheritance entirely', 'To remove methods from child classes'], correctIndex: 1, explanation: "Abstract classes define a contract. Every child must implement the required methods — but each implements them differently. This creates consistency across multiple implementations." }} />
       </ChapterSection>
 
-      {/* ── PART 6 · MODULES ── */}
-      <ChapterSection id="pr2-modules" data-nav-id="pr2-modules" num="06" accentRgb={ACCENT_RGB}>
+      {/* ── PART 7 · MODULES ── */}
+      <ChapterSection id="pr2-modules" data-nav-id="pr2-modules" num="07" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The file structure problem that turned into a project architecture problem." story="Arjun's code inside each file looks better. But the overall project still feels messy. He has user.py, payment.py, helpers.py, utils.py, misc.py, one file with authentication, another with validation, and one file that still does too much." mentorQuote="Now we have a project structure problem. A file should answer: what kind of logic lives here? A package should answer: what part of the system this belongs to." mentorName="Kabir" mentorColor="#7843EE" />
 
         <CodeBlock filename="project_structure.py" code={`project/
@@ -971,8 +1075,8 @@ from payments.gateway import CardPayment`} />
           staticQuiz={{ conceptId: "python-modules", question: "What is the main difference between a module and a package in Python?", options: ['Modules are classes; packages are functions', 'A module is a Python file; a package is a group of related modules', 'Packages are only for large companies', 'Modules replace directory folders entirely'], correctIndex: 1, explanation: "A module is a single .py file. A package is a directory that groups related modules. The real value is organizing code by system responsibility — not by random file accumulation." }} />
       </ChapterSection>
 
-      {/* ── PART 7 · REFLECTION ── */}
-      <ChapterSection id="pr2-reflection" data-nav-id="pr2-reflection" num="07" accentRgb={ACCENT_RGB}>
+      {/* ── PART 8 · REFLECTION ── */}
+      <ChapterSection id="pr2-reflection" data-nav-id="pr2-reflection" num="08" accentRgb={ACCENT_RGB}>
         <SceneSetter title="The week Arjun's Python finally started looking like engineering." story="Arjun reopens the project. Where there was once one growing script, there is now: cleaner entity modeling, classes where real concepts are represented, inheritance only where it makes sense, abstract contracts where behavior must be guaranteed, and modules with clearer responsibility." mentorQuote="Most beginner code doesn't fail because it's wrong. It fails because it becomes too messy to trust." mentorName="Kabir" mentorColor="#7843EE" />
 
         <ConvoScene lines={[
