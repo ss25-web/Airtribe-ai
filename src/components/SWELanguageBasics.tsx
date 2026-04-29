@@ -13,11 +13,19 @@ import {
   SWEMentorFace,
   DataBehaviorVisualizer
 } from './sweDesignSystem';
-import { 
-  chLabel, 
-  h2, 
-  ChapterSection, 
+import {
+  chLabel,
+  h2,
+  ChapterSection,
 } from './pm-fundamentals/designSystem';
+import {
+  PythonExecutionPipeline,
+  VariableBindingStudio,
+  BranchingEngine,
+  LoopSimulator,
+  FunctionFlowStudio,
+  DataStructureStudio,
+} from './PythonBasicsTools';
 
 interface Props {
   track: SWETrack;
@@ -244,19 +252,15 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                 mentorColor={s.mentorColor}
               />
 
-              {section.id === 'types' && (
+              {section.id === 'types' && track === 'python' && <VariableBindingStudio />}
+              {section.id === 'types' && track !== 'python' && (
                 <QuickTry
                   track={track}
                   problem="Define variables and observe behavior."
-                  initialCode={track === 'python' ? 'x = 10\ny = "20"\n# Try print(x + y)' : track === 'java' ? 'int x = 10;\nString y = "20";\n// Try System.out.println(x + y);' : 'const x = 10;\nconst y = "20";\n// Try console.log(x + y);'}
+                  initialCode={track === 'java' ? 'int x = 10;\nString y = "20";\n// Try System.out.println(x + y);' : 'const x = 10;\nconst y = "20";\n// Try console.log(x + y);'}
                   hint="Check the types before adding."
                   onRun={() => store.markSectionCompleted(MODULE_ID, 'types')}
                   evaluateOutput={(code) => {
-                    if (track === 'python') {
-                      if (code.includes('print(x + y)') && code.includes('"20"')) return { status: 'error', text: 'TypeError: unsupported operand type(s) for +: \'int\' and \'str\'' };
-                      if (code.includes('print(x + y)')) return { status: 'success', text: '30' };
-                      return { status: 'success', text: '(No output. Try adding print(x + y)!)' };
-                    }
                     const hasOutput = code.includes('console.log(x + y)') || code.includes('System.out.println(x + y)');
                     if (hasOutput && code.includes('"20"')) return { status: 'success', text: '1020' };
                     if (hasOutput) return { status: 'success', text: '30' };
@@ -265,53 +269,57 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                 />
               )}
 
-              {section.id === 'flow' && (
+              {section.id === 'flow' && track === 'python' && <BranchingEngine />}
+              {section.id === 'flow' && track !== 'python' && (
                 <QuickTry
                   track={track}
                   problem="Trigger the alternate logic block."
-                  initialCode={track === 'python' ? 'active = False\nif active:\n    print("System ON")\nelse:\n    print("System OFF")' : track === 'java' ? 'boolean active = false;\nif (active) {\n    System.out.println("System ON");\n} else {\n    System.out.println("System OFF");\n}' : 'const active = false;\nif (active) {\n    console.log("System ON");\n} else {\n    console.log("System OFF");\n}'}
+                  initialCode={track === 'java' ? 'boolean active = false;\nif (active) {\n    System.out.println("System ON");\n} else {\n    System.out.println("System OFF");\n}' : 'const active = false;\nif (active) {\n    console.log("System ON");\n} else {\n    console.log("System OFF");\n}'}
                   hint="Change active to true."
                   onRun={() => store.markSectionCompleted(MODULE_ID, 'flow')}
                   evaluateOutput={(code) => {
-                    const isActive = code.includes('True') || code.includes('true') && !code.includes('False') && !code.includes('false');
+                    const isActive = code.includes('true') && !code.includes('false');
                     return { status: 'success', text: isActive ? 'System ON' : 'System OFF' };
                   }}
                 />
               )}
 
-              {section.id === 'loops' && (
+              {section.id === 'loops' && track === 'python' && <LoopSimulator />}
+              {section.id === 'loops' && track !== 'python' && (
                 <QuickTry
                   track={track}
                   problem="Automate a repetitive task with a loop."
-                  initialCode={track === 'python' ? 'for i in range(1, 4):\n    print(f"Loading record {i}...")' : track === 'java' ? 'for (int i = 1; i <= 3; i++) {\n    System.out.println("Loading record " + i + "...");\n}' : 'for (let i = 1; i <= 3; i++) {\n    console.log("Loading record " + i + "...");\n}'}
+                  initialCode={track === 'java' ? 'for (int i = 1; i <= 3; i++) {\n    System.out.println("Loading record " + i + "...");\n}' : 'for (let i = 1; i <= 3; i++) {\n    console.log("Loading record " + i + "...");\n}'}
                   hint="Change the range or limit to 10."
                   onRun={() => store.markSectionCompleted(MODULE_ID, 'loops')}
                   evaluateOutput={(code) => {
-                    const match = code.match(/range\(\s*\d+\s*,\s*(\d+)\s*\)|<=\s*(\d+)/);
+                    const match = code.match(/<=\s*(\d+)/);
                     let limit = 4;
-                    if (match) limit = parseInt(match[1] || match[2], 10);
+                    if (match) limit = parseInt(match[1], 10);
                     let res = '';
-                    for (let i = 1; i < Math.min(limit, 20); i++) res += `Loading record ${i}...\n`;
-                    if (limit > 20) res += '... (truncated)';
+                    for (let i = 1; i <= Math.min(limit, 20); i++) res += `Loading record ${i}...\n`;
                     return { status: 'success', text: res.trim() || 'No output.' };
                   }}
                 />
               )}
 
-              {section.id === 'functions' && (
+              {section.id === 'functions' && track === 'python' && <FunctionFlowStudio />}
+              {section.id === 'functions' && track !== 'python' && (
                 <QuickTry
                   track={track}
                   problem="Encapsulate logic in a reusable function."
-                  initialCode={track === 'python' ? 'def greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("Aisha"))' : track === 'java' ? 'public static String greet(String name) {\n    return "Hello, " + name + "!";\n}\n\nSystem.out.println(greet("Vikram"));' : 'const greet = (name) => `Hello, ${name}!`;\n\nconsole.log(greet("Leo"));'}
+                  initialCode={track === 'java' ? 'public static String greet(String name) {\n    return "Hello, " + name + "!";\n}\n\nSystem.out.println(greet("Vikram"));' : 'const greet = (name) => `Hello, ${name}!`;\n\nconsole.log(greet("Leo"));'}
                   hint="Call the function with your own name."
                   onRun={() => store.markSectionCompleted(MODULE_ID, 'functions')}
                   evaluateOutput={(code) => {
                     const match = code.match(/greet\(\s*['"]([^'"]+)['"]\s*\)/);
-                    const name = match ? match[1] : (track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo');
+                    const name = match ? match[1] : (track === 'java' ? 'Vikram' : 'Leo');
                     return { status: 'success', text: `Hello, ${name}!` };
                   }}
                 />
               )}
+
+              {section.id === 'identity' && track === 'python' && <PythonExecutionPipeline />}
 
               {section.id === 'objects' && (
                 <div style={{ margin: '24px 0' }}>
@@ -328,13 +336,14 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                 </div>
               )}
 
-              {section.id === 'dataStructures' && (
+              {section.id === 'dataStructures' && track === 'python' && <DataStructureStudio />}
+              {section.id === 'dataStructures' && track !== 'python' && (
                 <div style={{ margin: '24px 0' }}>
                   <DataBehaviorVisualizer />
                   <QuickTry
                     track={track}
                     problem="Use a fast-lookup structure (Dictionary/Map)."
-                    initialCode={track === 'python' ? 'prices = {"apple": 50, "berry": 120}\nprint(f"Price of berry: {prices[\'berry\']}")' : track === 'java' ? 'Map<String, Integer> prices = Map.of("apple", 50, "berry", 120);\nSystem.out.println("Price of berry: " + prices.get("berry"));' : 'const prices = { apple: 50, berry: 120 };\nconsole.log("Price of berry:", prices.berry);'}
+                    initialCode={track === 'java' ? 'Map<String, Integer> prices = Map.of("apple", 50, "berry", 120);\nSystem.out.println("Price of berry: " + prices.get("berry"));' : 'const prices = { apple: 50, berry: 120 };\nconsole.log("Price of berry:", prices.berry);'}
                     hint="Look up the price of an apple."
                     onRun={() => store.markSectionCompleted(MODULE_ID, 'dataStructures')}
                     evaluateOutput={(code) => {
