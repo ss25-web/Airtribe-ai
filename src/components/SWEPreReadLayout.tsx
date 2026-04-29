@@ -94,11 +94,16 @@ export default function SWEPreReadLayout({
   const [showGain, setShowGain] = useState(false);
   const [gainAmt, setGainAmt] = useState(0);
   const prevXpRef = useRef(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
     setTotalXP(xp.total);
     prevXpRef.current = xp.total;
+    const check = () => setIsMobile(window.innerWidth < 860);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
   }, []);
 
   useEffect(() => {
@@ -143,17 +148,24 @@ export default function SWEPreReadLayout({
             <AirtribeLogo />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-               <div style={{ display: 'flex', gap: '2px' }}>
-                 {sections.map((s, i) => (
-                   <div key={i} style={{ width: '20px', height: '3px', borderRadius: '1.5px', background: completedModules.has(s.id) ? trackConfig.accent : 'var(--ed-rule)' }} />
-                 ))}
-               </div>
-               <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.05em' }}>
-                 MODULE PROGRESS · {progressPct}%
-               </div>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '32px' }}>
+            {!isMobile && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  {sections.map((s, i) => (
+                    <div key={i} style={{ width: '20px', height: '3px', borderRadius: '1.5px', background: completedModules.has(s.id) ? trackConfig.accent : 'var(--ed-rule)' }} />
+                  ))}
+                </div>
+                <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.05em' }}>
+                  MODULE PROGRESS · {progressPct}%
+                </div>
+              </div>
+            )}
+            {isMobile && (
+              <div style={{ fontSize: '10px', fontWeight: 700, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace" }}>
+                {completedModules.size}/{sections.length}
+              </div>
+            )}
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ textAlign: 'right' }}>
@@ -178,11 +190,11 @@ export default function SWEPreReadLayout({
       </header>
 
       {/* ─── Main Content Grid ─── */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '32px 28px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 260px', gap: '48px', alignItems: 'flex-start' }}>
-          
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '220px 1fr 260px', gap: isMobile ? '0' : '48px', alignItems: 'flex-start' }}>
+
           {/* Left: Contents Nav */}
-          <aside style={{ position: 'sticky', top: '100px' }}>
+          <aside style={{ position: 'sticky', top: '100px', display: isMobile ? 'none' : 'block' }}>
             <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
               <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid var(--ed-rule)' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '10px' }}>Contents</div>
@@ -256,7 +268,7 @@ export default function SWEPreReadLayout({
           </main>
 
           {/* Right: Stats & Gamification */}
-          <aside style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <aside style={{ position: 'sticky', top: '100px', display: isMobile ? 'none' : 'flex', flexDirection: 'column', gap: '16px' }}>
             
             {/* XP and Level Card */}
             <div style={{ 

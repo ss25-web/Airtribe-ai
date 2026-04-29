@@ -7,6 +7,7 @@ import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
 import { MentorFace } from './pm-fundamentals/MentorFaces';
+import { TracebackReaderLab, FileFormatChooser, DependencyRepairSim, ReproducibilityChecklist, PR3HeroArtifact } from './PythonPreRead3Tools';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -817,14 +818,26 @@ export default function PythonPreRead3({ onBack }: Props) {
             </div>
           ))}
         </div>
-        <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '18px 22px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>What this pre-read covers</div>
-          {['File I/O — how code interacts with data that lives outside the script', 'Exception handling — designing for failure, not just success', 'Environments, pip, and requirements.txt — making Python projects reproducible'].map((obj, i) => (
-            <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 2 ? '8px' : 0, alignItems: 'flex-start' }}>
-              <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', marginTop: '2px' }}>0{i+1}</span>
-              <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+        <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' as const }}>
+          <div style={{ flex: 1, minWidth: '280px' }}>
+            <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '18px 22px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>What you will be able to do</div>
+              {['Read and write files in text, JSON, and CSV using pathlib', 'Read a Python traceback and identify file, line, error type, and cause', 'Handle specific exceptions without hiding useful diagnostic information', 'Set up a reproducible Python environment with venv and requirements.txt'].map((obj, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
+                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', marginTop: '2px' }}>0{i + 1}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--ed-rule)', display: 'flex', gap: '16px', fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <span>7 sections</span>
+                <span>&#xB7;</span>
+                <span>&#x7E;30 min</span>
+                <span>&#xB7;</span>
+                <span>Python Pre-Read 03</span>
+              </div>
             </div>
-          ))}
+          </div>
+          <PR3HeroArtifact />
         </div>
       </motion.div>
 
@@ -906,6 +919,8 @@ with open("report.csv", "w", newline="") as f:
         </div>
 
         <PythonPrinciple text="File I/O matters because real programs work with data that lives outside the code." />
+        <FileFormatChooser />
+
         <ApplyItBox prompt="Think of one backend scenario where data would naturally come from or go to a file — logs, order exports, configuration, uploaded data. What could go wrong?" />
         <QuizEngine conceptId="python-file-io" conceptName="File I/O" moduleContext="Python Pre-Read 03."
           staticQuiz={{ conceptId: "python-file-io", question: "Why is file I/O an important shift for beginners?", options: ['It makes Python more complex', 'Code starts interacting with data that lives outside the script itself', 'Files replace all Python variables', 'Backend engineers never use variables'], correctIndex: 1, explanation: "Hardcoded values only test logic in isolation. File I/O introduces the reality that data comes from outside — and outside data can be missing, wrong-shaped, or unpredictably large." }} />
@@ -961,6 +976,8 @@ with base 10: 'abc'
         </div>
 
         <PythonPrinciple text="Exceptions are not a side topic. They are part of how real programs survive imperfect conditions." />
+        <TracebackReaderLab />
+
         <ApplyItBox prompt="Think of one thing that can go wrong in a backend system. What would graceful handling look like — not just stopping the crash, but making the failure useful and informative?" />
         <QuizEngine conceptId="python-exceptions" conceptName="Exception Handling" moduleContext="Python Pre-Read 03."
           staticQuiz={{ conceptId: "python-exceptions", question: "Why is exception handling important in backend code?", options: ['It makes code look more advanced', 'It helps the program deal with failure conditions more intentionally and clearly', 'It removes all bugs from the program', 'It avoids the need to use files'], correctIndex: 1, explanation: "Real programs face constant failure conditions. Exception handling makes failure explicit and manageable — rather than letting programs crash or fail silently." }} />
@@ -1040,6 +1057,9 @@ import requests
 response = requests.get("https://api.example.com/orders")
 print(response.json())`} />
         <PackageInstallationFlow />
+
+        <DependencyRepairSim />
+
         <PythonPrinciple text="Installing a package is not just a setup action. It changes the dependency state your project relies on." />
         <ApplyItBox prompt="Think of one package a backend project might depend on. What error would another engineer see if they cloned the code but did not install that package?" />
         <QuizEngine conceptId="python-pip" conceptName="pip and Dependencies" moduleContext="Python Pre-Read 03."
@@ -1083,6 +1103,8 @@ dependencies = [
     "fastapi>=0.100"
 ]`} />
         </div>
+
+        <ReproducibilityChecklist />
 
         <PythonPrinciple text="A Python project is not truly shareable until its dependency setup is reproducible." />
         <ApplyItBox prompt="Why is 'it works on my machine' a warning sign in software engineering? What would need to be true for it to work on any machine?" />

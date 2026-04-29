@@ -8,8 +8,8 @@ import {
 } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
 import { MentorFace } from './pm-fundamentals/MentorFaces';
-// SWEConversationScene not used — using local ConvoScene instead
 import QuizEngine from './QuizEngine';
+import { PredictOutput, PR1HeroArtifact } from './PythonPreRead1Tools';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -664,14 +664,26 @@ export default function PythonPreRead1({ onBack }: Props) {
           ))}
         </div>
 
-        <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>What this pre-read covers</div>
-          {['What Python is and how it runs code: source → bytecode → virtual machine', 'Variables, and Python\'s dynamic and strong typing rules', 'Data structures: choosing list, tuple, set, or dict based on data shape', 'Functions and type hints — the habits that make code trustworthy'].map((obj, i) => (
-            <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 2 ? '10px' : 0, alignItems: 'flex-start' }}>
-              <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '12px', marginTop: '2px' }}>0{i + 1}</span>
-              <span style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+        <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' as const }}>
+          <div style={{ flex: 1, minWidth: '280px' }}>
+            <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>What you will be able to do</div>
+              {['Explain how Python runs code from source to execution', 'Read a TypeError and know why Python refused the operation', 'Choose the right data structure based on the shape of data', 'Write functions with type hints that communicate their intent'].map((obj, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '10px' : 0, alignItems: 'flex-start' }}>
+                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '12px', marginTop: '2px' }}>0{i + 1}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--ed-rule)', display: 'flex', gap: '16px', fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <span>8 sections</span>
+                <span>&#xB7;</span>
+                <span>&#x7E;30 min</span>
+                <span>&#xB7;</span>
+                <span>Python Pre-Read 01</span>
+              </div>
             </div>
-          ))}
+          </div>
+          <PR1HeroArtifact />
         </div>
       </motion.div>
 
@@ -820,6 +832,8 @@ result = "10" + str(5)  # -> "105"`} />
             <div style={{ marginTop: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#EF4444' }}>&quot;10&quot; + 5 &#x2192; TypeError &#x2717;</div>
           </div>
         </div>
+
+        <PredictOutput />
 
         <PythonPrinciple text="Python's dynamic typing gives flexibility. Its strong typing prevents silent bugs. Together they mean: you can change your mind, but you must be deliberate about type operations." />
 

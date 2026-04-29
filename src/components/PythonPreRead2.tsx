@@ -7,6 +7,7 @@ import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
 import { MentorFace } from './pm-fundamentals/MentorFaces';
+import { ClassOrDictLab, CompositionVsInheritanceLab, ModuleArchitectureBuilder, PR2HeroArtifact } from './PythonPreRead2Tools';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -781,14 +782,26 @@ export default function PythonPreRead2({ onBack }: Props) {
             </div>
           ))}
         </div>
-        <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '18px 22px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>What this pre-read covers</div>
-          {['Why structure matters — and what happens when it is missing', 'Classes, self, inheritance, and abstract classes — when each one earns its place', 'Modules and packages — organizing a backend project by responsibility'].map((obj, i) => (
-            <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 2 ? '8px' : 0, alignItems: 'flex-start' }}>
-              <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', marginTop: '2px' }}>0{i + 1}</span>
-              <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+        <div style={{ display: 'flex', gap: '28px', alignItems: 'flex-start', flexWrap: 'wrap' as const }}>
+          <div style={{ flex: 1, minWidth: '280px' }}>
+            <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '18px 22px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>What you will be able to do</div>
+              {['Identify when a script needs to become a structured project', 'Choose class vs dict based on whether state and behavior belong together', 'Distinguish composition (uses-a) from inheritance (is-a)', 'Organize code into packages by system responsibility'].map((obj, i) => (
+                <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: i < 3 ? '8px' : 0, alignItems: 'flex-start' }}>
+                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0, fontSize: '11px', marginTop: '2px' }}>0{i + 1}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{obj}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid var(--ed-rule)', display: 'flex', gap: '16px', fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <span>8 sections</span>
+                <span>&#xB7;</span>
+                <span>&#x7E;35 min</span>
+                <span>&#xB7;</span>
+                <span>Python Pre-Read 02</span>
+              </div>
             </div>
-          ))}
+          </div>
+          <PR2HeroArtifact />
         </div>
       </motion.div>
 
@@ -963,6 +976,10 @@ class Product:
           'Use a dict when you only need named data — add a class when you need methods',
         ])}
 
+        <ClassOrDictLab />
+
+        <CompositionVsInheritanceLab />
+
         <PythonPrinciple text="Composition keeps objects loosely coupled. Inheritance locks them into a hierarchy. Choose based on the real relationship, not convenience." />
 
         <ApplyItBox prompt="You are building a notification system. You have Email, SMS, and Push as delivery channels. Should these inherit from a Notification class, or should Notification compose with a delivery channel? Justify your choice using is-a and uses-a." />
@@ -1067,6 +1084,7 @@ from payments.gateway import CardPayment`} />
 
         <ModuleFilingAnimation />
         <ModuleArchitectureLab />
+        <ModuleArchitectureBuilder />
 
         <PythonPrinciple text="Modules separate logic. Packages organize system responsibility." />
         <ApplyItBox prompt="If you were organizing a backend project, what would go into users/, payments/, orders/, auth/, and utils/? Which should be packages and which should be single modules?" />
