@@ -26,17 +26,6 @@ const SECTIONS = [
   { id: 'reflection',  label: 'What Arjun Finally Understood',   icon: '🎯' },
 ];
 
-const PYTHON_PR1_BADGES = {
-  'what-python': { name: 'Runtime Mapper', symbol: 'PVM', color: '#2563EB', description: 'Understands how Python moves from source code to bytecode to the Python Virtual Machine.' },
-  variables: { name: 'Name Binder', symbol: 'VAR', color: '#16A34A', description: 'Understands variables as names bound to values, not independent storage boxes.' },
-  typing: { name: 'Type Sense', symbol: 'TYP', color: '#0891B2', description: 'Can explain dynamic typing and strong typing without confusing the two.' },
-  'data-types': { name: 'Structure Picker', symbol: 'DS', color: '#0F766E', description: 'Can choose list, tuple, set, or dictionary based on the shape of the data.' },
-  functions: { name: 'Logic Namer', symbol: 'DEF', color: '#7C3AED', description: 'Can turn repeated logic into a clear, reusable function.' },
-  'type-hints': { name: 'Interface Reader', symbol: 'ANN', color: '#4F46E5', description: 'Can use type hints to read a function interface before reading its body.' },
-  synthesis: { name: 'Foundation Builder', symbol: 'APP', color: '#D97706', description: 'Can combine names, structures, functions, and hints in a small backend-style script.' },
-  reflection: { name: 'Python Grounded', symbol: 'PR1', color: '#059669', description: 'Has the core habits needed to make beginner Python readable and trustworthy.' },
-};
-
 const TRACK_CONFIG = {
   name: 'Python',
   accent: ACCENT,
@@ -646,7 +635,7 @@ export default function PythonPreRead1({ onBack }: Props) {
       trackConfig={TRACK_CONFIG}
       moduleLabel="PYTHON PRE-READ 01"
       title="Python Foundations for Backend Engineers"
-      sections={SECTIONS.map(section => ({ ...section, badge: PYTHON_PR1_BADGES[section.id as keyof typeof PYTHON_PR1_BADGES] }))}
+      sections={SECTIONS}
       completedModules={completedModules}
       activeSection={activeSection}
       onBack={onBack}

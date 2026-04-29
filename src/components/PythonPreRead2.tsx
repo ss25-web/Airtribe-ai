@@ -24,17 +24,6 @@ const SECTIONS = [
   { id: 'pr2-reflection',    label: 'What Arjun Finally Understood',        icon: '💡' },
 ];
 
-const PYTHON_PR2_BADGES = {
-  'pr2-structure': { name: 'Responsibility Sorter', symbol: 'SORT', color: '#D97706', description: 'Can see when a working script has become too tangled to trust.' },
-  'pr2-classes': { name: 'Blueprint Builder', symbol: 'CLS', color: '#7C3AED', description: 'Can model real system concepts as classes with data and behavior.' },
-  'pr2-self': { name: 'Instance Reader', symbol: 'SELF', color: '#4F46E5', description: 'Understands how self points a method at the current object instance.' },
-  'pr2-composition': { name: 'Uses-A Designer', symbol: 'USE', color: '#0891B2', description: 'Can prefer composition when one object uses another instead of being another.' },
-  'pr2-inheritance': { name: 'Is-A Judge', symbol: 'ISA', color: '#0F766E', description: 'Can use inheritance only when the specialization relationship is real.' },
-  'pr2-abstract': { name: 'Contract Keeper', symbol: 'ABC', color: '#C2410C', description: 'Understands abstract classes as contracts for required behavior.' },
-  'pr2-modules': { name: 'Package Architect', symbol: 'MOD', color: '#2563EB', description: 'Can organize modules and packages by system responsibility.' },
-  'pr2-reflection': { name: 'Structure Guardian', symbol: 'PR2', color: '#059669', description: 'Can keep growing Python code readable, testable, and safer to change.' },
-};
-
 const TRACK_CONFIG = {
   name: 'Python', accent: ACCENT, accentRgb: ACCENT_RGB,
   protagonist: 'Arjun', role: 'Aspiring Backend Engineer', company: 'Learning Python',
@@ -771,7 +760,7 @@ export default function PythonPreRead2({ onBack }: Props) {
   }, []);
 
   return (
-    <SWEPreReadLayout trackConfig={TRACK_CONFIG} moduleLabel="PYTHON PRE-READ 02" title="Writing Structured Python" sections={SECTIONS.map(section => ({ ...section, badge: PYTHON_PR2_BADGES[section.id as keyof typeof PYTHON_PR2_BADGES] }))} completedModules={completedModules} activeSection={activeSection} onBack={onBack}>
+    <SWEPreReadLayout trackConfig={TRACK_CONFIG} moduleLabel="PYTHON PRE-READ 02" title="Writing Structured Python" sections={SECTIONS} completedModules={completedModules} activeSection={activeSection} onBack={onBack}>
 
       {/* ── HERO ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '52px' }}>
