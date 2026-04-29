@@ -55,6 +55,20 @@ function AirtribeLogo() {
 
 // ─── Main Layout Component ───
 
+export interface PreReadBadge {
+  name: string;
+  symbol: string;
+  color: string;
+  description: string;
+}
+
+export interface PreReadSection {
+  id: string;
+  label: string;
+  icon?: string;
+  badge?: PreReadBadge;
+}
+
 export interface SWEPreReadLayoutProps {
   trackConfig: {
     name: string;
@@ -69,7 +83,7 @@ export interface SWEPreReadLayoutProps {
   };
   moduleLabel: string;
   title: string;
-  sections: { id: string; label: string; icon?: string }[];
+  sections: PreReadSection[];
   completedModules: Set<string>;
   activeSection: string | null;
   onBack: () => void;
@@ -322,15 +336,43 @@ export default function SWEPreReadLayout({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
                 {sections.map((s, i) => {
                   const done = completedModules.has(s.id);
+                  const badge = s.badge ?? {
+                    name: s.label,
+                    symbol: s.icon ?? 'XP',
+                    color: trackConfig.accent,
+                    description: `${s.label} badge`,
+                  };
                   return (
-                    <div key={i} style={{ 
+                    <div key={i} title={`${badge.name}: ${badge.description}`} style={{ 
                       aspectRatio: '1', borderRadius: '8px', 
-                      background: done ? `${trackConfig.accent}12` : 'var(--ed-cream)',
-                      border: done ? `1.5px solid ${trackConfig.accent}44` : '1px solid var(--ed-rule)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '14px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
-                      transition: 'all 0.3s'
+                      background: done ? `linear-gradient(145deg, ${badge.color}20 0%, var(--ed-card) 78%)` : 'var(--ed-cream)',
+                      border: done ? `1.5px solid ${badge.color}66` : '1px solid var(--ed-rule)',
+                      boxShadow: done ? `0 6px 18px ${badge.color}18, inset 0 1px 0 rgba(255,255,255,0.65)` : 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column',
+                      gap: '3px', padding: '6px 4px',
+                      filter: done ? 'none' : 'grayscale(1) opacity(0.42)',
+                      transition: 'all 0.3s', fontSize: 0
                     }}>
+                      <div style={{
+                        width: '28px', height: '28px', borderRadius: '50%',
+                        background: done ? badge.color : 'var(--ed-rule)',
+                        color: done ? '#fff' : 'var(--ed-ink3)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: badge.symbol.length > 2 ? '8px' : '10px',
+                        fontWeight: 900, letterSpacing: '0.02em',
+                        boxShadow: done ? `0 3px 10px ${badge.color}45` : 'none'
+                      }}>
+                        {done ? badge.symbol : 'LOCK'}
+                      </div>
+                      <div style={{
+                        maxWidth: '100%', color: done ? badge.color : 'var(--ed-ink3)',
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', fontWeight: 800,
+                        textTransform: 'uppercase', lineHeight: 1.1, textAlign: 'center',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                      }}>
+                        {badge.name}
+                      </div>
                       {done ? (s.icon ?? '✨') : '🔒'}
                     </div>
                   );

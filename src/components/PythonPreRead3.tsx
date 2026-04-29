@@ -23,6 +23,16 @@ const SECTIONS = [
   { id: 'pr3-reflection',    label: 'Backend Engineering Is More Than Logic',  icon: '🌍' },
 ];
 
+const PYTHON_PR3_BADGES = {
+  'pr3-file-io': { name: 'File Handler', symbol: 'IO', color: '#2563EB', description: 'Can read and write files safely using Python file I/O patterns.' },
+  'pr3-exceptions': { name: 'Failure Designer', symbol: 'TRY', color: '#D97706', description: 'Understands that errors are part of real systems and should be designed for.' },
+  'pr3-except-handle': { name: 'Traceback Reader', symbol: 'ERR', color: '#DC2626', description: 'Can handle specific exceptions and read failures without hiding useful information.' },
+  'pr3-environments': { name: 'Environment Isolator', symbol: 'VENV', color: '#7C3AED', description: 'Can explain why each project needs its own isolated dependency space.' },
+  'pr3-pip': { name: 'Package Installer', symbol: 'PIP', color: '#0F766E', description: 'Understands pip as a change to the project dependency environment.' },
+  'pr3-requirements': { name: 'Repro Keeper', symbol: 'REQ', color: '#0891B2', description: 'Can use requirements.txt to make a Python setup reproducible on another machine.' },
+  'pr3-reflection': { name: 'Real-World Runner', symbol: 'PR3', color: '#059669', description: 'Can think beyond logic toward runnable, shareable, reliable Python projects.' },
+};
+
 const TRACK_CONFIG = {
   name: 'Python', accent: ACCENT, accentRgb: ACCENT_RGB,
   protagonist: 'Arjun', role: 'Aspiring Backend Engineer', company: 'Learning Python',
@@ -796,7 +806,7 @@ export default function PythonPreRead3({ onBack }: Props) {
   }, []);
 
   return (
-    <SWEPreReadLayout trackConfig={TRACK_CONFIG} moduleLabel="PYTHON PRE-READ 03" title="Python in the Real World" sections={SECTIONS} completedModules={completedModules} activeSection={activeSection} onBack={onBack}>
+    <SWEPreReadLayout trackConfig={TRACK_CONFIG} moduleLabel="PYTHON PRE-READ 03" title="Python in the Real World" sections={SECTIONS.map(section => ({ ...section, badge: PYTHON_PR3_BADGES[section.id as keyof typeof PYTHON_PR3_BADGES] }))} completedModules={completedModules} activeSection={activeSection} onBack={onBack}>
 
       {/* HERO */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ marginBottom: '52px' }}>
