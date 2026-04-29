@@ -1,7 +1,18 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
 import type { SWETrack, SWELevel } from './sweTypes';
+
+// Section counts per Python module — used to derive completion percentage
+const PYTHON_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }> = {
+  '00': { moduleId: 'swe-pr-00',     total: 8 },
+  '01': { moduleId: 'python-pr-01',  total: 8 },
+  '02': { moduleId: 'python-pr-02',  total: 8 },
+  '03': { moduleId: 'python-pr-03',  total: 7 },
+};
+
+type ModuleStatus = 'locked' | 'available' | 'in-progress' | 'completed';
 
 // ── Shared module list (Python & Node.js) ──────────────────────────────────
 const SHARED_MODULES: { num: string; phase: string; label: string; baseDuration: string; tools: Record<string, string[]>; available: boolean; accent: string; desc?: string }[] = [
@@ -218,6 +229,18 @@ const LEVEL_BADGE: Record<SWELevel, { label: string; color: string; bg: string }
 export default function SWELaunchpadOverview({ track, level, onBack, onStartPreRead }: Props) {
   const meta = TRACK_META[track];
   const levelBadge = LEVEL_BADGE[level];
+  const completedSections = useLearnerStore(s => s.completedSections);
+
+  // Derive status for each Python module from the learner store
+  const getModuleStatus = (num: string, available: boolean): { status: ModuleStatus; pct: number; completedCount: number; totalSections: number } => {
+    if (!available) return { status: 'locked', pct: 0, completedCount: 0, totalSections: 0 };
+    if (track !== 'python' || !PYTHON_MODULE_SECTIONS[num]) return { status: 'available', pct: 0, completedCount: 0, totalSections: 0 };
+    const { moduleId, total } = PYTHON_MODULE_SECTIONS[num];
+    const completedCount = (completedSections[moduleId] ?? []).length;
+    if (completedCount === 0) return { status: 'available', pct: 0, completedCount: 0, totalSections: total };
+    if (completedCount >= total) return { status: 'completed', pct: 100, completedCount, totalSections: total };
+    return { status: 'in-progress', pct: Math.round((completedCount / total) * 100), completedCount, totalSections: total };
+  };
 
   const modules = track === 'java'
     ? JAVA_MODULES
@@ -328,70 +351,111 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
 
         {/* Module cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {modules.map((mod, i) => (
-            <motion.div
-              key={mod.num}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.04 }}
-              onClick={mod.available ? () => onStartPreRead(mod.num) : undefined}
-              style={{
-                borderRadius: '10px', padding: '18px 20px',
-                background: 'var(--ed-card)',
-                border: mod.available ? `1.5px solid ${mod.accent}` : '1px solid var(--ed-rule)',
-                borderLeft: `4px solid ${mod.available ? mod.accent : 'var(--ed-rule)'}`,
-                cursor: mod.available ? 'pointer' : 'default',
-                opacity: mod.available ? 1 : 0.65,
-                display: 'flex', alignItems: 'center', gap: '16px',
-                transition: 'box-shadow 0.2s, transform 0.2s',
-                boxShadow: mod.available ? `0 2px 12px ${mod.accent}14` : 'none',
-              }}
-              whileHover={mod.available ? { y: -2, boxShadow: `0 6px 20px ${mod.accent}22` } : {}}>
+          {modules.map((mod, i) => {
+            const { status, pct, completedCount, totalSections } = getModuleStatus(mod.num, mod.available);
+            const isClickable = status !== 'locked';
+            const accentColor = status === 'locked' ? 'var(--ed-rule)' : mod.accent;
 
-              <div style={{
-                width: '40px', height: '40px', borderRadius: '8px', flexShrink: 0,
-                background: mod.available ? mod.accent : 'var(--ed-cream)',
-                border: mod.available ? 'none' : '1px solid var(--ed-rule)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700,
-                color: mod.available ? '#fff' : 'var(--ed-ink3)',
-              }}>
-                {mod.num}
-              </div>
+            const ctaLabel = status === 'completed' ? 'Review →'
+              : status === 'in-progress' ? 'Continue →'
+              : status === 'available' ? 'Start →'
+              : null;
 
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' as const }}>
-                  <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif" }}>{mod.label}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: mod.accent, letterSpacing: '0.06em' }}>{mod.phase}</span>
-                  {mod.available && (
-                    <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em', background: mod.accent, color: '#fff' }}>
-                      AVAILABLE NOW
-                    </span>
+            const statusBadge = status === 'completed'
+              ? { label: 'COMPLETED', bg: `rgba(${mod.accent === '#16A34A' ? '22,163,74' : '22,163,74'},0.15)`, color: '#16A34A', border: 'rgba(22,163,74,0.4)' }
+              : status === 'in-progress'
+              ? { label: 'IN PROGRESS', bg: `${mod.accent}18`, color: mod.accent, border: `${mod.accent}40` }
+              : status === 'available'
+              ? { label: 'AVAILABLE', bg: `${mod.accent}18`, color: mod.accent, border: `${mod.accent}40` }
+              : null;
+
+            return (
+              <motion.div
+                key={mod.num}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.04 }}
+                onClick={isClickable ? () => onStartPreRead(mod.num) : undefined}
+                style={{
+                  borderRadius: '10px', padding: '18px 20px',
+                  background: status === 'completed' ? `rgba(22,163,74,0.04)` : 'var(--ed-card)',
+                  border: isClickable ? `1.5px solid ${accentColor}` : '1px solid var(--ed-rule)',
+                  borderLeft: `4px solid ${accentColor}`,
+                  cursor: isClickable ? 'pointer' : 'default',
+                  opacity: status === 'locked' ? 0.55 : 1,
+                  display: 'flex', alignItems: 'center', gap: '16px',
+                  transition: 'box-shadow 0.2s, transform 0.2s',
+                  boxShadow: isClickable ? `0 2px 12px ${mod.accent}14` : 'none',
+                }}
+                whileHover={isClickable ? { y: -2, boxShadow: `0 6px 20px ${mod.accent}22` } : {}}>
+
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '8px', flexShrink: 0,
+                  background: status === 'completed' ? '#16A34A'
+                    : isClickable ? mod.accent : 'var(--ed-cream)',
+                  border: isClickable ? 'none' : '1px solid var(--ed-rule)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700,
+                  color: isClickable ? '#fff' : 'var(--ed-ink3)',
+                }}>
+                  {status === 'completed' ? '✓' : mod.num}
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' as const }}>
+                    <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif" }}>{mod.label}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: mod.accent, letterSpacing: '0.06em' }}>{mod.phase}</span>
+                    {statusBadge && (
+                      <span style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em', background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}` }}>
+                        {statusBadge.label}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
+
+                  {/* Progress bar for in-progress modules */}
+                  {status === 'in-progress' && totalSections > 0 && (
+                    <div style={{ marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginBottom: '3px' }}>
+                        <span>{completedCount} of {totalSections} sections read</span>
+                        <span>{pct}%</span>
+                      </div>
+                      <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <motion.div animate={{ width: `${pct}%` }} style={{ height: '100%', background: mod.accent, borderRadius: '2px' }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completed summary */}
+                  {status === 'completed' && (
+                    <div style={{ marginBottom: '8px', fontSize: '9px', color: '#16A34A', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                      All {totalSections} sections completed
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>⏱ {mod.baseDuration}</span>
+                    <span style={{ color: 'var(--ed-rule)', fontSize: '10px' }}>·</span>
+                    {mod.tools.slice(0, 3).map((t: string) => (
+                      <span key={t} style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)' }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ flexShrink: 0 }}>
+                  {ctaLabel ? (
+                    <div style={{ padding: '8px 16px', borderRadius: '6px', background: status === 'completed' ? 'transparent' : mod.accent, color: status === 'completed' ? mod.accent : '#fff', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', whiteSpace: 'nowrap' as const, border: status === 'completed' ? `1.5px solid ${mod.accent}` : 'none' }}>
+                      {ctaLabel}
+                    </div>
+                  ) : (
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      🔒 COMING SOON
+                    </div>
                   )}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>⏱ {mod.baseDuration}</span>
-                  <span style={{ color: 'var(--ed-rule)', fontSize: '10px' }}>·</span>
-                  {mod.tools.slice(0, 3).map((t: string) => (
-                    <span key={t} style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)' }}>{t}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ flexShrink: 0 }}>
-                {mod.available ? (
-                  <div style={{ padding: '8px 16px', borderRadius: '6px', background: mod.accent, color: '#fff', fontSize: '13px', fontWeight: 600, fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
-                    Start →
-                  </div>
-                ) : (
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    🔒 COMING SOON
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Footer */}

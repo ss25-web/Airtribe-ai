@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
-import { MentorFace } from './pm-fundamentals/MentorFaces';
 import { TracebackReaderLab, FileFormatChooser, DependencyRepairSim, ReproducibilityChecklist, PR3HeroArtifact } from './PythonPreRead3Tools';
+import { PythonMentorFace } from './PythonMentorFace';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -805,13 +805,13 @@ export default function PythonPreRead3({ onBack }: Props) {
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '34px' }}>
           {([
-            { n:'Arjun', face:'priya' as const, r:'Backend Learner', d:'Can write Python. Now discovering that real development includes much more.', c:ACCENT },
-            { n:'Nisha', face:'asha'  as const, r:'Backend Mentor', d:'Helps understand the why behind engineering workflow and discipline.', c:'#0369A1' },
-            { n:'Kabir', face:'kiran' as const, r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' },
-            { n:'Meera', face:'maya'  as const, r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' },
+            { char: 'arjun' as const, n:'Arjun', r:'Backend Learner', d:'Can write Python. Now discovering that real development includes much more.', c:ACCENT },
+            { char: 'nisha' as const, n:'Nisha', r:'Backend Mentor', d:'Helps understand the why behind engineering workflow and discipline.', c:'#0369A1' },
+            { char: 'kabir' as const, n:'Kabir', r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' },
+            { char: 'meera' as const, n:'Meera', r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' },
           ]).map(c => (
             <div key={c.n} style={{ background: `${c.c}0D`, border: `1px solid ${c.c}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ marginBottom: '6px' }}><MentorFace mentor={c.face} size={38} /></div>
+              <div style={{ marginBottom: '6px' }}><PythonMentorFace char={c.char} size={38} /></div>
               <div style={{ fontWeight: 700, fontSize: '12px', color: c.c, marginBottom: '2px' }}>{c.n}</div>
               <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.r}</div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.d}</div>

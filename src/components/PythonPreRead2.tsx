@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
-import { MentorFace } from './pm-fundamentals/MentorFaces';
 import { ClassOrDictLab, CompositionVsInheritanceLab, ModuleArchitectureBuilder, PR2HeroArtifact } from './PythonPreRead2Tools';
+import { PythonMentorFace } from './PythonMentorFace';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -769,13 +769,13 @@ export default function PythonPreRead2({ onBack }: Props) {
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '34px' }}>
           {([
-            { name: 'Arjun', face: 'priya' as const, role: 'Backend Learner', desc: 'Understands Python basics. Now hitting the pain of unstructured code.', color: ACCENT },
-            { name: 'Nisha', face: 'asha'  as const, role: 'Backend Mentor', desc: 'Structure is not style. It is engineering safety.', color: '#0369A1' },
-            { name: 'Kabir', face: 'kiran' as const, role: 'Senior Backend Engineer', desc: 'Pushes for code organization, cleaner boundaries, stronger design.', color: '#7843EE' },
-            { name: 'Meera', face: 'maya'  as const, role: 'Data-focused Teammate', desc: 'Helps model code around real entities and relationships.', color: '#C85A40' },
+            { char: 'arjun' as const, name: 'Arjun', role: 'Backend Learner', desc: 'Understands Python basics. Now hitting the pain of unstructured code.', color: ACCENT },
+            { char: 'nisha' as const, name: 'Nisha', role: 'Backend Mentor', desc: 'Structure is not style. It is engineering safety.', color: '#0369A1' },
+            { char: 'kabir' as const, name: 'Kabir', role: 'Senior Backend Engineer', desc: 'Pushes for code organization, cleaner boundaries, stronger design.', color: '#7843EE' },
+            { char: 'meera' as const, name: 'Meera', role: 'Data-focused Teammate', desc: 'Helps model code around real entities and relationships.', color: '#C85A40' },
           ]).map(c => (
             <div key={c.name} style={{ background: `${c.color}0D`, border: `1px solid ${c.color}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ marginBottom: '6px' }}><MentorFace mentor={c.face} size={38} /></div>
+              <div style={{ marginBottom: '6px' }}><PythonMentorFace char={c.char} size={38} /></div>
               <div style={{ fontWeight: 700, fontSize: '12px', color: c.color, marginBottom: '2px' }}>{c.name}</div>
               <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.role}</div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>

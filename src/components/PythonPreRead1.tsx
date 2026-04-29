@@ -7,9 +7,9 @@ import {
   ChapterSection, para, h2, keyBox, ApplyItBox,
 } from './pm-fundamentals/designSystem';
 import SWEPreReadLayout from './SWEPreReadLayout';
-import { MentorFace } from './pm-fundamentals/MentorFaces';
 import QuizEngine from './QuizEngine';
 import { PredictOutput, PR1HeroArtifact } from './PythonPreRead1Tools';
+import { PythonMentorFace } from './PythonMentorFace';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -650,13 +650,13 @@ export default function PythonPreRead1({ onBack }: Props) {
         {/* Characters */}
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '36px' }}>
           {([
-            { name: 'Arjun', face: 'priya' as const,  role: 'Aspiring Backend Engineer', desc: 'Can write small snippets. Learning how Python code holds together.', color: ACCENT },
-            { name: 'Nisha', face: 'asha'  as const,  role: 'Backend Mentor',            desc: 'Teaches first principles, not shortcuts.', color: '#0369A1' },
-            { name: 'Kabir', face: 'kiran' as const,  role: 'Senior Backend Engineer',   desc: 'Cares about readable, reusable, and safe code.', color: '#7843EE' },
-            { name: 'Meera', face: 'maya'  as const,  role: 'Data-focused Teammate',     desc: 'Thinks in structures, patterns, and clean transformations.', color: '#C85A40' },
+            { char: 'arjun' as const, name: 'Arjun', role: 'Aspiring Backend Engineer', desc: 'Can write small snippets. Learning how Python code holds together.', color: ACCENT },
+            { char: 'nisha' as const, name: 'Nisha', role: 'Backend Mentor',            desc: 'Teaches first principles, not shortcuts.', color: '#0369A1' },
+            { char: 'kabir' as const, name: 'Kabir', role: 'Senior Backend Engineer',   desc: 'Cares about readable, reusable, and safe code.', color: '#7843EE' },
+            { char: 'meera' as const, name: 'Meera', role: 'Data-focused Teammate',     desc: 'Thinks in structures, patterns, and clean transformations.', color: '#C85A40' },
           ]).map(c => (
             <div key={c.name} style={{ background: `${c.color}0D`, border: `1px solid ${c.color}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
-              <div style={{ marginBottom: '8px' }}><MentorFace mentor={c.face} size={40} /></div>
+              <div style={{ marginBottom: '8px' }}><PythonMentorFace char={c.char} size={40} /></div>
               <div style={{ fontWeight: 700, fontSize: '13px', color: c.color, marginBottom: '2px' }}>{c.name}</div>
               <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '6px' }}>{c.role}</div>
               <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
