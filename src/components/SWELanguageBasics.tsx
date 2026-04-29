@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import type { SWETrack, SWELevel } from './sweTypes';
@@ -36,35 +36,40 @@ interface Props {
 const MODULE_ID = 'swe-pr-00';
 
 export default function SWELanguageBasics({ track, level, onBack }: Props) {
-  const store = useLearnerStore();
+  const markSectionCompleted = useLearnerStore(s => s.markSectionCompleted);
+  const storedSections = useLearnerStore(s => s.completedSections[MODULE_ID] ?? []);
+
   const [hydrated, setHydrated] = useState(false);
   const [activeSection, setActiveSection] = useState('identity');
-
-  // Sync with global store
-  const completedModules = useMemo(() => {
-    return new Set(store.completedSections[MODULE_ID] || ['identity']);
-  }, [store.completedSections]);
+  const [completedModules, setCompletedModules] = useState<Set<string>>(new Set(['identity']));
 
   useEffect(() => {
+    // Restore persisted progress and always include the default 'identity' section
+    setCompletedModules(new Set(['identity', ...storedSections]));
     setHydrated(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('data-nav-id');
-          if (id) {
-            setActiveSection(id);
-            store.markSectionCompleted(MODULE_ID, id);
+    if (!hydrated) return;
+    let obs: IntersectionObserver | null = null;
+    const tid = setTimeout(() => {
+      obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('data-nav-id');
+            if (id) {
+              setActiveSection(id);
+              setCompletedModules(prev => { const n = new Set(prev); n.add(id); return n; });
+              markSectionCompleted(MODULE_ID, id);
+            }
           }
-        }
-      });
-    }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
-    
-    document.querySelectorAll('[data-nav-id]').forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [hydrated]);
+        });
+      }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
+      document.querySelectorAll('[data-nav-id]').forEach(el => obs!.observe(el));
+    }, 150);
+    return () => { clearTimeout(tid); obs?.disconnect(); };
+  }, [hydrated, markSectionCompleted]);
 
   if (!hydrated) return null;
 
@@ -259,7 +264,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                   problem="Define variables and observe behavior."
                   initialCode={track === 'java' ? 'int x = 10;\nString y = "20";\n// Try System.out.println(x + y);' : 'const x = 10;\nconst y = "20";\n// Try console.log(x + y);'}
                   hint="Check the types before adding."
-                  onRun={() => store.markSectionCompleted(MODULE_ID, 'types')}
+                  onRun={() => markSectionCompleted(MODULE_ID, 'types')}
                   evaluateOutput={(code) => {
                     const hasOutput = code.includes('console.log(x + y)') || code.includes('System.out.println(x + y)');
                     if (hasOutput && code.includes('"20"')) return { status: 'success', text: '1020' };
@@ -276,7 +281,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                   problem="Trigger the alternate logic block."
                   initialCode={track === 'java' ? 'boolean active = false;\nif (active) {\n    System.out.println("System ON");\n} else {\n    System.out.println("System OFF");\n}' : 'const active = false;\nif (active) {\n    console.log("System ON");\n} else {\n    console.log("System OFF");\n}'}
                   hint="Change active to true."
-                  onRun={() => store.markSectionCompleted(MODULE_ID, 'flow')}
+                  onRun={() => markSectionCompleted(MODULE_ID, 'flow')}
                   evaluateOutput={(code) => {
                     const isActive = code.includes('true') && !code.includes('false');
                     return { status: 'success', text: isActive ? 'System ON' : 'System OFF' };
@@ -291,7 +296,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                   problem="Automate a repetitive task with a loop."
                   initialCode={track === 'java' ? 'for (int i = 1; i <= 3; i++) {\n    System.out.println("Loading record " + i + "...");\n}' : 'for (let i = 1; i <= 3; i++) {\n    console.log("Loading record " + i + "...");\n}'}
                   hint="Change the range or limit to 10."
-                  onRun={() => store.markSectionCompleted(MODULE_ID, 'loops')}
+                  onRun={() => markSectionCompleted(MODULE_ID, 'loops')}
                   evaluateOutput={(code) => {
                     const match = code.match(/<=\s*(\d+)/);
                     let limit = 4;
@@ -310,7 +315,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                   problem="Encapsulate logic in a reusable function."
                   initialCode={track === 'java' ? 'public static String greet(String name) {\n    return "Hello, " + name + "!";\n}\n\nSystem.out.println(greet("Vikram"));' : 'const greet = (name) => `Hello, ${name}!`;\n\nconsole.log(greet("Leo"));'}
                   hint="Call the function with your own name."
-                  onRun={() => store.markSectionCompleted(MODULE_ID, 'functions')}
+                  onRun={() => markSectionCompleted(MODULE_ID, 'functions')}
                   evaluateOutput={(code) => {
                     const match = code.match(/greet\(\s*['"]([^'"]+)['"]\s*\)/);
                     const name = match ? match[1] : (track === 'java' ? 'Vikram' : 'Leo');
@@ -345,7 +350,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
                     problem="Use a fast-lookup structure (Dictionary/Map)."
                     initialCode={track === 'java' ? 'Map<String, Integer> prices = Map.of("apple", 50, "berry", 120);\nSystem.out.println("Price of berry: " + prices.get("berry"));' : 'const prices = { apple: 50, berry: 120 };\nconsole.log("Price of berry:", prices.berry);'}
                     hint="Look up the price of an apple."
-                    onRun={() => store.markSectionCompleted(MODULE_ID, 'dataStructures')}
+                    onRun={() => markSectionCompleted(MODULE_ID, 'dataStructures')}
                     evaluateOutput={(code) => {
                       if (code.includes('apple')) return { status: 'success', text: 'Price of apple: 50' };
                       return { status: 'success', text: 'Price of berry: 120' };
