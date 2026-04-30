@@ -6,6 +6,7 @@ import { useLearnerStore } from '@/lib/learnerStore';
 import type { Track } from './pm-fundamentals/designSystem';
 import Track1UXDesign from './pm-fundamentals/Track1UXDesign';
 import Track2UXDesign from './pm-fundamentals/Track2UXDesign';
+import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 
 const ROMAN = ['I','II','III','IV','V','VI','VII'];
 const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
@@ -76,25 +77,7 @@ function getNextLevel(xp: number) {
   return idx === -1 ? null : LEVELS[idx];
 }
 
-// ─────────────────────────────────────────
-// AIRTRIBE LOGO
-// ─────────────────────────────────────────
-function AirtribeLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: 'linear-gradient(135deg, #7843EE 0%, #4F46E5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(120,67,238,0.3)' }}>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-          <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </div>
-      <div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', letterSpacing: '-0.02em', lineHeight: 1 }}>Airtribe</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', lineHeight: 1, marginTop: '2px', textTransform: 'uppercase' as const }}>Learn</div>
-      </div>
-    </div>
-  );
-}
+// AirtribeLogo imported from AirtribeBrand.tsx
 
 // ─────────────────────────────────────────
 // LEFT NAV
@@ -407,7 +390,7 @@ export default function UXDesignModule({ onBack, track }: Props) {
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
             </div>
 
-            <div style={{ width: '80px', flexShrink: 0 }} />
+            <DarkModeToggle />
           </motion.div>
           <div className="airtribe-bar" />
         </div>

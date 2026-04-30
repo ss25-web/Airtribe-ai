@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import { SWEMentorFace } from './sweDesignSystem';
+import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 
 // ─── Constants ───
 const SECTION_XP = 50;
@@ -31,27 +32,7 @@ function getNextLevel(total: number) {
 
 // ─── Components ───
 
-function AirtribeLogo() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ 
-        width: '28px', height: '28px', borderRadius: '7px', 
-        background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)', 
-        display: 'flex', alignItems: 'center', justifyContent: 'center', 
-        boxShadow: '0 2px 8px rgba(124,58,237,0.3)' 
-      }}>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-          <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </div>
-      <div>
-        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1 }}>Airtribe</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 600, color: 'var(--ed-ink3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Learn</div>
-      </div>
-    </div>
-  );
-}
+// AirtribeLogo imported from AirtribeBrand.tsx
 
 // ─── Main Layout Component ───
 
@@ -185,6 +166,7 @@ export default function SWEPreReadLayout({
                 </div>
               </div>
             </div>
+            <DarkModeToggle />
           </div>
         </div>
       </header>

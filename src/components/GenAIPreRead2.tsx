@@ -10,6 +10,7 @@ import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
   chLabel, h2, keyBox, para, pullQuote, TiltCard,
 } from './pm-fundamentals/designSystem';
+import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 
 const ACCENT = '#2563EB';
 const ACCENT_RGB = '37,99,235';
@@ -202,14 +203,9 @@ function getNextLevel(total: number) {
   return null;
 }
 
-// --- Shared Components ---
+// AirtribeLogo imported from AirtribeBrand.tsx
 
-const AirtribeLogo: React.FC = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="2" y="2" width="20" height="20" rx="4" fill="#2563EB" />
-    <path d="M7 17L12 7L17 17H15L12 11L9 17H7Z" fill="white" />
-  </svg>
-);
+// --- Shared Components ---
 
 // --- Interactive Tool Components ---
 
@@ -1789,7 +1785,7 @@ export default function GenAIPreRead2({ track, onBack }: Props) {
               </div>
               <span style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
             </div>
-            <div style={{ width: '80px', flexShrink: 0 }} />
+            <DarkModeToggle />
           </motion.div>
         </div>
       </div>
