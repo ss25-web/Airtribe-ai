@@ -4,19 +4,23 @@ import React, { useEffect, useState } from 'react';
 
 // ─── Correct Airtribe logo — two interlocking chevron/diamond shapes ──────────
 
-export function AirtribeLogo() {
+export function AirtribeLogo({ color = 'var(--ed-ink)' }: { color?: string } = {}) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      {/* Two-tone geometric mark matching Airtribe brand */}
-      <svg width="28" height="20" viewBox="0 0 28 20" fill="none">
-        <path d="M0 10L7 0L14 10L7 20Z" fill="#8B5CF6" />
-        <path d="M8 10L15 0L22 10L15 20Z" fill="#4338CA" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+      {/*
+        Two overlapping diamond/chevron shapes — no background box.
+        Left: lighter violet #8B5CF6  Right: deeper indigo #4338CA
+        They overlap at roughly 40% of their width, right draws on top.
+      */}
+      <svg width="30" height="22" viewBox="0 0 30 22" fill="none">
+        <path d="M0 11L9 0L18 11L9 22Z" fill="#8B5CF6" />
+        <path d="M8 11L17 0L26 11L17 22Z" fill="#4338CA" />
       </svg>
       <span style={{
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         fontSize: '14px',
         fontWeight: 700,
-        color: 'var(--ed-ink)',
+        color,
         letterSpacing: '-0.02em',
         lineHeight: 1,
       }}>
