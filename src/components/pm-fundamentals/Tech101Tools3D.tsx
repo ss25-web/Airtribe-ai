@@ -122,90 +122,151 @@ export function FeatureToSystemMapper() {
 }
 
 // ─── 2. LOADING STATE DESIGN BOARD ───────────────────────────────────────────
+// Three states shown side-by-side — comparison is immediate, no toggling needed.
 
-const LOADING_STATES = [
+const PANEL_STATES = [
   {
-    id: 'none', label: 'No feedback', color: '#EF4444',
-    mood: 'Confused', moodDesc: 'User cannot tell if the click worked.',
-    ui: 'blank',
+    id: 'none',
+    label: 'No feedback',
+    color: '#EF4444',
+    mood: 'Confused',
+    moodDesc: 'Did my click do anything?',
+    verdict: 'User abandons or clicks repeatedly.',
   },
   {
-    id: 'spinner', label: 'Spinner only', color: '#CA8A04',
-    mood: 'Uncertain', moodDesc: 'User knows something is happening but not when it ends.',
-    ui: 'spinner',
+    id: 'spinner',
+    label: 'Spinner only',
+    color: '#CA8A04',
+    mood: 'Uncertain',
+    moodDesc: 'Something is happening... when will it end?',
+    verdict: 'User waits anxiously. No trust signal.',
   },
   {
-    id: 'full', label: 'Progress + context + ETA', color: '#16A34A',
-    mood: 'Informed', moodDesc: 'User understands the state. Trust is preserved.',
-    ui: 'full',
+    id: 'full',
+    label: 'Progress + context',
+    color: '#16A34A',
+    mood: 'Informed',
+    moodDesc: 'Generating report — about 3 seconds.',
+    verdict: 'User stays calm. Trust preserved.',
   },
 ];
 
-export function LoadingStateDesignBoard() {
-  const [state, setState] = useState(1);
-  const ls = LOADING_STATES[state];
-
+function DashboardPanel({ panel }: { panel: typeof PANEL_STATES[0] }) {
   return (
-    <ToolShell title="Loading State Design Board" subtitle="What must the product communicate when the system is busy?">
-      {/* Toggle */}
-      <div style={{ padding: '14px 20px', borderBottom: '1px solid var(--ed-rule)', display: 'flex', gap: '8px' }}>
-        {LOADING_STATES.map((s, i) => (
-          <button key={s.id} onClick={() => setState(i)}
-            style={{ flex: 1, padding: '7px 10px', borderRadius: '7px', border: `1.5px solid ${state === i ? s.color : 'var(--ed-rule)'}`, background: state === i ? `${s.color}12` : 'var(--ed-bg)', color: state === i ? s.color : 'var(--ed-ink3)', fontSize: '10px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>
-            {s.label}
-          </button>
-        ))}
+    <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Panel label */}
+      <div style={{ padding: '6px 10px', borderRadius: '6px 6px 0 0', background: `${panel.color}15`, border: `1px solid ${panel.color}30`, borderBottom: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: '10px', fontWeight: 700, color: panel.color }}>{panel.label}</div>
+        <div style={{ width: 8, height: 8, borderRadius: '50%', background: panel.color }} />
       </div>
 
-      {/* Dashboard preview */}
-      <div style={{ padding: '16px 20px' }}>
-        <div style={{ borderRadius: '10px', overflow: 'hidden', background: '#0f172a', border: `1px solid ${ls.color}30` }}>
-          {/* Header bar */}
-          <div style={{ padding: '10px 14px', background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#94a3b8' }}>Admin Workspace Report</div>
-            <div style={{ padding: '3px 10px', borderRadius: '4px', background: `${ls.color}20`, fontSize: '9px', color: ls.color, fontWeight: 700 }}>{ls.mood}</div>
+      {/* Mock dashboard window */}
+      <div style={{ borderRadius: '0 0 8px 8px', overflow: 'hidden', background: '#0f172a', border: `1px solid ${panel.color}30` }}>
+        {/* Window chrome */}
+        <div style={{ padding: '7px 10px', background: '#1e293b', display: 'flex', alignItems: 'center', gap: '5px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+          {['#EF4444', '#F59E0B', '#10B981'].map((c, i) => (
+            <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: c, opacity: 0.7 }} />
+          ))}
+          <div style={{ marginLeft: '6px', flex: 1, height: 10, borderRadius: '3px', background: 'rgba(255,255,255,0.05)' }} />
+        </div>
+
+        {/* Table header */}
+        <div style={{ padding: '8px 10px 4px', display: 'flex', gap: '4px' }}>
+          {['Team', 'Sessions', 'Export'].map((h, i) => (
+            <div key={i} style={{ flex: i === 0 ? 2 : 1, height: 16, borderRadius: '2px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', paddingLeft: '4px' }}>
+              <div style={{ width: '50%', height: 6, borderRadius: '1px', background: 'rgba(255,255,255,0.15)' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Table body — all rows blank/loading */}
+        <div style={{ padding: '4px 10px 10px', display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+          {[0, 1, 2].map(r => (
+            <div key={r} style={{ display: 'flex', gap: '4px' }}>
+              {[0, 1, 2].map(c => (
+                <div key={c} style={{ flex: c === 0 ? 2 : 1, height: 20, borderRadius: '3px', background: 'rgba(255,255,255,0.04)', position: 'relative' as const, overflow: 'hidden' }}>
+                  {panel.id === 'none' && (
+                    /* Nothing — blank area */
+                    <div />
+                  )}
+                  {panel.id === 'spinner' && (
+                    /* Shimmer effect */
+                    <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'linear', delay: r * 0.15 }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(202,138,4,0.12), transparent)' }} />
+                  )}
+                  {panel.id === 'full' && (
+                    /* Same shimmer but green tint */
+                    <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear', delay: r * 0.12 }}
+                      style={{ position: 'absolute', top: 0, left: 0, width: '40%', height: '100%', background: 'linear-gradient(90deg, transparent, rgba(22,163,74,0.12), transparent)' }} />
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Status bar */}
+        <div style={{ padding: '8px 10px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.04)', minHeight: '40px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '4px' }}>
+          {panel.id === 'none' && (
+            <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.08)', textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace" }}>—</div>
+          )}
+          {panel.id === 'spinner' && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                style={{ width: 12, height: 12, borderRadius: '50%', border: '2px solid rgba(202,138,4,0.2)', borderTop: '2px solid #CA8A04' }} />
+              <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace" }}>Loading...</div>
+            </div>
+          )}
+          {panel.id === 'full' && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '8px', color: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace" }}>
+                <span>Generating report...</span>
+                <span style={{ color: '#16A34A' }}>~3s</span>
+              </div>
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                <motion.div animate={{ width: ['20%', '70%', '85%'] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ height: '100%', background: '#16A34A', borderRadius: '2px' }} />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Reaction label */}
+      <div style={{ marginTop: '8px', padding: '8px 10px', borderRadius: '6px', background: `${panel.color}08`, border: `1px solid ${panel.color}20` }}>
+        <div style={{ fontSize: '10px', fontWeight: 700, color: panel.color, marginBottom: '2px' }}>{panel.mood}</div>
+        <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{panel.moodDesc}</div>
+        <div style={{ marginTop: '4px', fontSize: '9px', color: 'var(--ed-ink3)' }}>{panel.verdict}</div>
+      </div>
+    </div>
+  );
+}
+
+export function LoadingStateDesignBoard() {
+  return (
+    <TiltCard style={{ margin: '32px 0' }}>
+      <div style={{ borderRadius: '16px', overflow: 'hidden', border: `1.5px solid ${ACCENT}30`, boxShadow: `0 8px 40px rgba(${ACCENT_RGB},0.12)`, background: 'var(--ed-card)' }}>
+        <div style={{ background: 'linear-gradient(135deg, #1a0a2e 0%, #0f0f1a 100%)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ width: 32, height: 32, borderRadius: '8px', background: `${ACCENT}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: 14, height: 14, borderRadius: '3px', background: ACCENT }} />
           </div>
-          <div style={{ padding: '20px', minHeight: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <AnimatePresence mode="wait">
-              {ls.ui === 'blank' && (
-                <motion.div key="blank" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  style={{ textAlign: 'center', color: 'rgba(255,255,255,0.15)', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace" }}>
-                  — nothing —
-                </motion.div>
-              )}
-              {ls.ui === 'spinner' && (
-                <motion.div key="spinner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    style={{ width: 24, height: 24, borderRadius: '50%', border: `3px solid rgba(255,255,255,0.1)`, borderTop: `3px solid ${ls.color}` }} />
-                  <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace" }}>Loading...</div>
-                </motion.div>
-              )}
-              {ls.ui === 'full' && (
-                <motion.div key="full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>
-                    <span>Generating workspace report...</span>
-                    <span style={{ color: ls.color }}>~3s remaining</span>
-                  </div>
-                  <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <motion.div animate={{ width: ['30%', '75%', '90%'] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                      style={{ height: '100%', background: ls.color, borderRadius: '3px' }} />
-                  </div>
-                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Aggregating data across 4 teams · 847 sessions</div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: '#F1F5F9', fontFamily: "'JetBrains Mono', monospace" }}>Loading State Design Board</div>
+            <div style={{ fontSize: '10px', color: 'rgba(241,245,249,0.45)', fontFamily: "'JetBrains Mono', monospace" }}>The same report-load interaction — three different UX decisions</div>
           </div>
         </div>
 
-        {/* Emotional interpretation */}
-        <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', background: `${ls.color}08`, border: `1px solid ${ls.color}25` }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: ls.color, marginBottom: '3px' }}>{ls.mood}</div>
-          <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{ls.moodDesc}</div>
+        <div style={{ padding: '20px', display: 'flex', gap: '12px' }}>
+          {PANEL_STATES.map(panel => (
+            <DashboardPanel key={panel.id} panel={panel} />
+          ))}
+        </div>
+
+        <div style={{ padding: '10px 20px', background: 'var(--ed-cream)', borderTop: '1px solid var(--ed-rule)', fontSize: '11px', color: 'var(--ed-ink3)' }}>
+          Loading states are a product requirement. When the system is busy, the product must communicate — the design decision is what it says and how clearly.
         </div>
       </div>
-    </ToolShell>
+    </TiltCard>
   );
 }
 

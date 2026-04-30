@@ -19,18 +19,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ACCENT = '#7843EE';
 const ACCENT_RGB = '120,67,238';
 
-const AnimationShell = ({ title, caption, children }: {
-  title: string; caption: string; children: React.ReactNode;
+const AnimationShell = ({ caption, children }: {
+  title?: string; caption: string; children: React.ReactNode;
 }) => (
-  <div style={{ margin: '28px 0', borderRadius: '16px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25`, boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-    <div style={{ padding: '10px 18px', background: `linear-gradient(135deg, ${ACCENT}18 0%, ${ACCENT}08 100%)`, borderBottom: `1px solid ${ACCENT}20`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.14em', color: ACCENT, textTransform: 'uppercase' as const }}>System Visual</div>
-      <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>&middot; {title}</div>
-    </div>
-    <div style={{ padding: '28px 24px', background: `linear-gradient(160deg, rgba(${ACCENT_RGB},0.04) 0%, rgba(${ACCENT_RGB},0.02) 100%)`, minHeight: '200px' }}>
+  <div style={{ margin: '32px 0' }}>
+    <div style={{ borderRadius: '16px', overflow: 'hidden', background: 'var(--ed-card)', border: `1px solid var(--ed-rule)`, boxShadow: '0 2px 16px rgba(0,0,0,0.06)', borderLeft: `4px solid ${ACCENT}` }}>
       {children}
     </div>
-    <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.5 }}>
+    <div style={{ padding: '8px 4px 0', fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.6 }}>
       {caption}
     </div>
   </div>
@@ -62,8 +58,8 @@ export function LayeredStackVisual() {
   }, [flowDir]);
 
   return (
-    <AnimationShell title="Layered Product Cross-Section" caption="One user action (click filter, tap export) travels through every layer. A PM request that feels like one thing is multiple system responsibilities at once.">
-      <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+    <AnimationShell caption="One user action (click filter, tap export) travels through every layer. A PM request that feels like one thing is multiple system responsibilities at once.">
+      <div style={{ padding: '28px 24px', display: 'flex', gap: '24px', alignItems: 'center' }}>
         {/* Stack layers */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
           {STACK_LAYERS.map((layer, i) => {
@@ -122,7 +118,8 @@ export function LatencyPressureVisual() {
   const state = LATENCY_STATES[idx];
 
   return (
-    <AnimationShell title="Latency Pressure Visual" caption="The same dashboard in three response-speed conditions. When system timing changes user trust, timing becomes part of the product design — not just an engineering concern.">
+    <AnimationShell caption="The same dashboard in three response-speed conditions. When system timing changes user trust, timing becomes part of the product design — not just an engineering concern.">
+      <div style={{ padding: '24px' }}>
       {/* Dashboard mock */}
       <div style={{ borderRadius: '12px', overflow: 'hidden', border: `2px solid ${state.color}40`, background: '#0f172a', maxWidth: '480px', margin: '0 auto' }}>
         {/* Browser bar */}
@@ -181,91 +178,123 @@ export function LatencyPressureVisual() {
           </div>
         </div>
       </div>
+      </div>
     </AnimationShell>
   );
 }
 
 // ─── 3. SCHEMA RELATIONSHIP BOARD ────────────────────────────────────────────
+// Pure SVG approach — all entities and lines in one coordinate space, no misalignment.
 
-const ENTITIES = [
-  { id: 'users',      label: 'Users',      x: 80,  y: 40,  color: '#3B82F6' },
-  { id: 'teams',      label: 'Teams',      x: 280, y: 40,  color: ACCENT    },
-  { id: 'workspaces', label: 'Workspaces', x: 80,  y: 160, color: '#0097A7' },
-  { id: 'events',     label: 'Events',     x: 280, y: 160, color: '#CA8A04' },
-];
+// SVG layout (viewBox 560×260):
+//   Users      rect at (40,  40) 110×44  — top-left
+//   Teams      rect at (410, 40) 110×44  — top-right
+//   Workspaces rect at (40, 175) 110×44  — bottom-left
+//   Events     rect at (410,175) 110×44  — bottom-right
+//
+// Lines:
+//   Users → Teams:      (150,62) → (410,62)      "belongs to" ✓
+//   Teams → Workspaces: (465,84) → (465,175) ↓ to (150,199)  "owns" ✗ MISSING
+//   Users → Workspaces: (95,84)  → (95,175)       "uses" ✓
+//   Workspaces → Events:(150,197)→ (410,197)       "generates" ✓
 
-const RELATIONSHIPS = [
-  { from: 'users',      to: 'teams',      label: 'belongs to',   exists: true  },
-  { from: 'teams',      to: 'workspaces', label: 'owns',         exists: false }, // missing!
-  { from: 'users',      to: 'workspaces', label: 'uses',         exists: true  },
-  { from: 'workspaces', to: 'events',     label: 'generates',    exists: true  },
+const SCHEMA_STEPS = [
+  { entity: 'Users',      ex1: 40,  ey1: 40,  ew: 110, eh: 44, color: '#3B82F6', rx: 95,  ry: 62 },
+  { entity: 'Teams',      ex1: 410, ey1: 40,  ew: 110, eh: 44, color: ACCENT,    rx: 465, ry: 62 },
+  { entity: 'Workspaces', ex1: 40,  ey1: 175, ew: 110, eh: 44, color: '#0097A7', rx: 95,  ry: 197 },
+  { entity: 'Events',     ex1: 410, ey1: 175, ew: 110, eh: 44, color: '#CA8A04', rx: 465, ry: 197 },
 ];
 
 export function SchemaRelationshipBoard() {
-  const [phase, setPhase] = useState(0);
-  const [queryVisible, setQueryVisible] = useState(false);
+  const [step, setStep] = useState(0); // 0=nothing, 1-4=entities, 5=lines, 6=query
+  const [queryOn, setQueryOn] = useState(false);
 
   useEffect(() => {
-    const timings = [1000, 1200, 1200, 1200, 1800, 3000];
     let t: ReturnType<typeof setTimeout>;
-    const run = (p: number) => {
+    const schedule = [800, 600, 600, 600, 1000, 2000, 3000];
+    const advance = (s: number) => {
       t = setTimeout(() => {
-        setPhase(p + 1);
-        if (p + 1 === 4) setQueryVisible(true);
-        if (p + 1 < timings.length) run(p + 1);
-        else setTimeout(() => { setPhase(0); setQueryVisible(false); }, 2000);
-      }, timings[p]);
+        const next = s + 1;
+        setStep(next);
+        if (next === 6) setQueryOn(true);
+        if (next < schedule.length) advance(next);
+        else setTimeout(() => { setStep(0); setQueryOn(false); }, 1500);
+      }, schedule[s]);
     };
-    run(0);
+    advance(step < 1 ? 0 : -1);
     return () => clearTimeout(t);
-  }, [phase < 1 ? phase : -1]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step === 0 ? step : -1]);
 
-  const getEntityPos = (id: string) => ENTITIES.find(e => e.id === id) ?? ENTITIES[0];
+  // Which lines are lit at current step (step >= 5 means all entities shown)
+  const linesLit = step >= 5;
 
   return (
-    <AnimationShell title="Schema Relationship Board" caption="Relationships between users, teams, workspaces, and events illuminate one by one. One missing relationship stays dark — blocking a reporting request. Product capability depends on data shape.">
-      <div style={{ position: 'relative', height: '220px', maxWidth: '420px', margin: '0 auto' }}>
-        {/* SVG connections */}
-        <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-          {RELATIONSHIPS.map((rel, i) => {
-            const from = getEntityPos(rel.from);
-            const to   = getEntityPos(rel.to);
-            const isLit = phase > i;
+    <AnimationShell caption="Relationships between users, teams, workspaces, and events illuminate one by one. One missing relationship stays dark — and blocks a reporting query. Product capability depends on data structure.">
+      <div style={{ padding: '24px 20px', background: '#0f172a' }}>
+        <svg viewBox="0 0 560 260" style={{ width: '100%', height: 'auto', display: 'block' }}>
+          {/* ── Lines (drawn behind entities) ── */}
+
+          {/* Users → Teams: belongs to */}
+          <motion.line x1={150} y1={62} x2={410} y2={62}
+            stroke={linesLit ? '#3B82F6' : 'rgba(255,255,255,0.06)'}
+            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
+          {linesLit && <text x={280} y={55} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace">belongs to</text>}
+
+          {/* Users → Workspaces: uses (vertical left) */}
+          <motion.line x1={95} y1={84} x2={95} y2={175}
+            stroke={linesLit ? '#0097A7' : 'rgba(255,255,255,0.06)'}
+            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
+          {linesLit && <text x={73} y={132} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace" transform="rotate(-90 73 132)">uses</text>}
+
+          {/* Workspaces → Events: generates (horizontal bottom) */}
+          <motion.line x1={150} y1={197} x2={410} y2={197}
+            stroke={linesLit ? '#CA8A04' : 'rgba(255,255,255,0.06)'}
+            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
+          {linesLit && <text x={280} y={212} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace">generates</text>}
+
+          {/* Teams → Workspaces: MISSING (dashed red) */}
+          <motion.line x1={465} y1={84} x2={465} y2={175}
+            stroke={linesLit ? '#EF4444' : 'rgba(255,255,255,0.04)'}
+            strokeWidth={linesLit ? 2 : 1}
+            strokeDasharray={linesLit ? '5 4' : '0'}
+            animate={{ opacity: linesLit ? 0.8 : 0.08 }} transition={{ duration: 0.4 }} />
+          {linesLit && (
+            <>
+              <text x={490} y={132} fontSize="9" fill="#EF4444" textAnchor="middle" fontFamily="monospace" transform="rotate(90 490 132)">⚠ missing</text>
+            </>
+          )}
+
+          {/* ── Entity rectangles ── */}
+          {SCHEMA_STEPS.map((e, i) => {
+            const visible = step > i;
             return (
-              <g key={i}>
-                <motion.line x1={from.x + 40} y1={from.y + 20} x2={to.x + 40} y2={to.y + 20}
-                  stroke={isLit ? (rel.exists ? rel.from === 'teams' && rel.to === 'workspaces' ? ENTITIES[1].color : ENTITIES[ENTITIES.findIndex(e => e.id === rel.from)].color : '#EF4444') : 'rgba(0,0,0,0.08)'}
-                  strokeWidth={isLit ? 2 : 1} strokeDasharray={rel.exists ? '0' : '4 3'}
-                  animate={{ opacity: isLit ? (rel.exists ? 1 : 0.7) : 0.2 }} />
-                {isLit && (
-                  <text x={(from.x + to.x) / 2 + 40} y={(from.y + to.y) / 2 + 20 - 6}
-                    fontSize="8" fill={rel.exists ? 'var(--ed-ink3)' : '#EF4444'} textAnchor="middle" fontFamily="'JetBrains Mono', monospace">
-                    {rel.exists ? rel.label : '⚠ missing'}
-                  </text>
-                )}
+              <g key={e.entity}>
+                <motion.rect x={e.ex1} y={e.ey1} width={e.ew} height={e.eh} rx={8}
+                  fill={visible ? `${e.color}22` : 'rgba(255,255,255,0.03)'}
+                  stroke={visible ? e.color : 'rgba(255,255,255,0.08)'}
+                  strokeWidth={visible ? 2 : 1}
+                  animate={{ opacity: visible ? 1 : 0.2 }}
+                  transition={{ duration: 0.35 }} />
+                <text x={e.ex1 + e.ew / 2} y={e.ey1 + 27} textAnchor="middle"
+                  fontSize="13" fontWeight="700" fontFamily="sans-serif"
+                  fill={visible ? e.color : 'rgba(255,255,255,0.15)'}>
+                  {e.entity}
+                </text>
               </g>
             );
           })}
-        </svg>
 
-        {/* Entity cards */}
-        {ENTITIES.map((e, i) => (
-          <motion.div key={e.id} animate={{ opacity: phase > i ? 1 : 0.2, scale: phase > i ? 1 : 0.95 }} transition={{ duration: 0.3 }}
-            style={{ position: 'absolute', left: e.x, top: e.y, width: '80px', padding: '8px 10px', borderRadius: '8px', background: phase > i ? `${e.color}18` : 'var(--ed-cream)', border: `2px solid ${phase > i ? e.color : 'var(--ed-rule)'}`, textAlign: 'center', boxShadow: phase > i ? `0 4px 12px ${e.color}30` : 'none' }}>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: e.color }}>{e.label}</div>
-          </motion.div>
-        ))}
-
-        {/* Query card */}
-        <AnimatePresence>
-          {queryVisible && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px 12px', borderRadius: '8px', background: '#0f172a', border: '1px solid rgba(239,68,68,0.4)' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#f87171', marginBottom: '3px' }}>Query: &ldquo;Show workspace usage by team admin&rdquo;</div>
-              <div style={{ fontSize: '10px', color: '#fbbf24' }}>&#9888; Missing: teams &rarr; workspaces relationship not defined</div>
-            </motion.div>
+          {/* ── Query result box ── */}
+          {queryOn && (
+            <g>
+              <rect x={40} y={230} width={480} height={26} rx={6} fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.4)" strokeWidth={1} />
+              <text x={280} y={247} textAnchor="middle" fontSize="10" fontFamily="monospace" fill="#f87171">
+                Query &ldquo;usage by team admin&rdquo; blocked — teams → workspaces link missing
+              </text>
+            </g>
           )}
-        </AnimatePresence>
+        </svg>
       </div>
     </AnimationShell>
   );
@@ -307,8 +336,8 @@ export function RequestResponseFlow() {
     : API_STAGES;
 
   return (
-    <AnimationShell title="Request / Response Choreography" caption="There is a contract here, not magic. Every API interaction has defined expectations — who can ask, in what shape, and what comes back. Vague contracts create downstream confusion.">
-      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px', maxWidth: '360px', margin: '0 auto' }}>
+    <AnimationShell caption="There is a contract here, not magic. Every API interaction has defined expectations — who can ask, in what shape, and what comes back. Vague contracts create downstream confusion.">
+      <div style={{ padding: '28px 24px', display: 'flex', flexDirection: 'column' as const, gap: '6px', maxWidth: '360px', margin: '0 auto' }}>
         {displayStages.map((s, i) => {
           const isPast    = i < step;
           const isCurrent = i === step;
@@ -364,8 +393,8 @@ export function PermissionMatrixBloom() {
   }, []);
 
   return (
-    <AnimationShell title="Permission Matrix Bloom" caption="One simple rule — 'admins see everything' — expands automatically into a many-cell grid. Enterprise product design is often access design. The earlier PMs make it explicit, the safer the roadmap.">
-      <div style={{ overflowX: 'auto' as const }}>
+    <AnimationShell caption="One simple rule — &lsquo;admins see everything&rsquo; — expands automatically into a many-cell grid. Enterprise product design is often access design. The earlier PMs make it explicit, the safer the roadmap.">
+      <div style={{ padding: '24px', overflowX: 'auto' as const }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
           <thead>
             <tr>
@@ -421,8 +450,8 @@ export function ScaleStressAnimation() {
   const ll = LOAD_LEVELS[level];
 
   return (
-    <AnimationShell title="Scale Stress Animation" caption="Scale is not just bigger traffic. It is a different product operating mode. When load changes system behavior, product experience must change shape too — sync becomes async, instant becomes queued.">
-      <div style={{ maxWidth: '440px', margin: '0 auto' }}>
+    <AnimationShell caption="Scale is not just bigger traffic. It is a different product operating mode. When load changes system behavior, product experience must change shape too — sync becomes async, instant becomes queued.">
+      <div style={{ padding: '28px 24px', maxWidth: '440px', margin: '0 auto' }}>
         {/* Load dial */}
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ flex: 1 }}>
@@ -500,8 +529,8 @@ export function EstimateBreakdownCascade() {
   }, [visible === 0 ? visible : -1]);
 
   return (
-    <AnimationShell title="Estimate Breakdown Cascade" caption="One feature card splits into many engineering workstreams. Better decomposition does not create uncertainty — it reveals uncertainty that was already hiding in the scope.">
-      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', maxWidth: '480px', margin: '0 auto' }}>
+    <AnimationShell caption="One feature card splits into many engineering workstreams. Better decomposition does not create uncertainty — it reveals uncertainty that was already hiding in the scope.">
+      <div style={{ padding: '28px 24px', display: 'flex', gap: '16px', alignItems: 'flex-start', maxWidth: '480px', margin: '0 auto' }}>
         {/* Source card */}
         <div style={{ flexShrink: 0, width: '120px', padding: '12px', borderRadius: '10px', background: `${ACCENT}15`, border: `2px solid ${ACCENT}`, textAlign: 'center' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: ACCENT, marginBottom: '4px' }}>Feature</div>
