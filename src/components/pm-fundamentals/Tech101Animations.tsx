@@ -23,9 +23,7 @@ const AnimationShell = ({ caption, children }: {
   title?: string; caption: string; children: React.ReactNode;
 }) => (
   <div style={{ margin: '32px 0' }}>
-    <div style={{ borderRadius: '16px', overflow: 'hidden', background: 'var(--ed-card)', border: `1px solid var(--ed-rule)`, boxShadow: '0 2px 16px rgba(0,0,0,0.06)', borderLeft: `4px solid ${ACCENT}` }}>
-      {children}
-    </div>
+    {children}
     <div style={{ padding: '8px 4px 0', fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.6 }}>
       {caption}
     </div>
@@ -119,7 +117,6 @@ export function LatencyPressureVisual() {
 
   return (
     <AnimationShell caption="The same dashboard in three response-speed conditions. When system timing changes user trust, timing becomes part of the product design — not just an engineering concern.">
-      <div style={{ padding: '24px' }}>
       {/* Dashboard mock */}
       <div style={{ borderRadius: '12px', overflow: 'hidden', border: `2px solid ${state.color}40`, background: '#0f172a', maxWidth: '480px', margin: '0 auto' }}>
         {/* Browser bar */}
@@ -178,119 +175,109 @@ export function LatencyPressureVisual() {
           </div>
         </div>
       </div>
-      </div>
     </AnimationShell>
   );
 }
 
 // ─── 3. SCHEMA RELATIONSHIP BOARD ────────────────────────────────────────────
-// Pure SVG approach — all entities and lines in one coordinate space, no misalignment.
-
-// SVG layout (viewBox 560×260):
-//   Users      rect at (40,  40) 110×44  — top-left
-//   Teams      rect at (410, 40) 110×44  — top-right
-//   Workspaces rect at (40, 175) 110×44  — bottom-left
-//   Events     rect at (410,175) 110×44  — bottom-right
-//
-// Lines:
-//   Users → Teams:      (150,62) → (410,62)      "belongs to" ✓
-//   Teams → Workspaces: (465,84) → (465,175) ↓ to (150,199)  "owns" ✗ MISSING
-//   Users → Workspaces: (95,84)  → (95,175)       "uses" ✓
-//   Workspaces → Events:(150,197)→ (410,197)       "generates" ✓
-
-const SCHEMA_STEPS = [
-  { entity: 'Users',      ex1: 40,  ey1: 40,  ew: 110, eh: 44, color: '#3B82F6', rx: 95,  ry: 62 },
-  { entity: 'Teams',      ex1: 410, ey1: 40,  ew: 110, eh: 44, color: ACCENT,    rx: 465, ry: 62 },
-  { entity: 'Workspaces', ex1: 40,  ey1: 175, ew: 110, eh: 44, color: '#0097A7', rx: 95,  ry: 197 },
-  { entity: 'Events',     ex1: 410, ey1: 175, ew: 110, eh: 44, color: '#CA8A04', rx: 465, ry: 197 },
-];
+// All 4 entities visible immediately. Only the connecting lines animate in
+// one by one. Light background — blends with page content.
 
 export function SchemaRelationshipBoard() {
-  const [step, setStep] = useState(0); // 0=nothing, 1-4=entities, 5=lines, 6=query
-  const [queryOn, setQueryOn] = useState(false);
+  // 0 = no lines; 1 = Users→Teams; 2 = Users→Workspaces; 3 = Workspaces→Events;
+  // 4 = Teams→Workspaces (missing); 5 = query warning visible
+  const [linesLit, setLinesLit] = useState(0);
+  const [queryOn,  setQueryOn]  = useState(false);
 
   useEffect(() => {
-    let t: ReturnType<typeof setTimeout>;
-    const schedule = [800, 600, 600, 600, 1000, 2000, 3000];
-    const advance = (s: number) => {
-      t = setTimeout(() => {
-        const next = s + 1;
-        setStep(next);
-        if (next === 6) setQueryOn(true);
-        if (next < schedule.length) advance(next);
-        else setTimeout(() => { setStep(0); setQueryOn(false); }, 1500);
-      }, schedule[s]);
-    };
-    advance(step < 1 ? 0 : -1);
-    return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step === 0 ? step : -1]);
+    const steps = [900, 700, 700, 700, 1800, 3000];
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let accumulated = 0;
+    steps.forEach((delay, i) => {
+      accumulated += delay;
+      timers.push(setTimeout(() => {
+        setLinesLit(i + 1);
+        if (i + 1 === 5) setQueryOn(true);
+        if (i === steps.length - 1) {
+          setTimeout(() => { setLinesLit(0); setQueryOn(false); }, 1500);
+        }
+      }, accumulated));
+    });
+    return () => timers.forEach(clearTimeout);
+  }, [linesLit === 0 ? linesLit : -1]);
 
-  // Which lines are lit at current step (step >= 5 means all entities shown)
-  const linesLit = step >= 5;
+  const E = {
+    users:      { x: 40,  y: 50,  w: 120, h: 48, color: '#3B82F6', label: 'Users' },
+    teams:      { x: 400, y: 50,  w: 120, h: 48, color: ACCENT,    label: 'Teams' },
+    workspaces: { x: 40,  y: 190, w: 120, h: 48, color: '#0097A7', label: 'Workspaces' },
+    events:     { x: 400, y: 190, w: 120, h: 48, color: '#CA8A04', label: 'Events' },
+  };
+
+  // Line endpoints (midpoints of entity edges)
+  const L = {
+    usersR:   { x: E.users.x + E.users.w,        y: E.users.y + 24  },
+    teamsL:   { x: E.teams.x,                     y: E.teams.y + 24  },
+    usersB:   { x: E.users.x + 60,               y: E.users.y + E.users.h },
+    wsT:      { x: E.workspaces.x + 60,           y: E.workspaces.y  },
+    wsR:      { x: E.workspaces.x + E.workspaces.w, y: E.workspaces.y + 24 },
+    eventsL:  { x: E.events.x,                    y: E.events.y + 24  },
+    teamsB:   { x: E.teams.x + 60,               y: E.teams.y + E.teams.h },
+    wsT2:     { x: E.workspaces.x + 60,           y: E.workspaces.y  },
+  };
+
+  const lineStyle = (lit: boolean, color: string, dashed = false) => ({
+    stroke: lit ? color : 'var(--ed-rule)',
+    strokeWidth: lit ? 2.5 : 1.5,
+    strokeDasharray: dashed ? '5 4' : undefined,
+    opacity: lit ? 1 : 0.35,
+    transition: 'stroke 0.35s, opacity 0.35s',
+  });
 
   return (
-    <AnimationShell caption="Relationships between users, teams, workspaces, and events illuminate one by one. One missing relationship stays dark — and blocks a reporting query. Product capability depends on data structure.">
-      <div style={{ padding: '24px 20px', background: '#0f172a' }}>
-        <svg viewBox="0 0 560 260" style={{ width: '100%', height: 'auto', display: 'block' }}>
-          {/* ── Lines (drawn behind entities) ── */}
+    <AnimationShell caption="Relationships between entities illuminate one by one. The missing teams → workspaces link stays dark — it blocks a reporting query. Product capability depends on data structure.">
+      <div style={{ borderRadius: '12px', border: '1px solid var(--ed-rule)', background: 'var(--ed-card)', padding: '20px', overflow: 'hidden' }}>
+        <svg viewBox="0 0 560 290" style={{ width: '100%', height: 'auto', display: 'block' }}>
 
-          {/* Users → Teams: belongs to */}
-          <motion.line x1={150} y1={62} x2={410} y2={62}
-            stroke={linesLit ? '#3B82F6' : 'rgba(255,255,255,0.06)'}
-            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
-          {linesLit && <text x={280} y={55} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace">belongs to</text>}
+          {/* ── Relationship lines (drawn first, behind entities) ── */}
 
-          {/* Users → Workspaces: uses (vertical left) */}
-          <motion.line x1={95} y1={84} x2={95} y2={175}
-            stroke={linesLit ? '#0097A7' : 'rgba(255,255,255,0.06)'}
-            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
-          {linesLit && <text x={73} y={132} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace" transform="rotate(-90 73 132)">uses</text>}
+          {/* 1. Users → Teams: belongs to */}
+          <line x1={L.usersR.x} y1={L.usersR.y} x2={L.teamsL.x} y2={L.teamsL.y} {...lineStyle(linesLit >= 1, '#3B82F6')} />
+          {linesLit >= 1 && <text x={280} y={66} textAnchor="middle" fontSize="10" fill="#64748b" fontFamily="'JetBrains Mono',monospace">belongs to</text>}
 
-          {/* Workspaces → Events: generates (horizontal bottom) */}
-          <motion.line x1={150} y1={197} x2={410} y2={197}
-            stroke={linesLit ? '#CA8A04' : 'rgba(255,255,255,0.06)'}
-            strokeWidth={linesLit ? 2 : 1} animate={{ opacity: linesLit ? 1 : 0.15 }} transition={{ duration: 0.4 }} />
-          {linesLit && <text x={280} y={212} fontSize="9" fill="#64748b" textAnchor="middle" fontFamily="monospace">generates</text>}
+          {/* 2. Users → Workspaces: uses */}
+          <line x1={L.usersB.x} y1={L.usersB.y} x2={L.wsT.x} y2={L.wsT.y} {...lineStyle(linesLit >= 2, '#0097A7')} />
+          {linesLit >= 2 && <text x={76} y={144} textAnchor="middle" fontSize="10" fill="#64748b" fontFamily="'JetBrains Mono',monospace">uses</text>}
 
-          {/* Teams → Workspaces: MISSING (dashed red) */}
-          <motion.line x1={465} y1={84} x2={465} y2={175}
-            stroke={linesLit ? '#EF4444' : 'rgba(255,255,255,0.04)'}
-            strokeWidth={linesLit ? 2 : 1}
-            strokeDasharray={linesLit ? '5 4' : '0'}
-            animate={{ opacity: linesLit ? 0.8 : 0.08 }} transition={{ duration: 0.4 }} />
-          {linesLit && (
-            <>
-              <text x={490} y={132} fontSize="9" fill="#EF4444" textAnchor="middle" fontFamily="monospace" transform="rotate(90 490 132)">⚠ missing</text>
-            </>
+          {/* 3. Workspaces → Events: generates */}
+          <line x1={L.wsR.x} y1={L.wsR.y} x2={L.eventsL.x} y2={L.eventsL.y} {...lineStyle(linesLit >= 3, '#CA8A04')} />
+          {linesLit >= 3 && <text x={280} y={210} textAnchor="middle" fontSize="10" fill="#64748b" fontFamily="'JetBrains Mono',monospace">generates</text>}
+
+          {/* 4. Teams → Workspaces: MISSING */}
+          <line x1={L.teamsB.x} y1={L.teamsB.y} x2={L.wsT2.x} y2={L.wsT2.y} {...lineStyle(linesLit >= 4, '#EF4444', true)} />
+          {linesLit >= 4 && (
+            <text x={240} y={144} textAnchor="middle" fontSize="10" fill="#EF4444" fontFamily="'JetBrains Mono',monospace">⚠ not defined</text>
           )}
 
-          {/* ── Entity rectangles ── */}
-          {SCHEMA_STEPS.map((e, i) => {
-            const visible = step > i;
-            return (
-              <g key={e.entity}>
-                <motion.rect x={e.ex1} y={e.ey1} width={e.ew} height={e.eh} rx={8}
-                  fill={visible ? `${e.color}22` : 'rgba(255,255,255,0.03)'}
-                  stroke={visible ? e.color : 'rgba(255,255,255,0.08)'}
-                  strokeWidth={visible ? 2 : 1}
-                  animate={{ opacity: visible ? 1 : 0.2 }}
-                  transition={{ duration: 0.35 }} />
-                <text x={e.ex1 + e.ew / 2} y={e.ey1 + 27} textAnchor="middle"
-                  fontSize="13" fontWeight="700" fontFamily="sans-serif"
-                  fill={visible ? e.color : 'rgba(255,255,255,0.15)'}>
-                  {e.entity}
-                </text>
-              </g>
-            );
-          })}
+          {/* ── Entity boxes (always visible) ── */}
+          {Object.values(E).map((e) => (
+            <g key={e.label}>
+              <rect x={e.x} y={e.y} width={e.w} height={e.h} rx={10}
+                fill={`${e.color}12`} stroke={e.color} strokeWidth={2} />
+              <text x={e.x + e.w / 2} y={e.y + 29} textAnchor="middle"
+                fontSize="14" fontWeight="700" fontFamily="sans-serif" fill={e.color}>
+                {e.label}
+              </text>
+            </g>
+          ))}
 
-          {/* ── Query result box ── */}
+          {/* ── Query warning ── */}
           {queryOn && (
             <g>
-              <rect x={40} y={230} width={480} height={26} rx={6} fill="rgba(239,68,68,0.12)" stroke="rgba(239,68,68,0.4)" strokeWidth={1} />
-              <text x={280} y={247} textAnchor="middle" fontSize="10" fontFamily="monospace" fill="#f87171">
-                Query &ldquo;usage by team admin&rdquo; blocked — teams → workspaces link missing
+              <rect x={40} y={252} width={480} height={30} rx={7}
+                fill="rgba(239,68,68,0.1)" stroke="#EF4444" strokeWidth={1} strokeDasharray="4 3" />
+              <text x={280} y={271} textAnchor="middle" fontSize="11"
+                fontFamily="'JetBrains Mono',monospace" fill="#EF4444">
+                &quot;Usage by team admin&quot; — blocked: teams → workspaces link missing
               </text>
             </g>
           )}
