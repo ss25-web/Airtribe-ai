@@ -100,10 +100,10 @@ const MODULES = [
   {
     num: '09',
     label: 'Tech 101 & System Design',
-    desc: 'APIs, databases, git, system design, scalability, and sprint planning — everything a PM needs to collaborate confidently with engineering.',
-    duration: '45 min',
-    tools: ['Postman', 'GitHub', 'Jira'],
-    available: false,
+    desc: 'System layers, API contracts, data shape, permissions, scale tradeoffs, and estimation — how PMs think technically without becoming engineers.',
+    duration: '45 min · 7 parts',
+    tools: ['Feature-to-System Mapper', 'API Contract Viewer', 'Access Decision Simulator'],
+    available: true,
     accent: '#7843EE',
   },
   {
