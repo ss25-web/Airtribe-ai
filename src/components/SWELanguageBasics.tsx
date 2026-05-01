@@ -213,20 +213,20 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
             { name: trackConfig.protagonist, role: `${trackConfig.role} · ${trackConfig.company}`, desc: `Just joined ${trackConfig.company}. Needs to bridge the gap between "knowing code" and "engineering systems" in ${trackConfig.name}.`, color: trackConfig.accent, mentor: false },
             { name: trackConfig.mentor, role: trackConfig.mentorRole, desc: "A veteran engineer who prioritizes clarity over cleverness. She'll be guiding you through the architectural decisions of this language.", color: trackConfig.mentorColor, mentor: true }
           ].map((c, i) => (
-            <div key={i} style={{ 
-              flex: 1, minWidth: '240px', background: 'var(--ed-card)', borderRadius: '12px', border: '1px solid var(--ed-rule)', padding: '20px', 
-              boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            <div key={i} style={{
+              width: '108px', flexShrink: 0, padding: '16px 10px 14px',
+              borderRadius: '20px', background: 'var(--ed-card)',
+              border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${c.color}` }}>
-                  {c.mentor ? <SWEMentorFace name={c.name} size={44} /> : <div style={{ width: 44, height: 44, background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '14px' }}>AI</div>}
-                </div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: c.color }}>{c.name}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>{c.role}</div>
-                </div>
+              <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                {c.mentor
+                  ? <SWEMentorFace name={c.name} size={52} />
+                  : <div style={{ width: 52, height: 52, background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '16px' }}>{c.name[0]}</div>
+                }
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6, fontStyle: 'italic' }}>{c.desc}</div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{c.role}</div>
             </div>
           ))}
         </div>
