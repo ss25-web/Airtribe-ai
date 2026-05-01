@@ -34,10 +34,11 @@ interface Props {
 }
 
 const MODULE_ID = 'swe-pr-00';
+const EMPTY_SECTIONS: string[] = [];
 
 export default function SWELanguageBasics({ track, level, onBack }: Props) {
   const markSectionCompleted = useLearnerStore(s => s.markSectionCompleted);
-  const storedSections = useLearnerStore(s => s.completedSections[MODULE_ID] ?? []);
+  const storedSections = useLearnerStore(s => s.completedSections[MODULE_ID] ?? EMPTY_SECTIONS);
 
   const [hydrated, setHydrated] = useState(false);
   const [activeSection, setActiveSection] = useState('identity');
@@ -110,14 +111,14 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
   }[track];
 
   const SECTIONS = [
-    { id: 'identity', label: 'Language Identity' },
-    { id: 'types', label: 'Variables & Types' },
-    { id: 'flow', label: 'Control Flow' },
-    { id: 'loops', label: 'Loops & Iteration' },
-    { id: 'functions', label: 'Functions & Scope' },
-    { id: 'objects', label: 'Objects & Data' },
-    { id: 'dataStructures', label: 'Data Structures' },
-    { id: 'challenge', label: 'Final Challenge' }
+    { id: 'identity', label: 'Language Identity', icon: '🧭' },
+    { id: 'types', label: 'Variables & Types', icon: '🏷️' },
+    { id: 'flow', label: 'Control Flow', icon: '🔀' },
+    { id: 'loops', label: 'Loops & Iteration', icon: '🔁' },
+    { id: 'functions', label: 'Functions & Scope', icon: 'ƒ' },
+    { id: 'objects', label: 'Objects & Data', icon: '🧩' },
+    { id: 'dataStructures', label: 'Data Structures', icon: '🗂️' },
+    { id: 'challenge', label: 'Final Challenge', icon: '🏁' }
   ];
 
   const getStory = (id: string) => {
