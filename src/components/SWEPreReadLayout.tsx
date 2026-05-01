@@ -55,11 +55,12 @@ export interface SWEPreReadLayoutProps {
   activeSection: string | null;
   onBack: () => void;
   hideArticleHeader?: boolean;
+  hideHeaderStats?: boolean;
   children: React.ReactNode;
 }
 
 export default function SWEPreReadLayout({
-  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, children
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, hideHeaderStats = false, children
 }: SWEPreReadLayoutProps) {
   const store = useLearnerStore();
   const [hydrated, setHydrated] = useState(false);
@@ -105,6 +106,7 @@ export default function SWEPreReadLayout({
   const nextLevel = getNextLevel(totalXP);
   const levelPct = nextLevel ? Math.round(((totalXP - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100) : 100;
   const progressPct = Math.round((completedModules.size / sections.length) * 100);
+  const showHeaderStats = !hideHeaderStats;
 
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
@@ -131,7 +133,7 @@ export default function SWEPreReadLayout({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '12px' : '32px' }}>
-            {!isMobile && (
+            {showHeaderStats && !isMobile && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
                 <div style={{ display: 'flex', gap: '2px' }}>
                   {sections.map((s, i) => (
@@ -143,30 +145,32 @@ export default function SWEPreReadLayout({
                 </div>
               </div>
             )}
-            {isMobile && (
+            {showHeaderStats && isMobile && (
               <div style={{ fontSize: '10px', fontWeight: 700, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace" }}>
                 {completedModules.size}/{sections.length}
               </div>
             )}
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase' }}>XP Gain</div>
-                <div style={{ position: 'relative' }}>
-                   <motion.div key={totalXP} animate={{ scale: [1.1, 1] }} style={{ fontSize: '18px', fontWeight: 900, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{totalXP}</motion.div>
-                   <AnimatePresence>
-                     {showGain && (
-                       <motion.div 
-                         initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -25 }} exit={{ opacity: 0 }}
-                         style={{ position: 'absolute', right: 0, top: -10, fontSize: '12px', fontWeight: 900, color: '#0D7A5A', fontFamily: "'JetBrains Mono', monospace" }}
-                       >
-                         +{gainAmt}
-                       </motion.div>
-                     )}
-                   </AnimatePresence>
+            {showHeaderStats && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase' }}>XP Gain</div>
+                  <div style={{ position: 'relative' }}>
+                     <motion.div key={totalXP} animate={{ scale: [1.1, 1] }} style={{ fontSize: '18px', fontWeight: 900, color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{totalXP}</motion.div>
+                     <AnimatePresence>
+                       {showGain && (
+                         <motion.div 
+                           initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -25 }} exit={{ opacity: 0 }}
+                           style={{ position: 'absolute', right: 0, top: -10, fontSize: '12px', fontWeight: 900, color: '#0D7A5A', fontFamily: "'JetBrains Mono', monospace" }}
+                         >
+                           +{gainAmt}
+                         </motion.div>
+                       )}
+                     </AnimatePresence>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <DarkModeToggle />
           </div>
         </div>
