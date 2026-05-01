@@ -19,6 +19,12 @@ export interface SessionMetrics {
   engagementScore: number;
 }
 
+function inferredModuleId(sectionId: string): string | null {
+  const genAI = sectionId.match(/^genai-m(\d+)-/);
+  if (genAI) return `genai-pr-${genAI[1].padStart(2, '0')}`;
+  return null;
+}
+
 interface LearnerStore {
   // Identity
   learnerId: string;
@@ -142,10 +148,28 @@ export const useLearnerStore = create<LearnerStore>()(
 
       markSectionViewed: (sectionId) => {
         set(state => {
-          if (!state.currentSession) return state;
+          const moduleId = inferredModuleId(sectionId);
+          const completedForModule = moduleId ? state.completedSections[moduleId] ?? [] : [];
+          const nextCompletedSections = moduleId && !completedForModule.includes(sectionId)
+            ? {
+                ...state.completedSections,
+                [moduleId]: [...completedForModule, sectionId],
+              }
+            : state.completedSections;
+
+          if (!state.currentSession) {
+            return nextCompletedSections === state.completedSections
+              ? state
+              : { completedSections: nextCompletedSections };
+          }
           const viewed = state.currentSession.sectionsViewed;
-          if (viewed.includes(sectionId)) return state;
+          if (viewed.includes(sectionId)) {
+            return nextCompletedSections === state.completedSections
+              ? state
+              : { completedSections: nextCompletedSections };
+          }
           return {
+            completedSections: nextCompletedSections,
             currentSession: {
               ...state.currentSession,
               sectionsViewed: [...viewed, sectionId],

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
 import type { Track } from './pm-fundamentals/designSystem';
 
 const TRACK_META = {
@@ -144,6 +145,21 @@ const MODULES = [
   },
 ];
 
+type ModuleStatus = 'locked' | 'available' | 'in-progress' | 'completed';
+
+const PM_MODULE_SECTIONS: Record<string, { moduleId: string; total: number; finalSectionId: string }> = {
+  '01-new-pm': { moduleId: 'pm-01-new-pm', total: 7, finalSectionId: 'final-reflection' },
+  '01-apm': { moduleId: 'pm-01-apm', total: 12, finalSectionId: 'm6-north-star' },
+  '02': { moduleId: 'pm-02', total: 5, finalSectionId: 'm2s-b2b-strategy' },
+  '03': { moduleId: 'pm-03', total: 7, finalSectionId: 'm2-reflection' },
+  '04': { moduleId: 'pm-04', total: 7, finalSectionId: 'm3-reflection' },
+  '05': { moduleId: 'pm-05', total: 7, finalSectionId: 'm4-reflection' },
+  '06': { moduleId: 'pm-06', total: 7, finalSectionId: 'm6-executive' },
+  '07': { moduleId: 'pm-07', total: 7, finalSectionId: 'm7-experiments' },
+  '08': { moduleId: 'pm-08', total: 7, finalSectionId: 'm8-gtm' },
+  '09': { moduleId: 'pm-09', total: 7, finalSectionId: 'm9-estimation' },
+};
+
 interface Props {
   track: Track;
   onStartModule: (moduleNum: string) => void;
@@ -152,6 +168,24 @@ interface Props {
 
 export default function CourseOverview({ track, onStartModule, onBack }: Props) {
   const meta = TRACK_META[track];
+  const completedSections = useLearnerStore(s => s.completedSections);
+
+  const getModuleProgress = (moduleNum: string, available: boolean) => {
+    const sectionMeta = PM_MODULE_SECTIONS[moduleNum === '01' ? `01-${track}` : moduleNum];
+    const completedForModule = sectionMeta ? completedSections[sectionMeta.moduleId] ?? [] : [];
+    const completedByFinalSection = sectionMeta ? completedForModule.includes(sectionMeta.finalSectionId) : false;
+    const completedCount = completedByFinalSection && sectionMeta
+      ? sectionMeta.total
+      : completedForModule.length;
+    const totalSections = sectionMeta?.total ?? 0;
+    const percent = totalSections > 0 ? Math.min(100, Math.round((completedCount / totalSections) * 100)) : 0;
+    let status: ModuleStatus = available ? 'available' : 'locked';
+
+    if (available && completedCount > 0) status = 'in-progress';
+    if (available && totalSections > 0 && (completedByFinalSection || completedCount >= totalSections)) status = 'completed';
+
+    return { completedCount, totalSections, percent, status };
+  };
 
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
@@ -226,7 +260,20 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
 
         {/* Module cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {MODULES.map((mod, i) => (
+          {MODULES.map((mod, i) => {
+            const moduleProgress = getModuleProgress(mod.num, mod.available);
+            const ctaLabel = moduleProgress.status === 'completed'
+              ? 'Review'
+              : moduleProgress.status === 'in-progress'
+                ? 'Continue'
+                : 'Start';
+            const statusLabel = moduleProgress.status === 'completed'
+              ? 'COMPLETED'
+              : moduleProgress.status === 'in-progress'
+                ? 'IN PROGRESS'
+                : 'AVAILABLE NOW';
+
+            return (
             <motion.div
               key={mod.num}
               initial={{ opacity: 0, y: 12 }}
@@ -266,8 +313,10 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
                     <span style={{
                       padding: '2px 8px', borderRadius: '20px', fontSize: '8px',
                       fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em',
-                      background: mod.accent, color: '#fff',
-                    }}>AVAILABLE NOW</span>
+                      background: moduleProgress.status === 'completed' ? 'rgba(21,129,88,0.12)' : mod.accent,
+                      color: moduleProgress.status === 'completed' ? '#158158' : '#fff',
+                      border: moduleProgress.status === 'completed' ? '1px solid rgba(21,129,88,0.28)' : 'none',
+                    }}>{statusLabel}</span>
                   )}
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
@@ -283,6 +332,16 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
                     }}>{t}</span>
                   ))}
                 </div>
+                {moduleProgress.totalSections > 0 && moduleProgress.status !== 'available' && (
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ height: '5px', flex: 1, borderRadius: '999px', background: 'var(--ed-cream)', overflow: 'hidden', border: '1px solid var(--ed-rule)' }}>
+                      <div style={{ width: `${moduleProgress.percent}%`, height: '100%', borderRadius: '999px', background: mod.accent }} />
+                    </div>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: mod.accent, fontWeight: 700 }}>
+                      {moduleProgress.completedCount}/{moduleProgress.totalSections}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Right side */}
@@ -294,7 +353,7 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
                     fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
                     whiteSpace: 'nowrap' as const,
                   }}>
-                    Start →
+                    {ctaLabel} →
                   </div>
                 ) : (
                   <div style={{
@@ -307,7 +366,8 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
                 )}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Footer note */}

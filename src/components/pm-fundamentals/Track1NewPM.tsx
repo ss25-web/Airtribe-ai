@@ -777,7 +777,7 @@ const IntroHero = () => (
               { mentor: 'kiran' as const, accent: '#0097A7', desc: 'Brings the number nobody wanted to see.' },
               { mentor: 'asha'  as const, accent: '#7843EE', desc: 'Asks the question you haven\'t thought to ask yet.' },
             ]).map(c => (
-              <CharacterChip name={{ priya: 'Priya', maya: 'Maya', dev: 'Dev', kiran: 'Kiran', asha: 'Asha' }[c.mentor] ?? ''} role={{ priya: 'APM · EdSpark', maya: 'Designer', dev: 'Engineer', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor] ?? ''} accent={c.accent}>
+              <CharacterChip key={c.mentor} name={{ priya: 'Priya', maya: 'Maya', dev: 'Dev', kiran: 'Kiran', asha: 'Asha' }[c.mentor] ?? ''} role={{ priya: 'APM · EdSpark', maya: 'Designer', dev: 'Engineer', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor] ?? ''} accent={c.accent}>
                 <MentorFace mentor={c.mentor} size={52} />
               </CharacterChip>
             ))}

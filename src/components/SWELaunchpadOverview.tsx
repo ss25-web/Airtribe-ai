@@ -413,23 +413,15 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
 
-                  {/* Progress bar for in-progress modules */}
-                  {status === 'in-progress' && totalSections > 0 && (
+                  {(status === 'in-progress' || status === 'completed') && totalSections > 0 && (
                     <div style={{ marginBottom: '8px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginBottom: '3px' }}>
-                        <span>{completedCount} of {totalSections} sections read</span>
+                        <span>{status === 'completed' ? 'All sections completed' : `${completedCount} of ${totalSections} sections read`}</span>
                         <span>{pct}%</span>
                       </div>
                       <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-                        <motion.div animate={{ width: `${pct}%` }} style={{ height: '100%', background: mod.accent, borderRadius: '2px' }} />
+                        <motion.div animate={{ width: `${pct}%` }} style={{ height: '100%', background: status === 'completed' ? '#16A34A' : mod.accent, borderRadius: '2px' }} />
                       </div>
-                    </div>
-                  )}
-
-                  {/* Completed summary */}
-                  {status === 'completed' && (
-                    <div style={{ marginBottom: '8px', fontSize: '9px', color: '#16A34A', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
-                      All {totalSections} sections completed
                     </div>
                   )}
 

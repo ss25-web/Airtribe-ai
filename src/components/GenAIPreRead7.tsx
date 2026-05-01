@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
+import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIConversationScene, AaravFace, RheaFace, GenAIMentorFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
@@ -34,11 +35,11 @@ const SECTIONS = [
 ];
 
 const BADGES = [
-  { id: 'genai-m7-lastmile',    icon: 'LM', label: 'Last Mile',    color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' },
-  { id: 'genai-m7-anatomy',     icon: 'AN', label: 'Anatomy',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-  { id: 'genai-m7-build',       icon: 'BT', label: 'Tool Builder', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
-  { id: 'genai-m7-permissions', icon: 'SC', label: 'Scoper',       color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-  { id: 'genai-m7-production',  icon: 'PR', label: 'Prod Ready',   color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+  { id: 'genai-m7-lastmile',    icon: '🔗', label: 'Last Mile',    color: '#B45309', bg: '#FEF3C7', border: '#FDE68A' },
+  { id: 'genai-m7-anatomy',     icon: '🧩', label: 'Anatomy',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+  { id: 'genai-m7-build',       icon: '🛠️', label: 'Tool Builder', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
+  { id: 'genai-m7-permissions', icon: '🛡️', label: 'Scoper',       color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+  { id: 'genai-m7-production',  icon: '🚀', label: 'Prod Ready',   color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
 ];
 
 const QUIZZES = [
@@ -255,13 +256,14 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
             return (
               <div key={badge.id} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', opacity: unlocked ? 1 : 0.3 }}>
                 <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-rule)', border: `1.5px solid ${unlocked ? badge.border : 'transparent'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: unlocked ? badge.color : 'var(--ed-ink3)' }}>{badge.icon}</span>
+                  <span style={{ fontSize: '17px', fontWeight: 700, color: unlocked ? badge.color : 'var(--ed-ink3)' }}>{badge.icon}</span>
                 </div>
                 <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center' as const, maxWidth: '40px', lineHeight: 1.2 }}>{badge.label}</div>
               </div>
             );
           })}
         </div>
+        <GenAILatestBadgePanel badges={BADGES} completedSections={completedSections} />
       </div>
       <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-indigo)', marginBottom: '10px' }}>Concept Mastery</div>
@@ -282,6 +284,7 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
         })}
         <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery scores</div>
       </div>
+      <GenAIStreakCard />
     </aside>
   );
 }

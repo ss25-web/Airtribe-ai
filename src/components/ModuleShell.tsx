@@ -67,6 +67,7 @@ const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
 
 const SECTION_XP = 50;
 const MAX_QUIZ_XP = 100;
+const EMPTY_SECTIONS: string[] = [];
 
 function computeXP(completed: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completed.size * SECTION_XP;
@@ -332,9 +333,11 @@ interface ModuleShellProps {
 export default function ModuleShell({ config, track, onBack, Track1, Track2 }: ModuleShellProps) {
   const store = useLearnerStore();
   const { accent, moduleNum, moduleLabel, sections, concepts, completionEmoji, completionMessage } = config;
+  const moduleId = `pm-${moduleNum}`;
   const conceptIds = concepts.map(c => c.id);
+  const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
 
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -353,6 +356,7 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2 }: M
           setActiveSection(sid);
           setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
+          store.markSectionCompleted(moduleId, sid);
         }
       });
     }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });

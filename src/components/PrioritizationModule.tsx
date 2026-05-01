@@ -49,6 +49,8 @@ const CONCEPT_IDS = CONCEPTS.map(c => c.id);
 
 const SECTION_XP = 50;
 const MAX_QUIZ_XP_PER_CONCEPT = 100;
+const MODULE_ID = 'pm-04';
+const EMPTY_SECTIONS: string[] = [];
 
 function computeXP(
   completedSections: Set<string>,
@@ -301,7 +303,8 @@ interface Props {
 
 export default function PrioritizationModule({ onBack, track }: Props) {
   const store = useLearnerStore();
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const storedSections = useLearnerStore(s => s.completedSections[MODULE_ID] ?? EMPTY_SECTIONS);
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -320,6 +323,7 @@ export default function PrioritizationModule({ onBack, track }: Props) {
           setActiveSection(sid);
           setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
+          store.markSectionCompleted(MODULE_ID, sid);
         }
       });
     }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });

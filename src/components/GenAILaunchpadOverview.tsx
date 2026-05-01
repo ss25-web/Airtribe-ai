@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useLearnerStore } from '@/lib/learnerStore';
 import type { GenAITrack } from './genaiTypes';
 
 const MODULES = [
@@ -162,6 +163,18 @@ const DIFFERENTIATORS = [
   'Instructor support during actual implementation',
 ];
 
+type ModuleStatus = 'locked' | 'available' | 'in-progress' | 'completed';
+
+const GENAI_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }> = {
+  '01': { moduleId: 'genai-pr-01', total: 5 },
+  '02': { moduleId: 'genai-pr-02', total: 5 },
+  '03': { moduleId: 'genai-pr-03', total: 5 },
+  '04': { moduleId: 'genai-pr-04', total: 5 },
+  '05': { moduleId: 'genai-pr-05', total: 5 },
+  '06': { moduleId: 'genai-pr-06', total: 5 },
+  '07': { moduleId: 'genai-pr-07', total: 5 },
+};
+
 interface Props {
   track: GenAITrack;
   onBack: () => void;
@@ -205,11 +218,24 @@ const TRACK_META: Record<GenAITrack, {
 
 export default function GenAILaunchpadOverview({ track, onBack, onStartModule }: Props) {
   const meta = TRACK_META[track];
+  const completedSections = useLearnerStore(s => s.completedSections);
   const modules = MODULES.map((module) =>
     module.num === '01'
       ? { ...module, desc: meta.module01Desc, tools: meta.module01Tools }
       : module
   );
+  const getModuleProgress = (moduleNum: string, available: boolean) => {
+    const sectionMeta = GENAI_MODULE_SECTIONS[moduleNum];
+    const completedCount = sectionMeta ? completedSections[sectionMeta.moduleId]?.length ?? 0 : 0;
+    const totalSections = sectionMeta?.total ?? 0;
+    const percent = totalSections > 0 ? Math.min(100, Math.round((completedCount / totalSections) * 100)) : 0;
+    let status: ModuleStatus = available ? 'available' : 'locked';
+
+    if (available && completedCount > 0) status = 'in-progress';
+    if (available && totalSections > 0 && completedCount >= totalSections) status = 'completed';
+
+    return { completedCount, totalSections, percent, status };
+  };
 
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
@@ -288,7 +314,20 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
 
         {/* Module cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {modules.map((mod, i) => (
+          {modules.map((mod, i) => {
+            const moduleProgress = getModuleProgress(mod.num, mod.available);
+            const ctaLabel = moduleProgress.status === 'completed'
+              ? 'Review'
+              : moduleProgress.status === 'in-progress'
+                ? 'Continue'
+                : 'Start';
+            const statusLabel = moduleProgress.status === 'completed'
+              ? 'COMPLETED'
+              : moduleProgress.status === 'in-progress'
+                ? 'IN PROGRESS'
+                : 'AVAILABLE NOW';
+
+            return (
             <motion.div
               key={mod.num}
               initial={{ opacity: 0, y: 12 }}
@@ -329,8 +368,10 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
                     <span style={{
                       padding: '2px 8px', borderRadius: '20px', fontSize: '8px',
                       fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.1em',
-                      background: mod.accent, color: '#fff',
-                    }}>AVAILABLE NOW</span>
+                      background: moduleProgress.status === 'completed' ? 'rgba(15,118,110,0.12)' : mod.accent,
+                      color: moduleProgress.status === 'completed' ? '#0F766E' : '#fff',
+                      border: moduleProgress.status === 'completed' ? '1px solid rgba(15,118,110,0.28)' : 'none',
+                    }}>{statusLabel}</span>
                   )}
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
@@ -346,6 +387,16 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
                     }}>{t}</span>
                   ))}
                 </div>
+                {moduleProgress.totalSections > 0 && moduleProgress.status !== 'available' && (
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ height: '5px', flex: 1, borderRadius: '999px', background: 'var(--ed-cream)', overflow: 'hidden', border: '1px solid var(--ed-rule)' }}>
+                      <div style={{ width: `${moduleProgress.percent}%`, height: '100%', borderRadius: '999px', background: mod.accent }} />
+                    </div>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: mod.accent, fontWeight: 700 }}>
+                      {moduleProgress.completedCount}/{moduleProgress.totalSections}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Right side */}
@@ -357,7 +408,7 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
                     fontSize: '13px', fontWeight: 600, fontFamily: 'inherit',
                     whiteSpace: 'nowrap' as const,
                   }}>
-                    Start →
+                    {ctaLabel} →
                   </div>
                 ) : (
                   <div style={{
@@ -370,7 +421,8 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
                 )}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Footer note */}

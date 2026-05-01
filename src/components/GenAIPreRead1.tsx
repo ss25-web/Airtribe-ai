@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
+import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
@@ -125,11 +126,11 @@ const SECTIONS = [
   { id: 'genai-m1-apply', label: 'Your First Use Case' },
 ];
 const BADGES = [
-  { id: 'genai-m1-whatitis', icon: 'AI', label: 'Model', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-  { id: 'genai-m1-capabilities', icon: 'CP', label: 'Capability', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-  { id: 'genai-m1-mental-model', icon: 'MM', label: 'Mindset', color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
-  { id: 'genai-m1-context', icon: 'CX', label: 'Context', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
-  { id: 'genai-m1-apply', icon: 'UC', label: 'Use Case', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
+  { id: 'genai-m1-whatitis', icon: '🤖', label: 'Model', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+  { id: 'genai-m1-capabilities', icon: '🧭', label: 'Capability', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
+  { id: 'genai-m1-mental-model', icon: '🧠', label: 'Mindset', color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
+  { id: 'genai-m1-context', icon: '🧩', label: 'Context', color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
+  { id: 'genai-m1-apply', icon: '🎯', label: 'Use Case', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
 ];
 const SECTION_XP = 50;
 const QUIZ_XP = 100;
@@ -273,12 +274,13 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
             const unlocked = completedSections.has(badge.id);
             return (
                 <div key={badge.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-cream)', border: `1px solid ${unlocked ? badge.border : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: unlocked ? badge.color : 'var(--ed-ink3)', filter: unlocked ? 'none' : 'grayscale(1) opacity(0.35)', boxShadow: unlocked ? `0 6px 16px ${badge.color}22` : 'none' }}>{badge.icon}</div>
+                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-cream)', border: `1px solid ${unlocked ? badge.border : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', fontWeight: 800, color: unlocked ? badge.color : 'var(--ed-ink3)', filter: unlocked ? 'none' : 'grayscale(1) opacity(0.35)', boxShadow: unlocked ? `0 6px 16px ${badge.color}22` : 'none' }}>{badge.icon}</div>
                   <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center', maxWidth: '40px', lineHeight: 1.2 }}>{badge.label}</div>
                 </div>
             );
           })}
         </div>
+        <GenAILatestBadgePanel badges={BADGES} completedSections={completedSections} />
       </div>
 
       <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: '3px solid var(--ed-indigo)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
@@ -302,6 +304,7 @@ function Sidebar({ completedSections, progressPct, prevXp }: { completedSections
         </div>
         <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery scores</div>
       </div>
+      <GenAIStreakCard />
     </aside>
   );
 }

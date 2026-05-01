@@ -76,6 +76,7 @@ const ALL_CONCEPT_IDS = ['pm-role','problem-definition','strategy','prioritizati
 // ─────────────────────────────────────────
 const SECTION_XP = 50;
 const MAX_QUIZ_XP_PER_CONCEPT = 100;
+const EMPTY_SECTIONS: string[] = [];
 
 function computeXP(
   completedSections: Set<string>,
@@ -473,8 +474,10 @@ interface Props {
 export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
   const store = useLearnerStore();
 const [track] = useState<Track>(startTrack);
+  const moduleId = `pm-01-${track}`;
+  const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
   const [activeModule, setActiveModule] = useState('01');
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -500,6 +503,7 @@ const [track] = useState<Track>(startTrack);
           setActiveSection(sid);
           setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
+          store.markSectionCompleted(moduleId, sid);
         }
       });
     }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
