@@ -30,6 +30,13 @@ function getNextLevel(total: number) {
   return LEVELS[idx - 1];
 }
 
+function badgeLabel(label: string) {
+  return label
+    .replace(/&amp;/g, '&')
+    .replace(/\s+—\s+.*$/, '')
+    .replace(/:\s+.*$/, '');
+}
+
 // ─── Components ───
 
 // AirtribeLogo imported from AirtribeBrand.tsx
@@ -80,6 +87,7 @@ export default function SWEPreReadLayout({
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    store.initSession();
     setHydrated(true);
     setTotalXP(xp.total);
     prevXpRef.current = xp.total;
@@ -107,6 +115,8 @@ export default function SWEPreReadLayout({
   const levelPct = nextLevel ? Math.round(((totalXP - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100) : 100;
   const progressPct = Math.round((completedModules.size / sections.length) * 100);
   const showHeaderStats = !hideHeaderStats;
+  const unlockedCount = sections.filter(s => completedModules.has(s.id)).length;
+  const latestUnlock = sections.slice().reverse().find(s => completedModules.has(s.id));
 
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
@@ -304,27 +314,45 @@ export default function SWEPreReadLayout({
 
             {/* Badges card */}
             <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Badges</div>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: trackConfig.accent }}>{completedModules.size}/{sections.length}</div>
+                <div style={{ fontSize: '10px', fontWeight: 700, color: trackConfig.accent }}>{unlockedCount}/{sections.length}</div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                {sections.map((s, i) => {
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px 8px' }}>
+                {sections.map((s) => {
                   const done = completedModules.has(s.id);
+                  const label = badgeLabel(s.label);
                   return (
-                    <div key={i} style={{ 
-                      aspectRatio: '1', borderRadius: '8px', 
+                    <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: 0 }}>
+                      <motion.div whileHover={{ scale: 1.08 }} title={done ? `${label}: completed` : 'Locked'} style={{ 
+                      width: '38px', height: '38px', borderRadius: '9px', 
                       background: done ? `${trackConfig.accent}12` : 'var(--ed-cream)',
                       border: done ? `1.5px solid ${trackConfig.accent}44` : '1px solid var(--ed-rule)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '14px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
-                      transition: 'all 0.3s'
+                      fontSize: '16px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
+                      transition: 'all 0.3s', cursor: 'default'
                     }}>
                       {done ? (s.icon ?? '✨') : '🔒'}
+                    </motion.div>
+                    <div style={{ fontSize: '8px', lineHeight: 1.2, fontWeight: 700, color: done ? 'var(--ed-ink3)' : 'transparent', textAlign: 'center', maxWidth: '50px', wordBreak: 'break-word' }}>
+                      {label}
                     </div>
+                  </div>
                   );
                 })}
               </div>
+              {latestUnlock && (
+                <div style={{ marginTop: '14px', padding: '10px 12px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '5px' }}>Latest</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '15px', flexShrink: 0 }}>{latestUnlock.icon ?? '✨'}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.25 }}>{badgeLabel(latestUnlock.label)}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>Completed this checkpoint</div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Concept Mastery card */}
@@ -348,6 +376,18 @@ export default function SWEPreReadLayout({
                 ))}
               </div>
             </div>
+
+            {store.streakDays > 0 && (
+              <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: '4px solid #C85A40', borderRadius: '12px', padding: '18px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <motion.span animate={{ scale: [1, 1.12, 1] }} transition={{ duration: 1.6, repeat: Infinity }} style={{ fontSize: '22px', flexShrink: 0 }}>🔥</motion.span>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '18px', fontWeight: 900, color: '#C85A40', lineHeight: 1 }}>{store.streakDays} day{store.streakDays !== 1 ? 's' : ''}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginTop: '3px' }}>learning streak</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </aside>
 
