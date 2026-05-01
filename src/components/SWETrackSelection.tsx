@@ -20,7 +20,7 @@ const TRACKS: {
     id: 'python',
     label: 'TRACK',
     title: 'Python\nTrack',
-    parts: 'Placement quiz · Beginner or Advanced',
+    parts: 'Choose level next',
     description: 'Python is the language of data science, automation, and AI. Its clean, readable syntax makes it the easiest first language — and its ecosystem (pandas, FastAPI, PyTorch) makes it genuinely powerful for professional work.',
     tags: ['Data & ML', 'Automation', 'Web APIs', 'Beginner-friendly'],
     color: '#16A34A',
@@ -32,7 +32,7 @@ const TRACKS: {
     id: 'java',
     label: 'TRACK',
     title: 'Java\nTrack',
-    parts: 'Placement quiz · Beginner or Advanced',
+    parts: 'Choose level next',
     description: 'Java is the language of enterprise backends, fintech systems, and Android. Its strong type system and the Spring ecosystem teach you to build reliable, maintainable code at scale — the kind that runs for a decade.',
     tags: ['Enterprise', 'Spring Boot', 'Strong Typing', 'Backend'],
     color: '#0369A1',
@@ -44,7 +44,7 @@ const TRACKS: {
     id: 'nodejs',
     label: 'TRACK',
     title: 'Node.js\nTrack',
-    parts: 'Placement quiz · Beginner or Advanced',
+    parts: 'Choose level next',
     description: 'Node.js runs JavaScript on the server. If you already know or are learning JS for the web, you can reuse those skills on the backend. Its event loop excels at real-time features and high-concurrency APIs.',
     tags: ['Full-Stack', 'JavaScript', 'Real-Time', 'Web'],
     color: '#CA8A04',
@@ -104,7 +104,7 @@ export default function SWETrackSelection({ onSelect, onBack }: Props) {
             Choose your language track
           </h1>
           <p style={{ fontSize: '16px', color: 'var(--ed-ink3)', lineHeight: 1.65, maxWidth: '480px', margin: '0 auto' }}>
-            Pick the track that fits your goals. A short placement quiz will then set your starting level — beginner or advanced.
+            Pick the track that fits your goals. Next, choose the starting level that feels right for you.
           </p>
         </motion.div>
 
