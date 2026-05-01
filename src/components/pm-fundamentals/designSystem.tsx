@@ -484,6 +484,49 @@ export const NextChapterTeaser = ({ text, accent: _accent }: { text: string; acc
 // ─────────────────────────────────────────
 // TILT CARD — shared 3D mouse-tracking wrapper for all mockups
 // ─────────────────────────────────────────
+// ─── CharacterChip ────────────────────────────────────────────────────────────
+// Squircle, opaque, fixed-width character card for pre-read hero sections.
+// Face is displayed prominently on top. No desc paragraph.
+// Usage: <CharacterChip name="..." role="..." accent="#..."><MentorFace ... /></CharacterChip>
+export const CharacterChip = ({
+  name, role, accent, children,
+}: {
+  name: string;
+  role: string;
+  accent: string;
+  children: React.ReactNode;
+}) => (
+  <div style={{
+    width: '108px',
+    flexShrink: 0,
+    padding: '16px 10px 14px',
+    borderRadius: '20px',
+    background: 'var(--ed-card)',
+    border: '1px solid var(--ed-rule)',
+    boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '8px',
+    textAlign: 'center' as const,
+  }}>
+    <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+      {children}
+    </div>
+    <div style={{ fontSize: '12px', fontWeight: 700, color: accent, lineHeight: 1.2 }}>
+      {name}
+    </div>
+    <div style={{
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: '8px',
+      color: 'var(--ed-ink3)',
+      lineHeight: 1.4,
+    }}>
+      {role}
+    </div>
+  </div>
+);
+
 export const TiltCard = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);

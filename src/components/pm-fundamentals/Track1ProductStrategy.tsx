@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard,
+  TiltCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -784,20 +784,9 @@ export default function Track1ProductStrategy({
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
               {CHARACTERS.map(c => (
-                <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '12px 14px', minWidth: '130px', flex: '1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
-                    <MentorFace mentor={c.mentor} size={42} />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>
-                        {{ priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor]}
-                      </div>
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>
-                        {{ priya: 'APM · EdSpark', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor]}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-                </div>
+                <CharacterChip name={{ priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor] ?? ''} role={{ priya: 'APM · EdSpark', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor] ?? ''} accent={c.accent}>
+                  <MentorFace mentor={c.mentor} size={52} />
+                </CharacterChip>
               ))}
             </div>
           </div>

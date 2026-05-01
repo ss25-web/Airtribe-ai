@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene, PMPrincipleBox,
+  TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -726,16 +726,9 @@ const IntroHero = () => (
             { emoji: '🎨', name: 'Maya', role: 'Designer · EdSpark', desc: 'Helps run interview studies. Learns to catch survivorship bias before it corrupts the data.', accent: 'var(--purple)' },
             { emoji: '🧑‍🏫', name: 'Asha', role: 'AI Mentor', desc: 'Challenges your assumptions. Appears throughout the module to sharpen your thinking.', accent: '#4F46E5' },
           ].map(c => (
-            <div key={c.name} style={{ flex: '1', minWidth: '180px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${c.accent}`, padding: '12px 14px' }}>
-              <div style={{ display: 'flex', gap: '9px', alignItems: 'center', marginBottom: '7px' }}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: `${c.accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>{c.emoji}</div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.2 }}>{c.name}</div>
-                  <div style={{ fontSize: '9px', color: c.accent, fontFamily: 'monospace', marginTop: '1px', fontWeight: 600 }}>{c.role}</div>
-                </div>
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>{c.desc}</div>
-            </div>
+            <CharacterChip key={c.name} name={c.name} role={c.role} accent={c.accent}>
+              <MentorFace mentor={{ 'Priya Sharma': 'priya', 'Rohan': 'rohan', 'Maya': 'maya', 'Asha': 'asha' }[c.name] as 'priya' | 'rohan' | 'maya' | 'kiran' | 'dev' | 'asha'} size={52} />
+            </CharacterChip>
           ))}
         </div>
       </div>

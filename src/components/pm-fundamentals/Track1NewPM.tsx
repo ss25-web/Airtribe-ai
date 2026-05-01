@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -777,16 +777,9 @@ const IntroHero = () => (
               { mentor: 'kiran' as const, accent: '#0097A7', desc: 'Brings the number nobody wanted to see.' },
               { mentor: 'asha'  as const, accent: '#7843EE', desc: 'Asks the question you haven\'t thought to ask yet.' },
             ]).map(c => (
-              <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '12px 14px', minWidth: '130px', flex: '1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '7px' }}>
-                  <MentorFace mentor={c.mentor} size={42} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{{ priya: 'Priya', maya: 'Maya', dev: 'Dev', kiran: 'Kiran', asha: 'Asha' }[c.mentor]}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{{ priya: 'APM · EdSpark', maya: 'Designer', dev: 'Engineer', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor]}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-              </div>
+              <CharacterChip name={{ priya: 'Priya', maya: 'Maya', dev: 'Dev', kiran: 'Kiran', asha: 'Asha' }[c.mentor] ?? ''} role={{ priya: 'APM · EdSpark', maya: 'Designer', dev: 'Engineer', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor] ?? ''} accent={c.accent}>
+                <MentorFace mentor={c.mentor} size={52} />
+              </CharacterChip>
             ))}
           </div>
         </div>

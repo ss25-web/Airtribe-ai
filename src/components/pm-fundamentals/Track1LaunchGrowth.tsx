@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   h2, para, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
@@ -81,16 +81,9 @@ export default function Track1LaunchGrowth({
                 { mentor: 'kiran' as const, accent: '#3A86FF', name: 'Kiran',  role: 'Data Partner',       desc: 'Helps define what launch success and activation actually mean.' },
                 { mentor: 'maya'  as const, accent: '#C85A40', name: 'Sonal',  role: 'Customer Success',   desc: 'Brings account risk, onboarding pain, and enterprise readiness into the room.' },
               ]).map(c => (
-                <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <MentorFace mentor={c.mentor} size={40} />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{c.name}</div>
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{c.role}</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-                </div>
+                <CharacterChip name={c.name} role={c.role} accent={c.accent}>
+                  <MentorFace mentor={c.mentor} size={52} />
+                </CharacterChip>
               ))}
             </div>
 

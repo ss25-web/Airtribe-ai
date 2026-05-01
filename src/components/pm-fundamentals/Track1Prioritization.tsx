@@ -5,7 +5,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard, ConversationScene, PMPrincipleBox,
+  TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -919,16 +919,9 @@ const IntroHero = ({ completedSections }: { completedSections: Set<string> }) =>
                   const name = { priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', dev: 'Marcus', asha: 'Asha' }[c.mentor];
                   const role = { priya: 'APM · 2 yrs', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', dev: 'Sales · EdSpark', asha: 'AI Mentor' }[c.mentor];
                   return (
-                    <div key={c.mentor} style={{ background: `${accent}0D`, border: `1px solid ${accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                        <MentorFace mentor={c.mentor} size={44} />
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '13px', color: accent, lineHeight: 1.2 }}>{name}</div>
-                          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{role}</div>
-                        </div>
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-                    </div>
+                    <CharacterChip key={c.mentor} name={name ?? ''} role={role ?? ''} accent={accent ?? ACCENT}>
+                      <MentorFace mentor={c.mentor} size={52} />
+                    </CharacterChip>
                   );
                 })}
               </div>

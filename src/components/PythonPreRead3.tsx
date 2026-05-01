@@ -810,11 +810,12 @@ export default function PythonPreRead3({ onBack }: Props) {
             { char: 'kabir' as const, n:'Kabir', r:'Senior Backend Engineer', d:'Thinks in reproducibility, debugging, and reliable code.', c:'#7843EE' },
             { char: 'meera' as const, n:'Meera', r:'Data-focused Teammate', d:'Cares about careful handling of input, output, and failure.', c:'#C85A40' },
           ]).map(c => (
-            <div key={c.n} style={{ background: `${c.c}0D`, border: `1px solid ${c.c}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ marginBottom: '6px' }}><PythonMentorFace char={c.char} size={38} /></div>
-              <div style={{ fontWeight: 700, fontSize: '12px', color: c.c, marginBottom: '2px' }}>{c.n}</div>
-              <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.r}</div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.d}</div>
+            <div key={c.n} style={{ width: '108px', flexShrink: 0, padding: '16px 10px 14px', borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+              <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                <PythonMentorFace char={c.char} size={52} />
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: c.c, lineHeight: 1.2 }}>{c.n}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{c.r}</div>
             </div>
           ))}
         </div>

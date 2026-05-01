@@ -5,7 +5,7 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene,
+  TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -832,20 +832,13 @@ export default function Track2UXDesign() {
               { mentor: 'rohan' as const, accent: '#4F46E5', desc: 'Wants features. Changes his mind when you show him what inconsistency costs.' },
               { mentor: 'asha'  as const, accent: '#0097A7', desc: 'Asks the question that reframes the whole trade-off.' },
             ]).map(c => (
-              <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '150px', flex: '1' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                  <MentorFace mentor={c.mentor} size={44} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>
-                      {{ priya: 'Priya', maya: 'Maya', kiran: 'Kiran', dev: 'Dev', rohan: 'Rohan', asha: 'Asha' }[c.mentor]}
-                    </div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>
-                      {{ priya: 'APM · 2 yrs', maya: 'Senior Designer', kiran: 'Data Analyst', dev: 'Eng Lead', rohan: 'CEO · EdSpark', asha: 'AI Mentor' }[c.mentor]}
-                    </div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-              </div>
+              <CharacterChip
+                name={{ priya: 'Priya', maya: 'Maya', kiran: 'Kiran', dev: 'Dev', rohan: 'Rohan', asha: 'Asha' }[c.mentor] ?? ''}
+                role={{ priya: 'APM · 2 yrs', maya: 'Senior Designer', kiran: 'Data Analyst', dev: 'Eng Lead', rohan: 'CEO · EdSpark', asha: 'AI Mentor' }[c.mentor] ?? ''}
+                accent={c.accent}
+              >
+                <MentorFace mentor={c.mentor} size={52} />
+              </CharacterChip>
             ))}
           </div>
 

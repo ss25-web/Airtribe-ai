@@ -9,3 +9,1272 @@
 
 ✓ Starting...
 ✓ Ready in 5.1s
+○ Compiling / ...
+ GET / 200 in 35.7s (compile: 34.4s, render: 1373ms)
+ GET / 200 in 2.7s (compile: 1019ms, render: 1644ms)
+ GET / 200 in 1837ms (compile: 630ms, render: 1207ms)
+ GET / 200 in 200ms (compile: 24ms, render: 175ms)
+ GET / 200 in 1761ms (compile: 692ms, render: 1069ms)
+ GET / 200 in 279ms (compile: 14ms, render: 265ms)
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/ProblemDiscoveryModule.tsx:8:1
+Module not found: Can't resolve './pm-fundamentals/Track2ProblemDiscovery'
+   6 | import type { Track } from './pm-fundamentals/designSystem';
+   7 | import Track1ProblemDiscovery from './pm-fundamentals/Track1ProblemDiscovery';
+>  8 | import Track2ProblemDiscovery from './pm-fundamentals/Track2ProblemDiscovery';
+     | ^
+   9 |
+  10 | const ROMAN = ['I','II','III','IV','V','VI','VII'];
+  11 | const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expected ',', got 'ident'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:319:1]
+ 316 |     bias: 'Survivorship bias',
+ 317 |     color: 'var(--coral)',
+ 318 |     explanation: "You're only talking to the people who didn't leave. Churned managers — the ones who represent your actual problem — are invisible. Of course active users say they're happy. You've excluded the signal you need most.",
+ 319 |     fix: 'Deliberately recruit churned users. If that's hard, use support ticket analysis (Kraftful) to surface the voice of users who stopped engaging.',
+     :                                                       ^
+ 320 |   },
+ 321 |   {
+ 322 |     scenario: 'You\'ve decided the problem is "no progress signal." You run interviews and find lots of supporting evidence.',
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expected '</', got ')'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:137:1]
+ 134 |                     animate={{ height: `${(bar.val / maxVal) * 80}px` }}
+ 135 |                     transition={{ delay: i * 0.1 + bi * 0.05, duration: 0.6, ease: 'easeOut' }}
+ 136 |                     style={{ background: bar.color, borderRadius: '3px 3px 0 0', opacity: 0.85 }}
+ 137 |                 ))}
+     :                 ^
+ 138 |               </div>
+ 139 |               <div style={{ textAlign: 'center' as const, fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>{d.month}</div>
+ 140 |             </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expected '</', got ')'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:137:1]
+ 134 |                     animate={{ height: `${(bar.val / maxVal) * 80}px` }}
+ 135 |                     transition={{ delay: i * 0.1 + bi * 0.05, duration: 0.6, ease: 'easeOut' }}
+ 136 |                     style={{ background: bar.color, borderRadius: '3px 3px 0 0', opacity: 0.85 }}
+ 137 |                 ))}
+     :                 ^
+ 138 |               </div>
+ 139 |               <div style={{ textAlign: 'center' as const, fontSize: '9px', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>{d.month}</div>
+ 140 |             </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:570:1]
+ 567 |           nameColor="var(--teal)"
+ 568 |           borderColor="var(--teal)"
+ 569 |           content={<><strong>APM · 2 years in · EdSpark</strong><br />Two years ago Priya joined as a junior PM. Now she leads a cross-functional team — and she&apos;s realised that the hardest part of the job isn&apos;t running interviews. It&apos;s making sure the team is working on the right problem in the first place.</>}
+ 570 |         <div style={{ marginTop: '16px', padding: '14px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
+     :         ^
+ 571 |           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>THIS WEEK AT EDSPARK</div>
+ 572 |           <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
+ 573 |             Priya&apos;s team has shipped 3 onboarding improvements. Retention didn&apos;t move. The CEO has a new theory. Priya has data that suggests a completely different problem.
+     `----
+  x Expected ',', got 'ident'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:570:1]
+ 567 |           nameColor="var(--teal)"
+ 568 |           borderColor="var(--teal)"
+ 569 |           content={<><strong>APM · 2 years in · EdSpark</strong><br />Two years ago Priya joined as a junior PM. Now she leads a cross-functional team — and she&apos;s realised that the hardest part of the job isn&apos;t running interviews. It&apos;s making sure the team is working on the right problem in the first place.</>}
+ 570 |         <div style={{ marginTop: '16px', padding: '14px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
+     :              ^^^^^
+ 571 |           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>THIS WEEK AT EDSPARK</div>
+ 572 |           <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
+ 573 |             Priya&apos;s team has shipped 3 onboarding improvements. Retention didn&apos;t move. The CEO has a new theory. Priya has data that suggests a completely different problem.
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:625:1]
+ 622 |           conceptName={QUIZZES[0].conceptName}
+ 623 |           moduleContext={MODULE_CONTEXT}
+ 624 |           staticQuiz={{ conceptId: QUIZZES[0].conceptId, question: QUIZZES[0].question, options: QUIZZES[0].options, correctIndex: QUIZZES[0].correctIndex, explanation: QUIZZES[0].explanation, keyInsight: QUIZZES[0].keyInsight }}
+ 625 |       </ChapterSection>
+     :       ^
+ 626 | 
+ 627 |       {/* PART 2 — RESEARCH OPS */}
+ 628 |       <ChapterSection id="m2-customer-segments" num="02" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:625:1]
+ 622 |           conceptName={QUIZZES[0].conceptName}
+ 623 |           moduleContext={MODULE_CONTEXT}
+ 624 |           staticQuiz={{ conceptId: QUIZZES[0].conceptId, question: QUIZZES[0].question, options: QUIZZES[0].options, correctIndex: QUIZZES[0].correctIndex, explanation: QUIZZES[0].explanation, keyInsight: QUIZZES[0].keyInsight }}
+ 625 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 626 | 
+ 627 |       {/* PART 2 — RESEARCH OPS */}
+ 628 |       <ChapterSection id="m2-customer-segments" num="02" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:671:1]
+ 668 |           conceptName={QUIZZES[1].conceptName}
+ 669 |           moduleContext={MODULE_CONTEXT}
+ 670 |           staticQuiz={{ conceptId: QUIZZES[1].conceptId, question: QUIZZES[1].question, options: QUIZZES[1].options, correctIndex: QUIZZES[1].correctIndex, explanation: QUIZZES[1].explanation, keyInsight: QUIZZES[1].keyInsight }}
+ 671 |       </ChapterSection>
+     :       ^
+ 672 | 
+ 673 |       {/* PART 3 — RESEARCH BIASES */}
+ 674 |       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:671:1]
+ 668 |           conceptName={QUIZZES[1].conceptName}
+ 669 |           moduleContext={MODULE_CONTEXT}
+ 670 |           staticQuiz={{ conceptId: QUIZZES[1].conceptId, question: QUIZZES[1].question, options: QUIZZES[1].options, correctIndex: QUIZZES[1].correctIndex, explanation: QUIZZES[1].explanation, keyInsight: QUIZZES[1].keyInsight }}
+ 671 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 672 | 
+ 673 |       {/* PART 3 — RESEARCH BIASES */}
+ 674 |       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:671:1]
+ 668 |           conceptName={QUIZZES[1].conceptName}
+ 669 |           moduleContext={MODULE_CONTEXT}
+ 670 |           staticQuiz={{ conceptId: QUIZZES[1].conceptId, question: QUIZZES[1].question, options: QUIZZES[1].options, correctIndex: QUIZZES[1].correctIndex, explanation: QUIZZES[1].explanation, keyInsight: QUIZZES[1].keyInsight }}
+ 671 |       </ChapterSection>
+     :       ^
+ 672 | 
+ 673 |       {/* PART 3 — RESEARCH BIASES */}
+ 674 |       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:671:1]
+ 668 |           conceptName={QUIZZES[1].conceptName}
+ 669 |           moduleContext={MODULE_CONTEXT}
+ 670 |           staticQuiz={{ conceptId: QUIZZES[1].conceptId, question: QUIZZES[1].question, options: QUIZZES[1].options, correctIndex: QUIZZES[1].correctIndex, explanation: QUIZZES[1].explanation, keyInsight: QUIZZES[1].keyInsight }}
+ 671 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 672 | 
+ 673 |       {/* PART 3 — RESEARCH BIASES */}
+ 674 |       <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:785:1]
+ 782 |             If your findings can&apos;t be summarised in one sentence that explains <em>why</em> — not just <em>what</em> — you haven&apos;t synthesised. You&apos;ve listed. The sentence Priya landed on: <strong>&ldquo;Managers hire EdSpark to prove their coaching works — but the product never shows them that it does.&rdquo;</strong>
+ 783 |           </div>
+ 784 |         </InfoBox>
+ 785 |         />
+     :          ^
+ 786 | 
+ 787 | 
+ 788 |         <QuizEngine
+     `----
+  x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:793:1]
+ 790 |           conceptName={QUIZZES[4].conceptName}
+ 791 |           moduleContext={MODULE_CONTEXT}
+ 792 |           staticQuiz={{ conceptId: QUIZZES[4].conceptId, question: QUIZZES[4].question, options: QUIZZES[4].options, correctIndex: QUIZZES[4].correctIndex, explanation: QUIZZES[4].explanation, keyInsight: QUIZZES[4].keyInsight }}
+ 793 |       </ChapterSection>
+     :       ^
+ 794 | 
+ 795 |       {/* PART 6 — PROBLEM FRAMING */}
+ 796 |       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:793:1]
+ 790 |           conceptName={QUIZZES[4].conceptName}
+ 791 |           moduleContext={MODULE_CONTEXT}
+ 792 |           staticQuiz={{ conceptId: QUIZZES[4].conceptId, question: QUIZZES[4].question, options: QUIZZES[4].options, correctIndex: QUIZZES[4].correctIndex, explanation: QUIZZES[4].explanation, keyInsight: QUIZZES[4].keyInsight }}
+ 793 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 794 | 
+ 795 |       {/* PART 6 — PROBLEM FRAMING */}
+ 796 |       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:784:1]
+ 781 |             If your findings can&apos;t be summarised in one sentence that explains <em>why</em> — not just <em>what</em> — you haven&apos;t synthesised. You&apos;ve listed. The sentence Priya landed on: <strong>&ldquo;Managers hire EdSpark to prove their coaching works — but the product never shows them that it does.&rdquo;</strong>
+ 782 |           </div>
+ 783 |         </InfoBox>
+ 784 |         />
+     :          ^
+ 785 | 
+ 786 | 
+ 787 |         <QuizEngine
+     `----
+  x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:792:1]
+ 789 |           conceptName={QUIZZES[4].conceptName}
+ 790 |           moduleContext={MODULE_CONTEXT}
+ 791 |           staticQuiz={{ conceptId: QUIZZES[4].conceptId, question: QUIZZES[4].question, options: QUIZZES[4].options, correctIndex: QUIZZES[4].correctIndex, explanation: QUIZZES[4].explanation, keyInsight: QUIZZES[4].keyInsight }}
+ 792 |       </ChapterSection>
+     :       ^
+ 793 | 
+ 794 |       {/* PART 6 — PROBLEM FRAMING */}
+ 795 |       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:792:1]
+ 789 |           conceptName={QUIZZES[4].conceptName}
+ 790 |           moduleContext={MODULE_CONTEXT}
+ 791 |           staticQuiz={{ conceptId: QUIZZES[4].conceptId, question: QUIZZES[4].question, options: QUIZZES[4].options, correctIndex: QUIZZES[4].correctIndex, explanation: QUIZZES[4].explanation, keyInsight: QUIZZES[4].keyInsight }}
+ 792 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 793 | 
+ 794 |       {/* PART 6 — PROBLEM FRAMING */}
+ 795 |       <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:815:1]
+ 812 |         <InfoBox title="Write your discovery brief">
+ 813 |           <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
+ 814 |             One sentence: <strong>[segment] are trying to [job to be done], but [the gap the product creates].</strong> No solution in the statement. If you catch yourself writing &ldquo;we should&rdquo; or &ldquo;we need to,&rdquo; you&apos;ve crossed into solution space. Back up.
+ 815 |         />
+     :          ^
+ 816 | 
+ 817 |           </div>
+ 818 |         </InfoBox>
+     `----
+  x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:825:1]
+ 822 |           conceptName={QUIZZES[5].conceptName}
+ 823 |           moduleContext={MODULE_CONTEXT}
+ 824 |           staticQuiz={{ conceptId: QUIZZES[5].conceptId, question: QUIZZES[5].question, options: QUIZZES[5].options, correctIndex: QUIZZES[5].correctIndex, explanation: QUIZZES[5].explanation, keyInsight: QUIZZES[5].keyInsight }}
+ 825 |       </ChapterSection>
+     :       ^
+ 826 | 
+ 827 |       {/* FINAL REFLECTION */}
+ 828 |       <ChapterSection id="m2-reflection" num="07" accentRgb="0,151,167">
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:825:1]
+ 822 |           conceptName={QUIZZES[5].conceptName}
+ 823 |           moduleContext={MODULE_CONTEXT}
+ 824 |           staticQuiz={{ conceptId: QUIZZES[5].conceptId, question: QUIZZES[5].question, options: QUIZZES[5].options, correctIndex: QUIZZES[5].correctIndex, explanation: QUIZZES[5].explanation, keyInsight: QUIZZES[5].keyInsight }}
+ 825 |       </ChapterSection>
+     :        ^^^^^^^^^^^^^^^^
+ 826 | 
+ 827 |       {/* FINAL REFLECTION */}
+ 828 |       <ChapterSection id="m2-reflection" num="07" accentRgb="0,151,167">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:700:1]
+ 697 |         <QuizEngine
+ 698 |           conceptId={QUIZZES[2].conceptId}
+ 699 |           conceptName={QUIZZES[2].conceptName}
+ 700 |         <QuizEngine
+     :         ^
+ 701 |           conceptId={QUIZZES[2].conceptId}
+ 702 |           conceptName={QUIZZES[2].conceptName}
+ 703 |           moduleContext={MODULE_CONTEXT}
+     `----
+  x Expected ',', got 'ident'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:701:1]
+ 698 |           conceptId={QUIZZES[2].conceptId}
+ 699 |           conceptName={QUIZZES[2].conceptName}
+ 700 |         <QuizEngine
+ 701 |           conceptId={QUIZZES[2].conceptId}
+     :           ^^^^^^^^^
+ 702 |           conceptName={QUIZZES[2].conceptName}
+ 703 |           moduleContext={MODULE_CONTEXT}
+ 704 |           staticQuiz={{ conceptId: QUIZZES[2].conceptId, question: QUIZZES[2].question, options: QUIZZES[2].options, correctIndex: QUIZZES[2].correctIndex, explanation: QUIZZES[2].explanation, keyInsight: QUIZZES[2].keyInsight }}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+    ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:94:1]
+ 91 | // ─────────────────────────────────────────
+ 92 | // KRAFTFUL: TREND ANALYSIS MOCKUP
+ 93 | // ─────────────────────────────────────────
+ 94 | const KraftfulTrendMockup = () => {
+    :                                 ^
+ 95 |   // Each month: two side-by-side bars (onboarding, value)
+ 96 |   const months = [
+ 97 |     { month: 'Oct', onboarding: 38, value: 21 },
+    `----
+  x Expected '</', got 'const'
+    ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:96:1]
+ 93 | // ─────────────────────────────────────────
+ 94 | const KraftfulTrendMockup = () => {
+ 95 |   // Each month: two side-by-side bars (onboarding, value)
+ 96 |   const months = [
+    :   ^^^^^
+ 97 |     { month: 'Oct', onboarding: 38, value: 21 },
+ 98 |     { month: 'Nov', onboarding: 36, value: 29 },
+ 99 |     { month: 'Dec', onboarding: 31, value: 38 },
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:285:1]
+ 282 |       </div>
+ 283 |     </div>
+ 284 |   );
+ 285 | };
+     : ^
+ 286 | 
+ 287 | // ─────────────────────────────────────────
+ 288 | // INTERACTIVE 1: CHALLENGE THE BRIEF
+     `----
+  x Expected '</', got ':'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:292:1]
+ 289 | // ─────────────────────────────────────────
+ 290 | const BRIEF_SCENARIOS = [
+ 291 |   {
+ 292 |     ceo_brief: '"We need better onboarding. Users are confused in the first week."',
+     :              ^
+ 293 |     data_point: 'Kraftful shows onboarding-related tickets declining 26% while value-visibility tickets rose 95% over 4 months.',
+ 294 |     options: [
+ 295 |       { label: 'Run with it — CEO said onboarding, do onboarding', outcome: 'wrong', feedback: "You optimise for yesterday's problem. Onboarding confusion is declining — you'll ship improvements right as the root cause has shifted. 3 months wasted." },
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expected '</', got 'jsx text'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:657:1]
+ 654 |     
+ 655 |           {/* PART 1 — THE BRIEF THAT'S WRONG */}
+ 656 |           <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">
+ 657 | ,->         <h2 style={{ fontSize: 'clamp(22px, 2.8vw, 32px)', fontWeight: 700, lineHeight: 1.25, letterSpacing: '-0.02em', color: 'var(--teal)', marginBottom: '20px', fontFamily: "'Lora', 'Georgia', serif" }}>Part I · When the Brief Is Wrong</div>
+ 658 | `->         <SituationCard>
+ 659 |               Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
+ 660 |             </SituationCard>
+ 661 |             <p style={{ fontSize: "15px", color: "var(--ed-ink2)", lineHeight: 1.8, marginBottom: "20px" }}>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+Error:   x Expected '</', got 'ident'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track2ProblemDiscovery.tsx:657:1]
+ 654 | 
+ 655 |       {/* PART 1 — THE BRIEF THAT'S WRONG */}
+ 656 |       <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">
+ 657 |         <h2 style={{ fontSize: "clamp(22px, 2.8vw, 32px)", fontWeight: 700, lineHeight: 1.25, letterSpacing: "-0.02em", color: "var(--teal)", marginBottom: "20px", fontFamily: "'"Lora', 'Georgia', serif" }}>Part I · When the Brief Is Wrong</h2>
+     :                                                                                                                                                                                    ^^^^
+ 658 |         <SituationCard>
+ 659 |           Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
+ 660 |         </SituationCard>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track2ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+ GET / 200 in 1971ms (compile: 819ms, render: 1152ms)
+⨯ ./src/components/pm-fundamentals/Track1UXDesign.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:128:1]
+ 125 | // ─────────────────────────────────────────
+ 126 | // LOCAL: SESSION RECORDING MOCKUP
+ 127 | // ─────────────────────────────────────────
+ 128 | const SessionRecordingMockup = () => {
+     :                                    ^
+ 129 |   const [phase, setPhase] = useState(0);
+ 130 |   const [isPlaying, setIsPlaying] = useState(false);
+ 131 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:129:1]
+ 126 | // LOCAL: SESSION RECORDING MOCKUP
+ 127 | // ─────────────────────────────────────────
+ 128 | const SessionRecordingMockup = () => {
+ 129 |   const [phase, setPhase] = useState(0);
+     :   ^^^^^
+ 130 |   const [isPlaying, setIsPlaying] = useState(false);
+ 131 |   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1UXDesign.tsx
+./src/components/UXDesignModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1UXDesign.tsx
+Error:   x Expected corresponding JSX closing tag for <TiltCard>
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:360:1]
+ 357 |         <span>·</span>
+ 358 |         <span>Process completion: 45s</span>
+ 359 |       </div>
+ 360 |     </div>
+     :       ^^^
+ 361 |   );
+ 362 | };
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1UXDesign.tsx
+./src/components/UXDesignModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1UXDesign.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:361:1]
+ 358 |         <span>Process completion: 45s</span>
+ 359 |       </div>
+ 360 |     </div>
+ 361 |     </TiltCard>
+     :     ^
+ 362 |   );
+ 363 | };
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:361:1]
+ 358 |         <span>Process completion: 45s</span>
+ 359 |       </div>
+ 360 |     </div>
+ 361 |     </TiltCard>
+     :      ^^^^^^^^^^
+ 362 |   );
+ 363 | };
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1UXDesign.tsx
+./src/components/UXDesignModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1UXDesign.tsx
+Error:   x Expression expected
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:361:1]
+ 358 |         <span>Process completion: 45s</span>
+ 359 |       </div>
+ 360 |     </div>
+ 361 |     </TiltCard>
+     :     ^
+ 362 |   );
+ 363 | };
+     `----
+  x Unterminated regexp literal
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1UXDesign.tsx:361:1]
+ 358 |         <span>Process completion: 45s</span>
+ 359 |       </div>
+ 360 |     </div>
+ 361 |     </TiltCard>
+     :      ^^^^^^^^^^
+ 362 |   );
+ 363 | };
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1UXDesign.tsx
+./src/components/UXDesignModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:123:1]
+ 120 | // ─────────────────────────────────────────
+ 121 | // KRAFTFUL DASHBOARD MOCKUP
+ 122 | // ─────────────────────────────────────────
+ 123 | const KraftfulDashboardMockup = () => {
+     :                                     ^
+ 124 |   const clusters = [
+ 125 |     { label: 'Not knowing where to start', pct: 34, color: '#00BCD4', tickets: '127 tickets' },
+ 126 |     { label: 'Confused about feature differences', pct: 28, color: '#4F46E5', tickets: '104 tickets' },
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:124:1]
+ 121 | // KRAFTFUL DASHBOARD MOCKUP
+ 122 | // ─────────────────────────────────────────
+ 123 | const KraftfulDashboardMockup = () => {
+ 124 |   const clusters = [
+     :   ^^^^^
+ 125 |     { label: 'Not knowing where to start', pct: 34, color: '#00BCD4', tickets: '127 tickets' },
+ 126 |     { label: 'Confused about feature differences', pct: 28, color: '#4F46E5', tickets: '104 tickets' },
+ 127 |     { label: 'Other / mixed feedback', pct: 20, color: '#8A8580', tickets: '75 tickets' },
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:172:1]
+ 169 |       </div>
+ 170 |     </div>
+ 171 |   );
+ 172 | };
+     : ^
+ 173 | 
+ 174 | // ─────────────────────────────────────────
+ 175 | // DOVETAIL TAGGING MOCKUP
+     `----
+  x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:177:1]
+ 174 | // ─────────────────────────────────────────
+ 175 | // DOVETAIL TAGGING MOCKUP
+ 176 | // ─────────────────────────────────────────
+ 177 | const DovetailTaggingMockup = () => {
+     :                                   ^
+ 178 |   const [activeTag, setActiveTag] = useState<string | null>(null);
+ 179 |   const interviews = [
+ 180 |     { name: 'Rahul Shah', tags: ["doesn't know what good looks like", 'job: prove value to director', 'completed setup fine'] },
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:178:1]
+ 175 | // DOVETAIL TAGGING MOCKUP
+ 176 | // ─────────────────────────────────────────
+ 177 | const DovetailTaggingMockup = () => {
+ 178 |   const [activeTag, setActiveTag] = useState<string | null>(null);
+     :   ^^^^^
+ 179 |   const interviews = [
+ 180 |     { name: 'Rahul Shah', tags: ["doesn't know what good looks like", 'job: prove value to director', 'completed setup fine'] },
+ 181 |     { name: 'Kavita R.', tags: ["doesn't know what good looks like", 'no frame of reference', 'opened recording, got stuck'] },
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:256:1]
+ 253 |       </div>
+ 254 |     </div>
+ 255 |   );
+ 256 | };
+     : ^
+ 257 | 
+ 258 | const MODULE_CONTEXT = `Module 02 of Airtribe PM Fundamentals — Track: New to PM.
+ 259 | Continues with Priya Sharma, PM at EdSpark (B2B SaaS for sales coaching). She must investigate why 40% of users churn in week 2. Covers: resisting premature solutions, customer segmentation, Jobs to Be Done, choosing research methods (using Notion for notes, Dovetail for synthesis, Kraftful for AI analysis), running user interviews, affinity mapping, and writing a discovery brief.`;
+     `----
+  x Expected '</', got ':'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1ProblemDiscovery.tsx:263:1]
+ 260 | 
+ 261 | const QUIZZES = [
+ 262 |   {
+ 263 |     question: "Your manager says '40% of users churn in week 2 — fix it.' You have a theory about onboarding. What do you do first?",
+     :             ^
+ 264 |     options: [
+ 265 |       'A. Start redesigning the onboarding — your instinct is probably right',
+ 266 |       'B. Talk to 5–6 churned users before touching anything',
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1ProblemDiscovery.tsx
+./src/components/ProblemDiscoveryModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1Prioritization.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:107:1]
+ 104 |       </div>
+ 105 |     </div>
+ 106 |   );
+ 107 | };
+     : ^
+ 108 | 
+ 109 | // ─────────────────────────────────────────
+ 110 | // LOCAL: REFRAMING EXERCISE (flip cards)
+     `----
+  x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:112:1]
+ 109 | // ─────────────────────────────────────────
+ 110 | // LOCAL: REFRAMING EXERCISE (flip cards)
+ 111 | // ─────────────────────────────────────────
+ 112 | const ReframingExercise = () => {
+     :                               ^
+ 113 |   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
+ 114 | 
+ 115 |   const cards = [
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:113:1]
+ 110 | // LOCAL: REFRAMING EXERCISE (flip cards)
+ 111 | // ─────────────────────────────────────────
+ 112 | const ReframingExercise = () => {
+ 113 |   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
+     :   ^^^^^
+ 114 | 
+ 115 |   const cards = [
+ 116 |     {
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1Prioritization.tsx
+./src/components/PrioritizationModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1Prioritization.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:301:1]
+ 298 |       </div>
+ 299 |     </div>
+ 300 |   );
+ 301 | };
+     : ^
+ 302 | 
+ 303 | // ─────────────────────────────────────────
+ 304 | // LOCAL: RICE CALCULATOR MOCKUP
+     `----
+  x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:306:1]
+ 303 | // ─────────────────────────────────────────
+ 304 | // LOCAL: RICE CALCULATOR MOCKUP
+ 305 | // ─────────────────────────────────────────
+ 306 | const RICECalculatorMockup = () => {
+     :                                  ^
+ 307 |   const rows = [
+ 308 |     { problem: 'Onboarding gap', reach: 500, impact: 2, confidence: 80, effort: 1, score: 800, winner: true },
+ 309 |     { problem: 'Search improvements', reach: 200, impact: 1, confidence: 60, effort: 2, score: 60, winner: false },
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:307:1]
+ 304 | // LOCAL: RICE CALCULATOR MOCKUP
+ 305 | // ─────────────────────────────────────────
+ 306 | const RICECalculatorMockup = () => {
+ 307 |   const rows = [
+     :   ^^^^^
+ 308 |     { problem: 'Onboarding gap', reach: 500, impact: 2, confidence: 80, effort: 1, score: 800, winner: true },
+ 309 |     { problem: 'Search improvements', reach: 200, impact: 1, confidence: 60, effort: 2, score: 60, winner: false },
+ 310 |     { problem: 'CRM Integration', reach: 50, impact: 2, confidence: 50, effort: 4, score: 12.5, winner: false },
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1Prioritization.tsx
+./src/components/PrioritizationModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1Prioritization.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:373:1]
+ 370 |       </div>
+ 371 |     </div>
+ 372 |   );
+ 373 | };
+     : ^
+ 374 | 
+ 375 | // ─────────────────────────────────────────
+ 376 | // LOCAL: STAKEHOLDER REPLY MOCKUP (Slack-style)
+     `----
+  x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:378:1]
+ 375 | // ─────────────────────────────────────────
+ 376 | // LOCAL: STAKEHOLDER REPLY MOCKUP (Slack-style)
+ 377 | // ─────────────────────────────────────────
+ 378 | const StakeholderReplyMockup = () => (
+     :                                    ^
+ 379 |   <div style={{ margin: '32px 0', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1A1D21', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+ 380 |     <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+ 381 |       <div style={{ display: 'flex', gap: '5px' }}>
+     `----
+  x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:451:1]
+ 448 | // ─────────────────────────────────────────
+ 449 | // LOCAL: PRIORITIZATION CHEAT SHEET
+ 450 | // ─────────────────────────────────────────
+ 451 | const PrioritizationCheatSheet = () => {
+     :                                      ^
+ 452 |   const sections = [
+ 453 |     {
+ 454 |       title: 'Problem Statement Template',
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:452:1]
+ 449 | // LOCAL: PRIORITIZATION CHEAT SHEET
+ 450 | // ─────────────────────────────────────────
+ 451 | const PrioritizationCheatSheet = () => {
+ 452 |   const sections = [
+     :   ^^^^^
+ 453 |     {
+ 454 |       title: 'Problem Statement Template',
+ 455 |       icon: '&#9672;',
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1Prioritization.tsx
+./src/components/PrioritizationModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/pm-fundamentals/Track1Prioritization.tsx
+Error:   x Unexpected token. Did you mean `{'>'}` or `&gt;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:452:1]
+ 449 | // ─────────────────────────────────────────
+ 450 | // LOCAL: PRIORITIZATION CHEAT SHEET
+ 451 | // ─────────────────────────────────────────
+ 452 | const PrioritizationCheatSheet = () => {
+     :                                      ^
+ 453 |   const sections = [
+ 454 |     {
+ 455 |       title: 'Problem Statement Template',
+     `----
+  x Expected '</', got 'const'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\pm-fundamentals\Track1Prioritization.tsx:453:1]
+ 450 | // LOCAL: PRIORITIZATION CHEAT SHEET
+ 451 | // ─────────────────────────────────────────
+ 452 | const PrioritizationCheatSheet = () => {
+ 453 |   const sections = [
+     :   ^^^^^
+ 454 |     {
+ 455 |       title: 'Problem Statement Template',
+ 456 |       icon: '&#9672;',
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/pm-fundamentals/Track1Prioritization.tsx
+./src/components/PrioritizationModule.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                               ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+  x Expected '</', got '#'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                                ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                               ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+  x Expected '</', got '#'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                                ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                               ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+  x Expected '</', got '#'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                                ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                               ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+  x Expected '</', got '#'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:516:1]
+ 513 |       <ChapterSection num="03" accentRgb={ACCENT_RGB} id="genai-preread-n8n">
+ 514 |         {chLabel('Why n8n')}
+ 515 |         {h2('n8n is not just a connector layer. It is the control layer.')}
+ 516 |         <SituationCard accent=”#0F766E” accentRgb=”15,118,110”>
+     :                                ^
+ 517 |           {track === ‘tech’
+ 518 |             ? <>Aarav&apos;s team starts wiring model calls directly into Python scripts. It works until it doesn&apos;t. When he asks &ldquo;Where does the retry logic live? Where does the Human Reviewer checkpoint sit? Where does the Systems / Platform Engineer inspect a failed run?&rdquo;, the answer is nowhere. That is when n8n stops looking like a convenience layer and starts looking like the right execution surface — the place where retries, approvals, observability, and control logic can all become explicit.</>
+ 519 |             : <>The team&apos;s first instinct is to wire everything directly inside app scripts and prompt templates. But once Rhea asks, &ldquo;Where does the Human Reviewer step happen? Where does the Risk / Compliance Reviewer see failures? Where does the Systems / Platform Engineer inspect runs?&rdquo;, the answer is fuzzy. That is when n8n stops looking like a convenience tool and starts looking like the execution surface.</>}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:652:1]
+ 649 |       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-preread-judgment">
+ 650 |         {chLabel('Use-Case Judgment')}
+ 651 |         {h2('Not every workflow should become an agent')}
+ 652 |         <SituationCard accent=”#C2410C” accentRgb=”194,65,12”>
+     :                               ^
+ 653 |           {track === 'tech'
+ 654 |             ? <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Aarav likes the ambition. But when he asks where the retry logic lives, what the Human Reviewer checkpoint looks like, and what happens when confidence is low, the answer is a shrug. The workflow has no control layer yet.</>
+ 654 |             : <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Rhea likes the ambition. But she also notices that the team has not agreed on what counts as a safe action, what requires Human Reviewer sign-off, or what happens when the model is unsure. The workflow is ambitious before it is trustworthy.</>}
+     `----
+  x Expected '</', got '#'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:652:1]
+ 649 |       <ChapterSection num="04" accentRgb={ACCENT_RGB} id="genai-preread-judgment">
+ 650 |         {chLabel('Use-Case Judgment')}
+ 651 |         {h2('Not every workflow should become an agent')}
+ 652 |         <SituationCard accent=”#C2410C” accentRgb=”194,65,12”>
+     :                                ^
+ 653 |           {track === 'tech'
+ 654 |             ? <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Aarav likes the ambition. But when he asks where the retry logic lives, what the Human Reviewer checkpoint looks like, and what happens when confidence is low, the answer is a shrug. The workflow has no control layer yet.</>
+ 654 |             : <>A senior teammate pitches an &ldquo;AI ops agent&rdquo; that reads inbound requests, updates records, triggers follow-ups, and auto-approves routine exceptions. Rhea likes the ambition. But she also notices that the team has not agreed on what counts as a safe action, what requires Human Reviewer sign-off, or what happens when the model is unsure. The workflow is ambitious before it is trustworthy.</>}
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/GenAIPreRead1.tsx
+Error:   x Legacy octal literals are not available when targeting ECMAScript 5 and higher
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:509:1]
+ 506 |         </div>
+ 507 |       </div>
+ 508 | 
+ 509 |       <ChapterSection num=”01” accentRgb={ACCENT_RGB} id=”genai-m1-whatitis” first>
+     :                            ^^
+ 510 |         {chLabel('Week 0 · Introduction to Generative AI')}
+ 511 |         {h2('It does not look things up. It generates what probably comes next.')}
+ 511 |         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+     `----
+  x Legacy octal escape is not permitted in strict mode
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:509:1]
+ 506 |         </div>
+ 507 |       </div>
+ 508 | 
+ 509 |       <ChapterSection num=”01” accentRgb={ACCENT_RGB} id=”genai-m1-whatitis” first>
+     :                            ^^
+ 510 |         {chLabel('Week 0 · Introduction to Generative AI')}
+ 511 |         {h2('It does not look things up. It generates what probably comes next.')}
+ 511 |         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+     `----
+  x Unexpected character '”'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:509:1]
+ 506 |         </div>
+ 507 |       </div>
+ 508 | 
+ 509 |       <ChapterSection num=”01” accentRgb={ACCENT_RGB} id=”genai-m1-whatitis” first>
+     :                           ^
+ 510 |         {chLabel('Week 0 · Introduction to Generative AI')}
+ 511 |         {h2('It does not look things up. It generates what probably comes next.')}
+ 511 |         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+     `----
+  x Expected '</', got 'numeric literal'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\GenAIPreRead1.tsx:509:1]
+ 506 |         </div>
+ 507 |       </div>
+ 508 | 
+ 509 |       <ChapterSection num=”01” accentRgb={ACCENT_RGB} id=”genai-m1-whatitis” first>
+     :                            ^^
+ 510 |         {chLabel('Week 0 · Introduction to Generative AI')}
+ 511 |         {h2('It does not look things up. It generates what probably comes next.')}
+ 511 |         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/GenAIPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/SWETrackSelection.tsx
+Error:   x Unterminated string constant
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWETrackSelection.tsx:191:1]
+ 188 |         {/* Footer note */}
+ 189 |         <motion.p
+ 190 |           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+ 191 |           style={{ textAlign: 'center', fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '36px', fontFamily: "'JetBrains Mono', monospace' }}>
+     :                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 192 |           Not sure? Python is the most beginner-friendly starting point.
+ 193 |         </motion.p>
+ 194 |       </div>
+     `----
+  x Expected '</', got 'ident'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWETrackSelection.tsx:192:1]
+ 189 |         <motion.p
+ 190 |           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+ 191 |           style={{ textAlign: 'center', fontSize: '12px', color: 'var(--ed-ink3)', marginTop: '36px', fontFamily: "'JetBrains Mono', monospace' }}>
+ 192 |           Not sure? Python is the most beginner-friendly starting point.
+     :           ^^^
+ 193 |         </motion.p>
+ 194 |       </div>
+ 195 |     </div>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/SWETrackSelection.tsx
+./src/app/page.tsx
+ GET / 200 in 1120ms (compile: 414ms, render: 706ms)
+○ Compiling /_not-found ...
+ GET / 404 in 3.2s (compile: 3.1s, render: 92ms)
+⨯ ./src/components/SWEPlacementQuiz.tsx:6:1
+Module not found: Can't resolve './SWELogos'
+  4 | import { motion, AnimatePresence } from 'framer-motion';
+  5 | import type { SWETrack, SWELevel } from './sweTypes';
+> 6 | import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+    | ^
+  7 |
+  8 | const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  9 |   python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/SWEPlacementQuiz.tsx:6:1
+Module not found: Can't resolve './SWELogos'
+  4 | import { motion, AnimatePresence } from 'framer-motion';
+  5 | import type { SWETrack, SWELevel } from './sweTypes';
+> 6 | import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+    | ^
+  7 |
+  8 | const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  9 |   python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/SWEPlacementQuiz.tsx:6:1
+Module not found: Can't resolve './SWELogos'
+  4 | import { motion, AnimatePresence } from 'framer-motion';
+  5 | import type { SWETrack, SWELevel } from './sweTypes';
+> 6 | import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+    | ^
+  7 |
+  8 | const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  9 |   python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/SWEPlacementQuiz.tsx:6:1
+Module not found: Can't resolve './SWELogos'
+  4 | import { motion, AnimatePresence } from 'framer-motion';
+  5 | import type { SWETrack, SWELevel } from './sweTypes';
+> 6 | import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+    | ^
+  7 |
+  8 | const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  9 |   python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+⨯ ./src/components/SWEPlacementQuiz.tsx:6:1
+Module not found: Can't resolve './SWELogos'
+  4 | import { motion, AnimatePresence } from 'framer-motion';
+  5 | import type { SWETrack, SWELevel } from './sweTypes';
+> 6 | import { PythonLogo, JavaLogo, NodejsLogo } from './SWELogos';
+    | ^
+  7 |
+  8 | const TRACK_LABEL: Record<SWETrack, { name: string; color: string; gradient: string }> = {
+  9 |   python: { name: 'Python',  color: '#16A34A', gradient: 'linear-gradient(135deg, #16A34A, #0D9488)' },
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./src/app/page.tsx
+ GET / 200 in 1247ms (compile: 496ms, render: 751ms)
+ GET / 200 in 459ms (compile: 207ms, render: 252ms)
+ GET / 200 in 947ms (compile: 498ms, render: 449ms)
+⨯ ./src/components/SWEPreRead1.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWEPreRead1.tsx:897:1]
+ 894 |       </div>
+ 895 |     </div>
+ 896 |   );
+ 897 | }
+     : ^
+     `----
+  x Expected '</', got '<eof>'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWEPreRead1.tsx:897:3]
+ 895 |     </div>
+ 896 |   );
+ 897 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/SWEPreRead1.tsx
+./src/app/page.tsx
+⨯ ./src/components/SWEPreRead1.tsx
+Error:   x Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWEPreRead1.tsx:897:1]
+ 894 |       </div>
+ 895 |     </div>
+ 896 |   );
+ 897 | }
+     : ^
+     `----
+  x Expected '</', got '<eof>'
+     ,-[C:\Users\shour\Desktop\Claude\airtribe-learn\src\components\SWEPreRead1.tsx:897:3]
+ 895 |     </div>
+ 896 |   );
+ 897 | }
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/SWEPreRead1.tsx
+./src/app/page.tsx
+ GET / 200 in 1107ms (compile: 512ms, render: 595ms)
+ GET / 200 in 1632ms (compile: 731ms, render: 901ms)
+ GET / 200 in 478ms (compile: 45ms, render: 433ms)

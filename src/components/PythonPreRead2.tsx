@@ -774,11 +774,12 @@ export default function PythonPreRead2({ onBack }: Props) {
             { char: 'kabir' as const, name: 'Kabir', role: 'Senior Backend Engineer', desc: 'Pushes for code organization, cleaner boundaries, stronger design.', color: '#7843EE' },
             { char: 'meera' as const, name: 'Meera', role: 'Data-focused Teammate', desc: 'Helps model code around real entities and relationships.', color: '#C85A40' },
           ]).map(c => (
-            <div key={c.name} style={{ background: `${c.color}0D`, border: `1px solid ${c.color}33`, borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-              <div style={{ marginBottom: '6px' }}><PythonMentorFace char={c.char} size={38} /></div>
-              <div style={{ fontWeight: 700, fontSize: '12px', color: c.color, marginBottom: '2px' }}>{c.name}</div>
-              <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace', letterSpacing: '0.04em', marginBottom: '5px' }}>{c.role}</div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
+            <div key={c.name} style={{ width: '108px', flexShrink: 0, padding: '16px 10px 14px', borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+              <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                <PythonMentorFace char={c.char} size={52} />
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{c.role}</div>
             </div>
           ))}
         </div>

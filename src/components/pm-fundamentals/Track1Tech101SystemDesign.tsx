@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import {
   h2, para, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
@@ -78,22 +78,15 @@ export default function Track1Tech101SystemDesign({
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '40px' }}>
               {([
-                { mentor: 'priya' as const, accent: ACCENT,    name: 'Priya',  role: 'APM &middot; EdSpark', desc: 'Knows what the product should do. Learning what the system must do for the product to exist.' },
-                { mentor: 'asha'  as const, accent: '#0097A7', name: 'Asha',   role: 'AI PM Mentor',         desc: 'Translates technical reality into PM-useful abstraction. Challenges naive framing.' },
-                { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Dev',    role: 'Engineer &middot; EdSpark', desc: 'Calm and precise. Exposes hidden scope. Gets frustrated by vague PM asks.' },
-                { mentor: 'kiran' as const, accent: '#E67E22', name: 'Kiran',  role: 'Data Analyst',         desc: 'Shows where missing data structure blocks product capability.' },
-                { mentor: 'maya'  as const, accent: '#C85A40', name: 'Maya',   role: 'Designer',             desc: 'Reveals how system latency and async behavior change design requirements.' },
+                { mentor: 'priya' as const, accent: ACCENT,    name: 'Priya', role: 'APM · EdSpark' },
+                { mentor: 'asha'  as const, accent: '#0097A7', name: 'Asha',  role: 'AI PM Mentor' },
+                { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Dev',   role: 'Engineer · EdSpark' },
+                { mentor: 'kiran' as const, accent: '#E67E22', name: 'Kiran', role: 'Data Analyst' },
+                { mentor: 'maya'  as const, accent: '#C85A40', name: 'Maya',  role: 'Designer' },
               ]).map(c => (
-                <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <MentorFace mentor={c.mentor} size={40} />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{c.name}</div>
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }} dangerouslySetInnerHTML={{ __html: c.role }} />
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-                </div>
+                <CharacterChip key={c.mentor} name={c.name} role={c.role} accent={c.accent}>
+                  <MentorFace mentor={c.mentor} size={52} />
+                </CharacterChip>
               ))}
             </div>
 

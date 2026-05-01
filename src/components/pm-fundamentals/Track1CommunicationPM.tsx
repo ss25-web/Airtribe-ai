@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   h2, para, keyBox,
-  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene,
+  ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
@@ -613,16 +613,9 @@ export default function Track1CommunicationPM({
                 { mentor: 'kiran' as const, accent: '#158158', desc: 'Brings evidence when opinions get loud.' },
                 { mentor: 'rohan' as const, accent: '#E67E22', desc: 'Sales pressure, urgency, and external messaging.' },
               ]).map(c => (
-                <div key={c.mentor} style={{ background: `${c.accent}0D`, border: `1px solid ${c.accent}33`, borderRadius: '10px', padding: '14px 16px', minWidth: '140px', flex: '1' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                    <MentorFace mentor={c.mentor} size={40} />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '13px', color: c.accent, lineHeight: 1.2 }}>{{ priya: 'Priya', asha: 'Asha', dev: 'Dev', maya: 'Maya', kiran: 'Kiran', rohan: 'Rohit' }[c.mentor]}</div>
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{{ priya: 'APM · EdSpark', asha: 'PM Mentor', dev: 'Engineer', maya: 'Designer', kiran: 'Data Analyst', rohan: 'Sales Lead' }[c.mentor]}</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{c.desc}</div>
-                </div>
+                <CharacterChip name={{ priya: 'Priya', asha: 'Asha', dev: 'Dev', maya: 'Maya', kiran: 'Kiran', rohan: 'Rohit' }[c.mentor] as string} role={{ priya: 'APM · EdSpark', asha: 'PM Mentor', dev: 'Engineer', maya: 'Designer', kiran: 'Data Analyst', rohan: 'Sales Lead' }[c.mentor] as string} accent={c.accent}>
+                  <MentorFace mentor={c.mentor} size={52} />
+                </CharacterChip>
               ))}
             </div>
 

@@ -735,29 +735,20 @@ export default function GenAIPreRead7({ track, onBack }: Props) {
                   </p>
                   {/* Characters */}
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-                    <div style={{ background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
-                      <div style={{ marginBottom: '8px' }}>
-                        <div style={{ display: 'inline-block', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em', marginBottom: '8px' }}>PROTAGONIST</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '14px', color: ACCENT }}>{protagonist}</div>
-                            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
-                          </div>
-                        </div>
+                    <div style={{ width: '108px', flexShrink: 0, padding: '16px 10px 14px', borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+                      <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                        {track === 'tech' ? <AaravFace size={52} /> : <RheaFace size={52} />}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{protagonistDesc}</div>
+                      <div style={{ fontSize: '12px', fontWeight: 700, color: ACCENT, lineHeight: 1.2 }}>{protagonist}</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{protagonistRole}</div>
                     </div>
                     {MENTORS.map(m => (
-                      <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                          <GenAIMentorFace mentor={m.mentorId} size={34} />
-                          <div>
-                            <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
-                            <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
-                          </div>
+                      <div key={m.name} style={{ width: '108px', flexShrink: 0, padding: '16px 10px 14px', borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
+                        <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+                          <GenAIMentorFace mentor={m.mentorId} size={52} />
                         </div>
-                        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: m.color, lineHeight: 1.2 }}>{m.name}</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{m.role}</div>
                       </div>
                     ))}
                   </div>
