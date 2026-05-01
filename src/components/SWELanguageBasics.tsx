@@ -220,10 +220,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center',
             }}>
               <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
-                {c.mentor
-                  ? <SWEMentorFace name={c.name} size={52} />
-                  : <div style={{ width: 52, height: 52, background: c.color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '16px' }}>{c.name[0]}</div>
-                }
+                <SWEMentorFace name={c.name} size={52} />
               </div>
               <div style={{ fontSize: '12px', fontWeight: 700, color: c.color, lineHeight: 1.2 }}>{c.name}</div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{c.role}</div>
