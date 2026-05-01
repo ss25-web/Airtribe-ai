@@ -134,6 +134,7 @@ export default function SWELanguageBasics({ track, level, onBack }: Props) {
       completedModules={completedModules}
       activeSection={activeSection}
       onBack={onBack}
+      hideArticleHeader
     >
       {/* ── MODULE HERO ── */}
       <motion.div 

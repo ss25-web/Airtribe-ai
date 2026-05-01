@@ -54,11 +54,12 @@ export interface SWEPreReadLayoutProps {
   completedModules: Set<string>;
   activeSection: string | null;
   onBack: () => void;
+  hideArticleHeader?: boolean;
   children: React.ReactNode;
 }
 
 export default function SWEPreReadLayout({
-  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, children
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, children
 }: SWEPreReadLayoutProps) {
   const store = useLearnerStore();
   const [hydrated, setHydrated] = useState(false);
@@ -228,23 +229,25 @@ export default function SWEPreReadLayout({
 
           {/* Center: Main Article */}
           <main style={{ minWidth: 0 }}>
-            <div style={{ marginBottom: '60px' }}>
-              <div style={{ 
-                fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, 
-                color: trackConfig.accent, letterSpacing: '0.15em', marginBottom: '20px', 
-                textTransform: 'uppercase' 
-              }}>
-                {moduleLabel}
+            {!hideArticleHeader && (
+              <div style={{ marginBottom: '60px' }}>
+                <div style={{ 
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, 
+                  color: trackConfig.accent, letterSpacing: '0.15em', marginBottom: '20px', 
+                  textTransform: 'uppercase' 
+                }}>
+                  {moduleLabel}
+                </div>
+                <h1 style={{ 
+                  fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, color: 'var(--ed-ink)', 
+                  lineHeight: 1.05, marginBottom: '28px', fontFamily: "'Lora', serif",
+                  letterSpacing: '-0.03em' 
+                }}>
+                  {title}
+                </h1>
+                <div style={{ width: '60px', height: '4px', background: trackConfig.accent, borderRadius: '2px' }} />
               </div>
-              <h1 style={{ 
-                fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 900, color: 'var(--ed-ink)', 
-                lineHeight: 1.05, marginBottom: '28px', fontFamily: "'Lora', serif",
-                letterSpacing: '-0.03em' 
-              }}>
-                {title}
-              </h1>
-              <div style={{ width: '60px', height: '4px', background: trackConfig.accent, borderRadius: '2px' }} />
-            </div>
+            )}
 
             {children}
           </main>
