@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, CharacterChip,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, CharacterChip, CharacterCallout,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -886,11 +886,13 @@ export default function Track1NewPM() {
             </div>
           </div>
 
-          <SituationCard accent="var(--purple)" accentRgb="120,67,238">
+          <SituationCard label="Priya's Situation">
             Priya&apos;s first day at EdSpark. She&apos;s been given the title &ldquo;Product Manager.&rdquo; She expected to design features, manage a team, sit in strategy meetings. Instead, her manager says six words: &ldquo;You&apos;re responsible for the product.&rdquo; Priya nods. She has no idea what that means.
           </SituationCard>
 
-          {para(<>She spends the morning looking busy. She opens Figma. Closes it. Opens Jira. Closes it. By 11am she types into Google: &ldquo;what does a product manager actually do.&rdquo; The results are not helpful.</>)}
+          <CharacterCallout mentor="priya" activity="thinks">
+            She spends the morning looking busy. She opens Figma. Closes it. Opens Jira. Closes it. By 11am she types into Google: &ldquo;what does a product manager actually do.&rdquo; The results are not helpful.
+          </CharacterCallout>
 
           {para(<>That afternoon, Asha — a senior PM who&apos;s been at EdSpark three years — pulls up a chair.</>)}
         </div>
@@ -922,8 +924,12 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Priya thinks about it. &ldquo;So I don&apos;t tell engineers what to build?&rdquo;</>)}
-          {para(<>Asha: &ldquo;You tell them <em>what problem to solve</em>. They figure out how to solve it. That distinction matters more than you think.&rdquo;</>)}
+          <CharacterCallout mentor="priya" activity="thinks">
+            &ldquo;So I don&apos;t tell engineers what to build?&rdquo;
+          </CharacterCallout>
+          <CharacterCallout mentor="asha" activity="responds">
+            &ldquo;You tell them <em>what problem to solve</em>. They figure out how to solve it. That distinction matters more than you think.&rdquo;
+          </CharacterCallout>
           {pullQuote('A PM\'s job isn\'t to have the best ideas. It\'s to make sure the team is solving the most important problem.', 'var(--purple)')}
         </div>
 
@@ -953,7 +959,7 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Part 2 · Problem vs Solution Thinking', 'var(--teal)')}
           {h2(<>Don&apos;t solve the problem yet. Understand it first.</>)}
-          <SituationCard accent="var(--teal)" accentRgb="0,151,167">
+          <SituationCard label="Priya's Situation">
             Three days in. An email arrives from a customer: &ldquo;Your app is confusing. I can never find what I need.&rdquo; Priya opens Figma. She starts sketching a new navigation. She feels productive. She&apos;s making a classic mistake.
           </SituationCard>
 
@@ -988,7 +994,9 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Priya closes Figma. She emails the customer one question: &ldquo;What were you trying to do when it felt confusing?&rdquo;</>)}
+          <CharacterCallout mentor="priya" activity="asks">
+            Priya closes Figma. She emails the customer one question: &ldquo;What were you trying to do when it felt confusing?&rdquo;
+          </CharacterCallout>
           {para(<>The customer replies: &ldquo;I was trying to find the call recording from last Tuesday.&rdquo;</>)}
           {para(<>It wasn&apos;t navigation. It was search.</>)}
           {pullQuote('A symptom is not a problem. Dig one level deeper before you touch Figma.', 'var(--teal)')}
@@ -1040,7 +1048,7 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Part 3 · Working with Teams', 'var(--blue)')}
           {h2(<>You don&apos;t manage anyone. That&apos;s the point.</>)}
-          <SituationCard accent="var(--blue)" accentRgb="58,134,255">
+          <SituationCard label="Priya's Situation">
             Priya walks over to Dev with a rough wireframe. She&apos;s sketched a search bar for the recordings page. &ldquo;Can you add this? I need it by Friday.&rdquo; Dev looks at the wireframe, then at Priya.
           </SituationCard>
         </div>
@@ -1073,9 +1081,15 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Priya goes back. This time she says: &ldquo;Users are struggling to find past call recordings from specific contacts. 34% of search attempts end with users giving up. What are our options?&rdquo;</>)}
-          {para(<>Dev: &ldquo;Okay. That I can work with. Give me a day.&rdquo;</>)}
-          {para(<>While she&apos;s at it, Priya asks Maya what she&apos;s observed about how users search.</>)}
+          <CharacterCallout mentor="priya" activity="speaks">
+            &ldquo;Users are struggling to find past call recordings from specific contacts. 34% of search attempts end with users giving up. What are our options?&rdquo;
+          </CharacterCallout>
+          <CharacterCallout mentor="dev" activity="responds">
+            &ldquo;Okay. That I can work with. Give me a day.&rdquo;
+          </CharacterCallout>
+          <CharacterCallout mentor="priya" activity="asks">
+            While she&apos;s at it, Priya asks Maya what she&apos;s observed about how users search.
+          </CharacterCallout>
         </div>
 
         <div className="rv">
@@ -1110,7 +1124,9 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Priya realizes: she had a wireframe but no insight. The team had insight she hadn&apos;t asked for.</>)}
+          <CharacterCallout mentor="priya" activity="realizes">
+            She had a wireframe but no insight. The team had insight she hadn&apos;t asked for.
+          </CharacterCallout>
           {para(<>Her job isn&apos;t to hand down solutions. It&apos;s to bring the problem to the team — and let specialists solve it together.</>)}
 
           {keyBox('PM as the alignment role', [
@@ -1135,7 +1151,7 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Part 4 · Making Decisions & Tradeoffs', 'var(--coral)')}
           {h2(<>You can&apos;t build everything. That&apos;s not a bug — it&apos;s the job.</>)}
-          <SituationCard accent="var(--coral)" accentRgb="224,122,95">
+          <SituationCard label="Sprint Planning">
             Sprint planning. Priya&apos;s list: search improvements, onboarding flow, mobile app, Salesforce integration, notification system. One engineer. Two weeks. Every stakeholder believes their item is the most important. The VP of Sales is very loud about the Salesforce integration.
           </SituationCard>
         </div>
@@ -1167,7 +1183,9 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Priya does the work. Talks to the CEO. Talks to customer success. Asks Kiran to pull the data.</>)}
+          <CharacterCallout mentor="priya" activity="acts">
+            Priya does the work. Talks to the CEO. Talks to customer success. Asks Kiran to pull the data.
+          </CharacterCallout>
         </div>
 
         <div className="rv">
@@ -1196,8 +1214,12 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
-          {para(<>Now the choice is clearer. Priya chooses onboarding.</>)}
-          {para(<>The VP of Sales is unhappy. He sends a message in Slack. Priya takes a breath and replies with the data.</>)}
+          <CharacterCallout mentor="priya" activity="decides">
+            Now the choice is clearer. Priya chooses onboarding.
+          </CharacterCallout>
+          <SituationCard label="Stakeholder Pushback">
+            The VP of Sales is unhappy. He sends a message in Slack. Priya takes a breath and replies with the data.
+          </SituationCard>
         </div>
 
         <div className="rv">
@@ -1246,12 +1268,16 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Part 5 · Building & Staying Aligned', 'var(--green)')}
           {h2(<>A spec is not a contract. Alignment is a habit.</>)}
-          <SituationCard accent="var(--green)" accentRgb="21,129,88">
+          <SituationCard label="Build Outcome">
             The onboarding feature ships. Three steps: upload a recording, analyze it, share the results. Priya tests it herself. Steps 1 and 2 work perfectly. Step 3: &ldquo;Share results via link.&rdquo; She checks her spec. She wrote &ldquo;share results.&rdquo; That&apos;s all she wrote. Dev built a link. Most EdSpark users share to Slack.
           </SituationCard>
 
-          {para(<>Priya stares at the screen. She reads her spec again. It was ambiguous. Dev made a reasonable assumption. It&apos;s not his fault.</>)}
-          {para(<>She goes to find Dev anyway — not to complain, but to understand.</>)}
+          <CharacterCallout mentor="priya" activity="reflects">
+            Priya stares at the screen. She reads her spec again. It was ambiguous. Dev made a reasonable assumption. It&apos;s not his fault.
+          </CharacterCallout>
+          <CharacterCallout mentor="priya" activity="acts">
+            She goes to find Dev anyway — not to complain, but to understand.
+          </CharacterCallout>
         </div>
 
         <div className="rv">
@@ -1332,7 +1358,7 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Part 6 · Measuring What Matters', 'var(--teal)')}
           {h2(<>Shipping is not success. Measuring is.</>)}
-          <SituationCard accent="var(--teal)" accentRgb="0,151,167">
+          <SituationCard label="Data Check">
             Two weeks after the onboarding feature ships, Kiran sits down next to Priya with a laptop. &ldquo;Have you looked at the data?&rdquo; Priya had been working on the next feature. She assumed onboarding was fine. &ldquo;Completion rate is 22%. We expected 60.&rdquo; Priya&apos;s stomach drops.
           </SituationCard>
         </div>
@@ -1420,12 +1446,16 @@ export default function Track1NewPM() {
         <div className="rv">
           {chLabel('Final Reflection', 'var(--purple)')}
           {h2(<>One loop. Every product decision you&apos;ll ever make.</>)}
-          <SituationCard accent="var(--purple)" accentRgb="120,67,238">
+          <SituationCard label="Final Reflection">
             Priya sits at her desk late one evening. Six weeks in. She opens a notebook from her first day. She reads what she wrote at the top: &ldquo;PM = mini-CEO?&rdquo; She crosses it out. She writes something else.
           </SituationCard>
 
-          {para(<>She thinks back through the last six weeks. The confused user she almost solved wrong. The wireframe Dev took apart in two minutes. The sprint planning where she had no answer to Asha&apos;s question. The feature that shipped correctly but misunderstood. The metric that told her something was broken two weeks after launch.</>)}
-          {para(<>She writes out what actually happened, in order:</>)}
+          <CharacterCallout mentor="priya" activity="thinks">
+            She thinks back through the last six weeks. The confused user she almost solved wrong. The wireframe Dev took apart in two minutes. The sprint planning where she had no answer to Asha&apos;s question. The feature that shipped correctly but misunderstood. The metric that told her something was broken two weeks after launch.
+          </CharacterCallout>
+          <CharacterCallout mentor="priya" activity="writes">
+            She writes out what actually happened, in order:
+          </CharacterCallout>
         </div>
 
         <div className="rv">

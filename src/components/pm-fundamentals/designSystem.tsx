@@ -159,18 +159,31 @@ export const SituationCard = ({ children, accent: _accent, accentRgb: _accentRgb
   children: React.ReactNode; accent?: string; accentRgb?: string; label?: string;
 }) => (
   <div style={{
-    position: 'relative', background: 'var(--ed-amber-bg)', borderRadius: '6px',
-    padding: '20px 24px', margin: '0 0 28px',
-    borderTop: '1px solid var(--ed-amber-border)',
+    position: 'relative',
+    background: 'var(--ed-clay-surface-amber)',
+    borderRadius: '10px',
+    padding: '24px 28px',
+    margin: '0 0 34px',
+    borderTop: '1px solid var(--ed-clay-top-border)',
     borderRight: '1px solid var(--ed-amber-border)',
     borderBottom: '1px solid var(--ed-amber-border)',
-    borderLeft: '4px solid var(--ed-amber)',
+    borderLeft: '6px solid var(--ed-amber)',
+    boxShadow: '0 18px 34px var(--ed-clay-shadow), 0 6px 0 rgba(181,114,10,0.18), inset -4px -4px 10px var(--ed-clay-inset-dark), inset 4px 4px 10px var(--ed-clay-inset-light)',
+    transform: 'translateZ(0)',
   }}>
+    <div aria-hidden="true" style={{
+      position: 'absolute',
+      inset: '1px auto auto 14px',
+      width: '42%',
+      height: '2px',
+      borderRadius: '999px',
+      background: 'var(--ed-clay-highlight)',
+    }} />
     <div style={{
-      fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700,
+      fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
       letterSpacing: '0.18em', textTransform: 'uppercase' as const,
       color: 'var(--ed-amber)', marginBottom: '10px',
-    }}>{label ?? "◎ Priya\u2019s Situation"}</div>
+    }}>{label ?? "Situation"}</div>
     <div style={{
       fontSize: '15px', color: 'var(--ed-ink)', lineHeight: 1.85,
       fontStyle: 'italic', fontFamily: "'Lora', 'Georgia', serif",
@@ -460,6 +473,81 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
   );
 };
 
+export const CharacterCallout = ({
+  mentor,
+  activity = 'speaks',
+  children,
+}: {
+  mentor: MentorId;
+  activity?: string;
+  children: React.ReactNode;
+}) => {
+  const meta = MENTOR_META[mentor];
+
+  return (
+    <motion.div
+      whileHover={{
+        y: -3,
+        boxShadow: `0 24px 44px var(--ed-clay-shadow), 0 8px 0 ${meta.accent}22, inset -5px -5px 12px var(--ed-clay-inset-dark), inset 5px 5px 12px var(--ed-clay-inset-light)`,
+      }}
+      style={{
+        background: `linear-gradient(145deg, var(--ed-card) 0%, ${meta.accent}14 48%, var(--ed-cream2) 100%)`,
+        borderRadius: '10px',
+        borderTop: '1px solid var(--ed-clay-top-border)',
+        borderRight: `1px solid ${meta.accent}34`,
+        borderBottom: `1px solid ${meta.accent}42`,
+        borderLeft: `6px solid ${meta.accent}`,
+        marginTop: '30px',
+        marginBottom: '34px',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.3s, transform 0.3s',
+        boxShadow: `0 18px 34px var(--ed-clay-shadow), 0 6px 0 ${meta.accent}20, inset -4px -4px 10px var(--ed-clay-inset-dark), inset 4px 4px 10px var(--ed-clay-inset-light)`,
+        transformStyle: 'preserve-3d',
+      }}>
+      <div style={{
+        padding: '8px 18px',
+        background: `linear-gradient(90deg, ${meta.accent}24, var(--ed-cream2))`,
+        borderBottom: `1px solid ${meta.accent}22`,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '7px',
+      }}>
+        <motion.span
+          animate={{ opacity: [1, 0.35, 1], scale: [1, 1.2, 1] }}
+          transition={{ duration: 2.5, repeat: Infinity }}
+          style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: meta.accent,
+            display: 'inline-block',
+            boxShadow: `0 0 0 4px ${meta.accent}1A`,
+          }}
+        />
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+          letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'var(--ed-indigo)',
+        }}>{meta.name}</span>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: '8px',
+          color: 'var(--ed-ink3)', letterSpacing: '0.06em',
+        }}>· {activity}</span>
+      </div>
+      <div style={{ padding: '18px', display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        <MentorFace mentor={mentor} size={66} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '1px' }}>{meta.name}</div>
+          <div style={{
+            fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace",
+            marginBottom: '10px', letterSpacing: '0.04em',
+          }}>{meta.role}</div>
+          <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.82 }}>{children}</div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 // ─────────────────────────────────────────
 // CHAPTER TRANSITION TEASER
 // ─────────────────────────────────────────
@@ -589,3 +677,4 @@ export const ConversationScene = ({
     })}
   </div>
 );
+

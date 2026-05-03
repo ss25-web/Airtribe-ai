@@ -154,6 +154,13 @@ body {
   --ed-green: #0D7A5A;
   --ed-green-bg: rgba(13,122,90,0.06);
   --ed-green-border: rgba(13,122,90,0.2);
+  --ed-clay-surface: linear-gradient(145deg, var(--ed-card) 0%, var(--ed-cream) 52%, var(--ed-cream2) 100%);
+  --ed-clay-surface-amber: linear-gradient(145deg, var(--ed-card) 0%, var(--ed-amber-bg) 48%, var(--ed-cream2) 100%);
+  --ed-clay-top-border: rgba(255,255,255,0.42);
+  --ed-clay-highlight: rgba(255,255,255,0.18);
+  --ed-clay-shadow: rgba(0,0,0,0.24);
+  --ed-clay-inset-dark: rgba(0,0,0,0.10);
+  --ed-clay-inset-light: rgba(255,255,255,0.10);
   --card-subtle: rgba(0,0,0,0.02);
   --svg-muted: rgba(50,40,30,0.25);
 }
@@ -199,6 +206,13 @@ html.dark .editorial {
   --ed-green: #34D399;
   --ed-green-bg: rgba(52,211,153,0.1);
   --ed-green-border: rgba(52,211,153,0.28);
+  --ed-clay-surface: linear-gradient(145deg, var(--ed-card) 0%, rgba(200,174,255,0.10) 48%, var(--ed-cream2) 100%);
+  --ed-clay-surface-amber: linear-gradient(145deg, var(--ed-card) 0%, var(--ed-amber-bg) 48%, var(--ed-cream2) 100%);
+  --ed-clay-top-border: rgba(255,255,255,0.16);
+  --ed-clay-highlight: rgba(255,255,255,0.10);
+  --ed-clay-shadow: rgba(0,0,0,0.34);
+  --ed-clay-inset-dark: rgba(0,0,0,0.16);
+  --ed-clay-inset-light: rgba(255,255,255,0.08);
   --card-subtle: rgba(255,255,255,0.06);
   --svg-muted: rgba(220,200,255,0.35);
 }

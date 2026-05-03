@@ -13,8 +13,8 @@ export const ProtagonistAvatar = ({ name, role, color, content, expandedContent,
 }) => {
   const [open, setOpen] = useState(false);
   return (
-    <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
-      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+    <motion.div whileHover={{ y: -3, boxShadow: `0 24px 44px var(--ed-clay-shadow), 0 8px 0 ${color}22, inset -5px -5px 12px var(--ed-clay-inset-dark), inset 5px 5px 12px var(--ed-clay-inset-light)` }}
+      style={{ background: 'var(--ed-clay-surface)', borderRadius: '10px', borderTop: '1px solid var(--ed-clay-top-border)', borderRight: '1px solid var(--ed-rule)', borderBottom: '1px solid var(--ed-rule)', borderLeft: `6px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: `0 18px 34px var(--ed-clay-shadow), 0 6px 0 ${color}20, inset -4px -4px 10px var(--ed-clay-inset-dark), inset 4px 4px 10px var(--ed-clay-inset-light)` }}>
       {/* Header */}
       <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream2)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -51,12 +51,15 @@ export const ProtagonistAvatar = ({ name, role, color, content, expandedContent,
 export const SituationCard = ({ protagonist, accentColor, children, label, story }: { protagonist?: string; accentColor?: string; children?: React.ReactNode; label?: string; story?: string }) => (
   <div style={{
     position: 'relative',
-    background: 'var(--ed-amber-bg)',
+    background: 'var(--ed-clay-surface-amber)',
     borderRadius: '10px',
     padding: '24px 28px',
     margin: '32px 0',
-    border: '1px solid var(--ed-amber-border)',
-    borderLeft: `4px solid ${accentColor ?? '#B45309'}`
+    borderTop: '1px solid var(--ed-clay-top-border)',
+    borderRight: '1px solid var(--ed-amber-border)',
+    borderBottom: '1px solid var(--ed-amber-border)',
+    borderLeft: `6px solid ${accentColor ?? '#B45309'}`,
+    boxShadow: '0 18px 34px var(--ed-clay-shadow), 0 6px 0 rgba(181,114,10,0.18), inset -4px -4px 10px var(--ed-clay-inset-dark), inset 4px 4px 10px var(--ed-clay-inset-light)'
   }}>
     <div style={{
       display: 'inline-block',
@@ -458,8 +461,8 @@ export const SWEAvatar = ({ name, role, color, content, expandedContent, questio
     if (conceptId && options) store.recordQuizAttempt(conceptId, options[i].correct);
   };
   return (
-    <motion.div whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
-      style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', borderLeft: `4px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+    <motion.div whileHover={{ y: -3, boxShadow: `0 24px 44px var(--ed-clay-shadow), 0 8px 0 ${color}22, inset -5px -5px 12px var(--ed-clay-inset-dark), inset 5px 5px 12px var(--ed-clay-inset-light)` }}
+      style={{ background: 'var(--ed-clay-surface)', borderRadius: '10px', borderTop: '1px solid var(--ed-clay-top-border)', borderRight: '1px solid var(--ed-rule)', borderBottom: '1px solid var(--ed-rule)', borderLeft: `6px solid ${color}`, marginTop: compact ? '10px' : '28px', overflow: 'hidden', transition: 'box-shadow 0.3s', boxShadow: `0 18px 34px var(--ed-clay-shadow), 0 6px 0 ${color}20, inset -4px -4px 10px var(--ed-clay-inset-dark), inset 4px 4px 10px var(--ed-clay-inset-light)` }}>
       {/* Header */}
       <div onClick={() => setOpen(o => !o)} style={{ padding: '7px 18px', background: 'var(--ed-cream2)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
