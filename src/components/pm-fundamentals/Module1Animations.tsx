@@ -321,51 +321,198 @@ export function ProblemSolutionDriftVisual() {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => setActive((v) => (v + 1) % 5), 1700);
+    const timer = setInterval(() => setActive(v => (v + 1) % 5), 1500);
     return () => clearInterval(timer);
   }, []);
+
+  const STEPS = [
+    { num: '01', label: 'COMPLAINT',    desc: '“The app is confusing.”', color: '#E8875A', icon: '💬' },
+    { num: '02', label: 'WRONG JUMP',   desc: 'Redesign navigation',              color: '#D96D92', icon: '🧭' },
+    { num: '03', label: 'REWIND',       desc: 'Stop. Ask what happened.',         color: '#7B6BD1', icon: '⏮' },
+    { num: '04', label: 'ACTUAL TASK',  desc: 'Find last Tuesday’s call',     color: '#2C9DB6', icon: '🔍' },
+    { num: '05', label: 'REAL BLOCKER', desc: 'Search and retrieval, not layout', color: '#52B281', icon: '📄' },
+  ];
+
+  const FOOTERS = [
+    { color: '#E8875A', title: 'Symptoms feel urgent',    desc: 'Complaints arrive with emotional weight.' },
+    { color: '#D96D92', title: 'Strong motion slows',     desc: 'Avoid solutioning until the problem is clear.' },
+    { color: '#7B6BD1', title: 'Reframe the question',    desc: 'Ask what the user was trying to do, not what’s broken.' },
+    { color: '#2C9DB6', title: 'Solve the right thing',   desc: 'Fix the blocker that prevents progress.' },
+    { color: '#52B281', title: 'Measure the outcome',     desc: 'Check if the real task gets done.' },
+  ];
+
+  const StepCard = ({ step }: { step: typeof STEPS[0] }) => {
+    const isActive = step.num === STEPS[active].num;
+    return (
+      <motion.div
+        animate={{
+          y: isActive ? -7 : 0,
+          boxShadow: isActive
+            ? `0 18px 30px ${step.color}28, 0 5px 0 ${step.color}22, inset 0 1px 0 rgba(255,255,255,0.85)`
+            : `0 5px 16px rgba(0,0,0,0.08), 0 3px 0 rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.85)`,
+        }}
+        transition={{ duration: 0.38, ease: 'easeOut' }}
+        style={{
+          borderRadius: '24px',
+          background: '#ffffff',
+          padding: '18px 15px 15px',
+          width: '162px',
+          flexShrink: 0,
+          position: 'relative',
+        }}
+      >
+        {/* Step number */}
+        <div style={{
+          position: 'absolute', top: '12px', right: '13px',
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: '11px', fontWeight: 800,
+          color: step.color, opacity: 0.65,
+        }}>
+          {step.num}
+        </div>
+        {/* Icon circle */}
+        <div style={{
+          width: 58, height: 58, borderRadius: '50%',
+          background: `linear-gradient(145deg, ${step.color}cc 0%, ${step.color} 100%)`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '26px', marginBottom: '12px',
+          boxShadow: `0 6px 14px ${step.color}40`,
+        }}>
+          {step.icon}
+        </div>
+        {/* Label */}
+        <div style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em',
+          color: step.color, marginBottom: '5px',
+        }}>
+          {step.label}
+        </div>
+        {/* Description */}
+        <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#4A4540', fontWeight: 500 }}>
+          {step.desc}
+        </div>
+      </motion.div>
+    );
+  };
+
+  const ArrowR = ({ c1, c2 }: { c1: string; c2: string }) => (
+    <svg width="46" height="22" viewBox="0 0 46 22" style={{ flexShrink: 0 }}>
+      <defs>
+        <linearGradient id={`psr${c1.slice(1)}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={c1} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={c2} />
+        </linearGradient>
+      </defs>
+      <path d="M3 11 H36 M30 5 L42 11 L30 17"
+        stroke={`url(#psr${c1.slice(1)})`}
+        strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+
+  const ArrowL = ({ c1, c2 }: { c1: string; c2: string }) => (
+    <svg width="46" height="22" viewBox="0 0 46 22" style={{ flexShrink: 0 }}>
+      <defs>
+        <linearGradient id={`psl${c1.slice(1)}`} x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stopColor={c1} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={c2} />
+        </linearGradient>
+      </defs>
+      <path d="M43 11 H10 M16 5 L4 11 L16 17"
+        stroke={`url(#psl${c1.slice(1)})`}
+        strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
 
   return (
     <Shell
       title="The instinctive solution drifts. The right workflow rewinds first."
-      caption="Symptoms arrive with emotional urgency. Strong PM motion slows down, reframes the user task, and only then narrows to a fix."
+      caption=""
     >
-      <Stage height={430}>
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 1000 430"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-        >
-          <ConnectorLine x1={190} y1={122} x2={422} y2={122} stroke={PM_CORAL} />
-          <ConnectorLine x1={578} y1={122} x2={810} y2={122} stroke={PM_INDIGO} delay={0.25} />
-          <ConnectorLine x1={190} y1={300} x2={422} y2={300} stroke={PM_TEAL} delay={0.5} />
-          <ConnectorLine x1={578} y1={300} x2={810} y2={300} stroke={PM_GREEN} delay={0.75} />
-        </svg>
+      {/* Subtitle */}
+      <div style={{ fontSize: '14px', color: 'var(--ed-ink3)', lineHeight: 1.65, marginBottom: '22px', marginTop: '-10px' }}>
+        Strong PM motion slows down, reframes the user task, and only then narrows to a fix.
+      </div>
 
-        <div
-          style={{
-            position: 'relative',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-            gridTemplateRows: '1fr 1fr',
-            gap: '36px 42px',
-            height: '100%',
-            padding: '24px 28px 12px',
-            alignItems: 'center',
-          }}
-        >
-          <TintCard accent={PM_CORAL} label="Complaint" text='"The app is confusing."' active={active === 0} minHeight={138} />
-          <TintCard accent={PM_ROSE} label="Wrong Jump" text="Redesign navigation" active={active === 1} minHeight={138} />
-          <TintCard accent={PM_INDIGO} label="Rewind" text="Stop. Ask what happened." active={active === 2} minHeight={138} />
+      {/* ── DIAGRAM CANVAS ── */}
+      <div style={{
+        borderRadius: '32px',
+        background: 'radial-gradient(ellipse at 50% 35%, rgba(123,107,209,0.09) 0%, rgba(44,157,182,0.05) 50%, transparent 72%), linear-gradient(180deg, rgba(238,240,250,0.88) 0%, rgba(248,249,252,0.94) 100%)',
+        padding: '28px 24px 28px',
+      }}>
+        {/* ROW 1 — 01 → 02 → 03 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <StepCard step={STEPS[0]} />
+          <ArrowR c1={STEPS[0].color} c2={STEPS[1].color} />
+          <StepCard step={STEPS[1]} />
+          <ArrowR c1={STEPS[1].color} c2={STEPS[2].color} />
+          <StepCard step={STEPS[2]} />
+        </div>
 
-          <TintCard accent={PM_TEAL} label="Actual Task" text="Find last Tuesday's call" active={active === 3} minHeight={138} />
-          <TintCard accent={PM_GREEN} label="Real Blocker" text="Search and retrieval, not layout" active={active === 4} minHeight={138} />
-          <div style={{ alignSelf: 'stretch', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '14px' }}>
-            <SummaryStrip accent={PM_ROSE} label="Bad Motion" text="Complaint to fix in one leap" />
-            <SummaryStrip accent={PM_GREEN} label="Good Motion" text="Complaint to task to blocker to fix" />
+        {/* VERTICAL CONNECTOR — 03 ↓ 04 (right-aligned above card 04) */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '5px' }}>
+          {/* Down arrow sits above card 04 which is rightmost in bottom row */}
+          <div style={{ width: '162px', display: 'flex', justifyContent: 'center', paddingBottom: '5px' }}>
+            <svg width="22" height="30" viewBox="0 0 22 30">
+              <path d="M11 2 V23 M5 17 L11 28 L17 17"
+                stroke={STEPS[2].color} strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
+            </svg>
+          </div>
+
+          {/* ROW 2 — 05 ← 04  (04 is rightmost = under 03, 05 extends left) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <StepCard step={STEPS[4]} />
+            <ArrowL c1={STEPS[3].color} c2={STEPS[4].color} />
+            <StepCard step={STEPS[3]} />
           </div>
         </div>
-      </Stage>
+      </div>
+
+      {/* ── FOOTER STRIP ── */}
+      <div style={{
+        display: 'flex', marginTop: '18px',
+        paddingTop: '14px', borderTop: '1px solid var(--ed-rule)',
+      }}>
+        {FOOTERS.map((f, i) => (
+          <div key={i} style={{
+            flex: 1, display: 'flex', alignItems: 'flex-start', gap: '7px',
+            padding: '0 10px',
+            borderRight: i < 4 ? '1px solid var(--ed-rule)' : 'none',
+          }}>
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%',
+              background: `linear-gradient(145deg, ${f.color}bb 0%, ${f.color} 100%)`,
+              flexShrink: 0, marginTop: '1px',
+            }} />
+            <div>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px', lineHeight: 1.3 }}>
+                {f.title}
+              </div>
+              <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', lineHeight: 1.45 }}>
+                {f.desc}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── CLOSING QUOTE ── */}
+      <div style={{
+        marginTop: '16px', padding: '14px 18px', borderRadius: '12px',
+        background: 'rgba(106,87,232,0.05)', border: '1px solid rgba(106,87,232,0.14)',
+        display: 'flex', alignItems: 'flex-start', gap: '10px',
+      }}>
+        <span style={{ fontSize: '18px', flexShrink: 0, marginTop: '1px' }}>⭐</span>
+        <div>
+          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '3px' }}>
+            One loop. Every product decision you&apos;ll ever make.
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.55 }}>
+            Don&apos;t just ship features. Solve the real problem, then prove it worked.
+          </div>
+        </div>
+      </div>
     </Shell>
   );
 }
