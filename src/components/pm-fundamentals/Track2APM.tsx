@@ -203,12 +203,21 @@ const TradeoffMatrix = () => {
       {demoLabel('⚖️ Click Each Decision — See the Downstream Tradeoff', 'var(--purple)')}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
         {tradeoffs.map((t, i) => (
-          <motion.button key={i} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} onClick={() => setActive(active === i ? null : i)}
-            style={{ padding: '16px', borderRadius: '14px', border: `2px solid ${active === i ? t.color : `rgba(${t.rgb},0.2)`}`, background: active === i ? `rgba(${t.rgb},0.08)` : 'var(--ed-card)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', color: t.color, marginBottom: '4px', letterSpacing: '0.08em' }}>OPTIMIZE FOR</div>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--tx)', marginBottom: '6px' }}>{t.action}</div>
-            <div style={{ fontSize: '11px', color: 'var(--tx3)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ color: t.color }}>→</span> {t.consequence}
+          <motion.button key={i}
+            whileHover={{ y: -3, boxShadow: `0 14px 24px rgba(${t.rgb},0.18), 0 4px 0 rgba(${t.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.85)` }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => setActive(active === i ? null : i)}
+            animate={{ boxShadow: active === i ? `0 10px 20px rgba(${t.rgb},0.18), 0 4px 0 rgba(${t.rgb},0.16), inset 0 1px 0 rgba(255,255,255,0.85)` : `0 4px 12px rgba(0,0,0,0.07), 0 3px 0 rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.85)` }}
+            style={{
+              padding: '18px 16px', borderRadius: '18px',
+              border: `2px solid ${active === i ? `rgba(${t.rgb},0.55)` : 'rgba(0,0,0,0.04)'}`,
+              background: active === i ? `rgba(${t.rgb},0.06)` : '#ffffff',
+              cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.2s, background 0.2s',
+            }}>
+            <div style={{ fontSize: '9px', fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", color: t.color, marginBottom: '6px', letterSpacing: '0.1em' }}>OPTIMIZE FOR</div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--tx,#1C1814)', marginBottom: '8px' }}>{t.action}</div>
+            <div style={{ fontSize: '11px', color: 'var(--tx3,#8A8580)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: t.color, fontWeight: 700 }}>→</span> {t.consequence}
             </div>
           </motion.button>
         ))}
@@ -258,42 +267,69 @@ const PMTriangleDiagramAPM = () => {
     <div style={glassCard('var(--purple)', '120,67,238')}>
       {demoLabel('🔺 Optimization Costs — Click Each Corner', 'var(--purple)')}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-        <svg width="280" height="220" viewBox="0 0 280 220" style={{ overflow: 'visible' }}>
-          <polygon points="140,20 40,190 240,190" fill="rgba(120,67,238,0.08)" stroke="rgba(120,67,238,0.25)" strokeWidth="1.5" />
-          <text x="140" y="118" textAnchor="middle" fill="var(--svg-muted)" fontSize="9" fontFamily="monospace" fontWeight="700" letterSpacing="1">CONTEXTUAL</text>
-          <text x="140" y="130" textAnchor="middle" fill="var(--svg-muted)" fontSize="9" fontFamily="monospace" fontWeight="700" letterSpacing="1">OPTIMIZATION</text>
+        <svg width="340" height="270" viewBox="0 0 340 270" style={{ overflow: 'visible' }}>
+          <defs>
+            <radialGradient id="triGlow" cx="50%" cy="55%" r="50%">
+              <stop offset="0%" stopColor="rgba(120,67,238,0.12)" />
+              <stop offset="100%" stopColor="rgba(120,67,238,0.03)" />
+            </radialGradient>
+            <linearGradient id="bizGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(161,138,240,0.9)" />
+              <stop offset="100%" stopColor="rgba(120,67,238,1)" />
+            </linearGradient>
+            <linearGradient id="techGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(100,160,255,0.9)" />
+              <stop offset="100%" stopColor="rgba(58,134,255,1)" />
+            </linearGradient>
+            <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(44,180,200,0.9)" />
+              <stop offset="100%" stopColor="rgba(0,151,167,1)" />
+            </linearGradient>
+          </defs>
+          {/* Triangle fill */}
+          <polygon points="170,28 58,232 282,232" fill="url(#triGlow)" stroke="rgba(120,67,238,0.2)" strokeWidth="1.5" />
+          {/* Center label */}
+          <text x="170" y="142" textAnchor="middle" fill="var(--svg-muted,#aaa)" fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="700" letterSpacing="1.5">CONTEXTUAL</text>
+          <text x="170" y="155" textAnchor="middle" fill="var(--svg-muted,#aaa)" fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="700" letterSpacing="1.5">OPTIMIZATION</text>
+
           {/* Business node */}
-          <motion.g whileHover={{ scale: 1.1 }} style={{ cursor: 'pointer' }} onClick={() => setActive(active === 'business' ? null : 'business')}>
-            <circle cx="140" cy="20" r="28" fill={active === 'business' ? 'rgba(120,67,238,0.3)' : 'rgba(120,67,238,0.12)'} stroke="var(--purple)" strokeWidth="2" />
-            <text x="140" y="16" textAnchor="middle" fill="var(--purple)" fontSize="9" fontFamily="monospace" fontWeight="700">BUSI-</text>
-            <text x="140" y="27" textAnchor="middle" fill="var(--purple)" fontSize="9" fontFamily="monospace" fontWeight="700">NESS</text>
+          <motion.g whileHover={{ scale: 1.08 }} style={{ cursor: 'pointer', transformOrigin: '170px 28px' }} onClick={() => setActive(active === 'business' ? null : 'business')}>
+            <circle cx="170" cy="28" r="34" fill={active === 'business' ? 'url(#bizGrad)' : 'rgba(120,67,238,0.14)'} stroke="rgba(120,67,238,0.6)" strokeWidth="2" />
+            {active === 'business' && <circle cx="170" cy="28" r="34" fill="none" stroke="rgba(120,67,238,0.3)" strokeWidth="8" />}
+            <text x="170" y="23" textAnchor="middle" fill={active === 'business' ? '#fff' : 'var(--purple,#7843EE)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">BUSI-</text>
+            <text x="170" y="35" textAnchor="middle" fill={active === 'business' ? '#fff' : 'var(--purple,#7843EE)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">NESS</text>
           </motion.g>
+
           {/* Tech node */}
-          <motion.g whileHover={{ scale: 1.1 }} style={{ cursor: 'pointer' }} onClick={() => setActive(active === 'tech' ? null : 'tech')}>
-            <circle cx="40" cy="190" r="28" fill={active === 'tech' ? 'rgba(58,134,255,0.3)' : 'rgba(58,134,255,0.12)'} stroke="var(--blue)" strokeWidth="2" />
-            <text x="40" y="186" textAnchor="middle" fill="var(--blue)" fontSize="9" fontFamily="monospace" fontWeight="700">TECH</text>
-            <text x="40" y="197" textAnchor="middle" fill="var(--blue)" fontSize="9" fontFamily="monospace" fontWeight="700">NICAL</text>
+          <motion.g whileHover={{ scale: 1.08 }} style={{ cursor: 'pointer', transformOrigin: '58px 232px' }} onClick={() => setActive(active === 'tech' ? null : 'tech')}>
+            <circle cx="58" cy="232" r="34" fill={active === 'tech' ? 'url(#techGrad)' : 'rgba(58,134,255,0.14)'} stroke="rgba(58,134,255,0.6)" strokeWidth="2" />
+            {active === 'tech' && <circle cx="58" cy="232" r="34" fill="none" stroke="rgba(58,134,255,0.3)" strokeWidth="8" />}
+            <text x="58" y="228" textAnchor="middle" fill={active === 'tech' ? '#fff' : 'var(--blue,#3A86FF)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">TECH</text>
+            <text x="58" y="240" textAnchor="middle" fill={active === 'tech' ? '#fff' : 'var(--blue,#3A86FF)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">NICAL</text>
           </motion.g>
+
           {/* User node */}
-          <motion.g whileHover={{ scale: 1.1 }} style={{ cursor: 'pointer' }} onClick={() => setActive(active === 'user' ? null : 'user')}>
-            <circle cx="240" cy="190" r="28" fill={active === 'user' ? 'rgba(0,151,167,0.3)' : 'rgba(0,151,167,0.12)'} stroke="var(--teal)" strokeWidth="2" />
-            <text x="240" y="186" textAnchor="middle" fill="var(--teal)" fontSize="9" fontFamily="monospace" fontWeight="700">USER</text>
-            <text x="240" y="197" textAnchor="middle" fill="var(--teal)" fontSize="9" fontFamily="monospace" fontWeight="700">VALUE</text>
+          <motion.g whileHover={{ scale: 1.08 }} style={{ cursor: 'pointer', transformOrigin: '282px 232px' }} onClick={() => setActive(active === 'user' ? null : 'user')}>
+            <circle cx="282" cy="232" r="34" fill={active === 'user' ? 'url(#userGrad)' : 'rgba(0,151,167,0.14)'} stroke="rgba(0,151,167,0.6)" strokeWidth="2" />
+            {active === 'user' && <circle cx="282" cy="232" r="34" fill="none" stroke="rgba(0,151,167,0.3)" strokeWidth="8" />}
+            <text x="282" y="228" textAnchor="middle" fill={active === 'user' ? '#fff' : 'var(--teal,#0097A7)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">USER</text>
+            <text x="282" y="240" textAnchor="middle" fill={active === 'user' ? '#fff' : 'var(--teal,#0097A7)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">VALUE</text>
           </motion.g>
         </svg>
+
         <AnimatePresence mode="wait">
           {active ? (
             <motion.div key={active} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-              style={{ width: '100%', padding: '16px 20px', borderRadius: '12px', background: `${costs[active].color}10`, border: `1px solid ${costs[active].color}30`, borderLeft: `4px solid ${costs[active].color}` }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: costs[active].color, marginBottom: '8px' }}>
+              style={{ width: '100%', padding: '18px 20px', borderRadius: '16px', background: `${costs[active].color}0C`, border: `1px solid ${costs[active].color}28`, borderLeft: `4px solid ${costs[active].color}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: costs[active].color, marginBottom: '8px' }}>
                 {costs[active].label} — Optimization Cost
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7, marginBottom: '10px' }}>{costs[active].cost}</div>
-              <div style={{ fontSize: '11px', fontFamily: 'monospace', color: costs[active].color, opacity: 0.8 }}>{costs[active].tradeoff}</div>
+              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.72, marginBottom: '10px' }}>{costs[active].cost}</div>
+              <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", color: costs[active].color, opacity: 0.8 }}>{costs[active].tradeoff}</div>
             </motion.div>
           ) : (
             <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '12px', color: 'var(--tx3)', textAlign: 'center', fontFamily: 'monospace' }}>
+              style={{ fontSize: '12px', color: 'var(--tx3)', textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", padding: '8px' }}>
               Click a corner to reveal what you sacrifice when you over-optimize it
             </motion.div>
           )}

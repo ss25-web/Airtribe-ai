@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type ShellProps = {
   title: string;
@@ -520,78 +520,95 @@ export function ProblemSolutionDriftVisual() {
 export function DecisionQualitySplitVisual() {
   const frames = [
     {
-      leftAccent: PM_GREEN,
-      rightAccent: PM_CORAL,
-      leftTitle: 'Good process',
+      leftAccent: PM_GREEN,  leftIcon: '✓', leftTitle: 'Good process',
       leftText: 'Strong reasoning, clear tradeoff, bad market timing.',
-      rightTitle: 'Bad process',
+      rightAccent: PM_CORAL, rightIcon: '✗', rightTitle: 'Bad process',
       rightText: 'Weak reasoning, lucky outcome, misleading success.',
     },
     {
-      leftAccent: PM_TEAL,
-      rightAccent: PM_INDIGO,
-      leftTitle: 'Review the decision',
+      leftAccent: PM_TEAL,   leftIcon: '🔍', leftTitle: 'Review the decision',
       leftText: 'What information did we have, and what did we assume?',
-      rightTitle: 'Review the outcome',
+      rightAccent: PM_INDIGO, rightIcon: '📊', rightTitle: 'Review the outcome',
       rightText: 'What changed externally that our process could not control?',
     },
   ];
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => setFrame((v) => (v + 1) % frames.length), 2200);
+    const timer = setInterval(() => setFrame(v => (v + 1) % frames.length), 2400);
     return () => clearInterval(timer);
   }, [frames.length]);
 
-  const current = frames[frame];
+  const cur = frames[frame];
+
+  const SplitCard = ({ accent, icon, label, text }: { accent: string; icon: string; label: string; text: string }) => (
+    <motion.div
+      key={label}
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.35 }}
+      style={{
+        borderRadius: '24px', background: '#ffffff', padding: '22px 20px',
+        boxShadow: `0 10px 22px ${accent}1c, 0 4px 0 ${accent}16, inset 0 1px 0 rgba(255,255,255,0.9)`,
+      }}
+    >
+      <div style={{
+        width: 48, height: 48, borderRadius: '14px',
+        background: `linear-gradient(145deg, ${accent}cc 0%, ${accent} 100%)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '22px', marginBottom: '14px',
+        boxShadow: `0 6px 14px ${accent}38`,
+      }}>
+        {icon}
+      </div>
+      <div style={{
+        fontFamily: "'JetBrains Mono', monospace", fontSize: '9px',
+        fontWeight: 800, letterSpacing: '0.12em', color: accent, marginBottom: '8px',
+      }}>
+        {label}
+      </div>
+      <div style={{ fontSize: '14px', lineHeight: 1.65, color: '#4A4540', fontWeight: 500 }}>
+        {text}
+      </div>
+    </motion.div>
+  );
 
   return (
     <Shell
       title="Decision quality and outcome quality move on different layers."
       caption="Senior PM growth starts when we stop grading ourselves only by what happened. The process and the outcome must be inspected separately."
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px 1fr', gap: '18px', alignItems: 'center' }}>
-        <TintCard accent={current.leftAccent} label={current.leftTitle} text={current.leftText} active minHeight={166} />
-        <div style={{ position: 'relative', height: '170px' }}>
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: 0,
-              bottom: 0,
-              width: '10px',
-              transform: 'translateX(-50%)',
-              borderRadius: '999px',
-              background: 'linear-gradient(180deg, rgba(106,87,232,0.08) 0%, rgba(106,87,232,0.32) 50%, rgba(106,87,232,0.08) 100%)',
-            }}
-          />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 1fr', gap: '20px', alignItems: 'center' }}>
+        <AnimatePresence mode="wait">
+          <SplitCard key={`L${frame}`} accent={cur.leftAccent} icon={cur.leftIcon} label={cur.leftTitle} text={cur.leftText} />
+        </AnimatePresence>
+
+        {/* Centre track + floating Outcome pill */}
+        <div style={{ position: 'relative', height: '200px' }}>
+          <div style={{
+            position: 'absolute', left: '50%', top: 0, bottom: 0,
+            width: '6px', transform: 'translateX(-50%)', borderRadius: '3px',
+            background: `linear-gradient(180deg, rgba(106,87,232,0.06) 0%, rgba(106,87,232,0.35) 50%, rgba(106,87,232,0.06) 100%)`,
+          }} />
           <motion.div
-            animate={{ y: frame === 0 ? [14, 78, 14] : [78, 14, 78] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            animate={{ y: frame === 0 ? [18, 108, 18] : [108, 18, 108] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
             style={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '74px',
-              height: '74px',
-              borderRadius: '24px',
+              position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+              width: '60px', height: '60px', borderRadius: '18px',
               background: `linear-gradient(145deg, ${PM_INDIGO} 0%, #5240d9 100%)`,
-              boxShadow: '0 16px 26px rgba(82,64,217,0.22), inset 0 1px 0 rgba(255,255,255,0.38)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '12px',
-              lineHeight: 1.3,
-              padding: '8px',
+              boxShadow: `0 14px 24px rgba(82,64,217,0.28), 0 3px 0 rgba(63,42,183,0.3), inset 0 1px 0 rgba(255,255,255,0.4)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              textAlign: 'center', color: '#fff', fontWeight: 800,
+              fontSize: '11px', lineHeight: 1.3, padding: '6px',
             }}
           >
-            Outcome
+            Out&shy;come
           </motion.div>
         </div>
-        <TintCard accent={current.rightAccent} label={current.rightTitle} text={current.rightText} active minHeight={166} />
+
+        <AnimatePresence mode="wait">
+          <SplitCard key={`R${frame}`} accent={cur.rightAccent} icon={cur.rightIcon} label={cur.rightTitle} text={cur.rightText} />
+        </AnimatePresence>
       </div>
     </Shell>
   );
@@ -690,9 +707,53 @@ export function TradeoffPrismVisual() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <SummaryStrip accent={state.accent} label="Current Optimization" text={state.focus} />
-          <SummaryStrip accent={state.accent} label="System Cost" text={state.note} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Current state — prominent clay card */}
+          <motion.div
+            key={state.focus}
+            initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}
+            style={{
+              borderRadius: '20px', background: '#ffffff', padding: '18px 16px',
+              boxShadow: `0 10px 22px ${state.accent}1a, 0 4px 0 ${state.accent}14, inset 0 1px 0 rgba(255,255,255,0.85)`,
+            }}
+          >
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>
+              CURRENT OPTIMIZATION
+            </div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '14px' }}>{state.focus}</div>
+            {/* Mini bar indicators */}
+            {pillars.map(p => (
+              <div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '7px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: p.accent, width: '50px' }}>
+                  {p.label}
+                </div>
+                <div style={{ flex: 1, height: '6px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <motion.div
+                    animate={{ width: `${p.value}%` }} transition={{ duration: 0.55, ease: 'easeOut' }}
+                    style={{ height: '100%', background: p.accent, borderRadius: '3px' }} />
+                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: p.accent, width: '24px', textAlign: 'right' }}>
+                  {p.value}%
+                </div>
+              </div>
+            ))}
+          </motion.div>
+          {/* System cost note */}
+          <motion.div
+            key={state.note}
+            initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.06 }}
+            style={{
+              borderRadius: '16px', padding: '14px 16px',
+              background: `${state.accent}0A`,
+              border: `1px solid ${state.accent}22`,
+              borderLeft: `4px solid ${state.accent}`,
+            }}
+          >
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>
+              SYSTEM COST
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{state.note}</div>
+          </motion.div>
         </div>
       </div>
     </Shell>
