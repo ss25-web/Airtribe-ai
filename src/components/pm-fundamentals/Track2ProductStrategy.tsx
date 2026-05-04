@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard, PMPrincipleBox,
+  TiltCard, PMPrincipleBox, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -754,13 +754,20 @@ const Section5Mockup = () => {
 // ─────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────
-export default function Track2ProductStrategy() {
+export default function Track2ProductStrategy({
+  completedSections = new Set<string>(),
+}: {
+  completedSections?: Set<string>;
+}) {
   return (
     <article style={{ maxWidth: '720px', margin: '0 auto', padding: '0 0 80px' }}>
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 40px 36px', marginBottom: '0', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 36px 40px', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-16px', top: '-8px', fontSize: '160px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>02</div>
+        <div style={{ position: 'absolute', right: '24px', top: '0' }}>
+          <TrackHeroCard moduleNum="02" moduleLabel="Product Strategy" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+        </div>
 
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: ACCENT, marginBottom: '10px' }}>
           Module 02 · Scale Track · Product Strategy

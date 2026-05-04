@@ -71,6 +71,98 @@ export const demoLabel = (text: string, _color: string) => (
 // ─────────────────────────────────────────
 // CHAPTER LABEL
 // ─────────────────────────────────────────
+type TrackHeroCardPart = {
+  id?: string;
+  num: string;
+  label: string;
+};
+
+export const TrackHeroCard = ({
+  moduleNum,
+  moduleLabel,
+  trackLabel,
+  accent,
+  parts,
+  completedSections = new Set<string>(),
+}: {
+  moduleNum: string;
+  moduleLabel: string;
+  trackLabel: string;
+  accent: string;
+  parts: TrackHeroCardPart[];
+  completedSections?: Set<string>;
+}) => {
+  const doneCount = parts.filter(p => p.id && completedSections.has(p.id)).length;
+  const donePct = parts.length ? Math.round((doneCount / parts.length) * 100) : 0;
+  const nextPart = parts.find(p => !p.id || !completedSections.has(p.id)) ?? parts[0];
+
+  return (
+    <div style={{ flexShrink: 0, width: '168px', paddingTop: '48px' }}>
+      <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+        <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
+          <div style={{
+            background: 'linear-gradient(145deg, #1A1218 0%, #241228 100%)',
+            borderRadius: '14px',
+            padding: '20px 18px',
+            boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: accent, marginBottom: '10px' }}>
+              MODULE {moduleNum}
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>
+              {moduleLabel}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>{trackLabel}</div>
+            <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
+              <motion.div animate={{ width: `${donePct}%` }} transition={{ duration: 0.6, ease: 'easeOut' }}
+                style={{ height: '100%', background: accent, borderRadius: '1px' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {parts.map(p => {
+                const done = Boolean(p.id && completedSections.has(p.id));
+                const isNext = p === nextPart;
+                return (
+                  <div key={`${p.num}-${p.label}`} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                    <div style={{
+                      width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                      background: done ? '#0D7A5A' : isNext ? accent : 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${done ? '#0D7A5A' : isNext ? accent : 'rgba(255,255,255,0.1)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                      fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                      transition: 'background 0.3s, border-color 0.3s',
+                    }}>
+                      {done ? '✓' : p.num}
+                    </div>
+                    <div style={{
+                      fontSize: '9px',
+                      color: done ? 'rgba(240,232,216,0.5)' : isNext ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.3)',
+                      lineHeight: 1.3,
+                      flex: 1,
+                      transition: 'color 0.3s',
+                    }}>
+                      {p.label.split(' — ')[0]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ marginTop: '16px', padding: '8px 10px', borderRadius: '6px', background: `${accent}22`, border: `1px solid ${accent}44` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: accent, fontWeight: 700, marginBottom: '2px' }}>
+                {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+              </div>
+              <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>
+                {donePct === 100 ? `All ${parts.length} parts done` : nextPart ? nextPart.label.split(' — ')[0] : 'Start here'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 export const chLabel = (text: string, _color?: string) => (
   <div style={{
     display: 'inline-block',

@@ -6,9 +6,19 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
+  TiltCard, ConversationScene, PMPrincipleBox, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+
+const PARTS = [
+  { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
+  { num: '02', id: 'm2-customer-segments', label: 'Customer Segments' },
+  { num: '03', id: 'm2-research-methods', label: 'Research Methods' },
+  { num: '04', id: 'm2-interview', label: 'Interview Practice' },
+  { num: '05', id: 'm2-synthesis', label: 'Synthesis' },
+  { num: '06', id: 'm2-problem-statement', label: 'Problem Statement' },
+  { num: '07', id: 'm2-reflection', label: 'Final Reflection' },
+];
 
 // ─────────────────────────────────────────
 // LOCAL HELPERS
@@ -672,11 +682,14 @@ const QUIZZES = [
 // ─────────────────────────────────────────
 // INTRO HERO
 // ─────────────────────────────────────────
-const IntroHero = () => (
+const IntroHero = ({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) => (
   <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px' }}>
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px' }}>
       {/* Full-width text content */}
-      <div style={{ marginBottom: '32px' }}>
+      <div style={{ position: 'relative', marginBottom: '32px', paddingRight: '210px' }}>
+        <div style={{ position: 'absolute', right: 0, top: '-48px' }}>
+          <TrackHeroCard moduleNum="02" moduleLabel="Problem Discovery" trackLabel="APM Track" accent="var(--teal)" parts={PARTS} completedSections={completedSections} />
+        </div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
           MODULE 02 · APM TRACK
         </div>
@@ -739,10 +752,14 @@ const IntroHero = () => (
 // ─────────────────────────────────────────
 // MAIN EXPORT
 // ─────────────────────────────────────────
-export default function Track2ProblemDiscovery() {
+export default function Track2ProblemDiscovery({
+  completedSections = new Set<string>(),
+}: {
+  completedSections?: Set<string>;
+}) {
   return (
     <article>
-      <IntroHero />
+      <IntroHero completedSections={completedSections} />
 
       {/* PART 1 — THE BRIEF THAT'S WRONG */}
       <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">

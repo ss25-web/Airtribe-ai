@@ -61,10 +61,10 @@ const Stage = ({ children, height = 470 }: { children: React.ReactNode; height?:
     style={{
       position: 'relative',
       height,
-      overflow: 'hidden',
+      overflow: 'visible',
       borderRadius: '36px',
       background:
-        'radial-gradient(circle at 50% 46%, rgba(106,87,232,0.12) 0%, rgba(106,87,232,0.05) 20%, rgba(44,157,182,0.03) 40%, transparent 68%), linear-gradient(180deg, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0.08) 100%)',
+        'radial-gradient(circle at 50% 46%, rgba(106,87,232,0.16) 0%, rgba(106,87,232,0.07) 24%, rgba(44,157,182,0.04) 42%, transparent 70%)',
     }}
   >
     {children}
@@ -84,8 +84,8 @@ const TintCard = ({ accent, label, text, active = false, minHeight = 132 }: Tint
       borderRadius: '28px',
       minHeight,
       padding: '18px 18px 16px',
-      background: `linear-gradient(160deg, color-mix(in srgb, white 94%, ${accent} 6%) 0%, color-mix(in srgb, white 88%, ${accent} 12%) 100%)`,
-      border: `1px solid color-mix(in srgb, ${accent} 26%, #d9d1c6 74%)`,
+      background: `linear-gradient(160deg, color-mix(in srgb, var(--ed-card) 92%, ${accent} 8%) 0%, color-mix(in srgb, var(--ed-card) 84%, ${accent} 16%) 100%)`,
+      border: `1px solid color-mix(in srgb, ${accent} 30%, var(--ed-rule) 70%)`,
       overflow: 'hidden',
     }}
   >
@@ -106,7 +106,7 @@ const TintCard = ({ accent, label, text, active = false, minHeight = 132 }: Tint
           width: '20px',
           height: '20px',
           borderRadius: '999px',
-          background: `linear-gradient(145deg, color-mix(in srgb, white 28%, ${accent} 72%), ${accent})`,
+          background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 28%, ${accent} 72%), ${accent})`,
           boxShadow: `0 5px 14px ${accent}22`,
           flexShrink: 0,
         }}
@@ -134,8 +134,8 @@ const SummaryStrip = ({ accent, label, text }: { accent: string; label: string; 
       flex: '1 1 260px',
       borderRadius: '20px',
       padding: '14px 16px',
-      background: `linear-gradient(160deg, color-mix(in srgb, white 95%, ${accent} 5%) 0%, color-mix(in srgb, white 90%, ${accent} 10%) 100%)`,
-      border: `1px solid color-mix(in srgb, ${accent} 22%, #ddd6ca 78%)`,
+      background: `linear-gradient(160deg, color-mix(in srgb, var(--ed-card) 94%, ${accent} 6%) 0%, color-mix(in srgb, var(--ed-card) 88%, ${accent} 12%) 100%)`,
+      border: `1px solid color-mix(in srgb, ${accent} 24%, var(--ed-rule) 76%)`,
       boxShadow: surfaceShadow,
     }}
   >
@@ -198,10 +198,10 @@ export function DecisionRippleVisual() {
       title="A PM decision ripples across the whole system."
       caption="One product decision propagates through user experience, team coordination, business outcomes, and measurement at the same time."
     >
-      <Stage height={500}>
+      <Stage height={540}>
         <svg
           aria-hidden="true"
-          viewBox="0 0 1000 500"
+          viewBox="0 0 1000 540"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         >
           <defs>
@@ -211,11 +211,11 @@ export function DecisionRippleVisual() {
               <stop offset="100%" stopColor="rgba(106,87,232,0)" />
             </radialGradient>
           </defs>
-          <ellipse cx="500" cy="250" rx="192" ry="150" fill="url(#pmGlow)" />
-          <ConnectorLine x1={500} y1={252} x2={500} y2={110} stroke={PM_TEAL} />
-          <ConnectorLine x1={500} y1={252} x2={228} y2={252} stroke={PM_LAVENDER} delay={0.2} />
-          <ConnectorLine x1={500} y1={252} x2={772} y2={252} stroke={PM_CORAL} delay={0.4} />
-          <ConnectorLine x1={500} y1={252} x2={500} y2={396} stroke={PM_GREEN} delay={0.6} />
+          <ellipse cx="500" cy="270" rx="192" ry="150" fill="url(#pmGlow)" />
+          <ConnectorLine x1={500} y1={270} x2={500} y2={118} stroke={PM_TEAL} />
+          <ConnectorLine x1={500} y1={270} x2={228} y2={270} stroke={PM_LAVENDER} delay={0.2} />
+          <ConnectorLine x1={500} y1={270} x2={772} y2={270} stroke={PM_CORAL} delay={0.4} />
+          <ConnectorLine x1={500} y1={270} x2={500} y2={430} stroke={PM_GREEN} delay={0.6} />
         </svg>
 
         <div
@@ -227,7 +227,7 @@ export function DecisionRippleVisual() {
             gap: '26px 36px',
             alignItems: 'center',
             height: '100%',
-            padding: '18px 28px',
+            padding: '28px 28px',
           }}
         >
           <div style={{ gridColumn: '2', gridRow: '1', width: '260px', justifySelf: 'center' }}>
@@ -361,7 +361,9 @@ export function ProblemSolutionDriftVisual() {
         transition={{ duration: 0.35, ease: 'easeOut' }}
         style={{
           width: `${CW}px`, flexShrink: 0,
-          borderRadius: '22px', background: '#fff',
+          borderRadius: '22px',
+          background: `linear-gradient(145deg, var(--ed-card), color-mix(in srgb, var(--ed-card) 86%, ${step.color} 14%))`,
+          border: `1px solid color-mix(in srgb, ${step.color} 24%, var(--ed-rule) 76%)`,
           padding: '18px 14px 16px', position: 'relative',
         }}
       >
@@ -376,7 +378,7 @@ export function ProblemSolutionDriftVisual() {
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.11em', color: step.color, marginBottom: '6px', textAlign: 'center' as const }}>
           {step.label}
         </div>
-        <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#4A4540', fontWeight: 500, textAlign: 'center' as const }}>
+        <div style={{ fontSize: '13px', lineHeight: 1.5, color: 'var(--ed-ink2)', fontWeight: 500, textAlign: 'center' as const }}>
           {step.desc}
         </div>
       </motion.div>
@@ -408,7 +410,7 @@ export function ProblemSolutionDriftVisual() {
       width: 22,
       height: 22,
       borderRadius: '7px',
-      background: `linear-gradient(145deg, color-mix(in srgb, white 18%, ${c2} 82%) 0%, ${c2} 100%)`,
+      background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 18%, ${c2} 82%) 0%, ${c2} 100%)`,
       boxShadow: `0 9px 15px ${c2}2e, inset 0 1px 0 rgba(255,255,255,0.48), inset 0 -2px 0 rgba(0,0,0,0.14)`,
       clipPath: 'polygon(18% 8%, 100% 50%, 18% 92%, 36% 50%)',
       transform:
@@ -535,141 +537,153 @@ export function ProblemSolutionDriftVisual() {
 }
 
 export function DecisionQualitySplitVisual() {
-  const frames = [
+  const quadrants = [
     {
-      leftAccent: PM_GREEN,  leftIcon: '✓', leftTitle: 'Good process',
-      leftText: 'Strong reasoning, clear tradeoff, bad market timing.',
-      rightAccent: PM_CORAL, rightIcon: '✗', rightTitle: 'Bad process',
-      rightText: 'Weak reasoning, lucky outcome, misleading success.',
+      id: 'dangerous',
+      title: 'Dangerous Win',
+      process: 'Weak process',
+      result: 'Good outcome',
+      accent: PM_CORAL,
+      x: 0,
+      lesson: 'Luck can reward the wrong reasoning. This is the quadrant that quietly trains bad PM judgment.',
+      move: 'Replay the assumptions before celebrating the metric.',
     },
     {
-      leftAccent: PM_TEAL,   leftIcon: '🔍', leftTitle: 'Review the decision',
-      leftText: 'What information did we have, and what did we assume?',
-      rightAccent: PM_INDIGO, rightIcon: '📊', rightTitle: 'Review the outcome',
-      rightText: 'What changed externally that our process could not control?',
+      id: 'validated',
+      title: 'Validated Win',
+      process: 'Strong process',
+      result: 'Good outcome',
+      accent: PM_GREEN,
+      x: 1,
+      lesson: 'The outcome supports the reasoning. Capture the decision pattern so the team can reuse it.',
+      move: 'Document what mattered, what was ignored, and why.',
+    },
+    {
+      id: 'expected',
+      title: 'Expected Miss',
+      process: 'Weak process',
+      result: 'Bad outcome',
+      accent: PM_CORAL,
+      x: 0,
+      lesson: 'Bad process met a bad result. The fix starts with the decision method, not the next feature idea.',
+      move: 'Reset the frame and gather the missing evidence.',
+    },
+    {
+      id: 'unlucky',
+      title: 'Unlucky Miss',
+      process: 'Strong process',
+      result: 'Bad outcome',
+      accent: PM_TEAL,
+      x: 1,
+      lesson: 'A good call can still lose when context shifts. Do not punish the team for uncertainty it could not control.',
+      move: 'Separate external change from flawed reasoning.',
     },
   ];
-  const [frame, setFrame] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => setFrame(v => (v + 1) % frames.length), 2400);
-    return () => clearInterval(timer);
-  }, [frames.length]);
-
-  const cur = frames[frame];
-
-  const SplitCard = ({ accent, icon, label, text }: { accent: string; icon: string; label: string; text: string }) => (
-    <motion.div
-      key={label}
-      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.35 }}
-      style={{
-        borderRadius: '24px', background: '#ffffff', padding: '22px 20px',
-        boxShadow: `0 10px 22px ${accent}1c, 0 4px 0 ${accent}16, inset 0 1px 0 rgba(255,255,255,0.9)`,
-      }}
-    >
-      <div style={{
-        width: 48, height: 48, borderRadius: '14px',
-        background: `linear-gradient(145deg, ${accent}cc 0%, ${accent} 100%)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '22px', marginBottom: '14px',
-        boxShadow: `0 6px 14px ${accent}38`,
-      }}>
-        {icon}
-      </div>
-      <div style={{
-        fontFamily: "'JetBrains Mono', monospace", fontSize: '9px',
-        fontWeight: 800, letterSpacing: '0.12em', color: accent, marginBottom: '8px',
-      }}>
-        {label}
-      </div>
-      <div style={{ fontSize: '14px', lineHeight: 1.65, color: '#4A4540', fontWeight: 500 }}>
-        {text}
-      </div>
-    </motion.div>
-  );
+  const [activeId, setActiveId] = useState('dangerous');
+  const active = quadrants.find(q => q.id === activeId) ?? quadrants[0];
 
   return (
     <Shell
       title="Decision quality and outcome quality move on different layers."
       caption="Senior PM growth starts when we stop grading ourselves only by what happened. The process and the outcome must be inspected separately."
     >
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 72px 1fr', gap: '20px', alignItems: 'center' }}>
-        <AnimatePresence mode="wait">
-          <SplitCard key={`L${frame}`} accent={cur.leftAccent} icon={cur.leftIcon} label={cur.leftTitle} text={cur.leftText} />
-        </AnimatePresence>
-
-        {/* Centre track + floating Outcome pill */}
-        <div style={{ position: 'relative', height: '200px' }}>
-          <div style={{
-            position: 'absolute', left: '50%', top: 0, bottom: 0,
-            width: '6px', transform: 'translateX(-50%)', borderRadius: '3px',
-            background: `linear-gradient(180deg, rgba(106,87,232,0.06) 0%, rgba(106,87,232,0.35) 50%, rgba(106,87,232,0.06) 100%)`,
-          }} />
-          <motion.div
-            animate={{ y: frame === 0 ? [18, 108, 18] : [108, 18, 108] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            style={{
-              position: 'absolute', left: '50%', transform: 'translateX(-50%)',
-              width: '60px', height: '60px', borderRadius: '18px',
-              background: `linear-gradient(145deg, ${PM_INDIGO} 0%, #5240d9 100%)`,
-              boxShadow: `0 14px 24px rgba(82,64,217,0.28), 0 3px 0 rgba(63,42,183,0.3), inset 0 1px 0 rgba(255,255,255,0.4)`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              textAlign: 'center', color: '#fff', fontWeight: 800,
-              fontSize: '11px', lineHeight: 1.3, padding: '6px',
-            }}
-          >
-            Out&shy;come
-          </motion.div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '24px', alignItems: 'stretch' }}>
+        <div style={{ position: 'relative', minHeight: '360px', padding: '10px 0', perspective: '900px' }}>
+          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', height: '100%' }}>
+            {quadrants.map(q => {
+              const isActive = activeId === q.id;
+              return (
+                <motion.button
+                  key={q.id}
+                  type="button"
+                  onClick={() => setActiveId(q.id)}
+                  whileHover={{ y: -8, rotateX: 5, rotateY: q.x === 0 ? -4 : 4 }}
+                  animate={{
+                    y: isActive ? -10 : 0,
+                    scale: isActive ? 1.035 : 1,
+                    boxShadow: isActive
+                      ? `0 22px 34px ${q.accent}30, 0 8px 0 ${q.accent}24, inset 0 1px 0 rgba(255,255,255,0.18)`
+                      : `0 12px 22px ${q.accent}18, 0 5px 0 ${q.accent}14, inset 0 1px 0 rgba(255,255,255,0.12)`,
+                  }}
+                  transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                  style={{
+                    border: `1px solid ${q.accent}33`,
+                    borderRadius: 26,
+                    background: `linear-gradient(145deg, var(--ed-card), ${q.accent}10)`,
+                    padding: '20px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transformStyle: 'preserve-3d',
+                    minHeight: 138,
+                  }}
+                >
+                  <div style={{ width: 34, height: 34, borderRadius: 14, background: `linear-gradient(145deg, var(--ed-card), ${q.accent}44)`, boxShadow: `0 10px 18px ${q.accent}24`, marginBottom: 14 }} />
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: q.accent, marginBottom: 8, textTransform: 'uppercase' }}>{q.result}</div>
+                  <div style={{ fontSize: 18, fontWeight: 850, color: 'var(--ed-ink)', lineHeight: 1.15, marginBottom: 8 }}>{q.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ed-ink3)', lineHeight: 1.45 }}>{q.process}</div>
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          <SplitCard key={`R${frame}`} accent={cur.rightAccent} icon={cur.rightIcon} label={cur.rightTitle} text={cur.rightText} />
-        </AnimatePresence>
+        <motion.div
+          key={active.id}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.25 }}
+          style={{
+            borderRadius: 24,
+            padding: '22px 20px',
+            background: `linear-gradient(145deg, var(--ed-card), ${active.accent}12)`,
+            border: `1px solid ${active.accent}30`,
+            boxShadow: `0 16px 26px ${active.accent}1c, 0 6px 0 ${active.accent}16, inset 0 1px 0 rgba(255,255,255,0.14)`,
+            alignSelf: 'center',
+          }}
+        >
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: active.accent, marginBottom: 8 }}>WHAT TO LEARN</div>
+          <div style={{ fontSize: 22, fontWeight: 850, color: 'var(--ed-ink)', marginBottom: 12 }}>{active.title}</div>
+          <div style={{ fontSize: 13, color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: 16 }}>{active.lesson}</div>
+          <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: 14 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: active.accent, marginBottom: 6 }}>NEXT MOVE</div>
+            <div style={{ fontSize: 12, color: 'var(--ed-ink3)', lineHeight: 1.55 }}>{active.move}</div>
+          </div>
+        </motion.div>
       </div>
     </Shell>
   );
 }
 
 export function TradeoffPrismVisual() {
-  const states = [
-    {
-      focus: 'Ship fast',
+  const tradeoffs = {
+    business: {
+      label: 'Business',
       accent: PM_CORAL,
-      business: 86,
-      user: 64,
-      tech: 40,
-      note: 'Fast shipping buys momentum but stores hidden debt under the floorboards.',
+      values: { business: 92, user: 58, tech: 44 },
+      cost: 'Revenue clarity rises, but user trust and engineering flexibility get compressed.',
+      compresses: 'User empathy and system health',
     },
-    {
-      focus: 'Protect quality',
+    user: {
+      label: 'User',
+      accent: PM_GREEN,
+      values: { business: 60, user: 92, tech: 56 },
+      cost: 'User fit improves, but the roadmap needs a sharper revenue story and tighter scope.',
+      compresses: 'Commercial focus and delivery speed',
+    },
+    tech: {
+      label: 'Tech',
       accent: PM_TEAL,
-      business: 58,
-      user: 78,
-      tech: 84,
-      note: 'Technical rigor increases long-term velocity but compresses short-term feature output.',
+      values: { business: 52, user: 64, tech: 92 },
+      cost: 'Architecture gets stronger, but stakeholders feel the slower feature pulse immediately.',
+      compresses: 'Short-term growth and visible output',
     },
-    {
-      focus: 'Push growth',
-      accent: PM_INDIGO,
-      business: 92,
-      user: 72,
-      tech: 46,
-      note: 'Growth pressure can stretch the product away from its cleanest user fit.',
-    },
-  ];
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => setActive((v) => (v + 1) % states.length), 2200);
-    return () => clearInterval(timer);
-  }, [states.length]);
-
-  const state = states[active];
+  };
+  const [focus, setFocus] = useState<keyof typeof tradeoffs>('business');
+  const state = tradeoffs[focus];
   const pillars = [
-    { label: 'Business', value: state.business, accent: PM_CORAL },
-    { label: 'User', value: state.user, accent: PM_GREEN },
-    { label: 'Tech', value: state.tech, accent: PM_TEAL },
+    { id: 'business' as const, label: 'Business', accent: PM_CORAL },
+    { id: 'user' as const, label: 'User', accent: PM_GREEN },
+    { id: 'tech' as const, label: 'Tech', accent: PM_TEAL },
   ];
 
   return (
@@ -677,99 +691,71 @@ export function TradeoffPrismVisual() {
       title="Every optimization lifts one pillar and pulls tension through the other two."
       caption="There is no stable center forever. Product tradeoffs are living structures: when one dimension rises, the costs migrate somewhere else in the system."
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 250px', gap: '24px', alignItems: 'center' }}>
-        <div
-          style={{
-            position: 'relative',
-            height: '286px',
-            borderRadius: '28px',
-            padding: '18px',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.76) 0%, rgba(106,87,232,0.06) 100%)',
-            boxShadow: surfaceShadow,
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: '10%',
-              right: '10%',
-              bottom: '24px',
-              height: '20px',
-              borderRadius: '999px',
-              background: 'rgba(106,87,232,0.08)',
-            }}
-          />
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '100%', gap: '16px' }}>
-            {pillars.map((pillar) => (
-              <div key={pillar.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
-                <motion.div
-                  animate={{ height: `${pillar.value}%` }}
-                  transition={{ duration: 0.55, ease: 'easeOut' }}
-                  style={{
-                    width: '100%',
-                    maxWidth: '110px',
-                    minHeight: '78px',
-                    borderRadius: '18px 18px 12px 12px',
-                    background: `linear-gradient(180deg, color-mix(in srgb, white 20%, ${pillar.accent} 80%) 0%, ${pillar.accent} 100%)`,
-                    border: '1px solid rgba(255,255,255,0.32)',
-                    boxShadow: `0 16px 24px ${pillar.accent}1a, inset 0 1px 0 rgba(255,255,255,0.36)`,
-                  }}
-                />
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: pillar.accent, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                  {pillar.label}
-                </div>
-              </div>
-            ))}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 270px', gap: '26px', alignItems: 'center' }}>
+        <div style={{ position: 'relative', minHeight: 330, padding: '18px 20px 10px', perspective: '980px' }}>
+          <div style={{ position: 'absolute', left: '8%', right: '8%', bottom: 28, height: 44, borderRadius: '999px', background: 'radial-gradient(ellipse at center, rgba(106,87,232,0.22), rgba(106,87,232,0.04) 58%, transparent 72%)', filter: 'blur(2px)' }} />
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', height: 300, gap: 38, transform: 'rotateX(8deg)', transformStyle: 'preserve-3d' }}>
+            {pillars.map((pillar, index) => {
+              const value = state.values[pillar.id];
+              const selected = focus === pillar.id;
+              return (
+                <motion.button
+                  key={pillar.id}
+                  type="button"
+                  onClick={() => setFocus(pillar.id)}
+                  whileHover={{ y: -10 }}
+                  animate={{ y: selected ? -16 : 0, scale: selected ? 1.04 : 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  style={{ width: 132, height: 280, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', transformStyle: 'preserve-3d' }}
+                >
+                  <motion.div animate={{ scaleX: selected ? 1.14 : 0.92, opacity: selected ? 0.42 : 0.24 }} style={{ position: 'absolute', bottom: 26, width: 118, height: 24, borderRadius: '999px', background: pillar.accent, filter: 'blur(16px)' }} />
+                  <motion.div
+                    animate={{ height: value * 2.1 }}
+                    transition={{ type: 'spring', stiffness: 190, damping: 22 }}
+                    style={{
+                      position: 'relative',
+                      width: 88,
+                      minHeight: 96,
+                      borderRadius: '18px 18px 12px 12px',
+                      background: `linear-gradient(180deg, color-mix(in srgb, var(--ed-card) 32%, ${pillar.accent} 68%) 0%, ${pillar.accent} 68%, color-mix(in srgb, black 14%, ${pillar.accent} 86%) 100%)`,
+                      boxShadow: selected
+                        ? `0 28px 38px ${pillar.accent}38, 12px 14px 0 ${pillar.accent}20, inset 0 2px 0 rgba(255,255,255,0.55)`
+                        : `0 18px 28px ${pillar.accent}25, 8px 10px 0 ${pillar.accent}16, inset 0 2px 0 rgba(255,255,255,0.45)`,
+                      border: '1px solid rgba(255,255,255,0.45)',
+                      transformStyle: 'preserve-3d',
+                    }}
+                  >
+                    <div style={{ position: 'absolute', left: 8, right: 8, top: -12, height: 22, borderRadius: '50%', background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 58%, ${pillar.accent} 42%), ${pillar.accent}88)`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22)' }} />
+                    <div style={{ position: 'absolute', right: -13, top: 14, bottom: 8, width: 18, borderRadius: '0 12px 12px 0', background: `linear-gradient(180deg, ${pillar.accent}88, color-mix(in srgb, black 22%, ${pillar.accent} 78%))`, transform: 'skewY(34deg)', opacity: 0.7 }} />
+                    <div style={{ position: 'absolute', inset: '28px 12px auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 850, letterSpacing: '0.16em', color: '#fff', textTransform: 'uppercase', textAlign: 'center', textShadow: '0 1px 8px rgba(0,0,0,0.2)' }}>{pillar.label}</div>
+                    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 24, fontSize: 24, fontWeight: 900, color: '#fff', textAlign: 'center', textShadow: '0 2px 12px rgba(0,0,0,0.22)' }}>{value}%</div>
+                  </motion.div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: pillar.accent, letterSpacing: '0.14em', textTransform: 'uppercase' }}>{selected ? 'OPTIMIZED' : `PILLAR ${index + 1}`}</div>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* Current state — prominent clay card */}
-          <motion.div
-            key={state.focus}
-            initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }}
-            style={{
-              borderRadius: '20px', background: '#ffffff', padding: '18px 16px',
-              boxShadow: `0 10px 22px ${state.accent}1a, 0 4px 0 ${state.accent}14, inset 0 1px 0 rgba(255,255,255,0.85)`,
-            }}
-          >
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>
-              CURRENT OPTIMIZATION
-            </div>
-            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '14px' }}>{state.focus}</div>
-            {/* Mini bar indicators */}
+          <motion.div key={focus} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} style={{ borderRadius: '20px', background: 'var(--ed-card)', padding: '18px 16px', boxShadow: `0 10px 22px ${state.accent}1a, 0 4px 0 ${state.accent}14, inset 0 1px 0 rgba(255,255,255,0.18)` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>CURRENT OPTIMIZATION</div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '14px' }}>{state.label}</div>
             {pillars.map(p => (
               <div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '7px' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: p.accent, width: '50px' }}>
-                  {p.label}
-                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: p.accent, width: '50px' }}>{p.label}</div>
                 <div style={{ flex: 1, height: '6px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <motion.div
-                    animate={{ width: `${p.value}%` }} transition={{ duration: 0.55, ease: 'easeOut' }}
-                    style={{ height: '100%', background: p.accent, borderRadius: '3px' }} />
+                  <motion.div animate={{ width: `${state.values[p.id]}%` }} transition={{ type: 'spring', stiffness: 190, damping: 22 }} style={{ height: '100%', background: p.accent, borderRadius: '3px' }} />
                 </div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: p.accent, width: '24px', textAlign: 'right' }}>
-                  {p.value}%
-                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: p.accent, width: '24px', textAlign: 'right' }}>{state.values[p.id]}%</div>
               </div>
             ))}
           </motion.div>
-          {/* System cost note */}
-          <motion.div
-            key={state.note}
-            initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.06 }}
-            style={{
-              borderRadius: '16px', padding: '14px 16px',
-              background: `${state.accent}0A`,
-              border: `1px solid ${state.accent}22`,
-              borderLeft: `4px solid ${state.accent}`,
-            }}
-          >
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>
-              SYSTEM COST
-            </div>
-            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{state.note}</div>
+          <motion.div key={state.cost} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, delay: 0.06 }} style={{ borderRadius: '16px', padding: '14px 16px', background: `${state.accent}0A`, border: `1px solid ${state.accent}22`, borderLeft: `4px solid ${state.accent}` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: '6px' }}>SYSTEM COST</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: 10 }}>{state.cost}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: state.accent, marginBottom: 5 }}>COMPRESSES</div>
+            <div style={{ fontSize: 12, color: 'var(--ed-ink3)', lineHeight: 1.55 }}>{state.compresses}</div>
           </motion.div>
         </div>
       </div>

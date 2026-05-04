@@ -5,9 +5,19 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene, CharacterChip,
+  TiltCard, ConversationScene, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+
+const PARTS = [
+  { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
+  { num: '02', id: 'm4-apm-audit', label: 'Design Audit' },
+  { num: '03', id: 'm4-apm-ds-decision', label: 'Design System Decision' },
+  { num: '04', id: 'm4-apm-critique', label: 'Design Critique' },
+  { num: '05', id: 'm4-apm-threshold', label: 'Speed vs Craft' },
+  { num: '06', id: 'm4-apm-pitch', label: 'Business Case' },
+  { num: '07', id: 'm4-apm-reflection', label: 'Final Reflection' },
+];
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -797,12 +807,16 @@ const PitchBuilderMockup = () => {
 // ─────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────
-export default function Track2UXDesign() {
+export default function Track2UXDesign({
+  completedSections = new Set<string>(),
+}: {
+  completedSections?: Set<string>;
+}) {
   return (
     <article style={{ padding: '0 0 80px' }}>
 
       {/* ── HERO ── */}
-      <div style={{ position: 'relative', padding: '72px 0 48px', overflow: 'hidden' }}>
+      <div style={{ position: 'relative', padding: '72px 210px 48px 0', overflow: 'visible' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', right: '-20px', top: '-10px',
           fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1,
@@ -810,6 +824,9 @@ export default function Track2UXDesign() {
           fontFamily: "'Lora', Georgia, serif",
           letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
         }}>04</div>
+        <div style={{ position: 'absolute', right: 0, top: '24px' }}>
+          <TrackHeroCard moduleNum="04" moduleLabel="UX Leadership" trackLabel="APM Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+        </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>

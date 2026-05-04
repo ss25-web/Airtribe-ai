@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animations';
@@ -204,19 +204,21 @@ const TradeoffMatrix = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
         {tradeoffs.map((t, i) => (
           <motion.button key={i}
-            whileHover={{ y: -3, boxShadow: `0 14px 24px rgba(${t.rgb},0.18), 0 4px 0 rgba(${t.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.85)` }}
+            whileHover={{ y: -3, boxShadow: `0 14px 24px rgba(${t.rgb},0.22), 0 5px 0 rgba(${t.rgb},0.22), inset 0 1px 0 rgba(255,255,255,0.14)` }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setActive(active === i ? null : i)}
-            animate={{ boxShadow: active === i ? `0 10px 20px rgba(${t.rgb},0.18), 0 4px 0 rgba(${t.rgb},0.16), inset 0 1px 0 rgba(255,255,255,0.85)` : `0 4px 12px rgba(0,0,0,0.07), 0 3px 0 rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.85)` }}
+            animate={{ boxShadow: active === i ? `0 12px 22px rgba(${t.rgb},0.24), 0 5px 0 rgba(${t.rgb},0.2), inset 0 1px 0 rgba(255,255,255,0.14)` : `0 8px 18px rgba(0,0,0,0.12), 0 4px 0 rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.1)` }}
             style={{
               padding: '18px 16px', borderRadius: '18px',
-              border: `2px solid ${active === i ? `rgba(${t.rgb},0.55)` : 'rgba(0,0,0,0.04)'}`,
-              background: active === i ? `rgba(${t.rgb},0.06)` : '#ffffff',
+              border: `2px solid ${active === i ? `rgba(${t.rgb},0.58)` : 'var(--ed-rule)'}`,
+              background: active === i
+                ? `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 74%, ${t.color} 26%), color-mix(in srgb, var(--ed-card) 88%, ${t.color} 12%))`
+                : `linear-gradient(145deg, var(--ed-card), color-mix(in srgb, var(--ed-card) 88%, ${t.color} 12%))`,
               cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.2s, background 0.2s',
             }}>
             <div style={{ fontSize: '9px', fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", color: t.color, marginBottom: '6px', letterSpacing: '0.1em' }}>OPTIMIZE FOR</div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--tx,#1C1814)', marginBottom: '8px' }}>{t.action}</div>
-            <div style={{ fontSize: '11px', color: 'var(--tx3,#8A8580)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '8px' }}>{t.action}</div>
+            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ color: t.color, fontWeight: 700 }}>→</span> {t.consequence}
             </div>
           </motion.button>
@@ -225,10 +227,10 @@ const TradeoffMatrix = () => {
       <AnimatePresence mode="wait">
         {active !== null && (
           <motion.div key={active} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            style={{ padding: '16px 20px', borderRadius: '12px', background: `rgba(${tradeoffs[active].rgb},0.06)`, border: `1px solid rgba(${tradeoffs[active].rgb},0.2)`, borderLeft: `4px solid ${tradeoffs[active].color}` }}>
+            style={{ padding: '16px 20px', borderRadius: '12px', background: `color-mix(in srgb, var(--ed-card) 88%, ${tradeoffs[active].color} 12%)`, border: `1px solid rgba(${tradeoffs[active].rgb},0.24)`, borderLeft: `4px solid ${tradeoffs[active].color}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: tradeoffs[active].color, marginBottom: '8px' }}>DOWNSTREAM CONSEQUENCE</div>
-            <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.75 }}>{tradeoffs[active].downstream}</div>
-            <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--tx3)', fontStyle: 'italic' }}>There is no perfect balance — only contextual optimization. The PM's job is to make the tradeoff explicit and own it.</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{tradeoffs[active].downstream}</div>
+            <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>There is no perfect balance — only contextual optimization. The PM's job is to make the tradeoff explicit and own it.</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -296,16 +298,14 @@ const PMTriangleDiagramAPM = () => {
           <motion.g whileHover={{ scale: 1.08 }} style={{ cursor: 'pointer', transformOrigin: '170px 28px' }} onClick={() => setActive(active === 'business' ? null : 'business')}>
             <circle cx="170" cy="28" r="34" fill={active === 'business' ? 'url(#bizGrad)' : 'rgba(120,67,238,0.14)'} stroke="rgba(120,67,238,0.6)" strokeWidth="2" />
             {active === 'business' && <circle cx="170" cy="28" r="34" fill="none" stroke="rgba(120,67,238,0.3)" strokeWidth="8" />}
-            <text x="170" y="23" textAnchor="middle" fill={active === 'business' ? '#fff' : 'var(--purple,#7843EE)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">BUSI-</text>
-            <text x="170" y="35" textAnchor="middle" fill={active === 'business' ? '#fff' : 'var(--purple,#7843EE)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">NESS</text>
+            <text x="170" y="32" textAnchor="middle" fill={active === 'business' ? '#fff' : 'var(--purple,#7843EE)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">BUSINESS</text>
           </motion.g>
 
           {/* Tech node */}
           <motion.g whileHover={{ scale: 1.08 }} style={{ cursor: 'pointer', transformOrigin: '58px 232px' }} onClick={() => setActive(active === 'tech' ? null : 'tech')}>
             <circle cx="58" cy="232" r="34" fill={active === 'tech' ? 'url(#techGrad)' : 'rgba(58,134,255,0.14)'} stroke="rgba(58,134,255,0.6)" strokeWidth="2" />
             {active === 'tech' && <circle cx="58" cy="232" r="34" fill="none" stroke="rgba(58,134,255,0.3)" strokeWidth="8" />}
-            <text x="58" y="228" textAnchor="middle" fill={active === 'tech' ? '#fff' : 'var(--blue,#3A86FF)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">TECH</text>
-            <text x="58" y="240" textAnchor="middle" fill={active === 'tech' ? '#fff' : 'var(--blue,#3A86FF)'} fontSize="9" fontFamily="'JetBrains Mono',monospace" fontWeight="800">NICAL</text>
+            <text x="58" y="236" textAnchor="middle" fill={active === 'tech' ? '#fff' : 'var(--blue,#3A86FF)'} fontSize="10" fontFamily="'JetBrains Mono',monospace" fontWeight="800">TECH</text>
           </motion.g>
 
           {/* User node */}
@@ -324,12 +324,12 @@ const PMTriangleDiagramAPM = () => {
               <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: costs[active].color, marginBottom: '8px' }}>
                 {costs[active].label} — Optimization Cost
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.72, marginBottom: '10px' }}>{costs[active].cost}</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.72, marginBottom: '10px' }}>{costs[active].cost}</div>
               <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono',monospace", color: costs[active].color, opacity: 0.8 }}>{costs[active].tradeoff}</div>
             </motion.div>
           ) : (
             <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              style={{ fontSize: '12px', color: 'var(--tx3)', textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", padding: '8px' }}>
+              style={{ fontSize: '12px', color: 'var(--ed-ink3)', textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", padding: '8px' }}>
               Click a corner to reveal what you sacrifice when you over-optimize it
             </motion.div>
           )}
@@ -378,14 +378,14 @@ const ProblemFramingSimulator = () => {
   return (
     <div style={glassCard('var(--teal)', '0,151,167')}>
       {demoLabel('🔍 Retention dropped 15%. Three teams. Three diagnoses.', 'var(--teal)')}
-      <div style={{ fontSize: '13px', color: 'var(--tx3)', marginBottom: '16px' }}>Each stakeholder sees the same problem through a different lens. Click each to see their frame — and what solution it leads to.</div>
+      <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', marginBottom: '16px' }}>Each stakeholder sees the same problem through a different lens. Click each to see their frame — and what solution it leads to.</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '16px' }}>
         {stakeholders.map((s, i) => (
           <motion.button key={i} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} onClick={() => setActive(active === i ? null : i)}
             style={{ padding: '14px 12px', borderRadius: '14px', border: `2px solid ${active === i ? s.color : `rgba(${s.rgb},0.2)`}`, background: active === i ? `rgba(${s.rgb},0.1)` : 'var(--ed-card)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
             <div style={{ fontSize: '22px', marginBottom: '6px' }}>{s.emoji}</div>
             <div style={{ fontSize: '12px', fontWeight: 800, color: s.color, marginBottom: '2px' }}>{s.name}</div>
-            <div style={{ fontSize: '10px', color: 'var(--tx3)', fontFamily: 'monospace' }}>{s.frame}</div>
+            <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>{s.frame}</div>
           </motion.button>
         ))}
       </div>
@@ -395,17 +395,17 @@ const ProblemFramingSimulator = () => {
             style={{ padding: '16px 20px', borderRadius: '12px', background: `rgba(${stakeholders[active].rgb},0.06)`, border: `1px solid rgba(${stakeholders[active].rgb},0.2)` }}>
             <div style={{ marginBottom: '12px' }}>
               <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em', color: stakeholders[active].color, marginBottom: '4px' }}>HOW THEY DIAGNOSE IT</div>
-              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7 }}>{stakeholders[active].diagnosis}</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{stakeholders[active].diagnosis}</div>
             </div>
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px' }}>
-              <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em', color: 'var(--tx3)', marginBottom: '4px' }}>THEIR PROPOSED SOLUTION</div>
-              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7 }}>{stakeholders[active].solution}</div>
+              <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em', color: 'var(--ed-ink3)', marginBottom: '4px' }}>THEIR PROPOSED SOLUTION</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>{stakeholders[active].solution}</div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
       {active !== null && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: '12px', padding: '12px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px', color: 'var(--tx3)', lineHeight: 1.7, fontStyle: 'italic' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: '12px', padding: '12px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid rgba(255,255,255,0.08)', fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic' }}>
           Notice: none of them are wrong. Each frame reveals a real dimension of the problem. The PM&apos;s job is to synthesize these frames — not pick the loudest one — and find the diagnosis that explains all three perspectives.
         </motion.div>
       )}
@@ -455,7 +455,7 @@ const ResearchBiasIdentifier = () => {
           return (
             <div key={i} style={{ padding: '16px 20px', borderRadius: '14px', background: 'var(--ed-card)', border: `1px solid ${hasGuessed ? (isCorrect ? 'rgba(21,129,88,0.3)' : 'rgba(224,122,95,0.3)') : 'rgba(0,151,167,0.2)'}`, transition: 'border 0.3s' }}>
               <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'monospace', color: 'var(--teal)', marginBottom: '8px', letterSpacing: '0.1em' }}>SCENARIO {i + 1}</div>
-              <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7, fontStyle: 'italic', marginBottom: '14px' }}>"{s.story}"</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7, fontStyle: 'italic', marginBottom: '14px' }}>"{s.story}"</div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
                 {s.options.map(opt => {
                   const isGuessed = guesses[i] === opt;
@@ -463,7 +463,7 @@ const ResearchBiasIdentifier = () => {
                   const isWrong = hasGuessed && isGuessed && !isRight;
                   return (
                     <motion.button key={opt} whileHover={!hasGuessed ? { scale: 1.03 } : {}} onClick={() => guess(i, opt)}
-                      style={{ padding: '7px 14px', borderRadius: '8px', border: `2px solid ${isRight ? 'var(--green)' : isWrong ? 'var(--coral)' : isGuessed ? 'var(--teal)' : 'rgba(0,151,167,0.2)'}`, background: isRight ? 'rgba(21,129,88,0.1)' : isWrong ? 'rgba(224,122,95,0.1)' : 'var(--ed-card)', cursor: hasGuessed ? 'default' : 'pointer', fontSize: '11px', fontWeight: 700, color: isRight ? 'var(--green)' : isWrong ? 'var(--coral)' : 'var(--tx2)', transition: 'all 0.2s' }}>
+                      style={{ padding: '7px 14px', borderRadius: '8px', border: `2px solid ${isRight ? 'var(--green)' : isWrong ? 'var(--coral)' : isGuessed ? 'var(--teal)' : 'rgba(0,151,167,0.2)'}`, background: isRight ? 'rgba(21,129,88,0.1)' : isWrong ? 'rgba(224,122,95,0.1)' : 'var(--ed-card)', cursor: hasGuessed ? 'default' : 'pointer', fontSize: '11px', fontWeight: 700, color: isRight ? 'var(--green)' : isWrong ? 'var(--coral)' : 'var(--ed-ink2)', transition: 'all 0.2s' }}>
                       {opt}
                     </motion.button>
                   );
@@ -472,7 +472,7 @@ const ResearchBiasIdentifier = () => {
               <AnimatePresence>
                 {hasGuessed && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                    style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '8px', background: isCorrect ? 'rgba(21,129,88,0.08)' : 'rgba(224,122,95,0.08)', fontSize: '12px', color: 'var(--tx2)', lineHeight: 1.7 }}>
+                    style={{ marginTop: '12px', padding: '12px 14px', borderRadius: '8px', background: isCorrect ? 'rgba(21,129,88,0.08)' : 'rgba(224,122,95,0.08)', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
                     <strong style={{ color: isCorrect ? 'var(--green)' : 'var(--coral)' }}>{isCorrect ? '✓ Correct. ' : `✗ It's ${s.answer}. `}</strong>
                     {s.explanation}
                   </motion.div>
@@ -496,8 +496,8 @@ const StrategyTradeoffScenario = () => {
     <div style={glassCard('var(--blue)', '58,134,255')}>
       {demoLabel('🎯 EdSpark Expansion Decision — Unpack the Tradeoff', 'var(--blue)')}
       <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--tx)', marginBottom: '8px' }}>The proposal on the table:</div>
-        <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(58,134,255,0.06)', border: '1px solid rgba(58,134,255,0.2)', fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7, fontStyle: 'italic' }}>
+        <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '8px' }}>The proposal on the table:</div>
+        <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(58,134,255,0.06)', border: '1px solid rgba(58,134,255,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7, fontStyle: 'italic' }}>
           "EdSpark should expand from serving sales teams to also serving HR teams. HR teams have training budgets, similar user size, and are already in the enterprise. Looks like a natural adjacency."
         </div>
       </div>
@@ -517,7 +517,7 @@ const StrategyTradeoffScenario = () => {
             style={{ padding: '16px 20px', borderRadius: '12px', background: 'rgba(21,129,88,0.06)', border: '1px solid rgba(21,129,88,0.2)', borderLeft: '4px solid var(--green)' }}>
             <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--green)', marginBottom: '8px' }}>SURFACE-LEVEL CASE</div>
             {['New revenue stream — HR is a large, untapped market', 'Similar company size and enterprise dynamics', 'Training budgets already allocated — easier sell', 'Reduces concentration risk from being sales-team-only'].map((t, i) => (
-              <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '12px', color: 'var(--tx2)' }}>
+              <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '12px', color: 'var(--ed-ink2)' }}>
                 <span style={{ color: 'var(--green)', flexShrink: 0 }}>✓</span>{t}
               </div>
             ))}
@@ -528,11 +528,11 @@ const StrategyTradeoffScenario = () => {
             style={{ padding: '16px 20px', borderRadius: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.2)', borderLeft: '4px solid var(--coral)' }}>
             <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--coral)', marginBottom: '8px' }}>WHAT ACTUALLY HAPPENS</div>
             {['To serve HR, EdSpark generalizes its coaching features — they become "good enough" for both, great for neither', 'Sales team retention drops: power users who loved deep sales coaching now find a generic training product', 'Engineering is split: call coaching roadmap and LMS features pull in opposite directions', 'Sales cycles lengthen: "EdSpark for HR" doesn\'t fit the original ICP anymore', 'Core product value erodes before the HR segment reaches meaningful revenue'].map((t, i) => (
-              <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '12px', color: 'var(--tx2)' }}>
+              <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '6px', fontSize: '12px', color: 'var(--ed-ink2)' }}>
                 <span style={{ color: 'var(--coral)', flexShrink: 0 }}>✗</span>{t}
               </div>
             ))}
-            <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', fontSize: '12px', color: 'var(--tx3)', fontStyle: 'italic' }}>
+            <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
               Strategy is what you DON&apos;T do. Saying no to adjacent opportunities that dilute core value is often more important than saying yes to new markets.
             </div>
           </motion.div>
@@ -568,17 +568,17 @@ const PMFLocalMaximaDemo = () => {
       <div style={{ display: 'flex', gap: '6px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
         {cohorts.map((coh, i) => (
           <motion.button key={i} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setSelectedCohort(i)}
-            style={{ padding: '6px 12px', borderRadius: '8px', border: `2px solid ${selectedCohort === i ? 'var(--blue)' : 'rgba(58,134,255,0.2)'}`, background: selectedCohort === i ? 'rgba(58,134,255,0.12)' : 'var(--ed-card)', cursor: 'pointer', fontSize: '10px', fontWeight: 700, color: selectedCohort === i ? 'var(--blue)' : 'var(--tx3)', transition: 'all 0.2s', fontFamily: 'monospace' }}>
+            style={{ padding: '6px 12px', borderRadius: '8px', border: `2px solid ${selectedCohort === i ? 'var(--blue)' : 'rgba(58,134,255,0.2)'}`, background: selectedCohort === i ? 'rgba(58,134,255,0.12)' : 'var(--ed-card)', cursor: 'pointer', fontSize: '10px', fontWeight: 700, color: selectedCohort === i ? 'var(--blue)' : 'var(--ed-ink3)', transition: 'all 0.2s', fontFamily: 'monospace' }}>
             {coh.label.split(' ')[0]} {coh.label.split(' ')[1]}
           </motion.button>
         ))}
       </div>
-      <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--tx)', marginBottom: '16px' }}>{c.label}</div>
+      <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '16px' }}>{c.label}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
         {bars.map(bar => (
           <div key={bar.label}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--tx3)', fontFamily: 'monospace' }}>{bar.label}</span>
+              <span style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>{bar.label}</span>
               <span style={{ fontSize: '11px', fontWeight: 700, color: bar.color, fontFamily: 'monospace' }}>{bar.value}%</span>
             </div>
             <div style={{ height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -588,7 +588,7 @@ const PMFLocalMaximaDemo = () => {
           </div>
         ))}
       </div>
-      <div style={{ padding: '12px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid rgba(255,255,255,0.07)', fontSize: '12px', color: 'var(--tx2)', lineHeight: 1.75, fontStyle: 'italic' }}>
+      <div style={{ padding: '12px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid rgba(255,255,255,0.07)', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.75, fontStyle: 'italic' }}>
         {c.note}
       </div>
     </div>
@@ -613,7 +613,7 @@ const StakeholderNegotiation = () => {
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
         {(['scores', 'dispute', 'resolution'] as const).map(p => (
           <motion.button key={p} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setPhase(p)}
-            style={{ padding: '8px 14px', borderRadius: '8px', border: `2px solid ${phase === p ? 'var(--coral)' : 'rgba(224,122,95,0.25)'}`, background: phase === p ? 'rgba(224,122,95,0.1)' : 'var(--ed-card)', cursor: 'pointer', fontSize: '11px', fontWeight: 700, color: phase === p ? 'var(--coral)' : 'var(--tx3)', transition: 'all 0.2s', fontFamily: 'monospace' }}>
+            style={{ padding: '8px 14px', borderRadius: '8px', border: `2px solid ${phase === p ? 'var(--coral)' : 'rgba(224,122,95,0.25)'}`, background: phase === p ? 'rgba(224,122,95,0.1)' : 'var(--ed-card)', cursor: 'pointer', fontSize: '11px', fontWeight: 700, color: phase === p ? 'var(--coral)' : 'var(--ed-ink3)', transition: 'all 0.2s', fontFamily: 'monospace' }}>
             {p === 'scores' ? '1. RICE scores' : p === 'dispute' ? '2. The dispute' : '3. Resolution'}
           </motion.button>
         ))}
@@ -621,25 +621,25 @@ const StakeholderNegotiation = () => {
       <AnimatePresence mode="wait">
         {phase === 'scores' && (
           <motion.div key="scores" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div style={{ fontSize: '12px', color: 'var(--tx3)', marginBottom: '12px' }}>The RICE scores say this is clear-cut:</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginBottom: '12px' }}>The RICE scores say this is clear-cut:</div>
             {features.map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px', padding: '12px 16px', borderRadius: '10px', background: 'var(--ed-card)', border: `1px solid rgba(255,255,255,0.07)` }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--tx)', marginBottom: '2px' }}>{f.name}</div>
-                  <div style={{ fontSize: '10px', color: 'var(--tx3)', fontFamily: 'monospace' }}>Owner: {f.owner}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px' }}>{f.name}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>Owner: {f.owner}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '18px', fontWeight: 900, color: f.color }}>{f.rice}</div>
-                  <div style={{ fontSize: '9px', color: 'var(--tx3)', fontFamily: 'monospace' }}>RICE score</div>
+                  <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>RICE score</div>
                 </div>
               </div>
             ))}
-            <div style={{ fontSize: '12px', color: 'var(--tx3)', fontStyle: 'italic', marginTop: '8px' }}>AI call summary wins. Case closed? Not quite.</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic', marginTop: '8px' }}>AI call summary wins. Case closed? Not quite.</div>
           </motion.div>
         )}
         {phase === 'dispute' && (
           <motion.div key="dispute" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div style={{ fontSize: '12px', color: 'var(--tx3)', marginBottom: '12px' }}>The VP of Customer Success disputes the AI call summary's Reach number:</div>
+            <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', marginBottom: '12px' }}>The VP of Customer Success disputes the AI call summary's Reach number:</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
                 { speaker: 'VP CS', color: 'var(--blue)', text: '"Reach of 2,400 users? Our enterprise cohort is only 800. Where did 2,400 come from?"' },
@@ -648,7 +648,7 @@ const StakeholderNegotiation = () => {
               ].map((item, i) => (
                 <div key={i} style={{ padding: '12px 16px', borderRadius: '10px', background: `${item.color}08`, border: `1px solid ${item.color}25`, borderLeft: `3px solid ${item.color}` }}>
                   <div style={{ fontSize: '10px', fontWeight: 700, fontFamily: 'monospace', color: item.color, marginBottom: '4px' }}>{item.speaker}</div>
-                  <div style={{ fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.7, fontStyle: 'italic' }}>{item.text}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7, fontStyle: 'italic' }}>{item.text}</div>
                 </div>
               ))}
             </div>
@@ -657,10 +657,10 @@ const StakeholderNegotiation = () => {
         {phase === 'resolution' && (
           <motion.div key="resolution" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(21,129,88,0.08)', border: '1px solid rgba(21,129,88,0.2)', fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.75 }}>
+              <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(21,129,88,0.08)', border: '1px solid rgba(21,129,88,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
                 <strong style={{ color: 'var(--green)' }}>What PM Priya does:</strong> She doesn't defend the original Reach estimate. She opens the disagreement. "Let's align on who we're building for first — our full user base, or our ICP enterprise cohort? That answer determines every RICE score we run."
               </div>
-              <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.15)', fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.75 }}>
+              <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.15)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
                 <strong style={{ color: 'var(--coral)' }}>The real lesson:</strong> The dispute wasn't about the AI call summary. It was about who EdSpark's strategy is actually for. RICE exposed the disagreement — it didn't create it. Prioritization is a negotiation about strategy, not a math problem.
               </div>
             </div>
@@ -691,8 +691,8 @@ const GuardrailMetricsDemo = () => {
         <div style={{ fontSize: '11px', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.1em', color: 'var(--purple)', marginBottom: '10px' }}>NORTH STAR</div>
         <div style={{ padding: '16px 20px', borderRadius: '12px', background: 'rgba(21,129,88,0.1)', border: '2px solid rgba(21,129,88,0.3)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--tx)', marginBottom: '2px' }}>{northStar.label}</div>
-            <div style={{ fontSize: '11px', color: 'var(--tx3)' }}>This quarter vs last quarter</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px' }}>{northStar.label}</div>
+            <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>This quarter vs last quarter</div>
           </div>
           <div style={{ fontSize: '24px', fontWeight: 900, color: 'var(--green)' }}>{northStar.value}</div>
         </div>
@@ -708,14 +708,14 @@ const GuardrailMetricsDemo = () => {
               {guardrails.map((g, i) => (
                 <div key={i} style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(224,122,95,0.08)', border: '1px solid rgba(224,122,95,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--tx)', marginBottom: '4px' }}>{g.label}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--tx3)', lineHeight: 1.6 }}>{g.note}</div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '4px' }}>{g.label}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>{g.note}</div>
                   </div>
                   <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--coral)', flexShrink: 0 }}>{g.value}</div>
                 </div>
               ))}
             </div>
-            <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(120,67,238,0.08)', border: '1px solid rgba(120,67,238,0.2)', fontSize: '13px', color: 'var(--tx2)', lineHeight: 1.75 }}>
+            <div style={{ padding: '14px 18px', borderRadius: '12px', background: 'rgba(120,67,238,0.08)', border: '1px solid rgba(120,67,238,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
               <strong style={{ color: 'var(--purple)' }}>The question for Priya:</strong> When guardrail metrics are this far off, does the north star still represent real value? More sessions per user — but those sessions are generating support tickets, not satisfaction. The north star may be diverging from the actual value it was meant to measure. This is when you override the north star.
             </div>
           </motion.div>
@@ -740,13 +740,23 @@ const APM_MODULES = [
 ];
 
 const IntroHero = () => (
-  <section style={{ padding: '56px 0 48px', borderBottom: '1px solid var(--ed-rule)' }}>
+  <section style={{ position: 'relative', padding: '56px 210px 48px 0', borderBottom: '1px solid var(--ed-rule)' }}>
     {/* Breadcrumb */}
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '32px', letterSpacing: '0.04em' }}>
       PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-ink3)' }}>›</span>
       <span style={{ color: 'var(--ed-ink2)' }}>Advanced Track</span>
       <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
       <span style={{ color: 'var(--ed-ink3)' }}>30 min · 12 concepts</span>
+    </div>
+
+    <div style={{ position: 'absolute', right: 0, top: 42 }}>
+      <TrackHeroCard
+        moduleNum="01"
+        moduleLabel="Advanced PM Foundations"
+        trackLabel="Advanced Track"
+        accent="var(--purple)"
+        parts={APM_MODULES.map(m => ({ num: m.roman, label: m.label }))}
+      />
     </div>
 
     {/* Title */}

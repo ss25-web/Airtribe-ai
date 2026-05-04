@@ -5,7 +5,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene,
+  TiltCard, ConversationScene, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -14,6 +14,15 @@ import { MentorFace } from './MentorFaces';
 // ─────────────────────────────────────────
 const ACCENT     = '#C85A40';
 const ACCENT_RGB = '200,90,64';
+const PARTS = [
+  { num: '01', id: 'm3-raw-inputs', label: 'Raw Inputs at Scale' },
+  { num: '02', id: 'm3-reframe', label: 'Reframe the Decision' },
+  { num: '03', id: 'm3-data', label: 'Data Before Priority' },
+  { num: '04', id: 'm3-rice', label: 'RICE Under Pressure' },
+  { num: '05', id: 'm3-call', label: 'Make the Call' },
+  { num: '06', id: 'm3-stakeholder', label: 'Stakeholder Alignment' },
+  { num: '07', id: 'm3-reflection', label: 'Final Reflection' },
+];
 const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: APM (Scale Track).
 Follows Priya Sharma, 2-year APM at EdSpark (B2B SaaS for sales coaching). EdSpark has just landed Salesforce, Zendesk, and Infosys as enterprise clients. Covers: strategic prioritisation at scale, opportunity scoring vs. RICE, Now/Next/Later roadmaps, managing upward on priority calls, kill criteria, and communicating hard cuts to boards and VPs.`;
 
@@ -389,13 +398,20 @@ const BoardSlide = () => {
 // ─────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────
-export default function Track2Prioritization() {
+export default function Track2Prioritization({
+  completedSections = new Set<string>(),
+}: {
+  completedSections?: Set<string>;
+}) {
   return (
     <article style={{ maxWidth: '720px', margin: '0 auto', padding: '0 0 80px' }}>
 
       {/* Hero */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 40px 32px', marginBottom: '0', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 32px 40px', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-16px', top: '-8px', fontSize: '160px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>03</div>
+        <div style={{ position: 'absolute', right: '24px', top: '0' }}>
+          <TrackHeroCard moduleNum="03" moduleLabel="Strategic Prioritisation" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+        </div>
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: ACCENT, marginBottom: '10px' }}>Module 03 · Scale Track</div>
         <h1 style={{ fontSize: 'clamp(26px,3.5vw,40px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.15, letterSpacing: '-0.025em', fontFamily: "'Lora','Georgia',serif", marginBottom: '12px' }}>
           Strategic Prioritisation at Scale
