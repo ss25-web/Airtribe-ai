@@ -383,30 +383,70 @@ export function ProblemSolutionDriftVisual() {
     );
   };
 
-  // Arrow components sized to AW
-  const ArrowR = ({ c1, c2 }: { c1: string; c2: string }) => (
-    <svg width={AW} height="30" viewBox={`0 0 ${AW} 30`} style={{ flexShrink: 0 }}>
-      <defs>
-        <linearGradient id={`psr${c1.slice(1)}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={c1} stopOpacity="0.5" /><stop offset="100%" stopColor={c2} />
-        </linearGradient>
-      </defs>
-      <path d={`M5 15 H${AW - 16} M${AW - 22} 8 L${AW - 5} 15 L${AW - 22} 22`}
-        stroke={`url(#psr${c1.slice(1)})`} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  );
+  const ClayArrow = ({
+    c1,
+    c2,
+    direction = 'right',
+  }: {
+    c1: string;
+    c2: string;
+    direction?: 'right' | 'left' | 'down';
+  }) => {
+    const isVertical = direction === 'down';
+    const railStyle: React.CSSProperties = {
+      width: isVertical ? 13 : 34,
+      height: isVertical ? 28 : 13,
+      borderRadius: '999px',
+      background: isVertical
+        ? `linear-gradient(180deg, ${c1} 0%, ${c2} 100%)`
+        : `linear-gradient(90deg, ${c1} 0%, ${c2} 100%)`,
+      boxShadow: `0 8px 14px ${c2}28, inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -2px 0 rgba(0,0,0,0.12)`,
+      opacity: 0.95,
+    };
 
-  const ArrowL = ({ c1, c2 }: { c1: string; c2: string }) => (
-    <svg width={AW} height="30" viewBox={`0 0 ${AW} 30`} style={{ flexShrink: 0 }}>
-      <defs>
-        <linearGradient id={`psl${c1.slice(1)}`} x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0%" stopColor={c1} stopOpacity="0.5" /><stop offset="100%" stopColor={c2} />
-        </linearGradient>
-      </defs>
-      <path d={`M${AW - 5} 15 H16 M22 8 L5 15 L22 22`}
-        stroke={`url(#psl${c1.slice(1)})`} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
-  );
+    const headStyle: React.CSSProperties = {
+      width: 22,
+      height: 22,
+      borderRadius: '7px',
+      background: `linear-gradient(145deg, color-mix(in srgb, white 18%, ${c2} 82%) 0%, ${c2} 100%)`,
+      boxShadow: `0 9px 15px ${c2}2e, inset 0 1px 0 rgba(255,255,255,0.48), inset 0 -2px 0 rgba(0,0,0,0.14)`,
+      clipPath: 'polygon(18% 8%, 100% 50%, 18% 92%, 36% 50%)',
+      transform:
+        direction === 'left'
+          ? 'rotate(180deg)'
+          : direction === 'down'
+            ? 'rotate(90deg)'
+            : undefined,
+    };
+
+    return (
+      <motion.div
+        animate={isVertical ? { y: [0, 4, 0] } : { x: direction === 'left' ? [0, -4, 0] : [0, 4, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          width: isVertical ? CW : AW,
+          height: isVertical ? 46 : 42,
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection:
+            direction === 'left'
+              ? 'row-reverse'
+              : direction === 'down'
+                ? 'column'
+                : 'row',
+          gap: isVertical ? 0 : -2,
+        }}
+      >
+        <div style={railStyle} />
+        <div style={{ ...headStyle, marginLeft: direction === 'right' ? -4 : 0, marginRight: direction === 'left' ? -4 : 0, marginTop: direction === 'down' ? -4 : 0 }} />
+      </motion.div>
+    );
+  };
+
+  const ArrowR = ({ c1, c2 }: { c1: string; c2: string }) => <ClayArrow c1={c1} c2={c2} direction="right" />;
+  const ArrowL = ({ c1, c2 }: { c1: string; c2: string }) => <ClayArrow c1={c1} c2={c2} direction="left" />;
 
   return (
     <Shell title="The instinctive solution drifts. The right workflow rewinds first." caption="">
@@ -415,12 +455,7 @@ export function ProblemSolutionDriftVisual() {
       </div>
 
       {/* ── DIAGRAM — fixed-width container guarantees pixel-perfect alignment ── */}
-      <div style={{
-        borderRadius: '28px',
-        background: 'linear-gradient(160deg, rgba(235,237,250,0.95) 0%, rgba(242,246,252,0.98) 100%)',
-        padding: '28px 20px 28px',
-        overflow: 'hidden',
-      }}>
+      <div style={{ padding: '8px 0 0' }}>
         {/* Fixed-width inner — CW*3 + AW*2 = 632px */}
         <div style={{ width: `${CW * 3 + AW * 2}px`, margin: '0 auto' }}>
 
@@ -437,13 +472,7 @@ export function ProblemSolutionDriftVisual() {
               Spacer = CW*2 + AW*2 pushes arrow to sit over card 03 center */}
           <div style={{ display: 'flex', alignItems: 'center', height: '46px' }}>
             <div style={{ width: `${CW * 2 + AW * 2}px`, flexShrink: 0 }} />
-            <div style={{ width: `${CW}px`, display: 'flex', justifyContent: 'center' }}>
-              <svg width="28" height="46" viewBox="0 0 28 46">
-                <path d="M14 2 V38 M7 30 L14 44 L21 30"
-                  stroke={STEPS[2].color} strokeWidth="3.2"
-                  strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8" />
-              </svg>
-            </div>
+            <ClayArrow c1={STEPS[2].color} c2={STEPS[3].color} direction="down" />
           </div>
 
           {/* ROW 2 — [spacer CW+AW] [05] [←] [04]
