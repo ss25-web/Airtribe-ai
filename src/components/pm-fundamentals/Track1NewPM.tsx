@@ -8,6 +8,7 @@ import {
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, CharacterChip, CharacterCallout,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { DecisionRippleVisual, ProblemSolutionDriftVisual } from './Module1Animations';
 
 // ─────────────────────────────────────────
 // CONVERSATION SCENE — chat-bubble dialogue between Priya and a stakeholder
@@ -934,6 +935,10 @@ export default function Track1NewPM() {
         </div>
 
         <div className="rv">
+          <DecisionRippleVisual />
+        </div>
+
+        <div className="rv">
           <TiltCard style={{ margin: '32px 0' }}><PMRoleChecker /></TiltCard>
 
           {keyBox('What a PM owns — and what they don\'t', [
@@ -1026,6 +1031,10 @@ export default function Track1NewPM() {
               { text: "'We need better search'", correct: false, feedback: "That's a solution request, not a problem statement. Better search for whom? Doing what?" },
             ]}
           />
+        </div>
+
+        <div className="rv">
+          <ProblemSolutionDriftVisual />
         </div>
 
         <TiltCard style={{ margin: '32px 0' }}><SymptomOrProblem /></TiltCard>

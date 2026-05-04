@@ -8,6 +8,7 @@ import {
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animations';
 
 // ─────────────────────────────────────────
 // CONVERSATION SCENE — chat-bubble dialogue between Priya and a stakeholder
@@ -816,6 +817,10 @@ export default function Track2APM() {
           ], 'var(--purple)')}
         </div>
 
+        <div className="rv">
+          <DecisionQualitySplitVisual />
+        </div>
+
         <TiltCard style={{ margin: '32px 0' }}><TradeoffMatrix /></TiltCard>
 
         <div className="rv">
@@ -870,6 +875,10 @@ export default function Track2APM() {
             'Tradeoffs shift over time as company stage, market, and technology change',
             'The contextual question: what dimension is most critical to optimize for RIGHT NOW?',
           ], 'var(--purple)')}
+        </div>
+
+        <div className="rv">
+          <TradeoffPrismVisual />
         </div>
 
         <TiltCard style={{ margin: '32px 0' }}><PMTriangleDiagramAPM /></TiltCard>
