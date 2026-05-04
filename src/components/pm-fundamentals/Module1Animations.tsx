@@ -325,146 +325,134 @@ export function ProblemSolutionDriftVisual() {
     return () => clearInterval(timer);
   }, []);
 
+  // Fixed pixel dimensions — guarantees card 04 sits exactly under card 03
+  const CW = 176; // card width
+  const AW = 52;  // arrow width
+  // Total row width = CW*3 + AW*2 = 528 + 104 = 632
+  // Card 03 starts at CW*2 + AW*2 = 456. Bottom spacer = CW + AW = 228 → 05(CW) + ←(AW) + 04(CW)
+
   const STEPS = [
-    { num: '01', label: 'COMPLAINT',    desc: '“The app is confusing.”', color: '#E8875A', icon: '💬' },
-    { num: '02', label: 'WRONG JUMP',   desc: 'Redesign navigation',              color: '#D96D92', icon: '🧭' },
-    { num: '03', label: 'REWIND',       desc: 'Stop. Ask what happened.',         color: '#7B6BD1', icon: '⏮' },
-    { num: '04', label: 'ACTUAL TASK',  desc: 'Find last Tuesday’s call',     color: '#2C9DB6', icon: '🔍' },
-    { num: '05', label: 'REAL BLOCKER', desc: 'Search and retrieval, not layout', color: '#52B281', icon: '📄' },
+    { num: '01', label: 'COMPLAINT',    desc: 'The app is confusing.',     color: '#E8875A', icon: '💬' },
+    { num: '02', label: 'WRONG JUMP',   desc: 'Redesign navigation.',      color: '#D96D92', icon: '🧭' },
+    { num: '03', label: 'REWIND',       desc: 'Stop. Ask what happened.',  color: '#7B6BD1', icon: '⏮' },
+    { num: '04', label: 'ACTUAL TASK',  desc: 'Find last Tuesday call.',   color: '#2C9DB6', icon: '🔍' },
+    { num: '05', label: 'REAL BLOCKER', desc: 'Search, not layout.',       color: '#52B281', icon: '📄' },
   ];
 
   const FOOTERS = [
     { color: '#E8875A', title: 'Symptoms feel urgent',    desc: 'Complaints arrive with emotional weight.' },
     { color: '#D96D92', title: 'Strong motion slows',     desc: 'Avoid solutioning until the problem is clear.' },
-    { color: '#7B6BD1', title: 'Reframe the question',    desc: 'Ask what the user was trying to do, not what’s broken.' },
+    { color: '#7B6BD1', title: 'Reframe the question',    desc: 'Ask what the user was trying to do, not what broke.' },
     { color: '#2C9DB6', title: 'Solve the right thing',   desc: 'Fix the blocker that prevents progress.' },
     { color: '#52B281', title: 'Measure the outcome',     desc: 'Check if the real task gets done.' },
   ];
 
-  const StepCard = ({ step }: { step: typeof STEPS[0] }) => {
-    const isActive = step.num === STEPS[active].num;
+  // Card component — uses CW for exact width matching
+  const StepCard = ({ step, idx }: { step: typeof STEPS[0]; idx: number }) => {
+    const isActive = active === idx;
     return (
       <motion.div
         animate={{
-          y: isActive ? -7 : 0,
+          y: isActive ? -8 : 0,
           boxShadow: isActive
-            ? `0 18px 30px ${step.color}28, 0 5px 0 ${step.color}22, inset 0 1px 0 rgba(255,255,255,0.85)`
-            : `0 5px 16px rgba(0,0,0,0.08), 0 3px 0 rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.85)`,
+            ? `0 20px 32px ${step.color}2a, 0 6px 0 ${step.color}20`
+            : `0 6px 18px rgba(0,0,0,0.09), 0 4px 0 rgba(0,0,0,0.06)`,
         }}
-        transition={{ duration: 0.38, ease: 'easeOut' }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
         style={{
-          borderRadius: '24px',
-          background: '#ffffff',
-          padding: '18px 15px 15px',
-          width: '162px',
-          flexShrink: 0,
-          position: 'relative',
+          width: `${CW}px`, flexShrink: 0,
+          borderRadius: '22px', background: '#fff',
+          padding: '18px 14px 16px', position: 'relative',
         }}
       >
-        {/* Step number */}
-        <div style={{
-          position: 'absolute', top: '12px', right: '13px',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '11px', fontWeight: 800,
-          color: step.color, opacity: 0.65,
-        }}>
+        <div style={{ position: 'absolute', top: '12px', right: '12px', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 800, color: step.color, opacity: 0.6 }}>
           {step.num}
         </div>
-        {/* Icon circle */}
-        <div style={{
-          width: 58, height: 58, borderRadius: '50%',
-          background: `linear-gradient(145deg, ${step.color}cc 0%, ${step.color} 100%)`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '26px', marginBottom: '12px',
-          boxShadow: `0 6px 14px ${step.color}40`,
-        }}>
-          {step.icon}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: `linear-gradient(145deg, ${step.color}bb, ${step.color})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', boxShadow: `0 8px 20px ${step.color}45` }}>
+            {step.icon}
+          </div>
         </div>
-        {/* Label */}
-        <div style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: '9px', fontWeight: 800, letterSpacing: '0.1em',
-          color: step.color, marginBottom: '5px',
-        }}>
+        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.11em', color: step.color, marginBottom: '6px', textAlign: 'center' as const }}>
           {step.label}
         </div>
-        {/* Description */}
-        <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#4A4540', fontWeight: 500 }}>
+        <div style={{ fontSize: '13px', lineHeight: 1.5, color: '#4A4540', fontWeight: 500, textAlign: 'center' as const }}>
           {step.desc}
         </div>
       </motion.div>
     );
   };
 
+  // Arrow components sized to AW
   const ArrowR = ({ c1, c2 }: { c1: string; c2: string }) => (
-    <svg width="46" height="22" viewBox="0 0 46 22" style={{ flexShrink: 0 }}>
+    <svg width={AW} height="30" viewBox={`0 0 ${AW} 30`} style={{ flexShrink: 0 }}>
       <defs>
         <linearGradient id={`psr${c1.slice(1)}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={c1} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={c2} />
+          <stop offset="0%" stopColor={c1} stopOpacity="0.5" /><stop offset="100%" stopColor={c2} />
         </linearGradient>
       </defs>
-      <path d="M3 11 H36 M30 5 L42 11 L30 17"
-        stroke={`url(#psr${c1.slice(1)})`}
-        strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={`M5 15 H${AW - 16} M${AW - 22} 8 L${AW - 5} 15 L${AW - 22} 22`}
+        stroke={`url(#psr${c1.slice(1)})`} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 
   const ArrowL = ({ c1, c2 }: { c1: string; c2: string }) => (
-    <svg width="46" height="22" viewBox="0 0 46 22" style={{ flexShrink: 0 }}>
+    <svg width={AW} height="30" viewBox={`0 0 ${AW} 30`} style={{ flexShrink: 0 }}>
       <defs>
         <linearGradient id={`psl${c1.slice(1)}`} x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0%" stopColor={c1} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={c2} />
+          <stop offset="0%" stopColor={c1} stopOpacity="0.5" /><stop offset="100%" stopColor={c2} />
         </linearGradient>
       </defs>
-      <path d="M43 11 H10 M16 5 L4 11 L16 17"
-        stroke={`url(#psl${c1.slice(1)})`}
-        strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={`M${AW - 5} 15 H16 M22 8 L5 15 L22 22`}
+        stroke={`url(#psl${c1.slice(1)})`} strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 
   return (
-    <Shell
-      title="The instinctive solution drifts. The right workflow rewinds first."
-      caption=""
-    >
-      {/* Subtitle */}
-      <div style={{ fontSize: '14px', color: 'var(--ed-ink3)', lineHeight: 1.65, marginBottom: '22px', marginTop: '-10px' }}>
+    <Shell title="The instinctive solution drifts. The right workflow rewinds first." caption="">
+      <div style={{ fontSize: '14px', color: 'var(--ed-ink3)', lineHeight: 1.65, marginBottom: '24px', marginTop: '-8px' }}>
         Strong PM motion slows down, reframes the user task, and only then narrows to a fix.
       </div>
 
-      {/* ── DIAGRAM CANVAS ── */}
+      {/* ── DIAGRAM — fixed-width container guarantees pixel-perfect alignment ── */}
       <div style={{
-        borderRadius: '32px',
-        background: 'radial-gradient(ellipse at 50% 35%, rgba(123,107,209,0.09) 0%, rgba(44,157,182,0.05) 50%, transparent 72%), linear-gradient(180deg, rgba(238,240,250,0.88) 0%, rgba(248,249,252,0.94) 100%)',
-        padding: '28px 24px 28px',
+        borderRadius: '28px',
+        background: 'linear-gradient(160deg, rgba(235,237,250,0.95) 0%, rgba(242,246,252,0.98) 100%)',
+        padding: '28px 20px 28px',
+        overflow: 'hidden',
       }}>
-        {/* ROW 1 — 01 → 02 → 03 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-          <StepCard step={STEPS[0]} />
-          <ArrowR c1={STEPS[0].color} c2={STEPS[1].color} />
-          <StepCard step={STEPS[1]} />
-          <ArrowR c1={STEPS[1].color} c2={STEPS[2].color} />
-          <StepCard step={STEPS[2]} />
-        </div>
+        {/* Fixed-width inner — CW*3 + AW*2 = 632px */}
+        <div style={{ width: `${CW * 3 + AW * 2}px`, margin: '0 auto' }}>
 
-        {/* VERTICAL CONNECTOR — 03 ↓ 04 (right-aligned above card 04) */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '5px' }}>
-          {/* Down arrow sits above card 04 which is rightmost in bottom row */}
-          <div style={{ width: '162px', display: 'flex', justifyContent: 'center', paddingBottom: '5px' }}>
-            <svg width="22" height="30" viewBox="0 0 22 30">
-              <path d="M11 2 V23 M5 17 L11 28 L17 17"
-                stroke={STEPS[2].color} strokeWidth="2.8"
-                strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.7" />
-            </svg>
+          {/* ROW 1 — 01 → 02 → 03 */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <StepCard step={STEPS[0]} idx={0} />
+            <ArrowR c1={STEPS[0].color} c2={STEPS[1].color} />
+            <StepCard step={STEPS[1]} idx={1} />
+            <ArrowR c1={STEPS[1].color} c2={STEPS[2].color} />
+            <StepCard step={STEPS[2]} idx={2} />
           </div>
 
-          {/* ROW 2 — 05 ← 04  (04 is rightmost = under 03, 05 extends left) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <StepCard step={STEPS[4]} />
+          {/* VERTICAL ARROW — 03 ↓ 04
+              Spacer = CW*2 + AW*2 pushes arrow to sit over card 03 center */}
+          <div style={{ display: 'flex', alignItems: 'center', height: '46px' }}>
+            <div style={{ width: `${CW * 2 + AW * 2}px`, flexShrink: 0 }} />
+            <div style={{ width: `${CW}px`, display: 'flex', justifyContent: 'center' }}>
+              <svg width="28" height="46" viewBox="0 0 28 46">
+                <path d="M14 2 V38 M7 30 L14 44 L21 30"
+                  stroke={STEPS[2].color} strokeWidth="3.2"
+                  strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.8" />
+              </svg>
+            </div>
+          </div>
+
+          {/* ROW 2 — [spacer CW+AW] [05] [←] [04]
+              04 starts at CW*2+AW*2 = 456 → same x as card 03 ✓ */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{ width: `${CW + AW}px`, flexShrink: 0 }} />
+            <StepCard step={STEPS[4]} idx={4} />
             <ArrowL c1={STEPS[3].color} c2={STEPS[4].color} />
-            <StepCard step={STEPS[3]} />
+            <StepCard step={STEPS[3]} idx={3} />
           </div>
         </div>
       </div>
