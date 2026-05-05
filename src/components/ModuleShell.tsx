@@ -336,6 +336,7 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2 }: M
   const moduleId = `pm-${moduleNum}`;
   const conceptIds = concepts.map(c => c.id);
   const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
+  const sectionIds = new Set(sections.map(s => s.id));
 
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -393,8 +394,9 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2 }: M
     return () => { clearTimeout(tid); if (revealObserver) revealObserver.disconnect(); };
   }, []);
 
-  const progressPct = Math.round((completedSections.size / sections.length) * 100);
-  const xp = computeXP(completedSections, store.conceptStates);
+  const currentTrackSections = new Set([...completedSections].filter(id => sectionIds.has(id)));
+  const progressPct = Math.min(100, Math.round((currentTrackSections.size / sections.length) * 100));
+  const xp = computeXP(currentTrackSections, store.conceptStates);
 
   const ContentComponent = track === 'apm' ? Track2 : Track1;
 
@@ -440,11 +442,11 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2 }: M
         <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
           <div className="left-col" style={{ alignSelf: 'stretch' }}>
-            <LeftNav config={config} completedSections={completedSections} activeSection={activeSection} />
+            <LeftNav config={config} completedSections={currentTrackSections} activeSection={activeSection} />
           </div>
 
           <motion.main key={`m${moduleNum}-content`} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            <ContentComponent completedSections={completedSections} />
+            <ContentComponent completedSections={currentTrackSections} />
 
             <AnimatePresence>
               {progressPct >= 87 && (
@@ -471,7 +473,7 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2 }: M
           <div className="right-col" style={{ alignSelf: 'stretch' }}>
             <Sidebar
               config={config}
-              completedSections={completedSections}
+              completedSections={currentTrackSections}
               progressPct={progressPct}
               xp={xp}
               prevXp={prevXpRef.current}

@@ -334,6 +334,7 @@ export const ChapterSection = ({ num, accentRgb, id, first = false, children }: 
 }) => (
   <section data-section={id} style={{
     position: 'relative', padding: '64px 0',
+    scrollMarginTop: '96px',
     borderTop: first ? 'none' : '1px solid var(--ed-rule)',
     overflow: 'hidden',
   }}>

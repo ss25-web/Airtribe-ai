@@ -42,12 +42,34 @@ const CONFIG: ModuleConfig = {
   ],
 };
 
+const TRACK2_CONFIG: ModuleConfig = {
+  ...CONFIG,
+  sections: [
+    { id: 'm9t2-debt',        label: 'Technical Debt' },
+    { id: 'm9t2-platform',    label: 'Platform Architecture' },
+    { id: 'm9t2-data',        label: 'Instrumentation' },
+    { id: 'm9t2-contracts',   label: 'API Dependencies' },
+    { id: 'm9t2-reliability', label: 'Reliability' },
+    { id: 'm9t2-buildvsbuy',  label: 'Build vs Buy' },
+    { id: 'm9t2-planning',    label: 'Planning Uncertainty' },
+  ],
+  achievements: [
+    { id: 'm9t2-debt',        icon: '🧱', label: 'Debt Translator', desc: 'Framed debt as product consequence' },
+    { id: 'm9t2-platform',    icon: '🏗️', label: 'Platform Judge',  desc: 'Separated leverage from abstraction' },
+    { id: 'm9t2-data',        icon: '📊', label: 'Metric Auditor',  desc: 'Checked instrumentation before strategy' },
+    { id: 'm9t2-contracts',   icon: '🔗', label: 'Blast Mapper',    desc: 'Mapped API dependency risk' },
+    { id: 'm9t2-reliability', icon: '🛡️', label: 'Reliability PM',  desc: 'Treated reliability as value' },
+    { id: 'm9t2-buildvsbuy',  icon: '⚖️', label: 'Ownership Thinker', desc: 'Judged what should remain yours' },
+    { id: 'm9t2-planning',    icon: '🗺️', label: 'Confidence Planner', desc: 'Structured uncertainty for planning' },
+  ],
+};
+
 interface Props { onBack: () => void; track?: Track | null; }
 
 export default function Tech101SystemDesignModule({ onBack, track }: Props) {
   return (
     <ModuleShell
-      config={CONFIG}
+      config={track === 'apm' ? TRACK2_CONFIG : CONFIG}
       track={track}
       onBack={onBack}
       Track1={Track1Tech101SystemDesign}
