@@ -24,6 +24,14 @@ const SECTIONS = [
   { id: 'm2s-b2b-strategy',          label: 'B2B & Interviews'          },
 ];
 
+const SECTIONS_APM = [
+  { id: 'm2a-strategy-pressure',    label: 'Strategy Discipline'        },
+  { id: 'm2a-platform-inflection',  label: 'Platform vs Product'        },
+  { id: 'm2a-portfolio-systems',    label: 'Portfolio Thinking'         },
+  { id: 'm2a-kill-criteria',        label: 'Kill Criteria'              },
+  { id: 'm2a-series-b-narrative',   label: 'Series B Narrative'         },
+];
+
 const CONCEPTS = [
   { id: 'product-strategy',       label: 'Product Strategy',       color: '#7C3AED' },
   { id: 'competitive-moats',      label: 'Competitive Moats',      color: '#4F46E5' },
@@ -38,6 +46,14 @@ const ACHIEVEMENTS = [
   { id: 'm2s-systems-thinking',     icon: '🕸️', label: 'Systems PM',    desc: 'Anticipated second-order effects'   },
   { id: 'm2s-bet-sizing',           icon: '🎯', label: 'Bet Sizer',     desc: 'Allocated resources to right bets'  },
   { id: 'm2s-b2b-strategy',         icon: '📈', label: 'B2B Thinker',   desc: 'Mastered land-and-expand strategy'  },
+];
+
+const ACHIEVEMENTS_APM = [
+  { id: 'm2a-strategy-pressure',   icon: '🏋️', label: 'Disciplined',   desc: 'Held strategy under reactive pressure' },
+  { id: 'm2a-platform-inflection', icon: '🏗',  label: 'Architect',     desc: 'Sized a platform bet correctly'         },
+  { id: 'm2a-portfolio-systems',   icon: '🎲',  label: 'Portfolio PM',  desc: 'Managed a three-bet portfolio'          },
+  { id: 'm2a-kill-criteria',       icon: '✂️',  label: 'Kill Artist',   desc: 'Stopped something already started'      },
+  { id: 'm2a-series-b-narrative',  icon: '📖',  label: 'Storyteller',   desc: 'Built a fundable Series B thesis'       },
 ];
 
 const CONCEPT_IDS = CONCEPTS.map(c => c.id);
@@ -71,11 +87,13 @@ function getNextLevel(xp: number) {
 
 // AirtribeLogo imported from AirtribeBrand.tsx
 
-function LeftNav({ completedSections, activeSection }: { completedSections: Set<string>; activeSection: string | null }) {
+type SectionEntry = { id: string; label: string };
+
+function LeftNav({ completedSections, activeSection, sections }: { completedSections: Set<string>; activeSection: string | null; sections: SectionEntry[] }) {
   const scrollTo = (id: string) => {
     document.querySelector(`[data-section="${id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-  const donePct = Math.round((completedSections.size / SECTIONS.length) * 100);
+  const donePct = Math.round((completedSections.size / sections.length) * 100);
 
   return (
     <aside style={{ position: 'sticky', top: '80px' }}>
@@ -85,10 +103,10 @@ function LeftNav({ completedSections, activeSection }: { completedSections: Set<
           <div style={{ height: '2px', background: 'var(--ed-rule)', borderRadius: '1px', overflow: 'hidden' }}>
             <motion.div style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} animate={{ width: `${donePct}%` }} transition={{ duration: 0.5 }} />
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{donePct}% · {completedSections.size}/{SECTIONS.length} parts</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{donePct}% · {completedSections.size}/{sections.length} parts</div>
         </div>
         <nav>
-          {SECTIONS.map((sec, idx) => {
+          {sections.map((sec, idx) => {
             const done = completedSections.has(sec.id);
             const active = activeSection === sec.id && !done;
             return (
@@ -110,9 +128,12 @@ function LeftNav({ completedSections, activeSection }: { completedSections: Set<
   );
 }
 
-function Sidebar({ completedSections, progressPct, xp, prevXp }: {
+type AchievementEntry = { id: string; icon: string; label: string; desc: string };
+
+function Sidebar({ completedSections, progressPct, xp, prevXp, achievements, totalSections }: {
   completedSections: Set<string>; progressPct: number;
   xp: { readingXP: number; quizXP: number; total: number }; prevXp: number;
+  achievements: AchievementEntry[]; totalSections: number;
 }) {
   const store = useLearnerStore();
   const total = xp.total;
@@ -134,7 +155,7 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
     }
   }, [total]);
 
-  const unlockedCount = ACHIEVEMENTS.filter(a => completedSections.has(a.id)).length;
+  const unlockedCount = achievements.filter(a => completedSections.has(a.id)).length;
   const cardStyle: React.CSSProperties = { background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' };
 
   return (
@@ -193,17 +214,17 @@ function Sidebar({ completedSections, progressPct, xp, prevXp }: {
           <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
         </div>
         <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--ed-ink3)' }}>
-          {completedSections.size} of {SECTIONS.length} parts · {MODULE_TIME}
+          {completedSections.size} of {totalSections} parts · {MODULE_TIME}
         </div>
       </div>
 
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)' }}>Badges</div>
-          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{unlockedCount}/{ACHIEVEMENTS.length}</div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{unlockedCount}/{achievements.length}</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', padding: '2px' }}>
-          {ACHIEVEMENTS.map(a => {
+          {achievements.map(a => {
             const unlocked = completedSections.has(a.id);
             return (
               <div key={a.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
@@ -322,7 +343,9 @@ export default function ProductStrategyModule({ onBack, track }: Props) {
     return () => { clearTimeout(tid); if (revealObserver) revealObserver.disconnect(); };
   }, []);
 
-  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
+  const activeSections     = track === 'apm' ? SECTIONS_APM    : SECTIONS;
+  const activeAchievements = track === 'apm' ? ACHIEVEMENTS_APM : ACHIEVEMENTS;
+  const progressPct = Math.round((completedSections.size / activeSections.length) * 100);
   const xp = computeXP(completedSections, store.conceptStates);
 
   return (
@@ -367,7 +390,7 @@ export default function ProductStrategyModule({ onBack, track }: Props) {
         <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
           <div className="left-col" style={{ alignSelf: 'stretch' }}>
-            <LeftNav completedSections={completedSections} activeSection={activeSection} />
+            <LeftNav completedSections={completedSections} activeSection={activeSection} sections={activeSections} />
           </div>
 
           <motion.main key="m2s-content" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
@@ -401,6 +424,8 @@ export default function ProductStrategyModule({ onBack, track }: Props) {
               progressPct={progressPct}
               xp={xp}
               prevXp={prevXpRef.current}
+              achievements={activeAchievements}
+              totalSections={activeSections.length}
             />
           </div>
         </div>

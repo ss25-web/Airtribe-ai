@@ -473,7 +473,7 @@ interface Props {
 
 export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
   const store = useLearnerStore();
-const [track] = useState<Track>(startTrack);
+const [track, setTrack] = useState<Track>(startTrack);
   const moduleId = `pm-01-${track}`;
   const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
   const [activeModule, setActiveModule] = useState('01');
@@ -682,7 +682,7 @@ const [track] = useState<Track>(startTrack);
           <div className="right-col" style={{ alignSelf: 'stretch' }}>
             <Sidebar
               track={track}
-              onSwitchTrack={onBack}
+              onSwitchTrack={() => setTrack(t => t === 'new-pm' ? 'apm' : 'new-pm')}
               completedSections={completedSections}
               progressPct={progressPct}
               xp={xp}
