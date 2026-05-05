@@ -9,23 +9,14 @@ import {
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
 import {
-  FeatureToSystemMapper,
-  LoadingStateDesignBoard,
-  QueryPathWalkthrough,
-  EndpointContractViewer,
-  AccessDecisionSimulator,
-  SyncAsyncExperienceBoard,
-  ScopeToEstimateDecomposer,
-} from './Tech101Tools3D';
-import {
-  LayeredStackVisual,
-  LatencyPressureVisual,
-  SchemaRelationshipBoard,
-  RequestResponseFlow,
-  PermissionMatrixBloom,
-  ScaleStressAnimation,
-  EstimateBreakdownCascade,
-} from './Tech101Animations';
+  FeatureRequestXRay,
+  ResponseTimeControlRoom,
+  SchemaFactoryFloor,
+  ContractGateway,
+  AccessMatrixConsole,
+  TrafficLoadOpsRoom,
+  ScopeDecompositionBoard,
+} from './Tech101WorkflowVisuals';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -161,7 +152,7 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Frontend, backend, database, and API are not just implementation vocabulary. They describe four genuinely different kinds of engineering work that can be scheduled, priced, tested, and can fail independently. When a PM collapses all four into one request, the team must silently decompose it before they can even estimate it. That&apos;s invisible work the PM created.</>)}
 
-        <LayeredStackVisual />
+        <FeatureRequestXRay />
 
         {keyBox('The four-layer model', [
           'UI Layer — what the user sees and touches. State management, rendering, component behavior.',
@@ -170,7 +161,6 @@ export default function Track1Tech101SystemDesign({
           'Data store — tables, queries, relationships, migrations, schema design.',
         ])}
 
-        <FeatureToSystemMapper />
 
         <Avatar
           name="Asha"
@@ -226,11 +216,10 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Backend engineers can optimize. But there is a level of latency that optimization cannot eliminate. At that point, the product must communicate. Empty table states, silent spinners, and frozen pages are not neutral &mdash; they are product decisions by default. PMs who treat performance as a purely engineering concern hand-wave away one of the most visible layers of product quality.</>)}
 
-        <LatencyPressureVisual />
+        <ResponseTimeControlRoom />
 
         {para(<>Pagination, caching, lazy loading, and query cost are not implementation details. They define what the product promises about response speed &mdash; and broken promises destroy enterprise trust faster than any missing feature.</>)}
 
-        <LoadingStateDesignBoard />
 
         <PMPrinciple text="When system timing changes user trust, timing is part of the product design." />
 
@@ -288,11 +277,10 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Reporting, permissions, and metrics all depend on relationships between entities in the data model. If those relationships are missing, loosely defined, or not queryable, product features that depend on them become impossible or very expensive to build &mdash; even if the business concept seems obvious. A product feature is not real until the data shape that supports it is real.</>)}
 
-        <SchemaRelationshipBoard />
+        <SchemaFactoryFloor />
 
         {para(<>PMs do not need to design schemas. They do need to ask three questions early: What entities does this feature require? How do they relate? What fields does each entity need for this feature to be possible? Asking late means discovering constraints during sprint planning instead of during discovery.</>)}
 
-        <QueryPathWalkthrough />
 
         <PMPrinciple text="If the product never structured the data, the product never truly captured the capability." />
 
@@ -350,9 +338,8 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>APIs define what can be asked for, by whom, in what format, and what comes back. PMs who treat APIs as invisible plumbing tend to write vague feature specs that hide contract questions: What fields does this endpoint return? Who is allowed to call it? What happens when the auth token is expired? What data does the mobile version actually need? Vague contracts produce engineering guesswork that surfaces as bugs in production.</>)}
 
-        <RequestResponseFlow />
+        <ContractGateway />
 
-        <EndpointContractViewer />
 
         <PMPrinciple text="A weak API contract creates downstream ambiguity even when the system technically works." />
 
@@ -410,9 +397,8 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Enterprise software sells to organizations where power and visibility are distributed across roles. Every role-action-resource combination is a decision. PMs who hand-wave permission logic with one sentence force engineers to guess &mdash; which means they will guess wrong on edge cases. Those wrong guesses surface in production as security issues, data leaks, or user-facing permission errors that destroy trust fast.</>)}
 
-        <PermissionMatrixBloom />
+        <AccessMatrixConsole />
 
-        <AccessDecisionSimulator />
 
         <PMPrinciple text="If permissions matter, you need a matrix, not a sentence." />
 
@@ -470,9 +456,8 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>When system behavior changes at scale, the product flow must reflect the new reality. Synchronous actions become asynchronous. Instant responses become queued responses. One-step actions become job-status flows. PMs who treat all of this as &quot;engineering to solve later&quot; end up shipping experiences that feel broken at enterprise load even when the system is functioning correctly.</>)}
 
-        <ScaleStressAnimation />
+        <TrafficLoadOpsRoom />
 
-        <SyncAsyncExperienceBoard />
 
         <PMPrinciple text="At scale, product behavior and system behavior stop being separable." />
 
@@ -530,11 +515,10 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Estimates expand when scope becomes concrete. The ambiguity was always there &mdash; in the permission edge cases, the missing data migration, the analytics instrumentation that was assumed but not specified. PMs who feel surprised by estimate expansion were carrying hidden assumptions. The engineering decomposition is making the real feature visible for the first time.</>)}
 
-        <EstimateBreakdownCascade />
+        <ScopeDecompositionBoard />
 
         {para(<>Good PMs improve estimate quality by making ambiguity visible earlier: clarifying permission logic in discovery, confirming data schema readiness before sprint planning, specifying rollout behavior before the feature is estimated. That is not about reducing scope. It is about reducing unknowns.</>)}
 
-        <ScopeToEstimateDecomposer />
 
         <PMPrinciple text="Estimate quality depends on how much ambiguity the scope still contains." />
 

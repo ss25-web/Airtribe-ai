@@ -8,6 +8,15 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
+import {
+  ArchitectureDebtPressureMap,
+  ReuseLeverageSimulator,
+  MetricTruthCalibrationRig,
+  ContractBlastRadiusMap,
+  EnterpriseReliabilityWarRoom,
+  VendorLockInDecisionLab,
+  RoadmapConfidenceSimulator,
+} from './Tech101WorkflowVisuals';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -31,120 +40,6 @@ const PMPrinciple = ({ text }: { text: string }) => (
   </div>
 );
 
-// Simple visual components defined locally for Track 2
-
-const DebtArchitectureMap = () => {
-  const stages = [
-    { label: 'Clean architecture', shortcuts: 0, velocity: 90, color: '#16A34A' },
-    { label: 'First shortcuts', shortcuts: 2, velocity: 78, color: '#CA8A04' },
-    { label: 'Accumulated debt', shortcuts: 6, velocity: 52, color: '#E67E22' },
-    { label: 'Fear to change', shortcuts: 12, velocity: 28, color: '#EF4444' },
-  ];
-  return (
-    <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-      <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Debt Accumulation Architecture Map</div>
-      <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
-        {stages.map((s, i) => (
-          <div key={i} style={{ padding: '14px 12px', borderRadius: '10px', background: `${s.color}0D`, border: `1px solid ${s.color}30`, textAlign: 'center' as const }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: s.color, marginBottom: '8px', lineHeight: 1.3 }}>{s.label}</div>
-            <div style={{ height: '60px', background: 'var(--ed-cream)', borderRadius: '4px', display: 'flex', alignItems: 'flex-end', overflow: 'hidden', marginBottom: '6px' }}>
-              <div style={{ width: '100%', background: s.color, height: `${s.velocity}%`, transition: 'height 0.4s', borderRadius: '2px' }} />
-            </div>
-            <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{s.velocity}% velocity</div>
-            {s.shortcuts > 0 && <div style={{ fontSize: '8px', color: s.color, marginTop: '4px' }}>{s.shortcuts} shortcuts</div>}
-          </div>
-        ))}
-      </div>
-      <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-        Technical debt matters to PMs when it changes roadmap speed, reliability, or confidence in adjacent launches.
-      </div>
-    </div>
-  );
-};
-
-const FeaturePlatformVisual = () => {
-  return (
-    <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-      <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Feature Branch vs Platform Spine</div>
-      <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        <div>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#CA8A04', marginBottom: '12px', fontFamily: "'JetBrains Mono', monospace" }}>ONE-OFF FEATURE BRANCH</div>
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-            {['Admin reporting (v1)', '↓', '(dead end — no reuse)', '↓', 'Rebuld for mobile', '↓', 'Rebuild for analytics'].map((item, i) => (
-              <div key={i} style={{ padding: '6px 10px', borderRadius: '6px', background: i % 2 === 0 ? 'rgba(202,138,4,0.1)' : 'transparent', border: i % 2 === 0 ? '1px solid rgba(202,138,4,0.2)' : 'none', fontSize: '10px', color: i === 2 ? '#EF4444' : 'var(--ed-ink3)', textAlign: i % 2 === 1 ? 'center' as const : 'left' as const }}>
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#16A34A', marginBottom: '12px', fontFamily: "'JetBrains Mono', monospace" }}>PLATFORM SPINE</div>
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-            {['Admin reporting (v1)', '↓', 'Shared data contract', '↓', '↙ Mobile  ↘ Analytics', '↓', '↙ Partner API  ↘ Export'].map((item, i) => (
-              <div key={i} style={{ padding: '6px 10px', borderRadius: '6px', background: i % 2 === 0 ? 'rgba(22,163,74,0.08)' : 'transparent', border: i % 2 === 0 ? '1px solid rgba(22,163,74,0.2)' : 'none', fontSize: '10px', color: 'var(--ed-ink3)', textAlign: i % 2 === 1 ? 'center' as const : 'left' as const }}>
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-        Platform is not cleaner feature design. It is justified shared leverage — worth the cost only when consumers are real and near-term.
-      </div>
-    </div>
-  );
-};
-
-const MetricSplitScreen = () => {
-  return (
-    <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-      <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Metric Truth Split-Screen</div>
-      <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {[
-          { label: 'Dashboard A', event: 'workspace_opened', props: 'user_id, timestamp', value: '2,847 MAU', color: '#3B82F6' },
-          { label: 'Dashboard B', event: 'workspace_opened', props: 'user_id, timestamp, team_id, session_type', value: '1,203 MAU', color: '#EF4444' },
-        ].map((d, i) => (
-          <div key={i} style={{ padding: '14px', borderRadius: '10px', background: `${d.color}0A`, border: `1px solid ${d.color}25` }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: d.color, marginBottom: '8px' }}>{d.label}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', marginBottom: '4px' }}>event: {d.event}</div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', marginBottom: '10px' }}>props: {d.props}</div>
-            <div style={{ fontSize: '20px', fontWeight: 900, color: d.color, fontFamily: "'JetBrains Mono', monospace" }}>{d.value}</div>
-          </div>
-        ))}
-        <div style={{ gridColumn: '1 / -1', padding: '10px 12px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '11px', color: 'var(--ed-ink2)' }}>
-          Same event name. Different property sets. Same-sounding metric. Different numbers. Different truths.
-        </div>
-      </div>
-      <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-        Weak instrumentation does not only hurt analytics. It weakens the strategic conversations built on top of them.
-      </div>
-    </div>
-  );
-};
-
-const DependencyConstellation = () => {
-  const consumers = ['Web App', 'Mobile', 'Analytics', 'Partner API', 'Admin Exports'];
-  return (
-    <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-      <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Dependency Constellation</div>
-      <div style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', flexWrap: 'wrap' as const }}>
-        {consumers.map((c, i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px' }}>
-            <div style={{ padding: '6px 12px', borderRadius: '8px', background: `${ACCENT}12`, border: `1px solid ${ACCENT}30`, fontSize: '10px', color: ACCENT, fontWeight: 600 }}>{c}</div>
-            <div style={{ fontSize: '16px', color: ACCENT }}>&#8595;</div>
-          </div>
-        ))}
-        <div style={{ width: '100%', padding: '10px 16px', borderRadius: '10px', background: '#0f172a', border: `2px solid ${ACCENT}50`, textAlign: 'center' as const }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: ACCENT, fontWeight: 700 }}>GET /api/v1/admin/workspaces/usage</div>
-          <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>One contract &mdash; five consumers &mdash; any change ripples outward</div>
-        </div>
-      </div>
-      <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-        A technical contract becomes an organizational contract once multiple teams plan around it.
-      </div>
-    </div>
-  );
-};
 
 export default function Track2Tech101SystemDesign({
   completedSections = new Set<string>(),
@@ -253,7 +148,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Technical debt is not an engineering cleanliness concern. It is a product throughput concern the moment it constrains iteration speed, increases reliability risk, or reduces confidence in adjacent product bets. PMs who dismiss debt conversations as engineering concerns are misunderstanding where the constraint is sitting. The constraint is in their own roadmap.</>)}
 
-        <DebtArchitectureMap />
+        <ArchitectureDebtPressureMap />
 
         {keyBox('When debt becomes a product problem', [
           'Roadmap speed — shipping on fragile architecture makes every subsequent feature slower to build',
@@ -318,7 +213,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Platforming too early is one of the most expensive mistakes in product engineering. It creates abstractions nobody uses, slows initial delivery, and makes the system harder to change when the actual use cases arrive and look different from what was imagined. The right time to platform is when the signal is clear: multiple real, near-term, stable-enough consumers with enough shared shape to justify a shared contract.</>)}
 
-        <FeaturePlatformVisual />
+        <ReuseLeverageSimulator />
 
         {keyBox('When to platform vs when to stay one-off', [
           'Multiple near-term consumers with stable shared needs &rarr; platform signal',
@@ -383,7 +278,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Strategic conversations collapse when teams are using the same metric name to mean different things. Event definitions, property discipline, and schema consistency are not data hygiene tasks &mdash; they are the foundation that makes product strategy conversations trustworthy. PMs who treat instrumentation as a low-priority backlog item are slowly eroding the quality of every product review they run.</>)}
 
-        <MetricSplitScreen />
+        <MetricTruthCalibrationRig />
 
         {para(<>The APM fix is not just better tracking. It is defining what events mean before they are implemented, auditing instrumentation as part of feature scope, and treating &ldquo;we can track that later&rdquo; as a risk statement that requires a plan.</>)}
 
@@ -443,7 +338,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Once multiple teams depend on a contract, changes to that contract are not technical decisions &mdash; they are coordination decisions. Renaming a field, tightening auth, removing a response property: each of these breaks planning assumptions held by teams the implementing team may not even talk to regularly. Senior PMs who notice dependency multiplication early can sequence work to protect downstream teams and maintain trust.</>)}
 
-        <DependencyConstellation />
+        <ContractBlastRadiusMap />
 
         {keyBox('What senior PMs notice about API contracts', [
           'Dependency multiplication — how many consumers are planning around this contract?',
@@ -508,29 +403,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Consumer products tolerate occasional slowness if the core experience is compelling enough. Enterprise products operate differently. When an admin&apos;s workflow depends on a tool, that tool&apos;s reliability becomes part of the purchasing decision and the renewal conversation. Repeated latency, uncertain exports, and system errors are not just UX problems &mdash; they are trust erosion events that accumulate until renewal confidence drops.</>)}
 
-        <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-          <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Trust Erosion Timeline</div>
-          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {[
-              { label: 'First slowdown', icon: '⏳', desc: 'Admin notices delay. Waits. Succeeds.', color: '#CA8A04' },
-              { label: 'Repeated slowdowns', icon: '⚠', desc: 'Admin mentions it to team. Starts logging issues.', color: '#E67E22' },
-              { label: 'Workarounds appear', icon: '🔧', desc: 'Admin builds a spreadsheet workaround instead of using the product.', color: '#EF4444' },
-              { label: 'Renewal conversation', icon: '💬', desc: 'CS flags reliability as a risk. Admin lists it as a concern in the renewal call.', color: '#EF4444' },
-              { label: 'Confidence drops', icon: '📉', desc: 'Renewal probability decreases. Churn risk registers.', color: '#DC2626' },
-            ].map((stage, i) => (
-              <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '10px 14px', borderRadius: '8px', background: `${stage.color}0A`, border: `1px solid ${stage.color}25` }}>
-                <div style={{ fontSize: '18px', flexShrink: 0 }}>{stage.icon}</div>
-                <div>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: stage.color, marginBottom: '2px' }}>{stage.label}</div>
-                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{stage.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-            Reliability erosion in enterprise is gradual until it is suddenly decisive.
-          </div>
-        </div>
+        <EnterpriseReliabilityWarRoom />
 
         <PMPrinciple text="In enterprise contexts, reliability is often part of the value proposition — not just a quality bar to clear." />
 
@@ -595,6 +468,8 @@ export default function Track2Tech101SystemDesign({
           'Extensibility — can we customize this vendor solution when customer needs diverge from the vendor\'s roadmap?',
         ])}
 
+        <VendorLockInDecisionLab />
+
         <PMPrinciple text="Build vs buy is a bet on what should remain yours." />
 
         <Avatar
@@ -651,33 +526,7 @@ export default function Track2Tech101SystemDesign({
 
         {para(<>Confidence theater &mdash; delivering certain-sounding timelines to avoid hard conversations &mdash; consistently destroys PM credibility faster than transparent uncertainty. When the schedule slips, the failure is visible to everyone. When a PM clearly articulates what is known, what is contingent, and what requires a decision, leadership can sequence around the actual risk rather than being surprised by it.</>)}
 
-        <div style={{ margin: '28px 0', borderRadius: '12px', overflow: 'hidden', background: 'var(--ed-card)', border: `1.5px solid ${ACCENT}25` }}>
-          <div style={{ padding: '10px 18px', background: `${ACCENT}10`, borderBottom: `1px solid ${ACCENT}20`, fontSize: '9px', fontWeight: 700, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>Confidence Band Roadmap</div>
-          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {[
-              { label: 'Now — Q1', type: 'Committed', desc: 'Scope is clean. Permissions specified. Schema confirmed. Estimate trustworthy.', width: '100%', color: ACCENT },
-              { label: 'Q2', type: 'Planned', desc: 'Depends on Q1 learnings + schema migration timeline. Confident but contingent.', width: '80%', color: '#3B82F6' },
-              { label: 'Q3', type: 'Range', desc: 'Architecture decision in Q1 affects this significantly. Two paths possible.', width: '55%', color: '#CA8A04' },
-              { label: 'Q4+', type: 'Contingent', desc: 'Requires platform decision that is not yet made. Cannot commit.', width: '30%', color: '#E67E22' },
-            ].map((row, i) => (
-              <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <div style={{ width: '60px', flexShrink: 0 }}>
-                  <div style={{ fontSize: '10px', fontWeight: 700, color: row.color }}>{row.label}</div>
-                  <div style={{ fontSize: '8px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{row.type}</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ height: '12px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden', marginBottom: '4px' }}>
-                    <div style={{ width: row.width, height: '100%', background: row.color, borderRadius: '3px' }} />
-                  </div>
-                  <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{row.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: '10px 18px', borderTop: `1px solid ${ACCENT}15`, fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>
-            Structured uncertainty lets leadership make real decisions. Fake precision forces them to make decisions based on fiction.
-          </div>
-        </div>
+        <RoadmapConfidenceSimulator />
 
         {keyBox('How senior PMs communicate technical uncertainty', [
           'Classify uncertainty by type: scope unknowns, architecture decisions, dependency timelines, external factors',
