@@ -407,19 +407,19 @@ export default function Track2Prioritization({
     <article style={{ padding: '0 0 80px' }}>
 
       {/* Hero */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 32px 40px', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
-        <div aria-hidden="true" style={{ position: 'absolute', right: '-16px', top: '-8px', fontSize: '160px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>03</div>
-        <div style={{ position: 'absolute', right: '24px', top: '0' }}>
+      <div style={{ padding: '72px 210px 48px 0', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
+        <div aria-hidden="true" style={{ position: 'absolute', right: '-20px', top: '-10px', fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.06)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>03</div>
+        <div style={{ position: 'absolute', right: 0, top: '24px' }}>
           <TrackHeroCard moduleNum="03" moduleLabel="Strategic Prioritisation" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
         </div>
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: ACCENT, marginBottom: '10px' }}>Module 03 · Scale Track</div>
-        <h1 style={{ fontSize: 'clamp(26px,3.5vw,40px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.15, letterSpacing: '-0.025em', fontFamily: "'Lora','Georgia',serif", marginBottom: '12px' }}>
+        <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.12, letterSpacing: '-0.03em', fontFamily: "'Lora','Georgia',serif", marginBottom: '16px' }}>
           Strategic Prioritisation at Scale
         </h1>
         {para(<>Priya is no longer picking between four backlog items. EdSpark just landed Salesforce, Zendesk, and Infosys. There are 30 items on the roadmap, three competing product bets, and a board deck due Friday. She has capacity for two bets.</>)}
 
         {/* Characters */}
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginTop: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginTop: '28px' }}>
           {([
             { mentor: 'priya' as const, desc: 'Priya Sharma. 2-year APM. First time managing enterprise-scale trade-offs.' },
             { mentor: 'asha'  as const, desc: 'Asha. AI Mentor. Pushes Priya to separate data signals from stakeholder noise.' },
@@ -430,7 +430,7 @@ export default function Track2Prioritization({
             const accentMap: Record<string, string> = { priya: 'var(--indigo)', asha: 'var(--teal)', rohan: '#F59E0B', kiran: '#3A86FF' };
             const roleMap: Record<string, string> = { priya: 'APM · EdSpark', asha: 'AI Mentor', rohan: 'CEO · EdSpark', kiran: 'Data Analyst · EdSpark' };
             return (
-              <div key={mentor} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '8px 12px', flex: '1 1 160px' }}>
+              <div key={mentor} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '8px 12px', gridColumn: mentor === 'kiran' ? '1 / -1' : undefined }}>
                 <MentorFace mentor={mentor} size={34} />
                 <div>
                   <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: accentMap[mentor], letterSpacing: '0.1em' }}>{nameMap[mentor]}</div>
