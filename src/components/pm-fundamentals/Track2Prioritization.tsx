@@ -371,7 +371,7 @@ const BoardSlide = () => {
               key={bet.num}
               onMouseEnter={() => setActivebet(bet.num)}
               onMouseLeave={() => setActivebet(null)}
-              style={{ background: '#fff', borderRadius: '10px', border: `1.5px solid ${activebet === bet.num ? bet.color : '#E5E7EB'}`, padding: '14px 16px', transition: 'border-color 0.15s', cursor: 'default' }}
+              style={{ background: 'var(--ed-card)', borderRadius: '10px', border: `1.5px solid ${activebet === bet.num ? bet.color : '#E5E7EB'}`, padding: '14px 16px', transition: 'border-color 0.15s', cursor: 'default' }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -223,7 +223,7 @@ const Section1Mockup = () => {
             </div>
           </div>
           {!checked && unsorted.length === 0 && (
-            <button onClick={() => setChecked(true)} style={{ padding: '4px 12px', borderRadius: '4px', background: '#fff', color: ACCENT, fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+            <button onClick={() => setChecked(true)} style={{ padding: '4px 12px', borderRadius: '4px', background: 'var(--ed-card)', color: ACCENT, fontSize: '11px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>
               Check →
             </button>
           )}
@@ -234,7 +234,7 @@ const Section1Mockup = () => {
           )}
         </div>
 
-        <div style={{ background: '#fff', padding: '16px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '16px' }}>
           {/* Unsorted pool */}
           {unsorted.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
@@ -337,7 +337,7 @@ const Section2Mockup = () => {
           </button>
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', padding: '6px 12px', borderRadius: '6px', background: '#F8F6F2' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT }}>● EDSPARK (drag to rate)</div>
             {revealed && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#6366F1' }}>● GONG.IO (actual)</div>}
@@ -454,7 +454,7 @@ const Section3Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '12px' }}>
             ROHAN WANTS ALL THREE THIS QUARTER — PICK YOUR RECOMMENDATION
           </div>
@@ -548,7 +548,7 @@ const Section4Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           {BETS.map(bet => (
             <div key={bet.id} style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #F0EDE8' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
@@ -661,7 +661,7 @@ const Section5Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '16px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '16px' }}>
           <div style={{ height: '6px', background: '#F0EDE8', borderRadius: '3px', overflow: 'hidden', marginBottom: '16px' }}>
             <motion.div animate={{ width: `${Math.min(100, (totalWon / target) * 100)}%` }} style={{ height: '100%', background: '#0D7A5A', borderRadius: '3px' }} />
           </div>

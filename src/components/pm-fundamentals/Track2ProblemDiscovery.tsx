@@ -98,7 +98,7 @@ const NotionRepoSearch = () => {
             ))}
           </div>
 
-          <div style={{ flex: 1, padding: '20px 24px', background: '#fff' }}>
+          <div style={{ flex: 1, padding: '20px 24px', background: 'var(--ed-card)' }}>
             <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,151,167,0.07)', border: '1px solid rgba(0,151,167,0.2)', marginBottom: '16px' }}>
               <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#0097A7', letterSpacing: '0.1em', marginBottom: '4px' }}>NEW RESEARCH REQUEST &middot; FROM ROHAN</div>
               <div style={{ fontSize: '13px', color: '#37352F', fontStyle: 'italic' as const }}>&ldquo;Understand why managers are churning from EdSpark.&rdquo;</div>
@@ -329,7 +329,7 @@ const DovetailSynthesisBoard = () => {
                 {quotes.map((q, i) => {
                   const assigned = tags[i];
                   return (
-                    <div key={i} style={{ padding: '10px 14px', borderRadius: '8px', background: '#fff', border: `1.5px solid ${assigned ? tagColors[assigned] : '#E0D9D0'}`, display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div key={i} style={{ padding: '10px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: `1.5px solid ${assigned ? tagColors[assigned] : '#E0D9D0'}`, display: 'flex', gap: '12px', alignItems: 'center' }}>
                       <div style={{ fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', flex: 1, lineHeight: 1.55 }}>&ldquo;{q.text}&rdquo;</div>
                       <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
                         {(['loop', 'roi'] as Tag[]).map(t => (

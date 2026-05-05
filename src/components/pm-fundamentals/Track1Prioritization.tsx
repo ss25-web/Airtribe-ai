@@ -451,7 +451,7 @@ const RICELiveCalculator = () => {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: '#fff', letterSpacing: '0.1em' }}>RICE CALCULATOR</div>
           <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.6)' }}>Score = (Reach &times; Impact &times; Confidence) &divide; Effort</div>
         </div>
-        <div style={{ background: '#fff', padding: '20px 24px', display: 'flex', gap: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px 24px', display: 'flex', gap: '20px' }}>
           {(['onboarding', 'crm'] as ItemKey[]).map(k => {
             const v = vals[k];
             const s = score(v);

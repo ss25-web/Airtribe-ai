@@ -339,7 +339,7 @@ const Section2Mockup = () => {
           )}
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.4fr repeat(3, 1fr)', gap: '6px', marginBottom: '4px' }}>
             <div />
             {CRITERIA_P.map(c => (
@@ -448,7 +448,7 @@ const Section3Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '16px' }}>
             CURRENT Q2 SPRINT — 4 ENGINEERS · {meridianOn ? 'MERIDIAN ADDED — CASCADE ACTIVE' : 'CLICK "ADD TO Q2" TO SEE CASCADE'}
           </div>
@@ -572,7 +572,7 @@ const Section4Mockup = () => {
           )}
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '16px' }}>
             ANSWER HONESTLY — THE FRAMEWORK SHOULD DRIVE THE DECISION, NOT CONFIRM YOUR INSTINCT
           </div>
@@ -685,7 +685,7 @@ const Section5Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#fff', padding: '20px' }}>
+        <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '14px' }}>
             PRIYA HAS 3 NARRATIVE FRAMINGS — PICK THE ONE SHE LEADS WITH
           </div>

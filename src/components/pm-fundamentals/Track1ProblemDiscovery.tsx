@@ -54,7 +54,7 @@ const NotionAffinityBoard = () => {
   const unassigned = notes.filter(n => !assignments[n.id]);
   return (
     <TiltCard style={{ margin: '24px 0' }}>
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', background: '#fff' }}>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #E0D9D0', boxShadow: '0 24px 64px rgba(0,0,0,0.18)', background: 'var(--ed-card)' }}>
         <div style={{ background: '#F7F6F3', borderBottom: '1px solid #E0D9D0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '5px' }}>
             {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '11px', height: '11px', borderRadius: '50%', background: c }} />)}
@@ -99,7 +99,7 @@ const NotionAffinityBoard = () => {
               {selected && (
                 <motion.div
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', background: '#fff', border: '1.5px solid #0097A7' }}
+                  style={{ marginTop: '12px', padding: '10px', borderRadius: '8px', background: 'var(--ed-card)', border: '1.5px solid #0097A7' }}
                 >
                   <div style={{ fontSize: '8px', fontFamily: 'monospace', color: '#0097A7', letterSpacing: '0.1em', marginBottom: '8px' }}>ASSIGN TO THEME</div>
                   {themes.map(theme => (
@@ -135,7 +135,7 @@ const NotionAffinityBoard = () => {
                   </div>
                   <AnimatePresence>
                     {themeNotes.map(note => (
-                      <motion.div key={note.id} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ padding: '8px 10px', borderRadius: '6px', background: '#fff', border: `1px solid ${theme.color}33`, marginBottom: '6px', fontSize: '10px', color: '#37352F', lineHeight: 1.5, boxShadow: `0 1px 4px ${theme.color}15` }}>
+                      <motion.div key={note.id} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ padding: '8px 10px', borderRadius: '6px', background: 'var(--ed-card)', border: `1px solid ${theme.color}33`, marginBottom: '6px', fontSize: '10px', color: '#37352F', lineHeight: 1.5, boxShadow: `0 1px 4px ${theme.color}15` }}>
                         {note.text}
                       </motion.div>
                     ))}

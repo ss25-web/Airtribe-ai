@@ -184,7 +184,7 @@ const SessionRecordingMockup = () => {
               {/* URL bar */}
               <div style={{ background: '#F1F3F4', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #E0E0E0' }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#dadada' }} />
-                <div style={{ background: '#fff', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#444', fontFamily: 'monospace', flex: 1, border: '1px solid #e0e0e0' }}>
+                <div style={{ background: 'var(--ed-card)', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#444', fontFamily: 'monospace', flex: 1, border: '1px solid #e0e0e0' }}>
                   app.edspark.io/onboarding/step-2
                 </div>
               </div>
@@ -523,7 +523,7 @@ const SpecComparisonMockup = () => (
             <span style={{ background: '#F0F0F0', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS WRITTEN</span>
             <span style={{ color: '#E07A5F' }}>Original Spec &middot; Step 2</span>
           </div>
-          <div style={{ background: '#fff', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#444', lineHeight: 1.9 }}>
+          <div style={{ background: 'var(--ed-card)', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#444', lineHeight: 1.9 }}>
             <span style={{ color: '#6E7681', marginRight: '10px', userSelect: 'none' as const, fontSize: '11px' }}>1</span>
             <span style={{ fontWeight: 600 }}>Step 2: Analyze recording.</span>
           </div>
@@ -543,7 +543,7 @@ const SpecComparisonMockup = () => (
             <span style={{ background: 'rgba(13,122,90,0.1)', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS NEEDED</span>
             <span>Complete Spec &middot; Step 2</span>
           </div>
-          <div style={{ background: '#fff', border: '1px solid rgba(13,122,90,0.2)', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: '#333', lineHeight: 2.1 }}>
+          <div style={{ background: 'var(--ed-card)', border: '1px solid rgba(13,122,90,0.2)', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: '#333', lineHeight: 2.1 }}>
             {[
               { n: '1', text: 'Step 2: Analyze recording.', bold: true },
               { n: '2', text: '' },
