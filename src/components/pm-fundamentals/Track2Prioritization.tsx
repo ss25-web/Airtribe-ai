@@ -404,7 +404,7 @@ export default function Track2Prioritization({
   completedSections?: Set<string>;
 }) {
   return (
-    <article style={{ maxWidth: '720px', margin: '0 auto', padding: '0 0 80px' }}>
+    <article style={{ padding: '0 0 80px' }}>
 
       {/* Hero */}
       <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 32px 40px', marginBottom: '0', position: 'relative', overflow: 'visible' }}>

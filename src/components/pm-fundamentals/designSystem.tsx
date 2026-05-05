@@ -333,7 +333,7 @@ export const ChapterSection = ({ num, accentRgb, id, first = false, children }: 
   num: string; accent?: string; accentRgb: string; id: string; first?: boolean; children: React.ReactNode;
 }) => (
   <section data-section={id} style={{
-    position: 'relative', padding: first ? '34px 0 64px' : '64px 0',
+    position: 'relative', padding: '64px 0',
     borderTop: first ? 'none' : '1px solid var(--ed-rule)',
     overflow: 'hidden',
   }}>
