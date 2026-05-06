@@ -100,105 +100,202 @@ const GaugeRow = ({ label, value, color, width = 180 }: { label: string; value: 
 // TRACK 1 — FOUNDATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── 1. FEATURE REQUEST X-RAY ────────────────────────────────────────────────
+// ─── 1. FEATURE REQUEST X-RAY (Claymorphism 3D) ─────────────────────────────
 
-const LAYERS = [
-  { id: 'ui',       label: 'UI Layer',          consequence: 'Loading state, empty state, component re-render', color: C.blue   },
-  { id: 'api',      label: 'API Contract',       consequence: 'New endpoint or new query param — update docs, break existing consumers', color: C.purple },
-  { id: 'auth',     label: 'Permission Check',   consequence: 'Who is allowed to see this data? Role-based scope required', color: C.amber  },
-  { id: 'backend',  label: 'Business Logic',     consequence: 'Validation rules, data aggregation, error paths', color: C.teal   },
-  { id: 'db',       label: 'Database Query',     consequence: 'New join, new index, possible N+1 problem, schema migration', color: C.coral  },
-  { id: 'event',    label: 'Analytics Event',    consequence: 'Instrumentation needed or metric is blind from day one', color: C.green  },
+const XRAY_LAYERS = [
+  { id: 'ui',    num: '01', label: 'UI Layer',          emoji: '⬜', color: '#3B82F6',
+    work: 'Screen state, filters, loading, empty states',
+    consequence: 'A vague UI request creates edge cases the team must invent. Every null state, filter option, and error message is a design decision that has to come from somewhere.' },
+  { id: 'api',   num: '02', label: 'API Contract',       emoji: '⇄',  color: '#7843EE',
+    work: 'Endpoint shape, response fields, error states',
+    consequence: 'If the contract is unclear, frontend and backend guess differently. Guesses diverge. Bugs appear at integration, not during isolated development.' },
+  { id: 'perm',  num: '03', label: 'Permission Check',   emoji: '🔑', color: '#D97706',
+    work: 'Who can view which reports?',
+    consequence: 'Access rules are product decisions, not engineering cleanup. "Admins only" is one sentence that becomes a matrix of role-resource-action combinations.' },
+  { id: 'logic', num: '04', label: 'Business Logic',     emoji: '⚙',  color: '#0097A7',
+    work: 'Which coaching sessions count?',
+    consequence: 'Definitions must be explicit before anyone calculates anything. "Sessions" can mean scheduled, completed, attended, or graded — each gives a different number.' },
+  { id: 'db',    num: '05', label: 'Database Query',     emoji: '🗄',  color: '#E8875A',
+    work: 'Joins, indexes, data freshness',
+    consequence: 'A simple report can become slow if data shape is ignored. Joining three unindexed tables at 2am will surface as a production incident in the next sprint.' },
+  { id: 'event', num: '06', label: 'Analytics Event',    emoji: '📊', color: '#16A34A',
+    work: 'Track usage, adoption, and blind spots',
+    consequence: 'Without instrumentation, the PM cannot tell whether the feature worked. Day 30 arrives and no one knows if anyone clicked Export even once.' },
 ];
 
 export function FeatureRequestXRay() {
-  const [active, setActive] = useState<number | null>(null);
-  const sel = active !== null ? LAYERS[active] : null;
+  const [sel, setSel] = useState('event'); // default: Analytics Event (per spec)
+  const selLayer = XRAY_LAYERS.find(l => l.id === sel)!;
+  const DEPTH = 11; // clay slab bevel thickness
 
   return (
-    <Shell caption="A feature request that feels like one thing triggers responsibilities across every system layer simultaneously. Naming all of them before a sprint starts is part of the PM's job.">
-      <div style={{
-        borderRadius: '24px', padding: '24px',
-        background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
-        boxShadow: flat,
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: '20px', alignItems: 'start' }}>
-          {/* Feature request card */}
-          <div style={{
-            borderRadius: '16px', padding: '18px 14px',
-            background: `${C.purple}10`, border: `2px solid ${C.purple}30`,
-            boxShadow: raised(C.purple), textAlign: 'center' as const,
-          }}>
-            <div style={{ fontSize: '28px', marginBottom: '10px' }}>📋</div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: C.purple, letterSpacing: '0.12em', marginBottom: '8px' }}>FEATURE REQUEST</div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.45 }}>Show team coaching reports</div>
-            <div style={{ marginTop: '12px', fontSize: '10px', color: 'var(--ed-ink3)' }}>
-              Looks simple. Involves:
-            </div>
-            <div style={{ marginTop: '6px', fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', fontWeight: 800, color: C.purple }}>
-              {LAYERS.length} system responsibilities
-            </div>
-          </div>
+    <div style={{ padding: '8px 0 4px', margin: '28px 0' }}>
 
-          {/* 3D layer stack */}
-          <div style={{ perspective: '900px', perspectiveOrigin: '50% 20%' }}>
-            <div style={{ transformStyle: 'preserve-3d', transform: 'rotateX(-8deg) rotateY(2deg)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                {LAYERS.map((layer, i) => {
-                  const isActive = active === i;
-                  return (
-                    <motion.div
-                      key={layer.id}
-                      onClick={() => setActive(active === i ? null : i)}
-                      animate={{ z: isActive ? 28 : 0, scale: isActive ? 1.02 : 1, boxShadow: isActive ? raised(layer.color) : flat }}
-                      whileHover={{ z: 14, scale: 1.01 }}
-                      transition={sp}
-                      style={{
-                        padding: '10px 14px', borderRadius: '12px', cursor: 'pointer',
-                        background: `color-mix(in srgb, var(--ed-card) 88%, ${layer.color} 12%)`,
-                        border: `2px solid ${isActive ? layer.color : `${layer.color}28`}`,
-                        display: 'flex', alignItems: 'center', gap: '12px',
-                        userSelect: 'none' as const, position: 'relative' as const,
-                      }}
-                    >
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, color: `${layer.color}70`, width: '18px', flexShrink: 0 }}>
-                        {String(i + 1).padStart(2, '0')}
-                      </div>
-                      <div style={{
-                        width: 32, height: 32, borderRadius: '10px', flexShrink: 0,
-                        background: `linear-gradient(145deg, ${layer.color}cc, ${layer.color})`,
-                        boxShadow: isActive ? `3px 3px 0 ${layer.color}35` : `2px 2px 0 ${layer.color}20`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '14px',
-                      }}>
-                        {['⬜','⇄','🔑','⚙','🗄','📊'][i]}
-                      </div>
-                      <div style={{ fontSize: '12px', fontWeight: 700, color: isActive ? layer.color : 'var(--ed-ink2)', flex: 1 }}>{layer.label}</div>
-                      {isActive && (
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
-                          style={{ width: 8, height: 8, borderRadius: '50%', background: layer.color, boxShadow: `0 0 8px ${layer.color}`, flexShrink: 0 }} />
-                      )}
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
+      {/* ── Stage: request card left, 3D slab fan right ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '188px 1fr', gap: '24px', alignItems: 'center' }}>
+
+        {/* Request card */}
+        <div style={{
+          position: 'relative' as const,
+          borderRadius: '22px', padding: '22px 16px',
+          background: `linear-gradient(155deg,
+            color-mix(in srgb, var(--ed-card) 84%, #7843EE 16%) 0%,
+            color-mix(in srgb, var(--ed-card) 76%, #7843EE 24%) 100%)`,
+          border: `2px solid #7843EE28`,
+          boxShadow: `7px 9px 0 #7843EE1e, 0 18px 36px #7843EE18, inset 0 1px 0 rgba(255,255,255,0.14)`,
+          alignSelf: 'center',
+        }}>
+          {/* Top bevel */}
+          <div style={{ position: 'absolute', top: -8, left: DEPTH - 2, right: -(DEPTH - 2), height: 10,
+            background: '#7843EE52', borderRadius: '10px 12px 0 0', transform: 'skewX(-3deg)' }} />
+          {/* Right bevel */}
+          <div style={{ position: 'absolute', right: -(DEPTH + 1), top: DEPTH - 2, bottom: -(DEPTH - 2), width: DEPTH + 3,
+            background: 'linear-gradient(180deg, #7843EE38, #7843EE18)', borderRadius: '0 6px 6px 0', transform: 'skewY(-3deg)' }} />
+
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800,
+            letterSpacing: '0.16em', color: '#7843EE', marginBottom: '12px', textTransform: 'uppercase' as const }}>
+            Feature Request
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.42, marginBottom: '10px' }}>
+            Show team coaching reports
+          </div>
+          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.55 }}>
+            Looks simple. Actually touches{' '}
+            <span style={{ fontWeight: 700, color: '#7843EE' }}>six systems</span>.
+          </div>
+          <div style={{ marginTop: '16px', textAlign: 'right' as const }}>
+            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px',
+              color: '#7843EE', background: '#7843EE14', borderRadius: '8px', padding: '3px 9px' }}>
+              → 6 layers
+            </span>
           </div>
         </div>
 
-        {/* Consequence panel */}
+        {/* 3D perspective slab fan */}
+        <div style={{ perspective: '1100px', perspectiveOrigin: '50% 22%' }}>
+          <div style={{
+            transform: 'rotateX(-9deg)',
+            display: 'flex', flexDirection: 'column' as const, gap: '9px',
+            paddingBottom: `${DEPTH + 4}px`,
+          }}>
+            {XRAY_LAYERS.map((layer) => {
+              const isSel = sel === layer.id;
+              return (
+                <motion.div
+                  key={layer.id}
+                  onClick={() => setSel(layer.id)}
+                  animate={{ y: isSel ? -7 : 0, scale: isSel ? 1.025 : 1 }}
+                  whileHover={{ y: isSel ? -7 : -3, scale: isSel ? 1.025 : 1.01 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  style={{
+                    position: 'relative' as const, cursor: 'pointer',
+                    userSelect: 'none' as const,
+                    paddingBottom: `${DEPTH}px`, paddingRight: `${DEPTH}px`,
+                  }}
+                >
+                  {/* Top bevel */}
+                  <div style={{ position: 'absolute', top: -7, left: DEPTH, right: 0, height: 9,
+                    background: `linear-gradient(90deg, ${layer.color}62, ${layer.color}28)`,
+                    borderRadius: '10px 12px 0 0', transform: 'skewX(-2deg)' }} />
+                  {/* Right bevel */}
+                  <div style={{ position: 'absolute', right: 0, top: 7, bottom: 0, width: DEPTH + 2,
+                    background: `linear-gradient(180deg, ${layer.color}42, ${layer.color}1c)`,
+                    borderRadius: '0 4px 4px 0', transform: 'skewY(-2deg)' }} />
+                  {/* Bottom shadow face */}
+                  <div style={{ position: 'absolute', bottom: 0, left: DEPTH, right: 0, height: DEPTH + 2,
+                    background: `${layer.color}16`, borderRadius: '0 0 10px 12px' }} />
+
+                  {/* Front face */}
+                  <div style={{
+                    padding: '11px 16px', borderRadius: '16px',
+                    background: isSel
+                      ? `linear-gradient(135deg, color-mix(in srgb, var(--ed-card) 80%, ${layer.color} 20%) 0%, color-mix(in srgb, var(--ed-card) 72%, ${layer.color} 28%) 100%)`
+                      : `color-mix(in srgb, var(--ed-card) 92%, ${layer.color} 8%)`,
+                    border: `2px solid ${isSel ? layer.color : `${layer.color}2a`}`,
+                    boxShadow: isSel
+                      ? `0 8px 26px ${layer.color}2e, inset 0 1px 0 rgba(255,255,255,0.18)`
+                      : `0 2px 8px rgba(0,0,0,0.07), inset 0 1px 0 rgba(255,255,255,0.10)`,
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    transition: 'border-color 0.18s, background 0.18s, box-shadow 0.18s',
+                  }}>
+                    {/* Num */}
+                    <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px',
+                      fontWeight: 900, color: `${layer.color}62`, width: '20px', flexShrink: 0 }}>
+                      {layer.num}
+                    </div>
+                    {/* Icon chip */}
+                    <div style={{
+                      width: 38, height: 38, borderRadius: '12px', flexShrink: 0,
+                      background: `linear-gradient(145deg, ${layer.color}cc, ${layer.color})`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px',
+                      boxShadow: isSel
+                        ? `0 6px 16px ${layer.color}50, 4px 4px 0 ${layer.color}38`
+                        : `0 3px 8px ${layer.color}30, 3px 3px 0 ${layer.color}22`,
+                    }}>
+                      {layer.emoji}
+                    </div>
+                    {/* Label + work */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '13px', fontWeight: 700,
+                        color: isSel ? layer.color : 'var(--ed-ink)', transition: 'color 0.18s' }}>
+                        {layer.label}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '1px',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                        {layer.work}
+                      </div>
+                    </div>
+                    {/* Selection pulse */}
+                    <AnimatePresence>
+                      {isSel && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0,
+                            background: layer.color, boxShadow: `0 0 12px ${layer.color}` }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ── PM Consequence panel (stable min-height, no layout shift) ── */}
+      <div style={{
+        marginTop: '18px', minHeight: '82px',
+        padding: '15px 20px', borderRadius: '16px',
+        background: `${selLayer.color}0c`,
+        border: `1.5px solid ${selLayer.color}28`,
+        borderLeft: `4px solid ${selLayer.color}`,
+        transition: 'background 0.28s, border-color 0.28s',
+        display: 'flex', flexDirection: 'column' as const, justifyContent: 'center',
+      }}>
         <AnimatePresence mode="wait">
-          {sel && (
-            <motion.div key={sel.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }}
-              style={{ marginTop: '16px', padding: '14px 18px', borderRadius: '14px', background: `${sel.color}0d`, border: `1.5px solid ${sel.color}28`, borderLeft: `4px solid ${sel.color}` }}>
-              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.12em', marginBottom: '5px' }}>{sel.label.toUpperCase()} — PM CONSEQUENCE</div>
-              <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{sel.consequence}</div>
-            </motion.div>
-          )}
+          <motion.div
+            key={sel}
+            initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}
+          >
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px',
+              fontWeight: 800, color: selLayer.color, letterSpacing: '0.14em', marginBottom: '6px' }}>
+              {selLayer.label.toUpperCase()} — PM CONSEQUENCE
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+              {selLayer.consequence}
+            </div>
+          </motion.div>
         </AnimatePresence>
       </div>
-      <ClickHint text="Click a system layer to see the PM consequence" />
-    </Shell>
+
+      <div style={{ textAlign: 'center' as const, marginTop: '8px', fontFamily: "'JetBrains Mono',monospace",
+        fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em', color: 'var(--ed-ink3)' }}>
+        ↑ Click any layer slab to see the PM consequence
+      </div>
+    </div>
   );
 }
 
