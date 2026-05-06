@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useLearnerStore } from '@/lib/learnerStore';
-import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
+import React from 'react';
+import { motion } from 'framer-motion';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
 import type { GenAIMentorId } from './GenAIAvatar';
@@ -21,7 +19,7 @@ import {
   para,
   pullQuote,
 } from './pm-fundamentals/designSystem';
-import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
+import GenAIPreReadLayout from './GenAIPreReadLayout';
 
 const ACCENT = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -135,181 +133,6 @@ const BADGES = [
 const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
-// AirtribeLogo imported from AirtribeBrand.tsx
-
-function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
-  const readingXP = completedSections.size * SECTION_XP;
-  const quizXP = Object.values(conceptStates).reduce((sum, state) => sum + Math.round(state.pKnow * QUIZ_XP), 0);
-  return { readingXP, quizXP, total: readingXP + quizXP };
-}
-
-function getLevel(total: number) {
-  if (total >= 600) return { label: 'Builder', color: '#7C3AED', min: 600 };
-  if (total >= 350) return { label: 'Operator', color: '#2563EB', min: 350 };
-  if (total >= 150) return { label: 'Explorer', color: '#0F766E', min: 150 };
-  return { label: 'Curious', color: 'var(--ed-ink3)', min: 0 };
-}
-
-function getNextLevel(total: number) {
-  if (total < 150) return { label: 'Explorer', min: 150 };
-  if (total < 350) return { label: 'Operator', min: 350 };
-  if (total < 600) return { label: 'Builder', min: 600 };
-  return null;
-}
-
-function LeftNav({ completedSections, activeSection, track }: { completedSections: Set<string>; activeSection: string | null; track: GenAITrack }) {
-  const donePct = Math.round((completedSections.size / SECTIONS.length) * 100);
-  return (
-    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '18px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid var(--ed-rule)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
-          <div style={{ height: '2px', background: 'var(--ed-rule)', borderRadius: '1px', overflow: 'hidden' }}>
-            <motion.div style={{ height: '100%', background: ACCENT }} animate={{ width: `${donePct}%` }} transition={{ duration: 0.5 }} />
-          </div>
-          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{donePct}% · {completedSections.size}/{SECTIONS.length} parts</div>
-        </div>
-        <nav>
-          {SECTIONS.map((section, idx) => {
-            const done = completedSections.has(section.id);
-            const active = activeSection === section.id && !done;
-            return (
-              <motion.button
-                key={section.id}
-                onClick={() => document.querySelector(`[data-section="${section.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                whileHover={{ x: 2 }}
-                style={{ display: 'flex', alignItems: 'baseline', gap: '10px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', textAlign: 'left', borderLeft: active ? `2px solid ${ACCENT}` : '2px solid transparent', paddingLeft: '8px', marginLeft: '-8px' }}
-              >
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: done || active ? ACCENT : 'var(--ed-rule)', minWidth: '20px' }}>{String(idx + 1).padStart(2, '0')}.</span>
-                <span style={{ fontSize: '12px', fontWeight: active ? 600 : 400, color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', lineHeight: 1.4 }}>{section.label}{done ? ' ✓' : ''}</span>
-              </motion.button>
-            );
-          })}
-        </nav>
-        <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--ed-rule)', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>
-          Week 0 pre-read · {TRACK_META[track].label}
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-function Sidebar({ completedSections, progressPct, prevXp }: { completedSections: Set<string>; progressPct: number; prevXp: number }) {
-  const store = useLearnerStore();
-  const xp = computeXP(completedSections, store.conceptStates);
-  const total = xp.total;
-  const level = getLevel(total);
-  const nextLevel = getNextLevel(total);
-  const levelPct = nextLevel ? Math.round(((total - level.min) / (nextLevel.min - level.min)) * 100) : 100;
-  const [showGain, setShowGain] = useState(false);
-  const [gainAmt, setGainAmt] = useState(0);
-  const gainRef = useRef(prevXp);
-
-  useEffect(() => {
-    const diff = total - gainRef.current;
-    if (diff > 0) {
-      setGainAmt(diff);
-      setShowGain(true);
-      gainRef.current = total;
-      const timer = setTimeout(() => setShowGain(false), 1800);
-      return () => clearTimeout(timer);
-    }
-  }, [total]);
-
-  return (
-    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: '10px', minWidth: 0 }}>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderTop: `3px solid ${ACCENT}`, borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '2px' }}>Level</div>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: level.color }}>{level.label}</div>
-          </div>
-          <div style={{ textAlign: 'right', position: 'relative' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '2px' }}>XP</div>
-            <motion.div key={total} animate={{ scale: [1.12, 1] }} transition={{ duration: 0.25 }} style={{ fontSize: '22px', fontWeight: 900, color: ACCENT, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>{total}</motion.div>
-            <AnimatePresence>{showGain ? <motion.div initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -20 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }} style={{ position: 'absolute', right: 0, top: '-6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: '#0D7A5A' }}>+{gainAmt}</motion.div> : null}</AnimatePresence>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
-          <div style={{ flex: 1, padding: '5px 8px', borderRadius: '5px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
-            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' }}>Reading</div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: ACCENT }}>{xp.readingXP} xp</div>
-          </div>
-          <div style={{ flex: 1, padding: '5px 8px', borderRadius: '5px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
-            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' }}>Quizzes</div>
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0D7A5A' }}>{xp.quizXP} xp</div>
-          </div>
-        </div>
-        {nextLevel ? (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-              <span style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{levelPct}% to {nextLevel.label}</span>
-              <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{nextLevel.min - total} xp</span>
-            </div>
-            <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-              <motion.div animate={{ width: `${levelPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
-            </div>
-          </>
-        ) : <div style={{ fontSize: '11px', color: ACCENT, fontWeight: 700 }}>✦ Max level reached</div>}
-      </div>
-
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)' }}>Module Progress</div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: ACCENT }}>{progressPct}%</span>
-        </div>
-        <div style={{ height: '4px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-          <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
-        </div>
-        <div style={{ marginTop: '6px', fontSize: '10px', color: 'var(--ed-ink3)' }}>{completedSections.size} of {SECTIONS.length} parts · 20 min</div>
-      </div>
-
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-ink3)' }}>Badges</div>
-          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{completedSections.size}/{BADGES.length}</div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-          {BADGES.map((badge) => {
-            const unlocked = completedSections.has(badge.id);
-            return (
-                <div key={badge.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-cream)', border: `1px solid ${unlocked ? badge.border : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', fontWeight: 800, color: unlocked ? badge.color : 'var(--ed-ink3)', filter: unlocked ? 'none' : 'grayscale(1) opacity(0.35)', boxShadow: unlocked ? `0 6px 16px ${badge.color}22` : 'none' }}>{badge.icon}</div>
-                  <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center', maxWidth: '40px', lineHeight: 1.2 }}>{badge.label}</div>
-                </div>
-            );
-          })}
-        </div>
-        <GenAILatestBadgePanel badges={BADGES} completedSections={completedSections} />
-      </div>
-
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: '3px solid var(--ed-indigo)', borderRadius: '10px', padding: '16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ed-indigo)', marginBottom: '10px' }}>Concept Mastery</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
-          {CONCEPTS.map((concept) => {
-            const state = store.conceptStates[concept.id];
-            const pct = state ? Math.round(state.pKnow * 100) : 0;
-            return (
-              <div key={concept.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', gap: '4px' }}>
-                  <span style={{ fontSize: '11px', color: 'var(--ed-ink2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept.label}</span>
-                  <span style={{ fontSize: '10px', color: pct > 0 ? concept.color : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{pct}%</span>
-                </div>
-                <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <motion.div animate={{ width: `${pct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: concept.color, borderRadius: '2px' }} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery scores</div>
-      </div>
-      <GenAIStreakCard />
-    </aside>
-  );
-}
-
-// ── GenAI TiltCard Mockups ────────────────────────────────────────────────
 
 const TokenProbCard = ({ track }: { track: GenAITrack }) => {
   const tokens = track === 'tech'
@@ -491,7 +314,8 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
 
 // ── End TiltCard Mockups ─────────────────────────────────────────────────────
 
-function CoreContent({ track, completedSections, activeSection }: { track: GenAITrack; completedSections: Set<string>; activeSection: string | null }) {
+
+function CoreContent({ track, completedSections = new Set<string>(), activeSection = null }: { track: GenAITrack; completedSections?: Set<string>; activeSection?: string | null }) {
   const nextSection = SECTIONS.find(s => !completedSections.has(s.id));
   const moduleContext = TRACK_META[track].moduleContext;
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
@@ -1171,105 +995,20 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
   );
 }
 
-interface Props {
-  track: GenAITrack;
-  onBack: () => void;
-}
+type Props = { track: GenAITrack; onBack: () => void };
 
 export default function GenAIPreRead1({ track, onBack }: Props) {
-  const store = useLearnerStore();
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const prevXpRef = useRef(0);
-
-  useEffect(() => {
-    store.initSession();
-    CONCEPTS.forEach((concept) => store.ensureConceptState(concept.id));
-  }, []);
-
-  useEffect(() => {
-    const sectionObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        const sectionId = entry.target.getAttribute('data-section');
-        if (!sectionId) return;
-        if (entry.isIntersecting) {
-          setActiveSection(sectionId);
-          setCompletedSections((prev) => new Set([...prev, sectionId]));
-          store.markSectionViewed(sectionId);
-        }
-      });
-    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
-
-    const timer = setTimeout(() => {
-      document.querySelectorAll('[data-section]').forEach((element) => sectionObserver.observe(element));
-    }, 150);
-
-    return () => {
-      clearTimeout(timer);
-      sectionObserver.disconnect();
-    };
-  }, []);
-
-  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
-
+  const completionMessage = track === 'tech'
+    ? 'You now have the right Week 0 builder mental model: AI workflows are not just model calls. They are systems with triggers, payloads, orchestration, validation, review loops, and recovery paths.'
+    : 'You now have the right Week 0 workflow mental model: AI workflows are not just prompts. They are systems with triggers, context, orchestration, review loops, and recovery paths.';
   return (
-    <div className="editorial" style={{ background: 'var(--ed-cream)', minHeight: '100vh' }}>
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', backdropFilter: 'blur(12px)' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
-          <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-              <motion.button whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }} onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}>
-                <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
-                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
-              </motion.button>
-              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
-              <AirtribeLogo />
-              <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>GenAI Launchpad</span>
-                <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{TRACK_META[track].introTitle}</span>
-              </div>
-            </div>
-            <div className="top-nav-progress" style={{ flex: 1, maxWidth: '240px', display: 'flex', alignItems: 'center', gap: '10px', margin: '0 24px' }}>
-              <div style={{ flex: 1, height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-                <motion.div animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} style={{ height: '100%', background: ACCENT, borderRadius: '2px' }} />
-              </div>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, flexShrink: 0 }}>{progressPct}%</span>
-            </div>
-            <DarkModeToggle />
-          </motion.div>
-          <div className="airtribe-bar" style={{ marginBottom: '0' }} />
-        </div>
-      </div>
-
-      <div className="three-col-wrap" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
-        <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
-          <div className="left-col" style={{ alignSelf: 'stretch' }}>
-            <LeftNav completedSections={completedSections} activeSection={activeSection} track={track} />
-          </div>
-
-          <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            <CoreContent track={track} completedSections={completedSections} activeSection={activeSection} />
-            <AnimatePresence>
-              {progressPct >= 80 ? (
-                <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center', position: 'relative', overflow: 'hidden', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${ACCENT}` }}>
-                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>◎</motion.div>
-                  <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "'Lora', 'Georgia', serif" }}>Pre-Read 01 Complete</h3>
-                  <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '430px', margin: '0 auto 24px' }}>
-                    {track === 'tech' ? 'You now have the right Week 0 builder mental model: AI workflows are not just model calls. They are systems with triggers, payloads, orchestration, validation, review loops, and recovery paths.' : 'You now have the right Week 0 workflow mental model: AI workflows are not just prompts. They are systems with triggers, context, orchestration, review loops, and recovery paths.'}
-                  </p>
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-            <div style={{ height: '60px' }} />
-          </motion.main>
-
-          <div className="right-col" style={{ alignSelf: 'stretch' }}>
-            <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <GenAIPreReadLayout
+      moduleNum="01" moduleLabel={TRACK_META[track].introTitle}
+      accent={ACCENT} accentRgb={ACCENT_RGB}
+      sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+    >
+      <CoreContent track={track} />
+    </GenAIPreReadLayout>
   );
 }

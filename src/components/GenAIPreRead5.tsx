@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
+import GenAIPreReadLayout from './GenAIPreReadLayout';
 import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
@@ -203,135 +204,6 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
   return { readingXP, quizXP, total: readingXP + quizXP };
 }
 
-function getLevel(total: number) {
-  if (total >= 600) return { label: 'Builder',  color: '#059669', min: 600 };
-  if (total >= 350) return { label: 'Operator', color: '#2563EB', min: 350 };
-  if (total >= 150) return { label: 'Explorer', color: '#059669', min: 150 };
-  return { label: 'Curious', color: 'var(--ed-ink3)', min: 0 };
-}
-
-function getNextLevel(total: number) {
-  if (total < 150) return { label: 'Explorer', min: 150 };
-  if (total < 350) return { label: 'Operator', min: 350 };
-  if (total < 600) return { label: 'Builder',  min: 600 };
-  return null;
-}
-
-function LeftNav({ completedSections, activeSection }: { completedSections: Set<string>; activeSection: string | null }) {
-  const donePct = Math.round((completedSections.size / SECTIONS.length) * 100);
-  return (
-    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start' }}>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '18px 16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid var(--ed-rule)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '8px' }}>Contents</div>
-          <div style={{ height: '2px', background: 'var(--ed-rule)', borderRadius: '1px', overflow: 'hidden' }}>
-            <motion.div style={{ height: '100%', background: ACCENT }} animate={{ width: `${donePct}%` }} transition={{ duration: 0.5 }} />
-          </div>
-          <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '6px' }}>{donePct}% · {completedSections.size}/{SECTIONS.length} parts</div>
-        </div>
-        <nav>
-          {SECTIONS.map((section, idx) => {
-            const done = completedSections.has(section.id);
-            const active = activeSection === section.id && !done;
-            return (
-              <motion.button
-                key={section.id}
-                onClick={() => document.querySelector(`[data-section="${section.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                whileHover={{ x: 2 }}
-                style={{ display: 'flex', alignItems: 'baseline', gap: '10px', width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0', textAlign: 'left' as const, borderLeft: active ? `2px solid ${ACCENT}` : '2px solid transparent', paddingLeft: '8px', marginLeft: '-8px' }}
-              >
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: done || active ? ACCENT : 'var(--ed-rule)', minWidth: '20px' }}>{String(idx + 1).padStart(2, '0')}.</span>
-                <span style={{ fontSize: '12px', fontWeight: active ? 600 : 400, color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', lineHeight: 1.4 }}>{section.label}{done ? ' ✓' : ''}</span>
-              </motion.button>
-            );
-          })}
-        </nav>
-      </div>
-    </aside>
-  );
-}
-
-function Sidebar({ completedSections, progressPct, prevXp }: { completedSections: Set<string>; progressPct: number; prevXp: number }) {
-  const store = useLearnerStore();
-  const xp = computeXP(completedSections, store.conceptStates);
-  const level = getLevel(xp.total);
-  const nextLevel = getNextLevel(xp.total);
-
-  return (
-    <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-          <div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '2px' }}>Level</div>
-            <div style={{ fontSize: '15px', fontWeight: 700, color: level.color }}>{level.label}</div>
-          </div>
-          <div style={{ textAlign: 'right' as const }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '2px' }}>XP</div>
-            <div style={{ fontSize: '22px', fontWeight: 800, color: ACCENT, fontFamily: "'JetBrains Mono', monospace" }}>{xp.total}</div>
-          </div>
-        </div>
-        {nextLevel && (
-          <div style={{ marginBottom: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>→ {nextLevel.label}</span>
-              <span style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{nextLevel.min - xp.total} XP away</span>
-            </div>
-            <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-              <motion.div animate={{ width: `${Math.min(100, ((xp.total - level.min) / (nextLevel.min - level.min)) * 100)}%` }} style={{ height: '100%', background: ACCENT }} transition={{ duration: 0.6 }} />
-            </div>
-          </div>
-        )}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <div style={{ flex: 1, background: 'var(--ed-cream)', borderRadius: '6px', padding: '8px', textAlign: 'center' as const }}>
-            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' as const }}>Reading</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'JetBrains Mono', monospace" }}>{xp.readingXP}</div>
-          </div>
-          <div style={{ flex: 1, background: 'var(--ed-cream)', borderRadius: '6px', padding: '8px', textAlign: 'center' as const }}>
-            <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', marginBottom: '2px', textTransform: 'uppercase' as const }}>Quizzes</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'JetBrains Mono', monospace" }}>{xp.quizXP}</div>
-          </div>
-        </div>
-      </div>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-ink3)', marginBottom: '12px' }}>Badges</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '8px' }}>
-          {BADGES.map((badge) => {
-            const unlocked = completedSections.has(badge.id);
-            return (
-              <div key={badge.id} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', opacity: unlocked ? 1 : 0.3 }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: unlocked ? badge.bg : 'var(--ed-rule)', border: `1.5px solid ${unlocked ? badge.border : 'transparent'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '17px', fontWeight: 700, color: unlocked ? badge.color : 'var(--ed-ink3)' }}>{badge.icon}</span>
-                </div>
-                <div style={{ fontSize: '8px', color: unlocked ? 'var(--ed-ink3)' : 'transparent', fontWeight: 600, textAlign: 'center' as const, maxWidth: '40px', lineHeight: 1.2 }}>{badge.label}</div>
-              </div>
-            );
-          })}
-        </div>
-        <GenAILatestBadgePanel badges={BADGES} completedSections={completedSections} />
-      </div>
-      <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: 'var(--ed-indigo)', marginBottom: '10px' }}>Concept Mastery</div>
-        {CONCEPTS.map((concept) => {
-          const state = store.conceptStates[concept.id] || { pKnow: 0 };
-          const pct = Math.round(state.pKnow * 100);
-          return (
-            <div key={concept.id} style={{ marginBottom: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', color: 'var(--ed-ink2)', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{concept.label}</span>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: concept.color, fontWeight: 700, marginLeft: '8px', flexShrink: 0 }}>{pct}%</span>
-              </div>
-              <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-                <motion.div animate={{ width: `${pct}%` }} style={{ height: '100%', background: concept.color }} transition={{ duration: 0.6 }} />
-              </div>
-            </div>
-          );
-        })}
-        <div style={{ marginTop: '10px', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>Complete quizzes and mentor checks to raise mastery scores</div>
-      </div>
-      <GenAIStreakCard />
-    </aside>
-  );
-}
 
 // ── M5 TiltCard Mockups ──────────────────────────────────────────────────────
 
@@ -619,7 +491,7 @@ const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
 
 // ── End M5 TiltCard Mockups ───────────────────────────────────────────────────
 
-function CoreContent({ track, completedSections, activeSection }: { track: GenAITrack; completedSections: Set<string>; activeSection: string | null }) {
+function CoreContent({ track, completedSections = new Set<string>(), activeSection = null }: { track: GenAITrack; completedSections?: Set<string>; activeSection?: string | null }) {
   const nextSection = SECTIONS.find(s => !completedSections.has(s.id));
   const moduleContext = TRACK_META[track].moduleContext;
   return (
@@ -1012,115 +884,17 @@ function CoreContent({ track, completedSections, activeSection }: { track: GenAI
 }
 
 export default function GenAIPreRead5({ track, onBack }: Props) {
-  const store = useLearnerStore();
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const prevXpRef = useRef(0);
-
-  useEffect(() => {
-    store.initSession();
-    CONCEPTS.forEach(c => store.ensureConceptState(c.id));
-  }, []);
-
-  useEffect(() => {
-    const observers: IntersectionObserver[] = [];
-    const timers: ReturnType<typeof setTimeout>[] = [];
-
-    SECTIONS.forEach(({ id }) => {
-      const el = document.querySelector(`[data-section="${id}"]`);
-      if (!el) return;
-      const obs = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setActiveSection(id);
-            const t = setTimeout(() => {
-              store.markSectionViewed(id);
-              setCompletedSections(prev => new Set([...prev, id]));
-            }, 150);
-            timers.push(t);
-          }
-        },
-        { threshold: 0.25 }
-      );
-      obs.observe(el);
-      observers.push(obs);
-    });
-
-    return () => {
-      observers.forEach(o => o.disconnect());
-      timers.forEach(t => clearTimeout(t));
-    };
-  }, []);
-
-  const progressPct = Math.round((completedSections.size / SECTIONS.length) * 100);
-  const xp = computeXP(completedSections, store.conceptStates);
-
+  const completionMessage = track === 'tech'
+    ? 'You can iterate, branch, gate, and remember. The workflows from M04 run once. The patterns from M05 run at volume. Module 06 wires this into full agent architecture.'
+    : 'Loops, routing, approvals, and memory in one system. Your automation can now handle real-world data size, team approvals, and stateful conversations. Module 06 shows how to scale this into production agent systems.';
   return (
-    <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)' }}>
-      {/* Top Nav */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)' }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px', height: '56px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit', padding: '4px 0', flexShrink: 0 }}>
-            ← Back
-          </button>
-          <div style={{ width: '1px', height: '20px', background: 'var(--ed-rule)', flexShrink: 0 }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-            <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: `linear-gradient(135deg, ${ACCENT} 0%, #0D9488 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-                <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>GenAI Launchpad</span>
-            <span style={{ color: 'var(--ed-rule)', fontSize: '12px' }}>›</span>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink2)', letterSpacing: '0.08em' }}>Pre-Read 05 · Advanced n8n</span>
-          </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-            <div style={{ width: '180px', height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
-              <motion.div style={{ height: '100%', background: ACCENT }} animate={{ width: `${progressPct}%` }} transition={{ duration: 0.5 }} />
-            </div>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', minWidth: '28px' }}>{progressPct}%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3-column grid */}
-      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '200px minmax(0,1fr) 240px', gap: '40px', paddingTop: '36px' }}>
-          <LeftNav completedSections={completedSections} activeSection={activeSection} />
-          <main>
-            <CoreContent track={track} completedSections={completedSections} activeSection={activeSection} />
-          </main>
-          <Sidebar completedSections={completedSections} progressPct={progressPct} prevXp={prevXpRef.current} />
-        </div>
-      </div>
-
-      {/* Completion card */}
-      <AnimatePresence>
-        {progressPct >= 80 && (
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 50, background: 'var(--ed-card)', border: `2px solid ${ACCENT}`, borderRadius: '14px', padding: '20px 24px', maxWidth: '320px', boxShadow: '0 12px 40px rgba(0,0,0,0.15)' }}
-          >
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-              style={{ fontSize: '24px', marginBottom: '8px', display: 'inline-block' }}
-            >&#9678;</motion.div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '6px' }}>Pre-Read 05 Complete</div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '8px', fontFamily: "'Lora', serif" }}>
-              {track === 'tech' ? 'You can iterate, branch, gate, and remember.' : 'Loops, routing, approvals, and memory — in one system.'}
-            </div>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
-              {track === 'tech'
-                ? "The workflows from M04 run once. The patterns from M05 run at volume. Module 06 wires this into full agent architecture."
-                : "Your automation can now handle real-world data size, team approvals, and stateful conversations. Module 06 shows how to scale this into production agent systems."}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <GenAIPreReadLayout
+      moduleNum="05" moduleLabel={TRACK_META[track].introTitle}
+      accent={ACCENT} accentRgb={ACCENT_RGB}
+      sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+    >
+      <CoreContent track={track} />
+    </GenAIPreReadLayout>
   );
 }
