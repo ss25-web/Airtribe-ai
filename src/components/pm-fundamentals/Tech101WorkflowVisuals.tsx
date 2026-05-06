@@ -712,9 +712,9 @@ export function AccessMatrixConsole() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(180px, 0.85fr) minmax(320px, 1.45fr) minmax(210px, 0.95fr)',
-          gap: '20px',
-          alignItems: 'center',
+          gridTemplateColumns: 'minmax(260px, 0.95fr) minmax(320px, 1.05fr)',
+          gap: '22px',
+          alignItems: 'stretch',
         }}>
           <motion.div
             key={`${scenario.id}-ask`}
@@ -747,61 +747,6 @@ export function AccessMatrixConsole() {
             </div>
           </motion.div>
 
-          <div style={{ perspective: '900px' }}>
-            <motion.div
-              key={`${scenario.id}-gates`}
-              initial={{ opacity: 0, rotateX: 14, y: 22 }}
-              animate={{ opacity: 1, rotateX: 0, y: 0 }}
-              transition={sp}
-              style={{
-                transformStyle: 'preserve-3d',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(5, minmax(62px, 1fr))',
-                gap: '10px',
-                alignItems: 'end',
-              }}
-            >
-              {ACCESS_GATES.map((gate, i) => {
-                const isBoundary = gate.label === 'Boundary';
-                const height = [112, 138, 164, 190, 126][i];
-                const active = isBoundary;
-                return (
-                  <motion.div
-                    key={gate.label}
-                    whileHover={{ y: -8, rotateY: -4 }}
-                    animate={{ y: active ? -10 : 0, scale: active ? 1.03 : 1 }}
-                    transition={spB}
-                    style={{
-                      position: 'relative',
-                      minHeight: height,
-                      borderRadius: '18px',
-                      padding: '14px 10px',
-                      background: `linear-gradient(160deg, color-mix(in srgb, var(--ed-card) 76%, ${gate.color} 24%), var(--ed-card))`,
-                      border: `1.5px solid ${gate.color}${active ? '70' : '36'}`,
-                      boxShadow: active
-                        ? `0 24px 42px ${gate.color}30, 8px 10px 0 ${gate.color}22, inset 0 1px 0 rgba(255,255,255,0.18)`
-                        : `0 14px 28px ${gate.color}18, 5px 7px 0 ${gate.color}14, inset 0 1px 0 rgba(255,255,255,0.12)`,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '42%', background: 'linear-gradient(180deg, rgba(255,255,255,0.16), transparent)' }} />
-                    <div style={{ position: 'relative', zIndex: 1 }}>
-                      <div style={{ width: 30, height: 30, borderRadius: '11px', background: gate.color, boxShadow: `0 10px 20px ${gate.color}35`, marginBottom: '12px' }} />
-                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 900, color: gate.color, letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>
-                        {String(i + 1).padStart(2, '0')}
-                      </div>
-                      <div style={{ fontSize: '15px', fontWeight: 900, color: 'var(--ed-ink)', lineHeight: 1.1, marginTop: '5px' }}>{gate.label}</div>
-                    </div>
-                    <div style={{ position: 'relative', zIndex: 1, fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)', lineHeight: 1.35 }}>{gate.detail}</div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </div>
-
           <AnimatePresence mode="wait">
             <motion.div
               key={scenario.id}
@@ -828,6 +773,60 @@ export function AccessMatrixConsole() {
               <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.45 }}>{scenario.clearRule}</div>
             </motion.div>
           </AnimatePresence>
+
+          <div style={{ gridColumn: '1 / -1', perspective: '1000px', paddingTop: '6px' }}>
+            <motion.div
+              key={`${scenario.id}-gates`}
+              initial={{ opacity: 0, rotateX: 10, y: 18 }}
+              animate={{ opacity: 1, rotateX: 0, y: 0 }}
+              transition={sp}
+              style={{
+                transformStyle: 'preserve-3d',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, minmax(132px, 1fr))',
+                gap: '14px',
+                alignItems: 'stretch',
+              }}
+            >
+              {ACCESS_GATES.map((gate, i) => {
+                const isBoundary = gate.label === 'Boundary';
+                const active = isBoundary;
+                return (
+                  <motion.div
+                    key={gate.label}
+                    whileHover={{ y: -8, rotateY: -3 }}
+                    animate={{ y: active ? -8 : 0, scale: active ? 1.02 : 1 }}
+                    transition={spB}
+                    style={{
+                      position: 'relative',
+                      minHeight: 178,
+                      borderRadius: '20px',
+                      padding: '16px',
+                      background: `linear-gradient(160deg, color-mix(in srgb, var(--ed-card) 76%, ${gate.color} 24%), var(--ed-card))`,
+                      border: `1.5px solid ${gate.color}${active ? '70' : '36'}`,
+                      boxShadow: active
+                        ? `0 24px 42px ${gate.color}30, 8px 10px 0 ${gate.color}22, inset 0 1px 0 rgba(255,255,255,0.18)`
+                        : `0 14px 28px ${gate.color}18, 5px 7px 0 ${gate.color}14, inset 0 1px 0 rgba(255,255,255,0.12)`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '42%', background: 'linear-gradient(180deg, rgba(255,255,255,0.16), transparent)' }} />
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '12px', background: gate.color, boxShadow: `0 10px 20px ${gate.color}35`, marginBottom: '14px' }} />
+                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 900, color: gate.color, letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ed-ink)', lineHeight: 1.05, marginTop: '7px' }}>{gate.label}</div>
+                    </div>
+                    <div style={{ position: 'relative', zIndex: 1, fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink2)', lineHeight: 1.4 }}>{gate.detail}</div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
