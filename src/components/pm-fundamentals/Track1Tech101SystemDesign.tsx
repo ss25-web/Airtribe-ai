@@ -8,8 +8,8 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
+import FeatureRequestXrayVisual from './FeatureRequestXrayVisual';
 import {
-  FeatureRequestXRay,
   ResponseTimeControlRoom,
   SchemaFactoryFloor,
   ContractGateway,
@@ -152,7 +152,7 @@ export default function Track1Tech101SystemDesign({
 
         {para(<>Frontend, backend, database, and API are not just implementation vocabulary. They describe four genuinely different kinds of engineering work that can be scheduled, priced, tested, and can fail independently. When a PM collapses all four into one request, the team must silently decompose it before they can even estimate it. That&apos;s invisible work the PM created.</>)}
 
-        <FeatureRequestXRay />
+        <FeatureRequestXrayVisual />
 
         {keyBox('The four-layer model', [
           'UI Layer — what the user sees and touches. State management, rendering, component behavior.',
