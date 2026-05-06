@@ -40,7 +40,7 @@ const BADGES = [
   { id: 'genai-m7-anatomy',     icon: '🧩', label: 'Anatomy',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
   { id: 'genai-m7-build',       icon: '🛠️', label: 'Tool Builder', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
   { id: 'genai-m7-permissions', icon: '🛡️', label: 'Scoper',       color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
-  { id: 'genai-m7-production',  icon: '🚀', label: 'Prod Ready',   color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+  { id: 'genai-m7-production',  icon: '📦', label: 'Prod Ready',   color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
 ];
 
 const QUIZZES = [
@@ -253,20 +253,20 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
   };
 
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>MCP TOOL SCHEMA BUILDER</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '16px' }}>Build a tool definition. Watch the schema generate in real time.</div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
         <div>
           <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C', marginBottom: '4px', textTransform: 'uppercase' as const }}>Tool Name</div>
-          <input value={toolName} onChange={e => setToolName(e.target.value)} style={{ width: '100%', padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: '#fff', color: '#292524', outline: 'none', boxSizing: 'border-box' as const }} placeholder="e.g. get_adjuster_load" />
+          <input value={toolName} onChange={e => setToolName(e.target.value)} style={{ width: '100%', padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none', boxSizing: 'border-box' as const }} placeholder="e.g. get_adjuster_load" />
         </div>
         <div>
           <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C', marginBottom: '4px', textTransform: 'uppercase' as const }}>Parameter</div>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <input value={paramName} onChange={e => setParamName(e.target.value)} style={{ flex: 1, padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: '#fff', color: '#292524', outline: 'none' }} placeholder="param_name" />
-            <select value={paramType} onChange={e => setParamType(e.target.value)} style={{ padding: '7px 8px', fontSize: '10px', border: '1px solid #E7E5E4', borderRadius: '6px', background: '#fff', color: '#292524', outline: 'none' }}>
+            <input value={paramName} onChange={e => setParamName(e.target.value)} style={{ flex: 1, padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none' }} placeholder="param_name" />
+            <select value={paramType} onChange={e => setParamType(e.target.value)} style={{ padding: '7px 8px', fontSize: '10px', border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none' }}>
               <option>string</option><option>number</option><option>boolean</option>
             </select>
           </div>
@@ -280,7 +280,7 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
             {descScore === 3 ? '✓ Strong' : descScore >= 1 ? '⚠ Partial' : '✗ Too vague'}
           </div>
         </div>
-        <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} style={{ width: '100%', padding: '8px 10px', fontSize: '11px', border: '1px solid #E7E5E4', borderRadius: '6px', background: '#fff', color: '#292524', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' as const }} placeholder={track === 'tech' ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status." : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions."} />
+        <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} style={{ width: '100%', padding: '8px 10px', fontSize: '11px', border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' as const }} placeholder={track === 'tech' ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status." : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions."} />
         <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
           {[{ label: 'has when-to-call', pass: hasWhen }, { label: 'has when-NOT-to-call', pass: hasWhenNot }, { label: 'sufficient length', pass: desc.length > 30 }].map(c => (
             <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: c.pass ? '#16A34A' : '#9CA3AF' }}>
@@ -387,7 +387,7 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
   };
 
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>MCP PERMISSION AUDIT</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Classify each tool: SAFE (call without approval), REVIEW (human gate), or BLOCK (never callable by AI)?</div>
       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px', marginBottom: '14px' }}>
@@ -424,7 +424,7 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#B45309' : 'rgba(180,83,9,0.15)', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#9CA3AF', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Audit</div>}
         {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 5 ? '#16A34A' : '#F59E0B' }}>{score}/5 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: '#F5F5F4', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Reset</div>}
+        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Reset</div>}
       </div>
     </div>
   );

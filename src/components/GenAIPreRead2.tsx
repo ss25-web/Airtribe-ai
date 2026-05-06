@@ -262,6 +262,7 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
       maxWidth: '700px',
       margin: '0 auto',
     }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>PROMPT ANATOMY BUILDER</div>
       <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
         Assemble Your Prompt
       </div>
@@ -420,6 +421,7 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
   return (
     <TiltCard style={containerStyle}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>FEW-SHOT LABELLING TOOL</div>
       <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
         Few-Shot Classification
       </div>
@@ -558,6 +560,7 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
   return (
     <TiltCard style={containerStyle}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>CONTEXT WINDOW INSPECTOR</div>
       <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
         Context Window Inspector
       </div>
@@ -734,6 +737,7 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
   return (
     <TiltCard style={containerStyle}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>MODEL SELECTION TOOL</div>
       <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
         Model Selection & Cost Estimator
       </div>
@@ -909,6 +913,7 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
 
   return (
     <TiltCard style={containerStyle}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>REFINEMENT LOOP SIMULATOR</div>
       <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
         Prompt Refinement Loop
       </div>

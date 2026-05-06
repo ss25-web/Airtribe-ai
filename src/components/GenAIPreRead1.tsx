@@ -200,7 +200,7 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
     },
   ];
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#78716C', fontFamily: "'JetBrains Mono', monospace", marginBottom: '16px' }}>CAPABILITY ZONE MAP</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
         {zones.map((z) => (
@@ -234,7 +234,7 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
     ? 'Category: Disputed claim — pharmacy benefit. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High.'
     : 'Category: Overdue exception request — provider credentialing. Recommended next step: Assign to credentialing team with 24h SLA flag; case has been pending 11 days past standard window.';
   return (
-    <div style={{ background: '#F8F9FA', border: '1px solid #E9ECEF', borderRadius: '12px', overflow: 'hidden' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E9ECEF', borderRadius: '12px', overflow: 'hidden' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
         {[
           { label: 'Vague brief (Dev)', prompt: vague, output: vagueOutput, accent: '#DC2626', bg: 'rgba(220,38,38,0.04)' },
@@ -242,11 +242,11 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
         ].map((col) => (
           <div key={col.label} style={{ padding: '16px', background: col.bg, borderRight: col.accent === '#DC2626' ? '1px solid #E9ECEF' : undefined }}>
             <div style={{ fontSize: '10px', fontWeight: 700, color: col.accent, letterSpacing: '0.1em', fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px' }}>{col.label.toUpperCase()}</div>
-            <div style={{ background: 'white', border: `1px solid ${col.accent}33`, borderRadius: '6px', padding: '10px 12px', marginBottom: '10px' }}>
+            <div style={{ background: 'var(--ed-card)', border: `1px solid ${col.accent}33`, borderRadius: '6px', padding: '10px 12px', marginBottom: '10px' }}>
               <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>PROMPT</div>
               <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;{col.prompt}&rdquo;</div>
             </div>
-            <div style={{ background: 'white', border: '1px solid #E9ECEF', borderRadius: '6px', padding: '10px 12px' }}>
+            <div style={{ background: 'var(--ed-card)', border: '1px solid #E9ECEF', borderRadius: '6px', padding: '10px 12px' }}>
               <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>OUTPUT</div>
               <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6 }}>{col.output}</div>
             </div>

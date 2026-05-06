@@ -231,7 +231,7 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
           <div style={{ fontSize: '9px', color: '#6B7280' }}>Click to toggle</div>
         </div>
         <div style={{ width: '36px', height: '20px', borderRadius: '10px', background: feedbackEdge ? '#059669' : '#374151', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-          <div style={{ position: 'absolute', top: '2px', left: feedbackEdge ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
+          <div style={{ position: 'absolute', top: '2px', left: feedbackEdge ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--ed-card)', transition: 'left 0.2s' }} />
         </div>
       </div>
       <div style={{ display: 'grid', gap: '6px', marginBottom: '14px' }}>
@@ -345,10 +345,10 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
   const score = revealed ? items.filter((item, i) => picks[i] === item.correct).length : 0;
 
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>ROUTE PREDICTOR — IF/SWITCH NODE</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>For each item, predict which branch it takes.</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '12px', padding: '8px 10px', background: '#F5F5F4', borderRadius: '6px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '12px', padding: '8px 10px', background: 'var(--ed-cream)', borderRadius: '6px' }}>
         {(['A', 'B', 'C'] as const).map(l => (
           <div key={l} style={{ fontSize: '9px', color: '#78716C' }}><strong>{l}:</strong> {branchLabels[l]}</div>
         ))}
@@ -380,7 +380,7 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#059669' : '#D1FAE5', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#6B7280', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Reveal Routes</div>}
         {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 4 ? '#16A34A' : '#F59E0B' }}>{score}/4 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: '#F5F5F4', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
+        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
       </div>
     </div>
   );

@@ -224,7 +224,7 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
   const score = revealed ? tasks.filter((t, i) => picks[i] === t.answer).length : 0;
 
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>CHAIN vs AGENT CLASSIFIER</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Is each task better handled by a fixed Chain or a reasoning Agent?</div>
       <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
@@ -249,7 +249,7 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#7C3AED' : '#EDE9FE', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#9CA3AF', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Reveal Answers</div>}
         {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 4 ? '#16A34A' : '#F59E0B' }}>{score}/4 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: '#F5F5F4', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
+        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
       </div>
     </div>
   );
@@ -389,10 +389,10 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
     : 'SLA for escalations is typically 3–7 business days depending on the account. For priority accounts it may be shorter. Refer to your internal policy documentation.';
 
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>RAG — GROUNDING TOGGLE</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '16px' }}>See how the response changes when document grounding is on vs off.</div>
-      <div style={{ padding: '10px 14px', background: '#F5F5F4', border: '1px solid #E7E5E4', borderRadius: '6px', marginBottom: '14px', fontSize: '11px', color: '#44403C', lineHeight: 1.5 }}>
+      <div style={{ padding: '10px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', marginBottom: '14px', fontSize: '11px', color: '#44403C', lineHeight: 1.5 }}>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#78716C', display: 'block', marginBottom: '4px' }}>USER QUERY</span>
         {query}
       </div>
@@ -400,7 +400,7 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
         <div style={{ fontSize: '11px', fontWeight: 700, color: '#44403C' }}>Grounding:</div>
         <div onClick={() => setGrounded(g => !g)} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '6px 14px', borderRadius: '6px', background: grounded ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.06)', border: `1px solid ${grounded ? 'rgba(5,150,105,0.3)' : 'rgba(220,38,38,0.2)'}` }}>
           <div style={{ width: '32px', height: '18px', borderRadius: '9px', background: grounded ? '#059669' : '#E5E7EB', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-            <div style={{ position: 'absolute', top: '2px', left: grounded ? '16px' : '2px', width: '14px', height: '14px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
+            <div style={{ position: 'absolute', top: '2px', left: grounded ? '16px' : '2px', width: '14px', height: '14px', borderRadius: '50%', background: 'var(--ed-card)', transition: 'left 0.2s' }} />
           </div>
           <span style={{ fontSize: '10px', fontWeight: 700, color: grounded ? '#059669' : '#DC2626' }}>{grounded ? 'ON — documents injected' : 'OFF — no context'}</span>
         </div>

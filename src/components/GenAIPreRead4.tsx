@@ -39,7 +39,7 @@ const BADGES = [
   { id: 'genai-m4-nodes',   icon: '🔀', label: 'Flow Architect', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
   { id: 'genai-m4-connect', icon: '🔐', label: 'Auth Aware',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
   { id: 'genai-m4-errors',  icon: '🚨', label: 'Error Handler',   color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
-  { id: 'genai-m4-e2e',     icon: '🚀', label: 'End-to-End',      color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
+  { id: 'genai-m4-e2e',     icon: '🎯', label: 'End-to-End',      color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
 ];
 
 const QUIZZES = [
@@ -285,7 +285,7 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
   const allPlaced = nodeItems.every(n => placements[n.id]);
   const score = nodeItems.filter(n => placements[n.id] === n.correctCat).length;
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>NODE CATEGORIZER</div>
       <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Click a node, then click the bucket it belongs in.</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Correctly sort all 8 nodes.</div>
@@ -295,7 +295,7 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
           const cat = cats.find(c => c.key === placed);
           const correct = placed && placed === n.correctCat;
           return (
-            <div key={n.id} onClick={() => !placed && setSelected(n.id === selected ? null : n.id)} style={{ padding: '7px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: placed ? 'default' : 'pointer', border: `2px solid ${n.id === selected ? '#0F766E' : placed ? (correct ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, background: placed ? (correct ? '#F0FDF4' : '#FEF2F2') : n.id === selected ? 'rgba(15,118,110,0.06)' : '#fff', color: placed ? (correct ? '#166534' : '#991B1B') : n.id === selected ? '#0F766E' : '#292524', transition: 'all 0.15s' }}>{cat ? `${cat.label}: ` : ''}{n.label}</div>
+            <div key={n.id} onClick={() => !placed && setSelected(n.id === selected ? null : n.id)} style={{ padding: '7px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: placed ? 'default' : 'pointer', border: `2px solid ${n.id === selected ? '#0F766E' : placed ? (correct ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, background: placed ? (correct ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)') : n.id === selected ? 'rgba(15,118,110,0.06)' : '#fff', color: placed ? (correct ? '#166534' : '#991B1B') : n.id === selected ? '#0F766E' : '#292524', transition: 'all 0.15s' }}>{cat ? `${cat.label}: ` : ''}{n.label}</div>
           );
         })}
       </div>
@@ -307,7 +307,7 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
           </div>
         ))}
       </div>
-      {allPlaced && <div style={{ padding: '10px 14px', borderRadius: '7px', background: score === nodeItems.length ? '#F0FDF4' : '#FFFBEB', border: `1px solid ${score === nodeItems.length ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === nodeItems.length ? '#166534' : '#92400E' }}>{score}/{nodeItems.length} correct. {score < nodeItems.length ? 'Incorrect items are shown in red — click to retry.' : 'Perfect — you can read an n8n canvas node by node.'}</div>}
+      {allPlaced && <div style={{ padding: '10px 14px', borderRadius: '7px', background: score === nodeItems.length ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${score === nodeItems.length ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === nodeItems.length ? '#166534' : '#92400E' }}>{score}/{nodeItems.length} correct. {score < nodeItems.length ? 'Incorrect items are shown in red — click to retry.' : 'Perfect — you can read an n8n canvas node by node.'}</div>}
     </div>
   );
 };
@@ -403,7 +403,7 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   const picked = picks[current?.id];
   const pickedOpt = current?.opts.find(o => o.key === picked);
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C' }}>FAILURE ROUTER — scenario {step + 1} of {failures.length}</div>
         {step < failures.length - 1 && picked && <div onClick={() => setStep(s => s + 1)} style={{ fontSize: '11px', fontWeight: 700, color: '#0F766E', cursor: 'pointer' }}>Next scenario →</div>}
@@ -411,12 +411,12 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
       {current && <>
         <div style={{ marginBottom: '12px' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: '#292524', marginBottom: '4px' }}>Node: <span style={{ color: '#0F766E' }}>{current.node}</span></div>
-          <div style={{ fontSize: '13px', color: '#292524', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '7px', padding: '10px 12px', fontWeight: 500 }}>&#9888; Failure: {current.fail}</div>
+          <div style={{ fontSize: '13px', color: '#292524', background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.30)', borderRadius: '7px', padding: '10px 12px', fontWeight: 500 }}>&#9888; Failure: {current.fail}</div>
         </div>
         <div style={{ fontSize: '12px', color: '#78716C', marginBottom: '10px' }}>How do you respond?</div>
         <div style={{ display: 'grid', gap: '7px' }}>
           {current.opts.map(opt => (
-            <div key={opt.key} onClick={() => !picked && setPicks(prev => ({ ...prev, [current.id]: opt.key }))} style={{ padding: '10px 12px', borderRadius: '7px', cursor: picked ? 'default' : 'pointer', border: `1.5px solid ${picked === opt.key ? (opt.wrong ? '#DC2626' : '#16A34A') : picked && !opt.wrong ? '#16A34A' : '#E7E5E4'}`, background: picked === opt.key ? (opt.wrong ? '#FEF2F2' : '#F0FDF4') : picked && !opt.wrong ? '#F0FDF4' : '#fff', fontSize: '12px', color: '#292524' }}>
+            <div key={opt.key} onClick={() => !picked && setPicks(prev => ({ ...prev, [current.id]: opt.key }))} style={{ padding: '10px 12px', borderRadius: '7px', cursor: picked ? 'default' : 'pointer', border: `1.5px solid ${picked === opt.key ? (opt.wrong ? '#DC2626' : '#16A34A') : picked && !opt.wrong ? '#16A34A' : '#E7E5E4'}`, background: picked === opt.key ? (opt.wrong ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)') : picked && !opt.wrong ? 'rgba(16,185,129,0.12)' : '#fff', fontSize: '12px', color: '#292524' }}>
               {opt.label}
               {picked && picked === opt.key && <div style={{ marginTop: '6px', fontSize: '11px', color: opt.wrong ? '#DC2626' : '#166534', lineHeight: 1.5 }}>{opt.wrong ? '✗' : '✓'} {opt.result}</div>}
               {picked && picked !== opt.key && !opt.wrong && <div style={{ marginTop: '6px', fontSize: '11px', color: '#166534', lineHeight: 1.5 }}>✓ This was the right choice: {opt.result}</div>}
@@ -424,7 +424,7 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
           ))}
         </div>
       </>}
-      {step === failures.length - 1 && picked && <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '7px', background: '#F0FDF4', border: '1px solid #BBF7D0', fontSize: '12px', color: '#166534' }}>Rule: alert + dead-letter beats retry, skip, and silence for every failure mode. Nothing should disappear without a trace.</div>}
+      {step === failures.length - 1 && picked && <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '7px', background: 'rgba(16,185,129,0.10)', border: '1px solid #BBF7D0', fontSize: '12px', color: '#166534' }}>Rule: alert + dead-letter beats retry, skip, and silence for every failure mode. Nothing should disappear without a trace.</div>}
     </div>
   );
 };

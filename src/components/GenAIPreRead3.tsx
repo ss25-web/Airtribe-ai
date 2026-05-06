@@ -38,7 +38,7 @@ const BADGES = [
   { id: 'genai-m3-research',    icon: '🔎', label: 'Researcher',    color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
   { id: 'genai-m3-compression', icon: '🧬', label: 'Compressor',    color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
   { id: 'genai-m3-5w1h',        icon: '🧭', label: '5W1H Pro',      color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE' },
-  { id: 'genai-m3-cove',        icon: '✅', label: 'COVE Analyst',  color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
+  { id: 'genai-m3-cove',        icon: '⚖️', label: 'COVE Analyst',  color: '#0F766E', bg: '#ECFDF5', border: '#A7F3D0' },
   { id: 'genai-m3-draft',       icon: '✍️', label: 'Drafter',       color: '#C2410C', bg: '#FFF7ED', border: '#FED7AA' },
 ];
 
@@ -230,7 +230,7 @@ const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
   const coveredRequired = requiredIds.filter(id => selected.has(id)).length;
   const toggle = (id: string) => { if (revealed) return; setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); };
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>SOURCE COVERAGE CHECKER</div>
       <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Which sources should your pipeline read for this query type? Check all that apply.</div>
       <div style={{ display: 'grid', gap: '7px', marginBottom: '14px' }}>
@@ -240,7 +240,7 @@ const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
           const isCorrect = revealed && s.required && isSelected;
           const isExtra = revealed && !s.required && isSelected;
           return (
-            <div key={s.id} onClick={() => toggle(s.id)} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1.5px solid ${isMissing ? '#DC2626' : isCorrect ? '#16A34A' : isExtra ? '#F59E0B' : isSelected ? '#0891B2' : '#E7E5E4'}`, background: isMissing ? '#FEF2F2' : isCorrect ? '#F0FDF4' : isExtra ? '#FFFBEB' : isSelected ? 'rgba(8,145,178,0.06)' : '#fff', cursor: revealed ? 'default' : 'pointer', transition: 'all 0.15s' }}>
+            <div key={s.id} onClick={() => toggle(s.id)} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1.5px solid ${isMissing ? '#DC2626' : isCorrect ? '#16A34A' : isExtra ? '#F59E0B' : isSelected ? '#0891B2' : '#E7E5E4'}`, background: isMissing ? 'rgba(239,68,68,0.12)' : isCorrect ? 'rgba(16,185,129,0.12)' : isExtra ? 'rgba(245,158,11,0.12)' : isSelected ? 'rgba(8,145,178,0.06)' : '#fff', cursor: revealed ? 'default' : 'pointer', transition: 'all 0.15s' }}>
               <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isSelected ? '#0891B2' : '#D1D5DB'}`, background: isSelected ? '#0891B2' : '#fff', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>{isSelected ? '✓' : ''}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: '#292524' }}>{s.label}</div>
@@ -252,7 +252,7 @@ const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
       </div>
       {!revealed
         ? <div onClick={() => setRevealed(true)} style={{ padding: '9px 20px', background: '#0891B2', color: '#fff', borderRadius: '7px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', textAlign: 'center' as const }}>Evaluate My Pipeline</div>
-        : <div style={{ padding: '12px 16px', borderRadius: '8px', background: coveredRequired === requiredIds.length ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${coveredRequired === requiredIds.length ? '#BBF7D0' : '#FECACA'}`, fontSize: '13px', fontWeight: 600, color: coveredRequired === requiredIds.length ? '#166534' : '#991B1B' }}>
+        : <div style={{ padding: '12px 16px', borderRadius: '8px', background: coveredRequired === requiredIds.length ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${coveredRequired === requiredIds.length ? '#BBF7D0' : '#FECACA'}`, fontSize: '13px', fontWeight: 600, color: coveredRequired === requiredIds.length ? '#166534' : '#991B1B' }}>
             {coveredRequired}/{requiredIds.length} required sources covered. {coveredRequired < requiredIds.length ? `Your pipeline will produce fluent but incomplete output — missing ${requiredIds.length - coveredRequired} key source(s).` : 'Good triangulation. Your pipeline has the inputs it needs.'}
           </div>}
     </div>
@@ -332,14 +332,14 @@ const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
   const allCorrect = dims.every(d => vals[d.key] === d.correct);
   const promptParts = dims.map(d => vals[d.key] > 0 ? `[${d.key}: ${d.opts[vals[d.key]]}]` : `[${d.key}: ???]`);
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>5W1H QUERY BUILDER</div>
       <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Fill in each dimension. Watch the research prompt build below.</div>
       <div style={{ display: 'grid', gap: '8px', marginBottom: '16px' }}>
         {dims.map(d => (
           <div key={d.key} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: '10px', alignItems: 'center' }}>
             <div style={{ background: vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4', color: vals[d.key] > 0 ? '#fff' : '#78716C', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, borderRadius: '4px', padding: '4px 6px', textAlign: 'center' as const, transition: 'background 0.2s' }}>{d.key}</div>
-            <select value={vals[d.key]} onChange={e => setVals(prev => ({ ...prev, [d.key]: Number(e.target.value) }))} style={{ padding: '7px 10px', borderRadius: '6px', border: `1.5px solid ${vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4'}`, fontSize: '12px', color: '#292524', background: '#fff', outline: 'none', cursor: 'pointer' }}>
+            <select value={vals[d.key]} onChange={e => setVals(prev => ({ ...prev, [d.key]: Number(e.target.value) }))} style={{ padding: '7px 10px', borderRadius: '6px', border: `1.5px solid ${vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4'}`, fontSize: '12px', color: '#292524', background: 'var(--ed-card)', outline: 'none', cursor: 'pointer' }}>
               {d.opts.map((opt, i) => <option key={i} value={i}>{opt}</option>)}
             </select>
           </div>
@@ -349,7 +349,7 @@ const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
         <div style={{ color: '#8B949E', marginBottom: '6px' }}>RESULTING RESEARCH PROMPT:</div>
         {promptParts.map((p, i) => <span key={i} style={{ color: p.includes('???') ? '#DC2626' : '#6EE7B7' }}>{p}{i < promptParts.length - 1 ? ' · ' : ''}</span>)}
       </div>
-      <div style={{ fontSize: '12px', padding: '8px 12px', borderRadius: '6px', background: allCorrect ? '#F0FDF4' : filled === 0 ? '#F5F5F4' : '#FFFBEB', color: allCorrect ? '#166534' : filled === 0 ? '#78716C' : '#92400E', border: `1px solid ${allCorrect ? '#BBF7D0' : filled === 0 ? '#E7E5E4' : '#FDE68A'}` }}>
+      <div style={{ fontSize: '12px', padding: '8px 12px', borderRadius: '6px', background: allCorrect ? 'rgba(16,185,129,0.12)' : filled === 0 ? '#F5F5F4' : 'rgba(245,158,11,0.12)', color: allCorrect ? '#166534' : filled === 0 ? '#78716C' : '#92400E', border: `1px solid ${allCorrect ? '#BBF7D0' : filled === 0 ? '#E7E5E4' : '#FDE68A'}` }}>
         {allCorrect ? '✓ Complete 5W1H — the prompt has enough specificity to produce decision-grade output.' : filled < dims.length ? `${filled}/${dims.length} dimensions filled. Unfilled dimensions (???) produce vague, generic output.` : 'Some dimensions could be more specific — the most precise choices produce the most actionable output.'}
       </div>
     </div>
@@ -379,7 +379,7 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
   const allPicked = claims.every(c => picks[c.id]);
   const score = claims.filter(c => picks[c.id] === c.verdict).length;
   return (
-    <div style={{ background: '#FAFAF9', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>COVE AUDITOR — EVALUATE EACH CLAIM</div>
       <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Read each claim. Tag it with the COVE dimension it primarily tests.</div>
       <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>C = Correct · O = Original (not model-generated) · V = Verifiable · E = Effective</div>
@@ -388,7 +388,7 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
           const picked = picks[c.id];
           const isRight = picked === c.verdict;
           return (
-            <div key={c.id} style={{ background: '#fff', border: `1.5px solid ${picked ? (isRight ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, borderRadius: '8px', padding: '12px 14px' }}>
+            <div key={c.id} style={{ background: 'var(--ed-card)', border: `1.5px solid ${picked ? (isRight ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, borderRadius: '8px', padding: '12px 14px' }}>
               <div style={{ fontSize: '12px', color: '#292524', lineHeight: 1.6, marginBottom: '10px', fontStyle: 'italic' }}>&ldquo;{c.text}&rdquo;</div>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
                 {opts.map(opt => (
@@ -400,7 +400,7 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
           );
         })}
       </div>
-      {allPicked && <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: score === 4 ? '#F0FDF4' : '#FFFBEB', border: `1px solid ${score === 4 ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === 4 ? '#166534' : '#92400E' }}>{score}/4 correct — {score === 4 ? 'Perfect COVE audit.' : 'Review the incorrect tags above. Each COVE dimension has a distinct failure mode.'}</div>}
+      {allPicked && <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: score === 4 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${score === 4 ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === 4 ? '#166534' : '#92400E' }}>{score}/4 correct — {score === 4 ? 'Perfect COVE audit.' : 'Review the incorrect tags above. Each COVE dimension has a distinct failure mode.'}</div>}
     </div>
   );
 };
