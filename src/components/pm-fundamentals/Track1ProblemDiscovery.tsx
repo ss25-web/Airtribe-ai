@@ -912,12 +912,12 @@ const DiscoveryBriefBuilder = () => {
 // ─────────────────────────────────────────
 const IntroHero = () => (
   <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px' }}>
-    <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap' as const }}>
-      <div style={{ flex: 1, minWidth: '280px' }}>
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap' as const }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
           MODULE 02 · PROBLEM DISCOVERY
         </div>
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: '32px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px' }}>
+        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(26px, 3.5vw, 42px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px', letterSpacing: '-0.02em' }}>
           Problem Discovery<br />&amp; User Research
         </h1>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '24px' }}>
@@ -953,7 +953,7 @@ const IntroHero = () => (
         {/* Characters */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(108px, 1fr))', gap: '10px' }}>
             {([
               { mentor: 'priya' as const, accent: 'var(--teal)', accentHex: '#0097A7', desc: '14 Figma screens ready. About to send the wrong thing.' },
               { mentor: 'maya'  as const, accent: '#C85A40',      accentHex: '#C85A40', desc: 'Watches session recordings. Knows what users actually mean.' },

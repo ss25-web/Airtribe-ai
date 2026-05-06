@@ -875,7 +875,7 @@ const IntroHero = ({ completedSections }: { completedSections: Set<string> }) =>
         letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
       }}>04</div>
 
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px', position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '12px', textTransform: 'uppercase' as const }}>
@@ -907,7 +907,7 @@ const IntroHero = ({ completedSections }: { completedSections: Set<string> }) =>
 
             <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: '20px' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '12px' }}>CHARACTERS IN THIS MODULE</div>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(108px, 1fr))', gap: '10px' }}>
                 {([
                   { mentor: 'priya'  as const, desc: 'Navigating four conflicting priorities with one engineer.' },
                   { mentor: 'rohan'  as const, desc: 'Sets the strategic goals. Priya has to align her pick with his.' },

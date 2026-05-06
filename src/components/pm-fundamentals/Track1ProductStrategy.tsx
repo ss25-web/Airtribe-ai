@@ -729,7 +729,7 @@ export default function Track1ProductStrategy({
         style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', marginBottom: '56px', flexWrap: 'wrap' as const }}
       >
         {/* Left column */}
-        <div style={{ flex: 1, minWidth: '280px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '28px', letterSpacing: '0.04em' }}>
             PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
             <span style={{ color: 'var(--ed-ink2)' }}>Foundations Track</span>
@@ -782,7 +782,7 @@ export default function Track1ProductStrategy({
           {/* Characters */}
           <div style={{ marginTop: '24px' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.16em', color: 'var(--ed-ink3)', marginBottom: '10px' }}>CHARACTERS IN THIS MODULE</div>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(108px, 1fr))', gap: '10px' }}>
               {CHARACTERS.map(c => (
                 <CharacterChip name={{ priya: 'Priya', rohan: 'Rohan', kiran: 'Kiran', asha: 'Asha' }[c.mentor] ?? ''} role={{ priya: 'APM · EdSpark', rohan: 'CEO · EdSpark', kiran: 'Data Analyst', asha: 'AI Mentor' }[c.mentor] ?? ''} accent={c.accent}>
                   <MentorFace mentor={c.mentor} size={52} />
