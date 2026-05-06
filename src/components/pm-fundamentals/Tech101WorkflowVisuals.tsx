@@ -641,121 +641,141 @@ export function ContractGateway() {
 
 // ─── 5. ACCESS MATRIX CONSOLE ────────────────────────────────────────────────
 
-const ROLES_AM   = ['Admin', 'Manager', 'Contributor', 'Viewer'];
-const ACTIONS_AM = ['View', 'Edit', 'Export', 'Delete'];
-const PERM_AM: ('allow' | 'deny' | 'escalate')[][] = [
-  ['allow','allow','allow','allow'],
-  ['allow','allow','allow','deny'],
-  ['allow','allow','deny', 'deny'],
-  ['allow','deny', 'deny', 'deny'],
+const AM_ROLES   = [
+  { name: 'Admin',       color: '#7843EE' },
+  { name: 'Manager',     color: '#3B82F6' },
+  { name: 'Contributor', color: '#0097A7' },
+  { name: 'Viewer',      color: '#16A34A' },
 ];
-const CELL_COLOR = { allow: C.green, deny: C.red, escalate: C.amber };
+const AM_ACTIONS = ['View', 'Edit', 'Export', 'Delete'];
+const AM_PERM    = [
+  [true,  true,  true,  true ],
+  [true,  true,  true,  false],
+  [true,  true,  false, false],
+  [true,  false, false, false],
+];
 
 export function AccessMatrixConsole() {
-  const [role,   setRole]   = useState<number | null>(null);
-  const [action, setAction] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [revealKey, setRevealKey] = useState(0);
 
-  const decision = role !== null && action !== null ? PERM_AM[role][action] : null;
+  // Auto-reveal on mount
+  React.useEffect(() => {
+    const t = setTimeout(() => setRevealed(true), 400);
+    return () => clearTimeout(t);
+  }, [revealKey]);
+
+  const replay = () => { setRevealed(false); setRevealKey(k => k + 1); };
+
+  const totalCells = AM_ROLES.length * AM_ACTIONS.length;
+  const allowCount = AM_PERM.flat().filter(Boolean).length;
+  const denyCount  = totalCells - allowCount;
 
   return (
-    <Shell caption="A sentence like 'admins can do everything' expands into a grid of decisions. Enterprise permission systems are the product — not implementation detail.">
-      <div style={{ borderRadius: '24px', padding: '22px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: flat }}>
-        {/* Role + Action selectors */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
-          <div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', marginBottom: '8px', letterSpacing: '0.1em' }}>SELECT ROLE</div>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
-              {ROLES_AM.map((r, i) => (
-                <Chip key={r} label={r} accent={C.purple} active={role === i} onClick={() => setRole(role === i ? null : i)} />
-              ))}
+    <Shell caption="One sentence — 'admins can do everything, others are restricted' — expands into this many explicit decisions. Enterprise product design is often access design.">
+      <div style={{ borderRadius: '24px', padding: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: flat }}>
+
+        {/* Policy origin card */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{
+            flex: 1, padding: '14px 18px', borderRadius: '14px',
+            background: `${C.purple}0d`, border: `1.5px solid ${C.purple}28`,
+            borderLeft: `4px solid ${C.purple}`,
+          }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: C.purple, letterSpacing: '0.14em', marginBottom: '5px' }}>POLICY STATEMENT</div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', fontStyle: 'italic' }}>
+              &ldquo;Admins get full access. Others are restricted by default.&rdquo;
             </div>
           </div>
-          <div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', marginBottom: '8px', letterSpacing: '0.1em' }}>SELECT ACTION</div>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
-              {ACTIONS_AM.map((a, i) => (
-                <Chip key={a} label={a} accent={C.teal} active={action === i} onClick={() => setAction(action === i ? null : i)} />
-              ))}
-            </div>
+          <div style={{ fontSize: '22px', color: 'var(--ed-ink3)', flexShrink: 0 }}>→</div>
+          <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '28px', fontWeight: 900, color: C.purple, lineHeight: 1 }}>{totalCells}</div>
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginTop: '3px' }}>DECISIONS</div>
           </div>
         </div>
 
-        {/* Matrix */}
-        <div style={{ overflowX: 'auto' as const, marginBottom: '16px' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate' as const, borderSpacing: '5px' }}>
-            <thead>
-              <tr>
-                <th style={{ padding: '4px 8px', fontSize: '8px', color: 'var(--ed-ink3)', textAlign: 'left' as const, fontFamily: "'JetBrains Mono',monospace" }}></th>
-                {ACTIONS_AM.map((a, ai) => (
-                  <th key={a} style={{ padding: '4px 8px', fontSize: '8px', fontWeight: 800, color: action === ai ? C.teal : 'var(--ed-ink3)', fontFamily: "'JetBrains Mono',monospace", textAlign: 'center' as const }}>
-                    {a}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ROLES_AM.map((r, ri) => (
-                <tr key={r}>
-                  <td style={{ padding: '4px 8px', fontSize: '11px', fontWeight: 700, color: role === ri ? C.purple : 'var(--ed-ink2)', whiteSpace: 'nowrap' as const }}>{r}</td>
-                  {ACTIONS_AM.map((_, ai) => {
-                    const p = PERM_AM[ri][ai];
-                    const c = CELL_COLOR[p];
-                    const lit = role === ri || action === ai;
-                    const selected = role === ri && action === ai;
-                    return (
-                      <motion.td key={ai} animate={{ z: selected ? 16 : 0 }} transition={sp}
-                        style={{ padding: '3px', textAlign: 'center' as const, verticalAlign: 'middle' as const }}>
-                        <motion.div
-                          animate={{
-                            y: lit ? -3 : 0,
-                            boxShadow: lit ? raised(c) : flat,
-                          }}
-                          transition={sp}
-                          style={{
-                            width: 38, height: 38, borderRadius: '10px', margin: '0 auto',
-                            background: `linear-gradient(145deg, ${c}cc, ${c})`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '15px', color: '#fff', fontWeight: 700,
-                            border: selected ? `2px solid ${c}` : 'none',
-                          }}
-                        >
-                          {p === 'allow' ? '✓' : p === 'deny' ? '–' : '↑'}
-                        </motion.div>
-                      </motion.td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Expanding decision grid */}
+        <div>
+          {/* Column headers */}
+          <div style={{ display: 'grid', gridTemplateColumns: '96px repeat(4, 1fr)', gap: '6px', marginBottom: '6px', paddingLeft: '0' }}>
+            <div />
+            {AM_ACTIONS.map(a => (
+              <div key={a} style={{ textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.08em' }}>
+                {a.toUpperCase()}
+              </div>
+            ))}
+          </div>
 
-        {/* Decision badge */}
-        <AnimatePresence mode="wait">
-          {decision ? (
-            <motion.div key={decision} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.22 }}
-              style={{ padding: '12px 16px', borderRadius: '12px', background: `${CELL_COLOR[decision]}0d`, border: `1.5px solid ${CELL_COLOR[decision]}30`, borderLeft: `4px solid ${CELL_COLOR[decision]}`, display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ fontSize: '24px' }}>{decision === 'allow' ? '✅' : decision === 'deny' ? '🚫' : '⬆'}</div>
-              <div>
-                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, color: CELL_COLOR[decision], marginBottom: '2px', letterSpacing: '0.1em' }}>
-                  {ROLES_AM[role!]} · {ACTIONS_AM[action!]} → {decision.toUpperCase()}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--ed-ink2)' }}>
-                  {decision === 'allow' ? 'Access granted — this role can perform this action.' :
-                   decision === 'deny'  ? 'Access denied — this role cannot perform this action.' :
-                   'Escalation required — this action needs manager approval.'}
+          {/* Rows */}
+          {AM_ROLES.map((role, ri) => (
+            <div key={role.name} style={{ display: 'grid', gridTemplateColumns: '96px repeat(4, 1fr)', gap: '6px', marginBottom: '6px' }}>
+              {/* Role label */}
+              <div style={{ display: 'flex', alignItems: 'center', paddingRight: '8px' }}>
+                <div style={{
+                  fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, color: role.color,
+                }}>
+                  {role.name}
                 </div>
               </div>
-            </motion.div>
-          ) : (
-            <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ padding: '10px', textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', color: 'var(--ed-ink3)', fontWeight: 600 }}>
-              Select a role and action to see the decision
-            </motion.div>
-          )}
-        </AnimatePresence>
+
+              {/* Permission cells */}
+              {AM_ACTIONS.map((_, ai) => {
+                const allowed = AM_PERM[ri][ai];
+                const cellIdx = ri * AM_ACTIONS.length + ai;
+                const delay   = cellIdx * 0.045 + 0.15;
+
+                return (
+                  <motion.div
+                    key={ai}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={revealed ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 340, damping: 20, delay }}
+                    style={{
+                      height: 44, borderRadius: '12px',
+                      background: allowed
+                        ? `linear-gradient(145deg, ${C.green}cc, ${C.green})`
+                        : `linear-gradient(145deg, ${C.red}cc, ${C.red})`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexDirection: 'column' as const,
+                      boxShadow: allowed
+                        ? `0 4px 10px ${C.green}30, 0 2px 0 ${C.green}22`
+                        : `0 4px 10px ${C.red}25, 0 2px 0 ${C.red}18`,
+                    }}
+                  >
+                    <div style={{ fontSize: '16px', color: '#fff', fontWeight: 700, lineHeight: 1 }}>
+                      {allowed ? '✓' : '–'}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        {/* Summary + replay */}
+        <div style={{ marginTop: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' as const }}>
+          <AnimatePresence>
+            {revealed && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.3 }}
+                style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.green}14`, border: `1px solid ${C.green}30`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: C.green }}>
+                  ✓ {allowCount} allow decisions
+                </div>
+                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.red}10`, border: `1px solid ${C.red}28`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: C.red }}>
+                  – {denyCount} deny decisions
+                </div>
+                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.purple}10`, border: `1px solid ${C.purple}28`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, color: C.purple }}>
+                  Each is a product boundary you own
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.button onClick={replay} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+            style={{ padding: '7px 14px', borderRadius: '10px', background: `${C.purple}10`, border: `1px solid ${C.purple}28`, color: C.purple, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.08em', flexShrink: 0 }}>
+            ↺ Replay
+          </motion.button>
+        </div>
       </div>
-      <ClickHint text="Select a role and action to see what the matrix decides" />
     </Shell>
   );
 }

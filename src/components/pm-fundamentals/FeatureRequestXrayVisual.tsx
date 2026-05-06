@@ -234,21 +234,44 @@ export default function FeatureRequestXrayVisual() {
         </div>
       </div>
 
-      {/* ── Progress strip ── */}
-      <div style={{
-        display: 'flex', justifyContent: 'center', gap: 7, marginBottom: 18,
-      }}>
-        {LAYERS.map((layer, i) => (
-          <motion.div
-            key={layer.id}
-            animate={{
-              width: i === frontIdx ? 24 : 8,
-              background: i === frontIdx ? layer.color : `rgba(${layer.rgb},0.18)`,
-            }}
-            transition={{ duration: 0.3 }}
-            style={{ height: 7, borderRadius: 4 }}
-          />
-        ))}
+      {/* ── Progress squircles ── */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' as const }}>
+        {LAYERS.map((layer, i) => {
+          const isActive = i === frontIdx;
+          return (
+            <motion.div
+              key={layer.id}
+              layout
+              animate={{ background: isActive ? layer.color : `rgba(${layer.rgb},0.12)` }}
+              transition={{ duration: 0.3 }}
+              style={{
+                height: 36, borderRadius: 10, overflow: 'hidden',
+                padding: isActive ? '0 12px 0 10px' : '0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                minWidth: 36,
+              }}
+            >
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10, fontWeight: 900, flexShrink: 0,
+                color: isActive ? '#fff' : `rgba(${layer.rgb},0.65)`,
+              }}>
+                {layer.num}
+              </span>
+              <AnimatePresence>
+                {isActive && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -6 }} transition={{ duration: 0.2 }}
+                    style={{ fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' as const }}
+                  >
+                    {layer.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* ── PM Consequence panel ── */}
