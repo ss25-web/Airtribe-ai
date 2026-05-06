@@ -641,146 +641,227 @@ export function ContractGateway() {
 
 // ─── 5. ACCESS MATRIX CONSOLE ────────────────────────────────────────────────
 
-const AM_ROLES   = [
-  { name: 'Admin',       color: '#7843EE' },
-  { name: 'Manager',     color: '#3B82F6' },
-  { name: 'Contributor', color: '#0097A7' },
-  { name: 'Viewer',      color: '#16A34A' },
+const ACCESS_SCENARIOS = [
+  {
+    id: 'manager-export',
+    title: 'Regional manager export',
+    actor: 'Manager',
+    resource: 'Team coaching reports',
+    action: 'Export CSV',
+    context: 'Only for reps they directly manage',
+    vagueRisk: 'The manager may export another region because the rule says "managers can export reports" without defining scope.',
+    clearRule: 'Allow export only when report.region_id matches one of the manager assigned region ids.',
+    pmDecision: 'Define the boundary: own team, assigned region, temporary coverage, and audit log.',
+    outcome: 'Safe export with explicit scope',
+    color: C.blue,
+  },
+  {
+    id: 'contractor-view',
+    title: 'Contractor visibility',
+    actor: 'Contractor',
+    resource: 'Coaching transcript',
+    action: 'View details',
+    context: 'Helping QA for two weeks',
+    vagueRisk: 'A temporary worker can see transcripts after the contract ends because expiry was never part of the product rule.',
+    clearRule: 'Allow view only for assigned QA batches and automatically expire access at contract_end.',
+    pmDecision: 'Specify duration, assignment source, revocation behavior, and what gets hidden.',
+    outcome: 'Temporary access with expiry',
+    color: C.amber,
+  },
+  {
+    id: 'viewer-delete',
+    title: 'Viewer destructive action',
+    actor: 'Viewer',
+    resource: 'Shared workspace report',
+    action: 'Delete',
+    context: 'Trying to clean up duplicate reports',
+    vagueRisk: 'Engineering must guess whether "restricted by default" means disabled, hidden, approval-gated, or allowed for self-created reports.',
+    clearRule: 'Deny delete for Viewer. Offer "request cleanup" and route to workspace Admin.',
+    pmDecision: 'Choose the product behavior for denied actions: hide, disable, explain, or route.',
+    outcome: 'Denied action becomes a guided path',
+    color: C.red,
+  },
 ];
-const AM_ACTIONS = ['View', 'Edit', 'Export', 'Delete'];
-const AM_PERM    = [
-  [true,  true,  true,  true ],
-  [true,  true,  true,  false],
-  [true,  true,  false, false],
-  [true,  false, false, false],
+
+const ACCESS_GATES = [
+  { label: 'Role', detail: 'Who is acting?', color: C.purple },
+  { label: 'Resource', detail: 'What object is touched?', color: C.teal },
+  { label: 'Action', detail: 'View, edit, export, delete?', color: C.coral },
+  { label: 'Boundary', detail: 'Own team, region, expiry?', color: C.amber },
+  { label: 'Audit', detail: 'What must be logged?', color: C.green },
 ];
 
 export function AccessMatrixConsole() {
-  const [revealed, setRevealed] = useState(false);
-  const [revealKey, setRevealKey] = useState(0);
-
-  // Auto-reveal on mount
-  React.useEffect(() => {
-    const t = setTimeout(() => setRevealed(true), 400);
-    return () => clearTimeout(t);
-  }, [revealKey]);
-
-  const replay = () => { setRevealed(false); setRevealKey(k => k + 1); };
-
-  const totalCells = AM_ROLES.length * AM_ACTIONS.length;
-  const allowCount = AM_PERM.flat().filter(Boolean).length;
-  const denyCount  = totalCells - allowCount;
+  const [selected, setSelected] = useState(ACCESS_SCENARIOS[0].id);
+  const scenario = ACCESS_SCENARIOS.find(s => s.id === selected)!;
 
   return (
-    <Shell caption="One sentence — 'admins can do everything, others are restricted' — expands into this many explicit decisions. Enterprise product design is often access design.">
-      <div style={{ borderRadius: '24px', padding: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: flat }}>
+    <Shell caption="A permission rule is not a sentence the PM hands to engineering. It is a chain of product decisions: who, what, action, boundary, and audit. Miss one link and the system guesses in production.">
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '18px' }}>
+        {ACCESS_SCENARIOS.map(s => (
+          <Chip key={s.id} label={s.title} accent={s.color} active={selected === s.id} onClick={() => setSelected(s.id)} />
+        ))}
+      </div>
 
-        {/* Policy origin card */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div style={{
-            flex: 1, padding: '14px 18px', borderRadius: '14px',
-            background: `${C.purple}0d`, border: `1.5px solid ${C.purple}28`,
-            borderLeft: `4px solid ${C.purple}`,
-          }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: C.purple, letterSpacing: '0.14em', marginBottom: '5px' }}>POLICY STATEMENT</div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', fontStyle: 'italic' }}>
-              &ldquo;Admins get full access. Others are restricted by default.&rdquo;
+      <div style={{ position: 'relative', padding: '14px 0 6px', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', inset: '34px 8% auto', height: '210px',
+          background: `radial-gradient(circle at 50% 45%, ${scenario.color}24, transparent 62%)`,
+          filter: 'blur(2px)', pointerEvents: 'none',
+        }} />
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(180px, 0.85fr) minmax(320px, 1.45fr) minmax(210px, 0.95fr)',
+          gap: '20px',
+          alignItems: 'center',
+        }}>
+          <motion.div
+            key={`${scenario.id}-ask`}
+            initial={{ opacity: 0, y: 18, rotateX: 8 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            transition={sp}
+            style={{
+              borderRadius: '24px',
+              padding: '20px',
+              background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 84%, ${scenario.color} 16%), var(--ed-card))`,
+              border: `1.5px solid ${scenario.color}38`,
+              boxShadow: `0 20px 42px ${scenario.color}1f, 0 9px 0 ${scenario.color}18, inset 0 1px 0 rgba(255,255,255,0.14)`,
+            }}
+          >
+            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 900, letterSpacing: '0.16em', color: scenario.color, marginBottom: '12px' }}>
+              ACCESS REQUEST
             </div>
-          </div>
-          <div style={{ fontSize: '22px', color: 'var(--ed-ink3)', flexShrink: 0 }}>→</div>
-          <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '28px', fontWeight: 900, color: C.purple, lineHeight: 1 }}>{totalCells}</div>
-            <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginTop: '3px' }}>DECISIONS</div>
-          </div>
-        </div>
-
-        {/* Expanding decision grid */}
-        <div>
-          {/* Column headers */}
-          <div style={{ display: 'grid', gridTemplateColumns: '96px repeat(4, 1fr)', gap: '6px', marginBottom: '6px', paddingLeft: '0' }}>
-            <div />
-            {AM_ACTIONS.map(a => (
-              <div key={a} style={{ textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.08em' }}>
-                {a.toUpperCase()}
-              </div>
-            ))}
-          </div>
-
-          {/* Rows */}
-          {AM_ROLES.map((role, ri) => (
-            <div key={role.name} style={{ display: 'grid', gridTemplateColumns: '96px repeat(4, 1fr)', gap: '6px', marginBottom: '6px' }}>
-              {/* Role label */}
-              <div style={{ display: 'flex', alignItems: 'center', paddingRight: '8px' }}>
-                <div style={{
-                  fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, color: role.color,
-                }}>
-                  {role.name}
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {[
+                ['Actor', scenario.actor],
+                ['Resource', scenario.resource],
+                ['Action', scenario.action],
+                ['Context', scenario.context],
+              ].map(([k, v]) => (
+                <div key={k} style={{ padding: '9px 10px', borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '0.12em', color: 'var(--ed-ink3)', textTransform: 'uppercase' as const }}>{k}</div>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.35, marginTop: '3px' }}>{v}</div>
                 </div>
-              </div>
+              ))}
+            </div>
+          </motion.div>
 
-              {/* Permission cells */}
-              {AM_ACTIONS.map((_, ai) => {
-                const allowed = AM_PERM[ri][ai];
-                const cellIdx = ri * AM_ACTIONS.length + ai;
-                const delay   = cellIdx * 0.045 + 0.15;
-
+          <div style={{ perspective: '900px' }}>
+            <motion.div
+              key={`${scenario.id}-gates`}
+              initial={{ opacity: 0, rotateX: 14, y: 22 }}
+              animate={{ opacity: 1, rotateX: 0, y: 0 }}
+              transition={sp}
+              style={{
+                transformStyle: 'preserve-3d',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, minmax(62px, 1fr))',
+                gap: '10px',
+                alignItems: 'end',
+              }}
+            >
+              {ACCESS_GATES.map((gate, i) => {
+                const isBoundary = gate.label === 'Boundary';
+                const height = [112, 138, 164, 190, 126][i];
+                const active = isBoundary;
                 return (
                   <motion.div
-                    key={ai}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={revealed ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 340, damping: 20, delay }}
+                    key={gate.label}
+                    whileHover={{ y: -8, rotateY: -4 }}
+                    animate={{ y: active ? -10 : 0, scale: active ? 1.03 : 1 }}
+                    transition={spB}
                     style={{
-                      height: 44, borderRadius: '12px',
-                      background: allowed
-                        ? `linear-gradient(145deg, ${C.green}cc, ${C.green})`
-                        : `linear-gradient(145deg, ${C.red}cc, ${C.red})`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexDirection: 'column' as const,
-                      boxShadow: allowed
-                        ? `0 4px 10px ${C.green}30, 0 2px 0 ${C.green}22`
-                        : `0 4px 10px ${C.red}25, 0 2px 0 ${C.red}18`,
+                      position: 'relative',
+                      minHeight: height,
+                      borderRadius: '18px',
+                      padding: '14px 10px',
+                      background: `linear-gradient(160deg, color-mix(in srgb, var(--ed-card) 76%, ${gate.color} 24%), var(--ed-card))`,
+                      border: `1.5px solid ${gate.color}${active ? '70' : '36'}`,
+                      boxShadow: active
+                        ? `0 24px 42px ${gate.color}30, 8px 10px 0 ${gate.color}22, inset 0 1px 0 rgba(255,255,255,0.18)`
+                        : `0 14px 28px ${gate.color}18, 5px 7px 0 ${gate.color}14, inset 0 1px 0 rgba(255,255,255,0.12)`,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      overflow: 'hidden',
                     }}
                   >
-                    <div style={{ fontSize: '16px', color: '#fff', fontWeight: 700, lineHeight: 1 }}>
-                      {allowed ? '✓' : '–'}
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '42%', background: 'linear-gradient(180deg, rgba(255,255,255,0.16), transparent)' }} />
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: '11px', background: gate.color, boxShadow: `0 10px 20px ${gate.color}35`, marginBottom: '12px' }} />
+                      <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 900, color: gate.color, letterSpacing: '0.12em', textTransform: 'uppercase' as const }}>
+                        {String(i + 1).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: 'var(--ed-ink)', lineHeight: 1.1, marginTop: '5px' }}>{gate.label}</div>
                     </div>
+                    <div style={{ position: 'relative', zIndex: 1, fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)', lineHeight: 1.35 }}>{gate.detail}</div>
                   </motion.div>
                 );
               })}
-            </div>
-          ))}
+            </motion.div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={scenario.id}
+              initial={{ opacity: 0, x: 18, rotateY: -8 }}
+              animate={{ opacity: 1, x: 0, rotateY: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={sp}
+              style={{
+                borderRadius: '24px',
+                padding: '18px',
+                background: `linear-gradient(145deg, ${scenario.color}18, var(--ed-card))`,
+                border: `1.5px solid ${scenario.color}45`,
+                boxShadow: `0 22px 42px ${scenario.color}20, 0 8px 0 ${scenario.color}18`,
+              }}
+            >
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 900, letterSpacing: '0.14em', color: C.red, marginBottom: '8px' }}>
+                IF THE RULE IS VAGUE
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.5, marginBottom: '14px' }}>{scenario.vagueRisk}</div>
+              <div style={{ height: '1px', background: 'var(--ed-rule)', margin: '10px 0 14px' }} />
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 900, letterSpacing: '0.14em', color: C.green, marginBottom: '8px' }}>
+                PRODUCT RULE
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.45 }}>{scenario.clearRule}</div>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {/* Summary + replay */}
-        <div style={{ marginTop: '18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' as const }}>
-          <AnimatePresence>
-            {revealed && (
-              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.3 }}
-                style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
-                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.green}14`, border: `1px solid ${C.green}30`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: C.green }}>
-                  ✓ {allowCount} allow decisions
-                </div>
-                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.red}10`, border: `1px solid ${C.red}28`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 800, color: C.red }}>
-                  – {denyCount} deny decisions
-                </div>
-                <div style={{ padding: '5px 12px', borderRadius: '8px', background: `${C.purple}10`, border: `1px solid ${C.purple}28`, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, color: C.purple }}>
-                  Each is a product boundary you own
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <motion.button onClick={replay} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-            style={{ padding: '7px 14px', borderRadius: '10px', background: `${C.purple}10`, border: `1px solid ${C.purple}28`, color: C.purple, cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.08em', flexShrink: 0 }}>
-            ↺ Replay
-          </motion.button>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`${scenario.id}-decision`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.22 }}
+            style={{
+              marginTop: '22px',
+              display: 'grid',
+              gridTemplateColumns: '1.15fr 0.85fr',
+              gap: '12px',
+            }}
+          >
+            <div style={{ borderRadius: '16px', padding: '14px 16px', background: `${scenario.color}10`, border: `1px solid ${scenario.color}30`, borderLeft: `4px solid ${scenario.color}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 900, letterSpacing: '0.14em', color: scenario.color, marginBottom: '6px' }}>
+                PM DECISION
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.45 }}>{scenario.pmDecision}</div>
+            </div>
+            <div style={{ borderRadius: '16px', padding: '14px 16px', background: `${C.green}10`, border: `1px solid ${C.green}30` }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 900, letterSpacing: '0.14em', color: C.green, marginBottom: '6px' }}>
+                SYSTEM OUTCOME
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--ed-ink)', lineHeight: 1.45 }}>{scenario.outcome}</div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </Shell>
   );
 }
-
-// ─── 6. TRAFFIC LOAD OPS ROOM ────────────────────────────────────────────────
 
 const LOAD_STATES = [
   { id: 'normal',   label: 'Normal',   desc: '50 req/s',   color: C.green,  servers: [22, 18, 14], queue: 0,  async: false, sla: 99 },
