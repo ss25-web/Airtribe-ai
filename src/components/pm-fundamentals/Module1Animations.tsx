@@ -348,7 +348,7 @@ export function ProblemSolutionDriftVisual() {
   ];
 
   // Card component — uses CW for exact width matching
-  const StepCard = ({ step, idx }: { step: typeof STEPS[0]; idx: number }) => {
+  const renderStepCard = (step: typeof STEPS[0], idx: number) => {
     const isActive = active === idx;
     return (
       <motion.div
@@ -385,7 +385,7 @@ export function ProblemSolutionDriftVisual() {
     );
   };
 
-  const ClayArrow = ({
+  const renderClayArrow = ({
     c1,
     c2,
     direction = 'right',
@@ -447,8 +447,8 @@ export function ProblemSolutionDriftVisual() {
     );
   };
 
-  const ArrowR = ({ c1, c2 }: { c1: string; c2: string }) => <ClayArrow c1={c1} c2={c2} direction="right" />;
-  const ArrowL = ({ c1, c2 }: { c1: string; c2: string }) => <ClayArrow c1={c1} c2={c2} direction="left" />;
+  const renderArrowR = (c1: string, c2: string) => renderClayArrow({ c1, c2, direction: 'right' });
+  const renderArrowL = (c1: string, c2: string) => renderClayArrow({ c1, c2, direction: 'left' });
 
   return (
     <Shell title="The instinctive solution drifts. The right workflow rewinds first." caption="">
@@ -463,52 +463,95 @@ export function ProblemSolutionDriftVisual() {
 
           {/* ROW 1 — 01 → 02 → 03 */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <StepCard step={STEPS[0]} idx={0} />
-            <ArrowR c1={STEPS[0].color} c2={STEPS[1].color} />
-            <StepCard step={STEPS[1]} idx={1} />
-            <ArrowR c1={STEPS[1].color} c2={STEPS[2].color} />
-            <StepCard step={STEPS[2]} idx={2} />
+            {renderStepCard(STEPS[0], 0)}
+            {renderArrowR(STEPS[0].color, STEPS[1].color)}
+            {renderStepCard(STEPS[1], 1)}
+            {renderArrowR(STEPS[1].color, STEPS[2].color)}
+            {renderStepCard(STEPS[2], 2)}
           </div>
 
           {/* VERTICAL ARROW — 03 ↓ 04
               Spacer = CW*2 + AW*2 pushes arrow to sit over card 03 center */}
           <div style={{ display: 'flex', alignItems: 'center', height: '46px' }}>
             <div style={{ width: `${CW * 2 + AW * 2}px`, flexShrink: 0 }} />
-            <ClayArrow c1={STEPS[2].color} c2={STEPS[3].color} direction="down" />
+            {renderClayArrow({ c1: STEPS[2].color, c2: STEPS[3].color, direction: 'down' })}
           </div>
 
           {/* ROW 2 — [spacer CW+AW] [05] [←] [04]
               04 starts at CW*2+AW*2 = 456 → same x as card 03 ✓ */}
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{ width: `${CW + AW}px`, flexShrink: 0 }} />
-            <StepCard step={STEPS[4]} idx={4} />
-            <ArrowL c1={STEPS[3].color} c2={STEPS[4].color} />
-            <StepCard step={STEPS[3]} idx={3} />
+            {renderStepCard(STEPS[4], 4)}
+            {renderArrowL(STEPS[3].color, STEPS[4].color)}
+            {renderStepCard(STEPS[3], 3)}
           </div>
         </div>
       </div>
 
-      {/* ── FOOTER STRIP ── */}
+      {/* ── INSIGHT STRIP ── */}
       <div style={{
-        display: 'flex', marginTop: '18px',
-        paddingTop: '14px', borderTop: '1px solid var(--ed-rule)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5, minmax(124px, 1fr))',
+        gap: '10px',
+        marginTop: '24px',
+        padding: '14px',
+        borderRadius: '20px',
+        background: 'linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 88%, #8b7cff 12%), var(--ed-card))',
+        border: '1px solid color-mix(in srgb, var(--ed-rule) 82%, #8b7cff 18%)',
+        boxShadow: '0 18px 42px rgba(25,18,78,0.08), inset 0 1px 0 rgba(255,255,255,0.16)',
       }}>
         {FOOTERS.map((f, i) => (
           <div key={i} style={{
-            flex: 1, display: 'flex', alignItems: 'flex-start', gap: '7px',
-            padding: '0 10px',
-            borderRight: i < 4 ? '1px solid var(--ed-rule)' : 'none',
+            position: 'relative',
+            minHeight: 118,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '9px',
+            padding: '14px 13px',
+            borderRadius: '16px',
+            background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 76%, ${f.color} 24%), var(--ed-card))`,
+            border: `1px solid color-mix(in srgb, ${f.color} 28%, var(--ed-rule) 72%)`,
+            boxShadow: `0 13px 24px ${f.color}18, 0 5px 0 color-mix(in srgb, ${f.color} 18%, transparent), inset 0 1px 0 rgba(255,255,255,0.18)`,
+            overflow: 'hidden',
           }}>
             <div style={{
-              width: 20, height: 20, borderRadius: '50%',
-              background: `linear-gradient(145deg, ${f.color}bb 0%, ${f.color} 100%)`,
-              flexShrink: 0, marginTop: '1px',
+              position: 'absolute',
+              inset: '0 0 auto',
+              height: '45%',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.20), transparent)',
+              pointerEvents: 'none',
             }} />
-            <div>
-              <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px', lineHeight: 1.3 }}>
+            <div style={{
+              position: 'relative',
+              zIndex: 1,
+              width: 30,
+              height: 30,
+              borderRadius: '12px',
+              background: `linear-gradient(145deg, ${f.color}bb 0%, ${f.color} 100%)`,
+              boxShadow: `0 10px 18px ${f.color}35, inset 0 1px 0 rgba(255,255,255,0.42)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontFamily: "'JetBrains Mono',monospace",
+              fontSize: '10px',
+              fontWeight: 900,
+            }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{
+                fontFamily: "'JetBrains Mono',monospace",
+                fontSize: '8px',
+                fontWeight: 900,
+                letterSpacing: '0.13em',
+                color: f.color,
+                marginBottom: '6px',
+              }}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--ed-ink)', marginBottom: '5px', lineHeight: 1.25 }}>
                 {f.title}
               </div>
-              <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', lineHeight: 1.45 }}>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.45 }}>
                 {f.desc}
               </div>
             </div>
@@ -518,16 +561,33 @@ export function ProblemSolutionDriftVisual() {
 
       {/* ── CLOSING QUOTE ── */}
       <div style={{
-        marginTop: '16px', padding: '14px 18px', borderRadius: '12px',
-        background: 'rgba(106,87,232,0.05)', border: '1px solid rgba(106,87,232,0.14)',
-        display: 'flex', alignItems: 'flex-start', gap: '10px',
+        marginTop: '16px',
+        padding: '18px 20px',
+        borderRadius: '20px',
+        background: 'linear-gradient(135deg, color-mix(in srgb, var(--ed-card) 86%, #ffd166 14%), color-mix(in srgb, var(--ed-card) 88%, #7b6bd1 12%))',
+        border: '1px solid color-mix(in srgb, var(--ed-rule) 72%, #ffd166 28%)',
+        boxShadow: '0 18px 36px rgba(25,18,78,0.10), 0 7px 0 rgba(123,107,209,0.10), inset 0 1px 0 rgba(255,255,255,0.18)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '14px',
       }}>
-        <span style={{ fontSize: '18px', flexShrink: 0, marginTop: '1px' }}>⭐</span>
+        <span style={{
+          width: 42,
+          height: 42,
+          borderRadius: '15px',
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '22px',
+          background: 'linear-gradient(145deg, #ffd166, #f59e0b)',
+          boxShadow: '0 13px 24px rgba(245,158,11,0.28), inset 0 1px 0 rgba(255,255,255,0.55)',
+        }}>⭐</span>
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '3px' }}>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ed-ink)', marginBottom: '4px', lineHeight: 1.2 }}>
             One loop. Every product decision you&apos;ll ever make.
           </div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.55 }}>
+          <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', fontStyle: 'italic', lineHeight: 1.55 }}>
             Don&apos;t just ship features. Solve the real problem, then prove it worked.
           </div>
         </div>
