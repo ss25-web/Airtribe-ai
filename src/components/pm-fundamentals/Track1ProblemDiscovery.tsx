@@ -910,7 +910,20 @@ const DiscoveryBriefBuilder = () => {
 // ─────────────────────────────────────────
 // INTRO HERO
 // ─────────────────────────────────────────
-const IntroHero = () => (
+const PARTS_PD = [
+  { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset'  },
+  { num: '02', id: 'm2-customer-segments', label: 'Know Your Users'    },
+  { num: '03', id: 'm2-research-methods',  label: 'Research Methods'   },
+  { num: '04', id: 'm2-interview',         label: 'Run an Interview'   },
+  { num: '05', id: 'm2-synthesis',         label: 'Synthesize Insights'},
+  { num: '06', id: 'm2-problem-statement', label: 'Discovery Brief'    },
+  { num: '07', id: 'm2-reflection',        label: 'Final Reflection'   },
+];
+
+const IntroHero = ({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) => {
+  const donePct  = Math.round((completedSections.size / PARTS_PD.length) * 100);
+  const nextPart = PARTS_PD.find(p => !completedSections.has(p.id));
+  return (
   <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px' }}>
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap' as const }}>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -987,13 +1000,37 @@ const IntroHero = () => (
               <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
                 <motion.div initial={{ width: 0 }} animate={{ width: '15%' }} transition={{ duration: 1.5, delay: 0.8, ease: 'easeOut' }} style={{ height: '100%', background: '#00BCD4', borderRadius: '1px' }} />
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {[{ val: '6', lbl: 'parts' }, { val: '45', lbl: 'min' }].map(s => (
-                  <div key={s.lbl} style={{ flex: 1, padding: '6px 0', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#E8F8FA', fontFamily: "'JetBrains Mono', monospace" }}>{s.val}</div>
-                    <div style={{ fontSize: '8px', color: 'rgba(232,248,250,0.4)', letterSpacing: '0.08em' }}>{s.lbl}</div>
-                  </div>
-                ))}
+              {/* Section list */}
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                {PARTS_PD.map(p => {
+                  const done   = completedSections.has(p.id);
+                  const isNext = p.id === nextPart?.id;
+                  return (
+                    <div key={p.num} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <div style={{
+                        width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                        background: done ? '#0D7A5A' : isNext ? '#00BCD4' : 'rgba(255,255,255,0.06)',
+                        border: `1px solid ${done ? '#0D7A5A' : isNext ? '#00BCD4' : 'rgba(255,255,255,0.1)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                        fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                        transition: 'background 0.3s, border-color 0.3s',
+                      }}>{done ? '✓' : p.num}</div>
+                      <div style={{ fontSize: '9px', lineHeight: 1.3, flex: 1, transition: 'color 0.3s',
+                        color: done ? 'rgba(232,248,250,0.45)' : isNext ? 'rgba(232,248,250,0.9)' : 'rgba(232,248,250,0.28)' }}>
+                        {p.label}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ marginTop: '14px', padding: '8px 10px', borderRadius: '6px', background: 'rgba(0,188,212,0.18)', border: '1px solid rgba(0,188,212,0.38)' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: '#00BCD4', fontWeight: 700, marginBottom: '2px' }}>
+                  {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+                </div>
+                <div style={{ fontSize: '9px', color: 'rgba(232,248,250,0.6)' }}>
+                  {donePct === 100 ? 'All 7 parts done' : nextPart ? nextPart.label : 'Discovery Mindset'}
+                </div>
               </div>
             </div>
           </div>
@@ -1007,15 +1044,16 @@ const IntroHero = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 // ─────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────
-export default function Track1ProblemDiscovery() {
+export default function Track1ProblemDiscovery({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) {
   return (
     <>
-      <IntroHero />
+      <IntroHero completedSections={completedSections} />
 
       {/* ── PART 1: Don't Build Yet ── */}
       <ChapterSection num="01" accentRgb="0,151,167" id="m2-discovery-mindset" first>

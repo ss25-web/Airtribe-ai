@@ -686,15 +686,18 @@ const AlignmentSim = () => {
 // INTRO HERO — editorial
 // ─────────────────────────────────────────
 const PARTS = [
-  { roman: 'I',   label: 'What a PM actually does' },
-  { roman: 'II',  label: 'Problem vs solution thinking' },
-  { roman: 'III', label: 'Working with teams' },
-  { roman: 'IV',  label: 'Making hard decisions' },
-  { roman: 'V',   label: 'Building with alignment' },
-  { roman: 'VI',  label: 'Measuring outcomes' },
+  { roman: 'I',   id: 'part1-what-is-pm',    label: 'What a PM actually does' },
+  { roman: 'II',  id: 'part2-first-mistake',  label: 'Problem vs solution thinking' },
+  { roman: 'III', id: 'part3-teams',          label: 'Working with teams' },
+  { roman: 'IV',  id: 'part4-decisions',      label: 'Making hard decisions' },
+  { roman: 'V',   id: 'part5-building',       label: 'Building with alignment' },
+  { roman: 'VI',  id: 'part6-measuring',      label: 'Measuring outcomes' },
 ];
 
-const IntroHero = () => (
+const IntroHero = ({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) => {
+  const donePct  = Math.round((completedSections.size / PARTS.length) * 100);
+  const nextPart = PARTS.find(p => !completedSections.has(p.id));
+  return (
   <section style={{ padding: '56px 0 48px', borderBottom: '1px solid var(--ed-rule)', position: 'relative', overflow: 'hidden' }}>
 
     {/* Background decorative dots */}
@@ -821,17 +824,38 @@ const IntroHero = () => (
               />
             </div>
 
-            {/* Stats */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {[{ val: '7', lbl: 'parts' }, { val: '30', lbl: 'min' }].map(s => (
-                <div key={s.lbl} style={{
-                  flex: 1, padding: '6px 0', borderRadius: '6px',
-                  background: 'rgba(255,255,255,0.05)', textAlign: 'center' as const,
-                }}>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#F0E8D8', fontFamily: "'JetBrains Mono', monospace" }}>{s.val}</div>
-                  <div style={{ fontSize: '8px', color: 'rgba(240,232,216,0.4)', letterSpacing: '0.08em' }}>{s.lbl}</div>
-                </div>
-              ))}
+            {/* Section list */}
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+              {PARTS.map(p => {
+                const done = completedSections.has(p.id);
+                const isNext = p.id === nextPart?.id;
+                return (
+                  <div key={p.roman} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                    <div style={{
+                      width: '16px', height: '16px', borderRadius: '50%', flexShrink: 0,
+                      background: done ? '#0D7A5A' : isNext ? '#7843EE' : 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${done ? '#0D7A5A' : isNext ? '#7843EE' : 'rgba(255,255,255,0.1)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '7px', color: done || isNext ? '#fff' : 'rgba(255,255,255,0.3)',
+                      fontFamily: "'JetBrains Mono', monospace", fontWeight: 700,
+                      transition: 'background 0.3s, border-color 0.3s',
+                    }}>{done ? '✓' : p.roman}</div>
+                    <div style={{ fontSize: '9px', lineHeight: 1.3, flex: 1, transition: 'color 0.3s',
+                      color: done ? 'rgba(240,232,216,0.45)' : isNext ? 'rgba(240,232,216,0.9)' : 'rgba(240,232,216,0.28)' }}>
+                      {p.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Next up */}
+            <div style={{ marginTop: '14px', padding: '8px 10px', borderRadius: '6px', background: 'rgba(120,67,238,0.22)', border: '1px solid rgba(120,67,238,0.44)' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: '#7843EE', fontWeight: 700, marginBottom: '2px' }}>
+                {donePct === 100 ? 'COMPLETE' : 'NEXT UP'}
+              </div>
+              <div style={{ fontSize: '9px', color: 'rgba(240,232,216,0.6)' }}>
+                {donePct === 100 ? 'All 6 parts done' : nextPart ? nextPart.label : 'What a PM actually does'}
+              </div>
             </div>
           </div>
           </div>
@@ -854,15 +878,16 @@ const IntroHero = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 // ─────────────────────────────────────────
 // DEFAULT EXPORT
 // ─────────────────────────────────────────
-export default function Track1NewPM() {
+export default function Track1NewPM({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) {
   return (
     <>
-      <IntroHero />
+      <IntroHero completedSections={completedSections} />
 
       {/* ── PART 1: What is a PM ── */}
       <ChapterSection num="01" accentRgb="120,67,238" id="part1-what-is-pm" first>
