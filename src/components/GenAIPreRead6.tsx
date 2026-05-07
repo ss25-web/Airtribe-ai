@@ -6,8 +6,7 @@ import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
 import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
-import type { GenAIMentorId } from './GenAIAvatar';
+import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
@@ -515,35 +514,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 06</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>AI Agent Workflows — Building & Scaling</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;An agent you can&apos;t observe is a liability. An agent you can observe is infrastructure.&rdquo;</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-            <div style={{ background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: ACCENT }}>{track === 'tech' ? 'Aarav' : 'Rhea'}</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health'}</div>
-                </div>
-                <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em' }}>PROTAGONIST</div>
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{track === 'tech' ? "Five workflows in production. Three are now complex enough that 'workflow' is the wrong word. They branch based on intermediate results, call multiple services, and hold state. Time to think in agents." : "Four automations running. The director wants a system that can answer questions about renewals, send targeted reminders, and escalate edge cases — all from one interface. Rhea needs to understand what an agent actually is."}</div>
-            </div>
-            {([
-              { name: 'Anika', role: 'AI Workflow Strategist',  desc: 'Asks whether the task needs a decision at each step before recommending an agent.', color: '#7C3AED', mentorId: 'anika' as GenAIMentorId },
-              { name: 'Rohan', role: 'Automation Engineer',     desc: 'Instruments every agent run with per-call token and tool-use logging.', color: '#2563EB', mentorId: 'rohan' as GenAIMentorId },
-              { name: 'Leela', role: 'Risk & Compliance',       desc: 'Asks what the agent does when retrieval fails before calling it production-ready.', color: '#C2410C', mentorId: 'leela' as GenAIMentorId },
-            ]).map(m => (
-              <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <GenAIMentorFace mentor={m.mentorId} size={34} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
-              </div>
-            ))}
-          </div>
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[

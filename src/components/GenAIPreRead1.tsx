@@ -3,8 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
-import type { GenAIMentorId } from './GenAIAvatar';
+import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox,
@@ -318,18 +317,6 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
 function CoreContent({ track, completedSections = new Set<string>(), activeSection = null }: { track: GenAITrack; completedSections?: Set<string>; activeSection?: string | null }) {
   const nextSection = SECTIONS.find(s => !completedSections.has(s.id));
   const moduleContext = TRACK_META[track].moduleContext;
-  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
-  const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
-  const protagonistDesc = track === 'tech'
-    ? 'Just handed a Jira ticket: "Integrate LLM capabilities." No acceptance criteria. No definition of success. He needs a framework before he needs code.'
-    : 'Has been asked to find 20% efficiency using AI. Her team has tried it. Results are mixed. She needs a mental model before she needs a plan.';
-
-  const MENTORS: { name: string; role: string; desc: string; color: string; mentorId: GenAIMentorId }[] = [
-    { name: 'Anika', role: 'AI Workflow Strategist', desc: 'Asks who owns the failure mode before anyone designs the happy path.', color: '#7C3AED', mentorId: 'anika' },
-    { name: 'Rohan', role: 'Automation Engineer', desc: 'Thinks in payloads, retries, and what the system does at 2am.', color: '#2563EB', mentorId: 'rohan' },
-    { name: 'Leela', role: 'Risk & Compliance', desc: 'First to ask what happens to people when the workflow is wrong.', color: '#C2410C', mentorId: 'leela' },
-    { name: 'Kabir', role: 'Operations Intelligence', desc: 'Distinguishes repetitive work from work that is actually ready for AI.', color: '#0F766E', mentorId: 'kabir' },
-  ];
 
   return (
     <>
@@ -349,42 +336,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           </p>
 
           {/* Characters */}
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-            {/* Protagonist */}
-            <div style={{
-              background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`,
-              border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.3)' : `rgba(${ACCENT_RGB},0.3)`}`,
-              borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px',
-            }}>
-              <div style={{ marginBottom: '8px' }}>
-                <div style={{ display: 'inline-block', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: track === 'tech' ? '#0F766E' : ACCENT, background: track === 'tech' ? 'rgba(15,118,110,0.1)' : `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em', marginBottom: '8px' }}>PROTAGONIST</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '14px', color: track === 'tech' ? '#0F766E' : ACCENT }}>{protagonist}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{protagonistRole}</div>
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{protagonistDesc}</div>
-            </div>
-
-            {/* Mentors */}
-            {MENTORS.map(m => (
-              <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <GenAIMentorFace mentor={m.mentorId} size={34} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Learning objectives */}
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[

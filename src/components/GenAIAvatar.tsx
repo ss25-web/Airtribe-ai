@@ -277,6 +277,67 @@ function ProtagonistFace({ track, size = 38 }: { track: GenAITrack; size?: numbe
     : <RheaFace size={size} />;
 }
 
+type GenAIHeroMentor = {
+  name: string;
+  role: string;
+  color: string;
+  mentorId: GenAIMentorId;
+};
+
+export function GenAIHeroCharacterStrip({
+  track,
+  mentors,
+}: {
+  track: GenAITrack;
+  mentors: Array<GenAIMentorId | GenAIHeroMentor>;
+}) {
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+  const protagonistRole = track === 'tech'
+    ? 'Platform Engineer · Northstar Health'
+    : 'Operations Lead · Northstar Health';
+  const protagonistAccent = track === 'tech' ? '#0F766E' : '#7C3AED';
+  const cardStyle: React.CSSProperties = {
+    width: '108px',
+    flexShrink: 0,
+    padding: '16px 10px 14px',
+    borderRadius: '20px',
+    background: 'var(--ed-card)',
+    border: '1px solid var(--ed-rule)',
+    boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '8px',
+    textAlign: 'center',
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}>
+      <div style={cardStyle}>
+        <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+          <ProtagonistFace track={track} size={52} />
+        </div>
+        <div style={{ fontSize: '12px', fontWeight: 700, color: protagonistAccent, lineHeight: 1.2 }}>{protagonist}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{protagonistRole}</div>
+      </div>
+      {mentors.map(mentor => {
+        const m = typeof mentor === 'string'
+          ? { mentorId: mentor, name: MENTOR_META[mentor].name, role: MENTOR_META[mentor].role, color: MENTOR_META[mentor].accent }
+          : mentor;
+        return (
+        <div key={m.mentorId} style={cardStyle}>
+          <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
+            <GenAIMentorFace mentor={m.mentorId} size={52} />
+          </div>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: m.color, lineHeight: 1.2 }}>{m.name}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{m.role}</div>
+        </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function GenAIConversationScene({ mentor, track, accent, techLines, nonTechLines }: {
   mentor: GenAIMentorId;
   track: GenAITrack;

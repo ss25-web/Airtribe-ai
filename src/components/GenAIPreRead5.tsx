@@ -6,8 +6,7 @@ import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
 import GenAIStreakCard, { GenAILatestBadgePanel } from './GenAISidebarExtras';
 import QuizEngine from './QuizEngine';
-import GenAIAvatar, { GenAIMentorFace, GenAIConversationScene, AaravFace, RheaFace } from './GenAIAvatar';
-import type { GenAIMentorId } from './GenAIAvatar';
+import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
@@ -504,35 +503,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 05</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>Advanced n8n: Loops, Transforms & AI Agents</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;A workflow that runs once on one item is a proof of concept. One that runs reliably on thousands is a system.&rdquo;</p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-            <div style={{ background: `rgba(${ACCENT_RGB},0.08)`, border: `1.5px solid rgba(${ACCENT_RGB},0.3)`, borderRadius: '10px', padding: '14px 16px', flex: '1.5', minWidth: '180px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                {track === 'tech' ? <AaravFace size={44} /> : <RheaFace size={44} />}
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: ACCENT }}>{track === 'tech' ? 'Aarav' : 'Rhea'}</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.04em' }}>{track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health'}</div>
-                </div>
-                <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: ACCENT, background: `rgba(${ACCENT_RGB},0.1)`, padding: '2px 7px', borderRadius: '4px', letterSpacing: '0.06em' }}>PROTAGONIST</div>
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{track === 'tech' ? "M04 workflow works on one claim at a time. The backlog is 200+ per week. Time to make it iterate, branch, and hold state." : "The Monday report automation works for 5 rows of test data. Production has 80 renewals, three sources, and two managers who need to approve before anything sends."}</div>
-            </div>
-            {([
-              { name: 'Rohan', role: 'Automation Engineer',     desc: 'Asks whether the loop feedback edge is connected before debugging batch failures.', color: '#2563EB', mentorId: 'rohan' as GenAIMentorId },
-              { name: 'Anika', role: 'AI Workflow Strategist',  desc: 'Designs the approval gate interface before designing the workflow around it.', color: '#7C3AED', mentorId: 'anika' as GenAIMentorId },
-              { name: 'Kabir', role: 'Operations Intelligence', desc: 'Traces the session ID through the workflow before calling it a memory bug.', color: '#0F766E', mentorId: 'kabir' as GenAIMentorId },
-            ]).map(m => (
-              <div key={m.name} style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '12px 14px', flex: '1', minWidth: '130px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <GenAIMentorFace mentor={m.mentorId} size={34} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '12px', color: m.color, lineHeight: 1.2 }}>{m.name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.03em' }}>{m.role}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.5, fontStyle: 'italic' }}>{m.desc}</div>
-              </div>
-            ))}
-          </div>
+          <GenAIHeroCharacterStrip track={track} mentors={['rohan', 'anika', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
@@ -861,7 +832,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           nameColor="#0F766E"
           borderColor="#0F766E"
           content={<>Window Buffer Memory is right for most conversational use cases. Where it fails is when a conversation requires recall of something said more than N messages ago. Before building a vector-store memory layer, ask: is the issue that the window is too small, or that the context genuinely needs to persist across sessions? Those are different problems with different solutions.</>}
-          expandedContent={<>The most reliable test for session isolation: two browser windows, two different user IDs, same question asked in both. Open both at the same time. If one window's answer is influenced by the other window's conversation, the session IDs are colliding. Run this test before any production deployment of a multi-user agent.</>}
+          expandedContent={<>The most reliable test for session isolation: two browser windows, two different user IDs, same question asked in both. Open both at the same time. If one window&apos;s answer is influenced by the other window&apos;s conversation, the session IDs are colliding. Run this test before any production deployment of a multi-user agent.</>}
           question={track === 'tech'
             ? "Aarav sets the session ID to `{{ $json.userId }}`. Two engineers with different user IDs still see each other's context. What is the most likely cause?"
             : "Rhea sets the session ID to the employee's name. Two employees named 'Priya' at different sites report sharing context. What is the fix?"}
