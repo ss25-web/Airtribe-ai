@@ -11,7 +11,7 @@ import type { GenAIMentorId } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
 import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
-  TiltCard, chLabel, h2, keyBox, para, pullQuote,
+  TiltCard, TrackHeroCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 
@@ -498,6 +498,8 @@ const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
 type Props = { track: GenAITrack; onBack: () => void };
 
 export default function GenAIPreRead7({ track, onBack }: Props) {
+  const storedSections = useLearnerStore(s => s.completedSections[`genai-pr-${MODULE_NUM}`] ?? []);
+  const completedSections = new Set(storedSections);
   const trackMeta = track === 'tech'
     ? { label: 'Tech Builder Track', shortLabel: 'Tech', introTitle: 'Model Context Protocol · Builder Lens' }
     : { label: 'Workflow & Operator Track', shortLabel: 'Non-Tech', introTitle: 'Model Context Protocol · Operator Lens' };
@@ -579,6 +581,18 @@ export default function GenAIPreRead7({ track, onBack }: Props) {
                   </div>
                 </div>
               </div>
+              <TrackHeroCard
+                moduleNum="07"
+                moduleLabel="Model Context Protocol"
+                trackLabel="GenAI Launchpad"
+                accent={ACCENT}
+                parts={SECTIONS.map((s, i) => ({
+                  id: s.id,
+                  num: `0${i + 1}`,
+                  label: s.label.replace(/^\d+\.\s+/, ''),
+                }))}
+                completedSections={completedSections}
+              />
             </div>
 
           {/* ── Section 1: The Last-Mile Problem ── */}
