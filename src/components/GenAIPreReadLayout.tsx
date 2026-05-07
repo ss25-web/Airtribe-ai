@@ -45,7 +45,9 @@ export interface GenAIPreReadLayoutProps {
   completionEmoji: string;
   completionMessage: string;
   onBack: () => void;
-  children: React.ReactNode;
+  children:
+    | React.ReactNode
+    | ((state: { completedSections: Set<string>; activeSection: string | null }) => React.ReactNode);
 }
 
 // ─── Internals ────────────────────────────────────────────────────────────────
@@ -336,6 +338,14 @@ export default function GenAIPreReadLayout({
   const trackDone    = new Set([...completedSections].filter(id => sectionIds.has(id)));
   const progressPct  = Math.min(100, Math.round((trackDone.size / sections.length) * 100));
   const xp           = computeXP(trackDone, store.conceptStates);
+  const content = typeof children === 'function'
+    ? children({ completedSections: trackDone, activeSection })
+    : React.isValidElement(children)
+      ? React.cloneElement(
+          children as React.ReactElement<{ completedSections?: Set<string>; activeSection?: string | null }>,
+          { completedSections: trackDone, activeSection }
+        )
+      : children;
 
   return (
     <div className="editorial" style={{ background: 'var(--ed-cream)', minHeight: '100vh', transition: 'background 0.4s, color 0.4s' }}>
@@ -381,7 +391,7 @@ export default function GenAIPreReadLayout({
           </div>
 
           <motion.main initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} style={{ minWidth: 0 }}>
-            {children}
+            {content}
 
             <AnimatePresence>
               {progressPct >= 80 && (
