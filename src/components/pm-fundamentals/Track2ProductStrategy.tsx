@@ -6,7 +6,7 @@ import QuizEngine from '../QuizEngine';
 import {
   h2, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox, para,
-  TiltCard, PMPrincipleBox, TrackHeroCard,
+  TiltCard, PMPrincipleBox, TrackHeroCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -92,11 +92,11 @@ const PARTS = [
   { num: '05', label: "The Series B Story — investors don't fund metrics, they fund theses" },
 ];
 
-const CHARACTERS: { mentor: 'priya' | 'rohan' | 'kiran' | 'asha'; accent: string; desc: string }[] = [
-  { mentor: 'priya', accent: '#4F46E5', desc: "Two years in. She built the first strategy. Now she has to defend it against pressure she didn't anticipate." },
-  { mentor: 'rohan', accent: '#E67E22', desc: "Series A just closed. He's seen the Gong case study Meridian sent. He wants action before the next board call." },
-  { mentor: 'kiran', accent: '#0097A7', desc: "Meridian is 0.8% of users and 12% of support tickets. He has the slide ready. Nobody asked him yet." },
-  { mentor: 'asha',  accent: '#7843EE', desc: "Never gives answers. Asks the question Priya hasn't thought to ask herself." },
+const CHARACTERS: { mentor: 'priya' | 'rohan' | 'kiran' | 'asha'; accent: string; name: string; role: string }[] = [
+  { mentor: 'priya', accent: '#4F46E5', name: 'Priya', role: 'Senior PM' },
+  { mentor: 'rohan', accent: '#E67E22', name: 'Rohan', role: 'CEO · EdSpark' },
+  { mentor: 'kiran', accent: '#0097A7', name: 'Kiran', role: 'Data Analyst' },
+  { mentor: 'asha',  accent: '#7843EE', name: 'Asha', role: 'AI Mentor' },
 ];
 
 // ─────────────────────────────────────────
@@ -795,13 +795,11 @@ export default function Track2ProductStrategy({
         {/* Characters */}
         <div style={{ marginTop: '28px' }}>
           <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, marginBottom: '12px' }}>WHO IS IN THIS MODULE</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(156px, 1fr))', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             {CHARACTERS.map(c => (
-              <div key={c.mentor} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '14px 12px', borderRadius: '10px', background: 'var(--ed-card)', border: `1px solid ${c.accent}22`, textAlign: 'center' as const }}>
-                <MentorFace mentor={c.mentor} size={44} />
-                <div style={{ fontWeight: 700, fontSize: '12px', color: c.accent }}>{c.mentor === 'priya' ? 'Priya' : c.mentor === 'rohan' ? 'Rohan' : c.mentor === 'kiran' ? 'Kiran' : 'Asha'}</div>
-                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>{c.desc}</div>
-              </div>
+              <CharacterChip key={c.mentor} name={c.name} role={c.role} accent={c.accent}>
+                <MentorFace mentor={c.mentor} size={52} />
+              </CharacterChip>
             ))}
           </div>
         </div>

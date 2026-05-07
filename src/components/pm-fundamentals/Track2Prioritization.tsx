@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
-  glassCard, demoLabel, h2, para, pullQuote, keyBox,
+  h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, NextChapterTeaser, ApplyItBox,
-  TiltCard, ConversationScene, TrackHeroCard,
+  TiltCard, ConversationScene, TrackHeroCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -419,27 +419,17 @@ export default function Track2Prioritization({
         {para(<>Priya is no longer picking between four backlog items. EdSpark just landed Salesforce, Zendesk, and Infosys. There are 30 items on the roadmap, three competing product bets, and a board deck due Friday. She has capacity for two bets.</>)}
 
         {/* Characters */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '12px', marginTop: '28px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '28px' }}>
           {([
-            { mentor: 'priya' as const, desc: 'Priya Sharma. 2-year APM. First time managing enterprise-scale trade-offs.' },
-            { mentor: 'asha'  as const, desc: 'Asha. AI Mentor. Pushes Priya to separate data signals from stakeholder noise.' },
-            { mentor: 'rohan' as const, desc: 'Rohan. CEO. Wants to keep the ML team happy and the board happy simultaneously.' },
-            { mentor: 'kiran' as const, desc: 'Kiran. Data Analyst. Found the session-frequency insight no one asked for.' },
-          ] as const).map(({ mentor, desc }) => {
-            const nameMap: Record<string, string> = { priya: 'Priya', asha: 'Asha', rohan: 'Rohan', kiran: 'Kiran' };
-            const accentMap: Record<string, string> = { priya: 'var(--indigo)', asha: 'var(--teal)', rohan: '#F59E0B', kiran: '#3A86FF' };
-            const roleMap: Record<string, string> = { priya: 'APM · EdSpark', asha: 'AI Mentor', rohan: 'CEO · EdSpark', kiran: 'Data Analyst · EdSpark' };
-            return (
-              <div key={mentor} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '10px', padding: '8px 12px', gridColumn: mentor === 'kiran' ? '1 / -1' : undefined }}>
-                <MentorFace mentor={mentor} size={34} />
-                <div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: accentMap[mentor], letterSpacing: '0.1em' }}>{nameMap[mentor]}</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: '7.5px', color: 'var(--ed-ink3)', marginBottom: '2px' }}>{roleMap[mentor]}</div>
-                  <div style={{ fontSize: '10.5px', color: 'var(--ed-ink2)', lineHeight: 1.5 }}>{desc}</div>
-                </div>
-              </div>
-            );
-          })}
+            { mentor: 'priya' as const, name: 'Priya', role: 'APM · 2 yrs', accent: 'var(--indigo)' },
+            { mentor: 'asha'  as const, name: 'Asha', role: 'AI Mentor', accent: 'var(--teal)' },
+            { mentor: 'rohan' as const, name: 'Rohan', role: 'CEO · EdSpark', accent: '#F59E0B' },
+            { mentor: 'kiran' as const, name: 'Kiran', role: 'Data Analyst', accent: '#3A86FF' },
+          ] as const).map(c => (
+            <CharacterChip key={c.mentor} name={c.name} role={c.role} accent={c.accent}>
+              <MentorFace mentor={c.mentor} size={52} />
+            </CharacterChip>
+          ))}
         </div>
       </div>
 
