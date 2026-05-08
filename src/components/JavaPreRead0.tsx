@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import SWEPreReadLayout from './SWEPreReadLayout';
+import { SWEMentorFace } from './sweDesignSystem';
 import QuizEngine from './QuizEngine';
 import {
   JavaRuntimeConveyor,
@@ -62,6 +63,16 @@ const CONCEPTS = [
 
 // ─── Shared components ────────────────────────────────────────────────────────
 
+const CharCard = ({ name, role, color }: { name: string; role: string; color: string }) => (
+  <div style={{ width: 108, flexShrink: 0, padding: '16px 10px 14px', borderRadius: 20, background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 8, textAlign: 'center' as const }}>
+    <div style={{ borderRadius: 14, overflow: 'hidden', flexShrink: 0 }}>
+      <SWEMentorFace name={name} size={52} />
+    </div>
+    <div style={{ fontSize: 12, fontWeight: 700, color, lineHeight: 1.2 }}>{name}</div>
+    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{role}</div>
+  </div>
+);
+
 const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
   <div style={{ margin:'20px 0', borderRadius:12, overflow:'hidden', border:'1px solid rgba(96,165,250,0.15)', boxShadow:'0 4px 20px rgba(0,0,0,0.2)' }}>
     {filename && (
@@ -75,34 +86,6 @@ const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
   </div>
 );
 
-// Simple inline SWEMentorFace wrapper — uses the SVG faces already in SWEPreRead1
-// We import from SWEPreRead1's local component indirectly via a minimal face component
-const JavaFace = ({ name, size = 52 }: { name: string; size?: number }) => {
-  // Color-coded avatar for characters without a separate SVG face component
-  const palette: Record<string, { bg: string; text: string; initials: string }> = {
-    Vikram: { bg: '#1d4ed8', text: '#bfdbfe', initials: 'VR' },
-    Kavya:  { bg: '#6d28d9', text: '#ddd6fe', initials: 'KM' },
-    Maya:   { bg: '#d97706', text: '#fde68a', initials: 'MK' },
-    Rohan:  { bg: '#c2410c', text: '#fed7aa', initials: 'RM' },
-    Dev:    { bg: '#065f46', text: '#a7f3d0', initials: 'DI' },
-  };
-  const p = palette[name] ?? { bg: '#334155', text: '#cbd5e1', initials: name[0] };
-  return (
-    <div style={{ width:size, height:size, borderRadius: Math.floor(size*0.26), background:p.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:size*0.28, fontWeight:900, color:p.text, letterSpacing:'0.02em', flexShrink:0 }}>
-      {p.initials}
-    </div>
-  );
-};
-
-const CharCard = ({ name, role, desc, color }: { name: string; role: string; desc: string; color: string }) => (
-  <div style={{ width:108, flexShrink:0, padding:'14px 10px', borderRadius:20, background:'var(--ed-card)', border:'1px solid var(--ed-rule)', boxShadow:'0 1px 6px rgba(0,0,0,0.04)', display:'flex', flexDirection:'column' as const, alignItems:'center', gap:7, textAlign:'center' as const }}>
-    <div style={{ borderRadius:14, overflow:'hidden', flexShrink:0 }}>
-      <JavaFace name={name} size={52} />
-    </div>
-    <div style={{ fontSize:11, fontWeight:700, color, lineHeight:1.2 }}>{name}</div>
-    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:8, color:'var(--ed-ink3)', lineHeight:1.4 }}>{role}</div>
-  </div>
-);
 
 const ConvoLine = ({ speaker, text, color }: { speaker: string; text: string; color: string }) => (
   <div style={{ display:'flex', gap:10, alignItems:'flex-start', margin:'8px 0' }}>
@@ -188,33 +171,72 @@ export default function JavaPreRead0({ onBack }: Props) {
       onBack={onBack}
     >
       {/* ── HERO ── */}
-      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }} style={{ marginBottom:56 }}>
-        <p style={{ fontSize:17, color:'var(--ed-ink3)', fontStyle:'italic', fontFamily:"'Lora',Georgia,serif", marginBottom:36, maxWidth:580, lineHeight:1.7 }}>
-          &ldquo;Java is not just syntax. It is a contract between your source code, the compiler, the JVM, and the production system that has to trust it.&rdquo;
-        </p>
+      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}
+        style={{ display:'flex', gap:40, alignItems:'flex-start', marginBottom:56, flexWrap:'wrap' as const }}>
 
-        {/* Characters */}
-        <div style={{ display:'flex', gap:12, flexWrap:'wrap' as const, marginBottom:36 }}>
-          {[
-            { name:'Vikram', role:'Junior Backend Engineer', desc:'First Java backend feature. Quick thinker, learning production contracts.', color:ACCENT },
-            { name:'Kavya',  role:'Senior Backend Engineer', desc:'Teaches Java as explicit design — contracts before code.', color:'#7843EE' },
-            { name:'Maya',   role:'QA Engineer',              desc:'Finds edge cases product requests forget.', color:'#D97706' },
-            { name:'Rohan',  role:'Product Manager',          desc:'Brings business urgency and ambiguous requirements.', color:'#E8875A' },
-            { name:'Dev',    role:'DevOps/SRE',               desc:'Cares about runtime behavior and predictable failures.', color:'#16A34A' },
-          ].map(c => <CharCard key={c.name} {...c} />)}
+        {/* Left: heading + quote + objectives + characters */}
+        <div style={{ flex:1, minWidth:320 }}>
+          <h1 style={{ fontSize:'clamp(28px,3.5vw,44px)', fontWeight:900, lineHeight:1.1, letterSpacing:'-0.03em', color:'var(--ed-ink)', marginBottom:16, fontFamily:"'Lora',serif" }}>
+            Language Basics:<br />
+            <span style={{ color:ACCENT }}>The Java Runtime Lens</span>
+          </h1>
+
+          <p style={{ fontSize:17, color:'var(--ed-ink2)', lineHeight:1.8, maxWidth:520, marginBottom:32, fontStyle:'italic', fontFamily:"'Lora',serif" }}>
+            &ldquo;Java is not just syntax. It is a contract between your source code, the compiler, the JVM, and the production system that has to trust it.&rdquo;
+          </p>
+
+          {/* Learning objectives */}
+          <div style={{ background:'var(--ed-card)', borderRadius:10, padding:'20px 24px', border:'1px solid var(--ed-rule)', borderLeft:`4px solid ${ACCENT}`, boxShadow:'0 2px 12px rgba(0,0,0,0.03)', marginBottom:32 }}>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:800, color:ACCENT, letterSpacing:'0.15em', marginBottom:14, textTransform:'uppercase' as const }}>Learning Objectives</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:12 }}>
+              {[
+                'Explain how .java source becomes JVM bytecode',
+                'Use types to make values and operations explicit',
+                'Translate product rules into control flow',
+                'Process many records with loops and collections',
+                'Extract methods with clear inputs and outputs',
+                'Model real concepts with classes and objects',
+                'Validate unsafe states before they spread',
+                'Assemble a small Java transaction validator',
+              ].map((obj, i) => (
+                <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                  <span style={{ color:ACCENT, fontWeight:800, fontFamily:"'JetBrains Mono',monospace", fontSize:11, marginTop:2, flexShrink:0 }}>0{i+1}</span>
+                  <span style={{ fontSize:12, color:'var(--ed-ink2)', lineHeight:1.5 }}>{obj}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Characters */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:800, color:'var(--ed-ink3)', letterSpacing:'0.15em', marginBottom:14, textTransform:'uppercase' as const }}>Characters in this Module</div>
+          <div style={{ display:'flex', gap:12, flexWrap:'wrap' as const }}>
+            {[
+              { name:'Vikram', role:'Junior Backend Engineer', color:ACCENT },
+              { name:'Kavya',  role:'Senior Backend Engineer', color:'#7843EE' },
+              { name:'Maya',   role:'QA Engineer',             color:'#D97706' },
+              { name:'Rohan',  role:'Product Manager',         color:'#E8875A' },
+              { name:'Dev',    role:'DevOps/SRE',              color:'#16A34A' },
+            ].map(c => <CharCard key={c.name} {...c} />)}
+          </div>
         </div>
 
-        {/* Learning objectives */}
-        <KeyBox title="By the end of this pre-read" items={[
-          'Explain how .java source code becomes JVM bytecode',
-          'Use Java types to make values and operations explicit',
-          'Translate product rules into if/else control flow',
-          'Process many records with loops and collections',
-          'Extract methods with clear inputs and outputs',
-          'Model real concepts with classes and objects',
-          'Validate unsafe states before they spread',
-          'Assemble a small Java transaction validator',
-        ]} />
+        {/* Right: dark module card */}
+        <div style={{ flexShrink:0, width:200, paddingTop:40 }}>
+          <div className="float3d" style={{ background:'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)', borderRadius:16, padding:'24px 20px', boxShadow:'0 32px 64px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1)', border:'1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:800, color:ACCENT, letterSpacing:'0.2em', marginBottom:10 }}>MODULE 00</div>
+            <div style={{ fontSize:14, fontWeight:800, color:'#F1F5F9', fontFamily:"'Lora',serif", lineHeight:1.3, marginBottom:4 }}>Language Basics</div>
+            <div style={{ fontSize:10, color:'rgba(241,245,249,0.5)', marginBottom:18 }}>Java · Finova Systems</div>
+            <div style={{ height:1, background:'rgba(255,255,255,0.1)', marginBottom:14 }} />
+            <div style={{ display:'flex', flexDirection:'column' as const, gap:8 }}>
+              {SECTIONS.map((s, i) => (
+                <div key={s.id} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <div style={{ width:4, height:4, borderRadius:'50%', flexShrink:0, background: i === 0 ? ACCENT : 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ fontSize:9, color: i === 0 ? '#F1F5F9' : 'rgba(241,245,249,0.38)', fontWeight: i === 0 ? 700 : 400, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const }}>{s.label.split(':')[0]}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </motion.div>
 
       {/* ── SECTION 01: JAVA IDENTITY ── */}

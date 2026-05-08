@@ -422,6 +422,50 @@ export const SituationCard = ({ protagonist, accentColor, children, label, story
         <path d="M 40 68 Q 50 74 60 68" stroke="#B08050" strokeWidth="2" fill="none" strokeLinecap="round" />
       </svg>
     ),
+    Maya: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#92400E" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#B45309" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#F4C4A0" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#F4C4A0" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#F4C4A0" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#F4C4A0" />
+        <ellipse cx="50" cy="22" rx="28" ry="15" fill="#7C2D12" />
+        <path d="M 22 30 Q 30 20 50 18 Q 70 20 78 30 L 76 44 Q 64 36 50 36 Q 36 36 24 44 Z" fill="#7C2D12" />
+        <path d="M 72 22 Q 80 30 80 42 Q 76 32 72 22 Z" fill="#7C2D12" />
+        <path d="M 78 42 Q 82 50 78 60 Q 78 50 76 44 Z" fill="#7C2D12" />
+        <path d="M 31 43 Q 38 41 44 43" stroke="#7C2D12" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M 56 43 Q 62 41 69 43" stroke="#7C2D12" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="51" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="51" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="51.5" r="3.3" fill="#3D2008" /><circle cx="62.5" cy="51.5" r="3.3" fill="#3D2008" /></>}
+        {!blink && <><circle cx="39.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 62 53 57" stroke="#D49070" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#C07850" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M 50 78 Q 46 88 44 94 Q 50 96 56 94 Q 54 88 50 78 Z" fill="#D97706" />
+        <rect x="44" y="92" width="12" height="4" rx="2" fill="#D97706" />
+      </svg>
+    ),
+    Rohan: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#9A3412" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#C2410C" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#C8956A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#C8956A" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#C8956A" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#C8956A" />
+        <ellipse cx="50" cy="22" rx="27" ry="13" fill="#1C0A05" />
+        <path d="M 23 29 Q 32 18 50 16 Q 68 18 77 29 L 76 44 Q 64 36 50 36 Q 36 36 24 44 Z" fill="#1C0A05" />
+        <path d="M 31 42 Q 38 40 44 42" stroke="#1C0A05" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 56 42 Q 62 40 69 42" stroke="#1C0A05" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="50" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="50" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="50.5" r="3.3" fill="#2A1005" /><circle cx="62.5" cy="50.5" r="3.3" fill="#2A1005" /></>}
+        {!blink && <><circle cx="39.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="49.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 57 Q 50 62 53 57" stroke="#A06040" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#905030" strokeWidth="2" fill="none" strokeLinecap="round" />
+      </svg>
+    ),
   };
 
   return (
