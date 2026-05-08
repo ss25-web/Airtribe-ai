@@ -49,6 +49,17 @@ const TRACK_CONFIG = {
   mentorColor: '#7843EE',
 };
 
+const CONCEPTS = [
+  { id: 'java-runtime',      label: 'Java Runtime Pipeline', color: '#3B82F6' },
+  { id: 'java-types',        label: 'Type Safety',           color: '#7843EE' },
+  { id: 'java-memory',       label: 'Stack & Heap Memory',   color: '#0097A7' },
+  { id: 'java-control-flow', label: 'Control Flow',          color: '#D97706' },
+  { id: 'java-collections',  label: 'Collections & Loops',   color: '#E8875A' },
+  { id: 'java-methods',      label: 'Methods & Scope',       color: '#16A34A' },
+  { id: 'java-objects',      label: 'Objects & Classes',     color: '#7843EE' },
+  { id: 'java-validation',   label: 'Validation',            color: '#EF4444' },
+];
+
 // ─── Shared components ────────────────────────────────────────────────────────
 
 const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
@@ -146,6 +157,8 @@ export default function JavaPreRead0({ onBack }: Props) {
   const [completedModules, setCompletedModules] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    store.initSession();
+    CONCEPTS.forEach(c => store.ensureConceptState(c.id));
     const obs = new IntersectionObserver(entries => {
       entries.forEach(e => {
         if (e.isIntersecting) {
@@ -160,6 +173,7 @@ export default function JavaPreRead0({ onBack }: Props) {
     }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
     const tid = setTimeout(() => { document.querySelectorAll('[data-section]').forEach(el => obs.observe(el)); }, 150);
     return () => { clearTimeout(tid); obs.disconnect(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -168,6 +182,7 @@ export default function JavaPreRead0({ onBack }: Props) {
       moduleLabel="JAVA PRE-READ 00"
       title="Language Basics: The Java Runtime Lens"
       sections={SECTIONS}
+      concepts={CONCEPTS}
       completedModules={completedModules}
       activeSection={activeSection}
       onBack={onBack}

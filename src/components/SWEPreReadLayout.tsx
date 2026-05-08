@@ -63,11 +63,13 @@ export interface SWEPreReadLayoutProps {
   onBack: () => void;
   hideArticleHeader?: boolean;
   hideHeaderStats?: boolean;
+  /** Pass module-specific concepts for labeled concept mastery. Falls back to generic "Concept N" labels when omitted. */
+  concepts?: { id: string; label: string; color?: string }[];
   children: React.ReactNode;
 }
 
 export default function SWEPreReadLayout({
-  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, hideHeaderStats = false, children
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, hideHeaderStats = false, concepts, children
 }: SWEPreReadLayoutProps) {
   const store = useLearnerStore();
   const [hydrated, setHydrated] = useState(false);
@@ -363,17 +365,35 @@ export default function SWEPreReadLayout({
             }}>
               <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '18px' }}>Concept Mastery</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {Object.entries(store.conceptStates).slice(0, 5).map(([id, state], i) => (
-                  <div key={id}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 700 }}>
-                      <span style={{ color: 'var(--ed-ink2)' }}>Concept {i + 1}</span>
-                      <span style={{ color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(state.pKnow * 100)}%</span>
-                    </div>
-                    <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '1.5px', overflow: 'hidden' }}>
-                      <motion.div animate={{ width: `${state.pKnow * 100}%` }} style={{ height: '100%', background: trackConfig.accent }} />
-                    </div>
-                  </div>
-                ))}
+                {concepts
+                  ? concepts.map((c) => {
+                      const state = store.conceptStates[c.id];
+                      const pct = state ? Math.round(state.pKnow * 100) : 0;
+                      const barColor = c.color ?? trackConfig.accent;
+                      return (
+                        <div key={c.id}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 700 }}>
+                            <span style={{ color: 'var(--ed-ink2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: '75%' }}>{c.label}</span>
+                            <span style={{ color: barColor, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0 }}>{pct}%</span>
+                          </div>
+                          <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '1.5px', overflow: 'hidden' }}>
+                            <motion.div animate={{ width: `${pct}%` }} style={{ height: '100%', background: barColor }} />
+                          </div>
+                        </div>
+                      );
+                    })
+                  : Object.entries(store.conceptStates).slice(0, 5).map(([id, state], i) => (
+                      <div key={id}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '11px', fontWeight: 700 }}>
+                          <span style={{ color: 'var(--ed-ink2)' }}>Concept {i + 1}</span>
+                          <span style={{ color: trackConfig.accent, fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(state.pKnow * 100)}%</span>
+                        </div>
+                        <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '1.5px', overflow: 'hidden' }}>
+                          <motion.div animate={{ width: `${state.pKnow * 100}%` }} style={{ height: '100%', background: trackConfig.accent }} />
+                        </div>
+                      </div>
+                    ))
+                }
               </div>
             </div>
 
