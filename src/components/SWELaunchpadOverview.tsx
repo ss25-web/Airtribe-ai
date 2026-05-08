@@ -12,6 +12,11 @@ const PYTHON_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }
   '03': { moduleId: 'python-pr-03',  total: 7 },
 };
 
+// Section counts per Java module — separate from Python to avoid progress collision
+const JAVA_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }> = {
+  '00': { moduleId: 'java-pr-00', total: 8 },
+};
+
 type ModuleStatus = 'locked' | 'available' | 'in-progress' | 'completed';
 
 // ── Shared module list (Python & Node.js) ──────────────────────────────────
@@ -234,6 +239,14 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
   // Derive status for each Python module from the learner store
   const getModuleStatus = (num: string, available: boolean): { status: ModuleStatus; pct: number; completedCount: number; totalSections: number } => {
     if (!available) return { status: 'locked', pct: 0, completedCount: 0, totalSections: 0 };
+    // Java track — use java-specific module IDs
+    if (track === 'java' && JAVA_MODULE_SECTIONS[num]) {
+      const { moduleId, total } = JAVA_MODULE_SECTIONS[num];
+      const completedCount = (completedSections[moduleId] ?? []).length;
+      if (completedCount === 0) return { status: 'available', pct: 0, completedCount: 0, totalSections: total };
+      if (completedCount >= total) return { status: 'completed', pct: 100, completedCount, totalSections: total };
+      return { status: 'in-progress', pct: Math.round((completedCount / total) * 100), completedCount, totalSections: total };
+    }
     if (track !== 'python' || !PYTHON_MODULE_SECTIONS[num]) return { status: 'available', pct: 0, completedCount: 0, totalSections: 0 };
     const { moduleId, total } = PYTHON_MODULE_SECTIONS[num];
     const completedCount = (completedSections[moduleId] ?? []).length;

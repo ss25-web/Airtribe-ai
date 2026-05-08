@@ -28,6 +28,7 @@ import SWELanguageBasics from '@/components/SWELanguageBasics';
 import PythonPreRead1 from '@/components/PythonPreRead1';
 import PythonPreRead2 from '@/components/PythonPreRead2';
 import PythonPreRead3 from '@/components/PythonPreRead3';
+import JavaPreRead0 from '@/components/JavaPreRead0';
 import TrackChoiceCards, { type TrackChoiceOption } from '@/components/TrackChoiceCards';
 import type { GenAITrack } from '@/components/genaiTypes';
 import type { SWETrack, SWELevel } from '@/components/sweTypes';
@@ -358,6 +359,10 @@ export default function Home() {
       if (sweModule === '03') return <PythonPreRead3 onBack={goBackToSWEOverview} />;
       if (sweModule === '02') return <PythonPreRead2 onBack={goBackToSWEOverview} />;
       return <PythonPreRead1 onBack={goBackToSWEOverview} />;
+    }
+
+    if (sweTrack === 'java' && sweModule === '00') {
+      return <JavaPreRead0 onBack={goBackToSWEOverview} />;
     }
 
     return <SWEPreRead1 track={sweTrack} level={sweLevel} onBack={goBackToSWEOverview} />;
