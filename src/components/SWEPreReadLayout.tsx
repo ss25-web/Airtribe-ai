@@ -212,7 +212,7 @@ export default function SWEPreReadLayout({
                   return (
                     <motion.button
                       key={s.id}
-                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => document.querySelector(`[data-section="${s.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                       whileHover={{ x: 2 }}
                       style={{
                         display: 'flex', alignItems: 'baseline', gap: '10px', width: '100%',
@@ -235,7 +235,7 @@ export default function SWEPreReadLayout({
                         color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)',
                         lineHeight: 1.4, wordBreak: 'break-word' as const, transition: 'color 0.2s',
                       }}>
-                        {s.label}{done ? ' ✓' : ''}
+                        {s.label.split(':')[0]}{done ? ' ✓' : ''}
                       </span>
                     </motion.button>
                   );
