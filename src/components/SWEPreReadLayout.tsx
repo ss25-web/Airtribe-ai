@@ -123,24 +123,22 @@ export default function SWEPreReadLayout({
   return (
     <div className="editorial" style={{ minHeight: '100vh', background: 'var(--ed-cream)', color: 'var(--ed-ink)' }}>
       {/* ─── Sticky Header ─── */}
-      <header style={{ 
-        position: 'sticky', top: 0, zIndex: 100, 
-        background: 'var(--ed-cream)', opacity: 0.9, backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--ed-rule)', padding: '12px 0' 
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: 'var(--ed-cream)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--ed-rule)', transition: 'background 0.4s',
       }}>
-        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <button 
-              onClick={onBack} 
-              style={{ 
-                background: 'none', border: 'none', cursor: 'pointer', 
-                color: 'var(--ed-ink3)', fontSize: '11px', fontWeight: 700, 
-                textTransform: 'uppercase', letterSpacing: '0.1em' 
-              }}
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+          style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '11px', paddingBottom: '11px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+            <motion.button
+              onClick={onBack} whileHover={{ opacity: 0.75 }} whileTap={{ scale: 0.97 }}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', cursor: 'pointer', flexShrink: 0 }}
             >
-              ← Back
-            </button>
-            <div style={{ width: '1px', height: '16px', background: 'var(--ed-rule)' }} />
+              <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>←</span>
+              <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink2)', fontFamily: "'JetBrains Mono', monospace" }}>Back</span>
+            </motion.button>
+            <span style={{ color: 'var(--ed-rule)', fontSize: '18px' }}>|</span>
             <AirtribeLogo />
           </div>
 
@@ -185,15 +183,16 @@ export default function SWEPreReadLayout({
             )}
             <DarkModeToggle />
           </div>
-        </div>
+        </motion.div>
+        <div className="airtribe-bar" />
       </header>
 
-      {/* ─── Main Content Grid ─── */}
-      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: isMobile ? '20px 16px' : '32px 28px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '220px 1fr 260px', gap: isMobile ? '0' : '48px', alignItems: 'flex-start' }}>
+      {/* ─── Main Content Grid (matches PM/GenAI three-col standard) ─── */}
+      <div className="three-col-wrap" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 28px' }}>
+        <div className="three-col-grid" style={{ display: 'grid', gridTemplateColumns: '200px minmax(0, 1fr) 240px', gap: '40px', alignItems: 'start', paddingTop: '36px' }}>
 
           {/* Left: Contents Nav */}
-          <aside style={{ position: 'sticky', top: '100px', display: isMobile ? 'none' : 'block' }}>
+          <aside style={{ position: 'sticky', top: '80px', alignSelf: 'start', display: isMobile ? 'none' : 'block' }}>
             <div style={{ background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: '12px', padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
               <div style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid var(--ed-rule)' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ed-ink3)', marginBottom: '10px' }}>Contents</div>
