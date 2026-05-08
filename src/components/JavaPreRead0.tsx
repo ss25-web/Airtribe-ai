@@ -88,13 +88,13 @@ const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
 
 
 const ConvoLine = ({ speaker, text, color }: { speaker: string; text: string; color: string }) => (
-  <div style={{ display:'flex', gap:10, alignItems:'flex-start', margin:'8px 0' }}>
-    <div style={{ width:28, height:28, borderRadius:8, background:color+'20', border:`1.5px solid ${color}35`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:2 }}>
-      <span style={{ fontSize:10, fontWeight:800, color, fontFamily:"'JetBrains Mono',monospace" }}>{speaker[0]}</span>
+  <div style={{ display:'flex', gap:12, alignItems:'flex-start', margin:'10px 0' }}>
+    <div style={{ flexShrink:0, marginTop:2 }}>
+      <SWEMentorFace name={speaker} size={38} />
     </div>
-    <div>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:3, letterSpacing:'0.06em' }}>{speaker}</div>
-      <div style={{ fontSize:13, color:'var(--ed-ink2)', lineHeight:1.7, background:`${color}07`, padding:'8px 12px', borderRadius:'0 10px 10px 10px', border:`1px solid ${color}18` }}>
+    <div style={{ flex:1, minWidth:0 }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em', textTransform:'uppercase' as const }}>{speaker}</div>
+      <div style={{ fontSize:13, color:'var(--ed-ink2)', lineHeight:1.72, background:`${color}08`, padding:'10px 14px', borderRadius:'0 12px 12px 12px', border:`1px solid ${color}18` }}>
         &ldquo;{text}&rdquo;
       </div>
     </div>

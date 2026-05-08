@@ -7,6 +7,9 @@ import { SWEMentorFace } from './sweDesignSystem';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 
 // ─── Constants ───
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const toRoman = (n: number) => ROMAN[n - 1] ?? String(n);
+
 const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
@@ -202,7 +205,7 @@ export default function SWEPreReadLayout({
                 <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '8px', fontWeight: 600 }}>{progressPct}% · {completedModules.size}/{sections.length} parts</div>
               </div>
 
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                 {sections.map((s, i) => {
                   const done = completedModules.has(s.id);
                   const active = activeSection === s.id;
@@ -211,26 +214,28 @@ export default function SWEPreReadLayout({
                       key={s.id}
                       onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })}
                       whileHover={{ x: 2 }}
-                      style={{ 
-                        display: 'flex', alignItems: 'center', gap: '12px', width: '100%', 
-                        background: active ? `${trackConfig.accent}08` : 'none', 
-                        border: 'none', cursor: 'pointer', padding: '10px 12px', textAlign: 'left',
-                        borderRadius: '6px', borderLeft: `3px solid ${active ? trackConfig.accent : 'transparent'}`,
-                        transition: 'background 0.2s'
+                      style={{
+                        display: 'flex', alignItems: 'baseline', gap: '10px', width: '100%',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        padding: '6px 0', textAlign: 'left' as const,
+                        borderLeft: `2px solid ${active ? trackConfig.accent : 'transparent'}`,
+                        paddingLeft: '8px', marginLeft: '-8px',
+                        transition: 'border-color 0.2s',
                       }}
                     >
-                      <span style={{ 
-                        fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, 
-                        color: done || active ? trackConfig.accent : 'var(--ed-rule)', width: '20px' 
+                      <span style={{
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
+                        color: done ? trackConfig.accent : active ? trackConfig.accent : 'var(--ed-rule)',
+                        flexShrink: 0, minWidth: '20px', lineHeight: 1,
                       }}>
-                        {done ? '✓' : (i + 1).toString().padStart(2, '0')}.
+                        {done ? '✓' : `${toRoman(i + 1)}.`}
                       </span>
-                      <span style={{ 
-                        fontSize: '13px', fontWeight: active ? 700 : 500, 
-                        color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)', 
-                        lineHeight: 1.3 
+                      <span style={{
+                        fontSize: '12px', fontWeight: active ? 600 : 400,
+                        color: done ? 'var(--ed-ink2)' : active ? 'var(--ed-ink)' : 'var(--ed-ink3)',
+                        lineHeight: 1.4, wordBreak: 'break-word' as const, transition: 'color 0.2s',
                       }}>
-                        {s.label}
+                        {s.label}{done ? ' ✓' : ''}
                       </span>
                     </motion.button>
                   );
@@ -333,7 +338,7 @@ export default function SWEPreReadLayout({
                       fontSize: '16px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
                       transition: 'all 0.3s', cursor: 'default'
                     }}>
-                      {done ? (s.icon ?? '✨') : '🔒'}
+                      {s.icon ?? '✨'}
                     </motion.div>
                     <div style={{ fontSize: '8px', lineHeight: 1.2, fontWeight: 700, color: done ? 'var(--ed-ink3)' : 'transparent', textAlign: 'center', maxWidth: '50px', wordBreak: 'break-word' }}>
                       {label}
