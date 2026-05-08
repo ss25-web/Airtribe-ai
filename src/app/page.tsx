@@ -268,7 +268,8 @@ export default function Home() {
   };
 
   const goSWEPreRead = (moduleNum: string) => {
-    if (moduleNum === '00') {
+    // Java track module 00 has a dedicated pre-read; route to swe-reading
+    if (moduleNum === '00' && sweTrack !== 'java') {
       setStage('swe-lang-basics');
       localStorage.setItem(LS_STAGE, 'swe-lang-basics');
     } else {
