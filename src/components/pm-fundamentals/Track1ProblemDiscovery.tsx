@@ -1151,12 +1151,17 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           {para(<>Maya opens a spreadsheet. She starts sorting — first by role: 180 are individual sales reps, 110 are sales managers, 50 are ops or admin. Then by company size: solo, small team (2–20 reps), larger org (20+). Then by where they stopped: 220 churned after setup, 80 churned before completing it, 40 set up and used it for a few sessions then stopped.</>)}
           {para(<>&ldquo;Now look at this,&rdquo; Maya says. She points at the manager segment. &ldquo;A sales manager who churned after 5 days of using it — what job were they trying to do when they signed up?&rdquo;</>)}
-          {para(<>Priya: &ldquo;Improve their team&apos;s coaching?&rdquo;</>)}
-          {para(<>&ldquo;Specifically. They&apos;re not using EdSpark themselves — they&apos;re using it to manage their team&apos;s development. Now look at the sales rep who churned on day 2. What job were they trying to do?&rdquo;</>)}
-          {para(<>&ldquo;Track their own performance?&rdquo;</>)}
-          {para(<>&ldquo;Completely different job. Different context, different success criteria, different failure mode. If you build one solution for 'churned users,' it fits neither of them.&rdquo;</>)}
-          {para(<>Priya looks at the two groups. EdSpark is called a &ldquo;Sales Coaching Platform.&rdquo; The managers are the buyers — the people who pay for it and decide whether to keep it. &ldquo;Then I research the managers,&rdquo; she says. &ldquo;That&apos;s the segment that matters most for retention.&rdquo;</>)}
-          {para(<>&ldquo;Good,&rdquo; Maya says. &ldquo;Now: which managers? You need to narrow further.&rdquo;</>)}
+          <ConversationScene
+            mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
+            lines={[
+              { speaker: 'priya', text: "Improve their team's coaching?" },
+              { speaker: 'other', text: "Specifically. They're not using EdSpark themselves — they're using it to manage their team's development. Now look at the sales rep who churned on day 2. What job were they trying to do?" },
+              { speaker: 'priya', text: "Track their own performance?" },
+              { speaker: 'other', text: "Completely different job. Different context, different success criteria, different failure mode. If you build one solution for 'churned users,' it fits neither of them." },
+              { speaker: 'priya', text: "Then I research the managers. That's the segment that matters most for retention." },
+              { speaker: 'other', text: "Good. Now: which managers? You need to narrow further." },
+            ]}
+          />
         </div>
 
         <div className="rv">

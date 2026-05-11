@@ -745,29 +745,52 @@ export const ConversationScene = ({
   mentor, name, role, accent = 'var(--teal)', lines,
 }: {
   mentor: CSMentor; name: string; role: string; accent?: string; lines: CSLine[];
-}) => (
-  <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    {lines.map((l, i) => {
-      const isPriya = l.speaker === 'priya';
-      return (
-        <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
-          <div style={{ flexShrink: 0 }}>
-            {isPriya ? <MentorFace mentor="priya" size={38} /> : <MentorFace mentor={mentor === 'priya' ? 'asha' : mentor} size={38} />}
-          </div>
-          <div style={{ maxWidth: '72%' }}>
-            {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
-              <div style={{ fontSize: '10px', fontWeight: 700, color: isPriya ? 'var(--indigo)' : accent, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.04em' }}>
-                {isPriya ? 'Priya' : name}{' '}
-                <span style={{ fontWeight: 400, opacity: 0.65 }}>&middot; {isPriya ? 'APM' : role}</span>
-              </div>
-            )}
-            <div style={{ background: isPriya ? 'rgba(99,102,241,0.13)' : 'rgba(255,255,255,0.04)', border: `1px solid ${isPriya ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: isPriya ? '14px 14px 4px 14px' : '14px 14px 14px 4px', padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
-              {l.text}
-            </div>
-          </div>
+}) => {
+  const mentorId = mentor === 'priya' ? 'asha' : mentor;
+  return (
+    <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+      {/* Header: mentor left, Priya right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
+        <MentorFace mentor={mentorId} size={36} />
+        <div>
+          <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
         </div>
-      );
-    })}
-  </div>
-);
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+          <MentorFace mentor="priya" size={38} />
+        </div>
+      </div>
+      {/* Dialogue lines */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {lines.map((l, i) => {
+          const isPriya = l.speaker === 'priya';
+          return (
+            <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+              <div style={{ flexShrink: 0, marginTop: '2px' }}>
+                <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
+              </div>
+              <div style={{ maxWidth: '78%' }}>
+                {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: isPriya ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.07em' }}>
+                    {isPriya ? 'PRIYA' : name.toUpperCase()}
+                  </div>
+                )}
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: isPriya ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+                  background: isPriya ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+                  border: `1px solid ${isPriya ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+                  fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+                }}>
+                  &ldquo;{l.text}&rdquo;
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
