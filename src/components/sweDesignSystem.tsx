@@ -466,6 +466,28 @@ export const SituationCard = ({ protagonist, accentColor, children, label, story
         <path d="M 40 67 Q 50 73 60 67" stroke="#905030" strokeWidth="2" fill="none" strokeLinecap="round" />
       </svg>
     ),
+    Asha: (
+      <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4C1D95" />
+        <path d="M 34 90 Q 50 102 66 90" fill="#6D28D9" />
+        <rect x="42" y="76" width="16" height="18" rx="6" fill="#C8956A" />
+        <ellipse cx="50" cy="52" rx="26" ry="30" fill="#C8956A" />
+        <ellipse cx="24" cy="54" rx="4.5" ry="7" fill="#C8956A" />
+        <ellipse cx="76" cy="54" rx="4.5" ry="7" fill="#C8956A" />
+        <ellipse cx="50" cy="20" rx="28" ry="14" fill="#1A0A40" />
+        <path d="M 22 28 Q 30 18 50 16 Q 70 18 78 28 L 77 44 Q 65 36 50 36 Q 35 36 23 44 Z" fill="#1A0A40" />
+        <path d="M 76 30 Q 82 38 82 52 Q 78 40 76 32 Z" fill="#1A0A40" />
+        <path d="M 31 43 Q 38 41 45 43" stroke="#1A0A40" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <path d="M 55 43 Q 62 41 69 43" stroke="#1A0A40" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+        <ellipse cx="38" cy="51" rx="7" ry={eyeRy} fill="white" />
+        <ellipse cx="62" cy="51" rx="7" ry={eyeRy} fill="white" />
+        {!blink && <><circle cx="38.5" cy="51.5" r="3.3" fill="#2A1060" /><circle cx="62.5" cy="51.5" r="3.3" fill="#2A1060" /></>}
+        {!blink && <><circle cx="39.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /><circle cx="63.5" cy="50.2" r="0.9" fill="rgba(255,255,255,0.9)" /></>}
+        <path d="M 47 58 Q 50 63 53 58" stroke="#A07050" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 40 67 Q 50 73 60 67" stroke="#906040" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <rect x="44" y="92" width="12" height="4" rx="2" fill="#6D28D9" />
+      </svg>
+    ),
   };
 
   return (

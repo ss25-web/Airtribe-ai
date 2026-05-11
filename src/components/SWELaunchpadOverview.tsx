@@ -15,6 +15,7 @@ const PYTHON_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }
 // Section counts per Java module — separate from Python to avoid progress collision
 const JAVA_MODULE_SECTIONS: Record<string, { moduleId: string; total: number }> = {
   '00': { moduleId: 'java-pr-00', total: 8 },
+  '01': { moduleId: 'java-pr-01', total: 8 },
 };
 
 type ModuleStatus = 'locked' | 'available' | 'in-progress' | 'completed';
