@@ -810,8 +810,8 @@ export const NarrativeInterviewScene = ({
 }) => (
   <div style={{ margin: '28px 0', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22`, overflow: 'hidden' }}>
     <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}22`, border: `1px solid ${accent}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0 }}>
-        {intervieweeName[0]}
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40` }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       </div>
       <div>
         <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
@@ -844,8 +844,8 @@ export const NarrativeInterviewScene = ({
         );
         return (
           <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: `${accent}22`, border: `1px solid ${accent}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0, marginTop: 2 }}>
-              {intervieweeName[0]}
+            <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35` }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
             </div>
             <div style={{ maxWidth: '76%' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>

@@ -1218,9 +1218,12 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           {para(<>The first chart: 43% of managers who complete setup never click &ldquo;Add Recording&rdquo; in their first session. The second: of managers who <em>do</em> add a recording in session 1, 78% are still active in week 2. Of managers who don&apos;t, 91% churn. Third chart: median time between signup and first recording is 4.2 days — for churned users. For retained users, it&apos;s 18 hours.</>)}
           {para(<>&ldquo;So,&rdquo; Kiran says, &ldquo;if a manager adds their first recording within 24 hours of signup, they almost always stick. If they don&apos;t add one in the first 4 days, they almost always leave.&rdquo;</>)}
-          {para(<>Priya: &ldquo;So the fix is to get them to add a recording faster. Better prompt, maybe a tooltip—&rdquo;</>)}
-          {para(<>Asha: &ldquo;Maybe. Or maybe the problem is they don&apos;t understand <em>why</em> to add a recording. Or they don&apos;t know what to look for once they do. The data shows WHERE the problem is. It doesn&apos;t show WHY.&rdquo;</>)}
-          {para(<>Kiran nods, surprisingly. &ldquo;Exactly. I can tell you that not adding a recording predicts churn. I can&apos;t tell you what&apos;s going through their head when they don&apos;t.&rdquo;</>)}
+          <ConversationScene mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'priya', text: "So the fix is to get them to add a recording faster. Better prompt, maybe a tooltip—" },
+              { speaker: 'other', text: "Maybe. Or maybe the problem is they don't understand why to add a recording. Or they don't know what to look for once they do. The data shows WHERE the problem is. It doesn't show WHY." },
+            ]}
+          />
         </div>
 
         <div className="rv">
@@ -1393,11 +1396,28 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             Wednesday afternoon. Priya has run 6 interviews. She&apos;s added all six transcripts to Dovetail. Now she&apos;s in the tagging phase — reading each interview, highlighting key moments, applying tags. It&apos;s slow. It&apos;s also where the actual research happens.
           </SituationCard>
 
-          {para(<>Tag: <em>&ldquo;doesn&apos;t know what good looks like&rdquo;</em> — Rahul, interview 1. She keeps reading.</>)}
-          {para(<>Interview 2: Kavita, a sales manager at a 7-person team. &ldquo;I connected everything, set it up, and then I opened a recording and just... watched it. I didn&apos;t know what I was looking for. Was that a good call? A bad one? I had no frame of reference.&rdquo; Tag: <em>&ldquo;doesn&apos;t know what good looks like.&rdquo;</em></>)}
-          {para(<>Interview 3: Sanjay. Different team, different city, different role. But at minute 12 he says: &ldquo;I kept hoping the product would tell me what to do with the data. Like, here&apos;s what this means about your team.&rdquo; Tag: <em>&ldquo;doesn&apos;t know what good looks like.&rdquo;</em></>)}
-          {para(<>By interview 5, the same tag has appeared in 5 of 5 sessions. Priya looks at her Dovetail board. That tag — unprompted, across five independent conversations — is glowing. It&apos;s not confirmation bias. It&apos;s a pattern.</>)}
-          {para(<>The 6th interview is different. Mihir had a billing issue on day 2 and gave up. That&apos;s its own problem, logged separately. It doesn&apos;t dilute the pattern in the other five.</>)}
+          <div style={{ margin: '20px 0', borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', overflow: 'hidden' }}>
+            <div style={{ padding: '10px 18px', background: 'rgba(21,129,88,0.06)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--green)', letterSpacing: '0.14em' }}>DOVETAIL TAGGING — 6 INTERVIEWS</div>
+            </div>
+            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                { id: 1, name: 'Rahul', quote: 'Didn\'t know what to do with recordings. No frame of reference for what good coaching looks like.' },
+                { id: 2, name: 'Kavita', quote: 'I connected everything, set it up, and then I opened a recording and just... watched it. I didn\'t know what I was looking for. Was that a good call? A bad one? I had no frame of reference.' },
+                { id: 3, name: 'Sanjay', quote: 'I kept hoping the product would tell me what to do with the data. Like, here\'s what this means about your team.' },
+              ].map(item => (
+                <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--green)', flexShrink: 0, minWidth: '70px', paddingTop: '2px' }}>Interview {item.id} · {item.name}</div>
+                  <div style={{ flex: 1, fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65, fontStyle: 'italic' }}>&ldquo;{item.quote}&rdquo;
+                    <span style={{ display: 'inline-block', marginLeft: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--green)', background: 'rgba(21,129,88,0.1)', padding: '1px 7px', borderRadius: '4px', fontStyle: 'normal' }}>tag: doesn&apos;t know what good looks like</span>
+                  </div>
+                </div>
+              ))}
+              <div style={{ marginTop: '4px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(21,129,88,0.08)', border: '1px solid rgba(21,129,88,0.2)' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.65 }}>By interview 5, the same tag appeared in 5 of 5 sessions — unprompted, across five independent conversations. <span style={{ color: 'var(--green)' }}>It&apos;s not confirmation bias. It&apos;s a pattern.</span></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="rv">
@@ -1492,8 +1512,13 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           {para(<>Priya stares at the screen. She&apos;s been sitting on this hypothesis since Rahul&apos;s interview two days ago. She knows what she wants to build. She&apos;s already thought about how it would work. But Asha is right — the brief is supposed to describe the problem, not prescribe the answer.</>)}
           {para(<>She deletes everything after the first paragraph and starts again.</>)}
-          {para(<>The second draft: &ldquo;Sales managers at small teams (5–20 reps) sign up for EdSpark with one job in mind: prove to their leadership that they&apos;re responding to a performance problem. But the product assumes they already know what great coaching looks like. They don&apos;t. So they complete setup, open a recording, and have no frame of reference for what they&apos;re seeing. 5 of 6 churned managers described a version of this: &lsquo;I didn&apos;t know what I was supposed to be creating.&rsquo; The product has never shown them what success looks like.&rdquo;</>)}
-          {para(<>She shows it to Asha. A single reply: &ldquo;That&apos;s it.&rdquo;</>)}
+          <div style={{ margin: '20px 0', padding: '18px 22px', borderRadius: '12px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: '4px solid var(--green)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--green)', letterSpacing: '0.14em', marginBottom: '10px' }}>PRIYA&apos;S SECOND DRAFT</div>
+            <div style={{ fontSize: '13.5px', color: 'var(--ed-ink2)', lineHeight: 1.75, fontStyle: 'italic' }}>&ldquo;Sales managers at small teams (5–20 reps) sign up for EdSpark with one job in mind: prove to their leadership that they&apos;re responding to a performance problem. But the product assumes they already know what great coaching looks like. They don&apos;t. So they complete setup, open a recording, and have no frame of reference for what they&apos;re seeing. 5 of 6 churned managers described a version of this: &lsquo;I didn&apos;t know what I was supposed to be creating.&rsquo; The product has never shown them what success looks like.&rdquo;</div>
+          </div>
+          <ConversationScene mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[{ speaker: 'other', text: "That's it." }]}
+          />
         </div>
 
         <div className="rv">
