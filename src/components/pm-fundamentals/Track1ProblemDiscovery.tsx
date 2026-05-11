@@ -1077,14 +1077,16 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             9:17am Monday. Priya has 14 screens in Figma — a completely redesigned onboarding: 7 steps collapsed to 4, new progress indicators, rewritten welcome email, cleaner copy. She worked Saturday and Sunday on it. She&apos;s proud of it. She&apos;s about to paste the link into Slack when Asha pulls up a chair.
           </SituationCard>
 
-          {para(<>&ldquo;Nice mockup,&rdquo; Asha says, looking at the screen. &ldquo;When did you talk to users?&rdquo;</>)}
-          {para(<>&ldquo;I haven&apos;t yet. But the problem seems—&rdquo;</>)}
-          {para(<>Asha interrupts quietly. &ldquo;Pull up the churn data. When exactly are users dropping off?&rdquo;</>)}
-          {para(<>Priya clicks through to the dashboard. She&apos;d looked at the headline number — 40% — but not the shape of it. The drop-off isn&apos;t on day 1. It peaks between days 3 and 7. &ldquo;Day 3 to 7,&rdquo; she says slowly.</>)}
-          {para(<>&ldquo;And do those users complete setup before they churn?&rdquo;</>)}
-          {para(<>Another click. 62% of churned users completed setup. &ldquo;Yes,&rdquo; Priya says. &ldquo;Most of them.&rdquo;</>)}
-          {para(<>Asha lets that sit for a moment. &ldquo;So they get through your onboarding. They create an account, set everything up. And then they leave anyway.&rdquo;</>)}
-          {para(<>Priya stares at the screen. She has 14 screens of a redesigned onboarding for users who already got through the onboarding just fine. She closes Figma.</>)}
+          <ConversationScene
+            mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+            lines={[
+              { speaker: 'other', text: "Nice mockup. When did you talk to users?" },
+              { speaker: 'priya', text: "I haven’t yet. But the problem seems—" },
+              { speaker: 'other', text: "Pull up the churn data. When exactly are users dropping off?" },
+              { speaker: 'priya', text: "Day 3 to 7. And… 62% of churned users completed setup. Most of them got through onboarding fine." },
+              { speaker: 'other', text: "So they get through your onboarding. They create an account, set everything up. And then they leave anyway." },
+            ]}
+          />
         </div>
 
         <div className="rv">
@@ -1150,10 +1152,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           </SituationCard>
 
           {para(<>Maya opens a spreadsheet. She starts sorting — first by role: 180 are individual sales reps, 110 are sales managers, 50 are ops or admin. Then by company size: solo, small team (2–20 reps), larger org (20+). Then by where they stopped: 220 churned after setup, 80 churned before completing it, 40 set up and used it for a few sessions then stopped.</>)}
-          {para(<>&ldquo;Now look at this,&rdquo; Maya says. She points at the manager segment. &ldquo;A sales manager who churned after 5 days of using it — what job were they trying to do when they signed up?&rdquo;</>)}
           <ConversationScene
             mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
             lines={[
+              { speaker: 'other', text: "Now look at this. A sales manager who churned after 5 days — what job were they trying to do when they signed up?" },
               { speaker: 'priya', text: "Improve their team's coaching?" },
               { speaker: 'other', text: "Specifically. They're not using EdSpark themselves — they're using it to manage their team's development. Now look at the sales rep who churned on day 2. What job were they trying to do?" },
               { speaker: 'priya', text: "Track their own performance?" },
@@ -1217,9 +1219,9 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           </SituationCard>
 
           {para(<>The first chart: 43% of managers who complete setup never click &ldquo;Add Recording&rdquo; in their first session. The second: of managers who <em>do</em> add a recording in session 1, 78% are still active in week 2. Of managers who don&apos;t, 91% churn. Third chart: median time between signup and first recording is 4.2 days — for churned users. For retained users, it&apos;s 18 hours.</>)}
-          {para(<>&ldquo;So,&rdquo; Kiran says, &ldquo;if a manager adds their first recording within 24 hours of signup, they almost always stick. If they don&apos;t add one in the first 4 days, they almost always leave.&rdquo;</>)}
-          <ConversationScene mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
+          <ConversationScene mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--blue)"
             lines={[
+              { speaker: 'other', text: "If a manager adds their first recording within 24 hours of signup, they almost always stick. If they don't add one in the first 4 days, they almost always leave." },
               { speaker: 'priya', text: "So the fix is to get them to add a recording faster. Better prompt, maybe a tooltip—" },
               { speaker: 'other', text: "Maybe. Or maybe the problem is they don't understand why to add a recording. Or they don't know what to look for once they do. The data shows WHERE the problem is. It doesn't show WHY." },
             ]}
