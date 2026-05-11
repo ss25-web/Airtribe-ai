@@ -794,3 +794,67 @@ export const ConversationScene = ({
   );
 };
 
+// ─── NarrativeInterviewScene ──────────────────────────────────────────────────
+// Mixed interview transcripts: narration + Priya speech + interviewee speech + internal thoughts.
+export type InterviewBlock =
+  | { type: 'narration'; text: string }
+  | { type: 'thought'; text: string }
+  | { type: 'priya'; text: string }
+  | { type: 'interviewee'; text: string };
+
+export const NarrativeInterviewScene = ({
+  intervieweeName, intervieweeRole, accent = 'var(--coral)', blocks,
+}: {
+  intervieweeName: string; intervieweeRole: string; accent?: string;
+  blocks: InterviewBlock[];
+}) => (
+  <div style={{ margin: '28px 0', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22`, overflow: 'hidden' }}>
+    <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${accent}22`, border: `1px solid ${accent}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0 }}>
+        {intervieweeName[0]}
+      </div>
+      <div>
+        <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{intervieweeRole}</div>
+      </div>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+        <MentorFace mentor="priya" size={30} />
+      </div>
+    </div>
+    <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+      {blocks.map((b, i) => {
+        if (b.type === 'narration') return (
+          <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic' }}>{b.text}</div>
+        );
+        if (b.type === 'thought') return (
+          <div key={i} style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(79,70,229,0.06)', borderLeft: '3px solid rgba(79,70,229,0.3)', fontSize: 12, color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.65 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: '#4F46E5', marginRight: 6, fontStyle: 'normal', display: 'block', marginBottom: 3 }}>PRIYA (INTERNAL)</span>
+            {b.text}
+          </div>
+        );
+        if (b.type === 'priya') return (
+          <div key={i} style={{ display: 'flex', flexDirection: 'row-reverse' as const, gap: 8, alignItems: 'flex-start' }}>
+            <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor="priya" size={34} /></div>
+            <div style={{ maxWidth: '76%' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 700, marginBottom: 3, textAlign: 'right' as const, letterSpacing: '0.07em' }}>PRIYA</div>
+              <div style={{ padding: '9px 13px', borderRadius: '12px 2px 12px 12px', background: 'rgba(79,70,229,0.10)', border: '1px solid rgba(79,70,229,0.18)', fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
+            </div>
+          </div>
+        );
+        return (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+            <div style={{ width: 34, height: 34, borderRadius: 8, background: `${accent}22`, border: `1px solid ${accent}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0, marginTop: 2 }}>
+              {intervieweeName[0]}
+            </div>
+            <div style={{ maxWidth: '76%' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>
+              <div style={{ padding: '9px 13px', borderRadius: '2px 12px 12px 12px', background: `${accent}0F`, border: `1px solid ${accent}22`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+

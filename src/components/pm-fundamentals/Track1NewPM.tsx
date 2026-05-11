@@ -1027,8 +1027,11 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <CharacterCallout mentor="priya" activity="asks">
             Priya closes Figma. She emails the customer one question: &ldquo;What were you trying to do when it felt confusing?&rdquo;
           </CharacterCallout>
-          {para(<>The customer replies: &ldquo;I was trying to find the call recording from last Tuesday.&rdquo;</>)}
-          {para(<>It wasn&apos;t navigation. It was search.</>)}
+          <div style={{ margin: '16px 0', padding: '14px 18px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderLeft: '4px solid var(--teal)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'var(--teal)', letterSpacing: '0.1em', marginBottom: '6px' }}>CUSTOMER REPLY</div>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>&ldquo;I was trying to find the call recording from last Tuesday.&rdquo;</div>
+            <div style={{ marginTop: '10px', fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', fontStyle: 'italic' }}>It wasn&apos;t navigation. It was search.</div>
+          </div>
           {pullQuote('A symptom is not a problem. Dig one level deeper before you touch Figma.', 'var(--teal)')}
         </div>
 

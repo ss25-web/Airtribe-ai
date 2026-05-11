@@ -7,7 +7,7 @@ import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
   ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser,
-  TiltCard, ConversationScene, CharacterChip,
+  TiltCard, ConversationScene, CharacterChip, NarrativeInterviewScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 
@@ -1298,20 +1298,27 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             Tuesday 11am. Priya has her first interview: Rahul Shah, sales manager at a 12-person team. He signed up for EdSpark 9 days ago and stopped logging in after day 6. He agreed to a 30-minute call. Priya has 22 questions prepared. Asha looked at the list before the call: &ldquo;You need one. &lsquo;Tell me what happened when you first signed up for EdSpark.&rsquo; Then follow the story.&rdquo;
           </SituationCard>
 
-          {para(<>The call starts. Priya takes a breath and asks the one question.</>)}
-          {para(<>Rahul: &ldquo;Yeah — so I saw an ad, it said something about improving coaching outcomes. That&apos;s exactly what I&apos;d been thinking about. My team&apos;s close rate had dropped two quarters in a row and my director was asking questions. I figured I needed to do something visible. I signed up.&rdquo;</>)}
-          {para(<>Priya is writing fast. [Job: prove to director that I&apos;m responding to the performance drop. Not &lsquo;improve coaching&apos; — prove I&apos;m doing something about the problem.]</>)}
-          {para(<>Priya: &ldquo;What happened when you first got into the product?&rdquo;</>)}
-          {para(<>Rahul: &ldquo;Setup was pretty smooth actually. Connected my team&apos;s accounts, configured the basics — took maybe 20 minutes. Then I was on the main dashboard and I just... wasn&apos;t sure what to do next. There were charts. Some options. But nothing was telling me where to start.&rdquo;</>)}
-          {para(<>Priya (internal): He got through setup. He&apos;s describing exactly what Kiran&apos;s data showed — he didn&apos;t add a recording in his first session. But why?</>)}
-          {para(<>Priya: &ldquo;What did you do when you weren&apos;t sure what to do?&rdquo;</>)}
-          {para(<>Rahul laughs a little. &ldquo;Honestly? Opened another tab. Checked some emails. Told myself I&apos;d come back and figure it out properly when I had more time.&rdquo;</>)}
-          {para(<>Priya makes her first mistake: &ldquo;Did you find it confusing?&rdquo;</>)}
-          {para(<>Rahul: &ldquo;A little, yeah.&rdquo;</>)}
-          {para(<>Priya writes: &ldquo;User found product confusing.&rdquo; She moves to her next question. But a Slack message pops up from Asha, who&apos;s been reading the transcript in real time: <em>&ldquo;Don&apos;t accept &apos;confusing.&apos; Ask what was confusing. Dig.&rdquo;</em></>)}
-          {para(<>Priya: &ldquo;Sorry — going back for a second. When you say confusing, can you be more specific about what felt unclear?&rdquo;</>)}
-          {para(<>Rahul: &ldquo;I knew I was supposed to add call recordings. But I didn&apos;t understand... what I was supposed to do with them. Like, what am I looking for? What does good coaching sound like? I&apos;ve been a manager for 3 years but I&apos;ve never actually heard someone tell me what great sales coaching looks like in a recording. The product just gave me the tool. It didn&apos;t tell me how to use it.&rdquo;</>)}
-          {para(<>Priya goes very still. <em>That</em> is not an onboarding problem.</>)}
+          <NarrativeInterviewScene
+            intervieweeName="Rahul Shah" intervieweeRole="Sales Manager · 12-person team · Day 6 churn"
+            accent="var(--coral)"
+            blocks={[
+              { type: 'narration', text: 'The call starts. Priya takes a breath and asks the one question.' },
+              { type: 'interviewee', text: "Yeah — so I saw an ad, it said something about improving coaching outcomes. That's exactly what I'd been thinking about. My team's close rate had dropped two quarters in a row and my director was asking questions. I figured I needed to do something visible. I signed up." },
+              { type: 'thought', text: 'Job: prove to director that I\'m responding to the performance drop. Not \'improve coaching\' — prove I\'m doing something about the problem.' },
+              { type: 'priya', text: 'What happened when you first got into the product?' },
+              { type: 'interviewee', text: "Setup was pretty smooth actually. Connected my team's accounts, configured the basics — took maybe 20 minutes. Then I was on the main dashboard and I just... wasn't sure what to do next. There were charts. Some options. But nothing was telling me where to start." },
+              { type: 'thought', text: "He got through setup. He's describing exactly what Kiran's data showed — he didn't add a recording in his first session. But why?" },
+              { type: 'priya', text: "What did you do when you weren't sure what to do?" },
+              { type: 'interviewee', text: "Honestly? Opened another tab. Checked some emails. Told myself I'd come back and figure it out properly when I had more time." },
+              { type: 'priya', text: 'Did you find it confusing?' },
+              { type: 'narration', text: "Priya's first mistake — a closed question. Rahul just nods." },
+              { type: 'interviewee', text: 'A little, yeah.' },
+              { type: 'narration', text: 'Priya writes: "User found product confusing." She moves to her next question. A Slack message pops up from Asha: "Don\'t accept \'confusing.\' Ask what was confusing. Dig."' },
+              { type: 'priya', text: "Sorry — going back for a second. When you say confusing, can you be more specific about what felt unclear?" },
+              { type: 'interviewee', text: "I knew I was supposed to add call recordings. But I didn't understand... what I was supposed to do with them. Like, what am I looking for? What does good coaching sound like? I've been a manager for 3 years but I've never actually heard someone tell me what great sales coaching looks like in a recording. The product just gave me the tool. It didn't tell me how to use it." },
+              { type: 'narration', text: 'Priya goes very still. That is not an onboarding problem.' },
+            ]}
+          />
         </div>
 
         <div className="rv">
