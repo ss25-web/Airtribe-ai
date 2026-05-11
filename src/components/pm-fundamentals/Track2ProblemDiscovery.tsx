@@ -779,9 +779,15 @@ export default function Track2ProblemDiscovery({
         {para(<>
           She had two options. Nod along and run another onboarding study. Or bring the data and risk the conversation. She chose the data.
         </>)}
-        {para(<>
-          <strong>&ldquo;Rohan, before we commit to onboarding again — I want to show you something I found in Kraftful last night. The ticket trend has shifted. The problem might have moved.&rdquo;</strong>
-        </>)}
+        <ConversationScene
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
+          lines={[
+            { speaker: 'priya', text: "Rohan, before we commit to onboarding again — I want to show you something I found in Kraftful last night. The ticket trend has shifted. The problem might have moved." },
+            { speaker: 'other', text: "What are you seeing?" },
+            { speaker: 'priya', text: "Onboarding tickets are down 26%. But a different cluster — tickets about not being able to show that EdSpark is working — has almost tripled." },
+            { speaker: 'other', text: "Show me." },
+          ]}
+        />
         {pullQuote("Challenging a brief isn't insubordination. It's the job. A PM who executes every brief unquestioned is an order-taker, not a strategist.")}
 
         <ConversationScene
@@ -865,9 +871,6 @@ export default function Track2ProblemDiscovery({
         {para(<>
           The repo showed 16 studies, 89 tagged insights, and — relevant right now — a 3-month-old manager churn study with 12 interviews. The top finding: <strong>managers churn when they can&apos;t demonstrate EdSpark&apos;s ROI to their own leadership.</strong>
         </>)}
-        {para(<>
-          &ldquo;We have this already,&rdquo; Priya said. &ldquo;The question is: has anything shipped in the last 3 months that would change this? If not, the insight still holds. We don&apos;t need to re-run the whole study. We need to validate the finding and scope the new one.&rdquo;
-        </>)}
 
         <InfoBox title="The compounding value of a research repo" accent="var(--teal)">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -914,9 +917,6 @@ export default function Track2ProblemDiscovery({
         <SituationCard>
           Priya asked Maya, EdSpark&apos;s designer, to help prep the interview study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
         </SituationCard>
-        {para(<>
-          &ldquo;Maya — the users you want to talk to are the ones who <em>didn&apos;t</em> churn. We&apos;re asking why people leave. We need to talk to people who left.&rdquo;
-        </>)}
         {para(<>
           This is survivorship bias — one of the most common research mistakes experienced PMs still make. But it&apos;s just one of three biases Priya had learned to spot the hard way.
         </>)}
@@ -1121,9 +1121,6 @@ export default function Track2ProblemDiscovery({
         </SituationCard>
         {para(<>
           She put the sentence on screen: <strong>&ldquo;Sales managers join EdSpark to prove their coaching is improving their team — but the product never gives them evidence that it does.&rdquo;</strong>
-        </>)}
-        {para(<>
-          Rohan leaned forward. &ldquo;That&apos;s... not what I expected.&rdquo; Then: &ldquo;But it makes total sense.&rdquo;
         </>)}
         {para(<>
           In ten minutes, the team had generated five potential solutions — a coaching impact score, an automated weekly report to the manager&apos;s director, a &ldquo;proof of ROI&rdquo; one-pager template, a progress timeline view, and a Slack integration. None of them were &ldquo;fix onboarding.&rdquo;

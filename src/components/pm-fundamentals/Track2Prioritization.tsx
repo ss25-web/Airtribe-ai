@@ -750,7 +750,13 @@ export default function Track2Prioritization({
         {h2(<>The board slide</>)}
         {para(<>The board gets one slide. It shows three bets: two funded, one deferred. Each bet has a one-line outcome statement, the investment it requires, and its status. The deferred bet includes the phrase &ldquo;defined kill criteria.&rdquo; That phrase does significant work: it signals that &ldquo;later&rdquo; was a deliberate decision with a monitoring mechanism, not a punt.</>)}
         <BoardSlide />
-        {para(<>After the meeting, the board chair asks Priya one question: &ldquo;How will you know if Session Scheduling is working?&rdquo; Priya&apos;s answer: &ldquo;Week-1 session frequency above 3 per user in the Salesforce cohort, within 60 days of launch. That&apos;s the leading indicator. Retention is the lagging one — we&apos;ll see that in 90 days.&rdquo;</>)}
+        <ConversationScene
+          mentor="rohan" name="Board Chair" role="Board · EdSpark" accent="#F59E0B"
+          lines={[
+            { speaker: 'other', text: "How will you know if Session Scheduling is working?" },
+            { speaker: 'priya', text: "Week-1 session frequency above 3 per user in the Salesforce cohort, within 60 days of launch. That’s the leading indicator. Retention is the lagging one — we’ll see that in 90 days." },
+          ]}
+        />
         {pullQuote("A board doesn't need to see every row of your spreadsheet. They need to trust your reasoning.")}
         <ConversationScene
           mentor="asha" name="Asha" role="AI Mentor" accent="var(--teal)"
