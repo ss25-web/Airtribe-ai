@@ -318,281 +318,151 @@ export function DecisionRippleVisual() {
 }
 
 export function ProblemSolutionDriftVisual() {
-  const [active, setActive] = useState(0);
+  const [path, setPath] = useState<'reactive' | 'investigative' | null>(null);
+  const [step, setStep] = useState(0);
+  const [running, setRunning] = useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const REACTIVE = [
+    { action: 'Assume the cause', detail: '"The navigation must be confusing. Users can\'t find what they need."', consequence: 'No conversation with the user. The PM guesses.' },
+    { action: 'Scope the solution', detail: '"Redesign the navigation. 3 engineers, 3 weeks. Let\'s fix it."', consequence: 'Sprint committed. Zero user research done.' },
+    { action: 'Ship it', detail: 'New navigation launches. Cleaner menus, relabelled sections, better hierarchy.', consequence: 'Team is proud. 40% of users still churn in week 2.' },
+    { action: 'Miss the problem', detail: '"Why didn\'t churn drop? The nav looks much better now."', consequence: 'You solved the symptom. The real problem was search.' },
+  ];
+
+  const INVESTIGATIVE = [
+    { action: 'Ask what they were trying to do', detail: '"What were you doing when the app felt confusing?"', consequence: '"I was trying to find my call recording from last Tuesday."' },
+    { action: 'Discover the actual task', detail: '"They needed to retrieve a specific past recording — not browse."', consequence: 'This is a retrieval problem, not a navigation problem.' },
+    { action: 'Find the real blocker', detail: '"There\'s no search. No date filter. No recent recordings view."', consequence: 'Root cause found in 15 minutes of conversation.' },
+    { action: 'Build the targeted fix', detail: '"Add search with date filtering to recordings."', consequence: '1 engineer, 3 days. Churn in week 2 drops immediately.' },
+  ];
+
+  const COLORS = {
+    reactive: { accent: '#E8875A', bg: '#E8875A0d', border: '#E8875A28', result: '#EF4444', resultBg: '#EF444410' },
+    investigative: { accent: '#0D9488', bg: '#0D94880d', border: '#0D948828', result: '#16A34A', resultBg: '#16A34A10' },
+  };
+
+  function choosePath(chosen: 'reactive' | 'investigative') {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setPath(chosen);
+    setStep(0);
+    setRunning(true);
+  }
 
   useEffect(() => {
-    const timer = setInterval(() => setActive(v => (v + 1) % 5), 1500);
-    return () => clearInterval(timer);
-  }, []);
+    if (!running || path === null) return;
+    const steps = path === 'reactive' ? REACTIVE : INVESTIGATIVE;
+    if (step >= steps.length) { setRunning(false); return; }
+    timerRef.current = setTimeout(() => setStep(s => s + 1), 900);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running, step, path]);
 
-  // Fixed pixel dimensions — guarantees card 04 sits exactly under card 03
-  const CW = 176; // card width
-  const AW = 52;  // arrow width
-  // Total row width = CW*3 + AW*2 = 528 + 104 = 632
-  // Card 03 starts at CW*2 + AW*2 = 456. Bottom spacer = CW + AW = 228 → 05(CW) + ←(AW) + 04(CW)
+  function reset() {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setPath(null); setStep(0); setRunning(false);
+  }
 
-  const STEPS = [
-    { num: '01', label: 'COMPLAINT',    desc: 'The app is confusing.',     color: '#E8875A', icon: '💬' },
-    { num: '02', label: 'WRONG JUMP',   desc: 'Redesign navigation.',      color: '#D96D92', icon: '🧭' },
-    { num: '03', label: 'REWIND',       desc: 'Stop. Ask what happened.',  color: '#7B6BD1', icon: '⏮' },
-    { num: '04', label: 'ACTUAL TASK',  desc: 'Find last Tuesday call.',   color: '#2C9DB6', icon: '🔍' },
-    { num: '05', label: 'REAL BLOCKER', desc: 'Search, not layout.',       color: '#52B281', icon: '📄' },
-  ];
-
-  const FOOTERS = [
-    { color: '#E8875A', title: 'Symptoms feel urgent',    desc: 'Complaints arrive with emotional weight.' },
-    { color: '#D96D92', title: 'Strong motion slows',     desc: 'Avoid solutioning until the problem is clear.' },
-    { color: '#7B6BD1', title: 'Reframe the question',    desc: 'Ask what the user was trying to do, not what broke.' },
-    { color: '#2C9DB6', title: 'Solve the right thing',   desc: 'Fix the blocker that prevents progress.' },
-    { color: '#52B281', title: 'Measure the outcome',     desc: 'Check if the real task gets done.' },
-  ];
-
-  // Card component — uses CW for exact width matching
-  const renderStepCard = (step: typeof STEPS[0], idx: number) => {
-    const isActive = active === idx;
-    return (
-      <motion.div
-        animate={{
-          y: isActive ? -8 : 0,
-          boxShadow: isActive
-            ? `0 20px 32px ${step.color}2a, 0 6px 0 ${step.color}20`
-            : `0 6px 18px rgba(0,0,0,0.09), 0 4px 0 rgba(0,0,0,0.06)`,
-        }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        style={{
-          width: `${CW}px`, flexShrink: 0,
-          borderRadius: '22px',
-          background: `linear-gradient(145deg, var(--ed-card), color-mix(in srgb, var(--ed-card) 86%, ${step.color} 14%))`,
-          border: `1px solid color-mix(in srgb, ${step.color} 24%, var(--ed-rule) 76%)`,
-          padding: '18px 14px 16px', position: 'relative',
-        }}
-      >
-        <div style={{ position: 'absolute', top: '12px', right: '12px', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 800, color: step.color, opacity: 0.6 }}>
-          {step.num}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: `linear-gradient(145deg, ${step.color}bb, ${step.color})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px', boxShadow: `0 8px 20px ${step.color}45` }}>
-            {step.icon}
-          </div>
-        </div>
-        <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.11em', color: step.color, marginBottom: '6px', textAlign: 'center' as const }}>
-          {step.label}
-        </div>
-        <div style={{ fontSize: '13px', lineHeight: 1.5, color: 'var(--ed-ink2)', fontWeight: 500, textAlign: 'center' as const }}>
-          {step.desc}
-        </div>
-      </motion.div>
-    );
-  };
-
-  const renderClayArrow = ({
-    c1,
-    c2,
-    direction = 'right',
-  }: {
-    c1: string;
-    c2: string;
-    direction?: 'right' | 'left' | 'down';
-  }) => {
-    const isVertical = direction === 'down';
-    const railStyle: React.CSSProperties = {
-      width: isVertical ? 13 : 34,
-      height: isVertical ? 28 : 13,
-      borderRadius: '999px',
-      background: isVertical
-        ? `linear-gradient(180deg, ${c1} 0%, ${c2} 100%)`
-        : `linear-gradient(90deg, ${c1} 0%, ${c2} 100%)`,
-      boxShadow: `0 8px 14px ${c2}28, inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -2px 0 rgba(0,0,0,0.12)`,
-      opacity: 0.95,
-    };
-
-    const headStyle: React.CSSProperties = {
-      width: 22,
-      height: 22,
-      borderRadius: '7px',
-      background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 18%, ${c2} 82%) 0%, ${c2} 100%)`,
-      boxShadow: `0 9px 15px ${c2}2e, inset 0 1px 0 rgba(255,255,255,0.48), inset 0 -2px 0 rgba(0,0,0,0.14)`,
-      clipPath: 'polygon(18% 8%, 100% 50%, 18% 92%, 36% 50%)',
-      transform:
-        direction === 'left'
-          ? 'rotate(180deg)'
-          : direction === 'down'
-            ? 'rotate(90deg)'
-            : undefined,
-    };
-
-    return (
-      <motion.div
-        animate={isVertical ? { y: [0, 4, 0] } : { x: direction === 'left' ? [0, -4, 0] : [0, 4, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          width: isVertical ? CW : AW,
-          height: isVertical ? 46 : 42,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection:
-            direction === 'left'
-              ? 'row-reverse'
-              : direction === 'down'
-                ? 'column'
-                : 'row',
-          gap: isVertical ? 0 : -2,
-        }}
-      >
-        <div style={railStyle} />
-        <div style={{ ...headStyle, marginLeft: direction === 'right' ? -4 : 0, marginRight: direction === 'left' ? -4 : 0, marginTop: direction === 'down' ? -4 : 0 }} />
-      </motion.div>
-    );
-  };
-
-  const renderArrowR = (c1: string, c2: string) => renderClayArrow({ c1, c2, direction: 'right' });
-  const renderArrowL = (c1: string, c2: string) => renderClayArrow({ c1, c2, direction: 'left' });
+  const steps = path === 'reactive' ? REACTIVE : path === 'investigative' ? INVESTIGATIVE : [];
+  const cols = path ? COLORS[path] : COLORS.reactive;
 
   return (
-    <Shell title="The instinctive solution drifts. The right workflow rewinds first." caption="">
-      <div style={{ fontSize: '14px', color: 'var(--ed-ink3)', lineHeight: 1.65, marginBottom: '24px', marginTop: '-8px' }}>
-        Strong PM motion slows down, reframes the user task, and only then narrows to a fix.
-      </div>
-
-      {/* ── DIAGRAM — fixed-width container guarantees pixel-perfect alignment ── */}
-      <div style={{ padding: '8px 0 0' }}>
-        {/* Fixed-width inner — CW*3 + AW*2 = 632px */}
-        <div style={{ width: `${CW * 3 + AW * 2}px`, margin: '0 auto' }}>
-
-          {/* ROW 1 — 01 → 02 → 03 */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {renderStepCard(STEPS[0], 0)}
-            {renderArrowR(STEPS[0].color, STEPS[1].color)}
-            {renderStepCard(STEPS[1], 1)}
-            {renderArrowR(STEPS[1].color, STEPS[2].color)}
-            {renderStepCard(STEPS[2], 2)}
-          </div>
-
-          {/* VERTICAL ARROW — 03 ↓ 04
-              Spacer = CW*2 + AW*2 pushes arrow to sit over card 03 center */}
-          <div style={{ display: 'flex', alignItems: 'center', height: '46px' }}>
-            <div style={{ width: `${CW * 2 + AW * 2}px`, flexShrink: 0 }} />
-            {renderClayArrow({ c1: STEPS[2].color, c2: STEPS[3].color, direction: 'down' })}
-          </div>
-
-          {/* ROW 2 — [spacer CW+AW] [05] [←] [04]
-              04 starts at CW*2+AW*2 = 456 → same x as card 03 ✓ */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ width: `${CW + AW}px`, flexShrink: 0 }} />
-            {renderStepCard(STEPS[4], 4)}
-            {renderArrowL(STEPS[3].color, STEPS[4].color)}
-            {renderStepCard(STEPS[3], 3)}
-          </div>
+    <div style={{ margin: '32px 0' }}>
+      {/* ── Complaint card ── */}
+      <div style={{ padding: '18px 22px', borderRadius: '14px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '20px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#E8875A', letterSpacing: '0.14em', marginBottom: '8px' }}>USER COMPLAINT — EdSpark, churned sales manager</div>
+        <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.45, fontStyle: 'italic' }}>
+          &ldquo;The app is confusing. I can&apos;t find anything.&rdquo;
         </div>
+        <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--ed-ink3)' }}>You have one hour before the sprint planning meeting. What do you do?</div>
       </div>
 
-      {/* ── INSIGHT STRIP ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, minmax(124px, 1fr))',
-        gap: '10px',
-        marginTop: '24px',
-        padding: '14px',
-        borderRadius: '20px',
-        background: 'linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 88%, #8b7cff 12%), var(--ed-card))',
-        border: '1px solid color-mix(in srgb, var(--ed-rule) 82%, #8b7cff 18%)',
-        boxShadow: '0 18px 42px rgba(25,18,78,0.08), inset 0 1px 0 rgba(255,255,255,0.16)',
-      }}>
-        {FOOTERS.map((f, i) => (
-          <div key={i} style={{
-            position: 'relative',
-            minHeight: 118,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '9px',
-            padding: '14px 13px',
-            borderRadius: '16px',
-            background: `linear-gradient(145deg, color-mix(in srgb, var(--ed-card) 76%, ${f.color} 24%), var(--ed-card))`,
-            border: `1px solid color-mix(in srgb, ${f.color} 28%, var(--ed-rule) 72%)`,
-            boxShadow: `0 13px 24px ${f.color}18, 0 5px 0 color-mix(in srgb, ${f.color} 18%, transparent), inset 0 1px 0 rgba(255,255,255,0.18)`,
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              position: 'absolute',
-              inset: '0 0 auto',
-              height: '45%',
-              background: 'linear-gradient(180deg, rgba(255,255,255,0.20), transparent)',
-              pointerEvents: 'none',
-            }} />
-            <div style={{
-              position: 'relative',
-              zIndex: 1,
-              width: 30,
-              height: 30,
-              borderRadius: '12px',
-              background: `linear-gradient(145deg, ${f.color}bb 0%, ${f.color} 100%)`,
-              boxShadow: `0 10px 18px ${f.color}35, inset 0 1px 0 rgba(255,255,255,0.42)`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#fff',
-              fontFamily: "'JetBrains Mono',monospace",
-              fontSize: '10px',
-              fontWeight: 900,
-            }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <div style={{
-                fontFamily: "'JetBrains Mono',monospace",
-                fontSize: '8px',
-                fontWeight: 900,
-                letterSpacing: '0.13em',
-                color: f.color,
-                marginBottom: '6px',
-              }}>
-                {String(i + 1).padStart(2, '0')}
+      {/* ── Path selector ── */}
+      {!path && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+          {[
+            { key: 'reactive' as const, label: '⚡ Reactive PM', sub: 'You know what the problem is. Jump straight to a solution.', color: '#E8875A' },
+            { key: 'investigative' as const, label: '🔍 Investigative PM', sub: 'Slow down. Ask what the user was actually trying to do.', color: '#0D9488' },
+          ].map(opt => (
+            <motion.button key={opt.key} onClick={() => choosePath(opt.key)}
+              whileHover={{ scale: 1.02, y: -3 }} whileTap={{ scale: 0.98 }}
+              style={{ padding: '18px 16px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left' as const,
+                background: `color-mix(in srgb, var(--ed-card) 90%, ${opt.color} 10%)`,
+                border: `2px solid ${opt.color}30`,
+                boxShadow: `0 4px 14px ${opt.color}18` }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: opt.color, marginBottom: '7px' }}>{opt.label}</div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55 }}>{opt.sub}</div>
+            </motion.button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Active path ── */}
+      <AnimatePresence>
+        {path && (
+          <motion.div key={path} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {/* Path header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ padding: '6px 14px', borderRadius: '8px', background: `${cols.accent}18`, border: `1.5px solid ${cols.accent}30`, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: cols.accent }}>
+                {path === 'reactive' ? '⚡ Reactive PM' : '🔍 Investigative PM'}
               </div>
-              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--ed-ink)', marginBottom: '5px', lineHeight: 1.25 }}>
-                {f.title}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.45 }}>
-                {f.desc}
-              </div>
+              <motion.button onClick={reset} whileHover={{ opacity: 0.7 }}
+                style={{ marginLeft: 'auto', padding: '5px 12px', borderRadius: '7px', cursor: 'pointer', background: 'none', border: '1px solid var(--ed-rule)', fontSize: '11px', color: 'var(--ed-ink3)' }}>
+                ← Try the other path
+              </motion.button>
             </div>
-          </div>
-        ))}
-      </div>
 
-      {/* ── CLOSING QUOTE ── */}
-      <div style={{
-        marginTop: '16px',
-        padding: '18px 20px',
-        borderRadius: '20px',
-        background: 'linear-gradient(135deg, color-mix(in srgb, var(--ed-card) 86%, #ffd166 14%), color-mix(in srgb, var(--ed-card) 88%, #7b6bd1 12%))',
-        border: '1px solid color-mix(in srgb, var(--ed-rule) 72%, #ffd166 28%)',
-        boxShadow: '0 18px 36px rgba(25,18,78,0.10), 0 7px 0 rgba(123,107,209,0.10), inset 0 1px 0 rgba(255,255,255,0.18)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '14px',
-      }}>
-        <span style={{
-          width: 42,
-          height: 42,
-          borderRadius: '15px',
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '22px',
-          background: 'linear-gradient(145deg, #ffd166, #f59e0b)',
-          boxShadow: '0 13px 24px rgba(245,158,11,0.28), inset 0 1px 0 rgba(255,255,255,0.55)',
-        }}>⭐</span>
-        <div>
-          <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--ed-ink)', marginBottom: '4px', lineHeight: 1.2 }}>
-            One loop. Every product decision you&apos;ll ever make.
-          </div>
-          <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', fontStyle: 'italic', lineHeight: 1.55 }}>
-            Don&apos;t just ship features. Solve the real problem, then prove it worked.
-          </div>
-        </div>
-      </div>
-    </Shell>
+            {/* Steps */}
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px', marginBottom: '18px' }}>
+              {steps.slice(0, step).map((s, i) => (
+                <motion.div key={i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                  style={{ borderRadius: '12px', overflow: 'hidden', border: `1px solid ${cols.border}` }}>
+                  <div style={{ padding: '12px 16px', background: cols.bg, borderBottom: `1px solid ${cols.border}`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '6px', background: cols.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: '#fff', flexShrink: 0 }}>{String(i + 1).padStart(2, '0')}</div>
+                    <div style={{ fontWeight: 700, fontSize: '13px', color: 'var(--ed-ink)' }}>{s.action}</div>
+                  </div>
+                  <div style={{ padding: '12px 16px', background: 'var(--ed-card)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '5px' }}>WHAT THE PM DID</div>
+                      <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6, fontStyle: 'italic' }}>{s.detail}</div>
+                    </div>
+                    <div style={{ borderLeft: `1px solid var(--ed-rule)`, paddingLeft: '12px' }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: cols.accent, letterSpacing: '0.1em', marginBottom: '5px' }}>WHAT HAPPENED</div>
+                      <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.6 }}>{s.consequence}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Result */}
+            <AnimatePresence>
+              {!running && step >= steps.length && (
+                <motion.div initial={{ opacity: 0, y: 8, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                  style={{ padding: '18px 22px', borderRadius: '14px', background: path === 'reactive' ? '#EF444410' : '#16A34A10', border: `2px solid ${path === 'reactive' ? '#EF444430' : '#16A34A30'}`, borderLeft: `4px solid ${path === 'reactive' ? '#EF4444' : '#16A34A'}` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: path === 'reactive' ? '#EF4444' : '#16A34A', letterSpacing: '0.12em', marginBottom: '8px' }}>
+                    {path === 'reactive' ? '⚠ OUTCOME — 3 weeks, wrong problem' : '✓ OUTCOME — 3 days, right problem'}
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.6 }}>
+                    {path === 'reactive'
+                      ? 'Navigation redesign ships. Looks cleaner. Churn in week 2 stays at 40%. The real problem was search — users couldn\'t find past recordings by date. No one asked.'
+                      : 'One conversation surfaced the real task: retrieval, not navigation. Search with date filtering ships in 3 days. Churn in week 2 drops. The complaint was a symptom. The task was the problem.'}
+                  </div>
+                  <motion.button onClick={reset} whileHover={{ opacity: 0.8 }} style={{ marginTop: '14px', padding: '8px 18px', borderRadius: '9px', cursor: 'pointer', background: path === 'reactive' ? '#EF444418' : '#16A34A18', border: `1px solid ${path === 'reactive' ? '#EF444430' : '#16A34A30'}`, fontSize: '12px', fontWeight: 700, color: path === 'reactive' ? '#EF4444' : '#16A34A' }}>
+                    {path === 'reactive' ? '← See the investigative path' : '← See what happens reactively'}
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* In-progress hint */}
+            {running && (
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', textAlign: 'center' as const }}>Following the {path} PM&apos;s next move…</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
