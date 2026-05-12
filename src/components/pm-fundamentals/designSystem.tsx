@@ -783,8 +783,8 @@ export const ConversationScene = ({
             <div key={i} style={{
               display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start',
               opacity: started ? 1 : 0,
-              transform: started ? 'translateY(0)' : 'translateY(10px)',
-              transition: started ? `opacity 0.35s ease ${i * 0.2}s, transform 0.35s ease ${i * 0.2}s` : 'none',
+              transform: started ? 'translateX(0)' : isPriya ? 'translateX(24px)' : 'translateX(-24px)',
+              transition: started ? `opacity 0.38s ease ${i * 0.2}s, transform 0.38s ease ${i * 0.2}s` : 'none',
             }}>
               <div style={{ flexShrink: 0, marginTop: '2px' }}>
                 <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
@@ -858,10 +858,11 @@ export const NarrativeInterviewScene = ({
       </div>
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
         {blocks.map((b, i) => {
+          const isPriyaBlock = b.type === 'priya' || b.type === 'thought';
           const anim = started ? {
-            opacity: 1, transform: 'translateY(0)',
-            transition: `opacity 0.35s ease ${i * 0.2}s, transform 0.35s ease ${i * 0.2}s`,
-          } : { opacity: 0, transform: 'translateY(10px)', transition: 'none' };
+            opacity: 1, transform: 'translateX(0)',
+            transition: `opacity 0.38s ease ${i * 0.2}s, transform 0.38s ease ${i * 0.2}s`,
+          } : { opacity: 0, transform: isPriyaBlock ? 'translateX(24px)' : 'translateX(-24px)', transition: 'none' };
 
           if (b.type === 'narration') return (
             <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic', ...anim }}>{b.text}</div>

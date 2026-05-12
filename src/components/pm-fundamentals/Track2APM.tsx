@@ -5,59 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
   glassCard, demoLabel, chLabel, h2, para, pullQuote, keyBox,
-  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, TrackHeroCard,
+  ChapterSection, Avatar, SituationCard, ApplyItBox, PMPrincipleBox, NextChapterTeaser, TiltCard, TrackHeroCard, ConversationScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animations';
-
-// ─────────────────────────────────────────
-// CONVERSATION SCENE — chat-bubble dialogue between Priya and a stakeholder
-// ─────────────────────────────────────────
-type DialogueLine = { speaker: 'priya' | 'other'; text: string };
-const ConversationScene = ({
-  mentor, name, role, accent, lines,
-}: {
-  mentor: 'rohan' | 'kiran' | 'maya' | 'dev' | 'asha';
-  name: string; role: string; accent: string;
-  lines: DialogueLine[];
-}) => (
-  <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
-      <MentorFace mentor={mentor} size={36} />
-      <div>
-        <div style={{ fontWeight: 700, fontSize: '13px', color: accent }}>{name}</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{role}</div>
-      </div>
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
-        <MentorFace mentor="priya" size={38} />
-      </div>
-    </div>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      {lines.map((line, i) => (
-        <div key={i} style={{ display: 'flex', flexDirection: line.speaker === 'priya' ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
-          <div style={{ flexShrink: 0, marginTop: '2px' }}>
-            <MentorFace mentor={line.speaker === 'priya' ? 'priya' : mentor} size={38} />
-          </div>
-          <div style={{ maxWidth: '78%' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: line.speaker === 'priya' ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: line.speaker === 'priya' ? 'right' : 'left', letterSpacing: '0.07em' }}>
-              {line.speaker === 'priya' ? 'PRIYA' : name.toUpperCase()}
-            </div>
-            <div style={{
-              padding: '10px 14px',
-              borderRadius: line.speaker === 'priya' ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
-              background: line.speaker === 'priya' ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
-              border: `1px solid ${line.speaker === 'priya' ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
-              fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
-            }}>
-              &ldquo;{line.text}&rdquo;
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
