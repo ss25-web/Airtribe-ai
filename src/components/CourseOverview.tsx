@@ -220,13 +220,13 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           style={{
             borderRadius: '24px', padding: '28px 32px', marginBottom: '40px',
-            background: `color-mix(in srgb, var(--ed-card) 82%, ${meta.color} 18%)`,
-            boxShadow: `0 8px 0 color-mix(in srgb, ${meta.color} 32%, transparent), 0 18px 48px color-mix(in srgb, ${meta.color} 16%, transparent), inset 0 1.5px 0 rgba(255,255,255,0.55)`,
-            border: `1.5px solid color-mix(in srgb, ${meta.color} 28%, transparent)`,
+            background: `linear-gradient(115deg, ${meta.color}22 0%, ${meta.color}0C 45%, var(--ed-card) 100%)`,
+            boxShadow: `0 8px 0 ${meta.color}38, 0 20px 48px ${meta.color}1C, inset 0 1.5px 0 rgba(255,255,255,0.75)`,
+            border: `1.5px solid ${meta.color}2A`,
             display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px',
             flexWrap: 'wrap' as const, position: 'relative' as const, overflow: 'hidden',
           }}>
-          <div style={{ position: 'absolute', top: '-30px', left: '-20px', width: '220px', height: '220px', borderRadius: '50%', background: meta.color, opacity: 0.1, filter: 'blur(55px)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '-40px', left: '-10px', width: '200px', height: '200px', borderRadius: '50%', background: meta.color, opacity: 0.13, filter: 'blur(50px)', pointerEvents: 'none' }} />
           <div style={{ flex: 1, minWidth: '220px', position: 'relative' as const }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: meta.color, marginBottom: '12px' }}>
               YOUR ASSIGNED TRACK
@@ -234,16 +234,16 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
               <div style={{
                 width: '52px', height: '52px', borderRadius: '16px', flexShrink: 0,
-                background: `color-mix(in srgb, ${meta.color} 22%, var(--ed-card))`,
-                boxShadow: `0 4px 0 color-mix(in srgb, ${meta.color} 38%, transparent), inset 0 1px 0 rgba(255,255,255,0.6)`,
+                background: meta.color,
+                boxShadow: `0 5px 0 ${meta.color}55, 0 8px 24px ${meta.color}35, inset 0 1px 0 rgba(255,255,255,0.3)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px',
               }}>{meta.emoji}</div>
               <div>
-                <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", lineHeight: 1.2 }}>{meta.label}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: meta.color, letterSpacing: '0.06em', marginTop: '3px' }}>{meta.sublabel}</div>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: meta.color, fontFamily: "'Lora', serif", lineHeight: 1.2 }}>{meta.label}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.06em', marginTop: '3px' }}>{meta.sublabel}</div>
               </div>
             </div>
-            <div style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '480px' }}>{meta.desc}</div>
+            <div style={{ fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.7, maxWidth: '480px' }}>{meta.desc}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px', position: 'relative' as const }}>
             {[
@@ -252,11 +252,11 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
             ].map(s => (
               <div key={s.label} style={{
                 padding: '10px 16px', borderRadius: '14px',
-                background: `color-mix(in srgb, var(--ed-card) 78%, ${meta.color} 22%)`,
-                boxShadow: `0 4px 0 color-mix(in srgb, ${meta.color} 26%, transparent), inset 0 1px 0 rgba(255,255,255,0.5)`,
-                border: `1px solid color-mix(in srgb, ${meta.color} 18%, transparent)`,
+                background: 'var(--ed-card)',
+                boxShadow: `0 4px 0 ${meta.color}28, inset 0 1px 0 rgba(255,255,255,0.9)`,
+                border: `1px solid ${meta.color}1E`,
               }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: meta.color, letterSpacing: '0.12em', textTransform: 'uppercase' as const, marginBottom: '2px', opacity: 0.85 }}>{s.label}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: meta.color, letterSpacing: '0.12em', textTransform: 'uppercase' as const, marginBottom: '2px', fontWeight: 700 }}>{s.label}</div>
                 <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{s.value}</div>
               </div>
             ))}
