@@ -783,8 +783,8 @@ export const ConversationScene = ({
             <div key={i} style={{
               display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start',
               opacity: started ? 1 : 0,
-              transform: started ? 'translateX(0)' : isPriya ? 'translateX(24px)' : 'translateX(-24px)',
-              transition: started ? `opacity 0.38s ease ${i * 0.2}s, transform 0.38s ease ${i * 0.2}s` : 'none',
+              transform: started ? 'translateX(0) scale(1)' : isPriya ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
+              transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
             }}>
               <div style={{ flexShrink: 0, marginTop: '2px' }}>
                 <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
@@ -860,9 +860,9 @@ export const NarrativeInterviewScene = ({
         {blocks.map((b, i) => {
           const isPriyaBlock = b.type === 'priya' || b.type === 'thought';
           const anim = started ? {
-            opacity: 1, transform: 'translateX(0)',
-            transition: `opacity 0.38s ease ${i * 0.2}s, transform 0.38s ease ${i * 0.2}s`,
-          } : { opacity: 0, transform: isPriyaBlock ? 'translateX(24px)' : 'translateX(-24px)', transition: 'none' };
+            opacity: 1, transform: 'translateX(0) scale(1)',
+            transition: `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s`,
+          } : { opacity: 0, transform: isPriyaBlock ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)', transition: 'none' };
 
           if (b.type === 'narration') return (
             <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic', ...anim }}>{b.text}</div>
