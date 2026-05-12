@@ -737,51 +737,44 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 
 // ─────────────────────────────────────────
 // ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
-// Uses @keyframes (not CSS transition) so the animation starts from its own `from`
-// state the moment the class is applied — no "transition must precede property change" race.
-let _wipeStylesInjected = false;
-function _ensureWipeStyles() {
-  if (_wipeStylesInjected || typeof document === 'undefined') return;
-  const s = document.createElement('style');
-  s.textContent = `
-@keyframes wipe-from-left{from{clip-path:inset(0px 100% 0px 0px)}to{clip-path:inset(0px 0px 0px 0px)}}
-@keyframes wipe-from-right{from{clip-path:inset(0px 0px 0px 100%)}to{clip-path:inset(0px 0px 0px 0px)}}`;
-  document.head.appendChild(s);
-  _wipeStylesInjected = true;
-}
-
+// Two-phase setup: first RAF enables the transition property while clip-path is still
+// hidden (instant, no animation). Only THEN does the IntersectionObserver start.
+// When the observer fires, only clipPath changes — transition is already present,
+// so the browser animates it. This avoids the "transition set same frame as property
+// change = no animation" CSS race condition.
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const [ready, setReady] = useState(false);    // transition enabled
+  const [visible, setVisible] = useState(false); // element entered viewport
 
+  // Phase 1: after first paint, enable the transition property
   useEffect(() => {
-    _ensureWipeStyles();
+    const raf = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  // Phase 2: once transition is live, start observing scroll position
+  useEffect(() => {
+    if (!ready) return;
     const el = ref.current;
     if (!el) return;
-    let io: IntersectionObserver;
-    // 80ms gives the page time to render the initial hidden state before observing
-    const tid = setTimeout(() => {
-      io = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
-        { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
-      );
-      io.observe(el);
-    }, 80);
-    return () => { clearTimeout(tid); io?.disconnect(); };
-  }, []);
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
+      { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ready]);
 
   const clipHidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
 
   return (
     <div
       ref={ref}
-      style={visible ? {
-        animationName: direction === 'left' ? 'wipe-from-left' : 'wipe-from-right',
-        animationDuration: '0.5s',
-        animationTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        animationFillMode: 'both',
-        animationDelay: `${delay}s`,
-      } : { clipPath: clipHidden }}
+      style={{
+        clipPath: visible ? 'inset(0px 0px 0px 0px)' : clipHidden,
+        transition: ready ? `clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s` : 'none',
+      }}
     >
       {children}
     </div>
