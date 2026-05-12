@@ -15,13 +15,9 @@ export function AirtribeLogo({ color: _color = 'var(--ed-ink)' }: { color?: stri
 
   return (
     <img
-      src="/Airtribe-ai/airtribe-logo.png"
+      src={dark ? '/Airtribe-ai/airtribe-logo-dark.png' : '/Airtribe-ai/airtribe-logo.png'}
       alt="Airtribe"
-      style={{
-        display: 'block', width: '128px', height: 'auto', flexShrink: 0,
-        filter: dark ? 'invert(1) brightness(1.15)' : 'none',
-        transition: 'filter 0.3s',
-      }}
+      style={{ display: 'block', width: '128px', height: 'auto', flexShrink: 0 }}
     />
   );
 }
