@@ -686,7 +686,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
   <section style={{ background: 'var(--ed-cream)', borderBottom: '1px solid var(--ed-rule)', padding: '48px 0 40px' }}>
     <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 28px' }}>
       {/* Full-width text content */}
-      <div style={{ position: 'relative', marginBottom: '32px', paddingRight: '210px' }}>
+      <div style={{ position: 'relative', marginBottom: '48px', paddingRight: '210px' }}>
         <div style={{ position: 'absolute', right: 0, top: '-48px' }}>
           <TrackHeroCard moduleNum="02" moduleLabel="Problem Discovery" trackLabel="APM Track" accent="var(--teal)" parts={PARTS} completedSections={completedSections} />
         </div>

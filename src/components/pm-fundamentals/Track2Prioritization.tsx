@@ -407,7 +407,7 @@ export default function Track2Prioritization({
     <article style={{ padding: '0 0 80px' }}>
 
       {/* Hero */}
-      <div style={{ padding: '72px 210px 48px 0', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
+      <div style={{ padding: '72px 210px 48px 0', marginBottom: '48px', position: 'relative', overflow: 'visible' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-20px', top: '-10px', fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.06)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>03</div>
         <div style={{ position: 'absolute', right: 0, top: '24px' }}>
           <TrackHeroCard moduleNum="03" moduleLabel="Strategic Prioritisation" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />

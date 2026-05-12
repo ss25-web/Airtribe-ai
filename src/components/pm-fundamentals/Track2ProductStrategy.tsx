@@ -760,10 +760,10 @@ export default function Track2ProductStrategy({
   completedSections?: Set<string>;
 }) {
   return (
-    <article style={{ maxWidth: '720px', margin: '0 auto', padding: '0 0 80px' }}>
+    <article style={{ padding: '0 0 80px' }}>
 
       {/* ── HERO ───────────────────────────────────────────── */}
-      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 36px 40px', marginBottom: '0', position: 'relative', overflow: 'visible' }}>
+      <div style={{ background: 'var(--ed-cream)', borderRadius: '14px', padding: '40px 220px 36px 40px', marginBottom: '48px', position: 'relative', overflow: 'visible' }}>
         <div aria-hidden="true" style={{ position: 'absolute', right: '-16px', top: '-8px', fontSize: '160px', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.05)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>02</div>
         <div style={{ position: 'absolute', right: '24px', top: '0' }}>
           <TrackHeroCard moduleNum="02" moduleLabel="Product Strategy" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />

@@ -816,7 +816,7 @@ export default function Track2UXDesign({
     <article style={{ padding: '0 0 80px' }}>
 
       {/* ── HERO ── */}
-      <div style={{ position: 'relative', padding: '72px 210px 48px 0', overflow: 'visible' }}>
+      <div style={{ position: 'relative', padding: '72px 210px 48px 0', marginBottom: '48px', overflow: 'visible' }}>
         <div aria-hidden="true" style={{
           position: 'absolute', right: '-20px', top: '-10px',
           fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1,
