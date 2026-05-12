@@ -427,6 +427,7 @@ export default function GenAIAvatar({
   const [open, setOpen] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const store = useLearnerStore();
+  const entranceRef = useRef<HTMLDivElement>(null);
 
   const answered = selectedIdx !== null;
   const isCorrect = answered && options ? options[selectedIdx].correct : false;
@@ -439,7 +440,28 @@ export default function GenAIAvatar({
     }
   };
 
+  useEffect(() => {
+    const el = entranceRef.current;
+    if (!el) return;
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-40px) scale(0.97)';
+    el.style.transition = 'none';
+    let io: IntersectionObserver;
+    const raf = requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.55s cubic-bezier(0.34,1.48,0.64,1), transform 0.55s cubic-bezier(0.34,1.48,0.64,1)';
+      io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(0) scale(1)'; });
+          io.disconnect();
+        }
+      }, { threshold: 0.15 });
+      io.observe(el);
+    });
+    return () => { cancelAnimationFrame(raf); io?.disconnect(); el.style.opacity = ''; el.style.transform = ''; el.style.transition = ''; };
+  }, []);
+
   return (
+    <div ref={entranceRef}>
     <motion.div
       whileHover={{ y: -1, boxShadow: '0 8px 28px rgba(0,0,0,0.1)' }}
       style={{
@@ -620,5 +642,6 @@ export default function GenAIAvatar({
         ) : null}
       </AnimatePresence>
     </motion.div>
+    </div>
   );
 }

@@ -1523,6 +1523,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 interface Props {
   track: GenAITrack;
   onBack: () => void;
+  onNext?: () => void;
+  nextLabel?: string;
 }
 
 export default function GenAIPreRead2({ track, onBack, onNext, nextLabel }: Props) {
