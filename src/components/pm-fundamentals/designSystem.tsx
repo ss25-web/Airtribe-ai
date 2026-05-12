@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
 
@@ -738,13 +738,11 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 // ─────────────────────────────────────────
 // ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' });
   return (
     <motion.div
-      ref={ref}
       initial={{ clipPath: direction === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)' }}
-      animate={inView ? { clipPath: 'inset(0 0% 0 0%)' } : {}}
+      whileInView={{ clipPath: 'inset(0 0% 0 0%)' }}
+      viewport={{ once: true, margin: '0px 0px -40px 0px' }}
       transition={{ duration: 0.48, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       {children}
