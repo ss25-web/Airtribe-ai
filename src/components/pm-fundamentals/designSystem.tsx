@@ -737,48 +737,43 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 
 // ─────────────────────────────────────────
 // ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
-// Two-phase setup: first RAF enables the transition property while clip-path is still
-// hidden (instant, no animation). Only THEN does the IntersectionObserver start.
-// When the observer fires, only clipPath changes — transition is already present,
-// so the browser animates it. This avoids the "transition set same frame as property
-// change = no animation" CSS race condition.
+// Bypasses React state entirely — writes clip-path and transition directly to the DOM
+// so the browser always sees: (1) hidden clip-path set instantly, (2) transition added
+// in the next animation frame, (3) IntersectionObserver fires and changes clip-path
+// AFTER transition is already present. CSS then animates the change reliably.
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);    // transition enabled
-  const [visible, setVisible] = useState(false); // element entered viewport
 
-  // Phase 1: after first paint, enable the transition property
   useEffect(() => {
-    const raf = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  // Phase 2: once transition is live, start observing scroll position
-  useEffect(() => {
-    if (!ready) return;
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
-      { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [ready]);
+    const hidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
 
-  const clipHidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
+    // Step 1: hide instantly (no transition yet)
+    el.style.clipPath = hidden;
+    el.style.transition = 'none';
 
-  return (
-    <div
-      ref={ref}
-      style={{
-        clipPath: visible ? 'inset(0px 0px 0px 0px)' : clipHidden,
-        transition: ready ? `clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s` : 'none',
-      }}
-    >
-      {children}
-    </div>
-  );
+    // Step 2: next frame — add transition BEFORE observer starts
+    const raf = requestAnimationFrame(() => {
+      el.style.transition = `clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`;
+
+      // Step 3: now observe — when element enters view, clip-path change will animate
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            el.style.clipPath = 'inset(0px 0px 0px 0px)';
+            io.disconnect();
+          }
+        },
+        { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
+      );
+      io.observe(el);
+    });
+
+    return () => { cancelAnimationFrame(raf); el.style.clipPath = ''; el.style.transition = ''; };
+  }, [direction, delay]);
+
+  return <div ref={ref}>{children}</div>;
 }
 
 // CONVERSATION SCENE — shared Priya ↔ stakeholder dialogue bubbles
