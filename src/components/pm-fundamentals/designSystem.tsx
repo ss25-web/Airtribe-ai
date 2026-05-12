@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
@@ -736,54 +736,6 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 };
 
 // ─────────────────────────────────────────
-// ─── WipeBubble: scroll-triggered clip-path wipe for conversation lines ──────
-function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Hide before first paint so user never sees the un-animated state
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.clipPath = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
-  }, [direction]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let io: IntersectionObserver;
-    let raf2 = 0;
-
-    // Frame A: set transition while element is still in its hidden state
-    const raf1 = requestAnimationFrame(() => {
-      el.style.transition = `clip-path 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`;
-
-      io = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) {
-          // Frame B: change clip-path one frame AFTER transition was set.
-          // Without this nested RAF, both changes land in the same paint frame
-          // and CSS never sees a before-state → transition silently no-ops.
-          raf2 = requestAnimationFrame(() => {
-            el.style.clipPath = 'inset(0px 0px 0px 0px)';
-          });
-          io.disconnect();
-        }
-      }, { rootMargin: '0px 0px -40px 0px', threshold: 0.1 });
-
-      io.observe(el);
-    });
-
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-      io?.disconnect();
-      el.style.clipPath = '';
-      el.style.transition = '';
-    };
-  }, [direction, delay]);
-
-  return <div ref={ref}>{children}</div>;
-}
-
 // CONVERSATION SCENE — shared Priya ↔ stakeholder dialogue bubbles
 // ─────────────────────────────────────────
 export type CSLine = { speaker: 'priya' | 'other'; text: string };
@@ -795,8 +747,22 @@ export const ConversationScene = ({
   mentor: CSMentor; name: string; role: string; accent?: string; lines: CSLine[];
 }) => {
   const mentorId = mentor === 'priya' ? 'asha' : mentor;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); io.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
+    <div ref={containerRef} style={{ margin: '28px 0', padding: '20px', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22` }}>
       {/* Header: mentor left, Priya right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px', paddingBottom: '14px', borderBottom: `1px solid ${accent}18` }}>
         <MentorFace mentor={mentorId} size={36} />
@@ -809,34 +775,37 @@ export const ConversationScene = ({
           <MentorFace mentor="priya" size={38} />
         </div>
       </div>
-      {/* Dialogue lines */}
+      {/* Dialogue lines — each fades+slides in sequentially once container is in view */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {lines.map((l, i) => {
           const isPriya = l.speaker === 'priya';
           return (
-            <WipeBubble key={i} direction={isPriya ? 'right' : 'left'} delay={Math.min(i * 0.06, 0.28)}>
-              <div style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
-                <div style={{ flexShrink: 0, marginTop: '2px' }}>
-                  <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
-                </div>
-                <div style={{ maxWidth: '78%' }}>
-                  {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: isPriya ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.07em' }}>
-                      {isPriya ? 'PRIYA' : name.toUpperCase()}
-                    </div>
-                  )}
-                  <div style={{
-                    padding: '10px 14px',
-                    borderRadius: isPriya ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
-                    background: isPriya ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
-                    border: `1px solid ${isPriya ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
-                    fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
-                  }}>
-                    &ldquo;{l.text}&rdquo;
+            <div key={i} style={{
+              display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start',
+              opacity: started ? 1 : 0,
+              transform: started ? 'translateY(0)' : 'translateY(10px)',
+              transition: started ? `opacity 0.35s ease ${i * 0.2}s, transform 0.35s ease ${i * 0.2}s` : 'none',
+            }}>
+              <div style={{ flexShrink: 0, marginTop: '2px' }}>
+                <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
+              </div>
+              <div style={{ maxWidth: '78%' }}>
+                {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: isPriya ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.07em' }}>
+                    {isPriya ? 'PRIYA' : name.toUpperCase()}
                   </div>
+                )}
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: isPriya ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+                  background: isPriya ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+                  border: `1px solid ${isPriya ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+                  fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+                }}>
+                  &ldquo;{l.text}&rdquo;
                 </div>
               </div>
-            </WipeBubble>
+            </div>
           );
         })}
       </div>
@@ -857,48 +826,63 @@ export const NarrativeInterviewScene = ({
 }: {
   intervieweeName: string; intervieweeRole: string; accent?: string;
   blocks: InterviewBlock[];
-}) => (
-  <div style={{ margin: '28px 0', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22`, overflow: 'hidden' }}>
-    <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40` }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); io.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} style={{ margin: '28px 0', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22`, overflow: 'hidden' }}>
+      <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40` }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{intervieweeRole}</div>
+        </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
+          <MentorFace mentor="priya" size={30} />
+        </div>
       </div>
-      <div>
-        <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{intervieweeRole}</div>
-      </div>
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 600 }}>PRIYA</div>
-        <MentorFace mentor="priya" size={30} />
-      </div>
-    </div>
-    <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
-      {blocks.map((b, i) => {
-        if (b.type === 'narration') return (
-          <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic' }}>{b.text}</div>
-        );
-        if (b.type === 'thought') return (
-          <WipeBubble key={i} direction="right" delay={Math.min(i * 0.05, 0.25)}>
-            <div style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(79,70,229,0.06)', borderLeft: '3px solid rgba(79,70,229,0.3)', fontSize: 12, color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.65 }}>
+      <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+        {blocks.map((b, i) => {
+          const anim = started ? {
+            opacity: 1, transform: 'translateY(0)',
+            transition: `opacity 0.35s ease ${i * 0.2}s, transform 0.35s ease ${i * 0.2}s`,
+          } : { opacity: 0, transform: 'translateY(10px)', transition: 'none' };
+
+          if (b.type === 'narration') return (
+            <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic', ...anim }}>{b.text}</div>
+          );
+          if (b.type === 'thought') return (
+            <div key={i} style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(79,70,229,0.06)', borderLeft: '3px solid rgba(79,70,229,0.3)', fontSize: 12, color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.65, ...anim }}>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: '#4F46E5', marginRight: 6, fontStyle: 'normal', display: 'block', marginBottom: 3 }}>PRIYA (INTERNAL)</span>
               {b.text}
             </div>
-          </WipeBubble>
-        );
-        if (b.type === 'priya') return (
-          <WipeBubble key={i} direction="right" delay={Math.min(i * 0.05, 0.25)}>
-            <div style={{ display: 'flex', flexDirection: 'row-reverse' as const, gap: 8, alignItems: 'flex-start' }}>
+          );
+          if (b.type === 'priya') return (
+            <div key={i} style={{ display: 'flex', flexDirection: 'row-reverse' as const, gap: 8, alignItems: 'flex-start', ...anim }}>
               <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor="priya" size={34} /></div>
               <div style={{ maxWidth: '76%' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 700, marginBottom: 3, textAlign: 'right' as const, letterSpacing: '0.07em' }}>PRIYA</div>
                 <div style={{ padding: '9px 13px', borderRadius: '12px 2px 12px 12px', background: 'rgba(79,70,229,0.10)', border: '1px solid rgba(79,70,229,0.18)', fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
               </div>
             </div>
-          </WipeBubble>
-        );
-        return (
-          <WipeBubble key={i} direction="left" delay={Math.min(i * 0.05, 0.25)}>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+          );
+          return (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', ...anim }}>
               <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35` }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
               </div>
@@ -907,10 +891,10 @@ export const NarrativeInterviewScene = ({
                 <div style={{ padding: '9px 13px', borderRadius: '2px 12px 12px 12px', background: `${accent}0F`, border: `1px solid ${accent}22`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
               </div>
             </div>
-          </WipeBubble>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
