@@ -7,7 +7,7 @@ import { ChapterSection, para, h2, keyBox, ApplyItBox } from './pm-fundamentals/
 import SWEPreReadLayout from './SWEPreReadLayout';
 import QuizEngine from './QuizEngine';
 import { TracebackReaderLab, FileFormatChooser, DependencyRepairSim, ReproducibilityChecklist, PR3HeroArtifact } from './PythonPreRead3Tools';
-import { PythonMentorFace } from './PythonMentorFace';
+import { PythonMentorFace, type PythonCharId } from './PythonMentorFace';
 
 const ACCENT = '#16A34A';
 const ACCENT_RGB = '22,163,74';
@@ -52,6 +52,7 @@ const SceneSetter = ({ title, story, mentorQuote, mentorName, mentorColor }: { t
 );
 
 function ConvoScene({ lines, mentorName, mentorColor }: { lines: { speaker: 'arjun' | 'mentor'; text: string }[]; mentorName: string; mentorColor: string }) {
+  const charId = mentorName.toLowerCase() as PythonCharId;
   const containerRef = useRef<HTMLDivElement>(null);
   const [started, setStarted] = useState(false);
   useEffect(() => {
@@ -65,24 +66,38 @@ function ConvoScene({ lines, mentorName, mentorColor }: { lines: { speaker: 'arj
     return () => io.disconnect();
   }, []);
   return (
-    <div ref={containerRef} style={{ margin: '22px 0', display: 'flex', flexDirection: 'column' as const, gap: '9px' }}>
-      {lines.map((line, i) => {
-        const isMentor = line.speaker === 'mentor';
-        return (
-          <div key={i} style={{
-            display: 'flex', gap: '9px', alignItems: 'flex-start', flexDirection: isMentor ? 'row-reverse' : 'row' as const,
-            opacity: started ? 1 : 0,
-            transform: started ? 'translateX(0) scale(1)' : isMentor ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
-            transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
-          }}>
-            <div style={{ width: '30px', height: '30px', borderRadius: '7px', background: isMentor ? `${mentorColor}22` : `rgba(${ACCENT_RGB},0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '11px', color: isMentor ? mentorColor : ACCENT, flexShrink: 0 }}>{isMentor ? mentorName[0] : 'A'}</div>
-            <div style={{ maxWidth: '80%' }}>
-              <div style={{ fontSize: '9px', fontWeight: 700, color: isMentor ? mentorColor : ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.08em', marginBottom: '3px', textAlign: isMentor ? 'right' as const : 'left' as const }}>{isMentor ? mentorName.toUpperCase() : 'ARJUN'}</div>
-              <div style={{ padding: '9px 13px', borderRadius: isMentor ? '12px 4px 12px 12px' : '4px 12px 12px 12px', background: isMentor ? `${mentorColor}10` : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${isMentor ? mentorColor : ACCENT}22`, fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{line.text}</div>
+    <div ref={containerRef} style={{ margin: '22px 0', padding: '18px 20px', borderRadius: '14px', background: 'var(--ed-card)', border: `1px solid ${mentorColor}22`, boxShadow: `0 6px 0 ${mentorColor}18, inset 0 1px 0 rgba(255,255,255,0.7)` }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', paddingBottom: '12px', borderBottom: `1px solid ${mentorColor}18` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PythonMentorFace char={charId} size={34} />
+          <div style={{ fontWeight: 700, fontSize: '12px', color: mentorColor }}>{mentorName}</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', color: ACCENT, fontWeight: 600 }}>ARJUN</div>
+          <PythonMentorFace char="arjun" size={34} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '9px' }}>
+        {lines.map((line, i) => {
+          const isMentor = line.speaker === 'mentor';
+          return (
+            <div key={i} style={{
+              display: 'flex', gap: '9px', alignItems: 'flex-start', flexDirection: isMentor ? 'row-reverse' : 'row' as const,
+              opacity: started ? 1 : 0,
+              transform: started ? 'translateX(0) scale(1)' : isMentor ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
+              transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
+            }}>
+              <div style={{ flexShrink: 0, marginTop: 2 }}><PythonMentorFace char={isMentor ? charId : 'arjun'} size={36} /></div>
+              <div style={{ maxWidth: '78%' }}>
+                {(i === 0 || lines[i-1].speaker !== line.speaker) && (
+                  <div style={{ fontSize: '8px', fontWeight: 700, color: isMentor ? mentorColor : ACCENT, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.07em', marginBottom: '3px', textAlign: isMentor ? 'right' as const : 'left' as const }}>{isMentor ? mentorName.toUpperCase() : 'ARJUN'}</div>
+                )}
+                <div style={{ padding: '9px 13px', borderRadius: isMentor ? '12px 2px 12px 12px' : '2px 12px 12px 12px', background: isMentor ? `${mentorColor}0E` : `${ACCENT}0E`, border: `1px solid ${isMentor ? mentorColor : ACCENT}22`, boxShadow: `0 2px 0 ${isMentor ? mentorColor : ACCENT}18`, fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{line.text}</div>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
