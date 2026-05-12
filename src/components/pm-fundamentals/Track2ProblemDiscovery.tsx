@@ -693,7 +693,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
           MODULE 02 · APM TRACK
         </div>
-        <h1 style={{ fontFamily: "'Lora', serif", fontSize: '32px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px' }}>
+        <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(28px, 3.6vw, 48px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.12, letterSpacing: '-0.025em', marginBottom: '16px' }}>
           Discovery at the<br />Organisational Level
         </h1>
         <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, marginBottom: '24px', maxWidth: '640px' }}>

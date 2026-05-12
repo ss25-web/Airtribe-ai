@@ -772,7 +772,7 @@ export default function Track2ProductStrategy({
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: ACCENT, marginBottom: '10px' }}>
           Module 02 · Scale Track · Product Strategy
         </div>
-        <h1 style={{ fontSize: 'clamp(26px,3.5vw,40px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.15, letterSpacing: '-0.025em', fontFamily: "'Lora','Georgia',serif", marginBottom: '14px' }}>
+        <h1 style={{ fontSize: 'clamp(28px,3.6vw,48px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.12, letterSpacing: '-0.025em', fontFamily: "'Lora','Georgia',serif", marginBottom: '16px' }}>
           Strategy Holds or It Breaks
         </h1>
         {para(<>Series A is closed. Priya has a team, a roadmap, and a strategy she built from scratch. Then Meridian Corp sends Rohan a Gong case study with a 30-day ultimatum. This module is about what happens to strategy when it meets real pressure — and the five decisions that determine whether EdSpark reaches Series B with a story investors believe.</>)}
