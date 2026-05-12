@@ -88,11 +88,11 @@ function ConvoLine({ speaker, text, color }: { speaker: string; text: string; co
     return () => { cancelAnimationFrame(raf); io?.disconnect(); el.style.opacity=''; el.style.transform=''; el.style.transition=''; };
   }, []);
   return (
-    <div ref={ref} style={{ display:'flex', gap:12, alignItems:'flex-start', margin:'10px 0' }}>
+    <div ref={ref} style={{ display:'flex', gap:12, alignItems:'flex-start', margin:'10px 0', padding:'12px 16px', borderRadius:12, background:'var(--ed-card)', border:`1px solid ${color}1E`, boxShadow:`0 4px 0 ${color}18, inset 0 1px 0 rgba(255,255,255,0.7)` }}>
       <div style={{ flexShrink:0, marginTop:2 }}><SWEMentorFace name={speaker} size={38} /></div>
       <div style={{ flex:1, minWidth:0 }}>
         <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em', textTransform:'uppercase' as const }}>{speaker}</div>
-        <div style={{ fontSize:13, color:'var(--ed-ink2)', lineHeight:1.72, background:`${color}08`, padding:'10px 14px', borderRadius:'0 12px 12px 12px', border:`1px solid ${color}18` }}>&ldquo;{text}&rdquo;</div>
+        <div style={{ fontSize:13, color:'var(--ed-ink)', lineHeight:1.72, background:`${color}0A`, padding:'10px 14px', borderRadius:'0 12px 12px 12px', border:`1px solid ${color}22`, boxShadow:`0 2px 0 ${color}15` }}>&ldquo;{text}&rdquo;</div>
       </div>
     </div>
   );
@@ -114,7 +114,7 @@ function Thought({ name, text, color }: { name: string; text: string; color: str
     return () => { cancelAnimationFrame(raf); io?.disconnect(); el.style.opacity=''; el.style.transform=''; el.style.transition=''; };
   }, []);
   return (
-    <div ref={ref} style={{ margin:'14px 0', padding:'10px 16px', borderRadius:10, background:`${color}07`, border:`1px dashed ${color}28`, borderLeft:`3px solid ${color}` }}>
+    <div ref={ref} style={{ margin:'14px 0', padding:'10px 16px', borderRadius:10, background:'var(--ed-card)', border:`1px solid ${color}22`, borderLeft:`3px solid ${color}`, boxShadow:`0 4px 0 ${color}14, inset 0 1px 0 rgba(255,255,255,0.7)` }}>
       <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:8, fontWeight:700, color, marginBottom:4, letterSpacing:'0.08em' }}>{name} thinks</div>
       <div style={{ fontSize:13, color:'var(--ed-ink2)', fontStyle:'italic', lineHeight:1.65 }}>{text}</div>
     </div>
