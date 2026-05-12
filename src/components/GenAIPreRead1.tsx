@@ -947,9 +947,9 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
   );
 }
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
-export default function GenAIPreRead1({ track, onBack }: Props) {
+export default function GenAIPreRead1({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You now have the right Week 0 builder mental model: AI workflows are not just model calls. They are systems with triggers, payloads, orchestration, validation, review loops, and recovery paths.'
     : 'You now have the right Week 0 workflow mental model: AI workflows are not just prompts. They are systems with triggers, context, orchestration, review loops, and recovery paths.';
@@ -958,7 +958,7 @@ export default function GenAIPreRead1({ track, onBack }: Props) {
       moduleNum="01" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

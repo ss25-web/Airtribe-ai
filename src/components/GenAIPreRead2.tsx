@@ -1525,7 +1525,7 @@ interface Props {
   onBack: () => void;
 }
 
-export default function GenAIPreRead2({ track, onBack }: Props) {
+export default function GenAIPreRead2({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You now have the core prompt engineering toolkit: anatomy, few-shot transfer, context budgeting, model routing, and safe iteration with regression testing.'
     : 'You now know how to write prompts that work reliably: structured anatomy, domain examples, context management, the right model, and a safe refinement process.';
@@ -1534,7 +1534,7 @@ export default function GenAIPreRead2({ track, onBack }: Props) {
       moduleNum="02" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

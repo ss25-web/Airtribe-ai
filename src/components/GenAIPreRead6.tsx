@@ -195,7 +195,7 @@ const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; module
   },
 };
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
 function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completedSections.size * SECTION_XP;
@@ -866,7 +866,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
   );
 }
 
-export default function GenAIPreRead6({ track, onBack }: Props) {
+export default function GenAIPreRead6({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You can architect, instrument, and scale agents. Agent architecture, tool design, multi-step reasoning, RAG pipelines, and structured observability. Module 07 introduces MCP.'
     : 'Agents, tools, retrieval, and observability connected. You can now evaluate whether a task needs an agent, design the tools it uses, ground it in retrieved knowledge, and log what it does. Module 07 introduces MCP.';
@@ -875,7 +875,7 @@ export default function GenAIPreRead6({ track, onBack }: Props) {
       moduleNum="06" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

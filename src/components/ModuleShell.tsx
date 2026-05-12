@@ -326,6 +326,8 @@ interface ModuleShellProps {
   config: ModuleConfig;
   track?: Track | null;
   onBack: () => void;
+  onNext?: () => void;
+  nextLabel?: string;
   Track1: React.ComponentType<{ completedSections?: Set<string> }>;
   Track2: React.ComponentType<{ completedSections?: Set<string> }>;
   /** Override config.sections when track === 'apm' — fixes progress/nav for modules where Track 2 uses different section IDs */
@@ -334,7 +336,7 @@ interface ModuleShellProps {
   achievementsApm?: ModuleAchievement[];
 }
 
-export default function ModuleShell({ config, track, onBack, Track1, Track2, sectionsApm, achievementsApm }: ModuleShellProps) {
+export default function ModuleShell({ config, track, onBack, onNext, nextLabel, Track1, Track2, sectionsApm, achievementsApm }: ModuleShellProps) {
   const store = useLearnerStore();
   const { accent, moduleNum, moduleLabel, sections, concepts, completionEmoji, completionMessage } = config;
   const moduleId = `pm-${moduleNum}`;
@@ -472,9 +474,9 @@ export default function ModuleShell({ config, track, onBack, Track1, Track2, sec
                   <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '400px', margin: '0 auto 24px' }}>
                     {completionMessage}
                   </p>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onBack}
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onNext ?? onBack}
                     style={{ padding: '12px 28px', borderRadius: '6px', background: accent, color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                    Back to Curriculum →
+                    {onNext ? `Next → ${nextLabel ?? 'Next Module'}` : 'Back to Curriculum →'}
                   </motion.button>
                 </motion.div>
               )}

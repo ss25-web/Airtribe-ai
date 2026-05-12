@@ -195,7 +195,7 @@ const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; module
   },
 };
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
 function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completedSections.size * SECTION_XP;
@@ -854,7 +854,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
   );
 }
 
-export default function GenAIPreRead5({ track, onBack }: Props) {
+export default function GenAIPreRead5({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You can iterate, branch, gate, and remember. The workflows from M04 run once. The patterns from M05 run at volume. Module 06 wires this into full agent architecture.'
     : 'Loops, routing, approvals, and memory in one system. Your automation can now handle real-world data size, team approvals, and stateful conversations. Module 06 shows how to scale this into production agent systems.';
@@ -863,7 +863,7 @@ export default function GenAIPreRead5({ track, onBack }: Props) {
       moduleNum="05" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

@@ -195,7 +195,7 @@ const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; module
   },
 };
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
 function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completedSections.size * SECTION_XP;
@@ -1198,7 +1198,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
   );
 }
 
-export default function GenAIPreRead4({ track, onBack }: Props) {
+export default function GenAIPreRead4({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You now have the workflow automation toolkit: process-first spec design, JSON edge handoffs, service-account credential hygiene, explicit error paths with dead-letter queues, and failure-path production readiness.'
     : 'You now know how to automate the Monday workflow reliably: trigger design, data transformation, output validation, team-owned credentials, and the baseline comparison test before going live.';
@@ -1207,7 +1207,7 @@ export default function GenAIPreRead4({ track, onBack }: Props) {
       moduleNum="04" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

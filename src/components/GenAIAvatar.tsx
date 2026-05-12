@@ -350,14 +350,32 @@ export function GenAIConversationScene({ mentor, track, accent, techLines, nonTe
   const protagonistAccent = PROTAGONIST_META[track].accent;
   const mentorName = MENTOR_META[mentor].name;
   const mentorRole = MENTOR_META[mentor].role;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); io.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <div style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div ref={containerRef} style={{ margin: '20px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {lines.map((l, i) => {
         const isProtagonist = l.speaker === 'protagonist';
         const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
         return (
-          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end' }}>
+          <div key={i} style={{
+            display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-end',
+            opacity: started ? 1 : 0,
+            transform: started ? 'translateX(0) scale(1)' : isProtagonist ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
+            transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
+          }}>
             <div style={{ flexShrink: 0 }}>
               {isProtagonist
                 ? <ProtagonistFace track={track} size={38} />

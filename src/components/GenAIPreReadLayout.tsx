@@ -45,6 +45,8 @@ export interface GenAIPreReadLayoutProps {
   completionEmoji: string;
   completionMessage: string;
   onBack: () => void;
+  onNext?: () => void;
+  nextLabel?: string;
   children:
     | React.ReactNode
     | ((state: { completedSections: Set<string>; activeSection: string | null }) => React.ReactNode);
@@ -277,7 +279,7 @@ export default function GenAIPreReadLayout({
   moduleNum, moduleLabel, accent, accentRgb,
   sections, badges, concepts,
   completionEmoji, completionMessage,
-  onBack, children,
+  onBack, onNext, nextLabel, children,
 }: GenAIPreReadLayoutProps) {
   const store = useLearnerStore();
   const moduleId      = `genai-pr-${moduleNum}`;
@@ -406,9 +408,9 @@ export default function GenAIPreReadLayout({
                   <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '430px', margin: '0 auto 24px' }}>
                     {completionMessage}
                   </p>
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onBack}
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onNext ?? onBack}
                     style={{ padding: '12px 28px', borderRadius: '6px', background: accent, color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                    Back to Curriculum →
+                    {onNext ? `Next → ${nextLabel ?? 'Next Pre-read'}` : 'Back to Curriculum →'}
                   </motion.button>
                 </motion.div>
               )}

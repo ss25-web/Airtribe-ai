@@ -64,6 +64,8 @@ export interface SWEPreReadLayoutProps {
   completedModules: Set<string>;
   activeSection: string | null;
   onBack: () => void;
+  onNext?: () => void;
+  nextLabel?: string;
   hideArticleHeader?: boolean;
   hideHeaderStats?: boolean;
   /** Pass module-specific concepts for labeled concept mastery. Falls back to generic "Concept N" labels when omitted. */
@@ -72,7 +74,7 @@ export interface SWEPreReadLayoutProps {
 }
 
 export default function SWEPreReadLayout({
-  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, hideArticleHeader = false, hideHeaderStats = false, concepts, children
+  trackConfig, moduleLabel, title, sections, completedModules, activeSection, onBack, onNext, nextLabel, hideArticleHeader = false, hideHeaderStats = false, concepts, children
 }: SWEPreReadLayoutProps) {
   const store = useLearnerStore();
   const [hydrated, setHydrated] = useState(false);
@@ -270,6 +272,27 @@ export default function SWEPreReadLayout({
             )}
 
             {children}
+
+            <AnimatePresence>
+              {progressPct >= 87 && (
+                <motion.div initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                  style={{ padding: '40px 32px', background: 'var(--ed-card)', borderRadius: '10px', textAlign: 'center' as const, marginTop: '40px', marginBottom: '40px', border: '1px solid var(--ed-rule)', borderTop: `4px solid ${trackConfig.accent}` }}>
+                  <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} style={{ fontSize: '40px', marginBottom: '14px' }}>🎓</motion.div>
+                  <h3 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '10px', color: 'var(--ed-ink)', fontFamily: "'Lora', 'Georgia', serif" }}>
+                    {moduleLabel} Complete
+                  </h3>
+                  <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '400px', margin: '0 auto 24px' }}>
+                    All sections read. Keep building.
+                  </p>
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={onNext ?? onBack}
+                    style={{ padding: '12px 28px', borderRadius: '6px', background: trackConfig.accent, color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+                    {onNext ? `Next → ${nextLabel ?? 'Next Pre-read'}` : 'Back to Curriculum →'}
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div style={{ height: '60px' }} />
           </main>
 
           {/* Right: Stats & Gamification */}

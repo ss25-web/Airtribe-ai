@@ -64,14 +64,14 @@ const TRACK2_CONFIG: ModuleConfig = {
   ],
 };
 
-interface Props { onBack: () => void; track?: Track | null; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; track?: Track | null; }
 
-export default function Tech101SystemDesignModule({ onBack, track }: Props) {
+export default function Tech101SystemDesignModule({ onBack, onNext, nextLabel, track }: Props) {
   return (
     <ModuleShell
       config={track === 'apm' ? TRACK2_CONFIG : CONFIG}
       track={track}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
       Track1={Track1Tech101SystemDesign}
       Track2={Track2Tech101SystemDesign}
     />

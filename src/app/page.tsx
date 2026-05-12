@@ -359,12 +359,12 @@ export default function Home() {
     
     if (sweTrack === 'python') {
       if (sweModule === '03') return <PythonPreRead3 onBack={goBackToSWEOverview} />;
-      if (sweModule === '02') return <PythonPreRead2 onBack={goBackToSWEOverview} />;
-      return <PythonPreRead1 onBack={goBackToSWEOverview} />;
+      if (sweModule === '02') return <PythonPreRead2 onBack={goBackToSWEOverview} onNext={() => goSWEPreRead('03')} nextLabel="Pre-read 03" />;
+      return <PythonPreRead1 onBack={goBackToSWEOverview} onNext={() => goSWEPreRead('02')} nextLabel="Pre-read 02" />;
     }
 
     if (sweTrack === 'java' && sweModule === '00') {
-      return <JavaPreRead0 onBack={goBackToSWEOverview} />;
+      return <JavaPreRead0 onBack={goBackToSWEOverview} onNext={() => goSWEPreRead('01')} nextLabel="Pre-read 01" />;
     }
     if (sweTrack === 'java' && sweModule === '01') {
       return <JavaPreRead1WebBackend onBack={goBackToSWEOverview} />;
@@ -417,12 +417,12 @@ export default function Home() {
 
   if (stage === 'genai-reading' && genaiTrack) {
     if (genaiModule === '07') return <GenAIPreRead7 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    if (genaiModule === '06') return <GenAIPreRead6 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    if (genaiModule === '05') return <GenAIPreRead5 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    if (genaiModule === '04') return <GenAIPreRead4 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    if (genaiModule === '03') return <GenAIPreRead3 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    if (genaiModule === '02') return <GenAIPreRead2 track={genaiTrack} onBack={goBackToGenAIOverview} />;
-    return <GenAIPreRead1 track={genaiTrack} onBack={goBackToGenAIOverview} />;
+    if (genaiModule === '06') return <GenAIPreRead6 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('07')} nextLabel="Pre-read 07" />;
+    if (genaiModule === '05') return <GenAIPreRead5 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('06')} nextLabel="Pre-read 06" />;
+    if (genaiModule === '04') return <GenAIPreRead4 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('05')} nextLabel="Pre-read 05" />;
+    if (genaiModule === '03') return <GenAIPreRead3 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('04')} nextLabel="Pre-read 04" />;
+    if (genaiModule === '02') return <GenAIPreRead2 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('03')} nextLabel="Pre-read 03" />;
+    return <GenAIPreRead1 track={genaiTrack} onBack={goBackToGenAIOverview} onNext={() => goGenAIPreRead('02')} nextLabel="Pre-read 02" />;
   }
 
   if (stage === 'overview' && assignedTrack) {
@@ -442,25 +442,25 @@ export default function Home() {
 
   if (stage === 'reading' && assignedTrack) {
     if (activeModule === '02') {
-      return <ProductStrategyModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <ProductStrategyModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('03')} nextLabel="Module 03" />;
     }
     if (activeModule === '03') {
-      return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <ProblemDiscoveryModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('04')} nextLabel="Module 04" />;
     }
     if (activeModule === '04') {
-      return <PrioritizationModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <PrioritizationModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('05')} nextLabel="Module 05" />;
     }
     if (activeModule === '05') {
-      return <UXDesignModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <UXDesignModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('06')} nextLabel="Module 06" />;
     }
     if (activeModule === '06') {
-      return <CommunicationPMModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <CommunicationPMModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('07')} nextLabel="Module 07" />;
     }
     if (activeModule === '07') {
-      return <AnalyticsPMModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <AnalyticsPMModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('08')} nextLabel="Module 08" />;
     }
     if (activeModule === '08') {
-      return <LaunchGrowthModule track={assignedTrack} onBack={goBackToOverview} />;
+      return <LaunchGrowthModule track={assignedTrack} onBack={goBackToOverview} onNext={() => goReading('09')} nextLabel="Module 09" />;
     }
     if (activeModule === '09') {
       return <Tech101SystemDesignModule track={assignedTrack} onBack={goBackToOverview} />;
@@ -469,6 +469,7 @@ export default function Home() {
       <PMFundamentalsModule
         startTrack={assignedTrack}
         onBack={goBackToOverview}
+        onNext={() => goReading('02')}
       />
     );
   }

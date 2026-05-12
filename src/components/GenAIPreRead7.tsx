@@ -495,9 +495,9 @@ const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
 
 // ── Main Export ──────────────────────────────────────────────────────────────
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
-export default function GenAIPreRead7({ track, onBack }: Props) {
+export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Props) {
   const storedSections = useLearnerStore(s => s.completedSections[`genai-pr-${MODULE_NUM}`] ?? []);
   const completedSections = new Set(storedSections);
   const trackMeta = track === 'tech'

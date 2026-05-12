@@ -54,32 +54,51 @@ const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
   </div>
 );
 
-const ConvoScene = ({ lines, mentorName, mentorColor }: {
+function ConvoScene({ lines, mentorName, mentorColor }: {
   lines: { speaker: 'arjun' | 'mentor'; text: string }[];
   mentorName: string;
   mentorColor: string;
-}) => (
-  <div style={{ margin: '24px 0', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-    {lines.map((line, i) => {
-      const isMentor = line.speaker === 'mentor';
-      return (
-        <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexDirection: isMentor ? 'row-reverse' : 'row' as const }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: isMentor ? `${mentorColor}25` : `rgba(${ACCENT_RGB},0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px', color: isMentor ? mentorColor : ACCENT, flexShrink: 0 }}>
-            {isMentor ? mentorName[0] : 'A'}
-          </div>
-          <div style={{ maxWidth: '80%' }}>
-            <div style={{ fontSize: '9px', fontWeight: 700, color: isMentor ? mentorColor : ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', marginBottom: '3px', textAlign: isMentor ? 'right' as const : 'left' as const }}>
-              {isMentor ? mentorName.toUpperCase() : 'ARJUN'}
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); io.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={containerRef} style={{ margin: '24px 0', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+      {lines.map((line, i) => {
+        const isMentor = line.speaker === 'mentor';
+        return (
+          <div key={i} style={{
+            display: 'flex', gap: '10px', alignItems: 'flex-start', flexDirection: isMentor ? 'row-reverse' : 'row' as const,
+            opacity: started ? 1 : 0,
+            transform: started ? 'translateX(0) scale(1)' : isMentor ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
+            transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
+          }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: isMentor ? `${mentorColor}25` : `rgba(${ACCENT_RGB},0.18)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '12px', color: isMentor ? mentorColor : ACCENT, flexShrink: 0 }}>
+              {isMentor ? mentorName[0] : 'A'}
             </div>
-            <div style={{ padding: '10px 14px', borderRadius: isMentor ? '12px 4px 12px 12px' : '4px 12px 12px 12px', background: isMentor ? `${mentorColor}10` : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${isMentor ? mentorColor : ACCENT}25`, fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
-              {line.text}
+            <div style={{ maxWidth: '80%' }}>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: isMentor ? mentorColor : ACCENT, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', marginBottom: '3px', textAlign: isMentor ? 'right' as const : 'left' as const }}>
+                {isMentor ? mentorName.toUpperCase() : 'ARJUN'}
+              </div>
+              <div style={{ padding: '10px 14px', borderRadius: isMentor ? '12px 4px 12px 12px' : '4px 12px 12px 12px', background: isMentor ? `${mentorColor}10` : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${isMentor ? mentorColor : ACCENT}25`, fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
+                {line.text}
+              </div>
             </div>
           </div>
-        </div>
-      );
-    })}
-  </div>
-);
+        );
+      })}
+    </div>
+  );
+}
 
 const SceneSetter = ({ title, story, mentorQuote, mentorName, mentorColor }: {
   title: string; story: string; mentorQuote: string; mentorName: string; mentorColor: string;
@@ -609,9 +628,9 @@ function TypeHintClarityLab() {
 // ─────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────
-interface Props { onBack: () => void; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; }
 
-export default function PythonPreRead1({ onBack }: Props) {
+export default function PythonPreRead1({ onBack, onNext, nextLabel }: Props) {
   const store = useLearnerStore();
   const [activeSection, setActiveSection] = useState(SECTIONS[0].id);
 
@@ -638,7 +657,7 @@ export default function PythonPreRead1({ onBack }: Props) {
       sections={SECTIONS}
       completedModules={completedModules}
       activeSection={activeSection}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       {/* ── HERO ── */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}

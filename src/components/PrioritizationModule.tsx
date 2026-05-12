@@ -38,14 +38,14 @@ const CONFIG: ModuleConfig = {
   ],
 };
 
-interface Props { onBack: () => void; track?: Track | null; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; track?: Track | null; }
 
-export default function PrioritizationModule({ onBack, track }: Props) {
+export default function PrioritizationModule({ onBack, onNext, nextLabel, track }: Props) {
   return (
     <ModuleShell
       config={CONFIG}
       track={track}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
       Track1={Track1Prioritization}
       Track2={Track2Prioritization}
     />

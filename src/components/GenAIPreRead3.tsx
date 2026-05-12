@@ -195,7 +195,7 @@ const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; module
   },
 };
 
-type Props = { track: GenAITrack; onBack: () => void };
+type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextLabel?: string };
 
 function computeXP(completedSections: Set<string>, conceptStates: Record<string, { pKnow: number }>) {
   const readingXP = completedSections.size * SECTION_XP;
@@ -992,7 +992,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
   );
 }
 
-export default function GenAIPreRead3({ track, onBack }: Props) {
+export default function GenAIPreRead3({ track, onBack, onNext, nextLabel }: Props) {
   const completionMessage = track === 'tech'
     ? 'You now have the research pipeline toolkit: triangulated source architecture, decision-framed compression, 5W1H query templates, COVE evaluation, and audience-parameterised drafting.'
     : 'You now know how to build a research workflow that saves real hours: source selection, decision-grade summarisation, 5W1H briefing, COVE verification, and audience-specific drafting.';
@@ -1001,7 +1001,7 @@ export default function GenAIPreRead3({ track, onBack }: Props) {
       moduleNum="03" moduleLabel={TRACK_META[track].introTitle}
       accent={ACCENT} accentRgb={ACCENT_RGB}
       sections={SECTIONS} badges={BADGES} concepts={CONCEPTS}
-      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack}
+      completionEmoji="◎" completionMessage={completionMessage} onBack={onBack} onNext={onNext} nextLabel={nextLabel}
     >
       <CoreContent track={track} />
     </GenAIPreReadLayout>

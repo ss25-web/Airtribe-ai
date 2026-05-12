@@ -132,9 +132,9 @@ const KeyBox = ({ title, items }: { title: string; items: string[] }) => (
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-interface Props { onBack: () => void; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; }
 
-export default function JavaPreRead0({ onBack }: Props) {
+export default function JavaPreRead0({ onBack, onNext, nextLabel }: Props) {
   const store = useLearnerStore();
   const [activeSection, setActiveSection]   = useState(SECTIONS[0].id);
   const [completedModules, setCompletedModules] = useState<Set<string>>(new Set());
@@ -168,7 +168,7 @@ export default function JavaPreRead0({ onBack }: Props) {
       concepts={CONCEPTS}
       completedModules={completedModules}
       activeSection={activeSection}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
       hideArticleHeader
     >
       {/* ── HERO ── */}

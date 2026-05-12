@@ -49,14 +49,14 @@ const ACHIEVEMENTS_APM: ModuleAchievement[] = [
   { id: 'm2a-series-b-narrative',  icon: '📖',  label: 'Storyteller', desc: 'Built a fundable Series B thesis'       },
 ];
 
-interface Props { onBack: () => void; track?: Track | null; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; track?: Track | null; }
 
-export default function ProductStrategyModule({ onBack, track }: Props) {
+export default function ProductStrategyModule({ onBack, onNext, nextLabel, track }: Props) {
   return (
     <ModuleShell
       config={CONFIG}
       track={track}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
       Track1={Track1ProductStrategy}
       Track2={Track2ProductStrategy}
       sectionsApm={SECTIONS_APM}

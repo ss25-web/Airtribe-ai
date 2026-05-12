@@ -469,9 +469,10 @@ function Sidebar({
 interface Props {
   startTrack: Track;
   onBack: () => void;
+  onNext?: () => void;
 }
 
-export default function PMFundamentalsModule({ startTrack, onBack }: Props) {
+export default function PMFundamentalsModule({ startTrack, onBack, onNext }: Props) {
   const store = useLearnerStore();
 const [track, setTrack] = useState<Track>(startTrack);
   const moduleId = `pm-01-${track}`;
@@ -667,8 +668,9 @@ const [track, setTrack] = useState<Track>(startTrack);
                     </p>
                     <motion.button
                       whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                      onClick={onNext ?? onBack}
                       style={{ padding: '12px 28px', borderRadius: '6px', background: cfg.accent, color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
-                      Next → Module 02
+                      {onNext ? 'Next → Module 02' : 'Back to Curriculum →'}
                     </motion.button>
                   </motion.div>
                 )}

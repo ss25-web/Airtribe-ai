@@ -58,14 +58,14 @@ const ACHIEVEMENTS_APM: ModuleAchievement[] = [
   { id: 'm4-apm-reflection',  icon: '🧠', label: 'APM UX-Minded', desc: 'Completed the senior UX loop'      },
 ];
 
-interface Props { onBack: () => void; track?: Track | null; }
+interface Props { onBack: () => void; onNext?: () => void; nextLabel?: string; track?: Track | null; }
 
-export default function UXDesignModule({ onBack, track }: Props) {
+export default function UXDesignModule({ onBack, onNext, nextLabel, track }: Props) {
   return (
     <ModuleShell
       config={CONFIG}
       track={track}
-      onBack={onBack}
+      onBack={onBack} onNext={onNext} nextLabel={nextLabel}
       Track1={Track1UXDesign}
       Track2={Track2UXDesign}
       sectionsApm={SECTIONS_APM}
