@@ -737,29 +737,37 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 
 // ─────────────────────────────────────────
 // ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
-// Uses raw IntersectionObserver + rAF to avoid Next.js hydration race with Framer Motion.
-// ready=true applies the hidden clip-path after first paint; rAF ensures hidden state
-// is committed to the DOM before the observer begins watching.
+// Uses @keyframes (not CSS transition) so the animation starts from its own `from`
+// state the moment the class is applied — no "transition must precede property change" race.
+let _wipeStylesInjected = false;
+function _ensureWipeStyles() {
+  if (_wipeStylesInjected || typeof document === 'undefined') return;
+  const s = document.createElement('style');
+  s.textContent = `
+@keyframes wipe-from-left{from{clip-path:inset(0px 100% 0px 0px)}to{clip-path:inset(0px 0px 0px 0px)}}
+@keyframes wipe-from-right{from{clip-path:inset(0px 0px 0px 100%)}to{clip-path:inset(0px 0px 0px 0px)}}`;
+  document.head.appendChild(s);
+  _wipeStylesInjected = true;
+}
+
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [ready, setReady] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    _ensureWipeStyles();
     const el = ref.current;
     if (!el) return;
-    setReady(true);          // render hidden state on next tick
     let io: IntersectionObserver;
-    const raf = requestAnimationFrame(() => {   // wait one frame so hidden state is painted
+    // 80ms gives the page time to render the initial hidden state before observing
+    const tid = setTimeout(() => {
       io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) { setVisible(true); io.disconnect(); }
-        },
+        ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
         { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
       );
       io.observe(el);
-    });
-    return () => { cancelAnimationFrame(raf); io?.disconnect(); };
+    }, 80);
+    return () => { clearTimeout(tid); io?.disconnect(); };
   }, []);
 
   const clipHidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
@@ -767,10 +775,13 @@ function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'r
   return (
     <div
       ref={ref}
-      style={ready ? {
-        clipPath: visible ? 'inset(0px 0px 0px 0px)' : clipHidden,
-        transition: `clip-path 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`,
-      } : undefined}
+      style={visible ? {
+        animationName: direction === 'left' ? 'wipe-from-left' : 'wipe-from-right',
+        animationDuration: '0.5s',
+        animationTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        animationFillMode: 'both',
+        animationDelay: `${delay}s`,
+      } : { clipPath: clipHidden }}
     >
       {children}
     </div>
