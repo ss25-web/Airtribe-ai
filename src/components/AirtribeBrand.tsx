@@ -2,14 +2,26 @@
 
 import React, { useEffect, useState } from 'react';
 
-export function AirtribeLogo({ color = 'var(--ed-ink)' }: { color?: string } = {}) {
-  void color;
+export function AirtribeLogo({ color: _color = 'var(--ed-ink)' }: { color?: string } = {}) {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const check = () => setDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <img
       src="/Airtribe-ai/airtribe-logo.png"
       alt="Airtribe"
-      style={{ display: 'block', width: '128px', height: 'auto', flexShrink: 0 }}
+      style={{
+        display: 'block', width: '128px', height: 'auto', flexShrink: 0,
+        filter: dark ? 'invert(1) brightness(1.15)' : 'none',
+        transition: 'filter 0.3s',
+      }}
     />
   );
 }
