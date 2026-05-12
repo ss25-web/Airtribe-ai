@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
 
@@ -736,6 +736,22 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 };
 
 // ─────────────────────────────────────────
+// ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
+function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '0px 0px -40px 0px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ clipPath: direction === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)' }}
+      animate={inView ? { clipPath: 'inset(0 0% 0 0%)' } : {}}
+      transition={{ duration: 0.48, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 // CONVERSATION SCENE — shared Priya ↔ stakeholder dialogue bubbles
 // ─────────────────────────────────────────
 export type CSLine = { speaker: 'priya' | 'other'; text: string };
@@ -766,27 +782,29 @@ export const ConversationScene = ({
         {lines.map((l, i) => {
           const isPriya = l.speaker === 'priya';
           return (
-            <div key={i} style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
-              <div style={{ flexShrink: 0, marginTop: '2px' }}>
-                <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
-              </div>
-              <div style={{ maxWidth: '78%' }}>
-                {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: isPriya ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.07em' }}>
-                    {isPriya ? 'PRIYA' : name.toUpperCase()}
+            <WipeBubble key={i} direction={isPriya ? 'right' : 'left'} delay={Math.min(i * 0.06, 0.28)}>
+              <div style={{ display: 'flex', flexDirection: isPriya ? 'row-reverse' : 'row', gap: '8px', alignItems: 'flex-start' }}>
+                <div style={{ flexShrink: 0, marginTop: '2px' }}>
+                  <MentorFace mentor={isPriya ? 'priya' : mentorId} size={38} />
+                </div>
+                <div style={{ maxWidth: '78%' }}>
+                  {(i === 0 || lines[i - 1].speaker !== l.speaker) && (
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: isPriya ? '#4F46E5' : accent, fontWeight: 700, marginBottom: '4px', textAlign: isPriya ? 'right' : 'left', letterSpacing: '0.07em' }}>
+                      {isPriya ? 'PRIYA' : name.toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{
+                    padding: '10px 14px',
+                    borderRadius: isPriya ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+                    background: isPriya ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
+                    border: `1px solid ${isPriya ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
+                    fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
+                  }}>
+                    &ldquo;{l.text}&rdquo;
                   </div>
-                )}
-                <div style={{
-                  padding: '10px 14px',
-                  borderRadius: isPriya ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
-                  background: isPriya ? 'rgba(79,70,229,0.10)' : `${accent}0F`,
-                  border: `1px solid ${isPriya ? 'rgba(79,70,229,0.18)' : `${accent}22`}`,
-                  fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75,
-                }}>
-                  &ldquo;{l.text}&rdquo;
                 </div>
               </div>
-            </div>
+            </WipeBubble>
           );
         })}
       </div>
@@ -828,30 +846,36 @@ export const NarrativeInterviewScene = ({
           <div key={i} style={{ fontSize: 13, color: 'var(--ed-ink3)', lineHeight: 1.7, fontStyle: 'italic' }}>{b.text}</div>
         );
         if (b.type === 'thought') return (
-          <div key={i} style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(79,70,229,0.06)', borderLeft: '3px solid rgba(79,70,229,0.3)', fontSize: 12, color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.65 }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: '#4F46E5', marginRight: 6, fontStyle: 'normal', display: 'block', marginBottom: 3 }}>PRIYA (INTERNAL)</span>
-            {b.text}
-          </div>
+          <WipeBubble key={i} direction="right" delay={Math.min(i * 0.05, 0.25)}>
+            <div style={{ padding: '8px 14px', borderRadius: 8, background: 'rgba(79,70,229,0.06)', borderLeft: '3px solid rgba(79,70,229,0.3)', fontSize: 12, color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.65 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 700, color: '#4F46E5', marginRight: 6, fontStyle: 'normal', display: 'block', marginBottom: 3 }}>PRIYA (INTERNAL)</span>
+              {b.text}
+            </div>
+          </WipeBubble>
         );
         if (b.type === 'priya') return (
-          <div key={i} style={{ display: 'flex', flexDirection: 'row-reverse' as const, gap: 8, alignItems: 'flex-start' }}>
-            <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor="priya" size={34} /></div>
-            <div style={{ maxWidth: '76%' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 700, marginBottom: 3, textAlign: 'right' as const, letterSpacing: '0.07em' }}>PRIYA</div>
-              <div style={{ padding: '9px 13px', borderRadius: '12px 2px 12px 12px', background: 'rgba(79,70,229,0.10)', border: '1px solid rgba(79,70,229,0.18)', fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
+          <WipeBubble key={i} direction="right" delay={Math.min(i * 0.05, 0.25)}>
+            <div style={{ display: 'flex', flexDirection: 'row-reverse' as const, gap: 8, alignItems: 'flex-start' }}>
+              <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor="priya" size={34} /></div>
+              <div style={{ maxWidth: '76%' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#4F46E5', fontWeight: 700, marginBottom: 3, textAlign: 'right' as const, letterSpacing: '0.07em' }}>PRIYA</div>
+                <div style={{ padding: '9px 13px', borderRadius: '12px 2px 12px 12px', background: 'rgba(79,70,229,0.10)', border: '1px solid rgba(79,70,229,0.18)', fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
+              </div>
             </div>
-          </div>
+          </WipeBubble>
         );
         return (
-          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35` }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <WipeBubble key={i} direction="left" delay={Math.min(i * 0.05, 0.25)}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35` }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              </div>
+              <div style={{ maxWidth: '76%' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>
+                <div style={{ padding: '9px 13px', borderRadius: '2px 12px 12px 12px', background: `${accent}0F`, border: `1px solid ${accent}22`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
+              </div>
             </div>
-            <div style={{ maxWidth: '76%' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>
-              <div style={{ padding: '9px 13px', borderRadius: '2px 12px 12px 12px', background: `${accent}0F`, border: `1px solid ${accent}22`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
-            </div>
-          </div>
+          </WipeBubble>
         );
       })}
     </div>
