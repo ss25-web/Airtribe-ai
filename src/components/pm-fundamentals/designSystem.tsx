@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
@@ -737,16 +737,43 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 
 // ─────────────────────────────────────────
 // ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
+// Uses raw IntersectionObserver + rAF to avoid Next.js hydration race with Framer Motion.
+// ready=true applies the hidden clip-path after first paint; rAF ensures hidden state
+// is committed to the DOM before the observer begins watching.
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setReady(true);          // render hidden state on next tick
+    let io: IntersectionObserver;
+    const raf = requestAnimationFrame(() => {   // wait one frame so hidden state is painted
+      io = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) { setVisible(true); io.disconnect(); }
+        },
+        { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
+      );
+      io.observe(el);
+    });
+    return () => { cancelAnimationFrame(raf); io?.disconnect(); };
+  }, []);
+
+  const clipHidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
+
   return (
-    <motion.div
-      initial={{ clipPath: direction === 'left' ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)' }}
-      whileInView={{ clipPath: 'inset(0 0% 0 0%)' }}
-      viewport={{ once: true, margin: '0px 0px -40px 0px' }}
-      transition={{ duration: 0.48, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    <div
+      ref={ref}
+      style={ready ? {
+        clipPath: visible ? 'inset(0px 0px 0px 0px)' : clipHidden,
+        transition: `clip-path 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`,
+      } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
