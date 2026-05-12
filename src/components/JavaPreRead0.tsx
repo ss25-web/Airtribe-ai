@@ -87,26 +87,54 @@ const CodeBlock = ({ code, filename }: { code: string; filename?: string }) => (
 );
 
 
-const ConvoLine = ({ speaker, text, color }: { speaker: string; text: string; color: string }) => (
-  <div style={{ display:'flex', gap:12, alignItems:'flex-start', margin:'10px 0' }}>
-    <div style={{ flexShrink:0, marginTop:2 }}>
-      <SWEMentorFace name={speaker} size={38} />
-    </div>
-    <div style={{ flex:1, minWidth:0 }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em', textTransform:'uppercase' as const }}>{speaker}</div>
-      <div style={{ fontSize:13, color:'var(--ed-ink2)', lineHeight:1.72, background:`${color}08`, padding:'10px 14px', borderRadius:'0 12px 12px 12px', border:`1px solid ${color}18` }}>
-        &ldquo;{text}&rdquo;
+function ConvoLine({ speaker, text, color }: { speaker: string; text: string; color: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    el.style.opacity = '0'; el.style.transform = 'translateX(-48px) scale(0.97)'; el.style.transition = 'none';
+    let io: IntersectionObserver;
+    const raf = requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.55s cubic-bezier(0.34,1.48,0.64,1), transform 0.55s cubic-bezier(0.34,1.48,0.64,1)';
+      io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) { requestAnimationFrame(() => { el.style.opacity='1'; el.style.transform='translateX(0) scale(1)'; }); io.disconnect(); }
+      }, { threshold: 0.15 });
+      io.observe(el);
+    });
+    return () => { cancelAnimationFrame(raf); io?.disconnect(); el.style.opacity=''; el.style.transform=''; el.style.transition=''; };
+  }, []);
+  return (
+    <div ref={ref} style={{ display:'flex', gap:12, alignItems:'flex-start', margin:'10px 0' }}>
+      <div style={{ flexShrink:0, marginTop:2 }}><SWEMentorFace name={speaker} size={38} /></div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em', textTransform:'uppercase' as const }}>{speaker}</div>
+        <div style={{ fontSize:13, color:'var(--ed-ink2)', lineHeight:1.72, background:`${color}08`, padding:'10px 14px', borderRadius:'0 12px 12px 12px', border:`1px solid ${color}18` }}>&ldquo;{text}&rdquo;</div>
       </div>
     </div>
-  </div>
-);
+  );
+}
 
-const Thought = ({ name, text, color }: { name: string; text: string; color: string }) => (
-  <div style={{ margin:'16px 0', padding:'12px 16px', borderRadius:12, background:`${color}08`, border:`1px dashed ${color}30`, borderLeft:`3px solid ${color}` }}>
-    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em' }}>{name} thinks</div>
-    <div style={{ fontSize:13, color:'var(--ed-ink2)', fontStyle:'italic', lineHeight:1.65 }}>{text}</div>
-  </div>
-);
+function Thought({ name, text, color }: { name: string; text: string; color: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    el.style.opacity = '0'; el.style.transform = 'translateX(-48px) scale(0.97)'; el.style.transition = 'none';
+    let io: IntersectionObserver;
+    const raf = requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.55s cubic-bezier(0.34,1.48,0.64,1), transform 0.55s cubic-bezier(0.34,1.48,0.64,1)';
+      io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) { requestAnimationFrame(() => { el.style.opacity='1'; el.style.transform='translateX(0) scale(1)'; }); io.disconnect(); }
+      }, { threshold: 0.15 });
+      io.observe(el);
+    });
+    return () => { cancelAnimationFrame(raf); io?.disconnect(); el.style.opacity=''; el.style.transform=''; el.style.transition=''; };
+  }, []);
+  return (
+    <div ref={ref} style={{ margin:'16px 0', padding:'12px 16px', borderRadius:12, background:`${color}08`, border:`1px dashed ${color}30`, borderLeft:`3px solid ${color}` }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:9, fontWeight:700, color, marginBottom:5, letterSpacing:'0.08em' }}>{name} thinks</div>
+      <div style={{ fontSize:13, color:'var(--ed-ink2)', fontStyle:'italic', lineHeight:1.65 }}>{text}</div>
+    </div>
+  );
+}
 
 const SectionIntro = ({ eyebrow, heading, children }: { eyebrow: string; heading: string; children?: React.ReactNode }) => (
   <div style={{ marginBottom:32 }}>
