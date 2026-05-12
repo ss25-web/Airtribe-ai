@@ -410,18 +410,6 @@ export default function JavaPreRead1WebBackend({ onBack, onNext, nextLabel }: Pr
             options:['To prove the API contract works independently from UI behavior','To avoid choosing status codes','To bypass all authentication permanently','To convert Java into JavaScript'],
             correctIndex:0, explanation:'Direct API testing verifies method, URL, headers, body, response, and status before frontend integration.' }} />
 
-        <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
-          style={{ marginTop:40, padding:32, background:'var(--ed-card)', borderRadius:14, textAlign:'center' as const, border:`1px solid var(--ed-rule)`, borderTop:`4px solid ${ACCENT}` }}>
-          <motion.div animate={{ rotate:[0,8,-8,0] }} transition={{ repeat:Infinity, duration:2 }} style={{ fontSize:36, marginBottom:12 }}>🌐</motion.div>
-          <h3 style={{ fontFamily:"'Lora',Georgia,serif", fontSize:22, fontWeight:700, marginBottom:10, color:'var(--ed-ink)' }}>Java Pre-Read 01 Complete</h3>
-          <p style={{ fontSize:14, color:'var(--ed-ink2)', lineHeight:1.8, maxWidth:420, margin:'0 auto 24px' }}>
-            You traced one dashboard click from DNS to HTTP, REST, headers, CORS, auth, and API testing. The next Java module introduces Spring Boot to build these contracts in code.
-          </p>
-          <motion.button onClick={onBack} whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}
-            style={{ padding:'12px 28px', borderRadius:8, background:ACCENT, color:'#fff', fontSize:14, fontWeight:600, border:'none', cursor:'pointer' }}>
-            Back to Curriculum →
-          </motion.button>
-        </motion.div>
       </section>
     </SWEPreReadLayout>
   );

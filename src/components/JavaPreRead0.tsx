@@ -688,18 +688,6 @@ static String classify(int amount, String currency) {
           </p>
         </div>
 
-        <motion.div initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }}
-          style={{ marginTop:40, padding:'32px', background:'var(--ed-card)', borderRadius:14, textAlign:'center' as const, border:`1px solid var(--ed-rule)`, borderTop:`4px solid ${ACCENT}` }}>
-          <motion.div animate={{ rotate:[0,8,-8,0] }} transition={{ repeat:Infinity, duration:2 }} style={{ fontSize:36, marginBottom:12 }}>☕</motion.div>
-          <h3 style={{ fontFamily:"'Lora',Georgia,serif", fontSize:22, fontWeight:700, marginBottom:10, color:'var(--ed-ink)' }}>Java Pre-Read 00 Complete</h3>
-          <p style={{ fontSize:14, color:'var(--ed-ink2)', lineHeight:1.8, maxWidth:420, margin:'0 auto 24px' }}>
-            You followed Vikram from a vague product request to a small Java validator. You saw how Java turns assumptions into explicit contracts before code reaches production.
-          </p>
-          <motion.button onClick={onBack} whileHover={{ scale:1.03 }} whileTap={{ scale:0.97 }}
-            style={{ padding:'12px 28px', borderRadius:8, background:ACCENT, color:'#fff', fontSize:14, fontWeight:600, border:'none', cursor:'pointer' }}>
-            Back to Curriculum →
-          </motion.button>
-        </motion.div>
       </section>
     </SWEPreReadLayout>
   );
