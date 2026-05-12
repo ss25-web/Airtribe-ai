@@ -154,10 +154,6 @@ export default function SeriesHomepage({ onSelectPM, onSelectGenAI, onSelectSWE,
                     whiteSpace: 'pre-line' as const,
                   }}>{s.title}</h2>
                 </div>
-                <div style={{
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: '10px',
-                  color: 'rgba(255,255,255,0.55)', marginTop: '12px',
-                }}>{s.parts}</div>
               </div>
 
               {/* Card body */}

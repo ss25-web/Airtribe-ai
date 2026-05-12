@@ -297,7 +297,7 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '150px', position: 'relative' as const }}>
             {[
-              { label: 'Modules', value: '6 modules' },
+              { label: 'Modules', value: '14 modules' },
               { label: 'Start with', value: 'Pre-read 01' },
             ].map(s => (
               <div key={s.label} style={{
@@ -375,7 +375,6 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' as const }}>
                   <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif" }}>{mod.label}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: mod.accent, letterSpacing: '0.06em' }}>{mod.phase}</span>
                   {mod.available && (
                     <span style={{
                       padding: '2px 8px', borderRadius: '20px', fontSize: '8px',
