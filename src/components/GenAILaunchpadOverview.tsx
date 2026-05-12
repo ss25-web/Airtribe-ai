@@ -377,15 +377,6 @@ export default function GenAILaunchpadOverview({ track, onBack, onStartModule }:
                 <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.55, marginBottom: '8px' }}>{mod.desc}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>⏱ {mod.duration}</span>
-                  <span style={{ color: 'var(--ed-rule)', fontSize: '10px' }}>·</span>
-                  {mod.tools.slice(0, 3).map(t => (
-                    <span key={t} style={{
-                      padding: '2px 7px', borderRadius: '4px', fontSize: '9px',
-                      fontFamily: "'JetBrains Mono', monospace",
-                      background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)',
-                      color: 'var(--ed-ink3)',
-                    }}>{t}</span>
-                  ))}
                 </div>
                 {moduleProgress.totalSections > 0 && moduleProgress.status !== 'available' && (
                   <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -441,10 +441,6 @@ export default function SWELaunchpadOverview({ track, level, onBack, onStartPreR
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const }}>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>⏱ {mod.baseDuration}</span>
-                    <span style={{ color: 'var(--ed-rule)', fontSize: '10px' }}>·</span>
-                    {mod.tools.slice(0, 3).map((t: string) => (
-                      <span key={t} style={{ padding: '2px 7px', borderRadius: '4px', fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)', color: 'var(--ed-ink3)' }}>{t}</span>
-                    ))}
                   </div>
                 </div>
 
