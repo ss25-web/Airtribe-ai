@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
@@ -736,41 +736,49 @@ export const TiltCard = ({ children, style }: { children: React.ReactNode; style
 };
 
 // ─────────────────────────────────────────
-// ─── WipeBubble: scroll-triggered clip-path reveal for conversation lines ─────
-// Bypasses React state entirely — writes clip-path and transition directly to the DOM
-// so the browser always sees: (1) hidden clip-path set instantly, (2) transition added
-// in the next animation frame, (3) IntersectionObserver fires and changes clip-path
-// AFTER transition is already present. CSS then animates the change reliably.
+// ─── WipeBubble: scroll-triggered clip-path wipe for conversation lines ──────
 function WipeBubble({ direction, delay = 0, children }: { direction: 'left' | 'right'; delay?: number; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Hide before first paint so user never sees the un-animated state
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.clipPath = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
+  }, [direction]);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const hidden = direction === 'left' ? 'inset(0px 100% 0px 0px)' : 'inset(0px 0px 0px 100%)';
+    let io: IntersectionObserver;
+    let raf2 = 0;
 
-    // Step 1: hide instantly (no transition yet)
-    el.style.clipPath = hidden;
-    el.style.transition = 'none';
+    // Frame A: set transition while element is still in its hidden state
+    const raf1 = requestAnimationFrame(() => {
+      el.style.transition = `clip-path 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`;
 
-    // Step 2: next frame — add transition BEFORE observer starts
-    const raf = requestAnimationFrame(() => {
-      el.style.transition = `clip-path 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`;
-
-      // Step 3: now observe — when element enters view, clip-path change will animate
-      const io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
+      io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          // Frame B: change clip-path one frame AFTER transition was set.
+          // Without this nested RAF, both changes land in the same paint frame
+          // and CSS never sees a before-state → transition silently no-ops.
+          raf2 = requestAnimationFrame(() => {
             el.style.clipPath = 'inset(0px 0px 0px 0px)';
-            io.disconnect();
-          }
-        },
-        { rootMargin: '0px 0px -30px 0px', threshold: 0.05 },
-      );
+          });
+          io.disconnect();
+        }
+      }, { rootMargin: '0px 0px -40px 0px', threshold: 0.1 });
+
       io.observe(el);
     });
 
-    return () => { cancelAnimationFrame(raf); el.style.clipPath = ''; el.style.transition = ''; };
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      io?.disconnect();
+      el.style.clipPath = '';
+      el.style.transition = '';
+    };
   }, [direction, delay]);
 
   return <div ref={ref}>{children}</div>;
