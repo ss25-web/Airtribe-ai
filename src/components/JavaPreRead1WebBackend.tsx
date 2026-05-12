@@ -27,14 +27,14 @@ const ACCENT_RGB = '59,130,246';
 const MODULE_ID  = 'java-pr-01';
 
 const SECTIONS = [
-  { id: 'dns',          label: 'DNS and the First Hop'              },
-  { id: 'http',         label: 'HTTP Request Anatomy'                },
-  { id: 'rest',         label: 'REST and Resources'                  },
-  { id: 'status-codes', label: 'Status Codes'                        },
-  { id: 'headers',      label: 'Headers, JSON and Content Types'     },
-  { id: 'cors',         label: 'CORS and Browser Trust'              },
-  { id: 'auth',         label: 'Authentication and Authorization'    },
-  { id: 'api-testing',  label: 'Postman and API Testing'             },
+  { id: 'dns',          label: 'DNS and the First Hop',           icon: '🌐' },
+  { id: 'http',         label: 'HTTP Request Anatomy',            icon: '📡' },
+  { id: 'rest',         label: 'REST and Resources',              icon: '🔗' },
+  { id: 'status-codes', label: 'Status Codes',                    icon: '🚦' },
+  { id: 'headers',      label: 'Headers, JSON and Content Types', icon: '📋' },
+  { id: 'cors',         label: 'CORS and Browser Trust',          icon: '🔒' },
+  { id: 'auth',         label: 'Authentication and Authorization', icon: '🔑' },
+  { id: 'api-testing',  label: 'Postman and API Testing',         icon: '🧪' },
 ];
 
 const CONCEPTS = [
