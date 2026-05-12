@@ -1776,7 +1776,7 @@ const CS_DIALOGUES: Record<'s01' | 's02' | 's03' | 's04', Record<SWETrack, SWECS
   },
 };
 
-const SWEConversationScene = ({
+function SWEConversationScene({
   track, lines, mentorName, mentorRole, mentorColor,
 }: {
   track: SWETrack;
@@ -1784,64 +1784,79 @@ const SWEConversationScene = ({
   mentorName: string;
   mentorRole: string;
   mentorColor: string;
-}) => {
+}) {
   const protagonistName = track === 'python' ? 'Aisha' : track === 'java' ? 'Vikram' : 'Leo';
   const protagonistColor = track === 'python' ? '#16A34A' : track === 'java' ? '#0369A1' : '#CA8A04';
   const protagonistRole = track === 'python' ? 'Junior Software Engineer' : track === 'java' ? 'Junior Backend Engineer' : 'Junior Full-Stack Developer';
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setStarted(true); io.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <div style={{ margin: '28px 0', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      {lines.map((l, i) => {
-        const isProtagonist = l.speaker === 'protagonist';
-        const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
-        const bubble = (
-          <motion.div
-            whileHover={isProtagonist ? {} : { y: -2, boxShadow: `0 6px 20px ${mentorColor}22` }}
-            transition={{ duration: 0.2 }}
-            style={{
-              background: isProtagonist ? `${protagonistColor}12` : 'var(--ed-card)',
-              border: `1px solid ${isProtagonist ? `${protagonistColor}28` : mentorColor + '30'}`,
-              borderLeft: isProtagonist ? undefined : `3px solid ${mentorColor}`,
-              borderRadius: isProtagonist ? '14px 14px 4px 14px' : '4px 14px 14px 14px',
-              padding: '10px 14px', fontSize: '13.5px', color: 'var(--ed-ink)', lineHeight: 1.68,
-              boxShadow: isProtagonist ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
-            }}
-          >
-            {l.text}
-          </motion.div>
-        );
-        return (
-          <div key={i} style={{ display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '12px', alignItems: 'flex-end' }}>
-            {/* Avatar */}
-            {prevDifferent ? (
-              isProtagonist ? (
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: protagonistColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 700, color: '#fff', flexShrink: 0, boxShadow: `0 2px 8px ${protagonistColor}40` }}>
-                  {protagonistName.slice(0, 2)}
-                </div>
-              ) : (
-                <div style={{ width: 48, height: 48, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${mentorColor}`, boxShadow: `0 2px 10px ${mentorColor}30` }}>
-                  <SWEMentorFace name={mentorName} size={48} />
-                </div>
-              )
-            ) : (
-              <div style={{ width: isProtagonist ? 42 : 48, flexShrink: 0 }} />
-            )}
-            {/* Bubble + name */}
-            <div style={{ maxWidth: '70%' }}>
-              {prevDifferent && (
-                <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistColor : mentorColor, marginBottom: '5px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.05em', fontFamily: "'JetBrains Mono', monospace" }}>
-                  {isProtagonist ? protagonistName : mentorName}
-                  <span style={{ fontWeight: 400, opacity: 0.65 }}> &middot; {isProtagonist ? protagonistRole : mentorRole}</span>
-                </div>
-              )}
-              {bubble}
-            </div>
+    <div ref={containerRef} style={{ margin: '28px 0', padding: '18px 20px', borderRadius: '14px', background: 'var(--ed-card)', border: `1px solid ${mentorColor}22`, boxShadow: `0 6px 0 ${mentorColor}18, inset 0 1px 0 rgba(255,255,255,0.7)` }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', paddingBottom: '12px', borderBottom: `1px solid ${mentorColor}18` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <SWEMentorFace name={mentorName} size={36} />
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '12px', color: mentorColor }}>{mentorName}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>{mentorRole}</div>
           </div>
-        );
-      })}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: protagonistColor, fontWeight: 600 }}>{protagonistName.toUpperCase()}</div>
+          <SWEMentorFace name={protagonistName} size={36} />
+        </div>
+      </div>
+      {/* Lines */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {lines.map((l, i) => {
+          const isProtagonist = l.speaker === 'protagonist';
+          const prevDifferent = i === 0 || lines[i - 1].speaker !== l.speaker;
+          return (
+            <div key={i} style={{
+              display: 'flex', flexDirection: isProtagonist ? 'row-reverse' : 'row', gap: '10px', alignItems: 'flex-start',
+              opacity: started ? 1 : 0,
+              transform: started ? 'translateX(0) scale(1)' : isProtagonist ? 'translateX(48px) scale(0.93)' : 'translateX(-48px) scale(0.93)',
+              transition: started ? `opacity 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s, transform 0.55s cubic-bezier(0.34,1.48,0.64,1) ${i * 0.25}s` : 'none',
+            }}>
+              <div style={{ flexShrink: 0, marginTop: 2 }}>
+                {prevDifferent ? <SWEMentorFace name={isProtagonist ? protagonistName : mentorName} size={38} /> : <div style={{ width: 38 }} />}
+              </div>
+              <div style={{ maxWidth: '78%' }}>
+                {prevDifferent && (
+                  <div style={{ fontSize: '9px', fontWeight: 700, color: isProtagonist ? protagonistColor : mentorColor, marginBottom: '3px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace" }}>
+                    {isProtagonist ? protagonistName : mentorName}
+                    <span style={{ fontWeight: 400, opacity: 0.65 }}> · {isProtagonist ? protagonistRole : mentorRole}</span>
+                  </div>
+                )}
+                <div style={{
+                  background: isProtagonist ? `${protagonistColor}0E` : `${mentorColor}0E`,
+                  border: `1px solid ${isProtagonist ? protagonistColor : mentorColor}22`,
+                  borderRadius: isProtagonist ? '12px 2px 12px 12px' : '2px 12px 12px 12px',
+                  padding: '10px 14px', fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.68,
+                  boxShadow: `0 2px 0 ${isProtagonist ? protagonistColor : mentorColor}18`,
+                }}>
+                  {l.text}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
-};
+}
 
 // MAIN COMPONENT
 // 
