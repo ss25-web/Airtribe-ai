@@ -128,7 +128,7 @@ export function ResearchQuadrantMap() {
     <div ref={ref} style={{ margin: '36px 0' }}>
       <VizLabel>Research Methods Map — pick the method that answers your question type</VizLabel>
 
-      <div style={{ borderRadius: '20px', background: 'linear-gradient(145deg, #F8F6F1 0%, #EDEAE4 100%)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.06)' }}>
+      <div style={{ borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 12px 32px rgba(0,0,0,0.06)' }}>
         {/* Axis labels */}
         <div style={{ textAlign: 'center', marginBottom: '8px' }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em' }}>QUALITATIVE</span>
@@ -361,7 +361,7 @@ export function AffinityClusterAnimation() {
 
       <div style={{
         borderRadius: '20px',
-        background: 'linear-gradient(145deg, #F8F6F1 0%, #EDE8DF 100%)',
+        background: 'var(--ed-card)',
         border: '1px solid var(--ed-rule)',
         padding: '24px 20px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.07)',

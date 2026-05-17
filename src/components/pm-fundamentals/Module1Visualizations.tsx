@@ -146,13 +146,13 @@ export function UDBMLoopAnimation() {
 
                 {/* Right: insight + outcome */}
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: scene.light, border: `1.5px solid ${scene.color}30`, borderLeft: `4px solid ${scene.color}` }}>
+                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: `${scene.color}18`, border: `1.5px solid ${scene.color}40`, borderLeft: `4px solid ${scene.color}` }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '7px' }}>THE TURN</div>
                     <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.65 }}>{scene.insight}</div>
                   </div>
-                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: `${scene.color}10`, border: `1.5px solid ${scene.color}40` }}>
+                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: `${scene.color}14`, border: `1.5px solid ${scene.color}35` }}>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '7px' }}>OUTCOME</div>
-                    <div style={{ fontSize: '13px', color: scene.dark, fontWeight: 700, lineHeight: 1.65 }}>{scene.outcome}</div>
+                    <div style={{ fontSize: '13px', color: scene.color, fontWeight: 700, lineHeight: 1.65 }}>{scene.outcome}</div>
                   </div>
                   <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.6, paddingTop: '4px' }}>
                     → {scene.nextLabel}
@@ -347,9 +347,9 @@ function RiceAxes() {
           <mesh position={[0, i * 1.1, 0]}><boxGeometry args={[8.5, 0.014, 0.014]} /><meshBasicMaterial color="#CBD5E1" /></mesh>
         </group>
       ))}
-      <Html position={[5.2, -3.5, 0]} style={{ color: '#64748B', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 700 }}>REACH →</Html>
-      <Html position={[-4.3, 4.6, 0]} style={{ color: '#64748B', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 700 }}>↑ IMPACT</Html>
-      <Html position={[0.5, -4.8, 0]} style={{ color: '#94A3B8', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>sphere size = 1/effort · opacity = confidence</Html>
+      <Html position={[5.2, -3.5, 0]} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 700 }}>REACH →</Html>
+      <Html position={[-4.3, 4.6, 0]} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 700 }}>↑ IMPACT</Html>
+      <Html position={[0.5, -4.8, 0]} style={{ color: 'rgba(255,255,255,0.3)', fontSize: '9px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap' }}>sphere size = 1/effort · opacity = confidence</Html>
     </group>
   );
 }
@@ -388,13 +388,13 @@ export function RICEBubble3D() {
       <VizLabel>RICE Priority Space — 3D · hover any feature to inspect its score</VizLabel>
       <div style={{
         borderRadius: '20px', overflow: 'hidden', height: '480px',
-        background: 'linear-gradient(160deg, #F8F6F1 0%, #EEE9DF 100%)',
-        border: '1px solid var(--ed-rule)',
-        boxShadow: '0 20px 48px rgba(0,0,0,0.09)',
+        background: '#0F172A',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: '0 20px 48px rgba(0,0,0,0.25)',
       }}>
-        <Suspense fallback={<div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ed-ink3)', fontFamily: 'monospace', fontSize: '12px' }}>Loading 3D scene…</div>}>
+        <Suspense fallback={<div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace', fontSize: '12px' }}>Loading 3D scene…</div>}>
           <Canvas gl={{ antialias: true, alpha: false }} style={{ background: 'transparent' }}>
-            <color attach="background" args={['#F8F6F1']} />
+            <color attach="background" args={['#0F172A']} />
             <RiceScene started={started} />
           </Canvas>
         </Suspense>
