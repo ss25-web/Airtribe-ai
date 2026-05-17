@@ -248,16 +248,25 @@ export function CompetitiveMoatRadar() {
               {/* Axes */}
               {MOAT_AXES.slice(0, visibleAxes).map((a, i) => {
                 const end = moatPoint(100, a.angle, MAX_R);
-                const labelPt = moatPoint(115, a.angle, MAX_R);
                 return (
                   <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <line x1="150" y1="150" x2={end.x} y2={end.y} stroke="var(--ed-rule)" strokeWidth="1.5" />
-                    <text x={labelPt.x} y={labelPt.y} textAnchor="middle" dominantBaseline="middle"
-                      style={{ fontSize: '8.5px', fill: 'var(--ed-ink3)', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700, cursor: 'pointer' }}
-                      onClick={() => setActiveAxis(activeAxis === i ? null : i)}>
-                      {a.label}
-                    </text>
                   </motion.g>
+                );
+              })}
+              {/* Axis labels as HTML so they never overlap or clip */}
+              {MOAT_AXES.slice(0, visibleAxes).map((a, i) => {
+                const labelPt = moatPoint(122, a.angle, MAX_R);
+                const lx = (labelPt.x / 300) * 100;
+                const ly = (labelPt.y / 300) * 100;
+                return (
+                  <motion.foreignObject key={`lbl-${i}`} x={labelPt.x - 52} y={labelPt.y - 14} width="104" height="28"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <div onClick={() => setActiveAxis(activeAxis === i ? null : i)}
+                      style={{ textAlign: 'center', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, color: 'var(--ed-ink2)', cursor: 'pointer', lineHeight: 1.3, padding: '2px 4px', borderRadius: '6px', background: activeAxis === i ? 'rgba(20,184,166,0.12)' : 'transparent', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {a.label}
+                    </div>
+                  </motion.foreignObject>
                 );
               })}
               {/* Gong shape */}
@@ -706,112 +715,145 @@ export function KillCriteriaVault() {
 }
 
 // ─── 6. LAND AND EXPAND NETWORK (Track 1) ─────────────────────────────────────
-// Company org chart. EdSpark lands in Sales team, then product proof
-// spreads organically to adjacent teams. Teaches: expansion is product strategy.
+// Hub-and-spoke layout. SVG renders circles + edges (no text).
+// HTML labels positioned at matching % coords — crisp at any size.
 
-const TEAMS = [
-  { id: 'sales',    label: 'Sales',           x: 50, y: 50,  color: '#22C55E', dark: '#15803D', status: 'landed',  proof: 'Landed ✓' },
-  { id: 'cs',       label: 'Customer\nSuccess', x: 78, y: 32, color: '#6366F1', dark: '#3730A3', status: 'locked',  proof: '10+ DAU + win story' },
-  { id: 'mktg',     label: 'Marketing',        x: 78, y: 68, color: '#0EA5E9', dark: '#0369A1', status: 'locked',  proof: '10+ DAU + ROI metric' },
-  { id: 'ops',      label: 'Revenue\nOps',     x: 22, y: 32, color: '#F59E0B', dark: '#D97706', status: 'locked',  proof: 'Champion referral' },
-  { id: 'finance',  label: 'Finance',          x: 22, y: 68, color: '#EF4444', dark: '#B91C1C', status: 'locked',  proof: 'VP sponsor required' },
-  { id: 'leadership', label: 'Leadership',     x: 50, y: 12, color: '#8B5CF6', dark: '#6D28D9', status: 'locked',  proof: 'NPS 9+ + expansion ARR' },
-];
+// All coords in a 400×400 SVG space, center at (200,200), spoke radius 140
+const SPOKE_R = 140;
+const CX = 200, CY = 200;
+const toRad = (deg: number) => (deg * Math.PI) / 180;
 
-const EDGES = [
-  ['sales', 'cs'], ['sales', 'mktg'], ['sales', 'ops'], ['sales', 'finance'], ['sales', 'leadership'],
+const NET_TEAMS = [
+  { id: 'sales',      label: 'Sales',          sub: 'LANDED ✓', svgX: CX,                                   svgY: CY,                                   r: 36, color: '#22C55E', dark: '#15803D', proof: '' },
+  { id: 'leadership', label: 'Leadership',     sub: 'unlock',   svgX: CX + SPOKE_R * Math.cos(toRad(-90)),  svgY: CY + SPOKE_R * Math.sin(toRad(-90)),  r: 26, color: '#8B5CF6', dark: '#6D28D9', proof: 'NPS 9+ + ARR' },
+  { id: 'cs',         label: 'Cust. Success',  sub: 'unlock',   svgX: CX + SPOKE_R * Math.cos(toRad(-18)),  svgY: CY + SPOKE_R * Math.sin(toRad(-18)),  r: 26, color: '#6366F1', dark: '#3730A3', proof: '10+ DAU + win' },
+  { id: 'mktg',       label: 'Marketing',      sub: 'unlock',   svgX: CX + SPOKE_R * Math.cos(toRad(54)),   svgY: CY + SPOKE_R * Math.sin(toRad(54)),   r: 26, color: '#0EA5E9', dark: '#0369A1', proof: 'ROI metric' },
+  { id: 'finance',    label: 'Finance',        sub: 'unlock',   svgX: CX + SPOKE_R * Math.cos(toRad(126)),  svgY: CY + SPOKE_R * Math.sin(toRad(126)),  r: 26, color: '#EF4444', dark: '#B91C1C', proof: 'VP sponsor' },
+  { id: 'ops',        label: 'Revenue Ops',    sub: 'unlock',   svgX: CX + SPOKE_R * Math.cos(toRad(198)),  svgY: CY + SPOKE_R * Math.sin(toRad(198)),  r: 26, color: '#F59E0B', dark: '#D97706', proof: 'Champion ref' },
 ];
 
 export function LandExpandNetwork() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [unlockedCount, setUnlockedCount] = useState(1); // sales is always unlocked
+  const [unlocked, setUnlocked] = useState(1);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setUnlockedCount(1);
-    const ts = TEAMS.slice(1).map((_, i) => setTimeout(() => setUnlockedCount(i + 2), 1200 + i * 1400));
-    return () => ts.forEach(clearTimeout);
+    setUnlocked(1);
+    NET_TEAMS.slice(1).forEach((_, i) =>
+      setTimeout(() => setUnlocked(n => Math.max(n, i + 2)), 1000 + i * 1200)
+    );
   }, [inView, tick]);
 
-  const replay = () => { setUnlockedCount(1); setTick(t => t + 1); };
-
-  const totalSeats = 120;
-  const seatsWon = Math.round((unlockedCount / TEAMS.length) * totalSeats);
+  const replay = () => { setUnlocked(1); setTick(t => t + 1); };
+  const seatsWon = Math.round((unlocked / NET_TEAMS.length) * 500);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>Land-and-expand — proof unlocks adjacent teams. This is product strategy, not sales.</VizLabel>
+      <VizLabel>Land-and-expand — product proof unlocks adjacent teams. Not sales. Product.</VizLabel>
 
       <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '28px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '24px', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: '28px', alignItems: 'center' }}>
 
-          {/* Network diagram */}
-          <div style={{ position: 'relative', aspectRatio: '1' }}>
-            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
-              {/* Edges */}
-              {EDGES.map(([a, b], i) => {
-                const ta = TEAMS.find(t => t.id === a)!;
-                const tb = TEAMS.find(t => t.id === b)!;
-                const bothUnlocked = TEAMS.findIndex(t => t.id === a) < unlockedCount && TEAMS.findIndex(t => t.id === b) < unlockedCount;
+          {/* ── Hub-and-spoke diagram ── */}
+          <div style={{ position: 'relative', aspectRatio: '1', maxWidth: '420px' }}>
+            {/* SVG layer: circles + spoke lines only (no text) */}
+            <svg viewBox="0 0 400 400" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+              {/* Spokes */}
+              {NET_TEAMS.slice(1).map((team, i) => {
+                const isOn = i + 1 < unlocked;
                 return (
-                  <motion.line key={i}
-                    x1={ta.x} y1={ta.y} x2={tb.x} y2={tb.y}
-                    stroke={bothUnlocked ? ta.color : 'var(--ed-rule)'}
-                    strokeWidth={bothUnlocked ? '1.5' : '0.8'}
-                    strokeDasharray={bothUnlocked ? '0' : '2 2'}
-                    animate={{ stroke: bothUnlocked ? ta.color : '#CBD5E1' }}
+                  <motion.line key={team.id}
+                    x1={CX} y1={CY} x2={team.svgX} y2={team.svgY}
+                    stroke={isOn ? team.color : '#CBD5E1'}
+                    strokeWidth={isOn ? 2.5 : 1.2}
+                    strokeDasharray={isOn ? '0' : '6 4'}
+                    animate={{ stroke: isOn ? team.color : '#CBD5E1', strokeWidth: isOn ? 2.5 : 1.2 }}
                     transition={{ duration: 0.5 }}
                   />
                 );
               })}
-              {/* Team nodes */}
-              {TEAMS.map((team, i) => {
-                const isUnlocked = i < unlockedCount;
+              {/* Satellite circles */}
+              {NET_TEAMS.slice(1).map((team, i) => {
+                const isOn = i + 1 < unlocked;
                 return (
-                  <motion.g key={team.id}
-                    animate={{ opacity: isUnlocked ? 1 : 0.35 }}
-                    transition={{ duration: 0.5 }}>
-                    <motion.circle cx={team.x} cy={team.y} r="9"
-                      animate={{
-                        fill: isUnlocked ? team.color : '#CBD5E1',
-                        filter: isUnlocked ? `drop-shadow(0 3px 6px ${team.color}60)` : 'none',
-                      }}
-                      transition={{ duration: 0.5 }} />
-                    {isUnlocked && (
-                      <motion.circle cx={team.x} cy={team.y} r="12"
-                        fill="none" stroke={team.color} strokeWidth="1.5" strokeOpacity="0.35"
-                        initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                  <motion.g key={team.id}>
+                    {isOn && (
+                      <motion.circle cx={team.svgX} cy={team.svgY} r={team.r + 8}
+                        fill="none" stroke={team.color} strokeWidth="2" strokeOpacity="0.3"
+                        initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.4 }} />
                     )}
-                    <text x={team.x} y={team.y + 16} textAnchor="middle"
-                      style={{ fontSize: '5.5px', fontFamily: 'system-ui', fontWeight: 700, fill: isUnlocked ? team.color : '#94A3B8', whiteSpace: 'pre' }}>
-                      {team.label.split('\n')[0]}
-                    </text>
+                    <motion.circle cx={team.svgX} cy={team.svgY} r={team.r}
+                      animate={{ fill: isOn ? team.color : '#E2E8F0' }}
+                      transition={{ duration: 0.5 }}
+                      style={{ filter: isOn ? `drop-shadow(0 4px 8px ${team.color}60)` : 'none' }} />
                   </motion.g>
                 );
               })}
+              {/* Center hub */}
+              <circle cx={CX} cy={CY} r={NET_TEAMS[0].r + 6} fill={`${NET_TEAMS[0].color}25`} stroke={NET_TEAMS[0].color} strokeWidth="2.5" />
+              <circle cx={CX} cy={CY} r={NET_TEAMS[0].r} fill={NET_TEAMS[0].color}
+                style={{ filter: `drop-shadow(0 6px 12px ${NET_TEAMS[0].color}70)` }} />
             </svg>
+
+            {/* HTML label layer: text never inside SVG */}
+            {NET_TEAMS.map((team, i) => {
+              const isOn = i === 0 || i < unlocked;
+              const lx = (team.svgX / 400) * 100;
+              const ly = (team.svgY / 400) * 100;
+              return (
+                <motion.div key={team.id}
+                  animate={{ opacity: isOn ? 1 : 0.4 }}
+                  transition={{ duration: 0.45 }}
+                  style={{
+                    position: 'absolute',
+                    left: `${lx}%`, top: `${ly}%`,
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center' as const,
+                    pointerEvents: 'none',
+                  }}>
+                  {i === 0 ? (
+                    /* Center hub label */
+                    <>
+                      <div style={{ fontSize: '13px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.1, textShadow: '0 1px 4px rgba(0,0,0,0.25)' }}>Sales</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', fontWeight: 800, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.1em', marginTop: '2px' }}>LANDED</div>
+                    </>
+                  ) : (
+                    /* Satellite label */
+                    <>
+                      <div style={{ fontSize: '11px', fontWeight: 800, color: isOn ? '#FFFFFF' : 'var(--ed-ink3)', lineHeight: 1.15, textShadow: isOn ? '0 1px 4px rgba(0,0,0,0.3)' : 'none' }}>{team.label}</div>
+                      {isOn
+                        ? <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '7px', fontWeight: 800, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.08em', marginTop: '2px' }}>✓</div>
+                        : <div style={{ fontSize: '8px', color: 'var(--ed-ink3)', marginTop: '2px', lineHeight: 1.3 }}>{team.proof}</div>
+                      }
+                    </>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
 
-          {/* Right: proof progress */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+          {/* ── Right panel ── */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
             {/* Seat counter */}
-            <div style={{ padding: '14px 16px', borderRadius: '16px', background: 'rgba(34,197,94,0.1)', border: '1.5px solid rgba(34,197,94,0.3)', marginBottom: '6px' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.14em', marginBottom: '4px' }}>APEX CORP EXPANSION</div>
-              <div style={{ fontSize: '28px', fontWeight: 900, fontFamily: 'monospace', color: '#22C55E' }}>{seatsWon}<span style={{ fontSize: '14px', fontWeight: 400, color: 'var(--ed-ink3)' }}> / {totalSeats} seats</span></div>
+            <div style={{ padding: '16px', borderRadius: '16px', ...clay('#22C55E', '#15803D', 'rgba(34,197,94,0.45)', { textAlign: 'center' as const }) }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.16em', marginBottom: '4px' }}>APEX CORP</div>
+              <div style={{ fontSize: '32px', fontWeight: 900, fontFamily: 'monospace', color: '#FFFFFF', lineHeight: 1 }}>{seatsWon.toLocaleString()}</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginTop: '3px' }}>of 500 target seats</div>
             </div>
-            {/* Team status list */}
-            {TEAMS.map((team, i) => {
-              const isUnlocked = i < unlockedCount;
+            {/* Team list */}
+            {NET_TEAMS.map((team, i) => {
+              const isOn = i === 0 || i < unlocked;
               return (
-                <div key={team.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isUnlocked ? 1 : 0.45, transition: 'opacity 0.4s' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isUnlocked ? team.color : 'var(--ed-rule)', flexShrink: 0, transition: 'background 0.4s' }} />
+                <div key={team.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', opacity: isOn ? 1 : 0.4, transition: 'opacity 0.4s' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isOn ? team.color : '#CBD5E1', flexShrink: 0, boxShadow: isOn ? `0 2px 6px ${team.color}60` : 'none', transition: 'all 0.4s' }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: isUnlocked ? 'var(--ed-ink)' : 'var(--ed-ink3)', transition: 'color 0.4s' }}>{team.label.replace('\n', ' ')}</div>
-                    {!isUnlocked && <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>{team.proof}</div>}
-                    {isUnlocked && i > 0 && <div style={{ fontSize: '9px', color: team.color, fontWeight: 700 }}>Unlocked ✓</div>}
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: isOn ? 'var(--ed-ink)' : 'var(--ed-ink3)', transition: 'color 0.4s' }}>{team.label}</div>
+                    {!isOn && i > 0 && <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>{team.proof}</div>}
+                    {isOn && i > 0 && <div style={{ fontSize: '10px', color: team.color, fontWeight: 700 }}>Unlocked ✓</div>}
+                    {i === 0 && <div style={{ fontSize: '10px', color: '#22C55E', fontWeight: 700 }}>Landed ✓</div>}
                   </div>
                 </div>
               );
