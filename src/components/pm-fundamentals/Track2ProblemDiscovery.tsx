@@ -9,6 +9,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { ResearchQuadrantMap, AffinityClusterAnimation } from './Module2Visualizations';
 
 const PARTS = [
   { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
@@ -923,6 +924,10 @@ export default function Track2ProblemDiscovery({
 
         <TiltCard style={{ margin: '32px 0' }}><BiasSpotter /></TiltCard>
 
+        <div className="rv">
+          <ResearchQuadrantMap />
+        </div>
+
         <ConversationScene
           mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
           lines={[
@@ -1104,6 +1109,10 @@ export default function Track2ProblemDiscovery({
             If your findings can&apos;t be summarised in one sentence that explains <em>why</em> — not just <em>what</em> — you haven&apos;t synthesised. You&apos;ve listed. The sentence Priya landed on: <strong>&ldquo;Managers hire EdSpark to prove their coaching works — but the product never shows them that it does.&rdquo;</strong>
           </div>
         </InfoBox>
+
+        <div className="rv">
+          <AffinityClusterAnimation />
+        </div>
 
         <QuizEngine
           conceptId={QUIZZES[4].conceptId}

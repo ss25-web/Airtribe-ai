@@ -10,6 +10,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, NarrativeInterviewScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation } from './Module2Visualizations';
 
 // Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
@@ -1139,6 +1140,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           <ResearchMethodChooser />
         </div>
+
+        <div className="rv">
+          <ResearchSignalBars />
+        </div>
       </ChapterSection>
 
       {/* ── PART 2: Know Your Users ── */}
@@ -1287,6 +1292,8 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           <KraftfulAnalyzer />
 
+          <ResearchQuadrantMap />
+
           <QuizEngine conceptId="research-methods" conceptName="Research Methods" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[2]} />
 
           <InsightOrOpinion />
@@ -1356,6 +1363,8 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           {pullQuote("The insight isn't in the first answer. It's in the question after the first answer.", 'var(--coral)')}
 
           <TiltCard style={{ margin: '24px 0' }}><InterviewQuality /></TiltCard>
+
+          <InterviewDepthFunnel />
 
           <InfoBox title="The 5 rules Priya learned the hard way" accent="var(--coral)">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1498,6 +1507,8 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             'Insight — your interpretation: what the pattern means for the product and the user\u2019s job',
           ], 'var(--green)')}
 
+          <AffinityClusterAnimation />
+
           <QuizEngine conceptId="insight-synthesis" conceptName="Insight Synthesis" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[5]} />
         </div>
       </ChapterSection>
@@ -1552,6 +1563,8 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
         <div className="rv">
           {pullQuote("Make the problem so clear that the solution becomes obvious. That's the PM's job in discovery.", 'var(--amber)')}
+
+          <JTBDTransformAnimation />
 
           <TiltCard style={{ margin: '24px 0' }}><DiscoveryBriefBuilder /></TiltCard>
 
