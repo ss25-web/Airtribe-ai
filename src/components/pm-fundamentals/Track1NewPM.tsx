@@ -9,6 +9,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { DecisionRippleVisual, ProblemSolutionDriftVisual } from './Module1Animations';
+import { UDBMLoopAnimation, ProblemIcebergViz, RICEBubble3D, MetricsCascadeAnimation } from './Module1Visualizations';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
@@ -914,6 +915,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
         </div>
 
         <div className="rv">
+          <UDBMLoopAnimation />
+        </div>
+
+        <div className="rv">
           <TiltCard style={{ margin: '32px 0' }}><PMRoleChecker /></TiltCard>
 
           {keyBox('What a PM owns — and what they don\'t', [
@@ -1013,6 +1018,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
 
         <div className="rv">
           <ProblemSolutionDriftVisual />
+        </div>
+
+        <div className="rv">
+          <ProblemIcebergViz />
         </div>
 
         <TiltCard style={{ margin: '32px 0' }}><SymptomOrProblem /></TiltCard>
@@ -1240,6 +1249,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
         <TiltCard style={{ margin: '32px 0' }}><RICELab /></TiltCard>
 
         <div className="rv">
+          <RICEBubble3D />
+        </div>
+
+        <div className="rv">
           <PMPrincipleBox principle="Before you prioritize features, know what outcome you're trying to drive. Then choose what most directly gets you there." color="var(--coral)" />
           <ApplyItBox prompt="What's the single most important metric your product needs to improve right now? If you don't know, find out before your next sprint planning." color="var(--coral)" />
         </div>
@@ -1409,6 +1422,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
         </div>
 
         <TiltCard style={{ margin: '32px 0' }}><MetricPicker /></TiltCard>
+
+        <div className="rv">
+          <MetricsCascadeAnimation />
+        </div>
 
         <div className="rv">
           {keyBox('How to measure like a PM', [

@@ -9,6 +9,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animations';
+import { LocalMaximaScene, GuardrailDashboardAnimation, MetricsCascadeAnimation } from './Module1Visualizations';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
@@ -1109,6 +1110,10 @@ export default function Track2APM() {
         <TiltCard style={{ margin: '32px 0' }}><PMFLocalMaximaDemo /></TiltCard>
 
         <div className="rv">
+          <LocalMaximaScene />
+        </div>
+
+        <div className="rv">
           <ConversationScene
             mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
             lines={[
@@ -1443,6 +1448,14 @@ export default function Track2APM() {
         </div>
 
         <TiltCard style={{ margin: '32px 0' }}><GuardrailMetricsDemo /></TiltCard>
+
+        <div className="rv">
+          <GuardrailDashboardAnimation />
+        </div>
+
+        <div className="rv">
+          <MetricsCascadeAnimation />
+        </div>
 
         <div className="rv">
           <ConversationScene
