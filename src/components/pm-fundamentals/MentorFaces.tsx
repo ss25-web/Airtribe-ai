@@ -308,6 +308,51 @@ const RohanFace = ({ blink }: { blink: boolean }) => (
 );
 
 // ─────────────────────────────────────────
+// GENERIC USER — neutral customer/interviewee face
+// Used as the fallback when no named cast member is specified.
+// ─────────────────────────────────────────
+export const GenericUserFace = ({ size = 72 }: { size?: number }) => (
+  <div style={{ width: size, height: size, flexShrink: 0 }}>
+    <svg viewBox="0 0 100 110" style={{ width: '100%', height: '100%', display: 'block' }}>
+      {/* Shirt */}
+      <ellipse cx="50" cy="106" rx="38" ry="18" fill="#4B6484" />
+      <path d="M 36 90 Q 50 100 64 90" fill="#5A7499" />
+      {/* Neck */}
+      <rect x="43" y="76" width="14" height="17" rx="6" fill="#C8956A" />
+      {/* Head */}
+      <ellipse cx="50" cy="52" rx="25" ry="29" fill="#C8956A" />
+      {/* Ears */}
+      <ellipse cx="25" cy="53" rx="5" ry="7" fill="#C8956A" />
+      <ellipse cx="75" cy="53" rx="5" ry="7" fill="#C8956A" />
+      <ellipse cx="25.5" cy="53" rx="3" ry="4.5" fill="#B07848" />
+      <ellipse cx="74.5" cy="53" rx="3" ry="4.5" fill="#B07848" />
+      {/* Hair — short, neat */}
+      <ellipse cx="50" cy="27" rx="25" ry="14" fill="#3B2010" />
+      <rect x="25" y="27" width="50" height="8" fill="#3B2010" />
+      {/* Side hair */}
+      <ellipse cx="27" cy="40" rx="4" ry="9" fill="#3B2010" />
+      <ellipse cx="73" cy="40" rx="4" ry="9" fill="#3B2010" />
+      {/* Eyebrows */}
+      <path d="M 32 41 Q 39 38 45 40" stroke="#3B2010" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M 55 40 Q 61 38 68 41" stroke="#3B2010" strokeWidth="2" strokeLinecap="round" fill="none" />
+      {/* Eye whites */}
+      <ellipse cx="38" cy="50" rx="6.5" ry="5.5" fill="white" />
+      <ellipse cx="62" cy="50" rx="6.5" ry="5.5" fill="white" />
+      {/* Irises */}
+      <circle cx="39" cy="51" r="3.5" fill="#3B2010" />
+      <circle cx="63" cy="51" r="3.5" fill="#3B2010" />
+      {/* Pupils */}
+      <circle cx="40" cy="50" r="1.5" fill="#111" />
+      <circle cx="64" cy="50" r="1.5" fill="#111" />
+      {/* Nose */}
+      <path d="M 48 57 Q 50 62 52 57" stroke="#B07848" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* Smile */}
+      <path d="M 40 67 Q 50 75 60 67" stroke="#B07848" strokeWidth="2" strokeLinecap="round" fill="none" />
+    </svg>
+  </div>
+);
+
+// ─────────────────────────────────────────
 // FACE SELECTOR
 // ─────────────────────────────────────────
 const FACE_MAP: Record<MentorId, React.FC<{ blink: boolean }>> = {

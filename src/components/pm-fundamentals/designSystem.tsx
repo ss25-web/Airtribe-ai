@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MentorFace, MENTOR_META, type MentorId } from './MentorFaces';
+import { MentorFace, GenericUserFace, MENTOR_META, type MentorId } from './MentorFaces';
 import { useLearnerStore } from '@/lib/learnerStore';
 
 // Map name strings used in Avatar calls to MentorId
@@ -870,9 +870,7 @@ export const NarrativeInterviewScene = ({
       <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
         {intervieweeMentor
           ? <MentorFace mentor={intervieweeMentor} size={32} />
-          : <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40`, fontSize: 15, fontWeight: 900, color: '#fff', fontFamily: 'system-ui' }}>
-              {intervieweeName.charAt(0)}
-            </div>
+          : <GenericUserFace size={32} />
         }
         <div>
           <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
@@ -913,9 +911,7 @@ export const NarrativeInterviewScene = ({
             <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', ...anim }}>
               {intervieweeMentor
                 ? <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor={intervieweeMentor} size={34} /></div>
-                : <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35`, fontSize: 16, fontWeight: 900, color: '#fff', fontFamily: 'system-ui' }}>
-                    {intervieweeName.charAt(0)}
-                  </div>
+                : <div style={{ flexShrink: 0, marginTop: 2 }}><GenericUserFace size={34} /></div>
               }
               <div style={{ maxWidth: '76%' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>

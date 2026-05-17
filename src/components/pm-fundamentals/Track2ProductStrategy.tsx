@@ -9,6 +9,7 @@ import {
   TiltCard, PMPrincipleBox, TrackHeroCard, CharacterChip, ConversationScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { PortfolioCascadeViz, KillCriteriaVault, CompetitiveMoatRadar } from './ProductStrategyVisualizations';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -939,6 +940,10 @@ export default function Track2ProductStrategy({
           conceptId="portfolio-systems-thinking"
         />
 
+        <div className="rv">
+          <PortfolioCascadeViz />
+        </div>
+
         <QuizEngine
           conceptId="portfolio-systems-thinking"
           conceptName="Portfolio-Level Systems Thinking"
@@ -1006,6 +1011,10 @@ export default function Track2ProductStrategy({
           conceptId="kill-criteria"
         />
 
+        <div className="rv">
+          <KillCriteriaVault />
+        </div>
+
         <QuizEngine
           conceptId="kill-criteria"
           conceptName="Kill Criteria and Resource Reallocation"
@@ -1067,6 +1076,10 @@ export default function Track2ProductStrategy({
           ]}
           conceptId="series-b-narrative"
         />
+
+        <div className="rv">
+          <CompetitiveMoatRadar />
+        </div>
 
         <QuizEngine
           conceptId="series-b-narrative"

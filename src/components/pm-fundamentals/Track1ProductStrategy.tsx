@@ -9,6 +9,7 @@ import {
   TiltCard, CharacterChip, ConversationScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { CompetitiveMoatRadar, SystemsThinkingRipple, BetSequenceStaircase, LandExpandNetwork } from './ProductStrategyVisualizations';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -939,6 +940,10 @@ export default function Track1ProductStrategy({
           conceptId="competitive-moats"
         />
 
+        <div className="rv">
+          <CompetitiveMoatRadar />
+        </div>
+
         <QuizEngine
           conceptId="competitive-moats"
           conceptName="Competitive Moats"
@@ -1004,6 +1009,10 @@ export default function Track1ProductStrategy({
           ]}
           conceptId="systems-thinking"
         />
+
+        <div className="rv">
+          <SystemsThinkingRipple />
+        </div>
 
         <QuizEngine
           conceptId="systems-thinking"
@@ -1080,6 +1089,10 @@ export default function Track1ProductStrategy({
           conceptId="bet-sizing"
         />
 
+        <div className="rv">
+          <BetSequenceStaircase />
+        </div>
+
         <QuizEngine
           conceptId="bet-sizing"
           conceptName="Bet Sizing"
@@ -1154,6 +1167,10 @@ export default function Track1ProductStrategy({
           ]}
           conceptId="b2b-strategy"
         />
+
+        <div className="rv">
+          <LandExpandNetwork />
+        </div>
 
         <QuizEngine
           conceptId="b2b-strategy"
