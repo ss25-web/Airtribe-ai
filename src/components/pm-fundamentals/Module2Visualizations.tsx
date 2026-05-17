@@ -282,153 +282,159 @@ export function InterviewDepthFunnel() {
 }
 
 // ─── 4. AFFINITY CLUSTER ANIMATION ────────────────────────────────────────────
-// Notes start scattered, then spring-animate into 3 themed clusters.
-// Teaches: synthesis = finding patterns across raw observations.
+// Notes arrive one-by-one into their correct themed column.
+// Column headers are visible from the start so learners see the pattern forming.
+// Teaches: synthesis = recognising which theme each observation belongs to.
 
-const AFFINITY_NOTES = [
-  // Group 0 — "No clear next step" (teal)
-  { text: "I finish watching and don't know what to do", group: 0 },
-  { text: "What am I supposed to act on?", group: 0 },
-  { text: "No guidance after I get the score", group: 0 },
-  { text: "I feel lost after each session", group: 0 },
-  { text: "No workflow after the analysis", group: 0 },
-  // Group 1 — "No benchmark" (orange)
-  { text: "Is 72 a good score or a bad one?", group: 1 },
-  { text: "My manager says 'improve' — improve what?", group: 1 },
-  { text: "I have no idea what 'good' looks like", group: 1 },
-  { text: "The data exists but I have no context", group: 1 },
-  { text: "What does great coaching even look like?", group: 1 },
-  // Group 2 — "Prove ROI" (green)
-  { text: "My VP wants to know if this is working", group: 2 },
-  { text: "I need proof the calls are getting better", group: 2 },
-  { text: "How do I show my team is improving?", group: 2 },
-  { text: "Can't justify the tool spend without data", group: 2 },
-  { text: "Budget review is next month", group: 2 },
-];
-
-// Random start positions (scattered across 680 × 360)
-const START_POS = [
-  { x: 42,  y: 28  }, { x: 560, y: 18  }, { x: 200, y: 52  },
-  { x: 400, y: 34  }, { x: 320, y: 88  }, { x: 620, y: 76  },
-  { x: 80,  y: 144 }, { x: 490, y: 118 }, { x: 240, y: 132 },
-  { x: 600, y: 160 }, { x: 140, y: 218 }, { x: 360, y: 186 },
-  { x: 58,  y: 288 }, { x: 440, y: 268 }, { x: 270, y: 306 },
-];
-
-// Cluster end positions (3 groups, centered at ~120, ~340, ~560)
-const CLUSTER_CENTERS = [
-  { cx: 115, cy: 220 },  // Group 0 — teal
-  { cx: 340, cy: 220 },  // Group 1 — orange
-  { cx: 565, cy: 220 },  // Group 2 — green
-];
-const CLUSTER_LAYOUT = [
-  [{ x: -70, y: -70 }, { x: 30, y: -80 }, { x: -80, y: 0 }, { x: 20, y: 10 }, { x: -30, y: 80 }],
-  [{ x: -70, y: -75 }, { x: 30, y: -65 }, { x: -75, y: 5 }, { x: 25, y: 15 }, { x: -25, y: 82 }],
-  [{ x: -70, y: -72 }, { x: 30, y: -82 }, { x: -80, y: 2 }, { x: 20, y: 12 }, { x: -30, y: 78 }],
+const AFFINITY_COLS = [
+  {
+    label: 'No clear next step',
+    color: '#0F766E', bg: '#CCFBF1', border: '#5EEAD4', dark: '#0D5C55',
+    notes: [
+      "Finish watching — don't know what to do next",
+      "What am I supposed to act on?",
+      'No guidance after I get the score',
+      'I feel lost after each session',
+      "There's no workflow after the analysis",
+    ],
+  },
+  {
+    label: 'No benchmark for quality',
+    color: '#92400E', bg: '#FEF3C7', border: '#FCD34D', dark: '#78350F',
+    notes: [
+      'Is 72 a good score or a bad one?',
+      "My manager says 'improve' — improve what?",
+      "I have no idea what 'good' looks like",
+      'The data exists but I have no context',
+      'What does great coaching even look like?',
+    ],
+  },
+  {
+    label: 'Need to prove coaching ROI',
+    color: '#14532D', bg: '#DCFCE7', border: '#86EFAC', dark: '#0F3D21',
+    notes: [
+      'My VP wants to know if this is working',
+      'I need proof the calls are getting better',
+      'How do I show my team is improving?',
+      "Can't justify the tool spend without data",
+      'Budget review is next month',
+    ],
+  },
 ];
 
-const GROUP_COLORS = [
-  { bg: '#CCFBF1', border: '#14B8A6', text: '#0F766E', label: 'No clear next step', labelBg: '#0F766E' },
-  { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E', label: 'No benchmark for quality', labelBg: '#D97706' },
-  { bg: '#DCFCE7', border: '#22C55E', text: '#14532D', label: 'Need to prove coaching ROI', labelBg: '#15803D' },
-];
+// Interleaved reveal order: 0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2
+// So notes arrive alternating across columns — you see all 3 themes growing at once
+const REVEAL_ORDER = [0,1,2, 0,1,2, 0,1,2, 0,1,2, 0,1,2];
+const COL_NOTE_IDX = [0, 0, 0]; // tracks which note within each column to reveal next
 
 export function AffinityClusterAnimation() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [phase, setPhase] = useState<'scattered' | 'clustering' | 'done'>('scattered');
-  const [notesVisible, setNotesVisible] = useState(0);
+  // visibleCounts[col] = how many notes in that column are visible
+  const [counts, setCounts] = useState([0, 0, 0]);
+  const [done, setDone] = useState(false);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setPhase('scattered');
-    setNotesVisible(0);
+    setCounts([0, 0, 0]);
+    setDone(false);
+    const colIdx = [0, 0, 0];
+    const timers: ReturnType<typeof setTimeout>[] = [];
 
-    // 1. Scatter notes in
-    let t1 = 0;
-    AFFINITY_NOTES.forEach((_, i) => {
-      setTimeout(() => setNotesVisible(i + 1), 120 * i);
-      t1 = 120 * i;
+    REVEAL_ORDER.forEach((col, step) => {
+      timers.push(setTimeout(() => {
+        colIdx[col]++;
+        setCounts([...colIdx]);
+      }, 400 + step * 420));
     });
-    // 2. Start clustering
-    const t2 = setTimeout(() => setPhase('clustering'), t1 + 1000);
-    // 3. Mark done (show labels)
-    const t3 = setTimeout(() => setPhase('done'), t1 + 2800);
-
-    return () => { clearTimeout(t2); clearTimeout(t3); };
+    timers.push(setTimeout(() => setDone(true), 400 + REVEAL_ORDER.length * 420 + 200));
+    return () => timers.forEach(clearTimeout);
   }, [inView, tick]);
 
-  const replay = () => { setPhase('scattered'); setNotesVisible(0); setTick(t => t + 1); };
-
-  // Per-group note counts (for cluster layout indexing)
-  const groupIndex = [0, 0, 0];
+  const replay = () => { setCounts([0, 0, 0]); setDone(false); setTick(t => t + 1); };
+  const total = counts.reduce((a, b) => a + b, 0);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>Affinity Mapping — synthesis turns scattered observations into themes</VizLabel>
+      <VizLabel>Affinity Mapping — observations sorted into themes as you read them</VizLabel>
 
       <div style={{
         borderRadius: '20px',
         background: 'linear-gradient(145deg, #F8F6F1 0%, #EDE8DF 100%)',
         border: '1px solid var(--ed-rule)',
-        overflow: 'hidden',
+        padding: '24px 20px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.07)',
-        position: 'relative',
       }}>
-        {/* Stage label */}
-        <div style={{ padding: '14px 20px 0', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em' }}>
-          {phase === 'scattered' ? '● RAW INTERVIEW OBSERVATIONS' : phase === 'clustering' ? '◎ GROUPING BY THEME…' : '✓ THEMES IDENTIFIED'}
+        {/* Status bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em' }}>
+            {done ? '✓ THEMES IDENTIFIED' : total === 0 ? '● RAW OBSERVATIONS' : `◎ SORTING… ${total} / 15`}
+          </div>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {Array.from({ length: 15 }, (_, i) => (
+              <div key={i} style={{ width: '16px', height: '4px', borderRadius: '2px', background: i < total ? AFFINITY_COLS[REVEAL_ORDER[i]].color : 'var(--ed-rule)', transition: 'background 0.3s' }} />
+            ))}
+          </div>
         </div>
 
-        <svg viewBox="0 0 680 380" style={{ width: '100%', display: 'block' }}>
-          <defs>
-            <filter id="noteShadow">
-              <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="rgba(0,0,0,0.12)" />
-            </filter>
-          </defs>
+        {/* 3 columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+          {AFFINITY_COLS.map((col, ci) => (
+            <div key={ci}>
+              {/* Column header */}
+              <div style={{
+                padding: '10px 14px', borderRadius: '10px',
+                background: col.color,
+                boxShadow: `0 4px 0 ${col.dark}, 0 6px 0 rgba(0,0,0,0.1), 0 10px 24px ${col.color}50`,
+                marginBottom: '10px',
+                textAlign: 'center' as const,
+              }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.12em', marginBottom: '2px' }}>THEME {ci + 1}</div>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFFFFF', lineHeight: 1.3 }}>{col.label}</div>
+              </div>
 
-          {/* Cluster label backgrounds (shown when done) */}
-          {phase === 'done' && CLUSTER_CENTERS.map((cc, gi) => (
-            <motion.g key={gi} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 + gi * 0.15 }}>
-              <rect x={cc.cx - 95} y={50} width={190} height={28} rx="8" fill={GROUP_COLORS[gi].labelBg} />
-              <text x={cc.cx} y={69} textAnchor="middle" style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fill: '#FFFFFF', fontWeight: 800, letterSpacing: '0.1em' }}>
-                {GROUP_COLORS[gi].label.toUpperCase()}
-              </text>
-            </motion.g>
+              {/* Notes in this column */}
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px', minHeight: '320px' }}>
+                {col.notes.map((note, ni) => (
+                  <AnimatePresence key={ni}>
+                    {ni < counts[ci] && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -18, scale: 0.92 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 340, damping: 26 }}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: '10px',
+                          background: col.bg,
+                          border: `1.5px solid ${col.border}`,
+                          boxShadow: `0 2px 8px rgba(0,0,0,0.07)`,
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          color: col.color,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {note}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                ))}
+              </div>
+            </div>
           ))}
+        </div>
 
-          {/* Notes */}
-          {AFFINITY_NOTES.map((note, i) => {
-            const g = note.group;
-            const li = groupIndex[g]++;
-            const clusterLayout = CLUSTER_LAYOUT[g][li];
-            const endX = CLUSTER_CENTERS[g].cx + clusterLayout.x;
-            const endY = CLUSTER_CENTERS[g].cy + clusterLayout.y;
-            const startX = START_POS[i]?.x ?? 300;
-            const startY = START_POS[i]?.y ?? 180;
-            const targetX = phase === 'scattered' ? startX : endX;
-            const targetY = phase === 'scattered' ? startY : endY;
-            const gc = GROUP_COLORS[g];
-
-            return (
-              <motion.g key={i}
-                initial={{ opacity: 0, x: startX, y: startY }}
-                animate={{ opacity: i < notesVisible ? 1 : 0, x: targetX, y: targetY }}
-                transition={{ opacity: { duration: 0.2 }, x: { type: 'spring', stiffness: 80, damping: 14, delay: phase === 'clustering' ? g * 0.1 : 0 }, y: { type: 'spring', stiffness: 80, damping: 14, delay: phase === 'clustering' ? g * 0.1 : 0 } }}
-              >
-                <rect x={-65} y={-18} width={130} height={36} rx="7" fill={gc.bg} stroke={gc.border} strokeWidth="1.5" filter="url(#noteShadow)" />
-                <text x={0} y={2} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '9px', fill: gc.text, fontFamily: 'system-ui, sans-serif', fontWeight: 600 }}>
-                  {note.text.length > 34 ? note.text.slice(0, 32) + '…' : note.text}
-                </text>
-              </motion.g>
-            );
-          })}
-        </svg>
+        {done && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            style={{ marginTop: '18px', padding: '12px 16px', borderRadius: '10px', background: 'rgba(79,70,229,0.08)', border: '1px solid rgba(79,70,229,0.25)', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.7, textAlign: 'center' as const }}>
+            <strong style={{ color: '#4F46E5' }}>3 themes emerged from 15 observations.</strong> Each theme appeared independently in at least 5 interviews — that&apos;s a pattern worth building on.
+          </motion.div>
+        )}
       </div>
 
       <div style={{ marginTop: '12px', padding: '12px 16px', borderRadius: '10px', background: 'rgba(20,184,166,0.06)', border: '1px solid rgba(20,184,166,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#0F766E' }}>Synthesis is not summarising.</strong> It&apos;s finding the pattern that explains multiple observations at once. A theme worth building on appears in at least 3 different interviews.
+        <strong style={{ color: '#0F766E' }}>Synthesis is not summarising.</strong> It&apos;s finding the pattern that explains multiple observations at once. A theme worth building on appears across at least 3 independent interviews.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>
