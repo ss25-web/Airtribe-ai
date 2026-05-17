@@ -27,41 +27,51 @@ function VizLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── 1. UDBM LOOP — SVG circular diagram with 3D-block card styling ───────────
-// Four vivid solid-colour cards at N/E/S/W. Active card lifts + glows.
-// 3D depth via bottom-edge box-shadow. All cards equal size and readable.
+// ─── 1. UDBM LOOP — Scenario-driven 4-scene sprint story ─────────────────────
+// Shows ONE real EdSpark sprint played out across the 4 phases.
+// The visual teaches through what Priya actually did, not abstract labels.
 
-const PHASES = [
-  { id: 'understand', num: '01', label: 'Understand', sub: 'Define the real problem before any solution.',
-    detail: 'Talk to users. Read the data. Never start building on a hunch.',
-    color: '#6366F1', dark: '#3730A3', light: '#818CF8', glow: 'rgba(99,102,241,0.65)' },
-  { id: 'decide',     num: '02', label: 'Decide',     sub: 'Choose with clarity — not by consensus.',
-    detail: 'Evaluate options. Make the tradeoff explicit. Own the call.',
-    color: '#0EA5E9', dark: '#0369A1', light: '#38BDF8', glow: 'rgba(14,165,233,0.65)' },
-  { id: 'build',      num: '03', label: 'Build',      sub: 'Ship with the whole team aligned.',
-    detail: 'Catch misalignments before the sprint. They compound fast.',
-    color: '#F97316', dark: '#C2410C', light: '#FB923C', glow: 'rgba(249,115,22,0.65)' },
-  { id: 'measure',    num: '04', label: 'Measure',    sub: 'Did it work? What did the data say?',
-    detail: 'Check the success metric you defined before shipping.',
-    color: '#22C55E', dark: '#15803D', light: '#4ADE80', glow: 'rgba(34,197,94,0.65)' },
-];
-
-const CX = 300, CY = 265, RING_R = 168;
-// Card centres on the ring (N, E, S, W)
-const CARD_CENTERS = [
-  { x: CX,            y: CY - RING_R }, // Understand — top
-  { x: CX + RING_R,   y: CY           }, // Decide — right
-  { x: CX,            y: CY + RING_R }, // Build — bottom
-  { x: CX - RING_R,   y: CY           }, // Measure — left
-];
-const CARD_W = 148, CARD_H = 92;
-
-// Arrow tips at 45° midpoints
-const ARROW_TIPS = [
-  { x: CX + RING_R * Math.cos(-Math.PI / 4), y: CY + RING_R * Math.sin(-Math.PI / 4), rot: 45,  ci: 0 }, // U→D
-  { x: CX + RING_R * Math.cos(Math.PI / 4),  y: CY + RING_R * Math.sin(Math.PI / 4),  rot: 135, ci: 1 }, // D→B
-  { x: CX + RING_R * Math.cos(3 * Math.PI / 4), y: CY + RING_R * Math.sin(3 * Math.PI / 4), rot: 225, ci: 2 }, // B→M
-  { x: CX + RING_R * Math.cos(-3 * Math.PI / 4), y: CY + RING_R * Math.sin(-3 * Math.PI / 4), rot: 315, ci: 3 }, // M→U
+const SPRINT_SCENES = [
+  {
+    num: '01', label: 'Understand',
+    question: 'What problem are we actually solving?',
+    color: '#6366F1', dark: '#3730A3', light: '#EEF2FF',
+    situation: 'Monday, 9am. An email arrives from a churned customer: "The app is confusing. I can never find what I need."',
+    action: 'Priya doesn\'t open Figma. She calls the customer directly. "What were you trying to do when it felt confusing?" — "I was looking for my call recording from last Tuesday. I had to scroll through 40 sessions to find it."',
+    insight: 'It\'s not a navigation problem. It\'s a retrieval problem. No search exists.',
+    outcome: '🎯 Root cause found in 15 minutes. Zero engineering time spent.',
+    nextLabel: 'Now she can decide what to build.',
+  },
+  {
+    num: '02', label: 'Decide',
+    question: 'What should we build — and why now?',
+    color: '#0EA5E9', dark: '#0369A1', light: '#F0F9FF',
+    situation: 'Tuesday planning. Two options on the table: (A) Full navigation redesign — 3 weeks, high risk. (B) Search with date filter — 3 days, low risk.',
+    action: 'Kiran pulls the data: 43% of managers never clicked a call recording in week 1. The reason, from interviews: "Too hard to find the one I want." Confidence: high. Priya picks Option B.',
+    insight: 'Highest impact, lowest effort. The data and the research agree.',
+    outcome: '✅ Decision made. Team aligned. Sprint planned in 30 minutes.',
+    nextLabel: 'Time to build — carefully.',
+  },
+  {
+    num: '03', label: 'Build',
+    question: 'Is everyone building the same thing?',
+    color: '#F97316', dark: '#C2410C', light: '#FFF7ED',
+    situation: 'Wednesday, sprint start. The spec says "share results." Dev reads it as "add a copy-link button."',
+    action: 'Priya spots the ambiguity before a single line of code is written. "How do managers normally share results — a link, or Slack?" Dev: "Oh, Slack." Five-minute conversation. Correct feature built from day one.',
+    insight: 'That 5-minute conversation saved 4 days of rework.',
+    outcome: '🚀 Search with Slack integration shipped in 3 days. Zero rework.',
+    nextLabel: 'Now check if it actually worked.',
+  },
+  {
+    num: '04', label: 'Measure',
+    question: 'Did it work? What do we do next?',
+    color: '#22C55E', dark: '#15803D', light: '#F0FDF4',
+    situation: 'Week 2 post-launch. Kiran sends the cohort data: managers who used search vs those who didn\'t.',
+    action: 'Managers who used search: 78% retained at week 2. Managers who didn\'t: 34%. The delta is clear. But: 40% of managers haven\'t discovered search at all — they don\'t know it exists.',
+    insight: 'The feature works. The problem is discoverability — a new problem.',
+    outcome: '↻ Loop begins again. Next sprint: Understand why 40% haven\'t found search.',
+    nextLabel: 'Back to Understand. One level deeper.',
+  },
 ];
 
 export function UDBMLoopAnimation() {
@@ -73,120 +83,94 @@ export function UDBMLoopAnimation() {
   useEffect(() => {
     if (!inView) return;
     setActive(0);
-    const iv = setInterval(() => setActive(a => (a + 1) % 4), 2800);
+    const iv = setInterval(() => setActive(a => (a + 1) % 4), 5500);
     return () => clearInterval(iv);
   }, [inView, tick]);
 
-  const replay = () => { setActive(-1); setTick(t => t + 1); };
-  const ph = active >= 0 ? PHASES[active] : null;
+  const replay = () => { setActive(-1); setTimeout(() => setActive(0), 100); setTick(t => t + 1); };
+  const scene = active >= 0 ? SPRINT_SCENES[active] : null;
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>The PM Operating Loop — auto-animated</VizLabel>
+      <VizLabel>The PM Operating Loop — one EdSpark sprint, four phases</VizLabel>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px', alignItems: 'center' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 48px rgba(0,0,0,0.07)' }}>
 
-        {/* ── Left: circular diagram ── */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '24px',
-          background: 'linear-gradient(145deg, #F8F5F0 0%, #EDEAE4 100%)',
-          border: '1px solid var(--ed-rule)',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.07)',
-          overflow: 'hidden',
-        }}>
-          {/* SVG: ring + arrow tips only */}
-          <svg viewBox="0 0 600 530" style={{ width: '100%', display: 'block' }}>
-            <defs>
-              <filter id="udbmCardShadow">
-                <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="rgba(0,0,0,0.18)" />
-              </filter>
-            </defs>
-            {/* Dashed guide ring */}
-            <circle cx={CX} cy={CY} r={RING_R} fill="none" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="6 5" />
-            {/* Arrow tips (equilateral triangles, rotated) */}
-            {ARROW_TIPS.map((a, i) => (
-              <motion.g key={i} transform={`translate(${a.x},${a.y}) rotate(${a.rot})`}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.12, duration: 0.4 }}>
-                <polygon points="0,-9 8,6 -8,6" fill={PHASES[a.ci].color}
-                  style={{ filter: active === a.ci ? `drop-shadow(0 0 6px ${PHASES[a.ci].glow})` : 'none' }} />
-              </motion.g>
-            ))}
-            {/* Center label */}
-            <text x={CX} y={CY - 10} textAnchor="middle" style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fill: '#94A3B8', fontWeight: 800, letterSpacing: '0.16em' }}>PM</text>
-            <text x={CX} y={CY + 8} textAnchor="middle" style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fill: '#94A3B8', fontWeight: 800, letterSpacing: '0.16em' }}>LOOP</text>
-          </svg>
-
-          {/* Phase cards — absolutely overlaid, matching SVG coordinate space */}
-          {PHASES.map((p, i) => {
-            const c = CARD_CENTERS[i];
-            const isActive = active === i;
-            // Convert SVG coords → % of viewBox (600 × 530)
-            const leftPct = (c.x / 600) * 100;
-            const topPct = (c.y / 530) * 100;
-            return (
-              <motion.div key={p.id}
-                animate={{ y: isActive ? -10 : 0, scale: isActive ? 1.065 : 1 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                style={{
-                  position: 'absolute',
-                  left: `${leftPct}%`,
-                  top: `${topPct}%`,
-                  // Offset so card is centered on its point
-                  marginLeft: `${-(CARD_W / 2)}px`,
-                  marginTop: `${-(CARD_H / 2)}px`,
-                  width: `${CARD_W}px`,
-                  padding: '13px 14px 15px',
-                  borderRadius: '14px',
-                  background: `linear-gradient(160deg, ${p.light} 0%, ${p.color} 55%, ${p.dark} 100%)`,
-                  boxShadow: isActive
-                    ? `inset 0 1px 0 rgba(255,255,255,0.45), 0 6px 0 ${p.dark}, 0 10px 0 rgba(0,0,0,0.12), 0 18px 48px ${p.glow}`
-                    : `inset 0 1px 0 rgba(255,255,255,0.28), 0 4px 0 ${p.dark}, 0 6px 0 rgba(0,0,0,0.08), 0 10px 28px ${p.glow}55`,
-                  transition: 'box-shadow 0.4s',
-                  cursor: 'default',
-                  zIndex: isActive ? 3 : 1,
-                }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.16em', marginBottom: '5px' }}>{p.num}</div>
-                <div style={{ fontSize: '19px', fontWeight: 900, color: '#FFFFFF', marginBottom: '5px', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.2)' }}>{p.label}</div>
-                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.82)', lineHeight: 1.45 }}>{p.sub}</div>
-              </motion.div>
-            );
-          })}
+        {/* ── Phase selector tabs ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderBottom: '1px solid var(--ed-rule)' }}>
+          {SPRINT_SCENES.map((s, i) => (
+            <button key={i} onClick={() => setActive(i)} style={{
+              padding: '14px 0', border: 'none', cursor: 'pointer',
+              background: active === i ? s.color : 'var(--ed-card)',
+              borderRight: i < 3 ? '1px solid var(--ed-rule)' : 'none',
+              transition: 'background 0.35s',
+            }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: active === i ? 'rgba(255,255,255,0.7)' : 'var(--ed-ink3)', marginBottom: '4px' }}>{s.num}</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: active === i ? '#FFFFFF' : 'var(--ed-ink2)', transition: 'color 0.35s' }}>{s.label}</div>
+              {active === i && (
+                <motion.div layoutId="tab-indicator"
+                  style={{ width: '24px', height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.6)', margin: '6px auto 0' }} />
+              )}
+            </button>
+          ))}
         </div>
 
-        {/* ── Right: active phase detail ── */}
-        <div style={{ minHeight: '220px' }}>
-          <AnimatePresence mode="wait">
-            {ph && (
-              <motion.div key={ph.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                <div style={{
-                  padding: '26px 24px', borderRadius: '18px',
-                  background: `linear-gradient(145deg, ${ph.light} 0%, ${ph.color} 55%, ${ph.dark} 100%)`,
-                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35), 0 6px 0 ${ph.dark}, 0 10px 0 rgba(0,0,0,0.1), 0 20px 56px ${ph.glow}`,
-                  marginBottom: '16px',
-                }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.2em', marginBottom: '10px' }}>PHASE {ph.num} OF 04</div>
-                  <div style={{ fontSize: '32px', fontWeight: 900, color: '#FFFFFF', marginBottom: '10px', lineHeight: 1.0, textShadow: '0 3px 16px rgba(0,0,0,0.2)' }}>{ph.label}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', lineHeight: 1.5, marginBottom: '14px' }}>{ph.sub}</div>
-                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.22)', marginBottom: '14px' }} />
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.76)', lineHeight: 1.75 }}>{ph.detail}</div>
+        {/* ── Scene content ── */}
+        <AnimatePresence mode="wait">
+          {scene && (
+            <motion.div key={scene.num}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.38 }}
+              style={{ background: 'var(--ed-card)' }}
+            >
+              {/* Colored header band */}
+              <div style={{
+                padding: '22px 28px',
+                background: `linear-gradient(135deg, ${scene.color} 0%, ${scene.dark} 100%)`,
+              }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.2em', marginBottom: '6px' }}>PHASE {scene.num} · {scene.label.toUpperCase()}</div>
+                <div style={{ fontSize: '20px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, textShadow: '0 2px 12px rgba(0,0,0,0.15)' }}>{scene.question}</div>
+              </div>
+
+              {/* Story body */}
+              <div style={{ padding: '24px 28px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                {/* Left: situation + action */}
+                <div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '8px' }}>THE SITUATION</div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.75, marginBottom: '16px', fontStyle: 'italic' }}>{scene.situation}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '8px' }}>WHAT PRIYA DID</div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75 }}>{scene.action}</div>
                 </div>
-                {/* Phase step dots */}
-                <div style={{ display: 'flex', gap: '7px', alignItems: 'center' }}>
-                  {PHASES.map((p, i) => (
-                    <motion.div key={i}
-                      animate={{ width: active === i ? '32px' : '8px', background: active === i ? p.color : 'var(--ed-rule)' }}
-                      transition={{ duration: 0.35 }}
-                      style={{ height: '8px', borderRadius: '4px' }}
-                    />
-                  ))}
-                  <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: '6px' }}>{active + 1}/4</span>
+
+                {/* Right: insight + outcome */}
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: scene.light, border: `1.5px solid ${scene.color}30`, borderLeft: `4px solid ${scene.color}` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '7px' }}>THE TURN</div>
+                    <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.65 }}>{scene.insight}</div>
+                  </div>
+                  <div style={{ padding: '16px 18px', borderRadius: '12px', background: `${scene.color}10`, border: `1.5px solid ${scene.color}40` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: scene.color, letterSpacing: '0.14em', marginBottom: '7px' }}>OUTCOME</div>
+                    <div style={{ fontSize: '13px', color: scene.dark, fontWeight: 700, lineHeight: 1.65 }}>{scene.outcome}</div>
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', fontStyle: 'italic', lineHeight: 1.6, paddingTop: '4px' }}>
+                    → {scene.nextLabel}
+                  </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ display: 'flex', gap: '0', borderTop: '1px solid var(--ed-rule)' }}>
+                {SPRINT_SCENES.map((s, i) => (
+                  <div key={i} style={{ flex: 1, height: '4px', background: i <= active ? s.color : 'transparent', transition: 'background 0.4s', borderRight: i < 3 ? '1px solid var(--ed-rule)' : 'none' }} />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
       <ReplayBtn onReplay={replay} />
     </div>
   );
