@@ -12,6 +12,7 @@ const NAME_TO_MENTOR: Record<string, MentorId> = {
   'Maya':  'maya',
   'Kiran': 'kiran',
   'Rohan': 'rohan',
+  'Priya': 'priya',
 };
 
 // ─────────────────────────────────────────
@@ -845,9 +846,9 @@ export type InterviewBlock =
   | { type: 'interviewee'; text: string };
 
 export const NarrativeInterviewScene = ({
-  intervieweeName, intervieweeRole, accent = 'var(--coral)', blocks,
+  intervieweeName, intervieweeRole, intervieweeMentor, accent = 'var(--coral)', blocks,
 }: {
-  intervieweeName: string; intervieweeRole: string; accent?: string;
+  intervieweeName: string; intervieweeRole: string; intervieweeMentor?: MentorId; accent?: string;
   blocks: InterviewBlock[];
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -867,9 +868,12 @@ export const NarrativeInterviewScene = ({
   return (
     <div ref={containerRef} style={{ margin: '28px 0', borderRadius: '12px', background: 'var(--ed-card)', border: `1px solid ${accent}22`, overflow: 'hidden' }}>
       <div style={{ padding: '12px 20px', background: `${accent}08`, borderBottom: `1px solid ${accent}18`, display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40` }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </div>
+        {intervieweeMentor
+          ? <MentorFace mentor={intervieweeMentor} size={32} />
+          : <div style={{ width: 32, height: 32, borderRadius: 8, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 4px 10px ${accent}40`, fontSize: 15, fontWeight: 900, color: '#fff', fontFamily: 'system-ui' }}>
+              {intervieweeName.charAt(0)}
+            </div>
+        }
         <div>
           <div style={{ fontWeight: 700, fontSize: 12, color: accent }}>{intervieweeName}</div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'var(--ed-ink3)', letterSpacing: '0.06em' }}>{intervieweeRole}</div>
@@ -907,9 +911,12 @@ export const NarrativeInterviewScene = ({
           );
           return (
             <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', ...anim }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35` }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-              </div>
+              {intervieweeMentor
+                ? <div style={{ flexShrink: 0, marginTop: 2 }}><MentorFace mentor={intervieweeMentor} size={34} /></div>
+                : <div style={{ width: 34, height: 34, borderRadius: 9, background: `linear-gradient(145deg, ${accent}cc, ${accent})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2, boxShadow: `0 4px 10px ${accent}35`, fontSize: 16, fontWeight: 900, color: '#fff', fontFamily: 'system-ui' }}>
+                    {intervieweeName.charAt(0)}
+                  </div>
+              }
               <div style={{ maxWidth: '76%' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: accent, fontWeight: 700, marginBottom: 3, letterSpacing: '0.07em' }}>{intervieweeName.split(' ')[0].toUpperCase()}</div>
                 <div style={{ padding: '9px 13px', borderRadius: '2px 12px 12px 12px', background: `${accent}0F`, border: `1px solid ${accent}22`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.72 }}>&ldquo;{b.text}&rdquo;</div>
