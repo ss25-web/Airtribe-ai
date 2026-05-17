@@ -27,122 +27,42 @@ function VizLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── 1. UDBM LOOP — Three.js 3D scene ─────────────────────────────────────────
-// A dense 3D horizontal ring with four solid colour phase slabs orbiting it.
-// Camera looks down at 40°. Active phase lifts and glows. Continuous cycle.
+// ─── 1. UDBM LOOP — SVG circular diagram with 3D-block card styling ───────────
+// Four vivid solid-colour cards at N/E/S/W. Active card lifts + glows.
+// 3D depth via bottom-edge box-shadow. All cards equal size and readable.
 
 const PHASES = [
-  { id: 'understand', label: 'Understand', num: '01', sub: 'Define the real problem before any solution.', detail: 'Talk to users. Read the data. Never start building on a hunch.', color: '#6366F1', emissive: '#4338CA' },
-  { id: 'decide',     label: 'Decide',     num: '02', sub: 'Choose with clarity — not by consensus.',    detail: 'Evaluate options. Make the tradeoff explicit. Own the call.',        color: '#0EA5E9', emissive: '#0369A1' },
-  { id: 'build',      label: 'Build',      num: '03', sub: 'Ship with the whole team aligned.',          detail: 'Catch misalignments before the sprint. They compound fast.',         color: '#F97316', emissive: '#C2410C' },
-  { id: 'measure',    label: 'Measure',    num: '04', sub: 'Did it work? What did the data say?',       detail: 'Check the success metric you defined before shipping.',             color: '#22C55E', emissive: '#15803D' },
+  { id: 'understand', num: '01', label: 'Understand', sub: 'Define the real problem before any solution.',
+    detail: 'Talk to users. Read the data. Never start building on a hunch.',
+    color: '#6366F1', dark: '#3730A3', light: '#818CF8', glow: 'rgba(99,102,241,0.65)' },
+  { id: 'decide',     num: '02', label: 'Decide',     sub: 'Choose with clarity — not by consensus.',
+    detail: 'Evaluate options. Make the tradeoff explicit. Own the call.',
+    color: '#0EA5E9', dark: '#0369A1', light: '#38BDF8', glow: 'rgba(14,165,233,0.65)' },
+  { id: 'build',      num: '03', label: 'Build',      sub: 'Ship with the whole team aligned.',
+    detail: 'Catch misalignments before the sprint. They compound fast.',
+    color: '#F97316', dark: '#C2410C', light: '#FB923C', glow: 'rgba(249,115,22,0.65)' },
+  { id: 'measure',    num: '04', label: 'Measure',    sub: 'Did it work? What did the data say?',
+    detail: 'Check the success metric you defined before shipping.',
+    color: '#22C55E', dark: '#15803D', light: '#4ADE80', glow: 'rgba(34,197,94,0.65)' },
 ];
 
-// Positions on a horizontal ring, radius 3.6 (XZ plane)
-const SLAB_POSITIONS: [number, number, number][] = [
-  [0, 0, -3.6],   // 12 o'clock — Understand
-  [3.6, 0, 0],    //  3 o'clock — Decide
-  [0, 0,  3.6],   //  6 o'clock — Build
-  [-3.6, 0, 0],   //  9 o'clock — Measure
+const CX = 300, CY = 265, RING_R = 168;
+// Card centres on the ring (N, E, S, W)
+const CARD_CENTERS = [
+  { x: CX,            y: CY - RING_R }, // Understand — top
+  { x: CX + RING_R,   y: CY           }, // Decide — right
+  { x: CX,            y: CY + RING_R }, // Build — bottom
+  { x: CX - RING_R,   y: CY           }, // Measure — left
 ];
+const CARD_W = 148, CARD_H = 92;
 
-function PhaseRing() {
-  return (
-    <mesh rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[3.6, 0.07, 20, 120]} />
-      <meshStandardMaterial color="#94A3B8" metalness={0.8} roughness={0.2} />
-    </mesh>
-  );
-}
-
-function Arrow({ from, to, color }: { from: [number, number, number]; to: [number, number, number]; color: string }) {
-  const dir = new THREE.Vector3(...to).sub(new THREE.Vector3(...from)).normalize();
-  const mid = new THREE.Vector3(...from).lerp(new THREE.Vector3(...to), 0.5);
-  const angle = Math.atan2(dir.x, dir.z);
-  return (
-    <group position={[mid.x, 0.05, mid.z]} rotation={[0, angle, 0]}>
-      <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[0.14, 0.32, 8]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.6} />
-      </mesh>
-    </group>
-  );
-}
-
-function PhaseSlab({ phase, index, active }: { phase: typeof PHASES[0]; index: number; active: number }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
-  const isActive = active === index;
-  const pos = SLAB_POSITIONS[index];
-
-  useFrame((_, delta) => {
-    if (!groupRef.current || !meshRef.current) return;
-    const targetY = isActive ? 1.2 : 0.06;
-    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, delta * 4);
-    const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-    mat.emissiveIntensity = THREE.MathUtils.lerp(mat.emissiveIntensity, isActive ? 0.55 : 0.1, delta * 4);
-  });
-
-  return (
-    <group ref={groupRef} position={[pos[0], 0.06, pos[2]]}>
-      <mesh ref={meshRef} castShadow>
-        <boxGeometry args={[2.1, 0.72, 0.9]} />
-        <meshStandardMaterial color={phase.color} emissive={phase.emissive} emissiveIntensity={0.1} roughness={0.25} metalness={0.15} />
-      </mesh>
-      {/* Top face highlight strip */}
-      <mesh position={[0, 0.36, 0]}>
-        <boxGeometry args={[2.1, 0.04, 0.9]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.22} roughness={1} />
-      </mesh>
-      {/* Phase number dot */}
-      <mesh position={[-0.72, 0, -0.46]}>
-        <cylinderGeometry args={[0.12, 0.12, 0.04, 16]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.55} />
-      </mesh>
-      <Html center distanceFactor={6} position={[0, 0, 0]} style={{ pointerEvents: 'none', userSelect: 'none' }}>
-        <div style={{
-          textAlign: 'center', width: '120px',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-        }}>
-          <div style={{ fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.16em', marginBottom: '2px' }}>{phase.num}</div>
-          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FFFFFF', textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{phase.label}</div>
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-function UDBMScene({ active }: { active: number }) {
-  const arrowColors = PHASES.map(p => p.color);
-  const arrowPairs: [number, number][] = [[0,1],[1,2],[2,3],[3,0]];
-  // midpoints between slabs (on the ring arc, approx)
-  const arrowMids: { from: [number,number,number]; to: [number,number,number]; color: string }[] = arrowPairs.map(([a, b]) => ({
-    from: SLAB_POSITIONS[a],
-    to: SLAB_POSITIONS[b],
-    color: arrowColors[a],
-  }));
-
-  return (
-    <>
-      <PerspectiveCamera makeDefault position={[3, 10, 12]} fov={46} />
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[6, 12, 8]} intensity={1.6} castShadow />
-      <pointLight position={[0, 6, 0]} intensity={0.5} color="#ffffff" />
-      {PHASES.map((p, i) => (
-        <pointLight key={i} position={[SLAB_POSITIONS[i][0], 3, SLAB_POSITIONS[i][2]]} intensity={active === i ? 1.8 : 0.1} color={p.color} distance={5} decay={2} />
-      ))}
-      {/* Subtle floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.45, 0]} receiveShadow>
-        <planeGeometry args={[22, 22]} />
-        <meshStandardMaterial color="#E8E3DB" roughness={1} metalness={0} />
-      </mesh>
-      <PhaseRing />
-      {arrowMids.map((a, i) => <Arrow key={i} from={a.from} to={a.to} color={a.color} />)}
-      {PHASES.map((p, i) => <PhaseSlab key={i} phase={p} index={i} active={active} />)}
-      <OrbitControls enablePan={false} enableZoom={false} autoRotate={false} />
-    </>
-  );
-}
+// Arrow tips at 45° midpoints
+const ARROW_TIPS = [
+  { x: CX + RING_R * Math.cos(-Math.PI / 4), y: CY + RING_R * Math.sin(-Math.PI / 4), rot: 45,  ci: 0 }, // U→D
+  { x: CX + RING_R * Math.cos(Math.PI / 4),  y: CY + RING_R * Math.sin(Math.PI / 4),  rot: 135, ci: 1 }, // D→B
+  { x: CX + RING_R * Math.cos(3 * Math.PI / 4), y: CY + RING_R * Math.sin(3 * Math.PI / 4), rot: 225, ci: 2 }, // B→M
+  { x: CX + RING_R * Math.cos(-3 * Math.PI / 4), y: CY + RING_R * Math.sin(-3 * Math.PI / 4), rot: 315, ci: 3 }, // M→U
+];
 
 export function UDBMLoopAnimation() {
   const ref = useRef<HTMLDivElement>(null);
@@ -153,7 +73,7 @@ export function UDBMLoopAnimation() {
   useEffect(() => {
     if (!inView) return;
     setActive(0);
-    const iv = setInterval(() => setActive(a => (a + 1) % 4), 2600);
+    const iv = setInterval(() => setActive(a => (a + 1) % 4), 2800);
     return () => clearInterval(iv);
   }, [inView, tick]);
 
@@ -162,36 +82,105 @@ export function UDBMLoopAnimation() {
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>The PM Operating Loop — 3D · auto-animated</VizLabel>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px', alignItems: 'center' }}>
+      <VizLabel>The PM Operating Loop — auto-animated</VizLabel>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px', alignItems: 'center' }}>
+
+        {/* ── Left: circular diagram ── */}
         <div style={{
-          borderRadius: '20px', overflow: 'hidden', height: '460px',
-          background: 'linear-gradient(160deg, #F5F1EB 0%, #EDE8DF 100%)',
+          position: 'relative',
+          borderRadius: '24px',
+          background: 'linear-gradient(145deg, #F8F5F0 0%, #EDEAE4 100%)',
           border: '1px solid var(--ed-rule)',
-          boxShadow: '0 20px 48px rgba(0,0,0,0.08)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.07)',
+          overflow: 'hidden',
         }}>
-          <Suspense fallback={<div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ed-ink3)', fontFamily: 'monospace', fontSize: '12px' }}>Loading 3D scene…</div>}>
-            <Canvas shadows gl={{ antialias: true }}>
-              <UDBMScene active={active} />
-            </Canvas>
-          </Suspense>
+          {/* SVG: ring + arrow tips only */}
+          <svg viewBox="0 0 600 530" style={{ width: '100%', display: 'block' }}>
+            <defs>
+              <filter id="udbmCardShadow">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="rgba(0,0,0,0.18)" />
+              </filter>
+            </defs>
+            {/* Dashed guide ring */}
+            <circle cx={CX} cy={CY} r={RING_R} fill="none" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="6 5" />
+            {/* Arrow tips (equilateral triangles, rotated) */}
+            {ARROW_TIPS.map((a, i) => (
+              <motion.g key={i} transform={`translate(${a.x},${a.y}) rotate(${a.rot})`}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.12, duration: 0.4 }}>
+                <polygon points="0,-9 8,6 -8,6" fill={PHASES[a.ci].color}
+                  style={{ filter: active === a.ci ? `drop-shadow(0 0 6px ${PHASES[a.ci].glow})` : 'none' }} />
+              </motion.g>
+            ))}
+            {/* Center label */}
+            <text x={CX} y={CY - 10} textAnchor="middle" style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fill: '#94A3B8', fontWeight: 800, letterSpacing: '0.16em' }}>PM</text>
+            <text x={CX} y={CY + 8} textAnchor="middle" style={{ fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fill: '#94A3B8', fontWeight: 800, letterSpacing: '0.16em' }}>LOOP</text>
+          </svg>
+
+          {/* Phase cards — absolutely overlaid, matching SVG coordinate space */}
+          {PHASES.map((p, i) => {
+            const c = CARD_CENTERS[i];
+            const isActive = active === i;
+            // Convert SVG coords → % of viewBox (600 × 530)
+            const leftPct = (c.x / 600) * 100;
+            const topPct = (c.y / 530) * 100;
+            return (
+              <motion.div key={p.id}
+                animate={{ y: isActive ? -10 : 0, scale: isActive ? 1.065 : 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                style={{
+                  position: 'absolute',
+                  left: `${leftPct}%`,
+                  top: `${topPct}%`,
+                  // Offset so card is centered on its point
+                  marginLeft: `${-(CARD_W / 2)}px`,
+                  marginTop: `${-(CARD_H / 2)}px`,
+                  width: `${CARD_W}px`,
+                  padding: '13px 14px 15px',
+                  borderRadius: '14px',
+                  background: `linear-gradient(160deg, ${p.light} 0%, ${p.color} 55%, ${p.dark} 100%)`,
+                  boxShadow: isActive
+                    ? `inset 0 1px 0 rgba(255,255,255,0.45), 0 6px 0 ${p.dark}, 0 10px 0 rgba(0,0,0,0.12), 0 18px 48px ${p.glow}`
+                    : `inset 0 1px 0 rgba(255,255,255,0.28), 0 4px 0 ${p.dark}, 0 6px 0 rgba(0,0,0,0.08), 0 10px 28px ${p.glow}55`,
+                  transition: 'box-shadow 0.4s',
+                  cursor: 'default',
+                  zIndex: isActive ? 3 : 1,
+                }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.16em', marginBottom: '5px' }}>{p.num}</div>
+                <div style={{ fontSize: '19px', fontWeight: 900, color: '#FFFFFF', marginBottom: '5px', lineHeight: 1.05, textShadow: '0 2px 12px rgba(0,0,0,0.2)' }}>{p.label}</div>
+                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.82)', lineHeight: 1.45 }}>{p.sub}</div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        <div>
+        {/* ── Right: active phase detail ── */}
+        <div style={{ minHeight: '220px' }}>
           <AnimatePresence mode="wait">
             {ph && (
-              <motion.div key={ph.id} initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.28 }}>
-                <div style={{ padding: '22px 20px', borderRadius: '16px', background: ph.color, boxShadow: `0 16px 40px ${ph.color}55, 0 4px 0 ${ph.emissive}` }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.18em', marginBottom: '8px' }}>PHASE {ph.num}</div>
-                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', marginBottom: '10px', lineHeight: 1.1 }}>{ph.label}</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.88)', lineHeight: 1.45, marginBottom: '12px' }}>{ph.sub}</div>
-                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.25)', marginBottom: '12px' }} />
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.72)', lineHeight: 1.7 }}>{ph.detail}</div>
+              <motion.div key={ph.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
+                <div style={{
+                  padding: '26px 24px', borderRadius: '18px',
+                  background: `linear-gradient(145deg, ${ph.light} 0%, ${ph.color} 55%, ${ph.dark} 100%)`,
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35), 0 6px 0 ${ph.dark}, 0 10px 0 rgba(0,0,0,0.1), 0 20px 56px ${ph.glow}`,
+                  marginBottom: '16px',
+                }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.2em', marginBottom: '10px' }}>PHASE {ph.num} OF 04</div>
+                  <div style={{ fontSize: '32px', fontWeight: 900, color: '#FFFFFF', marginBottom: '10px', lineHeight: 1.0, textShadow: '0 3px 16px rgba(0,0,0,0.2)' }}>{ph.label}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.9)', lineHeight: 1.5, marginBottom: '14px' }}>{ph.sub}</div>
+                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.22)', marginBottom: '14px' }} />
+                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.76)', lineHeight: 1.75 }}>{ph.detail}</div>
                 </div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '14px' }}>
+                {/* Phase step dots */}
+                <div style={{ display: 'flex', gap: '7px', alignItems: 'center' }}>
                   {PHASES.map((p, i) => (
-                    <motion.div key={i} animate={{ width: active === i ? '28px' : '8px', background: active === i ? p.color : 'var(--ed-rule)' }} transition={{ duration: 0.3 }} style={{ height: '8px', borderRadius: '4px' }} />
+                    <motion.div key={i}
+                      animate={{ width: active === i ? '32px' : '8px', background: active === i ? p.color : 'var(--ed-rule)' }}
+                      transition={{ duration: 0.35 }}
+                      style={{ height: '8px', borderRadius: '4px' }}
+                    />
                   ))}
+                  <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: '6px' }}>{active + 1}/4</span>
                 </div>
               </motion.div>
             )}
