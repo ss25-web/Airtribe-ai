@@ -139,7 +139,7 @@ const NotionRepoSearch = () => {
                     <div style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' as const }}>{existingStudy.status}</div>
                   </div>
 
-                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.08em', marginBottom: '8px' }}>THIS STUDY IS 3 MONTHS OLD. WHAT DO YOU RECOMMEND?</div>
+                  <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.08em', marginBottom: '8px' }}>THIS STUDY IS 3 MONTHS OLD. WHAT DO YOU RECOMMEND?</div>
                   <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
                     {decisions.map((d, i) => {
                       const isPicked = decision === i;
@@ -149,7 +149,7 @@ const NotionRepoSearch = () => {
                             onClick={() => setDecision(i)}
                             style={{
                               width: '100%', textAlign: 'left' as const, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer',
-                              border: `1.5px solid ${isPicked ? (d.correct ? '#0D7A5A' : '#FF5630') : '#E0D9D0'}`,
+                              border: `1.5px solid ${isPicked ? (d.correct ? '#0D7A5A' : '#FF5630') : 'var(--ed-rule)'}`,
                               background: isPicked ? (d.correct ? 'rgba(13,122,90,0.06)' : 'rgba(255,86,48,0.05)') : '#FAFAF9',
                               fontSize: '12px', color: '#37352F', lineHeight: 1.5,
                             }}
@@ -330,11 +330,11 @@ const DovetailSynthesisBoard = () => {
                 {quotes.map((q, i) => {
                   const assigned = tags[i];
                   return (
-                    <div key={i} style={{ padding: '10px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: `1.5px solid ${assigned ? tagColors[assigned] : '#E0D9D0'}`, display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div key={i} style={{ padding: '10px 14px', borderRadius: '8px', background: 'var(--ed-card)', border: `1.5px solid ${assigned ? tagColors[assigned] : 'var(--ed-rule)'}`, display: 'flex', gap: '12px', alignItems: 'center' }}>
                       <div style={{ fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', flex: 1, lineHeight: 1.55 }}>&ldquo;{q.text}&rdquo;</div>
                       <div style={{ display: 'flex', gap: '5px', flexShrink: 0 }}>
                         {(['loop', 'roi'] as Tag[]).map(t => (
-                          <button key={t} onClick={() => setTags(prev => ({ ...prev, [i]: t }))} style={{ padding: '4px 8px', borderRadius: '5px', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, border: `1.5px solid ${assigned === t ? tagColors[t] : '#E0D9D0'}`, background: assigned === t ? `${tagColors[t]}18` : '#F9F8FF', color: assigned === t ? tagColors[t] : '#999' }}>
+                          <button key={t} onClick={() => setTags(prev => ({ ...prev, [i]: t }))} style={{ padding: '4px 8px', borderRadius: '5px', cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, border: `1.5px solid ${assigned === t ? tagColors[t] : 'var(--ed-rule)'}`, background: assigned === t ? `${tagColors[t]}18` : '#F9F8FF', color: assigned === t ? tagColors[t] : '#999' }}>
                             {t === 'loop' ? 'Loop' : 'ROI'}
                           </button>
                         ))}
@@ -361,13 +361,13 @@ const DovetailSynthesisBoard = () => {
                   Both clusters &mdash; &ldquo;feedback loop&rdquo; and &ldquo;ROI visibility&rdquo; &mdash; describe the same underlying gap: <strong>the product never shows managers that it is working.</strong> Two themes on the surface. One root cause underneath.
                 </div>
               </div>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.08em', marginBottom: '8px' }}>NOW WRITE THE PROBLEM STATEMENT &mdash; WHICH FRAMING CAPTURES THE ROOT CAUSE?</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.08em', marginBottom: '8px' }}>NOW WRITE THE PROBLEM STATEMENT &mdash; WHICH FRAMING CAPTURES THE ROOT CAUSE?</div>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '7px' }}>
                 {problems.map((p, i) => {
                   const isPicked = problemChoice === i;
                   return (
                     <div key={i}>
-                      <button onClick={() => setProblemChoice(i)} style={{ width: '100%', textAlign: 'left' as const, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer', border: `1.5px solid ${isPicked ? (p.correct ? '#0D7A5A' : '#FF5630') : '#E0D9D0'}`, background: isPicked ? (p.correct ? 'rgba(13,122,90,0.06)' : 'rgba(255,86,48,0.05)') : '#fff', fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', lineHeight: 1.5 }}>
+                      <button onClick={() => setProblemChoice(i)} style={{ width: '100%', textAlign: 'left' as const, padding: '10px 14px', borderRadius: '7px', cursor: 'pointer', border: `1.5px solid ${isPicked ? (p.correct ? '#0D7A5A' : '#FF5630') : 'var(--ed-rule)'}`, background: isPicked ? (p.correct ? 'rgba(13,122,90,0.06)' : 'rgba(255,86,48,0.05)') : '#fff', fontSize: '12px', fontStyle: 'italic' as const, color: '#37352F', lineHeight: 1.5 }}>
                         &ldquo;{p.text}&rdquo;
                         {isPicked && <span style={{ marginLeft: '8px', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, fontStyle: 'normal' as const, color: p.correct ? '#0D7A5A' : '#FF5630' }}>{p.type.toUpperCase()}</span>}
                       </button>

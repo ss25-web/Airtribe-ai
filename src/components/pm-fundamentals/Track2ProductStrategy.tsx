@@ -298,16 +298,16 @@ const Section2Mockup = () => {
             {CRITERIA_P.map(c => (
               <div key={c.key} style={{ textAlign: 'center' as const, padding: '8px 4px', background: `rgba(${ACCENT_RGB},0.06)`, borderRadius: '6px' }}>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.1em', marginBottom: '3px' }}>{c.label}</div>
-                <div style={{ fontSize: '10px', color: '#8A8580', lineHeight: 1.4 }}>{c.desc}</div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{c.desc}</div>
               </div>
             ))}
           </div>
 
           {EXTENSIONS.map(ext => (
             <div key={ext.key} style={{ display: 'grid', gridTemplateColumns: '1.4fr repeat(3, 1fr)', gap: '6px', marginBottom: '8px', alignItems: 'center' }}>
-              <div style={{ padding: '10px 12px', background: '#F8F6F2', borderRadius: '6px' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#1C1814', marginBottom: '2px' }}>{ext.label}</div>
-                <div style={{ fontSize: '10px', color: '#8A8580' }}>{ext.desc}</div>
+              <div style={{ padding: '10px 12px', background: 'var(--ed-card)', borderRadius: '6px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px' }}>{ext.label}</div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{ext.desc}</div>
                 {checked && (
                   <div style={{ marginTop: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700,
                     color: score(ext.key) === 3 ? '#0D7A5A' : score(ext.key) === 0 ? '#C85A40' : '#B5720A' }}>
@@ -322,8 +322,8 @@ const Section2Mockup = () => {
                 const isWrong = showResult && val !== correct;
                 return (
                   <button key={c.key} onClick={() => toggle(ext.key, c.key)} style={{
-                    height: '56px', borderRadius: '6px', border: `2px solid ${showResult ? (isWrong ? '#C85A40' : val === true ? '#0D7A5A' : '#E0D9D0') : val === true ? ACCENT : '#E0D9D0'}`,
-                    background: showResult ? (isWrong ? 'rgba(200,90,64,0.08)' : val === true ? 'rgba(13,122,90,0.08)' : '#F8F6F2') : val === true ? `rgba(${ACCENT_RGB},0.08)` : '#F8F6F2',
+                    height: '56px', borderRadius: '6px', border: `2px solid ${showResult ? (isWrong ? '#C85A40' : val === true ? '#0D7A5A' : 'var(--ed-rule)') : val === true ? ACCENT : 'var(--ed-rule)'}`,
+                    background: showResult ? (isWrong ? 'rgba(200,90,64,0.08)' : val === true ? 'rgba(13,122,90,0.08)' : 'var(--ed-card)') : val === true ? `rgba(${ACCENT_RGB},0.08)` : 'var(--ed-card)',
                     cursor: checked ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '18px', transition: 'all 0.15s',
                   }}>
@@ -338,15 +338,15 @@ const Section2Mockup = () => {
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               style={{ marginTop: '12px', padding: '14px 16px', borderRadius: '8px', background: 'rgba(13,122,90,0.06)', border: '1px solid rgba(13,122,90,0.25)' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#0D7A5A', marginBottom: '6px' }}>THE FINDING</div>
-              <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
                 Only the Coaching API clears all three criteria. Deal Intelligence AI preserves nothing — it&apos;s Gong with EdSpark&apos;s name on it. A platform strategy that starts with an API layer lets EdSpark stay focused while third parties extend its reach. The alternative is becoming a feature factory.
               </div>
             </motion.div>
           )}
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             For each extension, mark ✓ if it meets the criterion · Score to see which extension is actually platform-ready
           </div>
         </div>
@@ -402,7 +402,7 @@ const Section3Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '16px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '16px' }}>
             CURRENT Q2 SPRINT — 4 ENGINEERS · {meridianOn ? 'MERIDIAN ADDED — CASCADE ACTIVE' : 'CLICK "ADD TO Q2" TO SEE CASCADE'}
           </div>
 
@@ -413,8 +413,8 @@ const Section3Mockup = () => {
               <div key={bet.id} style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <div>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814' }}>{bet.label}</span>
-                    <span style={{ marginLeft: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF' }}>{bet.users}</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{bet.label}</span>
+                    <span style={{ marginLeft: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>{bet.users}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {delay > 0 && (
@@ -429,7 +429,7 @@ const Section3Mockup = () => {
                     </span>
                   </div>
                 </div>
-                <div style={{ height: '10px', background: '#F0EDE8', borderRadius: '5px', overflow: 'hidden' }}>
+                <div style={{ height: '10px', background: 'var(--ed-rule)', borderRadius: '5px', overflow: 'hidden' }}>
                   <div style={{ height: '100%', display: 'flex', borderRadius: '5px', overflow: 'hidden' }}>
                     <motion.div animate={{ width: `${(bet.weeks / 14) * 100}%` }} transition={{ duration: 0.4 }}
                       style={{ background: bet.color, height: '100%' }} />
@@ -443,7 +443,7 @@ const Section3Mockup = () => {
                   {showImpact === bet.id && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
                       style={{ overflow: 'hidden' }}>
-                      <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: '6px', background: 'rgba(200,90,64,0.06)', border: '1px solid rgba(200,90,64,0.2)', fontSize: '12px', color: '#1C1814', lineHeight: 1.6 }}>
+                      <div style={{ marginTop: '8px', padding: '10px 14px', borderRadius: '6px', background: 'rgba(200,90,64,0.06)', border: '1px solid rgba(200,90,64,0.2)', fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.6 }}>
                         {bet.id === 'forecasting' && 'This 8-week slip pushes the forecasting feature past the Series B data room window. 90+ accounts waiting for this — and Priya will have to explain why a 1-account request delayed a 90-account feature.'}
                         {bet.id === 'analytics' && 'Analytics slips 3 weeks — not catastrophic alone, but it delays the manager retention data that would prove EdSpark\'s core value story for Series B.'}
                         {bet.id === 'mobile' && 'Mobile slips 5 weeks into Q3. The two enterprise prospects who asked for mobile access last month become Q3 problems.'}
@@ -475,8 +475,8 @@ const Section3Mockup = () => {
           </AnimatePresence>
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Toggle the Meridian bet · click any slipped bet to see the user impact · every bet you add cancels something else
           </div>
         </div>
@@ -526,14 +526,14 @@ const Section4Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '16px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '16px' }}>
             ANSWER HONESTLY — THE FRAMEWORK SHOULD DRIVE THE DECISION, NOT CONFIRM YOUR INSTINCT
           </div>
 
           {KILL_CRITERIA.map((c, i) => (
-            <div key={c.id} style={{ marginBottom: '14px', padding: '14px 16px', borderRadius: '8px', background: '#F8F6F2', border: `1px solid ${answers[c.id] !== null && showVerdict ? (answers[c.id] === c.killAnswer ? 'rgba(200,90,64,0.3)' : '#E0D9D0') : '#E0D9D0'}` }}>
-              <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.6, marginBottom: '10px' }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', marginRight: '8px' }}>{String(i+1).padStart(2,'0')}</span>
+            <div key={c.id} style={{ marginBottom: '14px', padding: '14px 16px', borderRadius: '8px', background: 'var(--ed-card)', border: `1px solid ${answers[c.id] !== null && showVerdict ? (answers[c.id] === c.killAnswer ? 'rgba(200,90,64,0.3)' : 'var(--ed-rule)') : 'var(--ed-rule)'}` }}>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.6, marginBottom: '10px' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', marginRight: '8px' }}>{String(i+1).padStart(2,'0')}</span>
                 {c.q}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -543,9 +543,9 @@ const Section4Mockup = () => {
                   const isKillSignal = showVerdict && val === c.killAnswer;
                   return (
                     <button key={opt} onClick={() => !showVerdict && setAnswers(prev => ({ ...prev, [c.id]: val }))} style={{
-                      padding: '6px 20px', borderRadius: '6px', border: `1.5px solid ${isSelected ? ACCENT : '#E0D9D0'}`,
+                      padding: '6px 20px', borderRadius: '6px', border: `1.5px solid ${isSelected ? ACCENT : 'var(--ed-rule)'}`,
                       background: isSelected ? `rgba(${ACCENT_RGB},0.08)` : '#fff',
-                      color: isSelected ? ACCENT : '#97A0AF', fontWeight: 700, fontSize: '12px',
+                      color: isSelected ? ACCENT : 'var(--ed-ink3)', fontWeight: 700, fontSize: '12px',
                       cursor: showVerdict ? 'default' : 'pointer', transition: 'all 0.15s',
                     }}>{opt}</button>
                   );
@@ -569,7 +569,7 @@ const Section4Mockup = () => {
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: killScore >= 3 ? '#C85A40' : '#0D7A5A', marginBottom: '8px' }}>
                   VERDICT: {killScore >= 3 ? `KILL IT — ${killScore}/5 kill criteria met` : `CONTINUE — ONLY ${killScore}/5 kill criteria met`}
                 </div>
-                <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+                <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
                   {killScore >= 3
                     ? 'The sunk cost of 60% is irrelevant to this decision. The next 6 weeks are the only thing on the table — and they produce a feature with low ICP fit, no validated WTP, and no competitive moat. Redirect those engineers to the forecasting feature that 90+ accounts are waiting for.'
                     : 'The criteria suggest continuing. But revisit WTP validation before committing the full 6 weeks — even a go/no-go checkpoint at week 3 protects against overinvestment.'}
@@ -579,8 +579,8 @@ const Section4Mockup = () => {
           </AnimatePresence>
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Answer all 5 criteria honestly — then get the framework verdict · the sunk cost is not one of the criteria
           </div>
         </div>
@@ -639,7 +639,7 @@ const Section5Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '14px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '14px' }}>
             PRIYA HAS 3 NARRATIVE FRAMINGS — PICK THE ONE SHE LEADS WITH
           </div>
 
@@ -647,19 +647,19 @@ const Section5Mockup = () => {
             {FRAMINGS.map(f => (
               <button key={f.key} onClick={() => setChosen(f.key)} style={{
                 padding: '14px 18px', borderRadius: '8px', textAlign: 'left',
-                background: chosen === f.key ? `${f.color}10` : '#F8F6F2',
-                border: `1.5px solid ${chosen === f.key ? f.color : '#E0D9D0'}`,
+                background: chosen === f.key ? `${f.color}10` : 'var(--ed-card)',
+                border: `1.5px solid ${chosen === f.key ? f.color : 'var(--ed-rule)'}`,
                 cursor: 'pointer', transition: 'all 0.15s',
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: chosen === f.key ? f.color : '#1C1814', marginBottom: '6px' }}>{f.label}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: chosen === f.key ? f.color : 'var(--ed-ink)', marginBottom: '6px' }}>{f.label}</div>
                     <div style={{ fontSize: '12px', color: '#6B7280', lineHeight: 1.6, fontStyle: 'italic' }}>{f.pitch}</div>
                   </div>
                   {chosen === f.key && (
                     <div style={{ display: 'flex', gap: '3px', flexShrink: 0, alignItems: 'center', paddingTop: '2px' }}>
                       {[1,2,3,4,5].map(i => (
-                        <div key={i} style={{ width: '10px', height: '10px', borderRadius: '2px', background: i <= f.score ? f.color : '#E0D9D0' }} />
+                        <div key={i} style={{ width: '10px', height: '10px', borderRadius: '2px', background: i <= f.score ? f.color : 'var(--ed-rule)' }} />
                       ))}
                     </div>
                   )}
@@ -677,7 +677,7 @@ const Section5Mockup = () => {
                 </div>
                 {framing.concern ? (
                   <>
-                    <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65, marginBottom: '10px', fontStyle: 'italic' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65, marginBottom: '10px', fontStyle: 'italic' }}>
                       &ldquo;{framing.concern}&rdquo;
                     </div>
                     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: framing.color, letterSpacing: '0.06em' }}>
@@ -685,7 +685,7 @@ const Section5Mockup = () => {
                     </div>
                   </>
                 ) : (
-                  <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
                     &ldquo;Category leadership with a specific, defensible moat — CRM depth creating real switching costs. This is what Series B checks are written for. Walk me through the path to $12M ARR.&rdquo;
                   </div>
                 )}
@@ -694,8 +694,8 @@ const Section5Mockup = () => {
           </AnimatePresence>
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Pick a framing · see the investor reaction · there is one right answer and two expensive mistakes
           </div>
         </div>

@@ -190,7 +190,7 @@ const Section1Mockup = () => {
           {/* Unsorted pool */}
           {unsorted.length > 0 && (
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '8px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '8px' }}>
                 FROM ROHAN&apos;S ALL-HANDS SLIDE — click Strategy or Tactic to sort each item
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -200,7 +200,7 @@ const Section1Mockup = () => {
                       style={{ padding: '8px 14px', borderRadius: '6px 0 0 6px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.3)', borderRight: 'none', cursor: 'pointer', fontSize: '10px', color: ACCENT, fontWeight: 700, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
                       Strategy
                     </button>
-                    <div style={{ flex: 1, padding: '8px 12px', background: '#F8F6F2', border: '1px solid #E0D9D0', fontSize: '12px', color: '#1C1814', display: 'flex', alignItems: 'center' }}>{item.text}</div>
+                    <div style={{ flex: 1, padding: '8px 12px', background: 'var(--ed-card)', border: '1px solid #E0D9D0', fontSize: '12px', color: 'var(--ed-ink)', display: 'flex', alignItems: 'center' }}>{item.text}</div>
                     <button onClick={() => sort(item.id, 'tactic')}
                       style={{ padding: '8px 14px', borderRadius: '0 6px 6px 0', background: 'rgba(200,90,64,0.08)', border: '1px solid rgba(200,90,64,0.3)', borderLeft: 'none', cursor: 'pointer', fontSize: '10px', color: '#C85A40', fontWeight: 700, whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
                       Tactic
@@ -223,7 +223,7 @@ const Section1Mockup = () => {
                   {bucket.items.map(item => {
                     const isCorrect = item.correct === bucket.key;
                     return (
-                      <div key={item.id} style={{ fontSize: '12px', color: '#1C1814', padding: '5px 8px', borderRadius: '5px', background: checked ? (isCorrect ? 'rgba(13,122,90,0.1)' : 'rgba(200,64,64,0.1)') : '#fff', border: `1px solid ${checked ? (isCorrect ? 'rgba(13,122,90,0.3)' : 'rgba(200,64,64,0.3)') : '#E0D9D0'}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                      <div key={item.id} style={{ fontSize: '12px', color: 'var(--ed-ink)', padding: '5px 8px', borderRadius: '5px', background: checked ? (isCorrect ? 'rgba(13,122,90,0.1)' : 'rgba(200,64,64,0.1)') : '#fff', border: `1px solid ${checked ? (isCorrect ? 'rgba(13,122,90,0.3)' : 'rgba(200,64,64,0.3)') : 'var(--ed-rule)'}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
                         <span>{item.text}</span>
                         {checked && <span style={{ fontSize: '13px', flexShrink: 0 }}>{isCorrect ? '✓' : '✗'}</span>}
                       </div>
@@ -237,15 +237,15 @@ const Section1Mockup = () => {
           {checked && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '8px', background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)' }}>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, marginBottom: '6px' }}>THE INSIGHT</div>
-              <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
                 Rohan&apos;s list has four legitimate strategies — but none of them say <em>why EdSpark wins against Gong.io</em> specifically, or which customer segment to target first. Strategy without a clear theory of differentiation is just ambition.
               </div>
             </motion.div>
           )}
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Sort every item · then check — count how many of Rohan&apos;s asks were actually strategic bets
           </div>
         </div>
@@ -290,7 +290,7 @@ const Section2Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', padding: '6px 12px', borderRadius: '6px', background: '#F8F6F2' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px', padding: '6px 12px', borderRadius: '6px', background: 'var(--ed-card)' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT }}>● EDSPARK (drag to rate)</div>
             {revealed && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#6366F1' }}>● GONG.IO (actual)</div>}
           </div>
@@ -299,8 +299,8 @@ const Section2Mockup = () => {
             <div key={moat.key} style={{ marginBottom: '20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <div>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814' }}>{moat.label}</span>
-                  <span style={{ fontSize: '11px', color: '#8A8580', marginLeft: '8px' }}>{moat.desc}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{moat.label}</span>
+                  <span style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginLeft: '8px' }}>{moat.desc}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   {revealed && (
@@ -312,7 +312,7 @@ const Section2Mockup = () => {
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: 700, color: ACCENT }}>{edspark[moat.key]}/5</span>
                 </div>
               </div>
-              <div style={{ position: 'relative', height: '8px', background: '#F0EDE8', borderRadius: '4px', overflow: 'visible', marginBottom: '4px' }}>
+              <div style={{ position: 'relative', height: '8px', background: 'var(--ed-rule)', borderRadius: '4px', overflow: 'visible', marginBottom: '4px' }}>
                 <motion.div animate={{ width: `${(edspark[moat.key] / 5) * 100}%` }} style={{ height: '100%', background: ACCENT, borderRadius: '4px', position: 'relative' }} />
                 {revealed && (
                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -325,7 +325,7 @@ const Section2Mockup = () => {
               <AnimatePresence>
                 {activeInsight === moat.key && (
                   <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                    style={{ marginTop: '8px', padding: '10px 12px', borderRadius: '6px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '12px', color: '#1C1814', lineHeight: 1.6 }}>
+                    style={{ marginTop: '8px', padding: '10px 12px', borderRadius: '6px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.6 }}>
                     {moat.insight}
                   </motion.div>
                 )}
@@ -334,8 +334,8 @@ const Section2Mockup = () => {
           ))}
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Rate EdSpark&apos;s moat strength 1–5 · Reveal Gong to see the gap · click WHY to understand each difference
           </div>
         </div>
@@ -407,7 +407,7 @@ const Section3Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '20px' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#97A0AF', letterSpacing: '0.1em', marginBottom: '12px' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '12px' }}>
             ROHAN WANTS ALL THREE THIS QUARTER — PICK YOUR RECOMMENDATION
           </div>
 
@@ -416,12 +416,12 @@ const Section3Mockup = () => {
               <button key={d.key} onClick={() => handleSelect(d.key)}
                 style={{
                   padding: '12px 16px', borderRadius: '8px', textAlign: 'left',
-                  background: selected === d.key ? `rgba(${ACCENT_RGB},0.08)` : '#F8F6F2',
-                  border: `1.5px solid ${selected === d.key ? ACCENT : '#E0D9D0'}`,
+                  background: selected === d.key ? `rgba(${ACCENT_RGB},0.08)` : 'var(--ed-card)',
+                  border: `1.5px solid ${selected === d.key ? ACCENT : 'var(--ed-rule)'}`,
                   cursor: 'pointer', transition: 'all 0.15s',
                 }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: selected === d.key ? ACCENT : '#1C1814', marginBottom: '2px' }}>{d.label}</div>
-                <div style={{ fontSize: '11px', color: '#8A8580' }}>{d.sublabel}</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: selected === d.key ? ACCENT : 'var(--ed-ink)', marginBottom: '2px' }}>{d.label}</div>
+                <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{d.sublabel}</div>
               </button>
             ))}
           </div>
@@ -432,10 +432,10 @@ const Section3Mockup = () => {
                 {steps.map((s, i) => (
                   <React.Fragment key={i}>
                     <button onClick={() => setStep(i)}
-                      style={{ padding: '4px 10px', borderRadius: '20px', border: `1px solid ${i <= step ? s.color : '#E0D9D0'}`, background: i <= step ? s.bg : 'transparent', color: i <= step ? s.color : '#97A0AF', fontSize: '10px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", cursor: 'pointer', transition: 'all 0.2s' }}>
+                      style={{ padding: '4px 10px', borderRadius: '20px', border: `1px solid ${i <= step ? s.color : 'var(--ed-rule)'}`, background: i <= step ? s.bg : 'transparent', color: i <= step ? s.color : 'var(--ed-ink3)', fontSize: '10px', fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", cursor: 'pointer', transition: 'all 0.2s' }}>
                       {s.label}
                     </button>
-                    {i < steps.length - 1 && <span style={{ color: '#E0D9D0', fontSize: '14px' }}>→</span>}
+                    {i < steps.length - 1 && <span style={{ color: 'var(--ed-rule)', fontSize: '14px' }}>→</span>}
                   </React.Fragment>
                 ))}
               </div>
@@ -443,7 +443,7 @@ const Section3Mockup = () => {
                 <motion.div key={step} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   style={{ padding: '14px 16px', borderRadius: '8px', background: steps[step].bg, border: `1px solid ${steps[step].color}33` }}>
                   <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: steps[step].color, marginBottom: '6px' }}>{steps[step].label} EFFECT</div>
-                  <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>{steps[step].text}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{steps[step].text}</div>
                   {step < steps.length - 1 && (
                     <button onClick={() => setStep(s => s + 1)} style={{ marginTop: '10px', padding: '4px 12px', borderRadius: '4px', background: steps[step].color, color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 600 }}>
                       See next effect →
@@ -455,8 +455,8 @@ const Section3Mockup = () => {
           )}
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Pick a recommendation · step through 1st → 2nd → 3rd order effects to see where each path leads
           </div>
         </div>
@@ -506,7 +506,7 @@ const Section4Mockup = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814' }}>{bet.label}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--ed-ink)' }}>{bet.label}</div>
                     <button onClick={() => setExpanded(expanded === bet.id ? null : bet.id)}
                       style={{ padding: '1px 7px', borderRadius: '3px', background: `${bet.color}12`, border: `1px solid ${bet.color}30`, color: bet.color, fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", cursor: 'pointer', fontWeight: 700 }}>
                       WHY
@@ -519,7 +519,7 @@ const Section4Mockup = () => {
                   <AnimatePresence>
                     {expanded === bet.id && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
-                        <div style={{ marginTop: '8px', fontSize: '12px', color: '#5E6C84', lineHeight: 1.6, borderLeft: `2px solid ${bet.color}`, paddingLeft: '10px' }}>{bet.note}</div>
+                        <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6, borderLeft: `2px solid ${bet.color}`, paddingLeft: '10px' }}>{bet.note}</div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -530,17 +530,17 @@ const Section4Mockup = () => {
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '16px', fontWeight: 900, color: bet.color, minWidth: '32px', textAlign: 'center' }}>{allocated[bet.id]}</span>
                   <button onClick={() => setAllocated(a => ({ ...a, [bet.id]: a[bet.id] + 1 }))}
                     style={{ width: '26px', height: '26px', borderRadius: '50%', border: `1px solid ${bet.color}`, background: 'transparent', color: bet.color, cursor: 'pointer', fontWeight: 700, fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#8A8580' }}>wks</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)' }}>wks</span>
                 </div>
               </div>
-              <div style={{ height: '6px', background: '#F0EDE8', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '6px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden' }}>
                 <motion.div animate={{ width: `${(allocated[bet.id] / TOTAL_WEEKS) * 100}%` }} style={{ height: '100%', background: bet.color, borderRadius: '3px' }} />
               </div>
             </div>
           ))}
 
           <div style={{ padding: '12px 14px', borderRadius: '8px', background: remaining < 0 ? 'rgba(200,90,64,0.08)' : remaining === 0 ? 'rgba(13,122,90,0.08)' : 'rgba(124,58,237,0.06)', border: `1px solid ${remaining < 0 ? 'rgba(200,90,64,0.3)' : remaining === 0 ? 'rgba(13,122,90,0.3)' : 'rgba(124,58,237,0.2)'}` }}>
-            <div style={{ fontSize: '13px', color: '#1C1814', lineHeight: 1.65 }}>
+            <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>
               {remaining < 0
                 ? `⚠️ Over budget by ${Math.abs(remaining)} weeks. Something has to give — which bet are you cutting?`
                 : remaining === 0
@@ -550,8 +550,8 @@ const Section4Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             +/− to adjust weeks · min allocation per bet shown · stay within 12 total · click WHY to understand each bet
           </div>
         </div>
@@ -590,7 +590,7 @@ const Section5Mockup = () => {
   const target = 500;
 
   const statusConfig: Record<OppStatus, { label: string; color: string; bg: string; border: string }> = {
-    locked:  { label: 'LOCKED',   color: '#8A8580', bg: '#F8F6F2',                  border: '#E0D9D0' },
+    locked:  { label: 'LOCKED',   color: 'var(--ed-ink3)', bg: 'var(--ed-card)',                  border: 'var(--ed-rule)' },
     target:  { label: 'TARGET',   color: '#B5720A', bg: 'rgba(181,114,10,0.08)',    border: 'rgba(181,114,10,0.3)' },
     pilot:   { label: 'IN PILOT', color: ACCENT,    bg: `rgba(${ACCENT_RGB},0.08)`, border: `rgba(${ACCENT_RGB},0.3)` },
     won:     { label: 'WON',      color: '#0D7A5A', bg: 'rgba(13,122,90,0.08)',     border: 'rgba(13,122,90,0.3)' },
@@ -614,7 +614,7 @@ const Section5Mockup = () => {
         </div>
 
         <div style={{ background: 'var(--ed-card)', padding: '16px' }}>
-          <div style={{ height: '6px', background: '#F0EDE8', borderRadius: '3px', overflow: 'hidden', marginBottom: '16px' }}>
+          <div style={{ height: '6px', background: 'var(--ed-rule)', borderRadius: '3px', overflow: 'hidden', marginBottom: '16px' }}>
             <motion.div animate={{ width: `${Math.min(100, (totalWon / target) * 100)}%` }} style={{ height: '100%', background: '#0D7A5A', borderRadius: '3px' }} />
           </div>
 
@@ -626,14 +626,14 @@ const Section5Mockup = () => {
                   style={{ padding: '12px', borderRadius: '8px', background: cfg.bg, border: `1.5px solid ${cfg.border}`, cursor: opp.status !== 'won' ? 'pointer' : 'default' }}
                   onClick={() => opp.status !== 'won' && advance(opp.id)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#1C1814', lineHeight: 1.3, flex: 1 }}>{opp.label}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3, flex: 1 }}>{opp.label}</div>
                     <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.border}`, flexShrink: 0, marginLeft: '6px' }}>{cfg.label}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', color: '#8A8580' }}>{opp.dept}</span>
+                    <span style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{opp.dept}</span>
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 700, color: cfg.color }}>{opp.seats} seats</span>
                   </div>
-                  <div style={{ fontSize: '10px', color: opp.status === 'locked' ? '#AAA' : cfg.color, lineHeight: 1.5, fontStyle: 'italic' }}>
+                  <div style={{ fontSize: '10px', color: opp.status === 'locked' ? 'var(--ed-ink3)' : cfg.color, lineHeight: 1.5, fontStyle: 'italic' }}>
                     {opp.status === 'locked' ? `🔒 ${opp.proof}` : opp.proof}
                   </div>
                   {opp.status !== 'won' && opp.status !== 'locked' && (
@@ -647,8 +647,8 @@ const Section5Mockup = () => {
           </div>
         </div>
 
-        <div style={{ background: '#F8F6F2', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84' }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: `1px solid rgba(${ACCENT_RGB},0.15)`, padding: '8px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)' }}>
             Click unlocked teams to advance · locked teams show what product work unblocks them · reach 500 seats
           </div>
         </div>

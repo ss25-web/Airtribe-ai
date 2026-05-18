@@ -106,7 +106,7 @@ const JiraBacklogTriage = () => {
         </div>
         <div style={{ background: '#F4F5F7', borderBottom: '2px solid #DFE1E6', padding: '7px 16px', display: 'flex', alignItems: 'center' }}>
           {['KEY', 'SUMMARY', 'REQUESTER', 'PRIORITY', 'AGE', 'STATUS'].map((col, i) => (
-            <div key={col} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#5E6C84', letterSpacing: '0.1em', flex: i === 1 ? 3 : i === 2 ? 2 : 1 }}>{col}</div>
+            <div key={col} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', letterSpacing: '0.1em', flex: i === 1 ? 3 : i === 2 ? 2 : 1 }}>{col}</div>
           ))}
         </div>
         {tickets.map((ticket, idx) => {
@@ -122,11 +122,11 @@ const JiraBacklogTriage = () => {
               >
                 <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: '#0052CC', fontWeight: 600 }}>{ticket.key}</div>
                 <div style={{ flex: 3, fontSize: '13px', color: '#172B4D', fontWeight: 500 }}>{ticket.title}</div>
-                <div style={{ flex: 2, fontSize: '11px', color: '#5E6C84', fontFamily: 'monospace' }}>{ticket.requester}</div>
+                <div style={{ flex: 2, fontSize: '11px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>{ticket.requester}</div>
                 <div style={{ flex: 1 }}>
                   <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ticket.priorityColor, background: `${ticket.priorityColor}18`, padding: '2px 6px', borderRadius: '3px' }}>{ticket.priority}</span>
                 </div>
-                <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: '#97A0AF' }}>{ticket.age}</div>
+                <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '11px', color: 'var(--ed-ink3)' }}>{ticket.age}</div>
                 <div style={{ flex: 1 }}>
                   {isFramed
                     ? <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: isCorrect ? '#0D7A5A' : '#FF5630', background: isCorrect ? 'rgba(13,122,90,0.1)' : '#FFEBE6', padding: '2px 6px', borderRadius: '3px' }}>{isCorrect ? 'FRAMED' : 'RETRY'}</span>
@@ -138,7 +138,7 @@ const JiraBacklogTriage = () => {
                 {isExpanded && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
                     <div style={{ padding: '12px 16px 16px', background: '#FFFAE6', borderTop: '1px solid #F0EDE8' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em', marginBottom: '10px' }}>CHOOSE THE PROBLEM STATEMENT FOR THIS TICKET</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '10px' }}>CHOOSE THE PROBLEM STATEMENT FOR THIS TICKET</div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {ticket.options.map((opt, oi) => {
                           const isPicked = picked === oi;
@@ -155,7 +155,7 @@ const JiraBacklogTriage = () => {
                                   fontSize: '12px', color: '#172B4D', lineHeight: 1.5,
                                 }}
                               >
-                                <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#5E6C84', marginRight: '8px' }}>{String.fromCharCode(65 + oi)}.</span>
+                                <span style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: 'var(--ed-ink3)', marginRight: '8px' }}>{String.fromCharCode(65 + oi)}.</span>
                                 {opt}
                               </button>
                               <AnimatePresence>
@@ -179,7 +179,7 @@ const JiraBacklogTriage = () => {
           );
         })}
         <div style={{ background: '#F4F5F7', borderTop: '1px solid #DFE1E6', padding: '8px 16px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: framedCount >= 3 ? '#0D7A5A' : '#5E6C84' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: framedCount >= 3 ? '#0D7A5A' : 'var(--ed-ink3)' }}>
             {framedCount >= 3 ? '✓ Tickets framed — ready for RICE scoring' : `Click each ticket to write its problem statement before RICE scoring (${framedCount}/4 done)`}
           </div>
         </div>
@@ -359,12 +359,12 @@ const AmplitudeFunnelExplorer = () => {
         </div>
         <div style={{ background: '#F8F9FC' }}>
           <div style={{ padding: '14px 20px', borderBottom: '1px solid #E8EAF0', display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em' }}>SEGMENT:</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>SEGMENT:</span>
             {(['all', 'new', 'experienced'] as Seg[]).map(s => (
               <button
                 key={s}
                 onClick={() => setSegment(s)}
-                style={{ padding: '5px 12px', borderRadius: '6px', border: `1.5px solid ${segment === s ? '#4F46E5' : '#DFE1E6'}`, background: segment === s ? 'rgba(79,70,229,0.08)' : '#fff', cursor: 'pointer', fontFamily: 'monospace', fontSize: '10px', fontWeight: segment === s ? 700 : 400, color: segment === s ? '#4F46E5' : '#5E6C84' }}
+                style={{ padding: '5px 12px', borderRadius: '6px', border: `1.5px solid ${segment === s ? '#4F46E5' : '#DFE1E6'}`, background: segment === s ? 'rgba(79,70,229,0.08)' : '#fff', cursor: 'pointer', fontFamily: 'monospace', fontSize: '10px', fontWeight: segment === s ? 700 : 400, color: segment === s ? '#4F46E5' : 'var(--ed-ink3)' }}
               >
                 {segLabels[s]}
               </button>
@@ -434,13 +434,13 @@ const RICELiveCalculator = () => {
   const maxScore = Math.max(sA, sB, 1);
   const Stepper = ({ k, field, step, label }: { k: ItemKey; field: keyof Omit<RiceItem, 'label' | 'color'>; step: number; label: string }) => (
     <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px' }}>
-      <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#5E6C84', letterSpacing: '0.08em', textAlign: 'center' as const }}>{label}</div>
+      <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.08em', textAlign: 'center' as const }}>{label}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-        <button onClick={() => adj(k, field, -step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: '#5E6C84', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+        <button onClick={() => adj(k, field, -step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: 'var(--ed-ink3)', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
         <div style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 700, color: vals[k].color, minWidth: '44px', textAlign: 'center' as const }}>
           {field === 'confidence' ? `${vals[k][field]}%` : vals[k][field]}
         </div>
-        <button onClick={() => adj(k, field, step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: '#5E6C84', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+        <button onClick={() => adj(k, field, step)} style={{ width: '22px', height: '22px', borderRadius: '4px', border: '1px solid #DFE1E6', background: '#F4F5F7', cursor: 'pointer', fontWeight: 700, color: 'var(--ed-ink3)', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
       </div>
     </div>
   );
@@ -457,7 +457,7 @@ const RICELiveCalculator = () => {
             const s = score(v);
             const isWinner = winner === k;
             return (
-              <div key={k} style={{ flex: 1, padding: '16px 18px', borderRadius: '10px', border: `2px solid ${isWinner ? v.color : '#E0D9D0'}`, background: isWinner ? `${v.color}06` : '#FAFAFA' }}>
+              <div key={k} style={{ flex: 1, padding: '16px 18px', borderRadius: '10px', border: `2px solid ${isWinner ? v.color : 'var(--ed-rule)'}`, background: isWinner ? `${v.color}06` : '#FAFAFA' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
                   <div style={{ fontWeight: 700, fontSize: '13px', color: v.color }}>{v.label}</div>
                   {isWinner && <span style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: v.color, background: `${v.color}18`, padding: '2px 7px', borderRadius: '3px' }}>PRIORITY</span>}
@@ -472,13 +472,13 @@ const RICELiveCalculator = () => {
                   <motion.div animate={{ width: `${Math.min((s / maxScore) * 100, 100)}%` }} transition={{ duration: 0.3 }} style={{ height: '100%', background: v.color, borderRadius: '3px' }} />
                 </div>
                 <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '22px', fontWeight: 900, color: v.color }}>{s}</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#97A0AF', marginTop: '2px' }}>({v.reach} &times; {v.impact} &times; {v.confidence / 100}) &divide; {v.effort}</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', marginTop: '2px' }}>({v.reach} &times; {v.impact} &times; {v.confidence / 100}) &divide; {v.effort}</div>
               </div>
             );
           })}
         </div>
-        <div style={{ background: '#F8F6F2', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#5E6C84', lineHeight: 1.6 }}>
+        <div style={{ background: 'var(--ed-card)', borderTop: '1px solid #E0D9D0', padding: '10px 18px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.6 }}>
             Try adjusting CRM confidence to 90% or onboarding effort to 6 &mdash; does the winner change? RICE forces you to make assumptions explicit, not just to get a number.
           </div>
         </div>
@@ -549,7 +549,7 @@ const SlackResponseComposer = () => {
 
           {/* Draft picker */}
           <div style={{ padding: '12px 14px', borderRadius: '8px', background: '#F8F8F8', border: '1px solid #E0E0E0' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#5E6C84', letterSpacing: '0.1em', marginBottom: '10px' }}>PRIYA IS TYPING... CHOOSE HER REPLY:</div>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '10px' }}>PRIYA IS TYPING... CHOOSE HER REPLY:</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
               {drafts.map((d, i) => {
                 const isPicked = chosen === i;
@@ -564,7 +564,7 @@ const SlackResponseComposer = () => {
                         transition: 'all 0.15s',
                       }}
                     >
-                      <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: isPicked ? (d.correct ? '#0D7A5A' : ACCENT) : '#5E6C84', letterSpacing: '0.1em', marginBottom: '4px' }}>{String.fromCharCode(65 + i)}. {d.label.toUpperCase()}</div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: isPicked ? (d.correct ? '#0D7A5A' : ACCENT) : 'var(--ed-ink3)', letterSpacing: '0.1em', marginBottom: '4px' }}>{String.fromCharCode(65 + i)}. {d.label.toUpperCase()}</div>
                       <div style={{ fontSize: '12px', color: '#1D1C1D', lineHeight: 1.55, fontStyle: 'italic' as const }}>&ldquo;{d.preview}&rdquo;</div>
                     </button>
                     <AnimatePresence>
@@ -599,7 +599,7 @@ const SlackResponseComposer = () => {
                       <div style={{ marginBottom: '10px' }}>Hey Marcus &mdash; I hear you, and I know Meridian matters. Here&apos;s where I landed after running the numbers:</div>
                       <div style={{ padding: '10px 14px', borderRadius: '6px', background: '#F8F9FC', border: '1px solid #E0E4ED', marginBottom: '10px' }}>
                         <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#4F46E5', letterSpacing: '0.1em', marginBottom: '6px' }}>RICE ANALYSIS</div>
-                        <div style={{ fontSize: '12px', color: '#5E6C84', lineHeight: 1.7 }}>
+                        <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>
                           CRM Integration: Reach=50 &middot; Impact=2 &middot; Confidence=50% &middot; Effort=4 &rarr; <strong style={{ color: ACCENT }}>Score 12.5</strong><br />
                           Onboarding fix: Reach=500 &middot; Impact=2 &middot; Confidence=80% &middot; Effort=1 &rarr; <strong style={{ color: '#0D7A5A' }}>Score 800</strong>
                         </div>

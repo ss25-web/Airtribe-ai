@@ -84,7 +84,7 @@ const NotionAffinityBoard = () => {
                   style={{
                     padding: '9px 11px', borderRadius: '6px', textAlign: 'left',
                     background: selected === note.id ? 'rgba(0,151,167,0.1)' : '#fff',
-                    border: `1.5px solid ${selected === note.id ? '#0097A7' : '#E0D9D0'}`,
+                    border: `1.5px solid ${selected === note.id ? '#0097A7' : 'var(--ed-rule)'}`,
                     cursor: 'pointer', fontSize: '11px', color: '#37352F', lineHeight: 1.5,
                     boxShadow: selected === note.id ? '0 2px 8px rgba(0,151,167,0.2)' : '0 1px 3px rgba(0,0,0,0.06)',
                   }}
@@ -186,7 +186,7 @@ const KraftfulAnalyzer = () => {
     },
     {
       label: 'Billing and feature requests',
-      color: '#8A8580', pct: 25, ticketIds: [4, 7],
+      color: 'var(--ed-ink3)', pct: 25, ticketIds: [4, 7],
       summary: 'Billing error and missing export feature. Different investigation tracks from the core churn problem.',
     },
   ];
@@ -368,7 +368,7 @@ const DovetailTaggingSession = () => {
                       onClick={!seg.isQuestion ? () => setSelected(isSelected ? null : seg.id) : undefined}
                       style={{
                         padding: '8px 12px', borderRadius: '8px', fontSize: '12px', color: '#37352F', lineHeight: 1.65,
-                        border: `1px solid ${isTagged && tagDef ? tagDef.color + '55' : isSelected ? '#0097A7' : '#E0D9D0'}`,
+                        border: `1px solid ${isTagged && tagDef ? tagDef.color + '55' : isSelected ? '#0097A7' : 'var(--ed-rule)'}`,
                         background: isTagged && tagDef ? `${tagDef.color}10` : seg.isQuestion ? '#F0FAFB' : isSelected ? 'rgba(0,151,167,0.07)' : '#fff',
                         cursor: seg.isQuestion ? 'default' : 'pointer',
                         fontStyle: seg.isQuestion ? 'italic' : 'normal',
@@ -423,7 +423,7 @@ const DovetailTaggingSession = () => {
                       <span style={{ fontSize: '9px', color: tag.color, fontWeight: 600 }}>{tag.label}</span>
                       <span style={{ fontSize: '9px', fontFamily: 'monospace', color: tag.color, fontWeight: 700 }}>{count}</span>
                     </div>
-                    <div style={{ height: '3px', background: '#E0D9D0', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{ height: '3px', background: 'var(--ed-rule)', borderRadius: '2px', overflow: 'hidden' }}>
                       <motion.div animate={{ width: `${(count / taggableCount) * 100}%` }} transition={{ duration: 0.4 }} style={{ height: '100%', background: tag.color, borderRadius: '2px' }} />
                     </div>
                   </div>
