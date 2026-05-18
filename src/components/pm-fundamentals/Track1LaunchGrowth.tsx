@@ -16,6 +16,7 @@ import {
   PricingModelExplorer,
   GTMPathVisualizer,
 } from './LaunchGrowthTools';
+import { PLGvsSalesLedViz } from './Module8Additions';
 import {
   LaunchPipelineAnimation,
   AhaMomentFlowAnimation,
@@ -452,6 +453,10 @@ export default function Track1LaunchGrowth({
           ]}
           conceptId="b2b-gtm"
         />
+
+        <div className="rv">
+          <PLGvsSalesLedViz />
+        </div>
 
         <QuizEngine
           conceptId="b2b-gtm"

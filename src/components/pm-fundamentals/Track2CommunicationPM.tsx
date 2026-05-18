@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { StakeholderCalibrationRoom, ExecReviewTheater, RoadmapPressureChamber } from './CommTools3D';
+import { AIQualityCriteriaViz } from './Module6Additions';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   glassCard, demoLabel, h2, para, pullQuote, keyBox,
@@ -577,6 +578,10 @@ export default function Track2CommunicationPM({
         <PMPrincipleBox principle="The most valuable part of a senior PM's PRD is not the solution section. It is the decision log — what was considered, rejected, and why." />
 
         <ApplyItBox prompt="Take your current most complex PRD or spec. Run this prompt against it: 'What assumptions in this document are not backed by evidence? What contradictions exist between sections? What risks are implied but not stated?' Fix the three most important gaps you find." />
+
+        <div className="rv">
+          <AIQualityCriteriaViz />
+        </div>
 
         <QuizEngine
           conceptId="prd-with-ai"

@@ -15,6 +15,7 @@ import {
   AccountHealthExplorer,
   ExperimentConsequenceEngine,
 } from './AnalyticsTools';
+import { SQLforPMsViz } from './Module7Additions';
 
 const ACCENT     = '#158158';
 const ACCENT_RGB = '21,129,88';
@@ -527,6 +528,10 @@ export default function Track2AnalyticsPM({
         <PMPrincipleBox principle="Stop saying 'this stage is the problem.' Start saying 'this stage is where multiple failure modes are currently being aggregated.' That one change in language changes what the team builds next." />
 
         <ApplyItBox prompt="Think of one funnel step you know with a major drop. Before looking at any data, write three different user types who might be failing there for three completely different reasons. That's your decomposition hypothesis." />
+
+        <div className="rv">
+          <SQLforPMsViz />
+        </div>
 
         <QuizEngine
           conceptId="funnel-analysis"

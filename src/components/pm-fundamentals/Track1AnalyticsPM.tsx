@@ -16,6 +16,7 @@ import {
   AccountHealthExplorer,
   ExperimentConsequenceEngine,
 } from './AnalyticsTools';
+import { SQLforPMsViz } from './Module7Additions';
 
 const ACCENT     = '#158158';
 const ACCENT_RGB = '21,129,88';
@@ -963,6 +964,10 @@ export default function Track1AnalyticsPM({
         <PMPrinciple text="A funnel tells you where the journey breaks. It does not automatically tell you why." />
 
         <ApplyItBox prompt="Think of one key journey in a product you know. Write the major steps. That is the beginning of a funnel. For each step, write two different possible reasons someone might drop off — before you look at any data." />
+
+        <div className="rv">
+          <SQLforPMsViz />
+        </div>
 
         <QuizEngine
           conceptId="funnel-analysis"

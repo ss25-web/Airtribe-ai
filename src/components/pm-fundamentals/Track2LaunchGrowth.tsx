@@ -18,6 +18,7 @@ import {
   ReleaseControlTower,
   EnterpriseExpansionEngine,
 } from './LaunchGrowthTools';
+import { PLGvsSalesLedViz } from './Module8Additions';
 import {
   AhaMomentFlowAnimation,
   GrowthFlywheelAnimation,
@@ -482,6 +483,10 @@ export default function Track2LaunchGrowth({
           ]}
           conceptId="b2b-gtm"
         />
+
+        <div className="rv">
+          <PLGvsSalesLedViz />
+        </div>
 
         <QuizEngine
           conceptId="b2b-gtm"

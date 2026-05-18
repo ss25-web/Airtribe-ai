@@ -9,6 +9,7 @@ import {
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
 import { CommunicationPrism, NarrativeStaircase, RoadmapPressureChamber } from './CommTools3D';
+import { AIQualityCriteriaViz } from './Module6Additions';
 
 const ACCENT     = '#0284C7';
 const ACCENT_RGB = '2,132,199';
@@ -831,6 +832,10 @@ export default function Track1CommunicationPM({
           ]}
           conceptId="prd-with-ai"
         />
+
+        <div className="rv">
+          <AIQualityCriteriaViz />
+        </div>
 
         <PMPrinciple text="AI can draft the document. The PM still owns the thinking." />
 
