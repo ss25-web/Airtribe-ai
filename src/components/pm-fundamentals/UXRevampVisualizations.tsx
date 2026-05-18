@@ -724,3 +724,259 @@ export function DesignSystemROICalc() {
     </div>
   );
 }
+
+// ─── WIREFRAME PROGRESSION ────────────────────────────────────────────────────
+// Wireframes go from rough sketch → low-fi → high-fi. Each level serves a
+// different purpose at a different stage. PMs need to know which level to
+// request — and why asking for high-fi too early wastes everyone's time.
+
+const WIREFRAME_LEVELS = [
+  {
+    level: 'Sketch', fidelity: 'Lo-fi', time: '5 minutes', color: '#94A3B8', dark: '#64748B',
+    purpose: 'Align on layout and structure before any design work starts.',
+    when: 'First conversation with design. "Does the structure make sense?" not "Does it look right?"',
+    elements: ['Boxes for content areas', 'Placeholder text', 'Basic layout', 'No colours or fonts'],
+    mistake: 'Asking for a high-fi mockup when you haven\'t agreed on the layout yet. Designers spend 3 hours on something you\'ll restructure.',
+  },
+  {
+    level: 'Wireframe', fidelity: 'Mid-fi', time: '30 minutes – 2 hours', color: '#6366F1', dark: '#3730A3',
+    purpose: 'Test user flows and information hierarchy without visual distraction.',
+    when: 'User testing, stakeholder reviews, developer handoff planning. You\'re testing the structure, not the aesthetics.',
+    elements: ['Real content (not lorem ipsum)', 'Interaction states (hover, click)', 'Navigation flows', 'No brand colours'],
+    mistake: 'Using wireframes to get stakeholder approval on visual design. Grey boxes don\'t convey emotional response — use wireframes for structural decisions only.',
+  },
+  {
+    level: 'Mockup', fidelity: 'Hi-fi', time: '1–3 days', color: '#22C55E', dark: '#15803D',
+    purpose: 'Communicate the intended visual design for build sign-off and developer handoff.',
+    when: 'Structure is agreed. You\'re approving how it looks and feels, not what it does.',
+    elements: ['Brand colours and typography', 'All states (loading, error, empty)', 'Real images / content', 'Pixel-accurate spacing'],
+    mistake: 'Requesting hi-fi for every exploratory idea. Each hi-fi mockup takes 3× longer than a wireframe. Explore in lo-fi, commit in hi-fi.',
+  },
+];
+
+export function WireframeProgressionViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [active, setActive] = useState(0);
+  const [visible, setVisible] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0); setActive(0);
+    WIREFRAME_LEVELS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 400 + i * 700));
+    const iv = setInterval(() => setActive(a => (a + 1) % WIREFRAME_LEVELS.length), 4000);
+    return () => clearInterval(iv);
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setTick(t => t + 1); };
+  const sel = WIREFRAME_LEVELS[active];
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <VizLabel>Wireframe fidelity — request the right level at the right stage</VizLabel>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
+        {WIREFRAME_LEVELS.map((w, i) => {
+          const show = i < visible;
+          const isAct = active === i;
+          return (
+            <AnimatePresence key={w.level}>
+              {show && (
+                <motion.button initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+                  onClick={() => setActive(i)}
+                  style={{ padding: '0', border: 'none', cursor: 'pointer', borderRadius: '16px', overflow: 'hidden', boxShadow: isAct ? `0 6px 0 ${w.dark}, 0 10px 24px ${w.color}40` : '0 3px 10px rgba(0,0,0,0.07)', transition: 'box-shadow 0.3s' }}>
+                  {/* Visual preview */}
+                  <div style={{ padding: '20px', background: isAct ? `linear-gradient(160deg, ${w.color}EE 0%, ${w.dark} 100%)` : 'linear-gradient(160deg, #F8F6F1 0%, #EFECE6 100%)', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px' }}>
+                    {i === 0 && (
+                      <svg width="80" height="60" viewBox="0 0 80 60">
+                        <rect x="4" y="4" width="72" height="12" rx="2" fill={isAct ? 'rgba(255,255,255,0.3)' : '#CBD5E1'} />
+                        <rect x="4" y="22" width="44" height="8" rx="2" fill={isAct ? 'rgba(255,255,255,0.2)' : '#CBD5E1'} />
+                        <rect x="4" y="34" width="72" height="20" rx="2" fill={isAct ? 'rgba(255,255,255,0.15)' : '#E2E8F0'} />
+                        <text x="40" y="47" textAnchor="middle" style={{ fontSize: '7px', fill: isAct ? 'rgba(255,255,255,0.5)' : '#94A3B8' }}>content area</text>
+                      </svg>
+                    )}
+                    {i === 1 && (
+                      <svg width="80" height="60" viewBox="0 0 80 60">
+                        <rect x="4" y="4" width="72" height="10" rx="2" fill={isAct ? 'rgba(255,255,255,0.3)' : '#94A3B8'} />
+                        <text x="8" y="12" style={{ fontSize: '5px', fill: isAct ? 'rgba(255,255,255,0.8)' : '#374151', fontWeight: 700 }}>Search recordings</text>
+                        <rect x="4" y="18" width="72" height="6" rx="2" fill={isAct ? 'rgba(255,255,255,0.15)' : '#CBD5E1'} />
+                        <rect x="4" y="28" width="72" height="6" rx="2" fill={isAct ? 'rgba(255,255,255,0.15)' : '#CBD5E1'} />
+                        <rect x="4" y="38" width="72" height="6" rx="2" fill={isAct ? 'rgba(255,255,255,0.15)' : '#CBD5E1'} />
+                        <rect x="4" y="50" width="28" height="8" rx="3" fill={isAct ? 'rgba(255,255,255,0.35)' : '#6366F1'} />
+                        <text x="18" y="56" textAnchor="middle" style={{ fontSize: '5px', fill: '#fff', fontWeight: 700 }}>Search</text>
+                      </svg>
+                    )}
+                    {i === 2 && (
+                      <svg width="80" height="60" viewBox="0 0 80 60">
+                        <rect x="0" y="0" width="80" height="12" rx="0" fill={isAct ? 'rgba(255,255,255,0.25)' : '#1F2937'} />
+                        <text x="8" y="9" style={{ fontSize: '5px', fill: isAct ? 'rgba(255,255,255,0.9)' : '#fff', fontWeight: 700 }}>EdSpark</text>
+                        <rect x="4" y="16" width="72" height="7" rx="4" fill={isAct ? 'rgba(255,255,255,0.2)' : '#E5E7EB'} />
+                        <rect x="4" y="28" width="34" height="22" rx="6" fill={isAct ? 'rgba(255,255,255,0.15)' : '#F3F4F6'} />
+                        <rect x="42" y="28" width="34" height="22" rx="6" fill={isAct ? 'rgba(255,255,255,0.15)' : '#F3F4F6'} />
+                        <rect x="24" y="53" width="32" height="6" rx="3" fill={isAct ? 'rgba(255,255,255,0.35)' : '#6366F1'} />
+                        <text x="40" y="58" textAnchor="middle" style={{ fontSize: '4px', fill: '#fff', fontWeight: 700 }}>Search recordings</text>
+                      </svg>
+                    )}
+                  </div>
+                  <div style={{ padding: '12px 14px', background: 'var(--ed-card)', textAlign: 'left' as const }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: w.color, letterSpacing: '0.12em', marginBottom: '3px' }}>{w.fidelity}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--ed-ink)' }}>{w.level}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'var(--ed-ink3)', marginTop: '2px' }}>{w.time}</div>
+                  </div>
+                </motion.button>
+              )}
+            </AnimatePresence>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {sel && (
+          <motion.div key={sel.level} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}
+            style={{ padding: '20px', borderRadius: '16px', background: `${sel.color}0D`, border: `1.5px solid ${sel.color}30`, borderLeft: `4px solid ${sel.color}` }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+              <div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.12em', marginBottom: '6px' }}>WHEN TO USE</div>
+                <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{sel.when}</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.12em', marginBottom: '6px' }}>INCLUDES</div>
+                {sel.elements.map((e, ei) => <div key={ei} style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>· {e}</div>)}
+              </div>
+              <div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.12em', marginBottom: '6px' }}>COMMON MISTAKE</div>
+                <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{sel.mistake}</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>PM rule:</strong> explore in lo-fi, commit in hi-fi. Every hi-fi mockup requested before the structure is agreed adds 3× the time and creates attachment to an approach that might be wrong.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── STORYBOARD VIZ ───────────────────────────────────────────────────────────
+// Storyboards communicate user journeys — not just screens. A storyboard shows
+// the before/during/after of a user experience, forcing the PM to think about
+// context, emotion, and outcome — not just interface states.
+
+const STORYBOARD_PANELS = [
+  {
+    frame: 1, scene: 'Monday morning', icon: '☀️', color: '#F59E0B',
+    situation: 'Marcus (sales manager) opens his laptop. His VP just sent a Slack: "Show me coaching ROI for this quarter\'s board deck. Need by Friday."',
+    emotion: 'Stressed. He has 3 coaching sessions this week and no data to point to.',
+    pmInsight: 'This is the trigger moment. EdSpark needs to be the first thing Marcus thinks of when this message arrives — not Google Sheets.',
+  },
+  {
+    frame: 2, scene: 'Opens EdSpark', icon: '📱', color: '#6366F1',
+    situation: 'Marcus opens the dashboard. He sees: team coaching score trending up, top 3 improvement areas, and a one-click "Coaching ROI report" button.',
+    emotion: 'Relieved. The data is already there — organised the way his VP will ask for it.',
+    pmInsight: 'The product must anticipate the job before the user articulates it. "Coaching ROI" is the job. The UI must surface it without the user having to know it exists.',
+  },
+  {
+    frame: 3, scene: 'Reviews a session', icon: '▶️', color: '#0EA5E9',
+    situation: 'Marcus clicks a recording from last week. He skips to the flagged moment: a rep who struggled with pricing objections. He leaves a timestamped comment: "Use the 3-year ROI calculation here."',
+    emotion: 'Focused. This is the actual coaching work. He\'s in flow.',
+    pmInsight: 'The coaching moment must be frictionless. Every click that isn\'t coaching is a reason to close the app. Timestamps, comments, flagged moments — all spec.',
+  },
+  {
+    frame: 4, scene: 'Shares the report', icon: '📊', color: '#22C55E',
+    situation: 'Marcus clicks "Generate board deck slide." EdSpark creates a one-page summary: ramp time down 28 days, top 3 call skills improved, 4 reps promoted to senior. He forwards it to his VP.',
+    emotion: 'Confident. He has the data and it\'s formatted for the conversation he needs to have.',
+    pmInsight: 'The output must match the actual use case — not just show data. Marcus\'s VP needs a slide, not a dashboard screenshot. The PM who specs this is the PM who thinks about the whole journey.',
+  },
+  {
+    frame: 5, scene: 'Friday board prep', icon: '✅', color: '#F97316',
+    situation: 'The VP forwards Marcus\'s one-pager to the CEO. "Coaching is working." EdSpark renewal is approved without negotiation.',
+    emotion: 'Vindicated. The product didn\'t just help Marcus — it made him look good to his VP.',
+    pmInsight: 'The real user outcome isn\'t "saw coaching data." It\'s "felt like a good manager who could prove it." Design for that outcome, not for the screen.',
+  },
+];
+
+export function StoryboardViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [active, setActive] = useState<number | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0); setActive(null);
+    STORYBOARD_PANELS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 300 + i * 400));
+    setTimeout(() => setActive(0), 300 + STORYBOARD_PANELS.length * 400 + 300);
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setActive(null); setTick(t => t + 1); };
+  const sel = active !== null ? STORYBOARD_PANELS[active] : null;
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <VizLabel>Storyboard — communicate the user journey, not just the screens</VizLabel>
+
+      {/* Panel strip */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', overflowX: 'auto' as const, paddingBottom: '4px' }}>
+        {STORYBOARD_PANELS.map((p, i) => {
+          const show = i < visible;
+          const isAct = active === i;
+          return (
+            <AnimatePresence key={p.frame}>
+              {show && (
+                <motion.button initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  onClick={() => setActive(isAct ? null : i)}
+                  style={{ flexShrink: 0, width: '120px', padding: '0', border: 'none', cursor: 'pointer', borderRadius: '14px', overflow: 'hidden', boxShadow: isAct ? `0 5px 0 ${p.color}90, 0 8px 20px ${p.color}40` : '0 2px 8px rgba(0,0,0,0.08)', transition: 'box-shadow 0.3s' }}>
+                  <div style={{ padding: '14px 12px', background: isAct ? `linear-gradient(160deg, ${p.color} 0%, ${p.color}CC 100%)` : 'linear-gradient(160deg, #F8F6F1 0%, #EFECE6 100%)', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '24px', marginBottom: '4px' }}>{p.icon}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 800, color: isAct ? 'rgba(255,255,255,0.7)' : '#94A3B8', letterSpacing: '0.1em' }}>FRAME {p.frame}</div>
+                  </div>
+                  <div style={{ padding: '8px 10px', background: 'var(--ed-card)' }}>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: isAct ? p.color : 'var(--ed-ink)', lineHeight: 1.3 }}>{p.scene}</div>
+                  </div>
+                </motion.button>
+              )}
+            </AnimatePresence>
+          );
+        })}
+      </div>
+
+      {/* Detail */}
+      <AnimatePresence mode="wait">
+        {sel && (
+          <motion.div key={sel.frame} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}
+            style={{ borderRadius: '20px', overflow: 'hidden', border: `1.5px solid ${sel.color}35`, boxShadow: `0 10px 28px ${sel.color}18` }}>
+            <div style={{ padding: '16px 20px', background: `linear-gradient(135deg, ${sel.color}15 0%, ${sel.color}05 100%)`, borderBottom: `1px solid ${sel.color}20` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '4px' }}>
+                {sel.icon} FRAME {sel.frame} — {sel.scene.toUpperCase()}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: 'var(--ed-card)' }}>
+              {[
+                { label: 'WHAT HAPPENS', text: sel.situation },
+                { label: 'WHAT MARCUS FEELS', text: sel.emotion },
+                { label: 'PM INSIGHT', text: sel.pmInsight, accent: true },
+              ].map((col, ci) => (
+                <div key={ci} style={{ padding: '16px', borderLeft: ci > 0 ? '1px solid var(--ed-rule)' : 'none' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: col.accent ? sel.color : 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '7px' }}>{col.label}</div>
+                  <div style={{ fontSize: '12px', color: col.accent ? 'var(--ed-ink)' : 'var(--ed-ink2)', lineHeight: 1.7, fontWeight: col.accent ? 700 : 400 }}>{col.text}</div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>Storyboards over specs:</strong> a storyboard forces you to think about context (what triggered this?), emotion (how does the user feel at each step?), and outcome (what changed?). Most specs describe screens. Storyboards describe experiences.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}

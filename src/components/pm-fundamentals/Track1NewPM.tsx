@@ -10,6 +10,7 @@ import {
 import { MentorFace } from './MentorFaces';
 import { DecisionRippleVisual, ProblemSolutionDriftVisual } from './Module1Animations';
 import { UDBMLoopAnimation, ProblemIcebergViz, RICEBubble3D, MetricsCascadeAnimation } from './Module1Visualizations';
+import { ProductSenseViz, B2BvsB2CViz } from './Module1Additions';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
@@ -933,6 +934,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <ApplyItBox prompt="Think of a product you use every day. What problem does it solve for you? Now ask: who at that company decides what gets built next? That's the PM." color="var(--purple)" />
         </div>
 
+        <div className="rv">
+          <ProductSenseViz />
+        </div>
+
         <div className="rv" style={{ marginTop: '28px' }}>
           <QuizEngine conceptId="pm-role" conceptName="The PM Role" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[0]} />
         </div>
@@ -1134,6 +1139,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
 
           <PMPrincipleBox principle="PMs lead through context, not commands. Give the problem. The team finds the solution." color="var(--blue)" />
           <ApplyItBox prompt="Think of the last time you asked someone to build something. Did you share the problem or the solution? What information were you holding back that they could have used?" color="var(--blue)" />
+        </div>
+
+        <div className="rv">
+          <B2BvsB2CViz />
         </div>
 
         <div className="rv" style={{ marginTop: '28px' }}>

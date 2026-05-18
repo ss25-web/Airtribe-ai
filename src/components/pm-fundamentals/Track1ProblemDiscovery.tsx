@@ -10,7 +10,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, NarrativeInterviewScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation, STPFrameworkViz } from './Module2Visualizations';
+import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation, STPFrameworkViz, BuyingCommitteeViz, EnterpriseDiscoveryViz } from './Module2Visualizations';
 
 // Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
@@ -1209,6 +1209,14 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
 
           <div className="rv">
             <STPFrameworkViz />
+          </div>
+
+          <div className="rv">
+            <BuyingCommitteeViz />
+          </div>
+
+          <div className="rv">
+            <EnterpriseDiscoveryViz />
           </div>
 
           <QuizEngine conceptId="customer-segments" conceptName="Customer Segments" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[1]} />

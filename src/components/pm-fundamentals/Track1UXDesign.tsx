@@ -9,7 +9,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { AbandonmentTimeline, FigmaBeforeAfter, NielsenHeuristicsViz } from './UXDesignVisualizations';
-import { MicrocopyLab, StateSpecBuilder, UXDebugLoopViz } from './UXRevampVisualizations';
+import { MicrocopyLab, StateSpecBuilder, UXDebugLoopViz, WireframeProgressionViz, StoryboardViz } from './UXRevampVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1679,11 +1679,19 @@ export default function Track1UXDesign({
         ])}
 
         <div className="rv">
+          <WireframeProgressionViz />
+        </div>
+
+        <div className="rv">
           <StateSpecBuilder />
         </div>
 
         <div className="rv">
           <FigmaBeforeAfter />
+        </div>
+
+        <div className="rv">
+          <StoryboardViz />
         </div>
 
 

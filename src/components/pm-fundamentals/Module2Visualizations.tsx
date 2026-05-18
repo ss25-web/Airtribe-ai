@@ -758,3 +758,233 @@ export function STPFrameworkViz() {
     </div>
   );
 }
+
+// ─── BUYING COMMITTEE ─────────────────────────────────────────────────────────
+// B2B buying involves 5–8 people with different roles, different concerns, and
+// different veto powers. Miss one and the deal stalls. Teach PMs to map the
+// committee before writing a single line of the product spec.
+
+const COMMITTEE = [
+  {
+    role: 'Economic Buyer', icon: '💼', color: '#6366F1', dark: '#3730A3',
+    who: 'VP Sales or CRO at Apex Corp',
+    cares: 'Revenue impact. Does this help reps close more? What\'s the ROI in 90 days?',
+    needs: 'A number. "Ramp time reduced by 30 days" is a conversation opener. "Better coaching" is not.',
+    risk: 'Signs the budget. If they don\'t see a direct line to revenue, the deal dies — no matter what end users say.',
+    signal: 'Asks about contract terms before asking about features.',
+  },
+  {
+    role: 'Technical Evaluator', icon: '🔧', color: '#0EA5E9', dark: '#0369A1',
+    who: 'RevOps or IT at Apex Corp',
+    cares: 'Security, integrations, compliance, data residency. Will this break our Salesforce setup?',
+    needs: 'A security questionnaire completed before the demo. An answer to "where does our data live?"',
+    risk: 'Can block any deal on a security technicality, even after the VP said yes. The invisible veto.',
+    signal: 'Sends a 40-question security form two days before the pilot.',
+  },
+  {
+    role: 'End User', icon: '👤', color: '#22C55E', dark: '#15803D',
+    who: 'Sales reps at Apex Corp',
+    cares: 'Does it make my day easier or harder? Will my manager force me to use it?',
+    needs: 'A demo where they can see themselves in the product. "Search for a call by deal name in 10 seconds."',
+    risk: 'Adopts grudgingly → usage data looks bad → champion loses their internal case.',
+    signal: 'Asks "do I have to use this?" in the first 5 minutes of the demo.',
+  },
+  {
+    role: 'Champion', icon: '⭐', color: '#F97316', dark: '#C2410C',
+    who: 'Senior sales manager who\'s already using EdSpark',
+    cares: 'Making their team look good. They want a win they can reference in their next performance review.',
+    needs: 'A success story they can share internally. "My team\'s close rate went up 12% in 8 weeks."',
+    risk: 'Without a champion, you have no internal selling motion. The deal stalls in committee.',
+    signal: 'Actively introduces you to other stakeholders. Sets up the next meeting without you asking.',
+  },
+  {
+    role: 'Blocker', icon: '🚫', color: '#EF4444', dark: '#B91C1C',
+    who: 'Existing vendor (e.g. Gong) or a VP who thinks the current tool is fine',
+    cares: 'Protecting their investment, their influence, or their budget allocation.',
+    needs: 'Either disarming their concern ("EdSpark sits alongside Gong, not instead of it") or bypassing them.',
+    risk: 'Can kill the deal in committee without ever attending a meeting. Work around them, not through them.',
+    signal: 'Quiet in meetings. Then "we\'ll circle back on this" at the end.',
+  },
+];
+
+export function BuyingCommitteeViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0);
+    COMMITTEE.forEach((_, i) => setTimeout(() => setVisible(i + 1), 300 + i * 350));
+    setTimeout(() => setSelected(0), 300 + COMMITTEE.length * 350 + 400);
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setSelected(null); setTick(t => t + 1); };
+  const sel = selected !== null ? COMMITTEE[selected] : null;
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #3730A3' }}>
+          B2B BUYING COMMITTEE
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>5 people. 5 different concerns. Miss one and the deal stalls.</div>
+      </div>
+
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        {/* Role selector */}
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--ed-rule)', overflowX: 'auto' as const }}>
+          {COMMITTEE.map((c, i) => (
+            <button key={i} onClick={() => i < visible && setSelected(i)}
+              disabled={i >= visible}
+              style={{ padding: '12px 16px', border: 'none', cursor: i < visible ? 'pointer' : 'not-allowed', background: selected === i ? c.color : 'var(--ed-card)', borderRight: i < COMMITTEE.length - 1 ? '1px solid var(--ed-rule)' : 'none', flexShrink: 0, opacity: i >= visible ? 0.3 : 1, transition: 'background 0.3s' }}>
+              <div style={{ fontSize: '18px', marginBottom: '3px' }}>{c.icon}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: selected === i ? '#fff' : 'var(--ed-ink3)', letterSpacing: '0.1em', whiteSpace: 'nowrap' as const }}>{c.role.toUpperCase()}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Detail */}
+        <AnimatePresence mode="wait">
+          {sel && (
+            <motion.div key={sel.role} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}>
+              <div style={{ padding: '16px 20px', background: `linear-gradient(135deg, ${sel.color}15 0%, ${sel.color}05 100%)`, borderBottom: '1px solid var(--ed-rule)' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '4px' }}>{sel.icon} {sel.role.toUpperCase()}</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>{sel.who}</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--ed-card)' }}>
+                <div style={{ padding: '16px 18px', borderRight: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.12em', marginBottom: '6px' }}>WHAT THEY CARE ABOUT</div>
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.7, marginBottom: '12px' }}>{sel.cares}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.12em', marginBottom: '6px' }}>WHAT THEY NEED FROM YOU</div>
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.7 }}>{sel.needs}</div>
+                </div>
+                <div style={{ padding: '16px 18px' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.12em', marginBottom: '6px' }}>THE RISK IF YOU MISS THEM</div>
+                  <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.7, marginBottom: '12px' }}>{sel.risk}</div>
+                  <div style={{ padding: '10px 12px', borderRadius: '10px', background: `${sel.color}10`, border: `1px solid ${sel.color}30`, fontSize: '11px', color: sel.color, fontWeight: 600, lineHeight: 1.55 }}>
+                    🔍 Signal: {sel.signal}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>B2B discovery rule:</strong> map the buying committee before your first call. Identify who has veto power. The person who says yes in the demo is rarely the person who signs the contract.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── ENTERPRISE DISCOVERY VIZ ─────────────────────────────────────────────────
+// Three stakeholders at the same company give contradictory signals.
+// The PM must map and synthesise conflicting needs — not pick a winner.
+
+const DISCOVERY_CALLS = [
+  {
+    role: 'VP Sales', name: 'Sarah Chen', icon: '💼',
+    color: '#6366F1',
+    quote: '"We need better ROI reporting. The board asks me every quarter if coaching is working. I can\'t answer that."',
+    insight: 'Job to be done: prove to the board that the coaching budget is worth it.',
+    pmNote: 'This is a business problem, not a product feature request. She needs a number, not a dashboard.',
+  },
+  {
+    role: 'Sales Manager', name: 'Marcus Lee', icon: '🎯',
+    color: '#0EA5E9',
+    quote: '"Honestly? The tool needs to be simpler. My reps don\'t have time to learn another system. If it takes more than 5 minutes to get value, they won\'t use it."',
+    insight: 'Job to be done: get value without friction. The manager\'s problem is adoption, not analytics.',
+    pmNote: 'Contradicts the VP — Sarah wants more data, Marcus wants less friction. Both are right. They\'re describing different parts of the same problem.',
+  },
+  {
+    role: 'Sales Rep', name: 'Jordan Park', icon: '👤',
+    color: '#22C55E',
+    quote: '"I just need it to work with Salesforce. I live in Salesforce. If I have to switch to another tool to check my coaching score, I\'m not going to check it."',
+    insight: 'Job to be done: integrate coaching into existing workflow. The rep\'s problem is context switching.',
+    pmNote: 'Three stakeholders, three problems. The product needs to: (1) generate ROI proof for VP, (2) be quick enough for managers, (3) live in Salesforce for reps.',
+  },
+];
+
+export function EnterpriseDiscoveryViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [showSynthesis, setShowSynthesis] = useState(false);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0); setShowSynthesis(false);
+    DISCOVERY_CALLS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 400 + i * 1200));
+    setTimeout(() => setShowSynthesis(true), 400 + DISCOVERY_CALLS.length * 1200 + 800);
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setShowSynthesis(false); setTick(t => t + 1); };
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#0EA5E9', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #0369A1' }}>
+          ENTERPRISE DISCOVERY
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>3 stakeholders. 3 contradictory signals. 1 PM must synthesise them.</div>
+      </div>
+
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+          {DISCOVERY_CALLS.map((c, i) => (
+            <AnimatePresence key={i}>
+              {i < visible && (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
+                  <div style={{ borderRadius: '16px', overflow: 'hidden', border: `1.5px solid ${c.color}30` }}>
+                    <div style={{ padding: '10px 16px', background: `${c.color}12`, display: 'flex', alignItems: 'center', gap: '10px', borderBottom: `1px solid ${c.color}20` }}>
+                      <span style={{ fontSize: '18px' }}>{c.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: c.color, letterSpacing: '0.12em' }}>{c.role.toUpperCase()}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--ed-ink3)' }}>{c.name} — Apex Corp</div>
+                      </div>
+                    </div>
+                    <div style={{ padding: '14px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                      <div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '6px' }}>WHAT THEY SAID</div>
+                        <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.65, fontStyle: 'italic' }}>&ldquo;{c.quote}&rdquo;</div>
+                      </div>
+                      <div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: c.color, letterSpacing: '0.12em', marginBottom: '6px' }}>THE REAL JOB</div>
+                        <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.65, marginBottom: '8px' }}>{c.insight}</div>
+                        <div style={{ fontSize: '11px', color: c.color, fontWeight: 600, lineHeight: 1.55 }}>{c.pmNote}</div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ))}
+
+          {showSynthesis && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+              style={{ padding: '18px 20px', borderRadius: '16px', background: 'rgba(99,102,241,0.08)', border: '2px solid rgba(99,102,241,0.35)', borderLeft: '4px solid #6366F1' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.14em', marginBottom: '10px' }}>
+                ✓ SYNTHESIS — WHAT PRIYA WRITES IN HER DISCOVERY DOC
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75, fontWeight: 600 }}>
+                One product, three jobs: (1) generate an ROI number the VP can take to the board, (2) deliver that value in under 5 minutes so managers adopt it, (3) surface coaching data inside Salesforce so reps don&apos;t need to switch contexts. These aren&apos;t three separate features — they&apos;re three constraints on the same feature.
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#0EA5E9' }}>Enterprise discovery rule:</strong> never accept a single stakeholder&apos;s view of the problem. Map all three layers — economic buyer, manager, end user. The synthesis is the spec.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}

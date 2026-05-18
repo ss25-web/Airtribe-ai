@@ -1083,3 +1083,187 @@ export function KillCriteriaMonitor() {
     </div>
   );
 }
+
+// ─── FIVE WHYS ────────────────────────────────────────────────────────────────
+// First-principles problem decomposition: drill to root cause by asking "why"
+// five times. Each layer peels back a symptom to reveal a deeper cause.
+// Teaches: you can't solve a problem you haven't correctly diagnosed.
+
+const FIVE_WHYS_CHAIN = [
+  { layer: 1, observation: '40% of users churn in week 1', type: 'Symptom', color: '#EF4444', dark: '#B91C1C', note: 'This is what shows up in your metrics dashboard.' },
+  { layer: 2, observation: 'Users don\'t return after their first coaching session', type: 'Behaviour', color: '#F97316', dark: '#C2410C', note: 'This is what session recordings show. Users open the app once and never come back.' },
+  { layer: 3, observation: 'The first session gives no clear next step', type: 'Experience', color: '#F59E0B', dark: '#D97706', note: 'Users watch a recording, see a score, and then stare at a blank screen. Nothing tells them what to do next.' },
+  { layer: 4, observation: 'The product has no "session 2" onboarding', type: 'Product gap', color: '#6366F1', dark: '#3730A3', note: 'The onboarding was built for day 1. Nobody designed for what success looks like after the first session.' },
+  { layer: 5, observation: 'The PM never asked "what does success look like in session 2?"', type: 'Root cause', color: '#22C55E', dark: '#15803D', note: 'This is the real problem. The question wasn\'t asked during discovery. The spec was written for the happy path only.' },
+];
+
+export function FivePlusWhysViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [depth, setDepth] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setDepth(0);
+    FIVE_WHYS_CHAIN.forEach((_, i) => setTimeout(() => setDepth(i + 1), 500 + i * 1000));
+  }, [inView, tick]);
+
+  const replay = () => { setDepth(0); setTick(t => t + 1); };
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#EF4444', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #B91C1C' }}>
+          THE 5 WHYS
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>First-principles drill — each Why peels back a symptom to reveal the real cause</div>
+      </div>
+
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '0' }}>
+          {FIVE_WHYS_CHAIN.map((w, i) => {
+            const show = i < depth;
+            const isLast = i === FIVE_WHYS_CHAIN.length - 1;
+            return (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-start' }}>
+                <AnimatePresence>
+                  {show && (
+                    <motion.div initial={{ opacity: 0, x: -14, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+                      style={{ width: '100%', padding: '16px 18px', borderRadius: '14px', background: isLast ? `${w.color}12` : 'var(--ed-card)', border: `1.5px solid ${w.color}40`, borderLeft: `4px solid ${w.color}`, marginBottom: !isLast ? '0' : '0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: w.color, letterSpacing: '0.14em' }}>
+                          {isLast ? '🎯 ROOT CAUSE' : `WHY ${w.layer} — ${w.type.toUpperCase()}`}
+                        </div>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '8px', background: w.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '11px', fontWeight: 900, color: '#fff', flexShrink: 0, boxShadow: `0 3px 0 ${w.dark}` }}>
+                          {w.layer}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '14px', fontWeight: isLast ? 900 : 700, color: isLast ? w.color : 'var(--ed-ink)', marginBottom: '5px', lineHeight: 1.35 }}>{w.observation}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.6, fontStyle: 'italic' }}>{w.note}</div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {!isLast && show && i < depth - 1 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 18px' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: FIVE_WHYS_CHAIN[i + 1]?.color ?? '#6366F1', letterSpacing: '0.12em' }}>→ WHY?</div>
+                    <div style={{ flex: 1, height: '1px', background: 'var(--ed-rule)' }} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {depth >= FIVE_WHYS_CHAIN.length && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            style={{ marginTop: '16px', padding: '14px 18px', borderRadius: '14px', background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.3)', fontSize: '13px', fontWeight: 700, color: '#22C55E', lineHeight: 1.6 }}>
+            ✓ Root cause found. Now rebuild the solution from the ground up — not from the symptom.
+          </motion.div>
+        )}
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#EF4444' }}>First-principles rule:</strong> when you find the root cause, delete everything between it and your proposed solution. Rebuild from the root — not from the symptom. The solution to a missing question is asking the question, not redesigning the onboarding.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── TAM ESTIMATION ───────────────────────────────────────────────────────────
+// Back-of-envelope estimation: how to make fast, defensible market size estimates.
+// Interactive Fermi problem: "How big is EdSpark's TAM in India?"
+// Teaches: PMs who can size a market quickly earn credibility in boardrooms.
+
+export function TAMEstimationViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+
+  const [inputs, setInputs] = useState({
+    companies: 50000,
+    salesTeamPct: 35,
+    coachingMaturePct: 25,
+    willPayPct: 40,
+    avgARR: 12000,
+  });
+  const [revealed, setRevealed] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setRevealed(0);
+    [0,1,2,3,4].forEach(i => setTimeout(() => setRevealed(i + 1), 400 + i * 600));
+  }, [inView, tick]);
+
+  const steps = [
+    { label: 'Mid-market companies in India', value: inputs.companies, unit: 'companies', key: 'companies' as const, min: 20000, max: 150000, step: 5000, rationale: 'Companies with 100–500 employees in India with an organised sales function.' },
+    { label: 'Have an active sales team', value: inputs.salesTeamPct, unit: '%', key: 'salesTeamPct' as const, min: 15, max: 60, step: 5, rationale: 'Not all mid-market companies have a structured outbound/inside sales team. Many are distribution or service businesses.' },
+    { label: 'Have coaching maturity', value: inputs.coachingMaturePct, unit: '%', key: 'coachingMaturePct' as const, min: 10, max: 50, step: 5, rationale: 'Companies where a manager actively reviews rep performance and wants to improve it — not just track headcount.' },
+    { label: 'Would pay for a tool', value: inputs.willPayPct, unit: '%', key: 'willPayPct' as const, min: 20, max: 70, step: 5, rationale: 'Of coaching-mature companies, those with budget and willingness to move away from spreadsheets + calls.' },
+    { label: 'Average annual contract value', value: inputs.avgARR, unit: '₹/yr', key: 'avgARR' as const, min: 5000, max: 50000, step: 1000, rationale: 'Mid-market pricing. Enough to justify a sales motion but below enterprise procurement thresholds.' },
+  ];
+
+  const tam = Math.round(
+    inputs.companies *
+    (inputs.salesTeamPct / 100) *
+    (inputs.coachingMaturePct / 100) *
+    (inputs.willPayPct / 100) *
+    inputs.avgARR / 10000000
+  );
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#F97316', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #C2410C' }}>
+          TAM ESTIMATION
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>Back-of-envelope: EdSpark&apos;s total addressable market in India</div>
+      </div>
+
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '28px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '28px', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+            {steps.map((s, i) => (
+              <AnimatePresence key={s.key}>
+                {i < revealed && (
+                  <motion.div initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', alignItems: 'flex-end' }}>
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '2px' }}>{s.label}</div>
+                        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>{s.rationale}</div>
+                      </div>
+                      <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 900, color: '#F97316', flexShrink: 0, marginLeft: '12px' }}>
+                        {s.value.toLocaleString()}{s.unit !== 'companies' && s.unit !== '₹/yr' ? '%' : s.unit === '₹/yr' ? ' ₹' : ''}
+                      </div>
+                    </div>
+                    <input type="range" min={s.min} max={s.max} step={s.step} value={s.value}
+                      onChange={e => setInputs(prev => ({ ...prev, [s.key]: Number(e.target.value) }))}
+                      style={{ width: '100%', accentColor: '#F97316', cursor: 'pointer' }} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            ))}
+          </div>
+
+          <motion.div animate={{ opacity: revealed >= 5 ? 1 : 0.3 }} transition={{ duration: 0.5 }}
+            style={{ padding: '20px', borderRadius: '18px', background: 'linear-gradient(160deg, #F97316 0%, #C2410C 100%)', boxShadow: '0 6px 0 #9A3412, 0 10px 0 rgba(0,0,0,0.1), 0 20px 40px rgba(249,115,22,0.45)', textAlign: 'center' as const }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.18em', marginBottom: '10px' }}>ESTIMATED TAM</div>
+            <div style={{ fontFamily: 'monospace', fontSize: '36px', fontWeight: 900, color: '#FFFFFF', lineHeight: 1, marginBottom: '6px' }}>₹{tam}Cr</div>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginBottom: '14px' }}>per year</div>
+            <div style={{ height: '1px', background: 'rgba(255,255,255,0.25)', marginBottom: '14px' }} />
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6, fontStyle: 'italic' }}>
+              Adjust assumptions to stress-test. The number matters less than the defensibility of each assumption.
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#F97316' }}>The skill is in the assumptions, not the arithmetic.</strong> A TAM estimate is only as good as the reasoning behind each number. Walk through every assumption in the room — that&apos;s what earns credibility, not the final figure.
+      </div>
+    </div>
+  );
+}

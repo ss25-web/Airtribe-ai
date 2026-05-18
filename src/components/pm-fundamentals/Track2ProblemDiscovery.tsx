@@ -9,7 +9,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ResearchQuadrantMap, AffinityClusterAnimation, STPFrameworkViz } from './Module2Visualizations';
+import { ResearchQuadrantMap, AffinityClusterAnimation, STPFrameworkViz, BuyingCommitteeViz, EnterpriseDiscoveryViz } from './Module2Visualizations';
 
 const PARTS = [
   { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
@@ -905,6 +905,14 @@ export default function Track2ProblemDiscovery({
 
         <div className="rv">
           <STPFrameworkViz />
+        </div>
+
+        <div className="rv">
+          <BuyingCommitteeViz />
+        </div>
+
+        <div className="rv">
+          <EnterpriseDiscoveryViz />
         </div>
 
         <QuizEngine

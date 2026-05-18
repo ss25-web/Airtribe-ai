@@ -10,6 +10,8 @@ import {
 import { MentorFace } from './MentorFaces';
 import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animations';
 import { LocalMaximaScene, GuardrailDashboardAnimation, MetricsCascadeAnimation } from './Module1Visualizations';
+import { B2BvsB2CViz } from './Module1Additions';
+import { ProductTeardownViz, NewPMOperatingModelViz } from './ProductStrategyVisualizations';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
@@ -843,6 +845,14 @@ export default function Track2APM() {
         </div>
 
         <div className="rv" style={{ marginTop: '28px' }}>
+          <div className="rv">
+            <B2BvsB2CViz />
+          </div>
+
+          <div className="rv">
+            <NewPMOperatingModelViz />
+          </div>
+
           <QuizEngine
             conceptId="pm-role"
             conceptName="The PM Role"
@@ -1075,6 +1085,10 @@ export default function Track2APM() {
         </div>
 
         <div className="rv" style={{ marginTop: '28px' }}>
+          <div className="rv">
+            <ProductTeardownViz />
+          </div>
+
           <QuizEngine
             conceptId="strategy"
             conceptName="Product Strategy"

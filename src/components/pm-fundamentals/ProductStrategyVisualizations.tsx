@@ -911,3 +911,215 @@ export function LandExpandNetwork() {
     </div>
   );
 }
+
+// ─── PRODUCT JUDGMENT & TASTE ─────────────────────────────────────────────────
+// Product judgment = forming a point of view on strategic choices, not just
+// describing features. Shows Priya doing a teardown of a competitor product
+// using the 4-move framework: observe → hypothesize the bet → judge → recommend.
+
+const TEARDOWN_MOVES = [
+  {
+    move: 'Observe', icon: '👁',
+    color: '#6366F1', dark: '#3730A3',
+    prompt: 'What does this product actually do?',
+    priya: 'Gong records sales calls, transcribes them, and surfaces "moments" — questions asked, competitor mentions, next steps. The core product is call intelligence at scale.',
+  },
+  {
+    move: 'Hypothesize the bet', icon: '🎲',
+    color: '#0EA5E9', dark: '#0369A1',
+    prompt: 'What decision did they make — and why?',
+    priya: 'Gong bet on breadth over depth. They built for enterprise sales intelligence teams who want to analyse everything across a 200-person org — not coaching individuals to get better at specific skills.',
+  },
+  {
+    move: 'Judge the trade-off', icon: '⚖️',
+    color: '#F97316', dark: '#C2410C',
+    prompt: 'Was the trade-off the right one for their market?',
+    priya: 'Yes — for their market. Enterprise procurement teams pay for risk reduction ("we need to capture every call for compliance and coaching"). The breadth bet is correct for that buyer. But it makes Gong expensive and generic for mid-market teams who just want reps to improve.',
+  },
+  {
+    move: 'Form a recommendation', icon: '📌',
+    color: '#22C55E', dark: '#15803D',
+    prompt: 'What would you do differently — and why?',
+    priya: 'I would not compete on Gong\'s terms. EdSpark should go deeper on the one thing Gong doesn\'t: proving that coaching caused performance. Connect CRM deal outcomes to specific coaching behaviours. That\'s a bet Gong can\'t easily copy without rebuilding their core model.',
+  },
+];
+
+export function ProductTeardownViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [active, setActive] = useState(-1);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setActive(0);
+    const iv = setInterval(() => setActive(a => a < TEARDOWN_MOVES.length - 1 ? a + 1 : a), 4000);
+    return () => clearInterval(iv);
+  }, [inView, tick]);
+
+  const replay = () => { setActive(-1); setTimeout(() => setActive(0), 100); setTick(t => t + 1); };
+  const sel = active >= 0 ? TEARDOWN_MOVES[active] : null;
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #3730A3' }}>
+          PRODUCT JUDGMENT
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>4-move teardown — forming a point of view, not just describing features</div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '20px', alignItems: 'start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+          {TEARDOWN_MOVES.map((m, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'stretch' }}>
+              <motion.button onClick={() => setActive(i)}
+                animate={{ background: active === i ? m.color : active > i ? `${m.color}18` : 'var(--ed-card)', borderColor: active === i ? m.color : active > i ? `${m.color}40` : 'var(--ed-rule)' }}
+                style={{ padding: '10px 12px', border: '1.5px solid var(--ed-rule)', borderRadius: '12px', cursor: 'pointer', textAlign: 'left' as const, boxShadow: active === i ? `0 4px 0 ${m.dark}, 0 8px 20px ${m.color}40` : 'none', transition: 'box-shadow 0.3s' }}>
+                <div style={{ fontSize: '16px', marginBottom: '3px' }}>{active > i ? '✓' : m.icon}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: active === i ? '#fff' : active > i ? m.color : 'var(--ed-ink3)', letterSpacing: '0.1em', lineHeight: 1.3 }}>
+                  {m.move.toUpperCase()}
+                </div>
+              </motion.button>
+              {i < TEARDOWN_MOVES.length - 1 && (
+                <div style={{ width: '2px', height: '8px', background: active > i ? TEARDOWN_MOVES[i].color : 'var(--ed-rule)', margin: '2px auto', transition: 'background 0.5s' }} />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {sel && (
+            <motion.div key={sel.move} initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }} transition={{ duration: 0.3 }}>
+              <div style={{ borderRadius: '20px', overflow: 'hidden', boxShadow: `0 16px 40px ${sel.color}25` }}>
+                <div style={{ padding: '16px 20px', background: `linear-gradient(135deg, ${sel.color} 0%, ${sel.dark} 100%)` }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.18em', marginBottom: '4px' }}>
+                    {sel.icon} {sel.move.toUpperCase()} — GONG TEARDOWN
+                  </div>
+                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#fff', lineHeight: 1.35 }}>{sel.prompt}</div>
+                </div>
+                <div style={{ padding: '20px', background: 'var(--ed-card)' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>PRIYA&apos;S TAKE</div>
+                  <div style={{ fontSize: '14px', color: 'var(--ed-ink)', lineHeight: 1.75, fontWeight: 600 }}>{sel.priya}</div>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '14px' }}>
+                    {TEARDOWN_MOVES.map((_, i) => (
+                      <motion.div key={i} animate={{ width: active === i ? '24px' : '7px', background: active === i ? sel.color : 'var(--ed-rule)' }} transition={{ duration: 0.3 }} style={{ height: '6px', borderRadius: '3px', cursor: 'pointer' }} onClick={() => setActive(i)} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>Product judgment is a skill, not a talent.</strong> The 4-move framework turns any product review from a description into an analysis. Practice it on every product you use — especially competitors.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── NEW PM OPERATING MODEL ────────────────────────────────────────────────────
+// The PM role is shifting. Old model = coordinator who writes specs and hands off.
+// New model = builder with high agency, small team, ships in days not quarters.
+
+const PM_MODELS = [
+  {
+    id: 'old', label: 'Old PM Model', era: 'Pre-2022',
+    color: '#94A3B8', dark: '#64748B',
+    steps: [
+      { icon: '📝', step: 'PM writes a 20-page PRD', note: '2 weeks of alignment meetings' },
+      { icon: '🎨', step: 'Design reviews over 3 sprints', note: 'PM gives feedback on Figma' },
+      { icon: '⚙️', step: 'Engineering builds for 6 weeks', note: 'PM attends standups, writes tickets' },
+      { icon: '✅', step: 'PM approves before launch', note: 'Feature ships in week 14' },
+    ],
+    verdict: 'PM = coordinator. High output, low agency. The spec is the product.',
+    verdictColor: '#F59E0B',
+  },
+  {
+    id: 'new', label: 'New PM Model', era: 'Now',
+    color: '#6366F1', dark: '#3730A3',
+    steps: [
+      { icon: '💡', step: 'PM, Eng, Design define the problem together', note: 'Same day, same room' },
+      { icon: '🛠️', step: 'PM prototypes with Claude Code in 30 min', note: 'Shows the team what\'s needed, not what to build' },
+      { icon: '🚀', step: 'Trio ships a working version in 3–5 days', note: 'PM owns outcome, not output' },
+      { icon: '📊', step: 'PM watches metrics, decides next move', note: 'Loop restarts from real data' },
+    ],
+    verdict: 'PM = builder with high agency. Small team, fast loops, outcome ownership.',
+    verdictColor: '#22C55E',
+  },
+];
+
+export function NewPMOperatingModelViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0);
+    PM_MODELS[0].steps.forEach((_, i) => setTimeout(() => setVisible(i + 1), 400 + i * 500));
+    const totalOld = 400 + PM_MODELS[0].steps.length * 500;
+    PM_MODELS[1].steps.forEach((_, i) => setTimeout(() => setVisible(PM_MODELS[0].steps.length + i + 1), totalOld + 600 + i * 500));
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setTick(t => t + 1); };
+  const oldVisible = Math.min(visible, 4);
+  const newVisible = Math.max(0, visible - 4);
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #3730A3' }}>
+          NEW PM MODEL
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>The PM role is shifting — from coordinator to builder with high agency</div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        {PM_MODELS.map((model, mi) => {
+          const vis = mi === 0 ? oldVisible : newVisible;
+          return (
+            <div key={model.id} style={{ borderRadius: '20px', overflow: 'hidden', border: `1.5px solid ${model.color}40`, boxShadow: `0 8px 24px ${model.color}15` }}>
+              <div style={{ padding: '14px 18px', background: `linear-gradient(135deg, ${model.color}18 0%, ${model.color}08 100%)`, borderBottom: `1px solid ${model.color}25` }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: model.color, letterSpacing: '0.14em', marginBottom: '3px' }}>{model.era}</div>
+                <div style={{ fontSize: '15px', fontWeight: 900, color: 'var(--ed-ink)' }}>{model.label}</div>
+              </div>
+              <div style={{ padding: '16px', background: 'var(--ed-card)', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                {model.steps.map((s, si) => (
+                  <AnimatePresence key={si}>
+                    {si < vis && (
+                      <motion.div initial={{ opacity: 0, x: mi === 0 ? -10 : 10 }} animate={{ opacity: 1, x: 0 }}
+                        transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+                        style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', padding: '10px 12px', borderRadius: '10px', background: `${model.color}08`, border: `1px solid ${model.color}20` }}>
+                        <div style={{ fontSize: '18px', flexShrink: 0 }}>{s.icon}</div>
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3 }}>{s.step}</div>
+                          <div style={{ fontSize: '10px', color: model.color, fontFamily: 'monospace', marginTop: '3px', fontWeight: 700 }}>{s.note}</div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                ))}
+                {vis >= model.steps.length && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+                    style={{ padding: '10px 12px', borderRadius: '10px', background: `${model.verdictColor}10`, border: `1.5px solid ${model.verdictColor}35`, fontSize: '11px', fontWeight: 700, color: model.verdictColor, lineHeight: 1.55 }}>
+                    {model.verdict}
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>The shift in one sentence:</strong> the old PM wrote about what to build; the new PM shows what it should be. Prototyping is now a core PM skill, not a design skill.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}

@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup } from './PrioritizationVisualizations';
+import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup, FivePlusWhysViz, TAMEstimationViz } from './PrioritizationVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1063,6 +1063,14 @@ export default function Track1Prioritization({ completedSections = new Set<strin
 
         <div className="rv">
           <FigJamBoardMockup />
+        </div>
+
+        <div className="rv">
+          <FivePlusWhysViz />
+        </div>
+
+        <div className="rv">
+          <TAMEstimationViz />
         </div>
 
         <div className="rv">
