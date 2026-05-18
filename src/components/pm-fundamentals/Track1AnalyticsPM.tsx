@@ -1028,7 +1028,7 @@ export default function Track1AnalyticsPM({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
+          mentor="rohan" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
           lines={[
             { speaker: 'priya', text: "The user activity looks good though. DAUs are up." },
             { speaker: 'other', text: "A product can look busy at the user level and still be weak at the account level. One team's usage can be concentrated in two champions." },

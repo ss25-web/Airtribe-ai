@@ -74,7 +74,7 @@ export default function Track2Tech101SystemDesign({
                 { mentor: 'priya' as const, accent: ACCENT,    name: 'Priya',  role: 'APM / PM Lead', desc: 'Navigating the boundary between product strategy and technical consequence at scale.' },
                 { mentor: 'asha'  as const, accent: '#0097A7', name: 'Asha',   role: 'AI PM Mentor',  desc: 'Pushes Priya from vocabulary to judgment: where technical constraints reshape strategy.' },
                 { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Dev',    role: 'Engineer',      desc: 'Debt, architecture bets, contract design, and platform vs feature decisions.' },
-                { mentor: 'kiran' as const, accent: '#E67E22', name: 'Kiran',  role: 'Data Analyst',  desc: 'Metric truth, instrumentation discipline, and analytical trust.' },
+                { mentor: 'kiran' as const, accent: '#3A86FF', name: 'Kiran',  role: 'Data Analyst',  desc: 'Metric truth, instrumentation discipline, and analytical trust.' },
                 { mentor: 'rohan' as const, accent: '#E67E22', name: 'Rohan',  role: 'CEO / Leadership', desc: 'Business pressure, reliability commitments, and trust in technical delivery.' },
               ]).map(c => (
                 <CharacterChip name={c.name} role={c.role} accent={c.accent}>
@@ -272,7 +272,7 @@ export default function Track2Tech101SystemDesign({
           Kiran shows Priya two dashboards for enterprise workspace usage that disagree. Both are technically valid. Neither is trustworthy enough for a strategic decision. Priya realizes the problem is not reporting polish. The problem is that event definitions, property capture, and schema discipline were loose enough to let multiple truths coexist.
         </SituationCard>
 
-        <ConversationScene mentor="kiran" name="Kiran" role="Data Analyst" accent="#E67E22" lines={[
+        <ConversationScene mentor="kiran" name="Kiran" role="Data Analyst" accent="#3A86FF" lines={[
           { speaker: 'priya', text: 'How can both dashboards exist if we\'re tracking the same behavior?' },
           { speaker: 'other', text: 'Because the event names match, but the definitions and properties do not. "Workspace opened" means different things to different teams — and nobody noticed until we tried to make strategic decisions from it.' },
           { speaker: 'priya', text: 'So we can believe we have one metric while actually carrying multiple truths?' },

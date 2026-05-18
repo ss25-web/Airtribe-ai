@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ─── GIT FOR PMs ──────────────────────────────────────────────────────────────
@@ -105,13 +105,13 @@ export function GitForPMsViz() {
             <svg viewBox="0 0 280 160" style={{ width: '100%', maxHeight: '160px' }}>
               {/* Main branch line */}
               <line x1="20" y1="40" x2="260" y2="40" stroke={BRANCH_COLORS.main} strokeWidth="3" strokeLinecap="round" />
-              <text x="8" y="36" style={{ fontSize: '9px', fill: BRANCH_COLORS.main, fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>main</text>
+              <text x="8" y="36" style={{ fontSize: '9px', fill: BRANCH_COLORS.main, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>main</text>
 
               {/* Main commits */}
               {[40, 80].map((x, i) => (
                 <g key={i}>
                   <circle cx={x} cy="40" r="6" fill={BRANCH_COLORS.main} />
-                  <text x={x} y="58" textAnchor="middle" style={{ fontSize: '7px', fill: 'var(--ed-ink3)', fontFamily: 'monospace' }}>
+                  <text x={x} y="58" textAnchor="middle" style={{ fontSize: '7px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>
                     {i === 0 ? 'v2.4.1' : 'v2.4.2'}
                   </text>
                 </g>
@@ -122,7 +122,7 @@ export function GitForPMsViz() {
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <line x1="80" y1="40" x2="80" y2="100" stroke={BRANCH_COLORS.feature} strokeWidth="2" strokeDasharray={step >= 5 ? '0' : '5 3'} />
                   <line x1="80" y1="100" x2={step >= 2 ? (step >= 3 ? 220 : 140) : 100} y2="100" stroke={BRANCH_COLORS.feature} strokeWidth="3" strokeLinecap="round" />
-                  <text x="88" y="115" style={{ fontSize: '8px', fill: BRANCH_COLORS.feature, fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>feature/session-search</text>
+                  <text x="88" y="115" style={{ fontSize: '8px', fill: BRANCH_COLORS.feature, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>feature/session-search</text>
                 </motion.g>
               )}
 
@@ -131,7 +131,7 @@ export function GitForPMsViz() {
                 <motion.g key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
                   style={{ transformOrigin: `${x}px 100px` }}>
                   <circle cx={x} cy="100" r="5" fill={BRANCH_COLORS.feature} />
-                  <text x={x} y="90" textAnchor="middle" style={{ fontSize: '7px', fill: BRANCH_COLORS.feature, fontFamily: 'monospace' }}>
+                  <text x={x} y="90" textAnchor="middle" style={{ fontSize: '7px', fill: BRANCH_COLORS.feature, fontFamily: "'JetBrains Mono', monospace" }}>
                     {['search', 'filter', 'display'][i]}
                   </text>
                 </motion.g>
@@ -141,7 +141,7 @@ export function GitForPMsViz() {
               {step >= 3 && step < 5 && (
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <rect x="220" y="72" width="32" height="16" rx="4" fill="#F59E0B" />
-                  <text x="236" y="83" textAnchor="middle" style={{ fontSize: '7px', fill: '#fff', fontFamily: 'monospace', fontWeight: 800 }}>PR</text>
+                  <text x="236" y="83" textAnchor="middle" style={{ fontSize: '7px', fill: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>PR</text>
                 </motion.g>
               )}
 
@@ -150,8 +150,8 @@ export function GitForPMsViz() {
                 <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <line x1="220" y1="100" x2="240" y2="40" stroke={BRANCH_COLORS.main} strokeWidth="2" strokeDasharray="4 3" />
                   <circle cx="240" cy="40" r="7" fill={BRANCH_COLORS.main} />
-                  <text x="240" y="43" textAnchor="middle" style={{ fontSize: '8px', fill: '#fff', fontFamily: 'monospace', fontWeight: 800 }}>✓</text>
-                  <text x="240" y="28" textAnchor="middle" style={{ fontSize: '7px', fill: BRANCH_COLORS.main, fontFamily: 'monospace' }}>merged</text>
+                  <text x="240" y="43" textAnchor="middle" style={{ fontSize: '8px', fill: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>✓</text>
+                  <text x="240" y="28" textAnchor="middle" style={{ fontSize: '7px', fill: BRANCH_COLORS.main, fontFamily: "'JetBrains Mono', monospace" }}>merged</text>
                 </motion.g>
               )}
             </svg>
@@ -161,7 +161,7 @@ export function GitForPMsViz() {
               {[{ color: BRANCH_COLORS.main, label: 'main (live)' }, { color: BRANCH_COLORS.feature, label: 'feature branch' }].map(l => (
                 <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <div style={{ width: '12px', height: '3px', borderRadius: '2px', background: l.color }} />
-                  <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: 'monospace' }}>{l.label}</div>
+                  <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{l.label}</div>
                 </div>
               ))}
             </div>
@@ -180,7 +180,7 @@ export function GitForPMsViz() {
                 {current.action && (
                   <div style={{ borderRadius: '10px', overflow: 'hidden', marginBottom: '14px' }}>
                     <div style={{ padding: '6px 12px', background: '#1E1E2E', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em' }}>TERMINAL</div>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em' }}>TERMINAL</div>
                     </div>
                     <pre style={{ margin: 0, padding: '12px', background: '#1E1E2E', fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', lineHeight: 1.7, color: '#E2E8F0', overflowX: 'auto' as const }}>
                       {current.action}
@@ -399,15 +399,15 @@ export function PostmanAPIExplorer() {
         <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', background: '#F5F5F5' }}>
           {/* Sidebar */}
           <div style={{ background: '#F0F0F0', borderRight: '1px solid #E0E0E0', padding: '8px' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: '#666', letterSpacing: '0.1em', padding: '6px 8px', marginBottom: '4px' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: '#666', letterSpacing: '0.1em', padding: '6px 8px', marginBottom: '4px' }}>
               EDSPARK ENDPOINTS
             </div>
             {API_ENDPOINTS.map((ep, i) => (
               <button key={ep.id} onClick={() => switchEndpoint(i)}
                 style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer', background: active === i ? '#fff' : 'transparent', textAlign: 'left' as const, marginBottom: '2px', boxShadow: active === i ? '0 1px 4px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.15s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 800, color: ep.methodColor, padding: '1px 5px', borderRadius: '3px', background: `${ep.methodColor}15`, flexShrink: 0 }}>{ep.method}</span>
-                  <span style={{ fontSize: '10px', color: '#374151', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{ep.endpoint}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: ep.methodColor, padding: '1px 5px', borderRadius: '3px', background: `${ep.methodColor}15`, flexShrink: 0 }}>{ep.method}</span>
+                  <span style={{ fontSize: '10px', color: '#374151', fontFamily: "'JetBrains Mono', monospace", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{ep.endpoint}</span>
                 </div>
               </button>
             ))}
@@ -417,10 +417,10 @@ export function PostmanAPIExplorer() {
           <div style={{ background: '#fff' }}>
             {/* Request bar */}
             <div style={{ padding: '10px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ padding: '5px 12px', borderRadius: '6px', background: `${endpoint.methodColor}15`, fontFamily: 'monospace', fontSize: '11px', fontWeight: 800, color: endpoint.methodColor }}>
+              <div style={{ padding: '5px 12px', borderRadius: '6px', background: `${endpoint.methodColor}15`, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', fontWeight: 800, color: endpoint.methodColor }}>
                 {endpoint.method}
               </div>
-              <div style={{ flex: 1, fontFamily: 'monospace', fontSize: '12px', color: '#374151', background: '#F9FAFB', padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+              <div style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', color: '#374151', background: '#F9FAFB', padding: '6px 12px', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
                 https://api.edspark.io{endpoint.endpoint}
               </div>
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setSent(true)}
@@ -431,15 +431,15 @@ export function PostmanAPIExplorer() {
 
             {/* Scenario */}
             <div style={{ padding: '12px 16px', background: '#FFFBF5', borderBottom: '1px solid #FEF3C7' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: '#D97706', letterSpacing: '0.1em', marginBottom: '4px' }}>YOUR SCENARIO</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: '#D97706', letterSpacing: '0.1em', marginBottom: '4px' }}>YOUR SCENARIO</div>
               <div style={{ fontSize: '12px', color: '#374151', lineHeight: 1.6 }}>{endpoint.scenario}</div>
             </div>
 
             {/* Request body */}
             {endpoint.body && (
               <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: '#6B7280', letterSpacing: '0.1em', marginBottom: '6px' }}>REQUEST BODY</div>
-                <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '11px', color: '#374151', background: '#F9FAFB', padding: '10px', borderRadius: '6px', border: '1px solid #E5E7EB', overflowX: 'auto' as const }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: '#6B7280', letterSpacing: '0.1em', marginBottom: '6px' }}>REQUEST BODY</div>
+                <pre style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#374151', background: '#F9FAFB', padding: '10px', borderRadius: '6px', border: '1px solid #E5E7EB', overflowX: 'auto' as const }}>
                   {endpoint.body}
                 </pre>
               </div>
@@ -450,20 +450,20 @@ export function PostmanAPIExplorer() {
               {sent && (
                 <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                   <div style={{ padding: '10px 16px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: '#6B7280', letterSpacing: '0.1em' }}>RESPONSE</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: '#6B7280', letterSpacing: '0.1em' }}>RESPONSE</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: endpoint.response.statusColor }} />
-                      <span style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 900, color: endpoint.response.statusColor }}>{endpoint.response.status}</span>
-                      <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6B7280' }}>{endpoint.response.statusLabel}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 900, color: endpoint.response.statusColor }}>{endpoint.response.status}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#6B7280' }}>{endpoint.response.statusLabel}</span>
                     </div>
                   </div>
                   <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB' }}>
-                    <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '11px', color: '#374151', background: '#F9FAFB', padding: '12px', borderRadius: '6px', border: '1px solid #E5E7EB', lineHeight: 1.65, overflowX: 'auto' as const }}>
+                    <pre style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#374151', background: '#F9FAFB', padding: '12px', borderRadius: '6px', border: '1px solid #E5E7EB', lineHeight: 1.65, overflowX: 'auto' as const }}>
                       {endpoint.response.body}
                     </pre>
                   </div>
                   <div style={{ padding: '12px 16px', background: `${endpoint.response.statusColor}08`, borderBottom: '1px solid var(--ed-rule)' }}>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: endpoint.response.statusColor, letterSpacing: '0.1em', marginBottom: '5px' }}>WHAT THIS MEANS FOR YOUR SPEC</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: endpoint.response.statusColor, letterSpacing: '0.1em', marginBottom: '5px' }}>WHAT THIS MEANS FOR YOUR SPEC</div>
                     <div style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>{endpoint.response.pmNote}</div>
                   </div>
                 </motion.div>

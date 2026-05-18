@@ -603,7 +603,7 @@ export default function Track2AnalyticsPM({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Leader · EdSpark" accent="#7843EE"
+          mentor="rohan" name="Meera" role="Business Leader · EdSpark" accent="#7843EE"
           lines={[
             { speaker: 'priya', text: "The user dashboard shows healthy activity though. DAUs are up." },
             { speaker: 'other', text: "A product can look busy at the user level and still be fragile at the account level. Usage concentrated in two champions doesn't predict renewal." },

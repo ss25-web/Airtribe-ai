@@ -194,7 +194,7 @@ const FUNNEL_LEVELS = [
   { tag: 'SURFACE',       label: '"The app is confusing."',                    detail: 'What the user said — a feeling, not a fact.',          color: '#BFDBFE', text: '#1E40AF', border: '#93C5FD' },
   { tag: 'BEHAVIOUR',     label: 'They were trying to find a past call.',       detail: 'What were they actually doing? Ask: what were you doing when that happened?', color: '#A5F3FC', text: '#0E7490', border: '#67E8F9' },
   { tag: 'FRICTION',      label: 'Had to scroll through 40+ recordings.',       detail: 'Where exactly did it break? Ask: walk me through exactly what you did.', color: '#6EE7B7', text: '#065F46', border: '#34D399' },
-  { tag: 'CAUSE',         label: 'No search, no date filter, no recents view.', detail: 'What is missing or broken? Ask: what would have made that easier?', color: '#FCD34D', text: '#92400E', border: '#FBBF24' },
+  { tag: 'CAUSE',         label: 'No search, no date filter, no recents view.', detail: 'What is missing or broken? Ask: what would have made that easier?', color: '#F59E0B', text: '#92400E', border: '#FBBF24' },
   { tag: 'ROOT JOB',      label: 'Need to retrieve specific content on demand.',detail: 'The real job the product should do. This is your product requirement.', color: '#FCA5A5', text: '#7F1D1D', border: '#F87171' },
 ];
 
@@ -218,7 +218,7 @@ export function InterviewDepthFunnel() {
     <div ref={ref} style={{ margin: '36px 0' }}>
       <VizLabel>The Discovery Interview Funnel — every "why" goes deeper</VizLabel>
 
-      <div style={{ borderRadius: '20px', background: 'linear-gradient(170deg, #EFF6FF 0%, #ECFDF5 50%, #FEF9C3 80%, #FEF2F2 100%)', border: '1px solid var(--ed-rule)', padding: '32px 28px', boxShadow: '0 12px 32px rgba(0,0,0,0.06)' }}>
+      <div style={{ borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '32px 28px', boxShadow: '0 12px 32px rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '0px', alignItems: 'center' }}>
           {FUNNEL_LEVELS.map((level, i) => (
             <div key={i} style={{ width: '100%', display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
@@ -289,7 +289,7 @@ export function InterviewDepthFunnel() {
 const AFFINITY_COLS = [
   {
     label: 'No clear next step',
-    color: '#0F766E', bg: '#CCFBF1', border: '#5EEAD4', dark: '#0D5C55',
+    color: '#0F766E', bg: 'rgba(20,184,166,0.12)', border: '#14B8A6', dark: '#0D5C55',
     notes: [
       "Finish watching — don't know what to do next",
       "What am I supposed to act on?",
@@ -300,7 +300,7 @@ const AFFINITY_COLS = [
   },
   {
     label: 'No benchmark for quality',
-    color: '#92400E', bg: '#FEF3C7', border: '#FCD34D', dark: '#78350F',
+    color: '#92400E', bg: 'rgba(245,158,11,0.12)', border: '#F59E0B', dark: '#78350F',
     notes: [
       'Is 72 a good score or a bad one?',
       "My manager says 'improve' — improve what?",
@@ -311,7 +311,7 @@ const AFFINITY_COLS = [
   },
   {
     label: 'Need to prove coaching ROI',
-    color: '#14532D', bg: '#DCFCE7', border: '#86EFAC', dark: '#0F3D21',
+    color: '#14532D', bg: 'rgba(34,197,94,0.12)', border: '#22C55E', dark: '#0F3D21',
     notes: [
       'My VP wants to know if this is working',
       'I need proof the calls are getting better',

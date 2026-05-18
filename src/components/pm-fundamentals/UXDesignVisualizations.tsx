@@ -367,7 +367,7 @@ export function FigmaBeforeAfter() {
             {/* After artboard */}
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#28C840', marginBottom: '10px', textAlign: 'center' as const }}>AFTER ✓</div>
-              <div style={{ width: '200px', background: '#F8F7F5', borderRadius: '12px', padding: '28px 20px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)', border: '2px solid rgba(40,200,64,0.4)' }}>
+              <div style={{ width: '200px', background: 'var(--ed-card)', borderRadius: '12px', padding: '28px 20px', boxShadow: '0 8px 24px rgba(0,0,0,0.3)', border: '2px solid rgba(40,200,64,0.4)' }}>
                 <div style={{ height: '6px', background: '#E5E2DD', borderRadius: '3px', marginBottom: '20px' }} />
                 <div style={{ height: '6px', background: '#E5E2DD', borderRadius: '3px', width: '70%', marginBottom: '20px' }} />
                 {/* Progress bar */}

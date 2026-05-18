@@ -1024,7 +1024,7 @@ export default function Track1CommunicationPM({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Head · EdSpark" accent="#158158"
+          mentor="rohan" name="Meera" role="Business Head · EdSpark" accent="#158158"
           lines={[
             { speaker: 'priya', text: "I thought I was being thorough." },
             { speaker: 'other', text: "You were. But executive communication is not 'more important communication.' It is communication shaped around business visibility and decisions." },

@@ -667,7 +667,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
           PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-rule)' }}>›</span>
           <span style={{ color: 'var(--ed-ink2)' }}>Foundations Track</span>
           <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
-          <span style={{ color: 'var(--ed-ink3)' }}>30 min · 7 parts</span>
+          <span style={{ color: 'var(--ed-ink3)' }}>30 min · 6 parts</span>
         </div>
 
         {/* Title */}
@@ -681,7 +681,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
         </h1>
 
         <p style={{ fontSize: '17px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '500px', marginBottom: '36px' }}>
-          30 minutes. 7 concepts. One story. Follow Priya through her first weeks as a product manager — her confusion is your curriculum.
+          30 minutes. 6 concepts. One story. Follow Priya through her first weeks as a product manager — her confusion is your curriculum.
         </p>
 
         {/* Parts grid */}
@@ -1142,6 +1142,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
         </div>
 
         <div className="rv">
+          {para(<>One thing that changes how you work with teams: whether you are building for individual consumers or for business customers. The <strong>who</strong> you serve changes the signals you listen to, the speed of feedback, and what success looks like for everyone on the team.</>)}
           <B2BvsB2CViz />
         </div>
 

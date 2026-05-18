@@ -73,7 +73,7 @@ export default function Track1Tech101SystemDesign({
                 { mentor: 'priya' as const, accent: ACCENT,    name: 'Priya', role: 'APM · EdSpark' },
                 { mentor: 'asha'  as const, accent: '#0097A7', name: 'Asha',  role: 'AI PM Mentor' },
                 { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Dev',   role: 'Engineer · EdSpark' },
-                { mentor: 'kiran' as const, accent: '#E67E22', name: 'Kiran', role: 'Data Analyst' },
+                { mentor: 'kiran' as const, accent: '#3A86FF', name: 'Kiran', role: 'Data Analyst' },
                 { mentor: 'maya'  as const, accent: '#C85A40', name: 'Maya',  role: 'Designer' },
               ]).map(c => (
                 <CharacterChip key={c.mentor} name={c.name} role={c.role} accent={c.accent}>
@@ -271,7 +271,7 @@ export default function Track1Tech101SystemDesign({
           Kiran asks a deceptively simple question: &ldquo;Where is team ownership stored right now?&rdquo; Priya cannot answer. The room goes quiet because the reporting feature suddenly depends on a relationship nobody has fully defined. What looked like a dashboard problem is now a data-shape problem.
         </SituationCard>
 
-        <ConversationScene mentor="kiran" name="Kiran" role="Data Analyst" accent="#E67E22" lines={[
+        <ConversationScene mentor="kiran" name="Kiran" role="Data Analyst" accent="#3A86FF" lines={[
           { speaker: 'priya', text: 'I assumed we already had the information somewhere.' },
           { speaker: 'other', text: 'A business concept is not useful unless the system stores it in a queryable way. The concept of "team admin" exists in everyone\'s head. That doesn\'t mean it exists in the database.' },
           { speaker: 'priya', text: 'So if we never structured the relationship, the feature is weaker than I thought?' },

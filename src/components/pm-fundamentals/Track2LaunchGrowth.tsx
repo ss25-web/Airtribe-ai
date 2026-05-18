@@ -394,7 +394,7 @@ export default function Track2LaunchGrowth({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Leader · EdSpark" accent="#7843EE"
+          mentor="rohan" name="Meera" role="Business Leader · EdSpark" accent="#7843EE"
           lines={[
             { speaker: 'priya', text: "Is this a product decision or a business decision?" },
             { speaker: 'other', text: "It's both at the same time. Pricing determines who gets in, when they hit a limit, when they upgrade, whether adoption stalls, and whether the motion favors self-serve or requires sales. Those are product consequences." },
@@ -435,7 +435,7 @@ export default function Track2LaunchGrowth({
         </SituationCard>
 
         <ConversationScene
-          mentor="maya" name="Sonal" role="Customer Success · EdSpark" accent="#C85A40"
+          mentor="kiran" name="Sonal" role="Customer Success · EdSpark" accent="#C85A40"
           lines={[
             { speaker: 'other', text: "Let me map what success actually looks like for an enterprise account: champion identified, setup completed, workflow adopted, value observed, stakeholders aligned, paid conversion, usage broadened." },
             { speaker: 'priya', text: "That's not just sales — that's a product journey." },

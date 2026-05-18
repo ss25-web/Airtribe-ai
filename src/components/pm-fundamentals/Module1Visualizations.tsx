@@ -318,7 +318,7 @@ function RiceSphere({ feat, index, started }: { feat: typeof RICE_FEATS[0]; inde
       <meshStandardMaterial color={feat.hex} emissive={feat.hex} emissiveIntensity={0.18} roughness={0.18} metalness={0.35} />
       {hov && (
         <Html distanceFactor={9} style={{ pointerEvents: 'none' }}>
-          <div style={{ background: '#FFFFFF', borderRadius: '10px', padding: '10px 14px', fontSize: '11px', whiteSpace: 'nowrap', fontFamily: 'system-ui, sans-serif', minWidth: '170px', boxShadow: '0 8px 28px rgba(0,0,0,0.18)', border: `2px solid ${feat.hex}` }}>
+          <div style={{ background: 'var(--ed-card)', borderRadius: '10px', padding: '10px 14px', fontSize: '11px', whiteSpace: 'nowrap', fontFamily: 'system-ui, sans-serif', minWidth: '170px', boxShadow: '0 8px 28px rgba(0,0,0,0.18)', border: `2px solid ${feat.hex}` }}>
             <div style={{ fontWeight: 800, color: feat.hex, marginBottom: '5px', fontSize: '13px' }}>{feat.name}</div>
             <div style={{ color: '#374151' }}>Reach <strong>{feat.reach}</strong> · Impact <strong>{feat.impact}</strong></div>
             <div style={{ color: '#374151' }}>Effort <strong>{feat.effort}wk</strong> · Conf <strong>{Math.round(feat.conf * 100)}%</strong></div>
@@ -699,9 +699,11 @@ export function MetricsCascadeAnimation() {
 
 const WKCOUNT = 14;
 function series(start: number, end: number, noise = 0.05) {
+  // Fixed seed pattern to avoid hydration mismatch — deterministic noise from index
   return Array.from({ length: WKCOUNT }, (_, i) => {
     const t = i / (WKCOUNT - 1);
-    return (start + (end - start) * t) * (1 + (Math.random() - 0.5) * noise);
+    const deterministicNoise = ((i * 7 + 3) % 11 - 5) / 100 * noise * 10;
+    return (start + (end - start) * t) * (1 + deterministicNoise);
   });
 }
 

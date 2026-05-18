@@ -1112,7 +1112,7 @@ export default function Track1ProductStrategy({
         </SituationCard>
 
         <ConversationScene
-          mentor="dev" name="Marcus" role="Enterprise Sales · EdSpark" accent="#16A34A"
+          mentor="rohan" name="Marcus" role="Enterprise Sales · EdSpark" accent="#16A34A"
           lines={[
             { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months — finally." },
             { speaker: 'priya', text: "Congratulations. What\u2019s their expansion potential? How many reps does Apex have in total?" },

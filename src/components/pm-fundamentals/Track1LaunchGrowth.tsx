@@ -144,7 +144,7 @@ export default function Track1LaunchGrowth({
       {/* ── PART 1 ── */}
       <ChapterSection id="m8-launch" num="01" accentRgb={ACCENT_RGB} first>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Team Workspace is finally close. The prototype is stable. The workflow works. And now everyone is asking the same question: <strong>&ldquo;When do we launch?&rdquo;</strong> Rohit: <strong>&ldquo;Let&apos;s get this in front of as many users as possible.&rdquo;</strong> Dev: <strong>&ldquo;That&apos;s not a launch plan. That&apos;s exposure.&rdquo;</strong> Sonal: <strong>&ldquo;If this goes wide too early and enterprise admins hit confusion, support absorbs the damage.&rdquo;</strong> Meera asks the sharpest question: <strong>&ldquo;What exactly are we trying to achieve with this launch?&rdquo;</strong>
+          After the search improvement shipped and retention moved, Priya turned to the next item on the roadmap: Team Workspace — a feature that lets sales managers share coaching sessions and collaborate on rep development. It had been in discovery for two months. Team Workspace is finally close. The prototype is stable. The workflow works. And now everyone is asking the same question: <strong>&ldquo;When do we launch?&rdquo;</strong> Rohit: <strong>&ldquo;Let&apos;s get this in front of as many users as possible.&rdquo;</strong> Dev: <strong>&ldquo;That&apos;s not a launch plan. That&apos;s exposure.&rdquo;</strong> Sonal: <strong>&ldquo;If this goes wide too early and enterprise admins hit confusion, support absorbs the damage.&rdquo;</strong> Meera asks the sharpest question: <strong>&ldquo;What exactly are we trying to achieve with this launch?&rdquo;</strong>
         </SituationCard>
 
         <ConversationScene
@@ -249,7 +249,7 @@ export default function Track1LaunchGrowth({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
+          mentor="rohan" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
           lines={[
             { speaker: 'priya', text: "So what's the right rollout shape for Team Workspace?" },
             { speaker: 'other', text: "Start with internal team use. Then trusted design partners. Then a pilot customer set. Then a limited segment. Then broader. Each stage teaches something before the next one expands." },
@@ -379,7 +379,7 @@ export default function Track1LaunchGrowth({
         </SituationCard>
 
         <ConversationScene
-          mentor="kiran" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
+          mentor="rohan" name="Meera" role="Business Lead · EdSpark" accent="#7843EE"
           lines={[
             { speaker: 'priya', text: "Can't we figure out pricing after we've validated the product?" },
             { speaker: 'other', text: "Pricing shapes what users try, what they delay, when they feel enough value to pay, and how they perceive what's premium. It's already shaping product behavior before the first invoice." },
