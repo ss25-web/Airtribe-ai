@@ -429,107 +429,174 @@ export function FigmaBeforeAfter() {
 // 8 users' cursor paths overlaid on a single UI. Confusion clusters visually.
 // Teaches: session recordings show WHY — the exact moment confusion hit.
 
-const SESSION_PATHS = [
-  { color: '#6366F1', path: [{ x: 15, y: 60 }, { x: 35, y: 60 }, { x: 55, y: 55 }, { x: 55, y: 55 }, { x: 55, y: 55 }, { x: 40, y: 70 }], stopped: 4 },
-  { color: '#0EA5E9', path: [{ x: 20, y: 50 }, { x: 45, y: 55 }, { x: 55, y: 58 }, { x: 55, y: 58 }, { x: 60, y: 65 }, { x: 60, y: 65 }], stopped: 3 },
-  { color: '#22C55E', path: [{ x: 10, y: 70 }, { x: 30, y: 65 }, { x: 50, y: 60 }, { x: 55, y: 57 }, { x: 55, y: 57 }, { x: 45, y: 80 }], stopped: 4 },
-  { color: '#F59E0B', path: [{ x: 25, y: 45 }, { x: 40, y: 52 }, { x: 55, y: 56 }, { x: 55, y: 56 }, { x: 58, y: 62 }, { x: 65, y: 55 }], stopped: 3 },
-  { color: '#EF4444', path: [{ x: 18, y: 65 }, { x: 38, y: 60 }, { x: 55, y: 58 }, { x: 55, y: 58 }, { x: 55, y: 58 }, { x: 35, y: 75 }], stopped: 4 },
-  { color: '#8B5CF6', path: [{ x: 22, y: 55 }, { x: 42, y: 58 }, { x: 54, y: 59 }, { x: 54, y: 59 }, { x: 60, y: 68 }, { x: 55, y: 75 }], stopped: 3 },
-  { color: '#EC4899', path: [{ x: 12, y: 72 }, { x: 32, y: 63 }, { x: 52, y: 60 }, { x: 55, y: 58 }, { x: 55, y: 58 }, { x: 50, y: 70 }], stopped: 4 },
-  { color: '#14B8A6', path: [{ x: 28, y: 48 }, { x: 44, y: 54 }, { x: 55, y: 57 }, { x: 55, y: 57 }, { x: 62, y: 60 }, { x: 68, y: 52 }], stopped: 3 },
+// 8 user sessions shown as a proper heatmap — heat blob builds up at the
+// confusion point. Individual session timeline below shows each user's pause.
+
+const SESSION_USERS = [
+  { color: '#6366F1', name: 'Rep 1', dwellSec: 18, abandoned: true },
+  { color: '#0EA5E9', name: 'Rep 2', dwellSec: 12, abandoned: true },
+  { color: '#22C55E', name: 'Rep 3', dwellSec: 31, abandoned: false },
+  { color: '#F59E0B', name: 'Rep 4', dwellSec: 24, abandoned: true },
+  { color: '#EF4444', name: 'Rep 5', dwellSec: 45, abandoned: true },
+  { color: '#8B5CF6', name: 'Rep 6', dwellSec: 15, abandoned: true },
+  { color: '#EC4899', name: 'Rep 7', dwellSec: 8,  abandoned: false },
+  { color: '#14B8A6', name: 'Rep 8', dwellSec: 27, abandoned: true },
 ];
 
 export function SessionHeatmap() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [frame, setFrame] = useState(-1);
+  const [phase, setPhase] = useState(0); // 0→1=UI, 1→2=heat bloom, 2→3=dots, 3→4=insight
+  const [dotsVisible, setDotsVisible] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setFrame(-1);
-    const t = setTimeout(() => {
-      let f = 0;
-      const iv = setInterval(() => {
-        f++;
-        setFrame(f);
-        if (f >= 5) clearInterval(iv);
-      }, 700);
-    }, 600);
-    return () => clearTimeout(t);
+    setPhase(0); setDotsVisible(0);
+    const ts = [
+      setTimeout(() => setPhase(1), 400),
+      setTimeout(() => setPhase(2), 1200),
+      ...SESSION_USERS.map((_, i) => setTimeout(() => setDotsVisible(i + 1), 1800 + i * 200)),
+      setTimeout(() => setPhase(3), 1800 + SESSION_USERS.length * 200 + 400),
+    ];
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
 
-  const replay = () => { setFrame(-1); setTick(t => t + 1); };
+  const replay = () => { setPhase(0); setDotsVisible(0); setTick(t => t + 1); };
+  // Heat intensity 0→1 based on phase
+  const heatIntensity = phase >= 2 ? 1 : 0;
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>Session replay heatmap — 8 users, one UI, one confusion point</VizLabel>
+      <VizLabel>Session heatmap — 8 users, same UI, same confusion point</VizLabel>
 
-      <div style={{ borderRadius: '20px', overflow: 'hidden', background: '#0D1117', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 24px 56px rgba(0,0,0,0.3)' }}>
-        {/* Dovetail-style header */}
-        <div style={{ background: '#161B22', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        {/* Dovetail header */}
+        <div style={{ background: '#1C2333', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '5px' }}>
             {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>Dovetail &middot; Session Recording &middot; EdSpark Upload Flow &middot; 8 sessions</div>
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px' }}>
-            {SESSION_PATHS.map((s, i) => (
-              <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color, opacity: frame >= 0 ? 1 : 0.3, transition: 'opacity 0.4s' }} />
-            ))}
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+            Dovetail &middot; Heatmap &middot; EdSpark Upload — &ldquo;Analyzing…&rdquo; screen &middot; 8 sessions
+          </div>
+          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: phase >= 3 ? '#EF4444' : 'rgba(255,255,255,0.35)', fontWeight: 700, transition: 'color 0.5s' }}>
+            {phase >= 3 ? '⚠ HIGH FRICTION DETECTED' : '● RECORDING'}
           </div>
         </div>
 
-        {/* The UI being replayed */}
-        <div style={{ position: 'relative', height: '280px', background: '#F9F8F6' }}>
-          {/* Fake UI elements */}
-          <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', height: '28px', background: '#E8E5E0', borderRadius: '6px' }} />
-          <div style={{ position: 'absolute', top: '52px', left: '14px', width: '55%', height: '18px', background: '#E8E5E0', borderRadius: '4px' }} />
-          <div style={{ position: 'absolute', top: '78px', left: '14px', width: '40%', height: '14px', background: '#E8E5E0', borderRadius: '4px' }} />
-          {/* THE problematic button */}
-          <div style={{ position: 'absolute', top: '44%', left: '44%', transform: 'translate(-50%, -50%)', padding: '10px 24px', borderRadius: '8px', background: '#1F2937', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', animation: 'spin 1s linear infinite' }} />
-            <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>Analyzing…</div>
-          </div>
-          {/* Confusion marker */}
-          {frame >= 3 && (
-            <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
-              style={{ position: 'absolute', top: '33%', left: '42%', transform: 'translate(-50%, -50%)', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '2px dashed rgba(239,68,68,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#EF4444', fontWeight: 800, textAlign: 'center' as const, lineHeight: 1.3 }}>8/8<br />users<br />paused</div>
-            </motion.div>
-          )}
-          {/* Cursor paths */}
-          <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} viewBox="0 0 100 100" preserveAspectRatio="none">
-            {SESSION_PATHS.map((s, si) => {
-              if (frame < 0) return null;
-              const pts = s.path.slice(0, Math.min(frame + 1, s.path.length));
-              const pathStr = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-              const last = pts[pts.length - 1];
-              const stopped = frame >= s.stopped;
-              return (
-                <g key={si}>
-                  {pts.length > 1 && <motion.path d={pathStr} fill="none" stroke={s.color} strokeWidth="0.5" opacity="0.5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }} />}
-                  {last && <circle cx={last.x} cy={last.y} r={stopped ? 1.2 : 0.8} fill={s.color} opacity={stopped ? 0.9 : 0.7} />}
-                </g>
-              );
-            })}
+        {/* Heatmap canvas — the UI mockup with overlay */}
+        <div style={{ position: 'relative', background: '#F7F5F2', overflow: 'hidden' }}>
+          <svg viewBox="0 0 700 340" style={{ width: '100%', display: 'block' }}>
+            <defs>
+              {/* Heatmap gradients — layered to build intensity */}
+              <radialGradient id="heat1" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#EF4444" stopOpacity="0.85" />
+                <stop offset="35%" stopColor="#F97316" stopOpacity="0.55" />
+                <stop offset="65%" stopColor="#FBBF24" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+              </radialGradient>
+              <radialGradient id="heat2" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#EF4444" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#EF4444" stopOpacity="0" />
+              </radialGradient>
+              <filter id="blur1"><feGaussianBlur stdDeviation="12" /></filter>
+              <filter id="blur2"><feGaussianBlur stdDeviation="22" /></filter>
+            </defs>
+
+            {/* ── UI skeleton ── */}
+            {/* Nav bar */}
+            <rect x="0" y="0" width="700" height="44" fill="#1F2937" />
+            <rect x="16" y="14" width="80" height="16" rx="4" fill="rgba(255,255,255,0.15)" />
+            <rect x="116" y="14" width="120" height="16" rx="4" fill="rgba(255,255,255,0.1)" />
+            <circle cx="668" cy="22" r="12" fill="rgba(255,255,255,0.15)" />
+
+            {/* Page content */}
+            <rect x="24" y="64" width="220" height="16" rx="4" fill="#E2DDD8" />
+            <rect x="24" y="90" width="160" height="12" rx="3" fill="#EAE6E1" />
+            <rect x="24" y="118" width="400" height="80" rx="8" fill="#EAE6E1" />
+            <rect x="36" y="130" width="180" height="12" rx="3" fill="#D4CFC9" />
+            <rect x="36" y="150" width="140" height="10" rx="3" fill="#D4CFC9" />
+            <rect x="36" y="168" width="200" height="10" rx="3" fill="#D4CFC9" />
+
+            {/* THE BUTTON — positioned at center-right */}
+            <rect x="272" y="226" width="168" height="46" rx="10" fill="#1F2937" />
+            <circle cx="296" cy="249" r="8" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeDasharray="12 6" />
+            <text x="352" y="254" textAnchor="middle" dominantBaseline="middle"
+              style={{ fontSize: '13px', fill: '#FFFFFF', fontFamily: 'system-ui', fontWeight: 700 }}>
+              Analyzing…
+            </text>
+
+            {/* ── Heat bloom ── centered on button (356, 249) */}
+            <motion.ellipse cx="356" cy="249" rx="110" ry="80" fill="url(#heat1)" filter="url(#blur1)"
+              initial={{ opacity: 0 }} animate={{ opacity: heatIntensity * 0.9 }}
+              transition={{ duration: 1.2, ease: 'easeOut' }} />
+            <motion.ellipse cx="356" cy="249" rx="55" ry="40" fill="url(#heat2)" filter="url(#blur2)"
+              initial={{ opacity: 0 }} animate={{ opacity: heatIntensity }}
+              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }} />
+
+            {/* ── User dots at/near the button ── */}
+            {[
+              { x: 340, y: 244 }, { x: 368, y: 252 }, { x: 352, y: 238 },
+              { x: 375, y: 260 }, { x: 333, y: 258 }, { x: 360, y: 243 },
+              { x: 348, y: 263 }, { x: 370, y: 245 },
+            ].map((pos, i) => (
+              <AnimatePresence key={i}>
+                {i < dotsVisible && (
+                  <motion.g initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
+                    <circle cx={pos.x} cy={pos.y} r="7" fill={SESSION_USERS[i].color} opacity="0.85" stroke="white" strokeWidth="1.5" />
+                    <text x={pos.x} y={pos.y + 1} textAnchor="middle" dominantBaseline="middle"
+                      style={{ fontSize: '6px', fill: 'white', fontFamily: 'monospace', fontWeight: 800 }}>
+                      {i + 1}
+                    </text>
+                  </motion.g>
+                )}
+              </AnimatePresence>
+            ))}
+
+            {/* ── Annotation ── */}
+            {phase >= 3 && (
+              <motion.g initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <rect x="440" y="200" width="232" height="78" rx="10" fill="#1F2937" opacity="0.96" />
+                <rect x="440" y="200" width="232" height="78" rx="10" fill="none" stroke="#EF4444" strokeWidth="1.5" />
+                {/* Arrow to button */}
+                <line x1="446" y1="240" x2="444" y2="249" stroke="#EF4444" strokeWidth="1.5" markerEnd="url(#redArrow)" />
+                <text x="452" y="217" style={{ fontSize: '8px', fill: '#EF4444', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>CLUSTER — 8 / 8 SESSIONS</text>
+                <text x="452" y="232" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.85)', fontFamily: 'system-ui' }}>Avg dwell: 22.5 seconds</text>
+                <text x="452" y="248" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.85)', fontFamily: 'system-ui' }}>6 of 8 abandoned here</text>
+                <text x="452" y="264" style={{ fontSize: '9px', fill: '#F59E0B', fontFamily: 'system-ui', fontWeight: 600 }}>No feedback = uncertainty = exit</text>
+              </motion.g>
+            )}
           </svg>
         </div>
 
-        {/* Insight bar */}
-        {frame >= 4 && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.2)' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#EF4444', letterSpacing: '0.1em', marginBottom: '4px', fontWeight: 800 }}>⚠ CLUSTER DETECTED — 8 / 8 SESSIONS</div>
-            <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.65 }}>
-              Every user paused at the &ldquo;Analyzing…&rdquo; button. No user abandoned because it was slow — they abandoned because they didn&apos;t know if it was working.
-            </div>
-          </motion.div>
-        )}
+        {/* Session timeline strip */}
+        <div style={{ background: '#1C2333', padding: '14px 16px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em', marginBottom: '10px' }}>
+            SESSION TIMELINE — each bar = dwell time at the button
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {SESSION_USERS.map((u, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', opacity: i < dotsVisible ? 1 : 0.2, transition: 'opacity 0.3s' }}>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)', width: '36px' }}>{u.name}</div>
+                <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }} animate={{ width: i < dotsVisible ? `${(u.dwellSec / 45) * 100}%` : '0%' }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    style={{ height: '100%', background: u.abandoned ? '#EF4444' : '#22C55E', borderRadius: '4px' }} />
+                </div>
+                <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, width: '44px', color: u.abandoned ? '#EF4444' : '#22C55E' }}>
+                  {i < dotsVisible ? `${u.dwellSec}s ${u.abandoned ? '✕' : '✓'}` : '—'}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#6366F1' }}>What analytics can&apos;t tell you:</strong> why users left. Session recordings show the exact moment confusion hit — the cursor stops moving. No number in your dashboard tells you that.
+        <strong style={{ color: '#6366F1' }}>What analytics can&apos;t tell you:</strong> the heat concentrated on one button — not because it was slow, but because users had zero signal it was working. Session recordings show the exact moment confusion hit.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>
@@ -692,123 +759,171 @@ export function ComponentSprawl3D() {
 // Interactive 2×2: Frequency × Visibility. Click any screen card to get the
 // craft investment verdict. Teaches: not every screen deserves equal polish.
 
-const MATRIX_SCREENS = [
-  { label: 'Call recording player', freq: 'high', vis: 'high', craft: 'full', note: 'Used 5x/day by every rep. This screen IS the product. Full craft investment justified.', color: '#6366F1', x: 72, y: 22 },
-  { label: 'Manager coaching dashboard', freq: 'high', vis: 'high', craft: 'full', note: 'VPs see this in every demo. Retention depends on it. High polish required.', color: '#6366F1', x: 80, y: 38 },
-  { label: 'Team analytics feed', freq: 'high', vis: 'low', craft: 'functional+', note: 'Seen daily but internal. Functional with micro-polish on key numbers only.', color: '#0EA5E9', x: 28, y: 28 },
-  { label: 'Settings page', freq: 'low', vis: 'low', craft: 'functional', note: 'Set once. Nobody cares about the design. Ship it fast. Don\'t spend more than half a day.', color: '#94A3B8', x: 22, y: 68 },
-  { label: 'Billing & invoices', freq: 'low', vis: 'low', craft: 'functional', note: 'Monthly, admin-only. Standard inputs. No animation needed. Copy matters more than design.', color: '#94A3B8', x: 32, y: 78 },
-  { label: 'Onboarding flow', freq: 'low', vis: 'high', craft: 'high', note: 'First impression. Enterprise procurement judges by this. 2+ days of craft investment worth it.', color: '#F97316', x: 72, y: 68 },
-];
+// Four quadrant cards with visual screen thumbnails. Each quadrant has a
+// distinct colour, clear label, and example screens shown as mini mockups.
+// Click any card to get the craft investment rationale.
 
-const CRAFT_LEVELS = {
-  full: { label: 'Full Craft', color: '#6366F1', desc: 'Motion, micro-interactions, pixel-perfect spacing. Every hover state designed.' },
-  'functional+': { label: 'Functional+', color: '#0EA5E9', desc: 'Clean and consistent. Some micro-polish on key numbers. No animation engineering.' },
-  high: { label: 'High Polish', color: '#F97316', desc: 'Needs to impress. Onboarding = first impression. Invest 2+ days.' },
-  functional: { label: 'Functional Only', color: '#94A3B8', desc: 'Works correctly. Standard components. No animation. Ship in hours, not days.' },
-};
+const QUADRANTS = [
+  {
+    freq: 'HIGH', vis: 'LOW', color: '#0EA5E9', dark: '#0369A1', bg: 'rgba(14,165,233,0.08)',
+    verdict: 'Functional+', time: '~1 day',
+    rule: 'Clean and consistent. Micro-polish on key numbers only. No animation engineering.',
+    screens: [
+      { name: 'Team analytics feed', usage: 'Daily · internal', icon: '📊',
+        note: 'Seen every day but only by managers. Key numbers should be clear. No animation.' },
+      { name: 'Rep activity log',    usage: 'Daily · internal', icon: '📋',
+        note: 'High frequency but low stakes. Tabular data. Functional with good typography.' },
+    ],
+  },
+  {
+    freq: 'HIGH', vis: 'HIGH', color: '#6366F1', dark: '#3730A3', bg: 'rgba(99,102,241,0.08)',
+    verdict: 'Full Craft', time: '2–4 days',
+    rule: 'Motion, micro-interactions, pixel-perfect spacing. Every hover and error state designed.',
+    screens: [
+      { name: 'Call recording player', usage: '5× daily · product core', icon: '▶',
+        note: 'THIS IS THE PRODUCT. Used 5 times a day. Every pixel earns its place. Full craft.' },
+      { name: 'Coaching dashboard',    usage: 'Daily · VP-visible', icon: '🎯',
+        note: 'VPs see this in every demo. Retention depends on it. Invest accordingly.' },
+    ],
+  },
+  {
+    freq: 'LOW', vis: 'LOW', color: '#94A3B8', dark: '#64748B', bg: 'rgba(148,163,184,0.06)',
+    verdict: 'Functional', time: 'Hours',
+    rule: 'Works correctly. Standard components. No animation. Ship in hours, not days.',
+    screens: [
+      { name: 'Account settings',    usage: 'Set once · admin', icon: '⚙️',
+        note: 'Users visit once during setup. Nobody judges design here. Copy matters more.' },
+      { name: 'Billing & invoices',  usage: 'Monthly · admin',  icon: '💳',
+        note: 'Monthly, finance-only. Standard form inputs. Zero animation needed.' },
+    ],
+  },
+  {
+    freq: 'LOW', vis: 'HIGH', color: '#F97316', dark: '#C2410C', bg: 'rgba(249,115,22,0.08)',
+    verdict: 'High Polish', time: '2–3 days',
+    rule: 'First impression. Enterprise procurement judges by this screen. Invest in it.',
+    screens: [
+      { name: 'Onboarding flow',    usage: 'Once · enterprise demo', icon: '🚀',
+        note: 'First thing a new rep sees. Enterprise buyers judge product quality here.' },
+      { name: 'Empty state screens', usage: 'Once per user',          icon: '🌟',
+        note: 'New users hit these before they see real data. Blank = abandoned. Design it.' },
+    ],
+  },
+];
 
 export function CraftInvestmentMatrix() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [visible, setVisible] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
     setVisible(0);
-    MATRIX_SCREENS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 400 + i * 350));
+    QUADRANTS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 300 + i * 400));
   }, [inView, tick]);
 
   const replay = () => { setVisible(0); setSelected(null); setTick(t => t + 1); };
-  const sel = MATRIX_SCREENS.find(s => s.label === selected);
+  const sel = selected !== null ? QUADRANTS[selected] : null;
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>Craft decision matrix — frequency × visibility = how much polish to invest</VizLabel>
+      <VizLabel>Craft decision matrix — frequency × visibility = how much to invest</VizLabel>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '20px', alignItems: 'start' }}>
-        {/* Matrix */}
-        <div style={{ borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
-          {/* Axis labels */}
-          <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr', borderBottom: '1px solid var(--ed-rule)' }}>
-            <div />
-            {[{ l: 'LOW VISIBILITY', c: '#94A3B8' }, { l: 'HIGH VISIBILITY', c: '#6366F1' }].map((h, i) => (
-              <div key={i} style={{ padding: '10px', textAlign: 'center' as const, borderLeft: i > 0 ? '1px solid var(--ed-rule)' : 'none' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: h.c, letterSpacing: '0.12em' }}>{h.l}</div>
-              </div>
-            ))}
+      {/* Axis labels + grid */}
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        {/* Column headers */}
+        <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 1fr', background: 'var(--ed-card)', borderBottom: '1px solid var(--ed-rule)' }}>
+          <div />
+          <div style={{ padding: '12px 16px', textAlign: 'center' as const, borderLeft: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#94A3B8', letterSpacing: '0.14em' }}>👁 LOW VISIBILITY</div>
+            <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '3px' }}>Internal, team-only</div>
           </div>
-
-          {/* Quadrants */}
-          <div style={{ display: 'grid', gridTemplateColumns: '32px 1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
-            {/* Row labels */}
-            <div style={{ gridRow: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--ed-rule)' }}>
-              <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.12em' }}>HIGH FREQ</div>
-            </div>
-            <div style={{ gridRow: '2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#F59E0B', letterSpacing: '0.12em' }}>LOW FREQ</div>
-            </div>
-
-            {/* 4 quadrants */}
-            {[
-              { freq: 'high', vis: 'low',  bg: 'rgba(14,165,233,0.05)',  label: 'Functional+',   color: '#0EA5E9' },
-              { freq: 'high', vis: 'high', bg: 'rgba(99,102,241,0.07)', label: 'Full Craft',    color: '#6366F1' },
-              { freq: 'low',  vis: 'low',  bg: 'rgba(148,163,184,0.04)', label: 'Functional',    color: '#94A3B8' },
-              { freq: 'low',  vis: 'high', bg: 'rgba(249,115,22,0.06)', label: 'High Polish',   color: '#F97316' },
-            ].map((q, qi) => (
-              <div key={qi} style={{ padding: '16px', minHeight: '160px', background: q.bg, borderLeft: '1px solid var(--ed-rule)', borderTop: qi < 2 ? 'none' : '1px solid var(--ed-rule)', position: 'relative' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: q.color, letterSpacing: '0.12em', marginBottom: '10px' }}>{q.label}</div>
-                {MATRIX_SCREENS.filter(s => s.freq === q.freq && s.vis === q.vis).map((s, si) => (
-                  <AnimatePresence key={s.label}>
-                    {MATRIX_SCREENS.indexOf(s) < visible && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: selected === s.label ? 1.04 : 1 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                        onClick={() => setSelected(selected === s.label ? null : s.label)}
-                        style={{ padding: '8px 10px', borderRadius: '10px', background: selected === s.label ? `${s.color}18` : 'var(--ed-card)', border: `1.5px solid ${selected === s.label ? s.color + '50' : 'var(--ed-rule)'}`, cursor: 'pointer', marginBottom: '6px', transition: 'border-color 0.2s, background 0.2s' }}>
-                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3 }}>{s.label}</div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                ))}
-              </div>
-            ))}
+          <div style={{ padding: '12px 16px', textAlign: 'center' as const, borderLeft: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.14em' }}>👁 HIGH VISIBILITY</div>
+            <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '3px' }}>Customer-facing, demo-ready</div>
           </div>
         </div>
 
-        {/* Detail panel */}
-        <div>
-          <AnimatePresence mode="wait">
-            {sel ? (
-              <motion.div key={sel.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}>
-                <div style={{ padding: '20px', borderRadius: '16px', background: `${sel.color}12`, border: `1.5px solid ${sel.color}40`, borderLeft: `4px solid ${sel.color}`, marginBottom: '12px' }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '6px' }}>{CRAFT_LEVELS[sel.craft as keyof typeof CRAFT_LEVELS].label.toUpperCase()}</div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '8px' }}>{sel.label}</div>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.7, marginBottom: '10px' }}>{sel.note}</div>
-                  <div style={{ height: '1px', background: `${sel.color}30`, marginBottom: '10px' }} />
-                  <div style={{ fontSize: '11px', color: sel.color, fontWeight: 600, lineHeight: 1.6 }}>{CRAFT_LEVELS[sel.craft as keyof typeof CRAFT_LEVELS].desc}</div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <div style={{ fontSize: '13px', color: 'var(--ed-ink3)', fontStyle: 'italic', marginBottom: '16px' }}>Click any screen to see the craft investment verdict.</div>
-                {Object.entries(CRAFT_LEVELS).map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: v.color, flexShrink: 0 }} />
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: v.color }}>{v.label}</div>
+        {/* 2×2 grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
+          {/* Row labels */}
+          {[{ label: '↑ HIGH FREQ', color: '#22C55E', sub: 'Used daily' }, { label: '↓ LOW FREQ', color: '#F59E0B', sub: 'Used monthly' }].map((r, ri) => (
+            <div key={ri} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '8px 0', borderTop: ri > 0 ? '1px solid var(--ed-rule)' : 'none', gap: '4px' }}>
+              <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: r.color, letterSpacing: '0.1em' }}>{r.label}</div>
+              <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontSize: '9px', color: 'var(--ed-ink3)' }}>{r.sub}</div>
+            </div>
+          ))}
+
+          {/* 4 quadrant cards: [top-left, top-right, bot-left, bot-right] = [0,1,2,3] */}
+          {QUADRANTS.map((q, qi) => (
+            <AnimatePresence key={qi}>
+              {qi < visible && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                  onClick={() => setSelected(selected === qi ? null : qi)}
+                  style={{
+                    background: selected === qi ? q.bg : 'var(--ed-card)',
+                    borderLeft: '1px solid var(--ed-rule)',
+                    borderTop: qi < 2 ? 'none' : '1px solid var(--ed-rule)',
+                    padding: '18px 16px', cursor: 'pointer',
+                    outline: selected === qi ? `2px solid ${q.color}` : 'none',
+                    outlineOffset: '-2px',
+                    transition: 'background 0.3s, outline 0.3s',
+                  }}>
+                  {/* Verdict chip */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <div style={{ padding: '4px 10px', borderRadius: '6px', background: q.color, boxShadow: `0 3px 0 ${q.dark}`, fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.1em' }}>
+                      {q.verdict}
+                    </div>
+                    <div style={{ fontFamily: 'monospace', fontSize: '10px', color: q.color, fontWeight: 700 }}>{q.time}</div>
                   </div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  {/* Screen cards */}
+                  {q.screens.map((s, si) => (
+                    <div key={si} style={{ padding: '10px 12px', borderRadius: '10px', background: selected === qi ? 'rgba(255,255,255,0.6)' : 'var(--ed-cream, #F5F0E8)', border: `1px solid ${q.color}25`, marginBottom: si < q.screens.length - 1 ? '8px' : '0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ fontSize: '20px', flexShrink: 0 }}>{s.icon}</div>
+                      <div>
+                        <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3 }}>{s.name}</div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '8px', color: q.color, marginTop: '2px', fontWeight: 700 }}>{s.usage}</div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ))}
         </div>
       </div>
 
+      {/* Selected detail */}
+      <AnimatePresence>
+        {sel && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.3 }}
+            style={{ marginTop: '16px', padding: '18px 20px', borderRadius: '16px', background: `${sel.color}10`, border: `1.5px solid ${sel.color}40`, borderLeft: `4px solid ${sel.color}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap' as const }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '6px' }}>
+                  {sel.verdict.toUpperCase()} — {sel.time} build time
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.65 }}>{sel.rule}</div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {sel.screens.map((s, si) => (
+                  <div key={si} style={{ padding: '10px 14px', borderRadius: '12px', background: `${sel.color}18`, border: `1px solid ${sel.color}35`, textAlign: 'center' as const, minWidth: '120px' }}>
+                    <div style={{ fontSize: '18px', marginBottom: '4px' }}>{s.icon}</div>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: sel.color, marginBottom: '3px' }}>{s.name}</div>
+                    <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{s.note}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#6366F1' }}>The discipline:</strong> a completion state used 2×/month doesn&apos;t warrant 2 days of animation engineering. A recording player used 5×/day does. This matrix is your negotiating framework with design.
+        <strong style={{ color: '#6366F1' }}>The rule:</strong> a completion state used 2×/month doesn&apos;t warrant 2 days of animation engineering. A recording player used 5×/day does. This matrix is your negotiating framework with design — use it.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>
