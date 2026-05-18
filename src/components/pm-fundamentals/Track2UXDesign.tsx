@@ -8,7 +8,8 @@ import {
   TiltCard, ConversationScene, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, HicksLawViz, CognitivLoadViz, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { AccessibilityChecker, DesignSystemROICalc } from './UXRevampVisualizations';
 
 const PARTS = [
   { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
@@ -1034,7 +1035,7 @@ export default function Track2UXDesign({
         />
 
         <div className="rv">
-          <ComponentSprawl3D />
+          <AccessibilityChecker />
         </div>
 
         <QuizEngine
@@ -1115,11 +1116,7 @@ export default function Track2UXDesign({
         />
 
         <div className="rv">
-          <HicksLawViz />
-        </div>
-
-        <div className="rv">
-          <CognitivLoadViz />
+          <DesignSystemROICalc />
         </div>
 
         <QuizEngine

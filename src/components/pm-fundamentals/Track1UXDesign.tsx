@@ -8,7 +8,8 @@ import {
   TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap, HicksLawViz, CognitivLoadViz, VisibilityOfStatusViz, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { AbandonmentTimeline, FigmaBeforeAfter, SessionHeatmap, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { MicrocopyLab, StateSpecBuilder, UXDebugLoopViz } from './UXRevampVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1310,8 +1311,6 @@ export default function Track1UXDesign({
 
         {h2(<>Shipping something is not the same as fixing something</>)}
 
-        <MetricsDashboardMockup />
-
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data · EdSpark" accent="#3A86FF"
           lines={[
@@ -1576,11 +1575,7 @@ export default function Track1UXDesign({
         </div>
 
         <div className="rv">
-          <VisibilityOfStatusViz />
-        </div>
-
-        <div className="rv">
-          <HicksLawViz />
+          <MicrocopyLab />
         </div>
 
         <QuizEngine
@@ -1688,16 +1683,13 @@ export default function Track1UXDesign({
         ])}
 
         <div className="rv">
-          <UIStateGalaxy />
+          <StateSpecBuilder />
         </div>
 
         <div className="rv">
           <FigmaBeforeAfter />
         </div>
 
-        <div className="rv">
-          <CognitivLoadViz />
-        </div>
 
         <QuizEngine
           conceptId="ux-spec-states"
@@ -1738,10 +1730,6 @@ export default function Track1UXDesign({
         <FigmaMockup />
 
         {para(<>Dev opens Lovable. Pastes the design spec. &ldquo;Add a loading state to the Analyze button. Show a progress bar and ~30 seconds text while processing.&rdquo; Forty-three seconds later, it&apos;s deployed.</>)}
-
-        <LovableAIMockup />
-
-        <BeforeAfterMockup />
 
         {para(<>
           Three things changed: a text label (&ldquo;Analyzing your recording&hellip;&rdquo;), a progress bar (doesn&apos;t
@@ -1824,7 +1812,9 @@ export default function Track1UXDesign({
           in a spec. One afternoon of work. Twenty-eight points.
         </>)}
 
-        <SlackUpdateMockup />
+        <div className="rv">
+          <UXDebugLoopViz />
+        </div>
 
         <ConversationScene
           mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
