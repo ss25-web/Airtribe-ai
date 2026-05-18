@@ -504,6 +504,338 @@ export function CorrelationVsMechanism() {
   );
 }
 
+// ─── 7. MOSCOW BOARD ──────────────────────────────────────────────────────────
+// Features drop into 4 colour-coded columns. The "Won't" column teaches discipline.
+// Teaches: MoSCoW = categorical clarity when RICE scores cluster too closely.
+
+const MOSCOW_FEATURES = [
+  { id: 'f1', text: 'Fix onboarding step 3 (40% drop-off)', col: 0 },
+  { id: 'f2', text: 'Session search by date', col: 0 },
+  { id: 'f3', text: 'Manager analytics dashboard', col: 1 },
+  { id: 'f4', text: 'Slack share button', col: 1 },
+  { id: 'f5', text: 'Dark mode', col: 2 },
+  { id: 'f6', text: 'Keyboard shortcuts', col: 2 },
+  { id: 'f7', text: 'Mobile app (Q2)', col: 3 },
+  { id: 'f8', text: 'AI coaching recommendations', col: 3 },
+];
+
+const MOSCOW_COLS = [
+  { label: 'Must Have',   sub: 'Ship is blocked without these', color: '#22C55E', dark: '#15803D' },
+  { label: 'Should Have', sub: 'Important, not blocking',       color: '#6366F1', dark: '#3730A3' },
+  { label: 'Could Have',  sub: 'Nice to have, defer if tight',  color: '#F59E0B', dark: '#D97706' },
+  { label: "Won't Have",  sub: "Not this cycle — and that's OK", color: '#EF4444', dark: '#B91C1C' },
+];
+
+export function MoSCoWBoard() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0);
+    MOSCOW_FEATURES.forEach((_, i) => setTimeout(() => setVisible(i + 1), 400 + i * 500));
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setTick(t => t + 1); };
+  const byCol = (ci: number) => MOSCOW_FEATURES.filter(f => f.col === ci);
+  const globalIdx = (f: typeof MOSCOW_FEATURES[0]) => MOSCOW_FEATURES.indexOf(f);
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <VizLabel>MoSCoW framework — categorical clarity when RICE scores are too close to call</VizLabel>
+
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', overflow: 'hidden', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', fontWeight: 700 }}>EdSpark &middot; Q2 Sprint Planning &middot; MoSCoW Sort</div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          {MOSCOW_COLS.map((col, ci) => (
+            <div key={ci} style={{ borderRight: ci < 3 ? '1px solid var(--ed-rule)' : 'none', padding: '16px 14px', minHeight: '280px' }}>
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ padding: '6px 12px', borderRadius: '8px', background: col.color, boxShadow: `0 4px 0 ${col.dark}, 0 6px 12px ${col.color}40`, display: 'inline-block', marginBottom: '6px' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.12em' }}>{col.label.toUpperCase()}</div>
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{col.sub}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                {byCol(ci).map(f => {
+                  const show = globalIdx(f) < visible;
+                  return (
+                    <AnimatePresence key={f.id}>
+                      {show && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -20, scale: 0.85 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+                          style={{ padding: '10px 12px', borderRadius: '10px', background: `${col.color}10`, border: `1.5px solid ${col.color}30`, fontSize: '11px', fontWeight: 600, color: 'var(--ed-ink)', lineHeight: 1.45 }}>
+                          {f.text}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ padding: '12px 20px', borderTop: '1px solid var(--ed-rule)', background: 'rgba(239,68,68,0.05)', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div style={{ fontSize: '18px', flexShrink: 0 }}>💡</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+            <strong style={{ color: '#EF4444' }}>The hardest column is Won&apos;t.</strong> Saying no to things you want to build — and being explicit about it — is the discipline that makes the other three columns credible.
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>When to use MoSCoW over RICE:</strong> when you have too many similarly-scored items and need categorical clarity for a sprint. MoSCoW is faster; RICE is more defensible to stakeholders. Use both.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── 8. USER STORY BUILDER ─────────────────────────────────────────────────────
+// Vague spec transforms into a 3-part user story. Bad vs Good comparison.
+// Teaches: As a [WHO] / I want [WHAT] / so that [WHY].
+
+const USER_STORY_EXAMPLES = [
+  { bad: '"Add search"', who: 'a sales manager reviewing yesterday\'s coaching calls', want: 'find any recording by date, rep name, or keyword in under 10 seconds', sothat: 'I can prep for a follow-up call without switching tabs or losing context', color: '#6366F1' },
+  { bad: '"Improve onboarding"', who: 'a new sales rep on day 1', want: 'complete my first coaching session setup without asking my manager for help', sothat: 'I see value from EdSpark before my first weekly review — and stay active', color: '#0EA5E9' },
+  { bad: '"Better reporting"', who: 'a VP of Sales reviewing team performance', want: "see each rep's coaching engagement score alongside their quota attainment", sothat: 'I can correlate coaching effort with revenue outcomes in one view, not two', color: '#22C55E' },
+];
+
+export function UserStoryBuilder() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [activeEx, setActiveEx] = useState(0);
+  const [stage, setStage] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setStage(0);
+    const ts = [
+      setTimeout(() => setStage(1), 800),
+      setTimeout(() => setStage(2), 2000),
+      setTimeout(() => setStage(3), 3200),
+      setTimeout(() => setStage(4), 4400),
+    ];
+    return () => ts.forEach(clearTimeout);
+  }, [inView, tick, activeEx]);
+
+  const replay = () => { setStage(0); setTick(t => t + 1); };
+  const ex = USER_STORY_EXAMPLES[activeEx];
+  const parts = [
+    { prefix: 'As', field: ex.who, color: ex.color, label: 'WHO' },
+    { prefix: 'I want to', field: ex.want, color: '#F97316', label: 'WHAT' },
+    { prefix: 'so that', field: ex.sothat, color: '#22C55E', label: 'WHY / VALUE' },
+  ];
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <VizLabel>User stories — As a [who], I want [action], so that [value]</VizLabel>
+
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' as const }}>
+        {USER_STORY_EXAMPLES.map((e, i) => (
+          <button key={i} onClick={() => { setActiveEx(i); setTick(t => t + 1); }}
+            style={{ padding: '7px 16px', borderRadius: '10px', cursor: 'pointer', fontSize: '12px', fontWeight: 700, background: activeEx === i ? e.color : 'var(--ed-card)', color: activeEx === i ? '#fff' : 'var(--ed-ink3)', border: `1.5px solid ${activeEx === i ? e.color : 'var(--ed-rule)'}`, boxShadow: activeEx === i ? `0 4px 0 ${e.color}60, 0 6px 16px ${e.color}35` : 'none', transition: 'all 0.25s' }}>
+            {e.bad}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'start' }}>
+        <div style={{ padding: '20px', borderRadius: '16px', background: 'rgba(239,68,68,0.06)', border: '1.5px solid rgba(239,68,68,0.25)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.14em', marginBottom: '10px' }}>❌ WHAT THE TICKET SAYS</div>
+          <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--ed-ink)', fontStyle: 'italic', marginBottom: '12px' }}>{ex.bad}</div>
+          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>Three engineers read this. They each build something different. Two of them build the wrong thing. Nobody is wrong — the spec was wrong.</div>
+        </div>
+
+        <div style={{ padding: '20px', borderRadius: '16px', background: 'var(--ed-card)', border: `1.5px solid ${stage >= 4 ? ex.color : 'var(--ed-rule)'}`, transition: 'border-color 0.4s', boxShadow: stage >= 4 ? `0 6px 0 ${ex.color}40, 0 10px 24px ${ex.color}20` : 'none' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: stage >= 4 ? ex.color : 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: '14px', transition: 'color 0.4s' }}>
+            {stage < 4 ? '◎ BUILDING USER STORY…' : '✓ USER STORY COMPLETE'}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+            {parts.map((p, i) => (
+              <AnimatePresence key={i}>
+                {stage >= i + 1 && (
+                  <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: p.color, letterSpacing: '0.14em', marginBottom: '4px' }}>{p.label}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.6 }}>
+                      <span style={{ color: 'var(--ed-ink3)', fontStyle: 'italic' }}>{p.prefix} </span>
+                      <span style={{ color: p.color, fontWeight: 700 }}>{p.field}</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>The &ldquo;so that&rdquo; is the hardest part</strong> — and the most important. It forces you to name the value, not just the action. Without it, the engineer builds the feature; with it, they understand the goal.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+// ─── 9. FIGJAM BOARD MOCKUP ────────────────────────────────────────────────────
+// Working FigJam-style board: team sticky notes appear, votes show, themes cluster.
+// Teaches: FigJam = shared PM thinking space before decisions get made.
+
+const FJ_NOTES = [
+  { id: 'n1', text: "Users don't finish setup", bg: '#FDE68A', fg: '#78350F', votes: 4, x: 8,  y: 30 },
+  { id: 'n2', text: 'Step 3 has no guidance',   bg: '#FDE68A', fg: '#78350F', votes: 2, x: 26, y: 16 },
+  { id: 'n3', text: 'First session = blank screen', bg: '#FDE68A', fg: '#78350F', votes: 3, x: 17, y: 46 },
+  { id: 'n4', text: "Can't find old calls",     bg: '#BAE6FD', fg: '#0C4A6E', votes: 5, x: 44, y: 22 },
+  { id: 'n5', text: 'No search by date',        bg: '#BAE6FD', fg: '#0C4A6E', votes: 4, x: 58, y: 34 },
+  { id: 'n6', text: 'Scroll through 40+ calls', bg: '#BAE6FD', fg: '#0C4A6E', votes: 3, x: 50, y: 48 },
+  { id: 'n7', text: 'VP wants ROI data',        bg: '#D9F99D', fg: '#14532D', votes: 3, x: 74, y: 20 },
+  { id: 'n8', text: 'No before/after view',     bg: '#D9F99D', fg: '#14532D', votes: 2, x: 82, y: 32 },
+  { id: 'n9', text: "Can't export results",     bg: '#D9F99D', fg: '#14532D', votes: 1, x: 76, y: 46 },
+];
+
+const FJ_THEMES = [
+  { label: 'Onboarding drop-off', color: '#F59E0B', x: 8,  y: 7 },
+  { label: 'Recording retrieval', color: '#0EA5E9', x: 44, y: 7 },
+  { label: 'Proving ROI',         color: '#22C55E', x: 74, y: 7 },
+];
+
+const FJ_TEAM = [
+  { initials: 'P', color: '#6366F1' },
+  { initials: 'M', color: '#E07A5F' },
+  { initials: 'K', color: '#0097A7' },
+];
+
+export function FigJamBoardMockup() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [notesVisible, setNotesVisible] = useState(0);
+  const [showThemes, setShowThemes] = useState(false);
+  const [activeTool, setActiveTool] = useState('cursor');
+  const [selected, setSelected] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setNotesVisible(0); setShowThemes(false);
+    FJ_NOTES.forEach((_, i) => setTimeout(() => setNotesVisible(i + 1), 300 + i * 300));
+    setTimeout(() => setShowThemes(true), 300 + FJ_NOTES.length * 300 + 700);
+  }, [inView, tick]);
+
+  const replay = () => { setNotesVisible(0); setShowThemes(false); setSelected(null); setTick(t => t + 1); };
+  const totalVotes = FJ_NOTES.reduce((s, n) => s + n.votes, 0);
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <VizLabel>FigJam — where PM thinking becomes visible and shared with the team</VizLabel>
+
+      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.1)' }}>
+        {/* Title bar */}
+        <div style={{ background: '#1E1E1E', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
+          </div>
+          <div style={{ width: '20px', height: '20px', borderRadius: '5px', background: 'linear-gradient(135deg, #F24E1E, #FF7262)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 900, color: '#fff', flexShrink: 0 }}>F</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.8)', fontWeight: 600, flex: 1 }}>EdSpark &middot; Q2 Discovery — Problem Brainstorm</div>
+          <div style={{ display: 'flex' }}>
+            {FJ_TEAM.map((t, i) => (
+              <div key={i} style={{ width: '26px', height: '26px', borderRadius: '50%', background: t.color, border: '2px solid #1E1E1E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, color: '#fff', marginLeft: i > 0 ? '-6px' : '0' }}>
+                {t.initials}
+              </div>
+            ))}
+          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>3 online</div>
+        </div>
+
+        {/* Toolbar */}
+        <div style={{ background: '#2C2C2C', padding: '6px', display: 'flex', justifyContent: 'center', gap: '2px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          {[['cursor','↖'],['sticky','📝'],['text','T'],['shape','□'],['pen','✏'],['comment','💬']].map(([tool, icon]) => (
+            <button key={tool} onClick={() => setActiveTool(tool)}
+              style={{ width: '32px', height: '32px', borderRadius: '6px', border: 'none', cursor: 'pointer', background: activeTool === tool ? '#F24E1E' : 'transparent', color: activeTool === tool ? '#fff' : 'rgba(255,255,255,0.5)', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+              {icon}
+            </button>
+          ))}
+        </div>
+
+        {/* Canvas */}
+        <div style={{ background: '#F5F5F0', position: 'relative', height: '360px', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, #C0C0B8 1px, transparent 1px)', backgroundSize: '20px 20px', opacity: 0.5, pointerEvents: 'none' }} />
+
+          {/* Theme labels */}
+          {showThemes && FJ_THEMES.map((t, i) => (
+            <motion.div key={t.label} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
+              style={{ position: 'absolute', left: `${t.x}%`, top: `${t.y}%`, padding: '3px 10px', borderRadius: '5px', background: t.color, fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#fff', letterSpacing: '0.1em', boxShadow: `0 2px 0 ${t.color}80`, whiteSpace: 'nowrap' as const }}>
+              {t.label.toUpperCase()}
+            </motion.div>
+          ))}
+
+          {/* Notes */}
+          {FJ_NOTES.map((note, i) => {
+            const show = i < notesVisible;
+            const isSel = selected === note.id;
+            return (
+              <AnimatePresence key={note.id}>
+                {show && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.6, rotate: -6 }}
+                    animate={{ opacity: 1, scale: isSel ? 1.08 : 1, rotate: isSel ? 0 : (i % 3 - 1) * 2 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                    onClick={() => setSelected(isSel ? null : note.id)}
+                    style={{ position: 'absolute', left: `${note.x}%`, top: `${note.y + 12}%`, width: '130px', background: note.bg, borderRadius: '3px', padding: '10px 10px 22px', cursor: 'pointer', boxShadow: isSel ? '0 8px 20px rgba(0,0,0,0.2)' : '0 3px 8px rgba(0,0,0,0.12)', zIndex: isSel ? 5 : 1 }}>
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: note.fg, lineHeight: 1.45 }}>{note.text}</div>
+                    <div style={{ position: 'absolute', bottom: '6px', left: '8px', display: 'flex', gap: '3px', alignItems: 'center' }}>
+                      {Array.from({ length: Math.min(note.votes, 5) }, (_, vi) => (
+                        <div key={vi} style={{ width: '7px', height: '7px', borderRadius: '50%', background: FJ_TEAM[vi % FJ_TEAM.length].color }} />
+                      ))}
+                      <span style={{ fontSize: '8px', color: note.fg, opacity: 0.6, fontWeight: 700, marginLeft: '2px' }}>{note.votes}</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            );
+          })}
+
+          {/* Zoom controls */}
+          <div style={{ position: 'absolute', bottom: '10px', right: '12px', display: 'flex', gap: '4px' }}>
+            {['−', '+', '⊡'].map(btn => (
+              <div key={btn} style={{ width: '26px', height: '26px', borderRadius: '6px', background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: 'rgba(0,0,0,0.5)', cursor: 'pointer', fontWeight: 700 }}>{btn}</div>
+            ))}
+            <div style={{ padding: '0 8px', height: '26px', borderRadius: '6px', background: 'rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', fontSize: '10px', color: 'rgba(0,0,0,0.5)', fontFamily: 'monospace' }}>75%</div>
+          </div>
+        </div>
+
+        {/* Status bar */}
+        <div style={{ background: '#1E1E1E', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>
+            {notesVisible} notes &middot; {totalVotes} votes &middot; {showThemes ? '3 themes identified' : 'grouping…'}
+          </div>
+          {showThemes && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              style={{ fontFamily: 'monospace', fontSize: '9px', color: '#34D399', fontWeight: 700 }}>
+              ✓ Themes clustered — ready to write problem statements
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(242,78,30,0.07)', border: '1px solid rgba(242,78,30,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#F24E1E' }}>FigJam&apos;s job in PM work:</strong> make raw inputs visible and shared before they become decisions. Votes surface which problems the whole team feels — not just the loudest stakeholder.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
 // ─── 5. NOW / NEXT / LATER ORBITS ─────────────────────────────────────────────
 // Features orbit a "ship this sprint" centre at three distances.
 // NOW = tight orbit. NEXT = mid. LATER = outer. Auto-sorts on scroll.

@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale } from './PrioritizationVisualizations';
+import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup } from './PrioritizationVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1062,6 +1062,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         </>)}
 
         <div className="rv">
+          <FigJamBoardMockup />
+        </div>
+
+        <div className="rv">
           <FeatureRequestXRay />
         </div>
 
@@ -1154,6 +1158,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
 
         <div className="rv">
           <ProblemStatement3Parts />
+        </div>
+
+        <div className="rv">
+          <UserStoryBuilder />
         </div>
 
         <QuizEngine
@@ -1335,6 +1343,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
 
         <div className="rv">
           <RICEComponentScale />
+        </div>
+
+        <div className="rv">
+          <MoSCoWBoard />
         </div>
 
         {para(<>

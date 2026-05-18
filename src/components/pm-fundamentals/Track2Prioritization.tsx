@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, TrackHeroCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { CorrelationVsMechanism, NowNextLaterOrbits, KillCriteriaMonitor } from './PrioritizationVisualizations';
+import { CorrelationVsMechanism, NowNextLaterOrbits, KillCriteriaMonitor, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup } from './PrioritizationVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -711,6 +711,10 @@ export default function Track2Prioritization({
           conceptId="problem-framing-m3"
         />
         <div className="rv">
+          <FigJamBoardMockup />
+        </div>
+
+        <div className="rv">
           <NowNextLaterOrbits />
         </div>
 
@@ -773,6 +777,10 @@ export default function Track2Prioritization({
           ]}
           conceptId="data-vs-requests-m3"
         />
+        <div className="rv">
+          <UserStoryBuilder />
+        </div>
+
         <div className="rv">
           <CorrelationVsMechanism />
         </div>
@@ -965,6 +973,10 @@ export default function Track2Prioritization({
           ]}
           conceptId="stakeholder-decisions-m3"
         />
+        <div className="rv">
+          <MoSCoWBoard />
+        </div>
+
         <div className="rv">
           <KillCriteriaMonitor />
         </div>
