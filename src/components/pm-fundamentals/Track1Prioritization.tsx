@@ -645,7 +645,7 @@ const PrioritizationCheatSheet = () => {
       items: [
         'Score = (Reach x Impact x Confidence) / Effort',
         'Reach: users affected per quarter',
-        'Impact: 3=massive, 2=high, 1=medium, 0.5=low',
+        'Impact: 3=massive, 2=high, 1=medium (use 1–3 scale)',
         'Confidence: % certainty in your estimates',
         'Effort: person-months to build',
       ],

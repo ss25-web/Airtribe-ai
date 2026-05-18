@@ -842,7 +842,7 @@ export function FigJamBoardMockup() {
 // Teaches: Now/Next/Later isn't just time — it's strategic phase and dependencies.
 
 const ORBIT_FEATURES = [
-  { label: 'Session scheduling',   orbit: 0, color: '#22C55E', dark: '#15803D', reason: 'Directly attacks week-1 churn. No dependencies.' },
+  { label: 'Session scheduling',   orbit: 0, color: '#22C55E', dark: '#15803D', reason: 'Directly attacks week-2 churn. No dependencies.' },
   { label: 'Fix onboarding step 3',orbit: 0, color: '#22C55E', dark: '#15803D', reason: 'Blocks 40% of users. 3 days to ship.' },
   { label: 'Analytics dashboard',  orbit: 1, color: '#6366F1', dark: '#3730A3', reason: 'Needs clean data from onboarding fix first.' },
   { label: 'CRM sync v2',          orbit: 1, color: '#6366F1', dark: '#3730A3', reason: 'API scope depends on enterprise validation.' },
@@ -1090,7 +1090,7 @@ export function KillCriteriaMonitor() {
 // Teaches: you can't solve a problem you haven't correctly diagnosed.
 
 const FIVE_WHYS_CHAIN = [
-  { layer: 1, observation: '40% of users churn in week 1', type: 'Symptom', color: '#EF4444', dark: '#B91C1C', note: 'This is what shows up in your metrics dashboard.' },
+  { layer: 1, observation: '40% of users churn in week 2', type: 'Symptom', color: '#EF4444', dark: '#B91C1C', note: 'This is what shows up in your metrics dashboard.' },
   { layer: 2, observation: 'Users don\'t return after their first coaching session', type: 'Behaviour', color: '#F97316', dark: '#C2410C', note: 'This is what session recordings show. Users open the app once and never come back.' },
   { layer: 3, observation: 'The first session gives no clear next step', type: 'Experience', color: '#F59E0B', dark: '#D97706', note: 'Users watch a recording, see a score, and then stare at a blank screen. Nothing tells them what to do next.' },
   { layer: 4, observation: 'The product has no "session 2" onboarding', type: 'Product gap', color: '#6366F1', dark: '#3730A3', note: 'The onboarding was built for day 1. Nobody designed for what success looks like after the first session.' },

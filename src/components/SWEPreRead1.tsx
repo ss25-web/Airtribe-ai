@@ -1905,7 +1905,7 @@ export default function SWEPreRead1({ track, level, onBack }: Props) {
           store.markSectionViewed(id);
         }
       });
-    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
     const t = setTimeout(() => { document.querySelectorAll('[data-section]').forEach(el => obs.observe(el)); }, 150);
     return () => { clearTimeout(t); obs.disconnect(); };
   // eslint-disable-next-line react-hooks/exhaustive-deps

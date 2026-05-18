@@ -375,7 +375,7 @@ export default function ModuleShell({ config, track, onBack, onNext, nextLabel, 
           store.markSectionCompleted(moduleId, sid);
         }
       });
-    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
 
     const tid = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => sectionObserver.observe(el));

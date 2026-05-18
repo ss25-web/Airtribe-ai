@@ -308,7 +308,7 @@ export default function GenAIPreReadLayout({
           store.markSectionViewed(sid);
         }
       });
-    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
 
     const t = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => observer.observe(el));

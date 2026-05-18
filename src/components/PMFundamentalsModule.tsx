@@ -22,7 +22,7 @@ const TRACK_CONFIG: Record<Track, {
 }> = {
   'new-pm': {
     accent: '#4F46E5', accentRgb: '79,70,229',
-    label: 'New PM Foundations', emoji: '🌱', time: '30 min · 7 parts',
+    label: 'New PM Foundations', emoji: '🌱', time: '30 min · 6 parts',
     sections: [
       { id: 'part1-what-is-pm',    label: 'What is a PM' },
       { id: 'part2-first-mistake', label: 'The First Mistake' },
@@ -507,7 +507,7 @@ const [track, setTrack] = useState<Track>(startTrack);
           store.markSectionCompleted(moduleId, sid);
         }
       });
-    }, { threshold: 0.01, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
 
     const tid = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => sectionObserver.observe(el));
@@ -663,7 +663,7 @@ const [track, setTrack] = useState<Track>(startTrack);
                     </h3>
                     <p style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.8, maxWidth: '400px', margin: '0 auto 24px' }}>
                       {track === 'new-pm'
-                        ? 'You followed Priya through all 7 parts. Understand → Decide → Build → Measure. That loop never stops.'
+                        ? 'You followed Priya through all 6 parts. Understand → Decide → Build → Measure. That loop never stops.'
                         : "You've sharpened your judgment on tradeoffs, framing, strategy, and metrics."}
                     </p>
                     <motion.button

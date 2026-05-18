@@ -711,14 +711,8 @@ export default function Track1CommunicationPM({
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>PM communication is not one message broadcast everywhere. It is context translated for action. Too little detail creates confusion. Too much irrelevant detail creates fog. Both feel like misalignment.</>}
-          question="A PM sends the same long update to engineering, sales, design, and leadership. Nobody responds clearly. What is the most likely issue?"
-          options={[
-            { text: 'The stakeholders are not interested in the project', correct: false, feedback: 'Disengagement is rarely the root cause — misframing is far more common.' },
-            { text: 'The PM communicated information, but not context tailored to each audience', correct: true, feedback: 'Exactly. Each person needed to understand something different to act — and the same message served none of them.' },
-            { text: 'The update was probably sent at the wrong time of day', correct: false, feedback: 'Timing is rarely the issue when multiple different stakeholders all fail to act.' },
-          ]}
-          conceptId="pm-communication-basics"
-        />
+          
+          />
 
         <QuizEngine
           conceptId="pm-communication-basics"

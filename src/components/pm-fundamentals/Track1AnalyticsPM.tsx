@@ -834,14 +834,8 @@ export default function Track1AnalyticsPM({
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>Dashboards are mirrors, not windows. They show you what the product measured. They don&apos;t automatically show you what matters. The PM&apos;s job is to bring the question that makes the mirror useful.</>}
-          question="A room is looking at the same dashboard and drawing different conclusions. What is the strongest PM move?"
-          options={[
-            { text: 'Add more charts to give everyone what they need', correct: false, feedback: 'More data without a shared question creates more divergence, not alignment.' },
-            { text: 'Ask which question the team is actually trying to answer', correct: true, feedback: 'Exactly. Without a shared question, every chart is a Rorschach test. The question comes before the metric.' },
-            { text: 'Focus on the biggest number — that\'s probably what matters most', correct: false, feedback: 'Size is not relevance. The biggest number might be measuring the wrong thing entirely.' },
-          ]}
-          conceptId="pm-analytics-basics"
-        />
+          
+          />
 
         <QuizEngine
           conceptId="pm-analytics-basics"

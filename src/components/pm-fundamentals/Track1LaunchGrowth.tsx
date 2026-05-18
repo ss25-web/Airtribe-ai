@@ -179,14 +179,8 @@ export default function Track1LaunchGrowth({
           nameColor="var(--teal)"
           borderColor="var(--teal)"
           content={<>The teams that treat launch as a single event tend to get two failure modes: they launch too early and burn trust, or they launch too late and lose momentum. The discipline is not choosing between fast and careful — it is knowing what kind of launch the product is actually ready for.</>}
-          question="What is the biggest mistake in treating launch as a single event?"
-          options={[
-            { text: 'It makes the calendar too crowded', correct: false, feedback: 'Calendar management is not the primary risk of treating launch as a single event.' },
-            { text: 'It ignores readiness, audience, risk, and learning goals', correct: true, feedback: 'Exactly. Launch is a set of decisions — not a moment. Collapsing it into a date means skipping all of them.' },
-            { text: 'It slows down engineering', correct: false, feedback: 'Engineering speed is not the primary issue with treating launch as a single event.' },
-          ]}
-          conceptId="launch-growth-basics"
-        />
+          
+          />
 
         <QuizEngine
           conceptId="launch-growth-basics"

@@ -200,7 +200,7 @@ const PriorityCall = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
         {[
           { key: 'a' as const, label: 'Salesforce Integration', sub: '3 enterprise customers asked · Medium engagement impact · 3-week build', color: 'var(--blue)', rgb: '58,134,255' },
-          { key: 'b' as const, label: 'Onboarding Improvement', sub: '40% of users churn week 1 · High retention impact · 2-week build', color: 'var(--green)', rgb: '21,129,88' },
+          { key: 'b' as const, label: 'Onboarding Improvement', sub: '40% of users churn week 2 · High retention impact · 2-week build', color: 'var(--green)', rgb: '21,129,88' },
         ].map(opt => (
           <motion.button key={opt.key} whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} onClick={() => setChosen(opt.key)}
             style={{ padding: '18px 16px', borderRadius: '14px', border: `2px solid ${chosen === opt.key ? opt.color : `rgba(${opt.rgb},0.2)`}`, background: chosen === opt.key ? `rgba(${opt.rgb},0.1)` : 'var(--ed-card)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}>
