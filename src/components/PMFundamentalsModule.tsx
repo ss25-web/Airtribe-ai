@@ -380,11 +380,11 @@ function Sidebar({
                   whileHover={{ scale: 1.08 }}
                   style={{
                     width: '36px', height: '36px', borderRadius: '8px',
-                    background: unlocked ? 'var(--ed-indigo-bg)' : 'var(--ed-cream)',
-                    border: `1px solid ${unlocked ? 'var(--ed-indigo-border)' : 'var(--ed-rule)'}`,
+                    background: unlocked ? 'var(--ed-indigo-bg)' : 'var(--ed-rule)',
+                    border: `1.5px solid ${unlocked ? 'var(--ed-indigo-border)' : 'var(--ed-rule)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '17px',
-                    filter: unlocked ? 'none' : 'grayscale(1) opacity(0.3)',
+                    filter: unlocked ? 'none' : 'grayscale(1) opacity(0.45)',
                     transition: 'all 0.3s', cursor: 'default',
                   }}>
                   {a.icon}

@@ -355,10 +355,10 @@ export default function SWEPreReadLayout({
                     <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: 0 }}>
                       <motion.div whileHover={{ scale: 1.08 }} title={done ? `${label}: completed` : 'Locked'} style={{ 
                       width: '38px', height: '38px', borderRadius: '9px', 
-                      background: done ? `${trackConfig.accent}12` : 'var(--ed-cream)',
-                      border: done ? `1.5px solid ${trackConfig.accent}44` : '1px solid var(--ed-rule)',
+                      background: done ? `${trackConfig.accent}1E` : 'var(--ed-rule)',
+                      border: done ? `1.5px solid ${trackConfig.accent}55` : '1px solid var(--ed-rule)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '16px', filter: done ? 'none' : 'grayscale(1) opacity(0.3)',
+                      fontSize: '16px', filter: done ? 'none' : 'grayscale(1) opacity(0.45)',
                       transition: 'all 0.3s', cursor: 'default'
                     }}>
                       {s.icon ?? '✨'}
