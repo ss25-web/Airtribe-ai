@@ -929,3 +929,278 @@ export function CraftInvestmentMatrix() {
     </div>
   );
 }
+
+// ─── UX LAWS ──────────────────────────────────────────────────────────────────
+
+const EXPORT_MANY = ['Export as PDF', 'Export as CSV', 'Export as Excel', 'Export as PowerPoint', 'Share via Slack', 'Share via Email', 'Copy link'];
+const EXPORT_FEW  = [{ icon: '⬇', text: 'Download (PDF · CSV · Excel)' }, { icon: '📤', text: 'Share (Slack · Email · Link)' }];
+
+export function HicksLawViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [phase, setPhase] = useState<0|1|2>(0);
+  const [ms, setMs] = useState(0);
+  const ivRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setPhase(0); setMs(0);
+    const t1 = setTimeout(() => {
+      const start = Date.now();
+      ivRef.current = setInterval(() => {
+        const e = Date.now() - start;
+        setMs(Math.min(e, 2400));
+        if (e >= 2400) { if (ivRef.current) clearInterval(ivRef.current); setPhase(1); }
+      }, 30);
+    }, 600);
+    const t2 = setTimeout(() => setPhase(2), 4400);
+    return () => { clearTimeout(t1); clearTimeout(t2); if (ivRef.current) clearInterval(ivRef.current); };
+  }, [inView, tick]);
+
+  const replay = () => { setPhase(0); setMs(0); if (ivRef.current) clearInterval(ivRef.current); setTick(t => t + 1); };
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #3730A3' }}>HICK&apos;S LAW</div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>Decision time = b × log₂(n+1) — more choices = slower decisions</div>
+      </div>
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+          <div style={{ padding: '24px 20px', borderRight: '1px solid var(--ed-rule)', background: 'rgba(239,68,68,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.12em' }}>7 OPTIONS</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '22px', fontWeight: 900, color: '#EF4444' }}>{(Math.min(ms, 2400) / 1000).toFixed(1)}s</div>
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', marginBottom: '10px', letterSpacing: '0.1em' }}>EXPORT RECORDING</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px', marginBottom: '14px' }}>
+              {EXPORT_MANY.map((opt, i) => (
+                <motion.div key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
+                  style={{ padding: '9px 12px', borderRadius: '8px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', fontSize: '12px', color: 'var(--ed-ink2)' }}>
+                  {opt}
+                </motion.div>
+              ))}
+            </div>
+            <div style={{ height: '8px', background: 'var(--ed-rule)', borderRadius: '4px', overflow: 'hidden' }}>
+              <motion.div animate={{ width: `${Math.min((ms / 2400) * 100, 100)}%` }} transition={{ duration: 0.04 }}
+                style={{ height: '100%', background: '#EF4444', borderRadius: '4px' }} />
+            </div>
+            <div style={{ marginTop: '6px', fontSize: '11px', color: '#EF4444', fontFamily: 'monospace', fontWeight: 700 }}>~2.4 seconds to decide</div>
+          </div>
+          <div style={{ padding: '24px 20px', background: 'rgba(34,197,94,0.03)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.12em' }}>2 GROUPS</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '22px', fontWeight: 900, color: phase >= 1 ? '#22C55E' : 'var(--ed-ink3)' }}>
+                {phase >= 2 ? '0.8s' : phase >= 1 ? '…' : '—'}
+              </div>
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', marginBottom: '10px', letterSpacing: '0.1em' }}>EXPORT RECORDING</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px', marginBottom: '14px' }}>
+              {EXPORT_FEW.map((opt, i) => (
+                <motion.div key={i} initial={{ opacity: 0, x: 6 }} animate={{ opacity: phase >= 1 ? 1 : 0, x: 0 }}
+                  transition={{ delay: phase >= 1 ? i * 0.1 : 0, duration: 0.35 }}
+                  style={{ padding: '14px 16px', borderRadius: '12px', background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.25)', fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '20px' }}>{opt.icon}</span> {opt.text}
+                </motion.div>
+              ))}
+            </div>
+            {phase >= 2 && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <div style={{ height: '8px', background: 'var(--ed-rule)', borderRadius: '4px', overflow: 'hidden', marginBottom: '6px' }}>
+                  <motion.div initial={{ width: 0 }} animate={{ width: '33%' }} transition={{ duration: 0.8 }}
+                    style={{ height: '100%', background: '#22C55E', borderRadius: '4px' }} />
+                </div>
+                <div style={{ fontSize: '11px', color: '#22C55E', fontFamily: 'monospace', fontWeight: 700 }}>~0.8 seconds to decide</div>
+              </motion.div>
+            )}
+          </div>
+        </div>
+        {phase >= 2 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            style={{ padding: '14px 20px', background: 'rgba(99,102,241,0.07)', borderTop: '1px solid rgba(99,102,241,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: '10px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>3× faster. Same 7 actions — better grouped. Zero information lost.</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#6366F1', fontWeight: 800 }}>T = b × log₂(n + 1)</div>
+          </motion.div>
+        )}
+      </div>
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>PM rule:</strong> every option you add increases decision time for every user, every time. Grouping and chunking restore speed. Don&apos;t ship choices — ship decisions.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+const WIDGETS = [
+  { name: 'Session recordings', icon: '▶', core: true },  { name: 'Coaching score', icon: '⭐', core: true },
+  { name: 'Team activity', icon: '👥', core: true },       { name: 'Weekly summary', icon: '📋', core: true },
+  { name: 'Integration status', icon: '🔗', core: false }, { name: 'Streak tracker', icon: '🔥', core: false },
+  { name: 'Peer benchmarks', icon: '📊', core: false },    { name: 'AI suggestions', icon: '🤖', core: false },
+  { name: 'Alerts feed', icon: '🔔', core: false },        { name: 'Export shortcuts', icon: '📤', core: false },
+  { name: 'Recent activity', icon: '🕐', core: false },    { name: 'Usage analytics', icon: '📈', core: false },
+];
+
+export function CognitivLoadViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [showing, setShowing] = useState(0);
+  const [tick, setTick] = useState(0);
+  const LIMIT = 7;
+
+  useEffect(() => {
+    if (!inView) return;
+    setShowing(0);
+    const iv = setInterval(() => setShowing(n => { if (n >= WIDGETS.length) { clearInterval(iv); return n; } return n + 1; }), 500);
+    return () => clearInterval(iv);
+  }, [inView, tick]);
+
+  const replay = () => { setShowing(0); setTick(t => t + 1); };
+  const overloaded = showing > LIMIT;
+  const ramColor = showing <= 4 ? '#22C55E' : showing <= LIMIT ? '#F59E0B' : '#EF4444';
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#F97316', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #C2410C' }}>MILLER&apos;S LAW</div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>Working memory holds 7 ± 2 items — every element costs a slot</div>
+      </div>
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: '24px', alignItems: 'start' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.12em' }}>
+                EDSPARK DASHBOARD — {showing} WIDGETS
+              </div>
+              {overloaded && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  style={{ padding: '3px 10px', borderRadius: '6px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.35)', fontFamily: 'monospace', fontSize: '9px', color: '#EF4444', fontWeight: 800 }}>
+                  ⚠ OVERLOADED
+                </motion.div>
+              )}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              {WIDGETS.slice(0, showing).map((w, i) => (
+                <motion.div key={w.name} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  style={{ padding: '10px', borderRadius: '10px', background: i >= LIMIT ? 'rgba(239,68,68,0.08)' : w.core ? 'rgba(99,102,241,0.07)' : 'var(--ed-card)', border: `1.5px solid ${i >= LIMIT ? 'rgba(239,68,68,0.3)' : w.core ? 'rgba(99,102,241,0.2)' : 'var(--ed-rule)'}`, opacity: i >= LIMIT ? 0.65 : 1 }}>
+                  <div style={{ fontSize: '20px', marginBottom: '5px' }}>{w.icon}</div>
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: i >= LIMIT ? '#EF4444' : 'var(--ed-ink2)', lineHeight: 1.3 }}>{w.name}</div>
+                  {!w.core && <div style={{ fontFamily: 'monospace', fontSize: '7px', color: 'var(--ed-ink3)', marginTop: '3px' }}>added later</div>}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+            <div style={{ padding: '14px', borderRadius: '14px', background: `${ramColor}12`, border: `1.5px solid ${ramColor}35`, transition: 'all 0.5s' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: ramColor, letterSpacing: '0.12em', marginBottom: '6px', transition: 'color 0.5s' }}>WORKING MEMORY</div>
+              <div style={{ fontSize: '28px', fontWeight: 900, fontFamily: 'monospace', color: ramColor, transition: 'color 0.5s', lineHeight: 1 }}>{showing}<span style={{ fontSize: '14px', opacity: 0.5 }}>/{LIMIT}</span></div>
+              <div style={{ fontSize: '10px', color: 'var(--ed-ink3)', marginTop: '4px', lineHeight: 1.4 }}>
+                {showing <= 4 ? 'Focused — easy to process' : showing <= LIMIT ? 'Approaching limit' : 'Users stop processing new items'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '3px' }}>
+              {WIDGETS.slice(0, LIMIT + 1).map((w, i) => (
+                <motion.div key={i}
+                  animate={{ background: i < showing ? (i >= LIMIT ? '#EF4444' : i >= LIMIT - 2 ? '#F59E0B' : '#6366F1') : 'var(--ed-rule)' }}
+                  transition={{ duration: 0.3 }}
+                  style={{ height: '14px', borderRadius: '4px', display: 'flex', alignItems: 'center', paddingLeft: '6px', fontSize: '10px' }}>
+                  {i < showing ? w.icon : ''}
+                </motion.div>
+              ))}
+            </div>
+            {overloaded && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                style={{ padding: '10px', borderRadius: '10px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '10px', color: '#EF4444', fontWeight: 600, lineHeight: 1.55 }}>
+                Everything after slot 7 is invisible to most users.
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(249,115,22,0.07)', border: '1px solid rgba(249,115,22,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#F97316' }}>PM rule:</strong> every widget or option you ship consumes a working memory slot. When the budget is exceeded users don&apos;t complain — they stop engaging. The fix is removal, not redesign.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
+
+const STATUS_VARIANTS = [
+  { id: 'none',    label: 'No feedback',            icon: '⬛', color: '#EF4444', abandon: 73, waitSec: 12,
+    verdict: 'No signal = uncertainty. Leaving feels rational at 12 seconds.' },
+  { id: 'spinner', label: 'Spinner only',            icon: '⏳', color: '#F59E0B', abandon: 41, waitSec: 20,
+    verdict: 'Better — but no time estimate. Users still leave when patience runs out.' },
+  { id: 'full',    label: 'Progress + label + time', icon: '✅', color: '#22C55E', abandon: 12, waitSec: 45,
+    verdict: 'Users see forward motion and a time expectation. They wait the full 45s.' },
+];
+
+export function VisibilityOfStatusViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [revealed, setRevealed] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setRevealed(0);
+    STATUS_VARIANTS.forEach((_, i) => setTimeout(() => setRevealed(i + 1), 500 + i * 1100));
+  }, [inView, tick]);
+
+  const replay = () => { setRevealed(0); setTick(t => t + 1); };
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#0EA5E9', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #0369A1' }}>NIELSEN #1</div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>Visibility of System Status — always keep users informed of what is happening</div>
+      </div>
+      <div style={{ borderRadius: '24px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', padding: '24px', boxShadow: '0 16px 40px rgba(0,0,0,0.07)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          {STATUS_VARIANTS.map((d, i) => (
+            <AnimatePresence key={d.id}>
+              {i < revealed && (
+                <motion.div initial={{ opacity: 0, y: 14, scale: 0.92 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 280, damping: 22 }}>
+                  <div style={{ padding: '20px 16px', borderRadius: '16px', background: 'linear-gradient(160deg, #F8F6F1 0%, #EFECE6 100%)', border: '1px solid var(--ed-rule)', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '8px', minHeight: '110px', justifyContent: 'center' }}>
+                    <div style={{ width: '90%', padding: '10px 14px', borderRadius: '8px', background: '#1F2937', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {d.id === 'spinner' && <div style={{ width: '11px', height: '11px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.25)', borderTopColor: '#fff', flexShrink: 0 }} />}
+                      <div style={{ fontSize: '11px', fontWeight: 700, color: '#fff', flex: 1, textAlign: 'center' as const }}>
+                        {d.id === 'full' ? 'Extracting coaching moments…' : 'Analyzing recording…'}
+                      </div>
+                    </div>
+                    {d.id === 'full' && <>
+                      <div style={{ width: '90%', height: '5px', background: '#E5E2DD', borderRadius: '3px', overflow: 'hidden' }}>
+                        <motion.div animate={{ width: ['0%', '70%', '70%'] }} transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                          style={{ height: '100%', background: '#6366F1', borderRadius: '3px' }} />
+                      </div>
+                      <div style={{ fontSize: '9px', color: '#9CA3AF', fontFamily: 'monospace' }}>~38s remaining</div>
+                    </>}
+                    {d.id === 'none' && <div style={{ fontSize: '9px', color: '#D1CBC4', fontStyle: 'italic' }}>nothing else visible</div>}
+                  </div>
+                  <div style={{ padding: '14px', borderRadius: '14px', background: `${d.color}0D`, border: `1.5px solid ${d.color}35`, borderLeft: `4px solid ${d.color}` }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: d.color, letterSpacing: '0.12em', marginBottom: '8px' }}>{d.icon} {d.label.toUpperCase()}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
+                      <div>
+                        <div style={{ fontFamily: 'monospace', fontSize: '28px', fontWeight: 900, color: d.color, lineHeight: 1 }}>{d.abandon}%</div>
+                        <div style={{ fontSize: '9px', color: 'var(--ed-ink3)' }}>abandoned</div>
+                      </div>
+                      <div style={{ textAlign: 'right' as const }}>
+                        <div style={{ fontFamily: 'monospace', fontSize: '14px', fontWeight: 700, color: d.color }}>{d.waitSec}s avg wait</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.55, fontStyle: 'italic' }}>{d.verdict}</div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#0EA5E9' }}>PM rule (Nielsen #1):</strong> the loading state is not a nice-to-have — it is a feature that directly drives completion rate. If it is not in your spec, your engineer ships option A. That is a PM mistake, not a design gap.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}

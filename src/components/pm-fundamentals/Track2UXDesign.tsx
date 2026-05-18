@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap } from './UXDesignVisualizations';
+import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, HicksLawViz, CognitivLoadViz } from './UXDesignVisualizations';
 
 const PARTS = [
   { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
@@ -1113,6 +1113,14 @@ export default function Track2UXDesign({
             { text: '"The enterprise clients flagged our design inconsistency. A design system directly addresses their concern."', correct: false, feedback: "This is true but incomplete. You've framed the design system as a reaction to one client complaint rather than as a forward-looking investment. Rohan will hear 'we\'re building this because we were embarrassed' rather than 'this makes us faster forever.'" },
           ]}
         />
+
+        <div className="rv">
+          <HicksLawViz />
+        </div>
+
+        <div className="rv">
+          <CognitivLoadViz />
+        </div>
 
         <QuizEngine
           conceptId="ux-apm-system-vs-features"

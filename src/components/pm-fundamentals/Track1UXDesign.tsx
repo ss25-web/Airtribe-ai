@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap } from './UXDesignVisualizations';
+import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap, HicksLawViz, CognitivLoadViz, VisibilityOfStatusViz } from './UXDesignVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1575,6 +1575,14 @@ export default function Track1UXDesign({
           <AbandonmentTimeline />
         </div>
 
+        <div className="rv">
+          <VisibilityOfStatusViz />
+        </div>
+
+        <div className="rv">
+          <HicksLawViz />
+        </div>
+
         <QuizEngine
           conceptId="ux-loading-states"
           conceptName="Loading States"
@@ -1685,6 +1693,10 @@ export default function Track1UXDesign({
 
         <div className="rv">
           <FigmaBeforeAfter />
+        </div>
+
+        <div className="rv">
+          <CognitivLoadViz />
         </div>
 
         <QuizEngine
