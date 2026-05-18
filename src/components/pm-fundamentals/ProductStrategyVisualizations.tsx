@@ -93,26 +93,51 @@ export function SystemsThinkingRipple() {
                 ))}
               </defs>
 
-              {/* Ripple rings — outermost first */}
+              {/* Ripple rings — appear then rotate their dash pattern continuously */}
               {RIPPLE_EFFECTS.map((r, i) => {
                 const radius = 118 - i * 36;
+                const circumference = 2 * Math.PI * radius;
                 const show = stage >= 4 - i;
                 return (
-                  <motion.circle key={i} cx="150" cy="150" r={radius}
-                    fill={`url(#ripGrad${i})`}
-                    stroke={r.color} strokeWidth="2.5" strokeDasharray="6 4"
-                    initial={{ opacity: 0, scale: 0.2 }} animate={{ opacity: show ? 1 : 0, scale: show ? 1 : 0.2 }}
-                    transition={{ type: 'spring', stiffness: 120, damping: 18 }}
-                  />
+                  <g key={i}>
+                    {/* Fill gradient ring */}
+                    <motion.circle cx="150" cy="150" r={radius}
+                      fill={`url(#ripGrad${i})`} stroke="none"
+                      initial={{ opacity: 0, scale: 0.2 }}
+                      animate={{ opacity: show ? [0.6, 1, 0.6] : 0, scale: show ? 1 : 0.2 }}
+                      transition={{ opacity: { duration: 3 + i * 0.8, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }, scale: { type: 'spring', stiffness: 120, damping: 18 } }}
+                    />
+                    {/* Dashed stroke ring — dash rotates endlessly */}
+                    <motion.circle cx="150" cy="150" r={radius}
+                      fill="none" stroke={r.color} strokeWidth="2.5"
+                      strokeDasharray={`${circumference * 0.06} ${circumference * 0.04}`}
+                      initial={{ opacity: 0, scale: 0.2, strokeDashoffset: 0 }}
+                      animate={{ opacity: show ? 1 : 0, scale: show ? 1 : 0.2, strokeDashoffset: show ? [0, -circumference] : 0 }}
+                      transition={{
+                        opacity: { type: 'spring', stiffness: 120, damping: 18 },
+                        scale: { type: 'spring', stiffness: 120, damping: 18 },
+                        strokeDashoffset: { duration: 12 - i * 2, repeat: Infinity, ease: 'linear', delay: 1.2 },
+                      }}
+                    />
+                  </g>
                 );
               })}
 
-              {/* Drop point glow */}
+              {/* Live ripple stream — 3 waves constantly expanding from DECISION */}
+              {stage >= 1 && [0, 1, 2].map(i => (
+                <motion.circle key={`wave-${i}`} cx="150" cy="150"
+                  fill="none" stroke="#6366F1" strokeWidth="1.5"
+                  animate={{ r: [6, 122], opacity: [0.7, 0] }}
+                  transition={{ duration: 3.6, repeat: Infinity, ease: 'easeOut', delay: i * 1.2 }}
+                />
+              ))}
+
+              {/* Drop point — pulses continuously */}
               {stage >= 1 && (
                 <motion.circle cx="150" cy="150" r="14" fill="#6366F1"
-                  initial={{ scale: 0 }} animate={{ scale: [0, 1.3, 1] }}
-                  transition={{ duration: 0.6 }}
-                  style={{ filter: 'drop-shadow(0 0 8px rgba(99,102,241,0.8))' }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [0, 1.3, 1], filter: ['drop-shadow(0 0 8px rgba(99,102,241,0.8))', 'drop-shadow(0 0 16px rgba(99,102,241,0.4))', 'drop-shadow(0 0 8px rgba(99,102,241,0.8))'] }}
+                  transition={{ scale: { duration: 0.6 }, filter: { duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1 } }}
                 />
               )}
               {stage >= 1 && (
