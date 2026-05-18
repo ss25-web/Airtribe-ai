@@ -623,8 +623,8 @@ const Section5Mockup = () => {
               const cfg = statusConfig[opp.status];
               return (
                 <motion.div key={opp.id} whileHover={opp.status !== 'won' ? { y: -1 } : {}}
-                  style={{ padding: '12px', borderRadius: '8px', background: cfg.bg, border: `1.5px solid ${cfg.border}`, cursor: opp.status !== 'won' ? 'pointer' : 'default' }}
-                  onClick={() => opp.status !== 'won' && advance(opp.id)}>
+                  style={{ padding: '12px', borderRadius: '8px', background: cfg.bg, border: `1.5px solid ${cfg.border}`, cursor: (opp.status === 'target' || opp.status === 'pilot') ? 'pointer' : 'default' }}
+                  onClick={() => (opp.status === 'target' || opp.status === 'pilot') && advance(opp.id)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.3, flex: 1 }}>{opp.label}</div>
                     <span style={{ padding: '2px 6px', borderRadius: '4px', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: cfg.color, background: cfg.bg, border: `1px solid ${cfg.border}`, flexShrink: 0, marginLeft: '6px' }}>{cfg.label}</span>
