@@ -129,8 +129,8 @@ export function SystemsThinkingRipple() {
                 const show = stage >= 4 - i;
                 if (!show) return null;
                 return (
-                  <motion.text key={i} x={150 + radius - 2} y={148}
-                    textAnchor="start" dominantBaseline="middle"
+                  <motion.text key={i} x={150} y={150 - radius + 14}
+                    textAnchor="middle" dominantBaseline="middle"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                     style={{ fontSize: '8px', fill: r.color, fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>
                     {r.order.toUpperCase()}
@@ -239,8 +239,28 @@ export function CompetitiveMoatRadar() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px', alignItems: 'center' }}>
 
           {/* Radar */}
-          <div style={{ position: 'relative' }}>
-            <svg viewBox="0 0 300 300" style={{ width: '100%' }}>
+          <div style={{ position: 'relative', padding: '32px' }}>
+            {/* HTML axis labels — pinned to N/E/S/W edges, never clips */}
+            {MOAT_AXES.map((a, i) => {
+              const positions: React.CSSProperties[] = [
+                { position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, 0)', textAlign: 'center' as const },
+                { position: 'absolute', top: '50%', right: 0, transform: 'translate(0, -50%)', textAlign: 'left' as const },
+                { position: 'absolute', bottom: 0, left: '50%', transform: 'translate(-50%, 0)', textAlign: 'center' as const },
+                { position: 'absolute', top: '50%', left: 0, transform: 'translate(0, -50%)', textAlign: 'right' as const },
+              ];
+              const isVis = i < visibleAxes;
+              return (
+                <motion.div key={`lbl-${i}`} initial={{ opacity: 0 }} animate={{ opacity: isVis ? 1 : 0 }}
+                  onClick={() => isVis && setActiveAxis(activeAxis === i ? null : i)}
+                  style={{ ...positions[i], cursor: isVis ? 'pointer' : 'default', padding: '4px 8px', borderRadius: '8px', background: activeAxis === i ? 'rgba(20,184,166,0.12)' : 'transparent', zIndex: 2 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: activeAxis === i ? '#14B8A6' : 'var(--ed-ink2)', whiteSpace: 'nowrap', lineHeight: 1.3 }}>
+                    {a.label}
+                  </div>
+                  {isVis && <div style={{ fontSize: '8px', color: 'var(--ed-ink3)', textAlign: 'center' as const }}>click for insight</div>}
+                </motion.div>
+              );
+            })}
+            <svg viewBox="0 0 300 300" style={{ width: '100%', display: 'block' }}>
               {/* Grid circles */}
               {[25, 50, 75, 100].map(r => (
                 <circle key={r} cx="150" cy="150" r={r} fill="none" stroke="var(--ed-rule)" strokeWidth="1" strokeDasharray="3 3" />
@@ -252,21 +272,6 @@ export function CompetitiveMoatRadar() {
                   <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                     <line x1="150" y1="150" x2={end.x} y2={end.y} stroke="var(--ed-rule)" strokeWidth="1.5" />
                   </motion.g>
-                );
-              })}
-              {/* Axis labels as HTML so they never overlap or clip */}
-              {MOAT_AXES.slice(0, visibleAxes).map((a, i) => {
-                const labelPt = moatPoint(122, a.angle, MAX_R);
-                const lx = (labelPt.x / 300) * 100;
-                const ly = (labelPt.y / 300) * 100;
-                return (
-                  <motion.foreignObject key={`lbl-${i}`} x={labelPt.x - 52} y={labelPt.y - 14} width="104" height="28"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <div onClick={() => setActiveAxis(activeAxis === i ? null : i)}
-                      style={{ textAlign: 'center', fontSize: '10px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, color: 'var(--ed-ink2)', cursor: 'pointer', lineHeight: 1.3, padding: '2px 4px', borderRadius: '6px', background: activeAxis === i ? 'rgba(20,184,166,0.12)' : 'transparent', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {a.label}
-                    </div>
-                  </motion.foreignObject>
                 );
               })}
               {/* Gong shape */}
