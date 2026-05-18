@@ -17,6 +17,7 @@ import {
   TrafficLoadOpsRoom,
   ScopeDecompositionBoard,
 } from './Tech101WorkflowVisuals';
+import { GitForPMsViz, PostmanAPIExplorer } from './Module9Additions';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -177,6 +178,10 @@ export default function Track1Tech101SystemDesign({
         />
 
         <ApplyItBox prompt="Pick one feature from your current roadmap. Write it as a PM typically does in one sentence. Now list every system responsibility that sentence might be hiding. Which of those hides the most engineering cost?" />
+
+        <div className="rv">
+          <GitForPMsViz />
+        </div>
 
         <QuizEngine
           conceptId="tech101-system-layers"
@@ -358,6 +363,10 @@ export default function Track1Tech101SystemDesign({
         />
 
         <ApplyItBox prompt="Think of a feature that uses an API. What does the contract for that API say about: who can call it, what fields it returns, and what errors it handles? If you cannot answer those questions without asking engineering, the contract is probably under-specified." />
+
+        <div className="rv">
+          <PostmanAPIExplorer />
+        </div>
 
         <QuizEngine
           conceptId="tech101-api-contracts"

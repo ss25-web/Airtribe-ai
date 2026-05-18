@@ -17,6 +17,7 @@ import {
   VendorLockInDecisionLab,
   RoadmapConfidenceSimulator,
 } from './Tech101WorkflowVisuals';
+import { GitForPMsViz, PostmanAPIExplorer } from './Module9Additions';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -174,6 +175,10 @@ export default function Track2Tech101SystemDesign({
         />
 
         <ApplyItBox prompt="Identify one area in your product where engineering has flagged debt or fragility. Estimate: if this debt continues accumulating, what happens to iteration speed in 6 months? What does that mean for the roadmap? That is the PM framing for the debt conversation." />
+
+        <div className="rv">
+          <GitForPMsViz />
+        </div>
 
         <QuizEngine
           conceptId="tech101-apm-debt"
@@ -364,6 +369,10 @@ export default function Track2Tech101SystemDesign({
         />
 
         <ApplyItBox prompt="Map the most-used API in your product. How many teams or surfaces depend on it? Is there a versioning strategy? What would happen if a field were renamed or removed? Your answer reveals your current dependency coupling risk." />
+
+        <div className="rv">
+          <PostmanAPIExplorer />
+        </div>
 
         <QuizEngine
           conceptId="tech101-apm-contracts"
