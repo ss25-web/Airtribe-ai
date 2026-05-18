@@ -466,120 +466,195 @@ export function ProblemSolutionDriftVisual() {
   );
 }
 
+// ── DecisionQualitySplitVisual ───────────────────────────────────────────────
+// Four Priya case studies auto-playing as a story. Each shows:
+//   LEFT:  the process she used (research-based or gut-feel)
+//   RIGHT: what actually happened to the metric
+//   BOTTOM: the verdict and what to learn from it
+//
+// The dangerous win LOOKS identical to a validated win from the outside.
+// That's exactly the point — and the visual makes it felt, not just stated.
+
+const CASES = [
+  {
+    id: 'dangerous',
+    title: 'Dangerous Win',
+    badge: '⚠️ MOST DANGEROUS',
+    badgeColor: '#F59E0B',
+    process: { icon: '🎲', label: 'Gut feel', color: '#F59E0B', dark: '#D97706',
+      story: 'Priya ships a social sharing feature. No user interviews. "I have a feeling people want to share their coaching wins."' },
+    outcome: { icon: '📈', label: 'Metrics up', color: '#22C55E',
+      data: 'DAU +14% that week', note: 'Competitor launched a viral campaign at the same time. The metric would have moved regardless.' },
+    verdict: 'Luck rewarded wrong reasoning. Priya now believes gut feel works. Next time she skips research, she\'ll be wrong — and she won\'t know why.',
+    verdictColor: '#F59E0B',
+    move: 'Before celebrating the metric: replay every assumption you made. Was this a validated hypothesis or a lucky guess?',
+  },
+  {
+    id: 'validated',
+    title: 'Validated Win',
+    badge: '✓ TARGET STATE',
+    badgeColor: '#22C55E',
+    process: { icon: '🔬', label: 'Research-based', color: '#22C55E', dark: '#15803D',
+      story: 'Priya interviews 8 churned users. Finds they can\'t retrieve past recordings by date. Builds search with date filter — 3 days, targeted fix.' },
+    outcome: { icon: '📈', label: 'Metrics up', color: '#22C55E',
+      data: 'Week-2 retention +28pp', note: 'Search usage correlates directly with the retention lift. The mechanism is confirmed.' },
+    verdict: 'The reasoning caused the result. The pattern is repeatable. Document what mattered, what you ignored, and why — so the team can reuse it.',
+    verdictColor: '#22C55E',
+    move: 'Capture the decision log: the evidence, the hypothesis, what you chose not to build. That\'s how good PM instinct is built.',
+  },
+  {
+    id: 'expected',
+    title: 'Expected Miss',
+    badge: '— PREDICTABLE',
+    badgeColor: '#94A3B8',
+    process: { icon: '🎲', label: 'Gut feel', color: '#94A3B8', dark: '#64748B',
+      story: 'Priya ships a "coaching streak" gamification feature. "Users like badges." No research done, no hypothesis tested.' },
+    outcome: { icon: '📉', label: 'No movement', color: '#EF4444',
+      data: 'No metric change in 3 weeks', note: '3 sprint weeks spent. The feature is live but unused. No one knows why it was built.' },
+    verdict: 'Bad process met a bad result. This is the most honest outcome — the process failed and it showed. The fix starts with the decision method.',
+    verdictColor: '#94A3B8',
+    move: 'Reset the frame. What was the actual user problem? Go find it before the next sprint starts.',
+  },
+  {
+    id: 'unlucky',
+    title: 'Unlucky Miss',
+    badge: '↑ SOUND PROCESS',
+    badgeColor: '#0EA5E9',
+    process: { icon: '🔬', label: 'Research-based', color: '#0EA5E9', dark: '#0369A1',
+      story: 'Priya does deep enterprise research, confirms CRM integration is the key purchase blocker, scopes a careful 6-week build.' },
+    outcome: { icon: '⚡', label: 'External shock', color: '#EF4444',
+      data: 'Gong ships identical feature first', note: 'The enterprise pipeline stalls. The feature is technically complete but now table stakes, not differentiator.' },
+    verdict: 'Good reasoning. Context shifted. A competitor moved faster. Do NOT punish the process — and do not punish Priya. Investigate circumstances, not reasoning.',
+    verdictColor: '#0EA5E9',
+    move: 'Separate the external change from the decision quality. The hypothesis was correct. The timing was unlucky. Learn from both separately.',
+  },
+];
+
 export function DecisionQualitySplitVisual() {
-  const quadrants = [
-    {
-      id: 'dangerous',
-      title: 'Dangerous Win',
-      process: 'Weak process',
-      result: 'Good outcome',
-      accent: PM_CORAL,
-      x: 0,
-      lesson: 'Luck can reward the wrong reasoning. This is the quadrant that quietly trains bad PM judgment.',
-      move: 'Replay the assumptions before celebrating the metric.',
-    },
-    {
-      id: 'validated',
-      title: 'Validated Win',
-      process: 'Strong process',
-      result: 'Good outcome',
-      accent: PM_GREEN,
-      x: 1,
-      lesson: 'The outcome supports the reasoning. Capture the decision pattern so the team can reuse it.',
-      move: 'Document what mattered, what was ignored, and why.',
-    },
-    {
-      id: 'expected',
-      title: 'Expected Miss',
-      process: 'Weak process',
-      result: 'Bad outcome',
-      accent: PM_CORAL,
-      x: 0,
-      lesson: 'Bad process met a bad result. The fix starts with the decision method, not the next feature idea.',
-      move: 'Reset the frame and gather the missing evidence.',
-    },
-    {
-      id: 'unlucky',
-      title: 'Unlucky Miss',
-      process: 'Strong process',
-      result: 'Bad outcome',
-      accent: PM_TEAL,
-      x: 1,
-      lesson: 'A good call can still lose when context shifts. Do not punish the team for uncertainty it could not control.',
-      move: 'Separate external change from flawed reasoning.',
-    },
-  ];
-  const [activeId, setActiveId] = useState('dangerous');
-  const active = quadrants.find(q => q.id === activeId) ?? quadrants[0];
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = CASES[activeIdx];
+
+  useEffect(() => {
+    const iv = setInterval(() => setActiveIdx(i => (i + 1) % CASES.length), 5000);
+    return () => clearInterval(iv);
+  }, []);
 
   return (
     <Shell
       title="Decision quality and outcome quality move on different layers."
       caption="Senior PM growth starts when we stop grading ourselves only by what happened. The process and the outcome must be inspected separately."
     >
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 260px', gap: '24px', alignItems: 'stretch' }}>
-        <div style={{ position: 'relative', minHeight: '360px', padding: '10px 0', perspective: '900px' }}>
-          <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', height: '100%' }}>
-            {quadrants.map(q => {
-              const isActive = activeId === q.id;
-              return (
-                <motion.button
-                  key={q.id}
-                  type="button"
-                  onClick={() => setActiveId(q.id)}
-                  whileHover={{ y: -8, rotateX: 5, rotateY: q.x === 0 ? -4 : 4 }}
-                  animate={{
-                    y: isActive ? -10 : 0,
-                    scale: isActive ? 1.035 : 1,
-                    boxShadow: isActive
-                      ? `0 22px 34px ${q.accent}30, 0 8px 0 ${q.accent}24, inset 0 1px 0 rgba(255,255,255,0.18)`
-                      : `0 12px 22px ${q.accent}18, 0 5px 0 ${q.accent}14, inset 0 1px 0 rgba(255,255,255,0.12)`,
-                  }}
-                  transition={{ type: 'spring', stiffness: 240, damping: 20 }}
-                  style={{
-                    border: `1px solid ${q.accent}33`,
-                    borderRadius: 26,
-                    background: `linear-gradient(145deg, var(--ed-card), ${q.accent}10)`,
-                    padding: '20px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    transformStyle: 'preserve-3d',
-                    minHeight: 138,
-                  }}
-                >
-                  <div style={{ width: 34, height: 34, borderRadius: 14, background: `linear-gradient(145deg, var(--ed-card), ${q.accent}44)`, boxShadow: `0 10px 18px ${q.accent}24`, marginBottom: 14 }} />
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: q.accent, marginBottom: 8, textTransform: 'uppercase' }}>{q.result}</div>
-                  <div style={{ fontSize: 18, fontWeight: 850, color: 'var(--ed-ink)', lineHeight: 1.15, marginBottom: 8 }}>{q.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--ed-ink3)', lineHeight: 1.45 }}>{q.process}</div>
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
+      {/* 4 tab selectors */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '24px' }}>
+        {CASES.map((c, i) => (
+          <button key={c.id} onClick={() => setActiveIdx(i)} style={{
+            padding: '10px 8px', borderRadius: '12px', border: `1.5px solid ${activeIdx === i ? c.process.color : 'var(--ed-rule)'}`,
+            background: activeIdx === i ? `linear-gradient(160deg, ${c.process.color}EE 0%, ${c.process.dark} 100%)` : 'var(--ed-card)',
+            cursor: 'pointer', transition: 'all 0.25s',
+            boxShadow: activeIdx === i ? `0 4px 0 ${c.process.dark}, 0 8px 20px ${c.process.color}40` : 'none',
+          }}>
+            <div style={{ fontSize: '16px', marginBottom: '4px' }}>{c.process.icon} {c.outcome.icon}</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+              color: activeIdx === i ? 'rgba(255,255,255,0.9)' : 'var(--ed-ink3)', letterSpacing: '0.1em', lineHeight: 1.3 }}>
+              {c.title.toUpperCase()}
+            </div>
+          </button>
+        ))}
+      </div>
 
-        <motion.div
-          key={active.id}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.25 }}
-          style={{
-            borderRadius: 24,
-            padding: '22px 20px',
-            background: `linear-gradient(145deg, var(--ed-card), ${active.accent}12)`,
-            border: `1px solid ${active.accent}30`,
-            boxShadow: `0 16px 26px ${active.accent}1c, 0 6px 0 ${active.accent}16, inset 0 1px 0 rgba(255,255,255,0.14)`,
-            alignSelf: 'center',
-          }}
-        >
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: active.accent, marginBottom: 8 }}>WHAT TO LEARN</div>
-          <div style={{ fontSize: 22, fontWeight: 850, color: 'var(--ed-ink)', marginBottom: 12 }}>{active.title}</div>
-          <div style={{ fontSize: 13, color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: 16 }}>{active.lesson}</div>
-          <div style={{ borderTop: '1px solid var(--ed-rule)', paddingTop: 14 }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: active.accent, marginBottom: 6 }}>NEXT MOVE</div>
-            <div style={{ fontSize: 12, color: 'var(--ed-ink3)', lineHeight: 1.55 }}>{active.move}</div>
+      {/* Story card */}
+      <AnimatePresence mode="wait">
+        <motion.div key={active.id}
+          initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.35 }}
+          style={{ borderRadius: '20px', overflow: 'hidden', border: `1.5px solid ${active.process.color}35`,
+            boxShadow: `0 16px 40px ${active.process.color}20` }}>
+
+          {/* Header band */}
+          <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: `linear-gradient(135deg, ${active.process.color} 0%, ${active.process.dark} 100%)` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900,
+              color: 'rgba(255,255,255,0.9)', letterSpacing: '0.18em' }}>{active.badge}</div>
+            <div style={{ fontSize: '20px', fontWeight: 900, color: '#FFFFFF' }}>{active.title}</div>
+          </div>
+
+          {/* Two-column story */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--ed-card)' }}>
+            {/* Left: Process */}
+            <div style={{ padding: '20px', borderRight: '1px solid var(--ed-rule)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ padding: '6px 12px', borderRadius: '8px',
+                  background: `${active.process.color}18`, border: `1px solid ${active.process.color}35` }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800,
+                    color: active.process.color, letterSpacing: '0.14em' }}>
+                    {active.process.icon} {active.process.label.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+                color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>THE DECISION</div>
+              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75, fontStyle: 'italic' }}>
+                &ldquo;{active.process.story}&rdquo;
+              </div>
+            </div>
+
+            {/* Right: Outcome */}
+            <div style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ padding: '6px 12px', borderRadius: '8px',
+                  background: `${active.outcome.color}18`, border: `1px solid ${active.outcome.color}35` }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800,
+                    color: active.outcome.color, letterSpacing: '0.14em' }}>
+                    {active.outcome.icon} {active.outcome.label.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+                color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '8px' }}>WHAT ACTUALLY HAPPENED</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: active.outcome.color,
+                fontFamily: 'monospace', marginBottom: '8px' }}>{active.outcome.data}</div>
+              <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.6, fontStyle: 'italic' }}>
+                {active.outcome.note}
+              </div>
+            </div>
+          </div>
+
+          {/* Verdict */}
+          <div style={{ padding: '16px 20px', background: `${active.verdictColor}0C`,
+            borderTop: `1px solid ${active.verdictColor}25` }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+                  color: active.verdictColor, letterSpacing: '0.14em', marginBottom: '6px' }}>THE VERDICT</div>
+                <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.65 }}>
+                  {active.verdict}
+                </div>
+              </div>
+              <div style={{ borderLeft: `1px solid ${active.verdictColor}25`, paddingLeft: '16px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800,
+                  color: active.verdictColor, letterSpacing: '0.14em', marginBottom: '6px' }}>NEXT MOVE</div>
+                <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
+                  {active.move}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress dots */}
+          <div style={{ padding: '10px 20px', background: 'var(--ed-card)', borderTop: '1px solid var(--ed-rule)',
+            display: 'flex', gap: '6px', alignItems: 'center' }}>
+            {CASES.map((c, i) => (
+              <motion.div key={i}
+                animate={{ width: activeIdx === i ? '28px' : '7px', background: activeIdx === i ? c.process.color : 'var(--ed-rule)' }}
+                transition={{ duration: 0.3 }}
+                style={{ height: '7px', borderRadius: '4px', cursor: 'pointer' }}
+                onClick={() => setActiveIdx(i)}
+              />
+            ))}
+            <span style={{ fontSize: '10px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", marginLeft: '8px' }}>{activeIdx + 1} / {CASES.length}</span>
           </div>
         </motion.div>
-      </div>
+      </AnimatePresence>
     </Shell>
   );
 }
