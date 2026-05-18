@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, HicksLawViz, CognitivLoadViz } from './UXDesignVisualizations';
+import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, HicksLawViz, CognitivLoadViz, NielsenHeuristicsViz } from './UXDesignVisualizations';
 
 const PARTS = [
   { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
@@ -1196,6 +1196,10 @@ export default function Track2UXDesign({
             { text: '"The illustration is nice but we need to prioritise function over form here."', correct: false, feedback: "Function-over-form is a principle, not feedback. Maya already knows this principle — she's a senior designer. You need to tell her specifically what function the current form is blocking, or she has nothing to act on." },
           ]}
         />
+
+        <div className="rv">
+          <NielsenHeuristicsViz />
+        </div>
 
         <QuizEngine
           conceptId="ux-apm-critique-feedback"

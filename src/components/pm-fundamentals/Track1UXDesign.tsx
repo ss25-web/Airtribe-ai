@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap, HicksLawViz, CognitivLoadViz, VisibilityOfStatusViz } from './UXDesignVisualizations';
+import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap, HicksLawViz, CognitivLoadViz, VisibilityOfStatusViz, NielsenHeuristicsViz } from './UXDesignVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1881,6 +1881,10 @@ export default function Track1UXDesign({
             { text: 'Users needed more training', correct: false, feedback: 'Training doesn\'t fix bad UX. Good UX fixes bad UX.' },
           ]}
         />
+
+        <div className="rv">
+          <NielsenHeuristicsViz />
+        </div>
 
         <QuizEngine
           conceptId="ux-measurement"

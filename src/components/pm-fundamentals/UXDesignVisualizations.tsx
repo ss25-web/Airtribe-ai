@@ -1204,3 +1204,236 @@ export function VisibilityOfStatusViz() {
     </div>
   );
 }
+
+// ─── NIELSEN'S 10 HEURISTICS EVALUATION ──────────────────────────────────────
+// Full heuristic audit of EdSpark. Each heuristic shows a real violation in the
+// product and the specific fix. PMs use this framework to give designers precise,
+// evidence-based feedback — not aesthetic preferences.
+
+const HEURISTICS = [
+  {
+    n: 1, name: 'Visibility of System Status',
+    principle: 'Always keep users informed about what is going on.',
+    color: '#6366F1', dark: '#3730A3',
+    violation: 'The upload button says "Analyzing…" for 45 seconds with no progress indicator. Users have no signal the system is working.',
+    fix: 'Progress bar + "Extracting coaching moments…" label + "~38s remaining". Completion rate rose from 30% to 58%.',
+    severity: 'Critical',
+  },
+  {
+    n: 2, name: 'Match Between System and Real World',
+    principle: 'Use words, phrases, and concepts familiar to the user.',
+    color: '#0EA5E9', dark: '#0369A1',
+    violation: '"Session metadata payload" appears in an error message. Sales managers do not speak in API terms.',
+    fix: '"Your call recording details failed to save. Try again or contact support." Uses the language of the user, not the engineer.',
+    severity: 'High',
+  },
+  {
+    n: 3, name: 'User Control and Freedom',
+    principle: 'Users need a clearly marked "emergency exit" from mistakes.',
+    color: '#22C55E', dark: '#15803D',
+    violation: 'Archiving a coaching session is permanent with no undo. One accidental click loses weeks of coaching data.',
+    fix: 'A 10-second undo toast: "Session archived. Undo?" Destructive actions should always be reversible within a short window.',
+    severity: 'High',
+  },
+  {
+    n: 4, name: 'Consistency and Standards',
+    principle: 'Users should not have to wonder whether different words, situations, or actions mean the same thing.',
+    color: '#F97316', dark: '#C2410C',
+    violation: '9 different button styles across 9 teams. "Save", "SAVE", "Submit", "Confirm" all do the same thing in different screens.',
+    fix: 'One canonical "Primary Button" component in the design system. One word, one style, one behaviour — everywhere.',
+    severity: 'High',
+  },
+  {
+    n: 5, name: 'Error Prevention',
+    principle: 'Eliminate error-prone conditions or check for them and present a confirmation option.',
+    color: '#EF4444', dark: '#B91C1C',
+    violation: '"Delete all recordings" is the same size and colour as "Export all". Both sit next to each other in the toolbar.',
+    fix: 'Destructive actions are smaller, outlined (not filled), require typed confirmation for bulk actions, and are separated from primary CTAs.',
+    severity: 'Critical',
+  },
+  {
+    n: 6, name: 'Recognition Rather Than Recall',
+    principle: 'Minimise the user\'s memory load by making objects, actions, and options visible.',
+    color: '#8B5CF6', dark: '#6D28D9',
+    violation: 'After watching a coaching recording, the user must remember which rep, which deal, which date. None of this context is shown.',
+    fix: 'Recording header shows: rep photo, name, deal name, date, and duration before the recording starts playing.',
+    severity: 'Medium',
+  },
+  {
+    n: 7, name: 'Flexibility and Efficiency of Use',
+    principle: 'Accelerators — unseen by the novice user — may speed up the interaction for the expert.',
+    color: '#EC4899', dark: '#BE185D',
+    violation: 'No keyboard shortcuts. Power users (VPs, heavy users) must click through 4 steps for every action they perform 20 times a day.',
+    fix: 'K = search recordings, N = new session, E = export current, ↑↓ = navigate list. Documented in a discoverable shortcut sheet.',
+    severity: 'Medium',
+  },
+  {
+    n: 8, name: 'Aesthetic and Minimalist Design',
+    principle: 'Dialogues should not contain irrelevant or rarely needed information.',
+    color: '#14B8A6', dark: '#0F766E',
+    violation: '12 dashboard widgets are shown to every user by default. 8 of them are used by fewer than 10% of users in week 1.',
+    fix: '4 core widgets shown by default. The rest are accessible behind "Customise dashboard". First-week cognitive load drops by ~60%.',
+    severity: 'High',
+  },
+  {
+    n: 9, name: 'Help Users Recognise, Diagnose, and Recover from Errors',
+    principle: 'Error messages should be expressed in plain language, precisely indicate the problem, and constructively suggest a solution.',
+    color: '#F59E0B', dark: '#D97706',
+    violation: 'When Salesforce sync fails the user sees: "Error 403: Forbidden. Request could not be authorised."',
+    fix: '"Your Salesforce connection has expired. Reconnect in Settings → Integrations → Salesforce. This takes about 2 minutes."',
+    severity: 'Critical',
+  },
+  {
+    n: 10, name: 'Help and Documentation',
+    principle: 'It\'s better if the system can be used without documentation, but it may be necessary to provide help.',
+    color: '#64748B', dark: '#475569',
+    violation: 'New users land on a blank dashboard with no guidance. 43% never complete a second session — they don\'t know where to start.',
+    fix: 'A "First coaching session" checklist appears for users in day 1–3. Inline tooltips on first interaction with each key feature.',
+    severity: 'High',
+  },
+];
+
+const SEVERITY_COLOR = { Critical: '#EF4444', High: '#F97316', Medium: '#F59E0B', Low: '#22C55E' };
+
+export function NielsenHeuristicsViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
+  const [active, setActive] = useState<number | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setVisible(0); setActive(null);
+    HEURISTICS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 200 + i * 180));
+    setTimeout(() => setActive(0), 200 + HEURISTICS.length * 180 + 400);
+  }, [inView, tick]);
+
+  const replay = () => { setVisible(0); setActive(null); setTick(t => t + 1); };
+  const sel = active !== null ? HEURISTICS[active] : null;
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ padding: '4px 12px', borderRadius: '8px', background: '#1F2937', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, color: '#fff', letterSpacing: '0.14em', boxShadow: '0 3px 0 #111827' }}>
+          NIELSEN&apos;S 10 HEURISTICS
+        </div>
+        <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', fontWeight: 600 }}>EdSpark heuristic audit — every violation has a fix</div>
+      </div>
+
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        {/* 2×5 heuristic grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--ed-card)' }}>
+          {HEURISTICS.map((h, i) => {
+            const isActive = active === i;
+            const show = i < visible;
+            return (
+              <AnimatePresence key={h.n}>
+                {show && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                    onClick={() => setActive(isActive ? null : i)}
+                    style={{
+                      padding: '14px 16px', textAlign: 'left' as const, cursor: 'pointer',
+                      background: isActive ? `linear-gradient(135deg, ${h.color} 0%, ${h.dark} 100%)` : 'var(--ed-card)',
+                      border: 'none',
+                      borderRight: (i % 2 === 0) ? '1px solid var(--ed-rule)' : 'none',
+                      borderBottom: i < 8 ? '1px solid var(--ed-rule)' : 'none',
+                      outline: isActive ? `2px solid ${h.color}` : 'none',
+                      outlineOffset: '-2px',
+                      transition: 'background 0.3s, outline 0.3s',
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                    }}>
+                    {/* Number badge */}
+                    <div style={{
+                      width: '34px', height: '34px', borderRadius: '10px', flexShrink: 0,
+                      background: isActive ? 'rgba(255,255,255,0.2)' : `${h.color}18`,
+                      border: `1.5px solid ${isActive ? 'rgba(255,255,255,0.35)' : h.color + '40'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: 900,
+                      color: isActive ? '#fff' : h.color,
+                      boxShadow: isActive ? 'none' : `0 3px 0 ${h.color}30`,
+                    }}>
+                      {h.n}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '12px', fontWeight: 800, color: isActive ? '#fff' : 'var(--ed-ink)', lineHeight: 1.25, marginBottom: '2px', transition: 'color 0.3s' }}>
+                        {h.name}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: isActive ? 'rgba(255,255,255,0.6)' : (SEVERITY_COLOR[h.severity as keyof typeof SEVERITY_COLOR] || '#94A3B8'), flexShrink: 0 }} />
+                        <div style={{ fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: isActive ? 'rgba(255,255,255,0.65)' : 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
+                          {h.severity.toUpperCase()}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            );
+          })}
+        </div>
+
+        {/* Detail panel */}
+        <AnimatePresence>
+          {sel && (
+            <motion.div key={sel.n} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.3 }}
+              style={{ borderTop: '1px solid var(--ed-rule)' }}>
+              {/* Header */}
+              <div style={{ padding: '16px 20px', background: `linear-gradient(135deg, ${sel.color} 0%, ${sel.dark} 100%)`, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
+                <div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.18em', marginBottom: '4px' }}>
+                    HEURISTIC {sel.n} OF 10
+                  </div>
+                  <div style={{ fontSize: '18px', fontWeight: 900, color: '#fff', marginBottom: '4px' }}>{sel.name}</div>
+                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', fontStyle: 'italic' }}>&ldquo;{sel.principle}&rdquo;</div>
+                </div>
+                <div style={{ padding: '4px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#fff', letterSpacing: '0.12em', flexShrink: 0 }}>
+                  {sel.severity.toUpperCase()}
+                </div>
+              </div>
+              {/* Violation + Fix */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: 'var(--ed-card)' }}>
+                <div style={{ padding: '18px 20px', borderRight: '1px solid var(--ed-rule)' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.14em', marginBottom: '8px' }}>
+                    ❌ VIOLATION IN EDSPARK
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.7 }}>{sel.violation}</div>
+                </div>
+                <div style={{ padding: '18px 20px', background: 'rgba(34,197,94,0.04)' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.14em', marginBottom: '8px' }}>
+                    ✓ THE FIX
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.7 }}>{sel.fix}</div>
+                </div>
+              </div>
+              {/* Nav */}
+              <div style={{ padding: '10px 20px', background: 'var(--ed-card)', borderTop: '1px solid var(--ed-rule)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <motion.button whileHover={{ opacity: 0.75 }} onClick={() => setActive(a => a !== null && a > 0 ? a - 1 : 9)}
+                  style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--ed-rule)', background: 'var(--ed-card)', cursor: 'pointer', fontSize: '12px', color: 'var(--ed-ink3)' }}>
+                  ← prev
+                </motion.button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {HEURISTICS.map((h, i) => (
+                    <div key={i} onClick={() => setActive(i)} style={{ width: active === i ? '20px' : '6px', height: '6px', borderRadius: '3px', background: active === i ? h.color : 'var(--ed-rule)', cursor: 'pointer', transition: 'all 0.3s' }} />
+                  ))}
+                </div>
+                <motion.button whileHover={{ opacity: 0.75 }} onClick={() => setActive(a => a !== null && a < 9 ? a + 1 : 0)}
+                  style={{ padding: '6px 14px', borderRadius: '8px', border: '1px solid var(--ed-rule)', background: 'var(--ed-card)', cursor: 'pointer', fontSize: '12px', color: 'var(--ed-ink3)' }}>
+                  next →
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(31,41,55,0.07)', border: '1px solid rgba(31,41,55,0.15)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: 'var(--ed-ink)' }}>How PMs use heuristics:</strong> not as aesthetic preferences but as specific, named principles. &ldquo;The error message violates Heuristic 9 — it doesn&apos;t tell the user what to do next&rdquo; is actionable feedback. &ldquo;The error message looks bad&rdquo; is not.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}
