@@ -75,15 +75,14 @@ export function SystemsThinkingRipple() {
 
       <div style={{
         borderRadius: '24px', overflow: 'hidden',
-        background: 'linear-gradient(170deg, #0D1B2A 0%, #0A2540 60%, #0D1B2A 100%)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 24px 56px rgba(0,0,0,0.35)',
-        padding: '36px 28px',
+        background: 'var(--ed-card)',
+        border: '1px solid var(--ed-rule)',
+        boxShadow: '0 16px 40px rgba(0,0,0,0.08)',
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', alignItems: 'center' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', alignItems: 'stretch' }}>
 
-          {/* Left: ripple diagram */}
-          <div style={{ position: 'relative', aspectRatio: '1' }}>
+          {/* Left: dark "water" stage for ripple — intentionally dark */}
+          <div style={{ position: 'relative', aspectRatio: '1', background: 'linear-gradient(170deg, #0D1B2A 0%, #0A2540 60%, #0D1B2A 100%)', padding: '28px' }}>
             <svg viewBox="0 0 300 300" style={{ width: '100%', height: '100%' }}>
               <defs>
                 {RIPPLE_EFFECTS.map((r, i) => (
@@ -140,10 +139,10 @@ export function SystemsThinkingRipple() {
             </svg>
           </div>
 
-          {/* Right: sequential effect cards */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+          {/* Right: sequential effect cards — theme-aware */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px', padding: '28px' }}>
             {stage < 1 && (
-              <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: '13px', fontStyle: 'italic', textAlign: 'center' as const, padding: '40px 0' }}>
+              <div style={{ color: 'var(--ed-ink3)', fontSize: '13px', fontStyle: 'italic', textAlign: 'center' as const, padding: '40px 0' }}>
                 Decision drops in 1 second…
               </div>
             )}
