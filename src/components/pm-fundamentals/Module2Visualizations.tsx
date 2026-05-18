@@ -530,3 +530,231 @@ export function JTBDTransformAnimation() {
     </div>
   );
 }
+
+// ─── STP FRAMEWORK ────────────────────────────────────────────────────────────
+// Segmentation → Targeting → Positioning. Shown as a 3-stage journey through
+// EdSpark's actual market. Teaches: without STP you try to serve everyone and
+// end up being nothing to anyone.
+
+const SEGMENTS = [
+  { id: 'enterprise', label: 'Enterprise', desc: 'Fortune 500 · 500+ reps', size: 88, x: 72, y: 24, color: '#94A3B8', fit: 28,
+    fitReasons: ['Too complex for current product', 'Requires procurement + legal', 'Gong already owns this market'] },
+  { id: 'midmarket', label: 'Mid-Market', desc: '100–500 employees · 10–50 reps', size: 72, x: 42, y: 48, color: '#6366F1', fit: 91,
+    fitReasons: ['Perfect product-market fit', 'VP can sign without procurement', 'Need to prove coaching ROI to board'] },
+  { id: 'smb', label: 'SMB', desc: '10–100 employees · 2–10 reps', size: 56, x: 22, y: 30, color: '#94A3B8', fit: 44,
+    fitReasons: ['Low willingness to pay', 'No dedicated coaching manager', 'High churn risk'] },
+  { id: 'solo', label: 'Solo Coaches', desc: 'Independent coaches', size: 38, x: 14, y: 65, color: '#94A3B8', fit: 22,
+    fitReasons: ['Tiny TAM', 'B2C unit economics', 'No team data to analyse'] },
+  { id: 'training', label: 'Sales Training Cos', desc: 'L&D departments', size: 44, x: 70, y: 68, color: '#94A3B8', fit: 36,
+    fitReasons: ['Different use case entirely', 'Curriculum-based, not CRM-based', 'Would require full rebuild'] },
+];
+
+const TARGETING_CRITERIA = [
+  { label: 'Segment size', midmarket: '~12,000 companies in India', why: 'Large enough to build a repeatable motion' },
+  { label: 'Product fit', midmarket: '91% fit score', why: 'VP can sign, needs ROI proof, coaching-mature' },
+  { label: 'Reachability', midmarket: 'Reachable via LinkedIn + PLG', why: 'No 18-month enterprise sales cycle needed' },
+];
+
+export function STPFrameworkViz() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [stage, setStage] = useState<0|1|2|3>(0); // 0=intro, 1=segment, 2=target, 3=position
+  const [hoveredSeg, setHoveredSeg] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    setStage(0);
+    const ts = [
+      setTimeout(() => setStage(1), 500),
+      setTimeout(() => setStage(2), 2200),
+      setTimeout(() => setStage(3), 4200),
+    ];
+    return () => ts.forEach(clearTimeout);
+  }, [inView, tick]);
+
+  const replay = () => { setStage(0); setTick(t => t + 1); };
+  const hovered = SEGMENTS.find(s => s.id === hoveredSeg);
+  const isTargeted = (id: string) => stage >= 2 && id === 'midmarket';
+  const isFaded = (id: string) => stage >= 2 && id !== 'midmarket';
+
+  return (
+    <div ref={ref} style={{ margin: '36px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        {['SEGMENT', 'TARGET', 'POSITION'].map((s, i) => (
+          <React.Fragment key={s}>
+            <motion.div
+              animate={{ background: stage > i ? '#6366F1' : stage === i + 1 ? '#6366F1' : 'var(--ed-rule)', color: stage >= i + 1 ? '#fff' : 'var(--ed-ink3)' }}
+              style={{ padding: '4px 12px', borderRadius: '8px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900, letterSpacing: '0.14em', transition: 'all 0.4s', boxShadow: stage >= i + 1 ? '0 3px 0 #3730A3' : 'none' }}>
+              {s}
+            </motion.div>
+            {i < 2 && <div style={{ fontSize: '14px', color: 'var(--ed-ink3)' }}>→</div>}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+
+        {/* ── Stage header ── */}
+        <AnimatePresence mode="wait">
+          <motion.div key={stage} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.3 }}
+            style={{ padding: '14px 20px', background: stage === 0 ? 'var(--ed-card)' : stage === 1 ? 'rgba(99,102,241,0.08)' : stage === 2 ? 'rgba(14,165,233,0.08)' : 'rgba(34,197,94,0.08)', borderBottom: '1px solid var(--ed-rule)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: stage === 0 ? 'var(--ed-ink3)' : stage === 1 ? '#6366F1' : stage === 2 ? '#0EA5E9' : '#22C55E', letterSpacing: '0.14em', marginBottom: '4px' }}>
+              {stage === 0 ? 'PRIYA\'S SITUATION' : stage === 1 ? 'STEP 1 — SEGMENT THE MARKET' : stage === 2 ? 'STEP 2 — CHOOSE YOUR TARGET' : 'STEP 3 — DEFINE YOUR POSITION'}
+            </div>
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.45 }}>
+              {stage === 0 && 'Rohan says "grow the product." Without STP, Priya builds features for everyone — and nothing works well for anyone.'}
+              {stage === 1 && 'EdSpark\'s total market has 5 distinct customer types. Each has different needs, budgets, and buying behaviour. Hover each bubble to see why they differ.'}
+              {stage === 2 && 'Three targeting criteria narrow the choice. Mid-market clears all three. The others don\'t.'}
+              {stage === 3 && 'Positioning is not a tagline — it\'s a claim about who you serve and why you\'re the right choice for them, not for everyone.'}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div style={{ display: 'grid', gridTemplateColumns: stage === 3 ? '1fr' : '1fr 1fr', background: 'var(--ed-card)' }}>
+
+          {stage < 3 && (
+            /* ── Bubble chart ── */
+            <div style={{ position: 'relative', aspectRatio: '1.1', padding: '20px', borderRight: '1px solid var(--ed-rule)' }}>
+              <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', overflow: 'visible' }}>
+                {SEGMENTS.map((seg, i) => {
+                  const r = seg.size * 0.28;
+                  const targeted = isTargeted(seg.id);
+                  const faded = isFaded(seg.id);
+                  return (
+                    <motion.g key={seg.id}
+                      animate={{ opacity: faded ? 0.25 : 1, scale: targeted ? 1.15 : 1 }}
+                      transition={{ duration: 0.6, type: 'spring', stiffness: 180, damping: 20 }}
+                      style={{ transformOrigin: `${seg.x}% ${seg.y}%`, cursor: 'pointer' }}
+                      onMouseEnter={() => setHoveredSeg(seg.id)}
+                      onMouseLeave={() => setHoveredSeg(null)}>
+                      <motion.circle cx={seg.x} cy={seg.y} r={r}
+                        fill={targeted ? '#6366F1' : seg.color}
+                        opacity={targeted ? 0.9 : 0.35}
+                        animate={{ r: targeted ? r * 1.1 : r }}
+                        transition={{ duration: 0.6 }}
+                        style={{ filter: targeted ? 'drop-shadow(0 4px 12px rgba(99,102,241,0.6))' : 'none' }} />
+                      {stage >= 1 && (
+                        <text x={seg.x} y={seg.y} textAnchor="middle" dominantBaseline="middle"
+                          style={{ fontSize: seg.id === 'midmarket' ? '5px' : '4.5px', fill: targeted ? '#fff' : '#374151', fontWeight: 800, fontFamily: 'system-ui', pointerEvents: 'none' }}>
+                          {seg.label}
+                        </text>
+                      )}
+                    </motion.g>
+                  );
+                })}
+              </svg>
+              {/* Hover tooltip */}
+              {hoveredSeg && hovered && (
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                  style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', padding: '12px 14px', borderRadius: '12px', background: '#1F2937', border: `1.5px solid ${hovered.color}60`, zIndex: 10 }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '10px', fontWeight: 800, color: hovered.id === 'midmarket' ? '#818CF8' : '#94A3B8', marginBottom: '6px' }}>
+                    {hovered.label} — {hovered.desc}
+                  </div>
+                  {hovered.fitReasons.map((r, i) => (
+                    <div key={i} style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.55 }}>
+                      {hovered.id === 'midmarket' ? '✓' : '✕'} {r}
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {/* ── Right panel content ── */}
+          <div style={{ padding: '20px' }}>
+            <AnimatePresence mode="wait">
+
+              {/* Stage 1: segment list */}
+              {stage === 1 && (
+                <motion.div key="s1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: '12px' }}>
+                    5 SEGMENTS — ALL DIFFERENT
+                  </div>
+                  {SEGMENTS.map(seg => (
+                    <div key={seg.id} style={{ padding: '10px 12px', borderRadius: '10px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}
+                      onMouseEnter={() => setHoveredSeg(seg.id)} onMouseLeave={() => setHoveredSeg(null)}>
+                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: seg.color, flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)' }}>{seg.label}</div>
+                        <div style={{ fontSize: '10px', color: 'var(--ed-ink3)' }}>{seg.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+
+              {/* Stage 2: targeting criteria */}
+              {stage === 2 && (
+                <motion.div key="s2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#0EA5E9', letterSpacing: '0.14em', marginBottom: '12px' }}>
+                    TARGETING CRITERIA — MID-MARKET WINS
+                  </div>
+                  {TARGETING_CRITERIA.map((c, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.2 }}
+                      style={{ padding: '12px 14px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1.5px solid rgba(99,102,241,0.25)', marginBottom: '10px' }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em', marginBottom: '4px' }}>{c.label.toUpperCase()}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#22C55E', marginBottom: '3px' }}>{c.midmarket}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', lineHeight: 1.5 }}>{c.why}</div>
+                    </motion.div>
+                  ))}
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
+                    style={{ padding: '10px 14px', borderRadius: '10px', background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.3)', fontSize: '12px', fontWeight: 700, color: '#22C55E' }}>
+                    ✓ Target: Mid-market sales teams (100–500 employees, 10–50 reps)
+                  </motion.div>
+                </motion.div>
+              )}
+
+              {/* Stage 3: full positioning canvas */}
+              {stage === 3 && (
+                <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  style={{ padding: '4px' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.14em', marginBottom: '16px' }}>
+                    POSITIONING STATEMENT
+                  </div>
+
+                  {/* Positioning statement card */}
+                  <div style={{ padding: '20px', borderRadius: '16px', background: 'rgba(99,102,241,0.07)', border: '1.5px solid rgba(99,102,241,0.3)', borderLeft: '4px solid #6366F1', marginBottom: '16px' }}>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em', marginBottom: '8px' }}>FOR</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '10px' }}>Mid-market sales teams (10–50 reps) who need to prove coaching ROI to leadership</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em', marginBottom: '8px' }}>WHO NEED</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '10px' }}>Measurable coaching outcomes tied to deal performance — not just activity tracking</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em', marginBottom: '8px' }}>UNLIKE</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '10px' }}>Gong, which is built for enterprise and focuses on call intelligence, not coaching proof</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.12em', marginBottom: '8px' }}>EDSPARK IS</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#6366F1' }}>The only platform that connects CRM depth to coaching ROI — showing VPs which coaching behaviour caused which deals to close</div>
+                  </div>
+
+                  {/* Vs competitor */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    {[
+                      { name: 'Gong', color: '#94A3B8', points: ['Enterprise (1000+ seats)', 'Conversation intelligence', 'All sales roles', 'Long procurement cycle'] },
+                      { name: 'EdSpark', color: '#6366F1', points: ['Mid-market (10-50 reps)', 'Coaching ROI proof', 'Sales managers + VPs', 'VP signs in 1 call'] },
+                    ].map((co, i) => (
+                      <div key={co.name} style={{ padding: '14px', borderRadius: '12px', background: `${co.color}10`, border: `1.5px solid ${co.color}35` }}>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: co.color, letterSpacing: '0.12em', marginBottom: '8px' }}>{co.name}</div>
+                        {co.points.map((p, pi) => <div key={pi} style={{ fontSize: '11px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>{p}</div>)}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Stage progress bar */}
+        <div style={{ display: 'flex', gap: '0', borderTop: '1px solid var(--ed-rule)' }}>
+          {[1,2,3].map((s, i) => (
+            <div key={i} style={{ flex: 1, height: '4px', background: stage >= s ? '#6366F1' : 'transparent', transition: 'background 0.5s', borderRight: i < 2 ? '1px solid var(--ed-rule)' : 'none' }} />
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#6366F1' }}>STP is a sequence, not a list.</strong> Segmenting without targeting means you know your options but haven&apos;t made a decision. Targeting without positioning means you know who you serve but not why they should choose you. All three in order.
+      </div>
+      <ReplayBtn onReplay={replay} />
+    </div>
+  );
+}

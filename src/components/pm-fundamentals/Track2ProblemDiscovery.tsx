@@ -9,7 +9,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ResearchQuadrantMap, AffinityClusterAnimation } from './Module2Visualizations';
+import { ResearchQuadrantMap, AffinityClusterAnimation, STPFrameworkViz } from './Module2Visualizations';
 
 const PARTS = [
   { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
@@ -902,6 +902,10 @@ export default function Track2ProblemDiscovery({
             { speaker: 'priya', text: "Nothing has shipped that would change the root cause. We validate the finding and scope the new question — we don\u2019t re-run the whole study." },
           ]}
         />
+
+        <div className="rv">
+          <STPFrameworkViz />
+        </div>
 
         <QuizEngine
           conceptId={QUIZZES[1].conceptId}

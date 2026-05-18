@@ -10,7 +10,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, NarrativeInterviewScene,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation } from './Module2Visualizations';
+import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation, STPFrameworkViz } from './Module2Visualizations';
 
 // Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
@@ -1206,6 +1206,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
               Two managers could use EdSpark for completely different jobs — one tracking team improvement, one benchmarking her reps before a reorg. They&apos;d need different things. Find the job before you design the solution.
             </div>
           </InfoBox>
+
+          <div className="rv">
+            <STPFrameworkViz />
+          </div>
 
           <QuizEngine conceptId="customer-segments" conceptName="Customer Segments" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[1]} />
 
