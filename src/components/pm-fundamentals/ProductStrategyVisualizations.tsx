@@ -281,19 +281,32 @@ export function CompetitiveMoatRadar() {
                   style={{ transformOrigin: '150px 150px' }}
                   transition={{ type: 'spring', stiffness: 120, damping: 16 }} />
               )}
-              {/* EdSpark shape */}
+              {/* EdSpark shape — springs in, then breathes */}
               {showEds && visibleAxes === 4 && (
                 <motion.path d={toPath(edsPts)} fill="rgba(20,184,166,0.3)" stroke="#14B8A6" strokeWidth="2.5"
-                  initial={{ opacity: 0, scale: 0.3 }} animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, scale: 0.3 }} animate={{ opacity: [null, 1, 0.75, 1], scale: 1 }}
                   style={{ transformOrigin: '150px 150px' }}
-                  transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.2 }} />
+                  transition={{ scale: { type: 'spring', stiffness: 120, damping: 16, delay: 0.2 }, opacity: { times: [0, 0.3, 0.65, 1], duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1.2 } }} />
               )}
-              {/* Data points */}
+              {/* Winning vertex ripple — Switching Costs (i=1, angle=0°, EdSpark's moat) */}
+              {showEds && (
+                <motion.circle cx={edsPts[1].x} cy={edsPts[1].y} r="8" fill="none" stroke="#14B8A6" strokeWidth="1.5"
+                  animate={{ r: [8, 20, 8], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', delay: 1.5 }} />
+              )}
+              {/* EdSpark data points — float gently after appearing */}
               {showEds && MOAT_AXES.map((a, i) => {
                 const pt = edsPts[i];
-                return <circle key={i} cx={pt.x} cy={pt.y} r="5" fill="#14B8A6" stroke="white" strokeWidth="1.5"
-                  style={{ cursor: 'pointer' }} onClick={() => setActiveAxis(activeAxis === i ? null : i)} />;
+                const isWinning = i === 1; // Switching Costs
+                return (
+                  <motion.circle key={i} cx={pt.x} cy={pt.y} r={isWinning ? 6 : 5}
+                    fill={isWinning ? '#14B8A6' : '#14B8A6'} stroke="white" strokeWidth={isWinning ? 2 : 1.5}
+                    animate={{ cy: [pt.y, pt.y - 2, pt.y] }}
+                    transition={{ duration: 2.5 + i * 0.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.25 }}
+                    style={{ cursor: 'pointer' }} onClick={() => setActiveAxis(activeAxis === i ? null : i)} />
+                );
               })}
+              {/* Gong data points — static */}
               {showGong && MOAT_AXES.map((a, i) => {
                 const pt = gongPts[i];
                 return <circle key={i} cx={pt.x} cy={pt.y} r="5" fill="#8B5CF6" stroke="white" strokeWidth="1.5" />;
