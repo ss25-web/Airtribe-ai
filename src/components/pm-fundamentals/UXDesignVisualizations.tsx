@@ -540,136 +540,148 @@ export function SessionHeatmap() {
 // 9 button variants floating in 3D chaos. "Apply design system" snaps them to one.
 // Teaches: UX debt is invisible until you see it all at once.
 
-const VARIANTS = [
-  { color: '#3B82F6', label: 'Primary v1', textColor: '#fff', rounding: 4 },
-  { color: '#2563EB', label: 'Primary v2', textColor: '#fff', rounding: 8 },
-  { color: '#1D4ED8', label: 'Primary v3', textColor: '#fff', rounding: 12 },
-  { color: '#4F46E5', label: 'Action btn', textColor: '#fff', rounding: 6 },
-  { color: '#6366F1', label: 'Submit',     textColor: '#fff', rounding: 16 },
-  { color: '#7C3AED', label: 'Confirm',    textColor: '#fff', rounding: 3 },
-  { color: '#1E40AF', label: 'CTA',        textColor: '#fff', rounding: 10 },
-  { color: '#0EA5E9', label: 'Upload btn', textColor: '#fff', rounding: 7 },
-  { color: '#0369A1', label: 'Proceed →',  textColor: '#fff', rounding: 20 },
+// 9 actual rendered button variants — each subtly different.
+// The problem is visible the instant you see them together.
+// "Apply design system" animates them all to one canonical button.
+
+const BUTTON_VARIANTS = [
+  { team: 'Onboarding team',  quarter: 'Q1 2023', bg: '#3B82F6', radius: '4px',  fw: 500, px: '18px', py: '9px',  fs: '13px', ls: '0', text: 'Save Recording' },
+  { team: 'Analytics team',   quarter: 'Q2 2023', bg: '#2563EB', radius: '10px', fw: 600, px: '22px', py: '10px', fs: '13px', ls: '0', text: 'Save Recording' },
+  { team: 'Mobile team',      quarter: 'Q2 2023', bg: '#1D4ED8', radius: '20px', fw: 700, px: '20px', py: '11px', fs: '12px', ls: '0.04em', text: 'Save Recording' },
+  { team: 'Enterprise team',  quarter: 'Q3 2023', bg: '#4F46E5', radius: '6px',  fw: 600, px: '19px', py: '10px', fs: '14px', ls: '0', text: 'Save Recording' },
+  { team: 'Settings team',    quarter: 'Q3 2023', bg: '#6366F1', radius: '8px',  fw: 700, px: '24px', py: '12px', fs: '12px', ls: '0.05em', text: 'SAVE RECORDING' },
+  { team: 'Reports team',     quarter: 'Q4 2023', bg: '#7C3AED', radius: '3px',  fw: 500, px: '16px', py: '9px',  fs: '13px', ls: '0', text: 'Save Recording' },
+  { team: 'Search team',      quarter: 'Q4 2023', bg: '#1E40AF', radius: '12px', fw: 600, px: '20px', py: '10px', fs: '13px', ls: '0.02em', text: 'Save recording' },
+  { team: 'Upload team',      quarter: 'Q1 2024', bg: '#0EA5E9', radius: '7px',  fw: 600, px: '21px', py: '11px', fs: '12px', ls: '0', text: 'Save Recording' },
+  { team: 'Sharing team',     quarter: 'Q1 2024', bg: '#0369A1', radius: '16px', fw: 700, px: '22px', py: '11px', fs: '13px', ls: '0', text: 'Save Recording →' },
 ];
 
-const CHAOS_POSITIONS: [number, number, number][] = [
-  [-3.5, 2, 0.5], [0, 3, -1], [3.5, 2, 0.5],
-  [-4, 0, 1], [0, 0, 2], [4, 0, 1],
-  [-3.5, -2, 0.5], [0, -3, -1], [3.5, -2, 0.5],
-];
-
-const GRID_POSITIONS: [number, number, number][] = [
-  [-3, 1.5, 0], [0, 1.5, 0], [3, 1.5, 0],
-  [-3, 0, 0], [0, 0, 0], [3, 0, 0],
-  [-3, -1.5, 0], [0, -1.5, 0], [3, -1.5, 0],
-];
-
-function SprawlCard({ index, consolidated, variant }: { index: number; consolidated: boolean; variant: typeof VARIANTS[0] }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const targetPos = consolidated ? GRID_POSITIONS[index] : CHAOS_POSITIONS[index];
-  const targetColor = consolidated ? '#6366F1' : variant.color;
-
-  useFrame((_, delta) => {
-    if (!meshRef.current) return;
-    meshRef.current.position.lerp(new THREE.Vector3(...targetPos), delta * 4);
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, consolidated ? 0 : Math.sin(index * 1.3) * 0.2, delta * 3);
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, consolidated ? 0 : Math.cos(index * 1.7) * 0.3, delta * 3);
-    const mat = meshRef.current.material as THREE.MeshStandardMaterial;
-    const tc = new THREE.Color(targetColor);
-    mat.color.lerp(tc, delta * 3);
-    mat.emissive.lerp(tc, delta * 2);
-  });
-
-  return (
-    <mesh ref={meshRef} position={CHAOS_POSITIONS[index]} castShadow>
-      <boxGeometry args={[2.2, 0.7, 0.18]} />
-      <meshStandardMaterial color={variant.color} emissive={variant.color} emissiveIntensity={0.15} roughness={0.25} metalness={0.2} />
-      <Html center distanceFactor={7} style={{ pointerEvents: 'none' }}>
-        <div style={{ fontSize: '10px', fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', fontFamily: 'system-ui', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>
-          {consolidated ? 'Primary Button' : variant.label}
-        </div>
-      </Html>
-    </mesh>
-  );
-}
-
-function SprawlScene({ consolidated }: { consolidated: boolean }) {
-  return (
-    <>
-      <PerspectiveCamera makeDefault position={[0, 0, 14]} fov={50} />
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[8, 10, 6]} intensity={1.2} castShadow />
-      <pointLight position={[-6, -4, 4]} intensity={0.6} color="#6366F1" />
-      {VARIANTS.map((v, i) => <SprawlCard key={i} index={i} consolidated={consolidated} variant={v} />)}
-      <OrbitControls enablePan={false} enableZoom={false} autoRotate={!consolidated} autoRotateSpeed={0.5} />
-    </>
-  );
-}
+const DS_BUTTON = { bg: '#6366F1', radius: '8px', fw: 700, px: '20px', py: '10px', fs: '13px', ls: '0' };
 
 export function ComponentSprawl3D() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
+  const [visible, setVisible] = useState(0);
   const [consolidated, setConsolidated] = useState(false);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setConsolidated(false);
+    setVisible(0); setConsolidated(false);
+    BUTTON_VARIANTS.forEach((_, i) => setTimeout(() => setVisible(i + 1), 300 + i * 200));
   }, [inView, tick]);
 
-  const replay = () => { setConsolidated(false); setTick(t => t + 1); };
+  const replay = () => { setVisible(0); setConsolidated(false); setTick(t => t + 1); };
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>Component sprawl — 9 teams, 9 button variants, zero design system</VizLabel>
+      <VizLabel>Component sprawl — 9 teams, 9 sprints, 9 different "Save Recording" buttons</VizLabel>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 260px', gap: '20px', alignItems: 'center' }}>
-        <div style={{ borderRadius: '20px', overflow: 'hidden', height: '420px', background: 'linear-gradient(160deg, #0F172A 0%, #1E293B 100%)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 24px 56px rgba(0,0,0,0.3)' }}>
-          <Suspense fallback={<div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', fontSize: '12px' }}>Loading 3D scene…</div>}>
-            <Canvas shadows>
-              <SprawlScene consolidated={consolidated} />
-            </Canvas>
-          </Suspense>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-          <div style={{ padding: '18px', borderRadius: '16px', background: consolidated ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.08)', border: `1.5px solid ${consolidated ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.25)'}`, transition: 'all 0.5s' }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: consolidated ? '#22C55E' : '#EF4444', letterSpacing: '0.14em', marginBottom: '6px' }}>
-              {consolidated ? '✓ DESIGN SYSTEM APPLIED' : '⚠ 9 BUTTON VARIANTS'}
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        {/* Header */}
+        <div style={{ padding: '14px 20px', background: consolidated ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.05)', borderBottom: '1px solid var(--ed-rule)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.5s' }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: consolidated ? '#22C55E' : '#EF4444', letterSpacing: '0.14em', marginBottom: '3px' }}>
+              {consolidated ? '✓ DESIGN SYSTEM APPLIED' : '⚠ UX DEBT ACCUMULATED OVER 4 QUARTERS'}
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.5 }}>
-              {consolidated
-                ? 'One canonical component. Every team ships the same button. 45-minute build time vs 4 hours.'
-                : 'Each team built their own version. None is wrong. All are incompatible. This is how UX debt accumulates.'}
+            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)' }}>
+              {consolidated ? 'One canonical component. 45 min to build. Zero ambiguity.' : 'Same button. 9 teams. 9 reasonable decisions. All incompatible.'}
             </div>
           </div>
-
-          <motion.button
-            whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+          <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             onClick={() => setConsolidated(c => !c)}
             style={{
-              padding: '14px', borderRadius: '14px', cursor: 'pointer', fontSize: '13px', fontWeight: 800,
-              background: consolidated
-                ? 'rgba(239,68,68,0.1)'
-                : 'linear-gradient(160deg, #22C55E 0%, #15803D 100%)',
+              padding: '10px 20px', borderRadius: '12px', cursor: 'pointer', fontSize: '12px', fontWeight: 800, flexShrink: 0,
+              background: consolidated ? 'rgba(239,68,68,0.1)' : 'linear-gradient(160deg, #22C55E 0%, #15803D 100%)',
               color: consolidated ? '#EF4444' : '#fff',
               border: `1.5px solid ${consolidated ? 'rgba(239,68,68,0.3)' : 'transparent'}`,
-              boxShadow: consolidated ? 'none' : '0 6px 0 #15803D, 0 10px 24px rgba(34,197,94,0.4)',
+              boxShadow: consolidated ? 'none' : '0 5px 0 #15803D, 0 8px 20px rgba(34,197,94,0.35)',
               transition: 'all 0.3s',
             }}>
-            {consolidated ? '← Show the sprawl' : '✓ Apply design system'}
+            {consolidated ? '← Show the problem' : '✓ Apply design system'}
           </motion.button>
+        </div>
 
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.65 }}>
-            {consolidated
-              ? 'Before: 4 hours per feature screen. After: 45 minutes. 130 hours recovered annually.'
-              : 'Orbit to see all 9 variants. Each was a reasonable decision in isolation.'}
-          </div>
+        <div style={{ background: 'var(--ed-card)', padding: '28px 24px' }}>
+          <AnimatePresence mode="wait">
+            {!consolidated ? (
+              /* BEFORE: 3×3 grid of actual rendered buttons */
+              <motion.div key="before" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+                {BUTTON_VARIANTS.map((v, i) => (
+                  <AnimatePresence key={i}>
+                    {i < visible && (
+                      <motion.div initial={{ opacity: 0, y: 12, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                        style={{ padding: '16px', borderRadius: '14px', background: `${v.bg}08`, border: `1.5px solid ${v.bg}30`, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '10px' }}>
+                        {/* The actual button */}
+                        <div style={{
+                          padding: `${v.py} ${v.px}`,
+                          borderRadius: v.radius,
+                          background: v.bg,
+                          fontSize: v.fs,
+                          fontWeight: v.fw,
+                          color: '#fff',
+                          letterSpacing: v.ls,
+                          boxShadow: `0 3px 0 ${v.bg}90, 0 4px 10px ${v.bg}40`,
+                          inset: `0 1px 0 rgba(255,255,255,0.25)`,
+                          fontFamily: 'system-ui, sans-serif',
+                          whiteSpace: 'nowrap' as const,
+                          textAlign: 'center' as const,
+                          minWidth: '120px',
+                        }}>
+                          {v.text}
+                        </div>
+                        {/* Team label */}
+                        <div style={{ textAlign: 'center' as const }}>
+                          <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--ed-ink2)' }}>{v.team}</div>
+                          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', marginTop: '2px' }}>{v.quarter}</div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                ))}
+              </motion.div>
+            ) : (
+              /* AFTER: one canonical button prominently centred */
+              <motion.div key="after" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+                style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', padding: '40px 20px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#22C55E', letterSpacing: '0.16em', marginBottom: '24px' }}>
+                  ONE CANONICAL COMPONENT
+                </div>
+                {/* The single canonical button */}
+                <div style={{
+                  padding: `${DS_BUTTON.py} ${DS_BUTTON.px}`, borderRadius: DS_BUTTON.radius,
+                  background: DS_BUTTON.bg, fontSize: DS_BUTTON.fs, fontWeight: DS_BUTTON.fw,
+                  color: '#fff', fontFamily: 'system-ui, sans-serif',
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.35), 0 6px 0 #3730A3, 0 10px 0 rgba(0,0,0,0.1), 0 18px 40px rgba(99,102,241,0.5)`,
+                  marginBottom: '32px',
+                }}>
+                  Save Recording
+                </div>
+                {/* Stats */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', width: '100%', maxWidth: '500px' }}>
+                  {[
+                    { label: 'Build time', before: '4 hours', after: '45 min', color: '#22C55E' },
+                    { label: 'Teams aligned', before: '9 variants', after: '1 spec', color: '#6366F1' },
+                    { label: 'Annual savings', before: '—', after: '130 hrs', color: '#F97316' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ textAlign: 'center' as const, padding: '14px 12px', borderRadius: '14px', background: `${s.color}10`, border: `1.5px solid ${s.color}30` }}>
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: s.color, letterSpacing: '0.12em', marginBottom: '6px' }}>{s.label.toUpperCase()}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '4px', textDecoration: 'line-through' }}>{s.before}</div>
+                      <div style={{ fontSize: '16px', fontWeight: 900, color: s.color, fontFamily: 'monospace' }}>{s.after}</div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
       <div style={{ marginTop: '14px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#6366F1' }}>Pitch it as ROI, not infrastructure:</strong> &ldquo;A 6-week design system investment reduces per-feature cost from 4 hours to 45 minutes — 130 hours recovered annually. That&apos;s ~$52k in capacity.&rdquo; Rohan approved on slide 2.
+        <strong style={{ color: '#6366F1' }}>What you&apos;re looking at:</strong> every single one of those buttons was a reasonable decision when it was made. Nobody was wrong. The system accumulated debt because there was no shared constraint.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>
