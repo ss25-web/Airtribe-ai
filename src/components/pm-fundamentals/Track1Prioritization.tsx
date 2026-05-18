@@ -8,6 +8,7 @@ import {
   TiltCard, ConversationScene, PMPrincipleBox, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale } from './PrioritizationVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1060,6 +1061,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           decision until you know what problem each one is actually solving. That is Priya&apos;s next step.
         </>)}
 
+        <div className="rv">
+          <FeatureRequestXRay />
+        </div>
+
         <QuizEngine
           conceptId="raw-inputs-m3"
           conceptName="Raw Inputs"
@@ -1146,6 +1151,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         ], ACCENT)}
 
         {pullQuote('A good problem statement has three parts: who is affected, what they\u2019re struggling to do, and what happens when they fail. Strip the solution out entirely.')}
+
+        <div className="rv">
+          <ProblemStatement3Parts />
+        </div>
 
         <QuizEngine
           conceptId="problem-framing-m3"
@@ -1323,6 +1332,10 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           ]}
           conceptId="rice-framework-m3"
         />
+
+        <div className="rv">
+          <RICEComponentScale />
+        </div>
 
         {para(<>
           One thing RICE won&apos;t tell you: what to do when two features score within 20 points of each other. At that range, the scores are too close to be meaningful — the uncertainty in your estimates is bigger than the gap. When scores are close, look at three things: <strong>strategic alignment</strong> (which one advances the metric your company cares about most right now?), <strong>reversibility</strong> (which one is easier to undo or pause if the context changes?), and <strong>learning value</strong> (which one tells you something useful faster?). Tie-breaking is judgment, not arithmetic.

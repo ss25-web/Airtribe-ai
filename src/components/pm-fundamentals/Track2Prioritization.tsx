@@ -8,6 +8,7 @@ import {
   TiltCard, ConversationScene, TrackHeroCard, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { CorrelationVsMechanism, NowNextLaterOrbits, KillCriteriaMonitor } from './PrioritizationVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -535,6 +536,10 @@ export default function Track2Prioritization({
           ]}
           conceptId="problem-framing-m3"
         />
+        <div className="rv">
+          <NowNextLaterOrbits />
+        </div>
+
         <QuizEngine
           conceptId="problem-framing-m3"
           conceptName="Portfolio Framing"
@@ -594,6 +599,10 @@ export default function Track2Prioritization({
           ]}
           conceptId="data-vs-requests-m3"
         />
+        <div className="rv">
+          <CorrelationVsMechanism />
+        </div>
+
         <QuizEngine
           conceptId="data-vs-requests-m3"
           conceptName="Data vs Requests"
@@ -782,6 +791,10 @@ export default function Track2Prioritization({
           ]}
           conceptId="stakeholder-decisions-m3"
         />
+        <div className="rv">
+          <KillCriteriaMonitor />
+        </div>
+
         <QuizEngine
           conceptId="stakeholder-decisions-m3"
           conceptName="Stakeholder Communication"
