@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { AbandonmentTimeline, FigmaBeforeAfter, SessionHeatmap, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { AbandonmentTimeline, FigmaBeforeAfter, NielsenHeuristicsViz } from './UXDesignVisualizations';
 import { MicrocopyLab, StateSpecBuilder, UXDebugLoopViz } from './UXRevampVisualizations';
 
 // ─────────────────────────────────────────
@@ -1453,10 +1453,6 @@ export default function Track1UXDesign({
             { text: 'The feature itself is wrong', correct: false, feedback: 'The feature is right. The wrapper around it — the feedback loop — is missing.' },
           ]}
         />
-
-        <div className="rv">
-          <SessionHeatmap />
-        </div>
 
         <QuizEngine
           conceptId="ux-system-vs-experience"

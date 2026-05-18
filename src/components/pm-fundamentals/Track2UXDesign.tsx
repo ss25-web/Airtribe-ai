@@ -8,7 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip, TrackHeroCard,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
-import { ComponentSprawl3D, CraftInvestmentMatrix, SessionHeatmap, NielsenHeuristicsViz } from './UXDesignVisualizations';
+import { ComponentSprawl3D, CraftInvestmentMatrix, NielsenHeuristicsViz } from './UXDesignVisualizations';
 import { AccessibilityChecker, DesignSystemROICalc } from './UXRevampVisualizations';
 
 const PARTS = [
@@ -1280,10 +1280,6 @@ export default function Track2UXDesign({
             { text: "Defer to Maya — design quality decisions should be made by the designer.", correct: false, feedback: "Speed-vs-craft decisions involve engineering time, user impact, and business priority — all things the PM owns. Deferring to Maya means a designer is making a resourcing decision without business context." },
           ]}
         />
-
-        <div className="rv">
-          <SessionHeatmap />
-        </div>
 
         <div className="rv">
           <CraftInvestmentMatrix />
