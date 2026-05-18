@@ -30,60 +30,234 @@ Follows Priya Sharma, 2-year APM at EdSpark (B2B SaaS for sales coaching). EdSpa
 
 
 // ─────────────────────────────────────────
-// MOCKUP 1 — Amplitude: Enterprise Cohort Analysis
+// MOCKUP 1 — Amplitude: Interactive Enterprise Cohort Dashboard
+// Full working mockup: time range selector, segment filter, view mode toggle,
+// clickable rows that drill down to session-frequency breakdown, hover tooltips.
 // ─────────────────────────────────────────
+const COHORT_DATA = [
+  { id: 'salesforce', label: 'Salesforce (Enterprise)', color: '#3B82F6', plan: 'Enterprise', seats: '1,240',
+    sessions: 4.1,
+    retention: { '30d': 79, '60d': 84, '90d': 87 },
+    breakdown: [
+      { label: '4+ sessions / wk', pct: 72, ret: 91 },
+      { label: '2–3 sessions / wk', pct: 21, ret: 74 },
+      { label: '< 2 sessions / wk', pct: 7,  ret: 31 },
+    ],
+  },
+  { id: 'zendesk', label: 'Zendesk (Enterprise)', color: '#8B5CF6', plan: 'Enterprise', seats: '890',
+    sessions: 3.8,
+    retention: { '30d': 74, '60d': 78, '90d': 81 },
+    breakdown: [
+      { label: '4+ sessions / wk', pct: 61, ret: 91 },
+      { label: '2–3 sessions / wk', pct: 29, ret: 74 },
+      { label: '< 2 sessions / wk', pct: 10, ret: 31 },
+    ],
+  },
+  { id: 'infosys', label: 'Infosys (Enterprise)', color: '#06B6D4', plan: 'Enterprise', seats: '560',
+    sessions: 3.2,
+    retention: { '30d': 70, '60d': 73, '90d': 76 },
+    breakdown: [
+      { label: '4+ sessions / wk', pct: 54, ret: 91 },
+      { label: '2–3 sessions / wk', pct: 34, ret: 74 },
+      { label: '< 2 sessions / wk', pct: 12, ret: 31 },
+    ],
+  },
+  { id: 'smb', label: 'SMB (self-serve)', color: '#F59E0B', plan: 'SMB', seats: '4,200',
+    sessions: 1.4,
+    retention: { '30d': 24, '60d': 31, '90d': 38 },
+    breakdown: [
+      { label: '4+ sessions / wk', pct: 12, ret: 88 },
+      { label: '2–3 sessions / wk', pct: 28, ret: 62 },
+      { label: '< 2 sessions / wk', pct: 60, ret: 22 },
+    ],
+  },
+  { id: 'trial', label: 'Trial (non-converted)', color: '#EF4444', plan: 'Trial', seats: '8,100',
+    sessions: 0.9,
+    retention: { '30d': 6, '60d': 9, '90d': 12 },
+    breakdown: [
+      { label: '4+ sessions / wk', pct: 4,  ret: 81 },
+      { label: '2–3 sessions / wk', pct: 12, ret: 44 },
+      { label: '< 2 sessions / wk', pct: 84, ret: 8 },
+    ],
+  },
+];
+
 const AmplitudeCohortDashboard = () => {
-  const cohorts = [
-    { label: 'Salesforce (Enterprise)', sessions: 4.1, retention: 87, color: '#3B82F6', barColor: '#3B82F6' },
-    { label: 'Zendesk (Enterprise)',    sessions: 3.8, retention: 81, color: '#8B5CF6', barColor: '#8B5CF6' },
-    { label: 'Infosys (Enterprise)',    sessions: 3.2, retention: 76, color: '#06B6D4', barColor: '#06B6D4' },
-    { label: 'SMB (self-serve)',        sessions: 1.4, retention: 38, color: '#F59E0B', barColor: '#F59E0B' },
-    { label: 'Trial (non-converted)',   sessions: 0.9, retention: 12, color: '#EF4444', barColor: '#EF4444' },
-  ];
+  const [window_, setWindow] = useState<'30d' | '60d' | '90d'>('90d');
+  const [filter, setFilter] = useState<'all' | 'enterprise' | 'smb'>('all');
+  const [viewMode, setViewMode] = useState<'retention' | 'sessions'>('retention');
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [savedInsight, setSavedInsight] = useState(false);
+
+  const visible = COHORT_DATA.filter(c =>
+    filter === 'all' ? true : filter === 'enterprise' ? c.plan === 'Enterprise' : c.plan !== 'Enterprise'
+  );
+
+  const maxVal = viewMode === 'retention'
+    ? 100
+    : Math.max(...visible.map(c => c.sessions));
+
   return (
     <TiltCard style={{ margin: '32px 0' }}>
-      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 28px 72px rgba(0,0,0,0.28)' }}>
-        <div style={{ background: '#1B2A47', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 28px 72px rgba(0,0,0,0.32)' }}>
+
+        {/* ── Title bar ── */}
+        <div style={{ background: '#1B2A47', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '5px' }}>
             {['#FF5F57', '#FFBD2E', '#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
           </div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.7)', fontWeight: 600, letterSpacing: '0.06em' }}>Amplitude &middot; EdSpark &middot; Cohort Retention by Segment</div>
-          <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>Q1 2024 &middot; 90-day window</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.75)', fontWeight: 600, letterSpacing: '0.06em', flex: 1 }}>
+            Amplitude &middot; EdSpark &middot; Cohort Retention by Segment
+          </div>
+          <motion.button onClick={() => setSavedInsight(s => !s)} whileHover={{ opacity: 0.8 }} whileTap={{ scale: 0.96 }}
+            style={{ padding: '4px 10px', borderRadius: '5px', border: `1px solid ${savedInsight ? '#34D399' : 'rgba(255,255,255,0.15)'}`, background: savedInsight ? 'rgba(52,211,153,0.12)' : 'transparent', color: savedInsight ? '#34D399' : 'rgba(255,255,255,0.45)', fontSize: '9px', fontFamily: 'monospace', cursor: 'pointer', fontWeight: 700 }}>
+            {savedInsight ? '✓ Saved' : '⊕ Save'}
+          </motion.button>
         </div>
-        <div style={{ background: '#111927', padding: '20px 20px 24px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-            {[{ label: '30-Day Retention (Enterprise avg)', value: '81%', delta: '+23pp vs SMB', up: true },
-              { label: 'Avg Coaching Sessions / User / Wk', value: '3.7', delta: '+2.3 vs SMB', up: true },
-              { label: 'CRM Integration Requests (last 30d)', value: '12', delta: 'from 3 accounts', up: false },
-              { label: 'Session-Frequency Requests (last 30d)', value: '0', delta: 'no direct asks', up: false },
+
+        {/* ── Toolbar ── */}
+        <div style={{ background: '#162235', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexWrap: 'wrap' as const }}>
+          {/* Time window */}
+          <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '2px' }}>
+            {(['30d', '60d', '90d'] as const).map(w => (
+              <button key={w} onClick={() => setWindow(w)}
+                style={{ padding: '3px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, background: window_ === w ? '#3B82F6' : 'transparent', color: window_ === w ? '#fff' : 'rgba(255,255,255,0.4)', transition: 'all 0.2s' }}>
+                {w}
+              </button>
+            ))}
+          </div>
+
+          {/* Segment filter */}
+          <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '2px' }}>
+            {[['all', 'All segments'], ['enterprise', 'Enterprise'], ['smb', 'SMB + Trial']] .map(([v, l]) => (
+              <button key={v} onClick={() => setFilter(v as typeof filter)}
+                style={{ padding: '3px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, background: filter === v ? 'rgba(255,255,255,0.12)' : 'transparent', color: filter === v ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)', transition: 'all 0.2s', whiteSpace: 'nowrap' as const }}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* View mode */}
+          <div style={{ display: 'flex', gap: '2px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', padding: '2px', marginLeft: 'auto' }}>
+            {[['retention', '% Retention'], ['sessions', 'Sessions/wk']] .map(([v, l]) => (
+              <button key={v} onClick={() => setViewMode(v as typeof viewMode)}
+                style={{ padding: '3px 10px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '10px', fontFamily: 'monospace', fontWeight: 700, background: viewMode === v ? 'rgba(255,255,255,0.12)' : 'transparent', color: viewMode === v ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.4)', transition: 'all 0.2s', whiteSpace: 'nowrap' as const }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Metric cards ── */}
+        <div style={{ background: '#111927', padding: '16px 16px 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '20px' }}>
+            {[
+              { label: `${window_} Retention (Ent. avg)`, value: `${Math.round((COHORT_DATA.slice(0,3).reduce((s,c) => s + c.retention[window_], 0)) / 3)}%`, delta: `vs SMB ${COHORT_DATA[3].retention[window_]}%`, good: true },
+              { label: 'Avg sessions / user / wk', value: '3.7', delta: 'Enterprise avg', good: true },
+              { label: 'CRM requests (last 30d)', value: '12', delta: 'from 3 accounts', good: false },
+              { label: 'Session-freq. requests', value: '0', delta: 'no direct asks ← key', good: false },
             ].map(m => (
-              <div key={m.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '10px', padding: '14px 16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', marginBottom: '6px' }}>{m.label}</div>
-                <div style={{ fontFamily: "'Lora', serif", fontSize: '26px', fontWeight: 700, color: '#fff', lineHeight: 1 }}>{m.value}</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: m.up ? '#34D399' : 'rgba(255,255,255,0.35)', marginTop: '4px' }}>{m.delta}</div>
+              <div key={m.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '8px', padding: '12px 14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', marginBottom: '5px', lineHeight: 1.4 }}>{m.label}</div>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: '#fff', lineHeight: 1, fontFamily: 'monospace' }}>{m.value}</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '8px', color: m.good ? '#34D399' : 'rgba(255,255,255,0.3)', marginTop: '4px' }}>{m.delta}</div>
               </div>
             ))}
           </div>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', marginBottom: '12px' }}>90-DAY RETENTION BY SEGMENT</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {cohorts.map(c => (
-              <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.55)', width: '190px', flexShrink: 0 }}>{c.label}</div>
-                <div style={{ flex: 1, height: '14px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+
+          {/* ── Chart label ── */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>
+              {window_} {viewMode === 'retention' ? 'RETENTION' : 'AVG SESSIONS / WK'} BY SEGMENT
+            </div>
+            <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.2)' }}>click row to drill down</div>
+          </div>
+
+          {/* ── Cohort rows ── */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '2px', marginBottom: '16px' }}>
+            {visible.map(c => {
+              const val = viewMode === 'retention' ? c.retention[window_] : c.sessions;
+              const pct = (val / maxVal) * 100;
+              const isExpanded = expanded === c.id;
+              const isHovered = hovered === c.id;
+              return (
+                <div key={c.id}>
                   <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${c.retention}%` }}
-                    transition={{ duration: 0.9, ease: 'easeOut', delay: 0.15 }}
-                    style={{ height: '100%', background: c.barColor, borderRadius: '3px' }}
-                  />
+                    onMouseEnter={() => setHovered(c.id)} onMouseLeave={() => setHovered(null)}
+                    onClick={() => setExpanded(isExpanded ? null : c.id)}
+                    animate={{ background: isExpanded ? 'rgba(255,255,255,0.07)' : isHovered ? 'rgba(255,255,255,0.04)' : 'transparent' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 10px', borderRadius: '7px', cursor: 'pointer', transition: 'background 0.15s' }}>
+
+                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: c.color, flexShrink: 0, boxShadow: `0 0 6px ${c.color}60` }} />
+                    <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.65)', width: '185px', flexShrink: 0 }}>{c.label}</div>
+
+                    {/* Bar */}
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      <div style={{ height: '16px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', overflow: 'hidden' }}>
+                        <motion.div
+                          key={`${c.id}-${window_}-${viewMode}-${filter}`}
+                          initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.55, ease: 'easeOut' }}
+                          style={{ height: '100%', background: `linear-gradient(90deg, ${c.color}CC, ${c.color})`, borderRadius: '4px', boxShadow: `0 0 8px ${c.color}40` }} />
+                      </div>
+                      {/* Tooltip on hover */}
+                      {isHovered && (
+                        <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                          style={{ position: 'absolute', top: '-32px', left: `${Math.min(pct, 85)}%`, transform: 'translateX(-50%)', background: '#0F172A', border: `1px solid ${c.color}60`, borderRadius: '6px', padding: '4px 8px', fontFamily: 'monospace', fontSize: '10px', color: c.color, fontWeight: 700, whiteSpace: 'nowrap' as const, zIndex: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
+                          {viewMode === 'retention' ? `${val}% retained` : `${val} sessions/wk`}
+                        </motion.div>
+                      )}
+                    </div>
+
+                    <div style={{ fontFamily: 'monospace', fontSize: '11px', color: c.color, width: '44px', textAlign: 'right' as const, fontWeight: 700 }}>
+                      {viewMode === 'retention' ? `${val}%` : `${val}×`}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>{isExpanded ? '▲' : '▼'}</div>
+                  </motion.div>
+
+                  {/* ── Drill-down row ── */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ overflow: 'hidden', marginLeft: '34px', marginBottom: '4px' }}>
+                        <div style={{ padding: '12px 10px 12px', borderLeft: `2px solid ${c.color}40`, marginLeft: '4px', paddingLeft: '14px' }}>
+                          <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', marginBottom: '10px' }}>
+                            SESSION FREQUENCY BREAKDOWN — {c.label.split(' ')[0].toUpperCase()}
+                          </div>
+                          {c.breakdown.map((b, bi) => (
+                            <div key={bi} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)', width: '140px', flexShrink: 0 }}>{b.label}</div>
+                              <div style={{ flex: 1, height: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+                                <motion.div initial={{ width: 0 }} animate={{ width: `${b.pct}%` }}
+                                  transition={{ duration: 0.5, delay: bi * 0.1 }}
+                                  style={{ height: '100%', background: `${c.color}80`, borderRadius: '4px' }} />
+                              </div>
+                              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', width: '28px', textAlign: 'right' as const }}>{b.pct}%</div>
+                              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: b.ret >= 80 ? '#34D399' : b.ret >= 60 ? '#F59E0B' : '#EF4444', width: '52px', textAlign: 'right' as const, fontWeight: 700 }}>{b.ret}% ret.</div>
+                            </div>
+                          ))}
+                          <div style={{ marginTop: '8px', padding: '8px 10px', background: 'rgba(52,211,153,0.08)', borderRadius: '6px', border: '1px solid rgba(52,211,153,0.2)', fontSize: '10px', color: '#34D399', lineHeight: 1.6 }}>
+                            Users at 4+ sessions/wk retain at 91% regardless of segment. The driver is session frequency — not plan type.
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: c.barColor, width: '36px', textAlign: 'right' }}>{c.retention}%</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-          <div style={{ marginTop: '16px', padding: '10px 14px', background: 'rgba(59,130,246,0.08)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#3B82F6', letterSpacing: '0.1em', marginBottom: '4px' }}>INSIGHT</div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.65 }}>Enterprise users average 3.7 sessions/week and retain at 81%. CRM requests come from 3 accounts but session frequency — the strongest retention driver — generates zero direct asks.</div>
+
+          {/* ── Insight bar ── */}
+          <div style={{ padding: '10px 14px 14px' }}>
+            <div style={{ padding: '10px 14px', background: 'rgba(59,130,246,0.08)', borderRadius: '8px', border: '1px solid rgba(59,130,246,0.2)' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#3B82F6', letterSpacing: '0.1em', marginBottom: '4px' }}>⚡ KEY INSIGHT</div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.65 }}>
+                Enterprise users average 3.7 sessions/week and retain at {COHORT_DATA.slice(0,3).reduce((s,c) => s + c.retention[window_], 0) / 3 | 0}%. CRM requests: 12 from 3 accounts. Session-frequency requests: <strong style={{ color: '#EF4444' }}>0</strong> — yet it&apos;s the strongest retention driver in the data.
+              </div>
+            </div>
           </div>
         </div>
       </div>
