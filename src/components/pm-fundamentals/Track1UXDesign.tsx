@@ -8,6 +8,7 @@ import {
   TiltCard, ConversationScene, CharacterChip,
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
+import { AbandonmentTimeline, UIStateGalaxy, FigmaBeforeAfter, SessionHeatmap } from './UXDesignVisualizations';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1454,6 +1455,10 @@ export default function Track1UXDesign({
           ]}
         />
 
+        <div className="rv">
+          <SessionHeatmap />
+        </div>
+
         <QuizEngine
           conceptId="ux-system-vs-experience"
           conceptName="System vs. Experience"
@@ -1566,6 +1571,10 @@ export default function Track1UXDesign({
           ]}
         />
 
+        <div className="rv">
+          <AbandonmentTimeline />
+        </div>
+
         <QuizEngine
           conceptId="ux-loading-states"
           conceptName="Loading States"
@@ -1669,6 +1678,14 @@ export default function Track1UXDesign({
           'Success state — what does done look like?',
           'Edge cases — partial data, timeouts, slow connections',
         ])}
+
+        <div className="rv">
+          <UIStateGalaxy />
+        </div>
+
+        <div className="rv">
+          <FigmaBeforeAfter />
+        </div>
 
         <QuizEngine
           conceptId="ux-spec-states"
