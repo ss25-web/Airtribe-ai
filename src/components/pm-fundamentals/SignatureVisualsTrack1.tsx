@@ -690,9 +690,14 @@ export function FiveStatesSolarSystem() {
   );
 }
 
-// ─── M06 · T1 · THE SIGNAL PRISM ─────────────────────────────────────────────
-// One beam of product truth enters a prism. Four coloured beams exit, each
-// the right translation for a different stakeholder.
+// ─── M06 · T1 · ONE TRUTH · FOUR TRANSLATIONS ────────────────────────────────
+// The same fact ("Search is shipping Friday") rendered in the four native
+// surfaces each audience actually lives in: a Jira ticket for Engineering,
+// a Figma comment thread for Design, a one-slide executive deck for
+// Leadership, a release-note email for Sales/CS. Each card lives in its
+// real tool chrome so a learner recognises the surface before reading.
+// Teaches: same data, four formats — sending all four the same message
+// serves none of them.
 
 export function SignalPrism() {
   const ref = useRef<HTMLDivElement>(null);
@@ -703,65 +708,222 @@ export function SignalPrism() {
   useEffect(() => {
     if (!inView) return;
     setStage(0);
-    [1,2,3,4,5].forEach((s, i) => setTimeout(() => setStage(s), 400 + i * 600));
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 350 + i * 650));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
-
-  const BEAMS = [
-    { label: 'Engineering', sub: 'API contract + scope', color: '#3A86FF', angle: -35, ex: 430, ey: 140 },
-    { label: 'Design',      sub: 'User job + context', color: '#E07A5F', angle: -12, ex: 445, ey: 185 },
-    { label: 'Leadership',  sub: 'Outcome + tradeoff', color: '#7843EE', angle: 12,  ex: 445, ey: 230 },
-    { label: 'Sales / CS',  sub: 'What to promise',    color: '#059669', angle: 35,  ex: 430, ey: 275 },
-  ];
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.08)' }}>
-        <svg viewBox="0 0 600 400" style={{ width: '100%', display: 'block', background: 'linear-gradient(160deg, #F8F5F0 0%, #EDE8DF 100%)' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
+        <svg viewBox="0 0 720 680" style={{ width: '100%', display: 'block' }}>
           <defs>
-            <filter id="prism-glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <linearGradient id="sp-page" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F7F4EC" /><stop offset="100%" stopColor="#EFEAD9" />
+            </linearGradient>
+            <filter id="sp-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.10)"/></filter>
           </defs>
 
-          {/* Input beam */}
+          <rect width="720" height="680" fill="url(#sp-page)" />
+
+          {/* === PRODUCT TRUTH banner (the single source fact) === */}
           {stage >= 1 && (
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <rect x="40" y="190" width="100" height="36" rx="10" fill="#1F2937" />
-              <text x="90" y="203" textAnchor="middle" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.6)', fontFamily: 'JetBrains Mono, monospace', fontWeight: 700 }}>PRODUCT TRUTH</text>
-              <text x="90" y="218" textAnchor="middle" style={{ fontSize: '9px', fill: '#fff', fontFamily: 'system-ui', fontWeight: 700 }}>&ldquo;Search is shipping&rdquo;</text>
-              <motion.line x1="140" y1="208" x2="235" y2="208" stroke="rgba(255,255,255,0.9)" strokeWidth="3" strokeLinecap="round"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6 }} />
+            <motion.g initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <rect x="180" y="20" width="360" height="58" rx="10" fill="#1F2937" filter="url(#sp-soft)" />
+              <text x="360" y="40" textAnchor="middle" style={{ fontSize: '8.5px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.24em', fontWeight: 800 }}>THE PRODUCT TRUTH</text>
+              <text x="360" y="62" textAnchor="middle" style={{ fontSize: '14px', fill: '#FFF', fontFamily: "Georgia, serif", fontWeight: 800 }}>{'“'}Search ships Friday{'”'}</text>
+              {/* Down arrow */}
+              <line x1="360" y1="86" x2="360" y2="104" stroke="#9CA3AF" strokeWidth="2" strokeDasharray="3 3" />
+              <polygon points="354,102 366,102 360,112" fill="#9CA3AF" />
             </motion.g>
           )}
 
-          {/* Prism */}
+          {/* === FOUR AUDIENCE CARDS — 2×2 grid === */}
+
+          {/* ─ Top-left · JIRA · Engineering ─ */}
           {stage >= 2 && (
-            <motion.polygon points="240,150 310,208 240,266" fill="rgba(99,102,241,0.15)" stroke="#6366F1" strokeWidth="2"
-              initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
-              style={{ transformOrigin: '270px 208px' }} />
+            <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              {/* Card */}
+              <rect x="20" y="130" width="338" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#sp-soft)" />
+              {/* Jira header */}
+              <path d="M 20 140 Q 20 130 30 130 L 348 130 Q 358 130 358 140 L 358 162 L 20 162 Z" fill="#172B4D" />
+              <rect x="32" y="142" width="10" height="10" rx="1" fill="#2684FF" />
+              <rect x="34" y="139" width="6" height="16" fill="#2684FF" />
+              <text x="50" y="152" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>Jira</text>
+              <text x="79" y="152" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "system-ui" }}>·</text>
+              <text x="91" y="152" style={{ fontSize: '10.5px', fill: 'rgba(255,255,255,0.85)', fontFamily: "system-ui" }}>EDS Engineering · Sprint 14</text>
+              {/* Audience label tab */}
+              <rect x="280" y="138" width="68" height="18" rx="3" fill="#3A86FF" />
+              <text x="314" y="151" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>ENG</text>
+
+              {/* Ticket ID + priority pill */}
+              <rect x="34" y="178" width="70" height="20" rx="3" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="0.6" />
+              <circle cx="44" cy="188" r="3" fill="#F59E0B" />
+              <text x="52" y="192" style={{ fontSize: '10px', fill: '#92400E', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>EDS-1402</text>
+              {/* Status */}
+              <rect x="110" y="178" width="84" height="20" rx="3" fill="#DBEAFE" />
+              <text x="152" y="192" textAnchor="middle" style={{ fontSize: '9px', fill: '#1E40AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em', fontWeight: 800 }}>IN PROGRESS</text>
+              {/* Assignee */}
+              <circle cx="320" cy="188" r="9" fill="#3A86FF" />
+              <text x="320" y="191" textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>K</text>
+              {/* Title */}
+              <text x="34" y="220" style={{ fontSize: '13px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>Full-text search across retention table</text>
+              {/* AC bullets */}
+              {[
+                { l: '— Postgres GIN index on retention_weekly.notes' },
+                { l: '— /api/search endpoint · p95 < 300ms' },
+                { l: '— React <SearchBox/> · debounced 250ms' },
+                { l: '— Tests: ≥ 95% coverage on new code' },
+              ].map((b, i) => (
+                <text key={i} x="34" y={244 + i * 16} style={{ fontSize: '10px', fill: '#374151', fontFamily: "system-ui" }}>{b.l}</text>
+              ))}
+              {/* Bottom row: branch + points + labels */}
+              <rect x="34" y="334" width="120" height="20" rx="3" fill="#F3F4F6" />
+              <text x="42" y="348" style={{ fontSize: '9px', fill: '#7C3AED', fontFamily: "'JetBrains Mono', monospace" }}>feature/search-v1</text>
+              <rect x="162" y="334" width="36" height="20" rx="3" fill="#E0F2FE" />
+              <text x="180" y="348" textAnchor="middle" style={{ fontSize: '9.5px', fill: '#0369A1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>5 pts</text>
+              <rect x="206" y="334" width="142" height="20" rx="3" fill="#F3F4F6" />
+              <text x="277" y="348" textAnchor="middle" style={{ fontSize: '9px', fill: '#374151', fontFamily: "system-ui" }}>frontend · backend · db</text>
+            </motion.g>
           )}
 
-          {/* Output beams */}
-          {BEAMS.map((beam, i) => (
-            stage >= i + 3 && (
-              <motion.g key={beam.label} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}>
-                <motion.line x1="310" y1="208" x2={beam.ex - 80} y2={beam.ey}
-                  stroke={beam.color} strokeWidth="2.5" strokeLinecap="round"
-                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }} />
-                {/* Stakeholder card */}
-                <rect x={beam.ex - 75} y={beam.ey - 18} width="200" height="36" rx="8" fill={beam.color} opacity="0.9" filter="url(#prism-glow)" />
-                <text x={beam.ex - 65} y={beam.ey - 3} style={{ fontSize: '11px', fill: '#fff', fontWeight: 800, fontFamily: 'system-ui' }}>{beam.label}</text>
-                <text x={beam.ex - 65} y={beam.ey + 12} style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.75)', fontFamily: 'system-ui' }}>{beam.sub}</text>
-              </motion.g>
-            )
-          ))}
+          {/* ─ Top-right · FIGMA · Design ─ */}
+          {stage >= 3 && (
+            <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <rect x="362" y="130" width="338" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#sp-soft)" />
+              {/* Figma header */}
+              <path d="M 362 140 Q 362 130 372 130 L 690 130 Q 700 130 700 140 L 700 162 L 362 162 Z" fill="#1E1E1E" />
+              {/* Figma F logo */}
+              <g transform="translate(374 138)">
+                <rect width="6" height="6" fill="#F24E1E" />
+                <rect y="6" width="6" height="6" fill="#FF7262" />
+                <rect y="12" width="6" height="6" fill="#A259FF" />
+                <rect x="6" y="6" width="6" height="6" fill="#1ABCFE" />
+                <rect x="6" width="6" height="6" fill="#0ACF83" />
+              </g>
+              <text x="388" y="152" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>Figma</text>
+              <text x="423" y="152" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "system-ui" }}>·</text>
+              <text x="435" y="152" style={{ fontSize: '10.5px', fill: 'rgba(255,255,255,0.85)', fontFamily: "system-ui" }}>EdSpark · Retention/Search v3</text>
+              <rect x="618" y="138" width="76" height="18" rx="3" fill="#E07A5F" />
+              <text x="656" y="151" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>DESIGN</text>
 
-          {/* Prism label */}
-          {stage >= 2 && (
-            <text x="272" y="295" textAnchor="middle" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>PM</text>
+              {/* Frame canvas with mockup */}
+              <rect x="376" y="176" width="220" height="182" rx="4" fill="#FAFAFA" stroke="#D1D5DB" strokeWidth="0.6" />
+              <text x="382" y="190" style={{ fontSize: '7.5px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>RetentionTable · 1440</text>
+              {/* Search input row (the new component) */}
+              <rect x="384" y="198" width="204" height="20" rx="3" fill="#FFFFFF" stroke="#A78BFA" strokeWidth="1.6" strokeDasharray="3 2" />
+              <circle cx="394" cy="208" r="3.5" fill="none" stroke="#9CA3AF" strokeWidth="1" />
+              <line x1="397" y1="211" x2="400" y2="214" stroke="#9CA3AF" strokeWidth="1" />
+              <text x="404" y="212" style={{ fontSize: '8.5px', fill: '#9CA3AF', fontFamily: "system-ui", fontStyle: 'italic' }}>Search retention notes…</text>
+              {/* Comment pin */}
+              <circle cx="588" cy="208" r="9" fill="#E07A5F" stroke="#FFF" strokeWidth="1.4" filter="url(#sp-soft)" />
+              <text x="588" y="211" textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>P</text>
+              {/* Table rows below */}
+              {[0,1,2,3].map(i => (
+                <g key={i}>
+                  <rect x="384" y={228 + i * 14} width="204" height="12" fill={i % 2 === 0 ? '#FFFFFF' : '#F9FAFB'} stroke="#E5E7EB" strokeWidth="0.4" />
+                  <rect x="388" y={232 + i * 14} width="40" height="4" rx="1" fill="#D1D5DB" />
+                  <rect x="436" y={232 + i * 14} width="60" height="4" rx="1" fill="#D1D5DB" />
+                  <rect x="510" y={232 + i * 14} width="74" height="4" rx="1" fill="#D1D5DB" />
+                </g>
+              ))}
+
+              {/* Comment thread under the frame */}
+              <rect x="608" y="180" width="86" height="174" rx="4" fill="#FAFAFA" stroke="#E5E7EB" strokeWidth="0.6" />
+              <text x="616" y="192" style={{ fontSize: '7px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 700 }}>2 COMMENTS</text>
+              <circle cx="616" cy="206" r="5" fill="#E07A5F" />
+              <text x="616" y="209" textAnchor="middle" style={{ fontSize: '6px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>P</text>
+              <text x="626" y="208" style={{ fontSize: '8px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 700 }}>Priya</text>
+              <text x="616" y="220" style={{ fontSize: '7.5px', fill: '#4B5563', fontFamily: "system-ui" }}>Use the same input</text>
+              <text x="616" y="230" style={{ fontSize: '7.5px', fill: '#4B5563', fontFamily: "system-ui" }}>component as the global</text>
+              <text x="616" y="240" style={{ fontSize: '7.5px', fill: '#4B5563', fontFamily: "system-ui" }}>nav search? consistency</text>
+              <circle cx="616" cy="260" r="5" fill="#C85A40" />
+              <text x="616" y="263" textAnchor="middle" style={{ fontSize: '6px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>M</text>
+              <text x="626" y="262" style={{ fontSize: '8px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 700 }}>Maya</text>
+              <text x="616" y="274" style={{ fontSize: '7.5px', fill: '#4B5563', fontFamily: "system-ui" }}>Yes — already in the</text>
+              <text x="616" y="284" style={{ fontSize: '7.5px', fill: '#4B5563', fontFamily: "system-ui" }}>system. Token: input/sm</text>
+              <text x="616" y="298" style={{ fontSize: '7px', fill: '#9CA3AF', fontFamily: "system-ui", fontStyle: 'italic' }}>Resolved by Maya</text>
+            </motion.g>
+          )}
+
+          {/* ─ Bottom-left · 1-SLIDE · Leadership ─ */}
+          {stage >= 4 && (
+            <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <rect x="20" y="382" width="338" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#sp-soft)" />
+              {/* Slide header bar */}
+              <path d="M 20 392 Q 20 382 30 382 L 348 382 Q 358 382 358 392 L 358 414 L 20 414 Z" fill="#F8F5F0" stroke="#E5E7EB" strokeWidth="0.6" />
+              <rect x="32" y="394" width="14" height="14" rx="2" fill="#7843EE" />
+              <text x="36" y="405" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "Georgia, serif", fontWeight: 900 }}>E</text>
+              <text x="54" y="404" style={{ fontSize: '10px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>EdSpark · Board update · Q3</text>
+              <rect x="280" y="390" width="68" height="18" rx="3" fill="#7843EE" />
+              <text x="314" y="403" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>LEADER</text>
+
+              {/* Slide content */}
+              <text x="34" y="440" style={{ fontSize: '8.5px', fill: '#7843EE', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 800 }}>SLIDE 7 OF 12 · SEARCH</text>
+              <text x="34" y="464" style={{ fontSize: '15px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Search ships Friday →</text>
+              <text x="34" y="482" style={{ fontSize: '15px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>unblocks self-serve scale</text>
+              {/* 3 outcome bullets */}
+              {[
+                { l: '+ Cuts support tickets ~30% (modelled)' },
+                { l: '+ Unblocks $2.4M enterprise pipeline' },
+                { l: '+ Closes parity gap vs Gong' },
+              ].map((b, i) => (
+                <text key={i} x="34" y={508 + i * 18} style={{ fontSize: '11px', fill: '#374151', fontFamily: "system-ui", fontWeight: 500 }}>{b.l}</text>
+              ))}
+              {/* Tradeoff line */}
+              <rect x="34" y="572" width="314" height="38" rx="4" fill="#FEF3E2" stroke="#F59E0B" strokeWidth="0.6" />
+              <rect x="34" y="572" width="3" height="38" fill="#F59E0B" />
+              <text x="46" y="586" style={{ fontSize: '8px', fill: '#92400E', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>TRADEOFF</text>
+              <text x="46" y="602" style={{ fontSize: '10px', fill: '#1F2937', fontFamily: "system-ui" }}>Mobile parity slips by 1 sprint</text>
+            </motion.g>
+          )}
+
+          {/* ─ Bottom-right · RELEASE NOTE · Sales/CS ─ */}
+          {stage >= 5 && (
+            <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <rect x="362" y="382" width="338" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#sp-soft)" />
+              {/* Newsletter header */}
+              <path d="M 362 392 Q 362 382 372 382 L 690 382 Q 700 382 700 392 L 700 414 L 362 414 Z" fill="#059669" />
+              <text x="374" y="404" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>EdSpark · What&apos;s New</text>
+              <text x="496" y="404" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>· Sprint 14</text>
+              <rect x="618" y="390" width="76" height="18" rx="3" fill="#FFF" opacity="0.95" />
+              <text x="656" y="403" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#059669', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>SALES/CS</text>
+
+              {/* Hero headline */}
+              <text x="378" y="442" style={{ fontSize: '8.5px', fill: '#059669', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 800 }}>NEW · FRIDAY</text>
+              <text x="378" y="466" style={{ fontSize: '17px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Find anything, fast.</text>
+              <text x="378" y="486" style={{ fontSize: '10.5px', fill: '#6B7280', fontFamily: "system-ui" }}>Search every retention note in milliseconds.</text>
+
+              {/* Hero illustration */}
+              <rect x="378" y="498" width="304" height="60" rx="6" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="0.8" />
+              <rect x="390" y="514" width="240" height="28" rx="14" fill="#FFFFFF" stroke="#D1D5DB" strokeWidth="0.8" />
+              <circle cx="406" cy="528" r="4.5" fill="none" stroke="#9CA3AF" strokeWidth="1.4" />
+              <line x1="410" y1="532" x2="414" y2="536" stroke="#9CA3AF" strokeWidth="1.4" strokeLinecap="round" />
+              <text x="420" y="532" style={{ fontSize: '10px', fill: '#374151', fontFamily: "system-ui" }}>onboarding drop-off</text>
+              <rect x="538" y="520" width="88" height="16" rx="3" fill="#059669" />
+              <text x="582" y="531" textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>Search</text>
+
+              {/* Customer-facing bullets */}
+              {[
+                { l: '✓ Search by keyword across all retention data' },
+                { l: '✓ 3× faster than the old filter view' },
+                { l: '✓ Available to all paid customers on Friday' },
+              ].map((b, i) => (
+                <text key={i} x="378" y={578 + i * 14} style={{ fontSize: '10px', fill: '#374151', fontFamily: "system-ui" }}>{b.l}</text>
+              ))}
+            </motion.g>
+          )}
+
+          {/* Bottom strap */}
+          {stage >= 6 && (
+            <motion.text x="360" y="652" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+              style={{ fontSize: '11px', fill: '#7843EE', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
+              ONE FACT · FOUR FORMATS · EACH AUDIENCE IN ITS NATIVE TOOL
+            </motion.text>
           )}
         </svg>
       </div>
-      <InsightBox color="#6366F1" label="Same truth, four translations. ">
-        {' '}Engineering needs the contract. Design needs the user. Leadership needs the outcome. Sales needs what they can promise. Sending all four the same message serves none of them.
+      <InsightBox color="#7843EE" label="Same truth, four formats. ">
+        {' '}Engineering needs the contract — story points, acceptance criteria, branch. Design needs the screen — frame, comment thread, component token. Leadership needs the outcome — one headline, three bullets, one tradeoff. Sales needs the talk track — what to promise, when, to whom. Send all four the same message and you serve none of them.
       </InsightBox>
       <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
