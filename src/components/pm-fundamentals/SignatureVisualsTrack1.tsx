@@ -21,15 +21,73 @@ function InsightBox({ color, label, children }: { color: string; label: string; 
 }
 
 // ─── M01 · T1 · THE SIGNAL SWITCHBOARD ────────────────────────────────────────
-// A 1950s telephone operator's switchboard. Three cable inputs: Users (left),
-// Business (right), Engineering (below). PM in centre connects them to produce
-// product decisions. Teaches: PM role is translation, not origination.
+// A 1950s operator's wooden switchboard cabinet. Three caller candlestick phones
+// (Users / Business / Engineering) send coiled brass cords into the plug bank.
+// Indicator lamps light as patches are made. A printed Decision slip emerges
+// from the side slot. Teaches: PM connects existing signals, doesn't originate.
 
-const CABLES = [
-  { id: 'users',   label: 'Users',       color: '#6366F1', cx: 80,  cy: 160, dest: { x: 280, y: 200 }, delay: 0.4 },
-  { id: 'biz',     label: 'Business',    color: '#F97316', cx: 520, cy: 160, dest: { x: 320, y: 200 }, delay: 0.8 },
-  { id: 'eng',     label: 'Engineering', color: '#22C55E', cx: 300, cy: 340, dest: { x: 300, y: 260 }, delay: 1.2 },
+const CALLERS = [
+  { id: 'users', label: 'USERS',       color: '#6366F1', dark: '#3730A3', tx: 90,  ty: 110, plugX: 285, plugY: 195, cordSide: 'right' as const, delay: 0 },
+  { id: 'biz',   label: 'BUSINESS',    color: '#F97316', dark: '#9A3412', tx: 630, ty: 110, plugX: 435, plugY: 195, cordSide: 'left'  as const, delay: 0.25 },
+  { id: 'eng',   label: 'ENGINEERING', color: '#22C55E', dark: '#15803D', tx: 360, ty: 470, plugX: 360, plugY: 285, cordSide: 'top'   as const, delay: 0.5 },
 ];
+
+function CandlestickPhone({ color, dark, label }: { color: string; dark: string; label: string }) {
+  return (
+    <g>
+      {/* Floor shadow */}
+      <ellipse cx="0" cy="58" rx="34" ry="4" fill="rgba(0,0,0,0.28)" />
+      {/* Round weighted base */}
+      <ellipse cx="0" cy="52" rx="30" ry="8" fill="#0F0805" />
+      <ellipse cx="0" cy="49" rx="28" ry="6" fill="url(#sw-brass)" />
+      <ellipse cx="0" cy="48" rx="26" ry="4.5" fill="#2A1A0A" />
+      {/* Vertical stem */}
+      <rect x="-2.5" y="14" width="5" height="36" fill="#1A1208" />
+      <rect x="-2.5" y="14" width="1.4" height="36" fill="rgba(255,255,255,0.2)" />
+      {/* Side hook bracket */}
+      <path d="M -3 24 Q -14 21 -14 30 Q -14 35 -10 35" stroke="#1A1208" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+      {/* Earpiece hanging on the hook */}
+      <g transform="translate(-16 36) rotate(-12)">
+        <rect x="-4" y="-3" width="8" height="18" rx="2" fill="#1A1208" stroke="#3D2410" strokeWidth="0.5" />
+        <ellipse cx="0" cy="-2" rx="5" ry="2.5" fill="url(#sw-brass)" />
+        <ellipse cx="0" cy="15" rx="4.5" ry="2.2" fill="#0A0603" />
+      </g>
+      {/* Trumpet mouthpiece on top */}
+      <path d="M -3 10 L -10 0 L 10 0 L 3 10 Z" fill="url(#sw-brass)" stroke="rgba(80,50,15,0.5)" strokeWidth="0.4" />
+      <ellipse cx="0" cy="0" rx="10" ry="2.6" fill="#0A0603" />
+      <ellipse cx="0" cy="0" rx="8" ry="1.8" fill="#1A0E05" />
+      {[-5, -2.5, 0, 2.5, 5].map(x => <circle key={x} cx={x} cy="0" r="0.5" fill="rgba(255,200,90,0.55)" />)}
+      {/* Name plate */}
+      <g transform="translate(0 74)">
+        <rect x="-48" y="-13" width="96" height="22" rx="4" fill={color} filter="url(#sw-soft)" />
+        <rect x="-48" y="-13" width="96" height="4" rx="2" fill="rgba(255,255,255,0.32)" />
+        <rect x="-48" y="5" width="96" height="4" rx="2" fill={dark} />
+        <text x="0" y="3" textAnchor="middle" style={{ fontSize: '10px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.16em' }}>{label}</text>
+      </g>
+    </g>
+  );
+}
+
+// Coiled-cord path: oscillating curve from (x1,y1) to (x2,y2) with N coils.
+function coiledCord(x1: number, y1: number, x2: number, y2: number, coils: number) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const px = -dy / len;
+  const py = dx / len;
+  const amp = 10;
+  let d = `M ${x1} ${y1}`;
+  for (let i = 1; i <= coils; i++) {
+    const t = i / coils;
+    const cxA = x1 + dx * (t - 0.6 / coils) + px * amp;
+    const cyA = y1 + dy * (t - 0.6 / coils) + py * amp;
+    const cxB = x1 + dx * (t - 0.1 / coils) - px * amp * 0.5;
+    const cyB = y1 + dy * (t - 0.1 / coils) - py * amp * 0.5;
+    const xe = x1 + dx * t;
+    const ye = y1 + dy * t;
+    d += ` C ${cxA} ${cyA}, ${cxB} ${cyB}, ${xe} ${ye}`;
+  }
+  return d;
+}
 
 export function SignalSwitchboard() {
   const ref = useRef<HTMLDivElement>(null);
@@ -40,79 +98,245 @@ export function SignalSwitchboard() {
   useEffect(() => {
     if (!inView) return;
     setStage(0);
-    const ts = [1,2,3,4].map((s, i) => setTimeout(() => setStage(s), 400 + i * 700));
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 400 + i * 700));
     return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.08)' }}>
-        <svg viewBox="0 0 600 420" style={{ width: '100%', display: 'block', background: 'linear-gradient(160deg, #F8F5F0 0%, #EDE8DF 100%)' }}>
+      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.12)' }}>
+        <svg viewBox="0 0 720 540" style={{ width: '100%', display: 'block' }}>
           <defs>
-            <filter id="sw-shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="rgba(0,0,0,0.15)"/></filter>
+            <linearGradient id="sw-wall" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F2E9D2" /><stop offset="100%" stopColor="#D9C8A0" />
+            </linearGradient>
+            <pattern id="sw-wallpaper" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+              <circle cx="14" cy="14" r="1" fill="#B89F66" opacity="0.32" />
+              <circle cx="0" cy="0" r="1" fill="#B89F66" opacity="0.22" />
+              <circle cx="28" cy="28" r="1" fill="#B89F66" opacity="0.22" />
+            </pattern>
+            <linearGradient id="sw-wood" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#3D2410" /><stop offset="20%" stopColor="#6B4220" />
+              <stop offset="50%" stopColor="#7B4F2A" /><stop offset="80%" stopColor="#5C381D" />
+              <stop offset="100%" stopColor="#3D2410" />
+            </linearGradient>
+            <linearGradient id="sw-brass" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FCD981" /><stop offset="45%" stopColor="#D9A347" />
+              <stop offset="80%" stopColor="#8E6722" /><stop offset="100%" stopColor="#5C4015" />
+            </linearGradient>
+            <linearGradient id="sw-brassFlat" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FBD279" /><stop offset="100%" stopColor="#A37A28" />
+            </linearGradient>
+            <radialGradient id="sw-lampOff" cx="50%" cy="35%" r="60%">
+              <stop offset="0%" stopColor="#3A2410" /><stop offset="100%" stopColor="#0F0805" />
+            </radialGradient>
+            <radialGradient id="sw-lampOn" cx="40%" cy="30%" r="70%">
+              <stop offset="0%" stopColor="#FFF7C2" /><stop offset="35%" stopColor="#FFC247" />
+              <stop offset="100%" stopColor="#7A3D08" />
+            </radialGradient>
+            <radialGradient id="sw-lampGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(255,200,70,0.55)" />
+              <stop offset="100%" stopColor="rgba(255,200,70,0)" />
+            </radialGradient>
+            <linearGradient id="sw-paper" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FBF6E6" /><stop offset="100%" stopColor="#E5D6A8" />
+            </linearGradient>
+            <linearGradient id="sw-floor" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#4A2C16" /><stop offset="100%" stopColor="#1F1208" />
+            </linearGradient>
+            <filter id="sw-soft"><feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.22)"/></filter>
+            <filter id="sw-cast"><feDropShadow dx="0" dy="10" stdDeviation="12" floodColor="rgba(0,0,0,0.35)"/></filter>
           </defs>
 
-          {/* Switchboard panel */}
-          <rect x="200" y="140" width="200" height="160" rx="16" fill="#1F2937" filter="url(#sw-shadow)" />
-          <rect x="200" y="140" width="200" height="16" rx="8" fill="rgba(255,255,255,0.1)" />
-          {/* Plug sockets on panel */}
-          {[230, 260, 290, 320, 340, 370].map((x, i) => (
-            <circle key={i} cx={x} cy={185} r="5" fill={i < 3 ? '#374151' : '#4B5563'} />
-          ))}
-          {[230, 260, 290, 320, 340, 370].map((x, i) => (
-            <circle key={i} cx={x} cy={215} r="5" fill={i < 3 ? '#374151' : '#4B5563'} />
-          ))}
-          {/* Panel label */}
-          <text x="300" y="258" textAnchor="middle" style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.4)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.14em' }}>PM OPERATOR</text>
-          {/* PM icon */}
-          <circle cx="300" cy="238" r="12" fill="#6366F1" />
-          <text x="300" y="243" textAnchor="middle" style={{ fontSize: '11px', fill: '#fff', fontWeight: 800 }}>P</text>
+          {/* Wall + wallpaper pattern */}
+          <rect width="720" height="540" fill="url(#sw-wall)" />
+          <rect width="720" height="540" fill="url(#sw-wallpaper)" />
 
-          {/* Cable sources */}
-          {CABLES.map((c, i) => (
-            <g key={c.id}>
-              {/* Source label bubble */}
-              <motion.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: stage >= 1 ? 1 : 0, scale: stage >= 1 ? 1 : 0.8 }} transition={{ delay: c.delay * 0.5, duration: 0.4 }}>
-                <rect x={c.cx - 40} y={c.cy - 20} width="80" height="36" rx="10" fill={c.color} filter="url(#sw-shadow)" />
-                <rect x={c.cx - 40} y={c.cy - 20} width="80" height="5" rx="3" fill="rgba(255,255,255,0.3)" />
-                <text x={c.cx} y={c.cy + 4} textAnchor="middle" style={{ fontSize: '11px', fill: '#fff', fontFamily: 'system-ui', fontWeight: 800 }}>{c.label}</text>
-              </motion.g>
-              {/* Cable line */}
-              {stage >= i + 2 && (
-                <motion.line x1={c.cx} y1={c.cy + 16} x2={c.dest.x} y2={c.dest.y}
-                  stroke={c.color} strokeWidth="3" strokeLinecap="round"
-                  strokeDasharray="6 3"
-                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }} />
-              )}
+          {/* Wood floor with perspective lines */}
+          <polygon points="0,430 720,430 720,540 0,540" fill="url(#sw-floor)" />
+          <line x1="0" y1="430" x2="720" y2="430" stroke="rgba(0,0,0,0.5)" strokeWidth="1.2" />
+          {[0.18, 0.36, 0.52, 0.68, 0.84].map((p, i) => (
+            <line key={i} x1={p * 720} y1="430" x2={p * 720 + (p - 0.5) * 280} y2="540" stroke="rgba(0,0,0,0.28)" strokeWidth="0.7" />
+          ))}
+          {/* Skirting board */}
+          <rect x="0" y="425" width="720" height="6" fill="#2A180A" />
+          <rect x="0" y="425" width="720" height="1.5" fill="url(#sw-brass)" opacity="0.5" />
+
+          {/* Cast shadow under cabinet */}
+          <rect x="234" y="78" width="252" height="356" rx="8" fill="rgba(0,0,0,0.4)" filter="url(#sw-cast)" />
+
+          {/* Cabinet body */}
+          <rect x="230" y="74" width="260" height="360" rx="8" fill="url(#sw-wood)" />
+          {/* Wood grain striations */}
+          {[100, 140, 180, 220, 260, 300, 340, 380, 420].map((y, i) => (
+            <path key={i} d={`M 234 ${y} Q ${320 + Math.sin(i * 1.7) * 12} ${y + 1.5} ${410 + Math.cos(i * 1.3) * 8} ${y - 0.8} T 486 ${y + 1}`}
+              stroke="rgba(0,0,0,0.22)" strokeWidth="0.6" fill="none" />
+          ))}
+          <rect x="230" y="74" width="3" height="360" fill="rgba(255,255,255,0.08)" />
+          <rect x="487" y="74" width="3" height="360" fill="rgba(0,0,0,0.32)" />
+
+          {/* Brass top & bottom trim */}
+          <rect x="226" y="68" width="268" height="20" rx="3" fill="url(#sw-brass)" filter="url(#sw-soft)" />
+          <rect x="226" y="86" width="268" height="2.5" fill="rgba(0,0,0,0.5)" />
+          <rect x="226" y="430" width="268" height="14" rx="2" fill="url(#sw-brass)" />
+          <rect x="226" y="430" width="268" height="2" fill="rgba(0,0,0,0.4)" />
+
+          {/* Engraved oval nameplate */}
+          <ellipse cx="360" cy="106" rx="118" ry="15" fill="url(#sw-brassFlat)" stroke="rgba(80,50,15,0.6)" strokeWidth="0.6" filter="url(#sw-soft)" />
+          <ellipse cx="360" cy="106" rx="114" ry="12" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="0.4" />
+          <text x="360" y="105" textAnchor="middle" style={{ fontSize: '10px', fill: '#3D2410', fontFamily: "Georgia, serif", fontWeight: 700, letterSpacing: '0.32em' }}>BELL &amp; CO · PM SWITCHBOARD</text>
+          <text x="360" y="116" textAnchor="middle" style={{ fontSize: '6.5px', fill: '#5C381D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5em' }}>EST · MCMLII</text>
+
+          {/* Corner brass screws */}
+          {[[238,76],[478,76],[238,420],[478,420]].map(([x,y], i) => (
+            <g key={i}>
+              <circle cx={x} cy={y} r="3.5" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.5" />
+              <line x1={x-2} y1={y-2} x2={x+2} y2={y+2} stroke="#3D2410" strokeWidth="0.7" />
             </g>
           ))}
 
-          {/* Output arrow */}
-          {stage >= 4 && (
-            <motion.g initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-              <line x1="400" y1="220" x2="460" y2="220" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" />
-              <polygon points="460,213 474,220 460,227" fill="#F59E0B" />
-              <rect x="478" y="204" width="100" height="32" rx="8" fill="#F59E0B" />
-              <text x="528" y="225" textAnchor="middle" style={{ fontSize: '10px', fill: '#fff', fontWeight: 800, fontFamily: 'system-ui' }}>Decision</text>
+          {/* Indicator lamp row */}
+          {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => {
+            const litThreshold = i < 3 ? 3 : i < 6 ? 4 : 5;
+            const on = stage >= litThreshold;
+            return (
+              <g key={i}>
+                {on && <circle cx={x} cy="138" r="14" fill="url(#sw-lampGlow)" />}
+                <circle cx={x} cy="138" r="5" fill={on ? 'url(#sw-lampOn)' : 'url(#sw-lampOff)'} stroke="#1A0E05" strokeWidth="0.8" />
+                <circle cx={x - 1.2} cy="136.5" r="1.2" fill={on ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.12)'} />
+              </g>
+            );
+          })}
+
+          {/* "LINE 01 — 08" brass strip */}
+          <rect x="246" y="152" width="228" height="13" rx="2" fill="url(#sw-brassFlat)" opacity="0.92" />
+          <rect x="246" y="163" width="228" height="1.5" fill="rgba(0,0,0,0.35)" />
+          <text x="360" y="161" textAnchor="middle" style={{ fontSize: '7px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.4em', fontWeight: 800 }}>LINE 01 — 08</text>
+
+          {/* Plug-jack bank: two rows */}
+          {[180, 215].map((rowY, rowI) => (
+            <g key={rowY}>
+              <rect x="246" y={rowY - 4} width="228" height="26" rx="2" fill="#0F0805" stroke="#3D2410" strokeWidth="0.6" />
+              <rect x="246" y={rowY + 18} width="228" height="2" fill="rgba(0,0,0,0.6)" />
+              {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => (
+                <g key={i}>
+                  <circle cx={x} cy={rowY + 9} r="8" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.8" />
+                  <circle cx={x} cy={rowY + 9} r="6.2" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
+                  <circle cx={x} cy={rowY + 9} r="4" fill="#080402" stroke="#3D2410" strokeWidth="0.5" />
+                  <circle cx={x} cy={rowY + 9} r="1.8" fill="#1A0E05" />
+                </g>
+              ))}
+              {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => (
+                <text key={i} x={x} y={rowY + 26} textAnchor="middle" style={{ fontSize: '5px', fill: '#FCD981', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', opacity: 0.55 }}>
+                  {String(rowI * 8 + i + 1).padStart(2, '0')}
+                </text>
+              ))}
+            </g>
+          ))}
+
+          {/* OPERATOR brass plate */}
+          <rect x="305" y="305" width="110" height="34" rx="4" fill="#1A0E05" stroke="url(#sw-brass)" strokeWidth="1.5" filter="url(#sw-soft)" />
+          <text x="360" y="319" textAnchor="middle" style={{ fontSize: '7.5px', fill: '#FCD981', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.32em', fontWeight: 700 }}>OPERATOR</text>
+          <circle cx="360" cy="332" r="7" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.6" />
+          <text x="360" y="335" textAnchor="middle" style={{ fontSize: '9px', fill: '#3D2410', fontFamily: "Georgia, serif", fontWeight: 900 }}>PM</text>
+
+          {/* Dial knob */}
+          <g transform="translate(266 322)">
+            <circle r="22" fill="rgba(0,0,0,0.35)" filter="url(#sw-soft)" />
+            <circle r="20" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="1" />
+            <circle r="16" fill="none" stroke="#3D2410" strokeWidth="0.5" />
+            {[0,30,60,90,120,150,180,210,240,270,300,330].map(ang => (
+              <line key={ang} x1="0" y1="-17" x2="0" y2="-14" stroke="#3D2410" strokeWidth="0.7" transform={`rotate(${ang})`} />
+            ))}
+            <circle r="9" fill="#1A0E05" />
+            <line x1="0" y1="0" x2="0" y2="-13" stroke="#FCD981" strokeWidth="2.2" strokeLinecap="round" transform="rotate(-42)" />
+            <circle r="2.4" fill="#FCD981" />
+          </g>
+
+          {/* Operator headset on hook */}
+          <g transform="translate(450 318)">
+            <path d="M 0 -16 L 0 -4 Q 0 2 6 2" stroke="url(#sw-brass)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+            <circle cx="0" cy="-16" r="2" fill="url(#sw-brass)" />
+            <path d="M -16 4 Q 0 -12 16 4" stroke="#1A0E05" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <ellipse cx="-16" cy="6" rx="5.5" ry="7" fill="#3D2410" stroke="#1A0E05" strokeWidth="0.8" />
+            <ellipse cx="16" cy="6" rx="5.5" ry="7" fill="#3D2410" stroke="#1A0E05" strokeWidth="0.8" />
+            <ellipse cx="-16" cy="6" rx="3" ry="4" fill="#0A0603" />
+            <ellipse cx="16" cy="6" rx="3" ry="4" fill="#0A0603" />
+            <ellipse cx="-16" cy="6" rx="1.5" ry="2" fill="rgba(255,200,90,0.25)" />
+            <path d="M 16 12 Q 22 18 18 26 Q 14 34 22 42 Q 28 50 24 58 Q 20 66 26 74" stroke="#1A0E05" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+          </g>
+
+          {/* Paper PATCH LOG pinned at side */}
+          <g transform="translate(252 358) rotate(-4)">
+            <rect width="44" height="58" fill="url(#sw-paper)" stroke="rgba(0,0,0,0.25)" strokeWidth="0.5" filter="url(#sw-soft)" />
+            <circle cx="22" cy="3" r="1.8" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.3" />
+            <text x="22" y="13" textAnchor="middle" style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.15em', fontWeight: 700 }}>PATCH LOG</text>
+            <line x1="4" y1="16" x2="40" y2="16" stroke="#3D2410" strokeWidth="0.3" />
+            {['LN-01 ✓', 'LN-02 ✓', 'LN-03 ✓', 'LN-04 ·', 'LN-05 ·'].map((s, i) => (
+              <text key={i} x="4" y={26 + i * 7} style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace" }}>{s}</text>
+            ))}
+          </g>
+
+          {/* Decision slot in cabinet side */}
+          <rect x="487" y="252" width="6" height="26" fill="#080402" />
+          <rect x="487" y="252" width="6" height="2" fill="rgba(0,0,0,0.7)" />
+
+          {/* Decision slip emerging from slot */}
+          {stage >= 6 && (
+            <motion.g initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
+              <rect x="491" y="256" width="100" height="18" fill="url(#sw-paper)" stroke="rgba(0,0,0,0.35)" strokeWidth="0.5" filter="url(#sw-soft)" />
+              {[260, 264, 268, 272].map(y => <circle key={y} cx="494" cy={y} r="0.6" fill="rgba(0,0,0,0.3)" />)}
+              <text x="541" y="263" textAnchor="middle" style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em' }}>OPERATOR SLIP №147</text>
+              <text x="541" y="271" textAnchor="middle" style={{ fontSize: '8px', fill: '#5C381D', fontFamily: "Georgia, serif", fontWeight: 800, letterSpacing: '0.1em' }}>DECISION</text>
             </motion.g>
           )}
 
-          {/* Bottom labels */}
-          <text x="80" y="200" textAnchor="middle" style={{ fontSize: '8px', fill: '#6366F1', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>NEEDS</text>
-          <text x="520" y="200" textAnchor="middle" style={{ fontSize: '8px', fill: '#F97316', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>GOALS</text>
-          <text x="300" y="380" textAnchor="middle" style={{ fontSize: '8px', fill: '#22C55E', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>CONSTRAINTS</text>
+          {/* Caller phones */}
+          {CALLERS.map((c) => (
+            <motion.g key={c.id} transform={`translate(${c.tx} ${c.ty})`}
+              initial={{ opacity: 0, y: 8 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : 8 }}
+              transition={{ delay: 0.2 + c.delay, duration: 0.5 }}>
+              <CandlestickPhone color={c.color} dark={c.dark} label={c.label} />
+            </motion.g>
+          ))}
 
-          {stage >= 4 && (
-            <motion.text x="300" y="410" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ fontSize: '10px', fill: 'var(--ed-ink3)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.08em' }}>
-              The PM doesn&apos;t originate — they connect
+          {/* Coiled cords from each phone to its plug */}
+          {CALLERS.map((c, i) => {
+            const show = stage >= i + 2;
+            const cordStartX = c.tx;
+            const cordStartY = c.id === 'eng' ? c.ty - 8 : c.ty + 6;
+            return show ? (
+              <g key={c.id}>
+                <motion.path d={coiledCord(cordStartX, cordStartY + 2, c.plugX, c.plugY + 2, c.id === 'eng' ? 6 : 8)}
+                  stroke="rgba(0,0,0,0.18)" strokeWidth="4" fill="none" strokeLinecap="round"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.0, ease: 'easeOut' }} />
+                <motion.path d={coiledCord(cordStartX, cordStartY, c.plugX, c.plugY, c.id === 'eng' ? 6 : 8)}
+                  stroke={c.color} strokeWidth="3" fill="none" strokeLinecap="round"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.0, ease: 'easeOut' }} />
+                <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0, duration: 0.3 }}>
+                  <ellipse cx={c.plugX} cy={c.plugY} rx="6" ry="4" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.5" />
+                  <circle cx={c.plugX} cy={c.plugY} r="2.2" fill={c.dark} />
+                  <circle cx={c.plugX - 1} cy={c.plugY - 1} r="0.8" fill="rgba(255,255,255,0.6)" />
+                </motion.g>
+              </g>
+            ) : null;
+          })}
+
+          {/* Caller-station hint labels */}
+          <text x="90" y="56" textAnchor="middle" style={{ fontSize: '8px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>NEEDS</text>
+          <text x="630" y="56" textAnchor="middle" style={{ fontSize: '8px', fill: '#F97316', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>GOALS</text>
+          <text x="360" y="525" textAnchor="middle" style={{ fontSize: '8px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>CONSTRAINTS</text>
+
+          {stage >= 6 && (
+            <motion.text x="540" y="245" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+              style={{ fontSize: '8px', fill: '#5C381D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 800 }}>
+              OUTPUT →
             </motion.text>
           )}
         </svg>
       </div>
       <InsightBox color="#6366F1" label="PM role: ">
-        {' '}not the one talking — the one connecting the right signal to the right listener. Three inputs. One operator. Product decisions come out the other side.
+        {' '}not the one talking — the one connecting the right signal to the right listener. Three cords come in. The PM patches them through. A printed decision comes out the side slot.
       </InsightBox>
       <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
