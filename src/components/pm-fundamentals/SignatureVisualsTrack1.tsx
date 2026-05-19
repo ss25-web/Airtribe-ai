@@ -1012,111 +1012,230 @@ export function LaunchRunwayViz() {
 // Floor plan from above. Four zones: Front of house (frontend), Kitchen (backend),
 // Pantry (database), Pass-through window (API). Order ticket travels through all zones.
 
-const KITCHEN_ZONES = [
-  { id: 'foh', label: 'Front of House', sub: 'Frontend', color: '#6366F1', x: 60, y: 60, w: 200, h: 160, desc: 'What users see and interact with. Displays data, captures input.' },
-  { id: 'window', label: 'Pass-Through', sub: 'API', color: '#F59E0B', x: 260, y: 110, w: 80, h: 60, desc: 'The contract between frontend and backend. Defines what can be asked and what comes back.' },
-  { id: 'kitchen', label: 'Kitchen', sub: 'Backend', color: '#EF4444', x: 340, y: 60, w: 200, h: 160, desc: 'Business logic, validation, rules. Processes requests, coordinates data.' },
-  { id: 'pantry', label: 'Pantry', sub: 'Database', color: '#22C55E', x: 400, y: 240, w: 140, h: 120, desc: 'Where data lives. Tables, queries, relationships, migrations.' },
-];
-
-const TICKET_PATH = [
-  { x: 120, y: 180 }, // Customer at table
-  { x: 260, y: 140 }, // Pass-through window
-  { x: 420, y: 140 }, // Kitchen
-  { x: 450, y: 280 }, // Pantry
-  { x: 420, y: 140 }, // Back to kitchen
-  { x: 260, y: 140 }, // Back through window
-  { x: 120, y: 180 }, // Back to customer
-];
+// ─── M09 · T1 · ONE TICKET, THREE LAYERS ─────────────────────────────────────
+// A real Linear-style ticket sits at top: EDS-1402 "Add CSV export to weekly
+// retention report". Three stacked layer cards show the diff that ONE ticket
+// produces: a new React button (FE), a new API endpoint (BE), a new SQL query
+// (DB). A vertical pulse line cascades through them. Teaches: knowing which
+// layer your spec touches = knowing what work it costs.
 
 export function RestaurantKitchenViz() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [ticketStep, setTicketStep] = useState(-1);
-  const [selectedZone, setSelectedZone] = useState<string | null>(null);
+  const [stage, setStage] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setTicketStep(-1);
-    TICKET_PATH.forEach((_, i) => setTimeout(() => setTicketStep(i), 600 + i * 700));
+    setStage(0);
+    const ts = [1,2,3,4,5].map((s, i) => setTimeout(() => setStage(s), 400 + i * 750));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
-
-  const ticketPos = ticketStep >= 0 && ticketStep < TICKET_PATH.length ? TICKET_PATH[ticketStep] : TICKET_PATH[0];
-  const sel = KITCHEN_ZONES.find(z => z.id === selectedZone);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px' }}>
-          <svg viewBox="0 0 600 400" style={{ width: '100%', display: 'block', background: 'linear-gradient(160deg, #F8F5F0 0%, #EDE8DF 100%)' }}>
-            <defs><filter id="zone-shadow"><feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="rgba(0,0,0,0.12)"/></filter></defs>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
+        <svg viewBox="0 0 720 620" style={{ width: '100%', display: 'block' }}>
+          <defs>
+            <linearGradient id="m9-page" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F7F4EC" /><stop offset="100%" stopColor="#EFEAD9" />
+            </linearGradient>
+            <linearGradient id="m9-feStripe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3B82F6" /><stop offset="100%" stopColor="#1D4ED8" />
+            </linearGradient>
+            <linearGradient id="m9-beStripe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#A855F7" /><stop offset="100%" stopColor="#7E22CE" />
+            </linearGradient>
+            <linearGradient id="m9-dbStripe" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#0EA5E9" /><stop offset="100%" stopColor="#0369A1" />
+            </linearGradient>
+            <filter id="m9-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.10)"/></filter>
+            <filter id="m9-glow"><feGaussianBlur stdDeviation="3"/></filter>
+          </defs>
 
-            {/* Zone rectangles */}
-            {KITCHEN_ZONES.map(zone => (
-              <g key={zone.id} style={{ cursor: 'pointer' }} onClick={() => setSelectedZone(selectedZone === zone.id ? null : zone.id)}>
-                <rect x={zone.x} y={zone.y} width={zone.w} height={zone.h} rx="12"
-                  fill={selectedZone === zone.id ? `${zone.color}25` : `${zone.color}10`}
-                  stroke={zone.color} strokeWidth={selectedZone === zone.id ? 2.5 : 1.5}
-                  filter="url(#zone-shadow)" style={{ transition: 'all 0.3s' }} />
-                <text x={zone.x + zone.w / 2} y={zone.y + 28} textAnchor="middle"
-                  style={{ fontSize: '11px', fill: zone.color, fontFamily: 'system-ui', fontWeight: 800 }}>{zone.label}</text>
-                <text x={zone.x + zone.w / 2} y={zone.y + 44} textAnchor="middle"
-                  style={{ fontSize: '9px', fill: zone.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, opacity: 0.7 }}>{zone.sub}</text>
+          {/* Page */}
+          <rect width="720" height="620" fill="url(#m9-page)" />
+
+          {/* Linear-style top status bar */}
+          <rect x="0" y="0" width="720" height="30" fill="#1E1B2E" />
+          <circle cx="20" cy="15" r="4" fill="#22C55E" />
+          <text x="32" y="19" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.08em' }}>Linear</text>
+          <text x="76" y="19" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace" }}>·</text>
+          <text x="87" y="19" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>EDS Engineering</text>
+          <text x="710" y="19" textAnchor="end" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>SPRINT 14 · ACTIVE</text>
+
+          {/* Caption */}
+          <text x="360" y="56" textAnchor="middle" style={{ fontSize: '11px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>ONE TICKET · THREE LAYERS OF WORK</text>
+
+          {/* ═══════════ THE TICKET ═══════════ */}
+          <motion.g initial={{ opacity: 0, y: -8 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : -8 }} transition={{ duration: 0.5 }}>
+            <rect x="30" y="72" width="660" height="74" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m9-soft)" />
+            {/* Priority + ID */}
+            <rect x="44" y="86" width="78" height="22" rx="4" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="0.8" />
+            <circle cx="54" cy="97" r="3.5" fill="#F59E0B" />
+            <text x="63" y="101" style={{ fontSize: '10px', fill: '#92400E', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.06em' }}>EDS-1402</text>
+            {/* Title */}
+            <text x="138" y="103" style={{ fontSize: '15px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>Add CSV export to weekly retention report</text>
+            {/* Description */}
+            <text x="138" y="124" style={{ fontSize: '11px', fill: '#6B7280', fontFamily: "system-ui" }}>Sales managers want to share the retention table over email</text>
+            {/* Status pill */}
+            <rect x="556" y="86" width="92" height="22" rx="4" fill="#DBEAFE" />
+            <circle cx="566" cy="97" r="3.5" fill="#3B82F6" />
+            <text x="575" y="101" style={{ fontSize: '9.5px', fill: '#1E40AF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.08em' }}>IN PROGRESS</text>
+            {/* Assignee */}
+            <circle cx="664" cy="97" r="10" fill="#4F46E5" />
+            <text x="664" y="100" textAnchor="middle" style={{ fontSize: '10px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>P</text>
+            {/* Comments / branch row */}
+            <text x="138" y="138" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· 3 comments · feature/csv-export · est: ?</text>
+          </motion.g>
+
+          {/* ═══════════ CASCADE LINE (animated) ═══════════ */}
+          {/* Vertical line connecting ticket through all 3 layers */}
+          <line x1="100" y1="146" x2="100" y2="558" stroke="rgba(0,0,0,0.08)" strokeWidth="2" strokeDasharray="4 3" />
+          {/* Animated pulse */}
+          {stage >= 2 && (
+            <motion.line x1="100" y1="146" x2="100" y2="558" stroke="#F59E0B" strokeWidth="3" strokeDasharray="4 3" strokeLinecap="round"
+              initial={{ pathLength: 0 }} animate={{ pathLength: stage >= 5 ? 1 : (stage - 1) * 0.34 }} transition={{ duration: 0.6, ease: 'easeOut' }} />
+          )}
+          {/* Joint dots at each layer */}
+          {[200, 350, 500].map((y, i) => (
+            <circle key={i} cx="100" cy={y} r="5" fill={stage >= i + 2 ? '#F59E0B' : '#E5E7EB'} stroke="#FFF" strokeWidth="1.5" />
+          ))}
+
+          {/* ═══════════ LAYER 1 · FRONTEND ═══════════ */}
+          <motion.g initial={{ opacity: 0, x: -8 }} animate={{ opacity: stage >= 2 ? 1 : 0, x: stage >= 2 ? 0 : -8 }} transition={{ duration: 0.5 }}>
+            <rect x="130" y="160" width="560" height="130" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m9-soft)" />
+            {/* Layer stripe (left) */}
+            <rect x="130" y="160" width="6" height="130" rx="3" fill="url(#m9-feStripe)" />
+            {/* Layer header */}
+            <rect x="146" y="174" width="22" height="22" rx="4" fill="#DBEAFE" />
+            <text x="157" y="190" textAnchor="middle" style={{ fontSize: '13px', fill: '#1D4ED8', fontFamily: "system-ui", fontWeight: 900 }}>{'⟨/⟩'}</text>
+            <text x="178" y="184" style={{ fontSize: '9px', fill: '#3B82F6', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>01 · FRONTEND</text>
+            <text x="178" y="197" style={{ fontSize: '13px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>React component</text>
+            <text x="312" y="197" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· src/components/RetentionReport.tsx</text>
+
+            {/* UI mockup of EdSpark retention table */}
+            <rect x="148" y="208" width="316" height="70" rx="4" fill="#FAFAFA" stroke="#E5E7EB" strokeWidth="0.6" />
+            {/* Table header */}
+            <rect x="148" y="208" width="316" height="14" fill="#F3F4F6" />
+            <text x="156" y="218" style={{ fontSize: '8px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.06em' }}>WEEK · COHORT · RETENTION</text>
+            {/* Table rows */}
+            {[0, 1, 2].map(i => (
+              <g key={i}>
+                <rect x="148" y={224 + i * 16} width="316" height="14" fill={i % 2 === 0 ? '#FFFFFF' : '#FAFAFA'} />
+                <text x="156" y={234 + i * 16} style={{ fontSize: '9px', fill: '#374151', fontFamily: "system-ui" }}>{['W14', 'W13', 'W12'][i]}</text>
+                <text x="220" y={234 + i * 16} style={{ fontSize: '9px', fill: '#374151', fontFamily: "system-ui" }}>{['Enterprise', 'Mid-market', 'SMB'][i]}</text>
+                <text x="380" y={234 + i * 16} style={{ fontSize: '9px', fill: '#374151', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{['58%', '41%', '32%'][i]}</text>
               </g>
             ))}
 
-            {/* Ticket trail */}
-            {ticketStep > 0 && Array.from({ length: Math.min(ticketStep, TICKET_PATH.length - 1) }, (_, i) => (
-              <line key={i}
-                x1={TICKET_PATH[i].x} y1={TICKET_PATH[i].y}
-                x2={TICKET_PATH[i + 1].x} y2={TICKET_PATH[i + 1].y}
-                stroke="#F59E0B" strokeWidth="2" strokeDasharray="5 3" opacity="0.6" />
+            {/* Existing buttons */}
+            <rect x="476" y="216" width="58" height="22" rx="4" fill="#F3F4F6" stroke="#D1D5DB" strokeWidth="0.6" />
+            <text x="505" y="230" textAnchor="middle" style={{ fontSize: '10px', fill: '#374151', fontFamily: "system-ui", fontWeight: 600 }}>Filter</text>
+            <rect x="540" y="216" width="58" height="22" rx="4" fill="#F3F4F6" stroke="#D1D5DB" strokeWidth="0.6" />
+            <text x="569" y="230" textAnchor="middle" style={{ fontSize: '10px', fill: '#374151', fontFamily: "system-ui", fontWeight: 600 }}>Sort</text>
+
+            {/* NEW button — highlighted */}
+            <motion.g initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: stage >= 2 ? 1 : 0, scale: 1 }} transition={{ delay: 0.4, duration: 0.4 }}>
+              <rect x="476" y="246" width="122" height="24" rx="4" fill="#D1FAE5" stroke="#22C55E" strokeWidth="1.5" strokeDasharray="3 2" />
+              <text x="488" y="261" style={{ fontSize: '11px', fill: '#15803D', fontFamily: "system-ui", fontWeight: 900 }}>+</text>
+              <text x="498" y="261" style={{ fontSize: '10.5px', fill: '#15803D', fontFamily: "system-ui", fontWeight: 800 }}>Export CSV</text>
+              <rect x="476" y="270" width="122" height="3" fill="#22C55E" opacity="0.6" />
+            </motion.g>
+            {/* "NEW" badge */}
+            <rect x="606" y="248" width="38" height="14" rx="3" fill="#22C55E" />
+            <text x="625" y="259" textAnchor="middle" style={{ fontSize: '8px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.1em' }}>NEW</text>
+          </motion.g>
+
+          {/* ═══════════ LAYER 2 · BACKEND ═══════════ */}
+          <motion.g initial={{ opacity: 0, x: -8 }} animate={{ opacity: stage >= 3 ? 1 : 0, x: stage >= 3 ? 0 : -8 }} transition={{ duration: 0.5 }}>
+            <rect x="130" y="305" width="560" height="130" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m9-soft)" />
+            <rect x="130" y="305" width="6" height="130" rx="3" fill="url(#m9-beStripe)" />
+            <rect x="146" y="319" width="22" height="22" rx="4" fill="#F3E8FF" />
+            <text x="157" y="335" textAnchor="middle" style={{ fontSize: '13px', fill: '#7E22CE', fontFamily: "system-ui", fontWeight: 900 }}>{'{ }'}</text>
+            <text x="178" y="329" style={{ fontSize: '9px', fill: '#A855F7', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>02 · BACKEND</text>
+            <text x="178" y="342" style={{ fontSize: '13px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>API endpoint</text>
+            <text x="278" y="342" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· api/reports/export.ts</text>
+
+            {/* Code editor */}
+            <rect x="148" y="353" width="528" height="74" rx="4" fill="#0D1117" />
+            {/* Line numbers */}
+            {[1,2,3,4,5,6].map((n, i) => (
+              <text key={n} x="158" y={368 + i * 10} style={{ fontSize: '9px', fill: '#6E7681', fontFamily: "'JetBrains Mono', monospace" }}>{n}</text>
             ))}
+            {/* Code with + diff markers */}
+            {[
+              { mark: '+', text: 'router.post("/api/reports/export",', col: '#7EE787' },
+              { mark: '+', text: '  async (req, res) => {',              col: '#7EE787' },
+              { mark: '+', text: '    const rows = await db.retention', col: '#7EE787' },
+              { mark: '+', text: '      .findMany({ orgId });',           col: '#7EE787' },
+              { mark: '+', text: '    res.send(toCSV(rows));',            col: '#7EE787' },
+              { mark: '+', text: '  });',                                  col: '#7EE787' },
+            ].map((line, i) => (
+              <g key={i}>
+                <rect x="172" y={361 + i * 10} width="492" height="10" fill="rgba(126,231,135,0.08)" />
+                <text x="178" y={368 + i * 10} style={{ fontSize: '9px', fill: line.col, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{line.mark}</text>
+                <text x="190" y={368 + i * 10} style={{ fontSize: '9px', fill: '#E6EDF3', fontFamily: "'JetBrains Mono', monospace" }}>{line.text}</text>
+              </g>
+            ))}
+            {/* "+6 lines" diff badge */}
+            <rect x="624" y="319" width="56" height="20" rx="3" fill="#D1FAE5" stroke="#22C55E" strokeWidth="0.6" />
+            <text x="652" y="332" textAnchor="middle" style={{ fontSize: '9px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>+6 lines</text>
+          </motion.g>
 
-            {/* Ticket */}
-            {ticketStep >= 0 && (
-              <motion.g animate={{ x: ticketPos.x, y: ticketPos.y }} transition={{ type: 'spring', stiffness: 200, damping: 22 }}>
-                <rect x="-18" y="-10" width="36" height="20" rx="4" fill="#F59E0B" />
-                <text x="0" y="4" textAnchor="middle" style={{ fontSize: '8px', fill: '#fff', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>ORDER</text>
-              </motion.g>
-            )}
+          {/* ═══════════ LAYER 3 · DATABASE ═══════════ */}
+          <motion.g initial={{ opacity: 0, x: -8 }} animate={{ opacity: stage >= 4 ? 1 : 0, x: stage >= 4 ? 0 : -8 }} transition={{ duration: 0.5 }}>
+            <rect x="130" y="450" width="560" height="130" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m9-soft)" />
+            <rect x="130" y="450" width="6" height="130" rx="3" fill="url(#m9-dbStripe)" />
+            <rect x="146" y="464" width="22" height="22" rx="4" fill="#E0F2FE" />
+            <rect x="151" y="468" width="12" height="3" rx="0.6" fill="#0369A1" />
+            <rect x="151" y="473" width="12" height="3" rx="0.6" fill="#0369A1" opacity="0.6" />
+            <rect x="151" y="478" width="12" height="3" rx="0.6" fill="#0369A1" opacity="0.3" />
+            <text x="178" y="474" style={{ fontSize: '9px', fill: '#0EA5E9', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>03 · DATABASE</text>
+            <text x="178" y="487" style={{ fontSize: '13px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>SQL query</text>
+            <text x="252" y="487" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· retention_weekly table</text>
 
-            {/* Direction arrows between zones */}
-            <text x="300" y="380" textAnchor="middle" style={{ fontSize: '8px', fill: 'var(--ed-ink3)', fontFamily: 'JetBrains Mono, monospace' }}>click any zone to learn what it does — watch the order ticket travel</text>
-          </svg>
+            {/* SQL snippet */}
+            <rect x="148" y="498" width="280" height="68" rx="4" fill="#0D1117" />
+            {[
+              { text: 'SELECT week, cohort,', col: '#FFA657' },
+              { text: '       retention_pct',  col: '#E6EDF3' },
+              { text: 'FROM   retention_weekly', col: '#E6EDF3' },
+              { text: 'WHERE  org_id = $1',     col: '#E6EDF3' },
+              { text: 'ORDER BY week DESC;',     col: '#E6EDF3' },
+            ].map((line, i) => (
+              <text key={i} x="156" y={511 + i * 11} style={{ fontSize: '9px', fill: line.col, fontFamily: "'JetBrains Mono', monospace" }}>{line.text}</text>
+            ))}
+            {/* Schema mini-card */}
+            <rect x="440" y="498" width="226" height="68" rx="4" fill="#F0F9FF" stroke="#BAE6FD" strokeWidth="0.8" />
+            <text x="450" y="510" style={{ fontSize: '8px', fill: '#0369A1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 800 }}>retention_weekly</text>
+            <line x1="450" y1="514" x2="656" y2="514" stroke="#BAE6FD" strokeWidth="0.6" />
+            {[
+              { col: 'org_id',         type: 'uuid'  },
+              { col: 'week',           type: 'date'  },
+              { col: 'cohort',         type: 'text'  },
+              { col: 'retention_pct',  type: 'float' },
+            ].map((row, i) => (
+              <g key={i}>
+                <text x="450" y={528 + i * 9} style={{ fontSize: '8.5px', fill: '#1F2937', fontFamily: "'JetBrains Mono', monospace" }}>{row.col}</text>
+                <text x="640" y={528 + i * 9} textAnchor="end" style={{ fontSize: '8.5px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{row.type}</text>
+              </g>
+            ))}
+          </motion.g>
 
-          {/* Detail panel */}
-          <div style={{ padding: '20px', borderLeft: '1px solid var(--ed-rule)', background: 'var(--ed-card)' }}>
-            <AnimatePresence mode="wait">
-              {sel ? (
-                <motion.div key={sel.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-                  <div style={{ padding: '14px', borderRadius: '12px', background: `${sel.color}12`, border: `1.5px solid ${sel.color}35`, borderLeft: `4px solid ${sel.color}` }}>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '6px' }}>{sel.sub.toUpperCase()}</div>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '8px' }}>{sel.label}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{sel.desc}</div>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.12em', marginBottom: '10px' }}>THE TECH STACK</div>
-                  <div style={{ fontSize: '12px', color: 'var(--ed-ink3)', lineHeight: 1.7 }}>Every restaurant you&apos;ve been to runs on the same model as the software you ship.</div>
-                  {KITCHEN_ZONES.map(z => (
-                    <div key={z.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: z.color, flexShrink: 0 }} />
-                      <div style={{ fontSize: '11px', color: 'var(--ed-ink2)' }}><strong style={{ color: z.color }}>{z.sub}</strong> = {z.label}</div>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+          {/* ═══════════ FINAL STRAP ═══════════ */}
+          {stage >= 5 && (
+            <motion.text x="360" y="600" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+              style={{ fontSize: '10px', fill: '#92400E', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
+              ONE TICKET · THREE LAYERS · ALL MUST CHANGE
+            </motion.text>
+          )}
+        </svg>
       </div>
-      <InsightBox color="#6366F1" label="The tech stack is just a kitchen. ">
-        {' '}Frontend = dining room. API = pass-through window. Backend = kitchen. Database = pantry. Every order travels the same path. Understanding this changes how PMs write specs and estimate work.
+      <InsightBox color="#A855F7" label="Every feature has three lives. ">
+        {' '}A simple &ldquo;add CSV export&rdquo; touches the React component (the button), the API endpoint (the route + handler), and the database query (where the data lives). Knowing which layer your spec touches is how PMs estimate work that doesn&apos;t bleed into 3-week refactors.
       </InsightBox>
-      <ReplayBtn onReplay={() => { setTicketStep(-1); setSelectedZone(null); setTick(t => t + 1); }} />
+      <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
   );
 }
