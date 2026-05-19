@@ -886,124 +886,191 @@ export function MetricConstellation() {
   );
 }
 
-// ─── M08 · T1 · THE LAUNCH RUNWAY ────────────────────────────────────────────
-// Runway viewed from cockpit. Markers show launch stages as the aircraft taxis.
-// Teaches: launch is a process, not a cliff-edge jump.
+// ─── M08 · T1 · PHASED ROLLOUT TIMELINE ──────────────────────────────────────
+// Linear-style horizontal launch board for EdSpark Team Workspace v1. Five
+// phase cards left→right show number, name, week, blast-radius visualisation
+// (visibly different per phase), audience count, goal, exit-gate criteria
+// and status pill. Vertical dashed dividers between phases each carry a "→"
+// chevron — visual proof that each gate opens the next. Teaches: launch in
+// phases of increasing blast radius; gates aren't optional.
 
-const RUNWAY_STAGES = [
-  { label: 'Internal Beta', sub: 'Team only', color: '#94A3B8', pct: 0.12 },
-  { label: 'Design Partners', sub: '3-5 accounts', color: '#6366F1', pct: 0.28 },
-  { label: 'Paid Pilot', sub: '10–20 accounts', color: '#0EA5E9', pct: 0.46 },
-  { label: 'Controlled Release', sub: 'Segment gating', color: '#F97316', pct: 0.66 },
-  { label: 'General Availability', sub: 'All users', color: '#22C55E', pct: 0.88 },
+const LR_PHASES = [
+  { n: '01', name: 'Internal Alpha',     week: 'WEEK 0',   color: '#94A3B8', dark: '#475569', bg: 'rgba(148,163,184,0.10)', count: '5 USERS',       audience: 'EdSpark team only',     goal: 'Workflow holds together', exitText: '0 P1 bugs · 24h burn-in', status: 'DONE ✓',     statusBg: '#22C55E' },
+  { n: '02', name: 'Design Partners',    week: 'WEEK 1-2', color: '#6366F1', dark: '#3730A3', bg: 'rgba(99,102,241,0.10)',  count: '3 ACCOUNTS',    audience: 'Close design partners', goal: 'Real workflows survive', exitText: '80%+ task completion',    status: 'DONE ✓',     statusBg: '#22C55E' },
+  { n: '03', name: 'Paid Beta',          week: 'WEEK 3-4', color: '#F97316', dark: '#9A3412', bg: 'rgba(249,115,22,0.10)',  count: '15 ACCOUNTS',   audience: 'Pricing cohort',        goal: 'Willingness to pay',     exitText: '< 2% week-1 churn',       status: 'ACTIVE',    statusBg: '#F97316' },
+  { n: '04', name: 'Controlled',         week: 'WEEK 5-6', color: '#3B82F6', dark: '#1E40AF', bg: 'rgba(59,130,246,0.10)',  count: '~200 ACCOUNTS', audience: 'Tier-1 segment only',   goal: 'Ops scale holds',        exitText: 'Support load stable',     status: 'NEXT',      statusBg: '#6366F1' },
+  { n: '05', name: 'GA',                 week: 'WEEK 7+',  color: '#22C55E', dark: '#15803D', bg: 'rgba(34,197,94,0.10)',   count: '1,800 ACCOUNTS', audience: 'All EdSpark customers', goal: 'Live to entire base',    exitText: 'Live',                    status: 'LATER',     statusBg: '#94A3B8' },
 ];
+
+function BlastViz({ phase, color, dark, cx, cy }: { phase: string; color: string; dark: string; cx: number; cy: number }) {
+  if (phase === '01') {
+    return (
+      <g>
+        {[{dx:-16,dy:-8},{dx:0,dy:-12},{dx:16,dy:-8},{dx:-8,dy:6},{dx:8,dy:6}].map((p, i) => (
+          <g key={i}>
+            <circle cx={cx+p.dx} cy={cy+p.dy} r="6" fill={color} stroke="#FFF" strokeWidth="1.4" />
+            <circle cx={cx+p.dx-1.5} cy={cy+p.dy-1.5} r="1.6" fill="rgba(255,255,255,0.55)" />
+          </g>
+        ))}
+      </g>
+    );
+  }
+  if (phase === '02') {
+    return (
+      <g>
+        {[-30, 0, 30].map((dx, i) => (
+          <g key={i} transform={`translate(${cx+dx}, ${cy})`}>
+            <rect x="-9" y="-14" width="18" height="22" fill={color} />
+            <polygon points="-10,-14 0,-22 10,-14" fill={dark} />
+            {[-4, 0, 4].map(wx => <rect key={wx} x={wx-1.5} y="-7" width="3" height="3" fill="rgba(255,255,255,0.65)" />)}
+            {[-4, 0, 4].map(wx => <rect key={`b${wx}`} x={wx-1.5} y="0" width="3" height="3" fill="rgba(255,255,255,0.45)" />)}
+          </g>
+        ))}
+      </g>
+    );
+  }
+  if (phase === '03') {
+    return (
+      <g>
+        {Array.from({ length: 16 }).map((_, idx) => {
+          const r = Math.floor(idx / 4), c = idx % 4;
+          const filled = idx < 15;
+          return <circle key={idx} cx={cx - 22 + c * 14} cy={cy - 22 + r * 14} r="4" fill={filled ? color : '#E5E7EB'} stroke={filled ? '#FFF' : 'none'} strokeWidth="0.8" />;
+        })}
+      </g>
+    );
+  }
+  if (phase === '04') {
+    return (
+      <g>
+        {Array.from({ length: 42 }).map((_, idx) => {
+          const r = Math.floor(idx / 7), c = idx % 7;
+          const tier1 = r < 3 || (r === 3 && c < 4);
+          return <circle key={idx} cx={cx - 30 + c * 10} cy={cy - 24 + r * 9} r="2.6" fill={tier1 ? color : 'rgba(0,0,0,0.12)'} />;
+        })}
+      </g>
+    );
+  }
+  // phase 05
+  return (
+    <g>
+      {Array.from({ length: 70 }).map((_, idx) => {
+        const r = Math.floor(idx / 10), c = idx % 10;
+        return <circle key={idx} cx={cx - 41 + c * 9} cy={cy - 27 + r * 8} r="2.4" fill={color} opacity={0.6 + Math.sin(idx * 0.9) * 0.3} />;
+      })}
+    </g>
+  );
+}
 
 export function LaunchRunwayViz() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [planePos, setPlanePos] = useState(0);
-  const [activeStage, setActiveStage] = useState(-1);
+  const [stage, setStage] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setPlanePos(0); setActiveStage(-1);
-    const total = 4000;
-    const start = Date.now();
-    const animate = () => {
-      const elapsed = Date.now() - start;
-      const t = Math.min(elapsed / total, 1);
-      setPlanePos(t);
-      const stageIdx = RUNWAY_STAGES.findIndex((s, i) => t >= s.pct && (i === RUNWAY_STAGES.length - 1 || t < RUNWAY_STAGES[i + 1].pct));
-      setActiveStage(stageIdx);
-      if (t < 1) requestAnimationFrame(animate);
-    };
-    const raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
+    setStage(0);
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 300 + i * 600));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.08)' }}>
-        <svg viewBox="0 0 600 320" style={{ width: '100%', display: 'block' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
+        <svg viewBox="0 0 720 480" style={{ width: '100%', display: 'block' }}>
           <defs>
-            <linearGradient id="sky-rw" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#BAE6FD" />
-              <stop offset="60%" stopColor="#E0F2FE" />
-              <stop offset="100%" stopColor="#F0F9FF" />
+            <linearGradient id="lr-page" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F7F4EC" /><stop offset="100%" stopColor="#EFEAD9" />
             </linearGradient>
-            <linearGradient id="runway-rw" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#374151" />
-              <stop offset="100%" stopColor="#1F2937" />
-            </linearGradient>
-            {/* Perspective transform for vanishing point */}
+            <filter id="lr-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.10)"/></filter>
+            <filter id="lr-active"><feDropShadow dx="0" dy="6" stdDeviation="12" floodColor="rgba(249,115,22,0.30)"/></filter>
           </defs>
 
-          {/* Sky */}
-          <rect x="0" y="0" width="600" height="200" fill="url(#sky-rw)" />
-          {/* Horizon clouds */}
-          <ellipse cx="120" cy="60" rx="60" ry="20" fill="rgba(255,255,255,0.7)" />
-          <ellipse cx="400" cy="45" rx="80" ry="22" fill="rgba(255,255,255,0.8)" />
+          <rect width="720" height="480" fill="url(#lr-page)" />
 
-          {/* Runway in perspective */}
-          <polygon points="230,200 370,200 590,320 10,320" fill="url(#runway-rw)" />
-          {/* Centre line */}
-          {[0,1,2,3,4,5,6,7].map(i => {
-            const y1 = 200 + i * 15;
-            const midX = 300;
-            const spread = i * 25;
-            return <line key={i} x1={midX - spread * 0.1} y1={y1} x2={midX + spread * 0.1} y2={y1 + 10} stroke="rgba(255,255,255,0.4)" strokeWidth="3" />;
-          })}
-          {/* Runway edge lines */}
-          <line x1="230" y1="200" x2="10" y2="320" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
-          <line x1="370" y1="200" x2="590" y2="320" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+          {/* Status bar */}
+          <rect x="0" y="0" width="720" height="32" fill="#1E1B2E" />
+          <circle cx="20" cy="16" r="4" fill="#22C55E" />
+          <text x="32" y="20" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.06em' }}>Linear</text>
+          <text x="76" y="20" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace" }}>·</text>
+          <text x="87" y="20" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.78)', fontFamily: "'JetBrains Mono', monospace" }}>EdSpark Launch · Team Workspace v1</text>
+          <text x="710" y="20" textAnchor="end" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>WEEK 3 · MON</text>
 
-          {/* Stage markers */}
-          {RUNWAY_STAGES.map((s, i) => {
-            const baseY = 200 + (s.pct * 0.7) * 120;
-            const markerX = 300 + (i % 2 === 0 ? -1 : 1) * (90 - i * 10);
-            const isActive = i <= activeStage;
+          {/* Caption */}
+          <text x="360" y="56" textAnchor="middle" style={{ fontSize: '11px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>PHASED ROLLOUT · EACH GATE OPENS THE NEXT</text>
+
+          {/* Phase columns: 16 margin · 5 × 120 width · 4 × 22 gates */}
+          {LR_PHASES.map((p, i) => {
+            const x = 16 + i * 142;
+            const show = stage >= i + 1;
+            const isActive = p.status === 'ACTIVE';
             return (
-              <g key={i}>
-                {/* Marker line */}
-                <line x1={300 - (s.pct * 60)} y1={baseY} x2={300 + (s.pct * 60)} y2={baseY}
-                  stroke={isActive ? s.color : 'rgba(255,255,255,0.2)'} strokeWidth="2.5" />
-                {/* Stage card */}
-                <rect x={markerX - 60} y={baseY - 28} width="120" height="26" rx="6"
-                  fill={isActive ? s.color : 'rgba(30,40,50,0.7)'} opacity={isActive ? 0.9 : 0.6} />
-                <text x={markerX} y={baseY - 16} textAnchor="middle"
-                  style={{ fontSize: '8px', fill: '#fff', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.08em' }}>
-                  {s.label}
-                </text>
-                <text x={markerX} y={baseY - 5} textAnchor="middle"
-                  style={{ fontSize: '7px', fill: 'rgba(255,255,255,0.65)', fontFamily: 'system-ui' }}>
-                  {s.sub}
-                </text>
-              </g>
-            );
-          })}
+              <motion.g key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: show ? 1 : 0, y: show ? 0 : 12 }} transition={{ duration: 0.45 }}>
+                {/* Card */}
+                <rect x={x} y="78" width="120" height="340" rx="10" fill="#FFFFFF" stroke={isActive ? p.color : '#E0DBC9'} strokeWidth={isActive ? 1.5 : 1} filter={isActive ? 'url(#lr-active)' : 'url(#lr-soft)'} />
+                {/* Color band top */}
+                <path d={`M ${x+10} 78 L ${x+110} 78 Q ${x+120} 78 ${x+120} 88 L ${x+120} 108 L ${x} 108 L ${x} 88 Q ${x} 78 ${x+10} 78 Z`} fill={p.color} />
+                <text x={x+60} y={97} textAnchor="middle" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 900 }}>{`PHASE ${p.n}`}</text>
 
-          {/* Aircraft — perspective position */}
-          {(() => {
-            const y = 200 + planePos * 0.7 * 120;
-            const scale = 0.4 + planePos * 0.6;
-            const cx = 300;
-            return (
-              <motion.g style={{ transform: `translate(${cx}px,${y}px) scale(${scale})` }}>
-                {/* Simple aircraft silhouette */}
-                <ellipse cx="0" cy="0" rx="20" ry="6" fill="#1F2937" />
-                <polygon points="-8,-4 -20,-12 -20,-6" fill="#374151" />
-                <polygon points="8,-4 20,-12 20,-6" fill="#374151" />
-                <polygon points="-18,0 -30,6 -25,6" fill="#374151" />
+                {/* Name + week */}
+                <text x={x+60} y={128} textAnchor="middle" style={{ fontSize: '12px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>{p.name}</text>
+                <text x={x+60} y={144} textAnchor="middle" style={{ fontSize: '8.5px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 700 }}>{p.week}</text>
+
+                {/* Blast radius visualisation (varies per phase) */}
+                <BlastViz phase={p.n} color={p.color} dark={p.dark} cx={x + 60} cy={195} />
+
+                {/* Count + audience */}
+                <text x={x+60} y={258} textAnchor="middle" style={{ fontSize: '10.5px', fill: p.dark, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em', fontWeight: 800 }}>{p.count}</text>
+                <text x={x+60} y={272} textAnchor="middle" style={{ fontSize: '8.5px', fill: '#6B7280', fontFamily: "system-ui" }}>{p.audience}</text>
+
+                {/* Goal */}
+                <text x={x+60} y={295} textAnchor="middle" style={{ fontSize: '8.5px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 700 }}>GOAL</text>
+                <text x={x+60} y={309} textAnchor="middle" style={{ fontSize: '9.5px', fill: '#374151', fontFamily: "system-ui" }}>{p.goal}</text>
+
+                {/* Exit-gate criteria card */}
+                <rect x={x+8} y={325} width="104" height="50" rx="6" fill={p.bg} stroke={p.color} strokeWidth="0.8" strokeDasharray="3 2" />
+                <text x={x+60} y={342} textAnchor="middle" style={{ fontSize: '8.5px', fill: p.dark, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>EXIT GATE</text>
+                <text x={x+60} y={359} textAnchor="middle" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>{p.exitText}</text>
+
+                {/* Status pill */}
+                <rect x={x+34} y={388} width="52" height="20" rx="10" fill={p.statusBg} />
+                <text x={x+60} y={401} textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>{p.status}</text>
               </motion.g>
             );
-          })()}
+          })}
+
+          {/* Gate dividers between phases */}
+          {[0,1,2,3].map(i => {
+            const gx = 147 + i * 142;
+            const show = stage >= i + 2; // gate fills after phase i+1 reveals
+            const passed = i < 2;        // phases 1 and 2 are done
+            return (
+              <motion.g key={i} initial={{ opacity: 0 }} animate={{ opacity: show ? 1 : 0 }} transition={{ duration: 0.35 }}>
+                <line x1={gx} y1="86" x2={gx} y2="418" stroke="rgba(0,0,0,0.18)" strokeWidth="1" strokeDasharray="3 3" />
+                <circle cx={gx} cy="240" r="13" fill="#FFFFFF" stroke={passed ? '#22C55E' : '#D1D5DB'} strokeWidth="1.4" filter="url(#lr-soft)" />
+                {passed ? (
+                  <path d={`M ${gx-5} 240 L ${gx-1} 244 L ${gx+5} 236`} stroke="#22C55E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                ) : (
+                  <text x={gx} y={244} textAnchor="middle" style={{ fontSize: '12px', fill: '#9CA3AF', fontFamily: "system-ui", fontWeight: 900 }}>→</text>
+                )}
+              </motion.g>
+            );
+          })}
+
+          {/* Bottom strap */}
+          {stage >= 6 && (
+            <motion.text x="360" y="452" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+              style={{ fontSize: '10px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
+              BLAST RADIUS GROWS · NEVER SKIP A GATE
+            </motion.text>
+          )}
         </svg>
       </div>
-      <InsightBox color="#22C55E" label="Launch is a runway, not a cliff. ">
-        {' '}You don&apos;t jump from &ldquo;not live&rdquo; to &ldquo;all users&rdquo; in one step. Each stage gates the next. Miss a stage and you increase blast radius — not speed.
+      <InsightBox color="#22C55E" label="Launch in phases, not in jumps. ">
+        {' '}You don&apos;t go from &ldquo;not live&rdquo; to &ldquo;all 1,800 accounts&rdquo; in one step. Each phase has a specific blast radius and an exit-gate criterion that must clear before the next opens. Skipping a gate doesn&apos;t buy speed — it buys blast radius.
       </InsightBox>
-      <ReplayBtn onReplay={() => { setPlanePos(0); setActiveStage(-1); setTick(t => t + 1); }} />
+      <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
   );
 }
