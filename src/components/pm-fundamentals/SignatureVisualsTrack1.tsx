@@ -20,74 +20,12 @@ function InsightBox({ color, label, children }: { color: string; label: string; 
   );
 }
 
-// ─── M01 · T1 · THE SIGNAL SWITCHBOARD ────────────────────────────────────────
-// A 1950s operator's wooden switchboard cabinet. Three caller candlestick phones
-// (Users / Business / Engineering) send coiled brass cords into the plug bank.
-// Indicator lamps light as patches are made. A printed Decision slip emerges
-// from the side slot. Teaches: PM connects existing signals, doesn't originate.
-
-const CALLERS = [
-  { id: 'users', label: 'USERS',       color: '#6366F1', dark: '#3730A3', tx: 90,  ty: 110, plugX: 285, plugY: 195, cordSide: 'right' as const, delay: 0 },
-  { id: 'biz',   label: 'BUSINESS',    color: '#F97316', dark: '#9A3412', tx: 630, ty: 110, plugX: 435, plugY: 195, cordSide: 'left'  as const, delay: 0.25 },
-  { id: 'eng',   label: 'ENGINEERING', color: '#22C55E', dark: '#15803D', tx: 360, ty: 470, plugX: 360, plugY: 285, cordSide: 'top'   as const, delay: 0.5 },
-];
-
-function CandlestickPhone({ color, dark, label }: { color: string; dark: string; label: string }) {
-  return (
-    <g>
-      {/* Floor shadow */}
-      <ellipse cx="0" cy="58" rx="34" ry="4" fill="rgba(0,0,0,0.28)" />
-      {/* Round weighted base */}
-      <ellipse cx="0" cy="52" rx="30" ry="8" fill="#0F0805" />
-      <ellipse cx="0" cy="49" rx="28" ry="6" fill="url(#sw-brass)" />
-      <ellipse cx="0" cy="48" rx="26" ry="4.5" fill="#2A1A0A" />
-      {/* Vertical stem */}
-      <rect x="-2.5" y="14" width="5" height="36" fill="#1A1208" />
-      <rect x="-2.5" y="14" width="1.4" height="36" fill="rgba(255,255,255,0.2)" />
-      {/* Side hook bracket */}
-      <path d="M -3 24 Q -14 21 -14 30 Q -14 35 -10 35" stroke="#1A1208" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-      {/* Earpiece hanging on the hook */}
-      <g transform="translate(-16 36) rotate(-12)">
-        <rect x="-4" y="-3" width="8" height="18" rx="2" fill="#1A1208" stroke="#3D2410" strokeWidth="0.5" />
-        <ellipse cx="0" cy="-2" rx="5" ry="2.5" fill="url(#sw-brass)" />
-        <ellipse cx="0" cy="15" rx="4.5" ry="2.2" fill="#0A0603" />
-      </g>
-      {/* Trumpet mouthpiece on top */}
-      <path d="M -3 10 L -10 0 L 10 0 L 3 10 Z" fill="url(#sw-brass)" stroke="rgba(80,50,15,0.5)" strokeWidth="0.4" />
-      <ellipse cx="0" cy="0" rx="10" ry="2.6" fill="#0A0603" />
-      <ellipse cx="0" cy="0" rx="8" ry="1.8" fill="#1A0E05" />
-      {[-5, -2.5, 0, 2.5, 5].map(x => <circle key={x} cx={x} cy="0" r="0.5" fill="rgba(255,200,90,0.55)" />)}
-      {/* Name plate */}
-      <g transform="translate(0 74)">
-        <rect x="-48" y="-13" width="96" height="22" rx="4" fill={color} filter="url(#sw-soft)" />
-        <rect x="-48" y="-13" width="96" height="4" rx="2" fill="rgba(255,255,255,0.32)" />
-        <rect x="-48" y="5" width="96" height="4" rx="2" fill={dark} />
-        <text x="0" y="3" textAnchor="middle" style={{ fontSize: '10px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.16em' }}>{label}</text>
-      </g>
-    </g>
-  );
-}
-
-// Coiled-cord path: oscillating curve from (x1,y1) to (x2,y2) with N coils.
-function coiledCord(x1: number, y1: number, x2: number, y2: number, coils: number) {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.hypot(dx, dy) || 1;
-  const px = -dy / len;
-  const py = dx / len;
-  const amp = 10;
-  let d = `M ${x1} ${y1}`;
-  for (let i = 1; i <= coils; i++) {
-    const t = i / coils;
-    const cxA = x1 + dx * (t - 0.6 / coils) + px * amp;
-    const cyA = y1 + dy * (t - 0.6 / coils) + py * amp;
-    const cxB = x1 + dx * (t - 0.1 / coils) - px * amp * 0.5;
-    const cyB = y1 + dy * (t - 0.1 / coils) - py * amp * 0.5;
-    const xe = x1 + dx * t;
-    const ye = y1 + dy * t;
-    d += ` C ${cxA} ${cyA}, ${cxB} ${cyB}, ${xe} ${ye}`;
-  }
-  return d;
-}
+// ─── M01 · T1 · THE PM TRANSLATION DESK ───────────────────────────────────────
+// A real PM Monday morning: three input panels (User support inbox / Retention
+// dashboard / Eng Slack) each speak a different "language" about the same
+// underlying problem. Priya's PRD synthesises all three into ONE coherent
+// decision that explicitly cites each input. Teaches: PM = translator across
+// three vocabularies who produces one coherent priority.
 
 export function SignalSwitchboard() {
   const ref = useRef<HTMLDivElement>(null);
@@ -98,245 +36,248 @@ export function SignalSwitchboard() {
   useEffect(() => {
     if (!inView) return;
     setStage(0);
-    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 400 + i * 700));
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 300 + i * 750));
     return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
 
+  // Sparkline for retention chart (declining trend, deterministic)
+  const sparkPts = [10, 16, 14, 22, 28, 36, 44, 52, 58].map((y, i) => `${i * 18 + 8},${y}`).join(' ');
+
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.12)' }}>
-        <svg viewBox="0 0 720 540" style={{ width: '100%', display: 'block' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
+        <svg viewBox="0 0 720 620" style={{ width: '100%', display: 'block' }}>
           <defs>
-            <linearGradient id="sw-wall" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F2E9D2" /><stop offset="100%" stopColor="#D9C8A0" />
+            <linearGradient id="m1-page" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F7F4EC" /><stop offset="100%" stopColor="#EFEAD9" />
             </linearGradient>
-            <pattern id="sw-wallpaper" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
-              <circle cx="14" cy="14" r="1" fill="#B89F66" opacity="0.32" />
-              <circle cx="0" cy="0" r="1" fill="#B89F66" opacity="0.22" />
-              <circle cx="28" cy="28" r="1" fill="#B89F66" opacity="0.22" />
-            </pattern>
-            <linearGradient id="sw-wood" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3D2410" /><stop offset="20%" stopColor="#6B4220" />
-              <stop offset="50%" stopColor="#7B4F2A" /><stop offset="80%" stopColor="#5C381D" />
-              <stop offset="100%" stopColor="#3D2410" />
+            <linearGradient id="m1-redLine" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F97316" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#F97316" stopOpacity="0" />
             </linearGradient>
-            <linearGradient id="sw-brass" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FCD981" /><stop offset="45%" stopColor="#D9A347" />
-              <stop offset="80%" stopColor="#8E6722" /><stop offset="100%" stopColor="#5C4015" />
-            </linearGradient>
-            <linearGradient id="sw-brassFlat" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FBD279" /><stop offset="100%" stopColor="#A37A28" />
-            </linearGradient>
-            <radialGradient id="sw-lampOff" cx="50%" cy="35%" r="60%">
-              <stop offset="0%" stopColor="#3A2410" /><stop offset="100%" stopColor="#0F0805" />
-            </radialGradient>
-            <radialGradient id="sw-lampOn" cx="40%" cy="30%" r="70%">
-              <stop offset="0%" stopColor="#FFF7C2" /><stop offset="35%" stopColor="#FFC247" />
-              <stop offset="100%" stopColor="#7A3D08" />
-            </radialGradient>
-            <radialGradient id="sw-lampGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(255,200,70,0.55)" />
-              <stop offset="100%" stopColor="rgba(255,200,70,0)" />
-            </radialGradient>
-            <linearGradient id="sw-paper" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FBF6E6" /><stop offset="100%" stopColor="#E5D6A8" />
-            </linearGradient>
-            <linearGradient id="sw-floor" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#4A2C16" /><stop offset="100%" stopColor="#1F1208" />
-            </linearGradient>
-            <filter id="sw-soft"><feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.22)"/></filter>
-            <filter id="sw-cast"><feDropShadow dx="0" dy="10" stdDeviation="12" floodColor="rgba(0,0,0,0.35)"/></filter>
+            <filter id="m1-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.10)"/></filter>
+            <filter id="m1-priya"><feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="rgba(99,102,241,0.25)"/></filter>
           </defs>
 
-          {/* Wall + wallpaper pattern */}
-          <rect width="720" height="540" fill="url(#sw-wall)" />
-          <rect width="720" height="540" fill="url(#sw-wallpaper)" />
+          {/* Page background */}
+          <rect width="720" height="620" fill="url(#m1-page)" />
 
-          {/* Wood floor with perspective lines */}
-          <polygon points="0,430 720,430 720,540 0,540" fill="url(#sw-floor)" />
-          <line x1="0" y1="430" x2="720" y2="430" stroke="rgba(0,0,0,0.5)" strokeWidth="1.2" />
-          {[0.18, 0.36, 0.52, 0.68, 0.84].map((p, i) => (
-            <line key={i} x1={p * 720} y1="430" x2={p * 720 + (p - 0.5) * 280} y2="540" stroke="rgba(0,0,0,0.28)" strokeWidth="0.7" />
-          ))}
-          {/* Skirting board */}
-          <rect x="0" y="425" width="720" height="6" fill="#2A180A" />
-          <rect x="0" y="425" width="720" height="1.5" fill="url(#sw-brass)" opacity="0.5" />
+          {/* Top status bar — "EdSpark · Sprint 14 · Monday 09:42 AM · Priya's desk" */}
+          <rect x="0" y="0" width="720" height="36" fill="#1E1B2E" />
+          <circle cx="20" cy="18" r="4" fill="#22C55E" />
+          <text x="32" y="22" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.08em' }}>EdSpark</text>
+          <text x="93" y="22" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace" }}>·</text>
+          <text x="104" y="22" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>Sprint 14</text>
+          <text x="167" y="22" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace" }}>·</text>
+          <text x="178" y="22" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>Mon 09:42</text>
+          <text x="710" y="22" textAnchor="end" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>PRIYA&apos;S MONDAY MORNING</text>
 
-          {/* Cast shadow under cabinet */}
-          <rect x="234" y="78" width="252" height="356" rx="8" fill="rgba(0,0,0,0.4)" filter="url(#sw-cast)" />
+          {/* Caption above three panels */}
+          <text x="360" y="62" textAnchor="middle" style={{ fontSize: '11px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>THREE INPUTS · THREE LANGUAGES</text>
 
-          {/* Cabinet body */}
-          <rect x="230" y="74" width="260" height="360" rx="8" fill="url(#sw-wood)" />
-          {/* Wood grain striations */}
-          {[100, 140, 180, 220, 260, 300, 340, 380, 420].map((y, i) => (
-            <path key={i} d={`M 234 ${y} Q ${320 + Math.sin(i * 1.7) * 12} ${y + 1.5} ${410 + Math.cos(i * 1.3) * 8} ${y - 0.8} T 486 ${y + 1}`}
-              stroke="rgba(0,0,0,0.22)" strokeWidth="0.6" fill="none" />
-          ))}
-          <rect x="230" y="74" width="3" height="360" fill="rgba(255,255,255,0.08)" />
-          <rect x="487" y="74" width="3" height="360" fill="rgba(0,0,0,0.32)" />
+          {/* ═══════════════ INPUT PANEL 1 · USER SUPPORT INBOX ═══════════════ */}
+          <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : 12 }} transition={{ duration: 0.5 }}>
+            {/* Card */}
+            <rect x="24" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            {/* Top tab strip — Zendesk-style */}
+            <rect x="24" y="80" width="216" height="32" rx="10" fill="#6366F1" />
+            <rect x="24" y="100" width="216" height="12" fill="#6366F1" />
+            <circle cx="42" cy="96" r="4" fill="#FFF" opacity="0.95" />
+            <rect x="38" y="92" width="8" height="2" fill="#6366F1" />
+            <text x="56" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800, letterSpacing: '0.04em' }}>Support · Inbox</text>
+            <text x="225" y="100" textAnchor="end" style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>47 OPEN</text>
 
-          {/* Brass top & bottom trim */}
-          <rect x="226" y="68" width="268" height="20" rx="3" fill="url(#sw-brass)" filter="url(#sw-soft)" />
-          <rect x="226" y="86" width="268" height="2.5" fill="rgba(0,0,0,0.5)" />
-          <rect x="226" y="430" width="268" height="14" rx="2" fill="url(#sw-brass)" />
-          <rect x="226" y="430" width="268" height="2" fill="rgba(0,0,0,0.4)" />
-
-          {/* Engraved oval nameplate */}
-          <ellipse cx="360" cy="106" rx="118" ry="15" fill="url(#sw-brassFlat)" stroke="rgba(80,50,15,0.6)" strokeWidth="0.6" filter="url(#sw-soft)" />
-          <ellipse cx="360" cy="106" rx="114" ry="12" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="0.4" />
-          <text x="360" y="105" textAnchor="middle" style={{ fontSize: '10px', fill: '#3D2410', fontFamily: "Georgia, serif", fontWeight: 700, letterSpacing: '0.32em' }}>BELL &amp; CO · PM SWITCHBOARD</text>
-          <text x="360" y="116" textAnchor="middle" style={{ fontSize: '6.5px', fill: '#5C381D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.5em' }}>EST · MCMLII</text>
-
-          {/* Corner brass screws */}
-          {[[238,76],[478,76],[238,420],[478,420]].map(([x,y], i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r="3.5" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.5" />
-              <line x1={x-2} y1={y-2} x2={x+2} y2={y+2} stroke="#3D2410" strokeWidth="0.7" />
-            </g>
-          ))}
-
-          {/* Indicator lamp row */}
-          {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => {
-            const litThreshold = i < 3 ? 3 : i < 6 ? 4 : 5;
-            const on = stage >= litThreshold;
-            return (
-              <g key={i}>
-                {on && <circle cx={x} cy="138" r="14" fill="url(#sw-lampGlow)" />}
-                <circle cx={x} cy="138" r="5" fill={on ? 'url(#sw-lampOn)' : 'url(#sw-lampOff)'} stroke="#1A0E05" strokeWidth="0.8" />
-                <circle cx={x - 1.2} cy="136.5" r="1.2" fill={on ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.12)'} />
-              </g>
-            );
-          })}
-
-          {/* "LINE 01 — 08" brass strip */}
-          <rect x="246" y="152" width="228" height="13" rx="2" fill="url(#sw-brassFlat)" opacity="0.92" />
-          <rect x="246" y="163" width="228" height="1.5" fill="rgba(0,0,0,0.35)" />
-          <text x="360" y="161" textAnchor="middle" style={{ fontSize: '7px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.4em', fontWeight: 800 }}>LINE 01 — 08</text>
-
-          {/* Plug-jack bank: two rows */}
-          {[180, 215].map((rowY, rowI) => (
-            <g key={rowY}>
-              <rect x="246" y={rowY - 4} width="228" height="26" rx="2" fill="#0F0805" stroke="#3D2410" strokeWidth="0.6" />
-              <rect x="246" y={rowY + 18} width="228" height="2" fill="rgba(0,0,0,0.6)" />
-              {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => (
-                <g key={i}>
-                  <circle cx={x} cy={rowY + 9} r="8" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.8" />
-                  <circle cx={x} cy={rowY + 9} r="6.2" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.5" />
-                  <circle cx={x} cy={rowY + 9} r="4" fill="#080402" stroke="#3D2410" strokeWidth="0.5" />
-                  <circle cx={x} cy={rowY + 9} r="1.8" fill="#1A0E05" />
-                </g>
-              ))}
-              {[265, 295, 325, 355, 385, 415, 445, 475].map((x, i) => (
-                <text key={i} x={x} y={rowY + 26} textAnchor="middle" style={{ fontSize: '5px', fill: '#FCD981', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', opacity: 0.55 }}>
-                  {String(rowI * 8 + i + 1).padStart(2, '0')}
-                </text>
-              ))}
-            </g>
-          ))}
-
-          {/* OPERATOR brass plate */}
-          <rect x="305" y="305" width="110" height="34" rx="4" fill="#1A0E05" stroke="url(#sw-brass)" strokeWidth="1.5" filter="url(#sw-soft)" />
-          <text x="360" y="319" textAnchor="middle" style={{ fontSize: '7.5px', fill: '#FCD981', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.32em', fontWeight: 700 }}>OPERATOR</text>
-          <circle cx="360" cy="332" r="7" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.6" />
-          <text x="360" y="335" textAnchor="middle" style={{ fontSize: '9px', fill: '#3D2410', fontFamily: "Georgia, serif", fontWeight: 900 }}>PM</text>
-
-          {/* Dial knob */}
-          <g transform="translate(266 322)">
-            <circle r="22" fill="rgba(0,0,0,0.35)" filter="url(#sw-soft)" />
-            <circle r="20" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="1" />
-            <circle r="16" fill="none" stroke="#3D2410" strokeWidth="0.5" />
-            {[0,30,60,90,120,150,180,210,240,270,300,330].map(ang => (
-              <line key={ang} x1="0" y1="-17" x2="0" y2="-14" stroke="#3D2410" strokeWidth="0.7" transform={`rotate(${ang})`} />
+            {/* Ticket rows */}
+            {[
+              { user: 'Sarah K.', msg: '"keeps logging me out when I switch tabs"', time: '8m', priority: '#EF4444' },
+              { user: 'Marcus T.', msg: '"can&apos;t stay signed in"', time: '14m', priority: '#EF4444' },
+              { user: 'Priya N.',  msg: '"have to log in 5x per session"', time: '22m', priority: '#F59E0B' },
+              { user: 'Devon R.',  msg: '"keeps booting me out"', time: '41m', priority: '#EF4444' },
+            ].map((t, i) => (
+              <motion.g key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: stage >= 1 ? 1 : 0, x: stage >= 1 ? 0 : -8 }} transition={{ delay: 0.15 + i * 0.1, duration: 0.4 }}>
+                <rect x="34" y={124 + i * 38} width="196" height="32" rx="5" fill="#FAF8F2" stroke="#E5DDC1" strokeWidth="0.6" />
+                <rect x="34" y={124 + i * 38} width="3" height="32" rx="1" fill={t.priority} />
+                <circle cx="48" cy={140 + i * 38} r="6" fill="#E5E7EB" />
+                <text x="48" y={143 + i * 38} textAnchor="middle" style={{ fontSize: '7px', fill: '#6B7280', fontWeight: 800, fontFamily: 'system-ui' }}>{t.user[0]}</text>
+                <text x="62" y={138 + i * 38} style={{ fontSize: '9px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 700 }}>{t.user}</text>
+                <text x="225" y={138 + i * 38} textAnchor="end" style={{ fontSize: '8px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{t.time}</text>
+                <text x="62" y={150 + i * 38} style={{ fontSize: '8.5px', fill: '#4B5563', fontFamily: "system-ui" }} dangerouslySetInnerHTML={{__html: t.msg}} />
+              </motion.g>
             ))}
-            <circle r="9" fill="#1A0E05" />
-            <line x1="0" y1="0" x2="0" y2="-13" stroke="#FCD981" strokeWidth="2.2" strokeLinecap="round" transform="rotate(-42)" />
-            <circle r="2.4" fill="#FCD981" />
-          </g>
 
-          {/* Operator headset on hook */}
-          <g transform="translate(450 318)">
-            <path d="M 0 -16 L 0 -4 Q 0 2 6 2" stroke="url(#sw-brass)" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-            <circle cx="0" cy="-16" r="2" fill="url(#sw-brass)" />
-            <path d="M -16 4 Q 0 -12 16 4" stroke="#1A0E05" strokeWidth="3" fill="none" strokeLinecap="round" />
-            <ellipse cx="-16" cy="6" rx="5.5" ry="7" fill="#3D2410" stroke="#1A0E05" strokeWidth="0.8" />
-            <ellipse cx="16" cy="6" rx="5.5" ry="7" fill="#3D2410" stroke="#1A0E05" strokeWidth="0.8" />
-            <ellipse cx="-16" cy="6" rx="3" ry="4" fill="#0A0603" />
-            <ellipse cx="16" cy="6" rx="3" ry="4" fill="#0A0603" />
-            <ellipse cx="-16" cy="6" rx="1.5" ry="2" fill="rgba(255,200,90,0.25)" />
-            <path d="M 16 12 Q 22 18 18 26 Q 14 34 22 42 Q 28 50 24 58 Q 20 66 26 74" stroke="#1A0E05" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-          </g>
+            {/* Pattern callout at bottom */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 1 ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
+              <rect x="34" y="278" width="196" height="2" rx="1" fill="#6366F1" opacity="0.15" />
+            </motion.g>
+          </motion.g>
+          {/* Lane label */}
+          <text x="132" y="305" textAnchor="middle" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>USER LANGUAGE</text>
+          <text x="132" y="318" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the thing is broken&rdquo;</text>
 
-          {/* Paper PATCH LOG pinned at side */}
-          <g transform="translate(252 358) rotate(-4)">
-            <rect width="44" height="58" fill="url(#sw-paper)" stroke="rgba(0,0,0,0.25)" strokeWidth="0.5" filter="url(#sw-soft)" />
-            <circle cx="22" cy="3" r="1.8" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.3" />
-            <text x="22" y="13" textAnchor="middle" style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.15em', fontWeight: 700 }}>PATCH LOG</text>
-            <line x1="4" y1="16" x2="40" y2="16" stroke="#3D2410" strokeWidth="0.3" />
-            {['LN-01 ✓', 'LN-02 ✓', 'LN-03 ✓', 'LN-04 ·', 'LN-05 ·'].map((s, i) => (
-              <text key={i} x="4" y={26 + i * 7} style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace" }}>{s}</text>
-            ))}
-          </g>
+          {/* ═══════════════ INPUT PANEL 2 · BUSINESS DASHBOARD ═══════════════ */}
+          <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 2 ? 1 : 0, y: stage >= 2 ? 0 : 12 }} transition={{ duration: 0.5 }}>
+            <rect x="252" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            <rect x="252" y="80" width="216" height="32" rx="10" fill="#1B2A47" />
+            <rect x="252" y="100" width="216" height="12" fill="#1B2A47" />
+            <rect x="262" y="92" width="10" height="8" rx="1" fill="#F97316" />
+            <rect x="266" y="90" width="2" height="10" fill="#F97316" />
+            <text x="280" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800, letterSpacing: '0.04em' }}>Exec Dashboard</text>
+            <text x="453" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>WEEKLY</text>
 
-          {/* Decision slot in cabinet side */}
-          <rect x="487" y="252" width="6" height="26" fill="#080402" />
-          <rect x="487" y="252" width="6" height="2" fill="rgba(0,0,0,0.7)" />
+            {/* Metric title */}
+            <text x="262" y="132" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>WEEK-2 RETENTION</text>
+            {/* Big number */}
+            <text x="262" y="166" style={{ fontSize: '34px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 900, letterSpacing: '-0.02em' }}>32%</text>
+            {/* Delta pill */}
+            <rect x="338" y="148" width="56" height="20" rx="10" fill="#FEE2E2" />
+            <text x="366" y="162" textAnchor="middle" style={{ fontSize: '11px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>−8.3pp</text>
+            <text x="262" y="184" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "system-ui" }}>vs last sprint · target 45%</text>
 
-          {/* Decision slip emerging from slot */}
-          {stage >= 6 && (
-            <motion.g initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.8 }}>
-              <rect x="491" y="256" width="100" height="18" fill="url(#sw-paper)" stroke="rgba(0,0,0,0.35)" strokeWidth="0.5" filter="url(#sw-soft)" />
-              {[260, 264, 268, 272].map(y => <circle key={y} cx="494" cy={y} r="0.6" fill="rgba(0,0,0,0.3)" />)}
-              <text x="541" y="263" textAnchor="middle" style={{ fontSize: '5px', fill: '#3D2410', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em' }}>OPERATOR SLIP №147</text>
-              <text x="541" y="271" textAnchor="middle" style={{ fontSize: '8px', fill: '#5C381D', fontFamily: "Georgia, serif", fontWeight: 800, letterSpacing: '0.1em' }}>DECISION</text>
+            {/* Mini line chart with declining curve */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 2 ? 1 : 0 }} transition={{ delay: 0.3, duration: 0.5 }}>
+              <rect x="262" y="200" width="196" height="74" rx="6" fill="#FAFAFA" stroke="#E5E7EB" strokeWidth="0.6" />
+              {/* Grid lines */}
+              {[214, 230, 246, 262].map(y => <line key={y} x1="272" y1={y} x2="448" y2={y} stroke="#E5E7EB" strokeWidth="0.4" />)}
+              {/* Target line */}
+              <line x1="272" y1="218" x2="448" y2="218" stroke="#22C55E" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
+              <text x="447" y="216" textAnchor="end" style={{ fontSize: '7px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace" }}>target 45%</text>
+              {/* Falling area */}
+              <motion.polygon
+                initial={{ opacity: 0 }} animate={{ opacity: stage >= 2 ? 1 : 0 }} transition={{ delay: 0.5 }}
+                points={`272,210 290,212 308,216 326,222 344,230 362,240 380,250 398,256 416,262 434,266 448,268 448,272 272,272`}
+                fill="url(#m1-redLine)" />
+              {/* Line */}
+              <motion.polyline
+                initial={{ pathLength: 0 }} animate={{ pathLength: stage >= 2 ? 1 : 0 }} transition={{ duration: 0.9, delay: 0.4 }}
+                points={`272,210 290,212 308,216 326,222 344,230 362,240 380,250 398,256 416,262 434,266 448,268`}
+                fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              {/* End-point red dot */}
+              <circle cx="448" cy="268" r="3" fill="#EF4444" stroke="#FFF" strokeWidth="1.2" />
+            </motion.g>
+
+            {/* Rohan's voice bubble */}
+            <motion.g initial={{ opacity: 0, x: 4 }} animate={{ opacity: stage >= 2 ? 1 : 0, x: 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
+              <circle cx="272" cy="296" r="9" fill="#E67E22" />
+              <text x="272" y="299" textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>R</text>
+              <rect x="286" y="288" width="174" height="20" rx="4" fill="#FEF3E2" stroke="#F59E0B" strokeWidth="0.6" />
+              <text x="292" y="301" style={{ fontSize: '8.5px', fill: '#92400E', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;Fix retention. This is critical.&rdquo;</text>
+            </motion.g>
+          </motion.g>
+          <text x="360" y="328" textAnchor="middle" style={{ fontSize: '9px', fill: '#F97316', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>BUSINESS LANGUAGE</text>
+          <text x="360" y="341" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the number is wrong&rdquo;</text>
+
+          {/* ═══════════════ INPUT PANEL 3 · ENGINEERING SLACK ═══════════════ */}
+          <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 3 ? 1 : 0, y: stage >= 3 ? 0 : 12 }} transition={{ duration: 0.5 }}>
+            <rect x="480" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            <rect x="480" y="80" width="216" height="32" rx="10" fill="#3F0E40" />
+            <rect x="480" y="100" width="216" height="12" fill="#3F0E40" />
+            <text x="492" y="100" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}># </text>
+            <text x="508" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>eng-platform</text>
+            <text x="685" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>8 ONLINE</text>
+
+            {/* Kiran's message */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.15, duration: 0.4 }}>
+              <rect x="490" y="124" width="34" height="34" rx="6" fill="#3A86FF" />
+              <text x="507" y="146" textAnchor="middle" style={{ fontSize: '14px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>K</text>
+              <text x="532" y="138" style={{ fontSize: '11px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>Kiran</text>
+              <text x="572" y="138" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "system-ui" }}>9:38 AM</text>
+              <text x="532" y="152" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>folks the auth service is melting</text>
+            </motion.g>
+
+            {/* Kiran continued */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
+              <text x="532" y="174" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>every tab-switch hits</text>
+              <rect x="640" y="166" width="50" height="13" rx="3" fill="#F3F4F6" />
+              <text x="665" y="176" textAnchor="middle" style={{ fontSize: '9px', fill: '#7C3AED', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>/session</text>
+              <text x="532" y="190" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>= new JWT mint. p99 hit 4.2s yesterday</text>
+            </motion.g>
+
+            {/* Code snippet block */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.5, duration: 0.4 }}>
+              <rect x="532" y="200" width="158" height="38" rx="4" fill="#0D1117" />
+              <text x="540" y="214" style={{ fontSize: '8.5px', fill: '#9CD7FF', fontFamily: "'JetBrains Mono', monospace" }}>auth-service.ts</text>
+              <text x="540" y="226" style={{ fontSize: '8px', fill: '#7EE787', fontFamily: "'JetBrains Mono', monospace" }}>// mintJWT(): O(n) ops per call</text>
+              <text x="540" y="234" style={{ fontSize: '8.5px', fill: '#FFA657', fontFamily: "'JetBrains Mono', monospace" }}>needs cache layer · 2 sprints</text>
+            </motion.g>
+
+            {/* Kiran final ask */}
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
+              <text x="532" y="258" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>need PM call: ship-the-cache or</text>
+              <text x="532" y="270" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>roll-back? @priya</text>
+            </motion.g>
+          </motion.g>
+          <text x="588" y="305" textAnchor="middle" style={{ fontSize: '9px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>ENG LANGUAGE</text>
+          <text x="588" y="318" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the system is fragile&rdquo;</text>
+
+          {/* ═══════════════ CONVERGING ARROWS TO PM ═══════════════ */}
+          {stage >= 4 && (
+            <>
+              <motion.path d="M 132 350 Q 132 380 360 392" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7 }} />
+              <motion.path d="M 360 350 L 360 392" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: 0.1 }} />
+              <motion.path d="M 588 350 Q 588 380 360 392" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: 0.2 }} />
+
+              {/* Priya badge at convergence */}
+              <motion.g initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 22 }}>
+                <circle cx="360" cy="397" r="20" fill="#FFF" stroke="#4F46E5" strokeWidth="2.5" filter="url(#m1-priya)" />
+                <circle cx="360" cy="397" r="14" fill="#4F46E5" />
+                <text x="360" y="402" textAnchor="middle" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>P</text>
+                <text x="360" y="432" textAnchor="middle" style={{ fontSize: '10px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.16em' }}>PRIYA · PM</text>
+              </motion.g>
+            </>
+          )}
+
+          {/* ═══════════════ PRIYA'S SYNTHESIS PRD ═══════════════ */}
+          {stage >= 5 && (
+            <motion.g initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              {/* Card */}
+              <rect x="24" y="450" width="672" height="156" rx="12" fill="#FFFFFF" stroke="#4F46E5" strokeWidth="1.5" filter="url(#m1-priya)" />
+              {/* Accent strip */}
+              <rect x="24" y="450" width="672" height="6" rx="3" fill="#4F46E5" />
+              {/* Doc tab */}
+              <rect x="40" y="466" width="86" height="20" rx="4" fill="#EEF2FF" />
+              <text x="83" y="479" textAnchor="middle" style={{ fontSize: '9px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>ONE-PAGE PRD</text>
+              <text x="140" y="481" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· Sprint 15 · v0.1 · author Priya S.</text>
+
+              {/* Title */}
+              <text x="40" y="510" style={{ fontSize: '18px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Decision · Ship the auth-cache (refactor)</text>
+
+              {/* Three "WHY" callouts citing the three inputs */}
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.4 }}>
+                <rect x="40" y="528" width="208" height="62" rx="8" fill="#EEF0FF" stroke="#C7D2FE" strokeWidth="0.8" />
+                <rect x="40" y="528" width="3" height="62" rx="1" fill="#6366F1" />
+                <text x="52" y="545" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>USERS REPORT</text>
+                <text x="52" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>47 tickets / week:</text>
+                <text x="52" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>&ldquo;keeps logging me out&rdquo;</text>
+
+                <rect x="256" y="528" width="208" height="62" rx="8" fill="#FFF4E6" stroke="#FED7AA" strokeWidth="0.8" />
+                <rect x="256" y="528" width="3" height="62" rx="1" fill="#F97316" />
+                <text x="268" y="545" style={{ fontSize: '9px', fill: '#C2410C', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>BUSINESS IMPACT</text>
+                <text x="268" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>Retention −8.3pp WoW.</text>
+                <text x="268" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>Target 45% · at 32%.</text>
+
+                <rect x="472" y="528" width="208" height="62" rx="8" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="0.8" />
+                <rect x="472" y="528" width="3" height="62" rx="1" fill="#22C55E" />
+                <text x="484" y="545" style={{ fontSize: '9px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>ENG ROOT CAUSE</text>
+                <text x="484" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>JWT mint on every tab.</text>
+                <text x="484" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>2-sprint cache fix.</text>
+              </motion.g>
             </motion.g>
           )}
 
-          {/* Caller phones */}
-          {CALLERS.map((c) => (
-            <motion.g key={c.id} transform={`translate(${c.tx} ${c.ty})`}
-              initial={{ opacity: 0, y: 8 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : 8 }}
-              transition={{ delay: 0.2 + c.delay, duration: 0.5 }}>
-              <CandlestickPhone color={c.color} dark={c.dark} label={c.label} />
-            </motion.g>
-          ))}
-
-          {/* Coiled cords from each phone to its plug */}
-          {CALLERS.map((c, i) => {
-            const show = stage >= i + 2;
-            const cordStartX = c.tx;
-            const cordStartY = c.id === 'eng' ? c.ty - 8 : c.ty + 6;
-            return show ? (
-              <g key={c.id}>
-                <motion.path d={coiledCord(cordStartX, cordStartY + 2, c.plugX, c.plugY + 2, c.id === 'eng' ? 6 : 8)}
-                  stroke="rgba(0,0,0,0.18)" strokeWidth="4" fill="none" strokeLinecap="round"
-                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.0, ease: 'easeOut' }} />
-                <motion.path d={coiledCord(cordStartX, cordStartY, c.plugX, c.plugY, c.id === 'eng' ? 6 : 8)}
-                  stroke={c.color} strokeWidth="3" fill="none" strokeLinecap="round"
-                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.0, ease: 'easeOut' }} />
-                <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0, duration: 0.3 }}>
-                  <ellipse cx={c.plugX} cy={c.plugY} rx="6" ry="4" fill="url(#sw-brass)" stroke="#3D2410" strokeWidth="0.5" />
-                  <circle cx={c.plugX} cy={c.plugY} r="2.2" fill={c.dark} />
-                  <circle cx={c.plugX - 1} cy={c.plugY - 1} r="0.8" fill="rgba(255,255,255,0.6)" />
-                </motion.g>
-              </g>
-            ) : null;
-          })}
-
-          {/* Caller-station hint labels */}
-          <text x="90" y="56" textAnchor="middle" style={{ fontSize: '8px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>NEEDS</text>
-          <text x="630" y="56" textAnchor="middle" style={{ fontSize: '8px', fill: '#F97316', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>GOALS</text>
-          <text x="360" y="525" textAnchor="middle" style={{ fontSize: '8px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>CONSTRAINTS</text>
-
+          {/* Bottom strap */}
           {stage >= 6 && (
-            <motion.text x="540" y="245" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-              style={{ fontSize: '8px', fill: '#5C381D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 800 }}>
-              OUTPUT →
+            <motion.text x="360" y="605" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+              style={{ fontSize: '11px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
+              ONE DECISION · CITES ALL THREE INPUTS
             </motion.text>
           )}
         </svg>
       </div>
-      <InsightBox color="#6366F1" label="PM role: ">
-        {' '}not the one talking — the one connecting the right signal to the right listener. Three cords come in. The PM patches them through. A printed decision comes out the side slot.
+      <InsightBox color="#4F46E5" label="PM = translator across three vocabularies. ">
+        {' '}Users report a feeling (&ldquo;keeps logging me out&rdquo;). Business sees a number (&ldquo;retention −8.3pp&rdquo;). Engineering names a root cause (&ldquo;JWT mint per tab&rdquo;). The PM&apos;s job is to write the one sentence that makes all three lines true.
       </InsightBox>
       <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
