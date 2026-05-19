@@ -19,6 +19,7 @@ import {
   EnterpriseExpansionEngine,
 } from './LaunchGrowthTools';
 import { PLGvsSalesLedViz } from './Module8Additions';
+import { FunnelVsLoopViz } from './SignatureVisualsTrack2';
 import {
   AhaMomentFlowAnimation,
   GrowthFlywheelAnimation,
@@ -142,6 +143,8 @@ export default function Track2LaunchGrowth({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           The room is fuller than usual. CS is here. Sales sent input. Leadership wants context. Team Workspace is no longer being treated like just another feature — it has strategic weight. Rohit: <strong>&ldquo;We have enough signal. Get this into market properly.&rdquo;</strong> Dev: <strong>&ldquo;What do you mean by properly?&rdquo;</strong> Meera resets the room: <strong>&ldquo;What kind of launch are we actually trying to run?&rdquo;</strong>
         </SituationCard>
+
+        <FunnelVsLoopViz />
 
         <ConversationScene
           mentor="asha" name="Asha" role="PM Mentor" accent="#0097A7"

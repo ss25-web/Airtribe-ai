@@ -16,6 +16,7 @@ import {
   ExperimentConsequenceEngine,
 } from './AnalyticsTools';
 import { SQLforPMsViz } from './Module7Additions';
+import { AccountHealthCockpit } from './SignatureVisualsTrack2';
 
 const ACCENT     = '#158158';
 const ACCENT_RGB = '21,129,88';
@@ -405,6 +406,8 @@ export default function Track2AnalyticsPM({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           The quarter review begins the way many do: charts that look just healthy enough for everyone to relax. Activation has held. Usage is stable. A few growth charts are positive. Rohit opens with confidence. <strong>&ldquo;Top-of-funnel is finally moving.&rdquo;</strong> Meera is less convinced. <strong>&ldquo;Top-of-funnel is not the same as product health.&rdquo;</strong> Sonal: <strong>&ldquo;Some of the newer institutional accounts still don&apos;t feel durable.&rdquo;</strong> Dev: <strong>&ldquo;A few usage events changed definition after the instrumentation cleanup.&rdquo;</strong> Priya watches the conversation split. Then she hears herself ask the question before she fully realizes she is asking it: <strong>&ldquo;Healthy according to what?&rdquo;</strong>
         </SituationCard>
+
+        <AccountHealthCockpit />
 
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#3A86FF"

@@ -10,6 +10,7 @@ import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
 import { CommunicationPrism, NarrativeStaircase, RoadmapPressureChamber } from './CommTools3D';
 import { AIQualityCriteriaViz } from './Module6Additions';
+import { SignalPrism } from './SignatureVisualsTrack1';
 
 const ACCENT     = '#0284C7';
 const ACCENT_RGB = '2,132,199';
@@ -678,6 +679,8 @@ export default function Track1CommunicationPM({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           The search improvement project is moving into build. Priya feels good. Then, before lunch, four messages arrive. Dev: <strong>&ldquo;What exactly are we optimizing for in v1?&rdquo;</strong> Maya: <strong>&ldquo;Who is the primary user here?&rdquo;</strong> Rohit from sales: <strong>&ldquo;Can I mention this to customers next week?&rdquo;</strong> Meera, her manager: <strong>&ldquo;What business metric is this expected to move?&rdquo;</strong> Same project. Same week. Four completely different questions.
         </SituationCard>
+
+        <SignalPrism />
 
         <ConversationScene
           mentor="asha" name="Asha" role="PM Mentor" accent="#0097A7"

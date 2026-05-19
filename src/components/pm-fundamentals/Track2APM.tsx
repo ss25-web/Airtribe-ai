@@ -12,6 +12,7 @@ import { DecisionQualitySplitVisual, TradeoffPrismVisual } from './Module1Animat
 import { LocalMaximaScene, GuardrailDashboardAnimation, MetricsCascadeAnimation } from './Module1Visualizations';
 import { B2BvsB2CViz } from './Module1Additions';
 import { ProductTeardownViz, NewPMOperatingModelViz } from './ProductStrategyVisualizations';
+import { OutputVsOutcomeFactory } from './SignatureVisualsTrack2';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
@@ -799,6 +800,8 @@ export default function Track2APM() {
           <SituationCard accent="var(--purple)" accentRgb="120,67,238">
             Tuesday, 4:15 PM. Priya&apos;s sprint review. Green across the board — shipped on time, under estimate, three new features live. Her manager says &ldquo;great quarter.&rdquo; She smiles. But she&apos;s been running this pattern for six months. Shipped everything. Hit no major milestones. Users open the product, poke around, leave. She can&apos;t name what&apos;s off. She just knows something is.
           </SituationCard>
+
+          <OutputVsOutcomeFactory />
         </div>
 
         <div className="rv">

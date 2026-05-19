@@ -10,6 +10,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { PortfolioCascadeViz, KillCriteriaVault, CompetitiveMoatRadar } from './ProductStrategyVisualizations';
+import { MoatCrossSectionViz } from './SignatureVisualsTrack2';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -773,6 +774,8 @@ export default function Track2ProductStrategy({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Monday morning. Rohan forwards Priya a Gong case study — sent by Meridian Corp&apos;s VP of Sales with a note: &ldquo;We need Deal Intelligence AI by end of quarter or we&apos;re moving to Gong.&rdquo; Meridian is 200 seats. $240,000 ARR. The next board call is in three weeks.
         </SituationCard>
+
+        <MoatCrossSectionViz />
 
         {para(<>Every experienced PM will eventually face a version of this moment. A big customer, a credible competitor, and a CEO who hears $240K at risk and wants action. The question isn&apos;t whether to feel the urgency — it&apos;s whether to let the urgency make the decision.</>)}
 

@@ -17,6 +17,7 @@ import {
   ExperimentConsequenceEngine,
 } from './AnalyticsTools';
 import { SQLforPMsViz } from './Module7Additions';
+import { MetricConstellation } from './SignatureVisualsTrack1';
 
 const ACCENT     = '#158158';
 const ACCENT_RGB = '21,129,88';
@@ -803,6 +804,8 @@ export default function Track1AnalyticsPM({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Monday morning. EdSpark&apos;s weekly product review. The dashboard is already open. Before Priya can start, everyone is pointing at different charts. Rohit: <strong>&ldquo;Acquisition is finally moving.&rdquo;</strong> Sonal: <strong>&ldquo;I&apos;m more worried about what happens after first use.&rdquo;</strong> Meera: <strong>&ldquo;Which of these numbers actually tells us whether the product is healthier this week than last?&rdquo;</strong> Dev: <strong>&ldquo;Before we overread that search graph, we only fixed the tracking issue three days ago.&rdquo;</strong> Maya: <strong>&ldquo;Why is everyone treating more time spent as good?&rdquo;</strong>
         </SituationCard>
+
+        <MetricConstellation />
 
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#3A86FF"

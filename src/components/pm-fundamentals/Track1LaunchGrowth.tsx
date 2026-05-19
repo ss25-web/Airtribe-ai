@@ -17,6 +17,7 @@ import {
   GTMPathVisualizer,
 } from './LaunchGrowthTools';
 import { PLGvsSalesLedViz } from './Module8Additions';
+import { LaunchRunwayViz } from './SignatureVisualsTrack1';
 import {
   LaunchPipelineAnimation,
   AhaMomentFlowAnimation,
@@ -146,6 +147,8 @@ export default function Track1LaunchGrowth({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           After the search improvement shipped and retention moved, Priya turned to the next item on the roadmap: Team Workspace — a feature that lets sales managers share coaching sessions and collaborate on rep development. It had been in discovery for two months. Team Workspace is finally close. The prototype is stable. The workflow works. And now everyone is asking the same question: <strong>&ldquo;When do we launch?&rdquo;</strong> Rohit: <strong>&ldquo;Let&apos;s get this in front of as many users as possible.&rdquo;</strong> Dev: <strong>&ldquo;That&apos;s not a launch plan. That&apos;s exposure.&rdquo;</strong> Sonal: <strong>&ldquo;If this goes wide too early and enterprise admins hit confusion, support absorbs the damage.&rdquo;</strong> Meera asks the sharpest question: <strong>&ldquo;What exactly are we trying to achieve with this launch?&rdquo;</strong>
         </SituationCard>
+
+        <LaunchRunwayViz />
 
         <ConversationScene
           mentor="asha" name="Asha" role="PM Mentor" accent="#0097A7"

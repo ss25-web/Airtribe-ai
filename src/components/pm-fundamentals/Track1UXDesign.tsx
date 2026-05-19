@@ -10,6 +10,7 @@ import {
 import { MentorFace } from './MentorFaces';
 import { AbandonmentTimeline, FigmaBeforeAfter, NielsenHeuristicsViz } from './UXDesignVisualizations';
 import { MicrocopyLab, StateSpecBuilder, UXDebugLoopViz, WireframeProgressionViz, StoryboardViz } from './UXRevampVisualizations';
+import { FiveStatesSolarSystem } from './SignatureVisualsTrack1';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1302,6 +1303,8 @@ export default function Track1UXDesign({
           Two weeks after launch. Onboarding completion: 30%. Target: 60%. The office has the quiet
           that follows a &ldquo;successful&rdquo; release. Kiran rotates his laptop. &ldquo;Same users. Same drop-off point. Step 2.&rdquo;
         </SituationCard>
+
+        <FiveStatesSolarSystem />
 
         {para(<>
           Priya had shipped onboarding improvements with confidence. The numbers improved &mdash; just not enough.

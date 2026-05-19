@@ -10,6 +10,7 @@ import {
 import { MentorFace } from './MentorFaces';
 import { ComponentSprawl3D, CraftInvestmentMatrix, NielsenHeuristicsViz } from './UXDesignVisualizations';
 import { AccessibilityChecker, DesignSystemROICalc } from './UXRevampVisualizations';
+import { DesignSystemShovelViz } from './SignatureVisualsTrack2';
 
 const PARTS = [
   { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
@@ -910,6 +911,8 @@ export default function Track2UXDesign({
           team dashboard uses a different typeface. Do you have a design system?&rdquo; Priya looks at Rohan.
           Rohan looks at Priya. Neither of them has an answer.
         </SituationCard>
+
+        <DesignSystemShovelViz />
 
         {h2(<>Inconsistent UX is a trust signal &mdash; and enterprise clients read it</>)}
 

@@ -10,6 +10,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { ResearchQuadrantMap, AffinityClusterAnimation, STPFrameworkViz, BuyingCommitteeViz, EnterpriseDiscoveryViz } from './Module2Visualizations';
+import { BuyingCommitteeRoomViz } from './SignatureVisualsTrack2';
 
 const PARTS = [
   { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
@@ -768,6 +769,9 @@ export default function Track2ProblemDiscovery({
         <SituationCard>
           Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
         </SituationCard>
+
+        <BuyingCommitteeRoomViz />
+
         {para(<>
           Priya had been expecting this. She had also been running her own analysis for the past two weeks. The previous night she had pulled Kraftful and looked at support ticket trends over four months. What she found contradicted Rohan&apos;s theory.
         </>)}

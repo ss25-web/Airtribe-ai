@@ -11,6 +11,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { ResearchSignalBars, ResearchQuadrantMap, InterviewDepthFunnel, AffinityClusterAnimation, JTBDTransformAnimation, STPFrameworkViz, BuyingCommitteeViz, EnterpriseDiscoveryViz } from './Module2Visualizations';
+import { ResearchFishingNets } from './SignatureVisualsTrack1';
 
 // Local helper for rich-content boxes
 const InfoBox = ({ title, accent = 'var(--teal)', children }: { title: string; accent?: string; children: React.ReactNode }) => (
@@ -1077,6 +1078,8 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <SituationCard accent="var(--teal)" accentRgb="0,151,167">
             9:17am Monday. Priya has 14 screens in Figma — a completely redesigned onboarding: 7 steps collapsed to 4, new progress indicators, rewritten welcome email, cleaner copy. She worked Saturday and Sunday on it. She&apos;s proud of it. She&apos;s about to paste the link into Slack when Asha pulls up a chair.
           </SituationCard>
+
+          <ResearchFishingNets />
 
           <ConversationScene
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"

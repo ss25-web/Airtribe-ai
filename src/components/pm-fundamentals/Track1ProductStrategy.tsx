@@ -10,6 +10,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { CompetitiveMoatRadar, SystemsThinkingRipple, BetSequenceStaircase, LandExpandNetwork } from './ProductStrategyVisualizations';
+import { BetBoard } from './SignatureVisualsTrack1';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -805,6 +806,8 @@ export default function Track1ProductStrategy({
           He pulls up a slide: one number, centered, red. <strong>40%</strong>. Week-1 churn. &ldquo;The board sees this in six weeks,&rdquo; he says. &ldquo;I don&apos;t want a feature list. I want a strategy. Something that tells the board exactly why we win — and exactly what we&apos;re betting on.&rdquo;
           Priya nods. She has never built a strategy from scratch.
         </SituationCard>
+
+        <BetBoard />
 
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"

@@ -11,6 +11,7 @@ import { MentorFace } from './MentorFaces';
 import { DecisionRippleVisual, ProblemSolutionDriftVisual } from './Module1Animations';
 import { UDBMLoopAnimation, ProblemIcebergViz, RICEBubble3D, MetricsCascadeAnimation } from './Module1Visualizations';
 import { ProductSenseViz, B2BvsB2CViz } from './Module1Additions';
+import { SignalSwitchboard } from './SignatureVisualsTrack1';
 
 const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
@@ -867,6 +868,8 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <SituationCard label="Priya's Situation">
             Priya&apos;s first day at EdSpark. She&apos;s been given the title &ldquo;Product Manager.&rdquo; She expected to design features, manage a team, sit in strategy meetings. Instead, her manager says six words: &ldquo;You&apos;re responsible for the product.&rdquo; Priya nods. She has no idea what that means.
           </SituationCard>
+
+          <SignalSwitchboard />
 
           <CharacterCallout mentor="priya" activity="thinks">
             She spends the morning looking busy. She opens Figma. Closes it. Opens Jira. Closes it. By 11am she types into Google: &ldquo;what does a product manager actually do.&rdquo; The results are not helpful.

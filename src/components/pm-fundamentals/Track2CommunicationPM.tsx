@@ -11,6 +11,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import QuizEngine from '../QuizEngine';
+import { QBRPyramidViz } from './SignatureVisualsTrack2';
 
 const ACCENT     = '#0284C7';
 const ACCENT_RGB = '2,132,199';
@@ -432,6 +433,8 @@ export default function Track2CommunicationPM({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Six weeks before launch, Aarav notices something wrong that has nothing to do with the product. Sales is telling one story to prospects. Leadership is hearing another from the board update. Engineering is solving a slightly different problem than what got signed off. And enterprise customers are expecting capabilities that are still exploratory. The product is fine. The communication is broken.
         </SituationCard>
+
+        <QBRPyramidViz />
 
         {para(<>This is the senior PM communication problem. Not that people don&apos;t understand you. That your communication system has too many gaps, and each team is filling the gaps with their own assumptions.</>)}
 

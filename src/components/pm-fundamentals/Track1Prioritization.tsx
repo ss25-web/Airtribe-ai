@@ -9,6 +9,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { FeatureRequestXRay, ProblemStatement3Parts, RICEComponentScale, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup, FivePlusWhysViz, TAMEstimationViz } from './PrioritizationVisualizations';
+import { PrioritisationFunnelViz } from './SignatureVisualsTrack1';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -1003,6 +1004,8 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           a referral feature. Twelve users have complained about search. Churn data from Kiran points at
           onboarding. She has one engineer. Two weeks. And everyone says &ldquo;this is the most important thing.&rdquo;
         </SituationCard>
+
+        <PrioritisationFunnelViz />
 
         {para(<>
           Priya stares at the list. She knows she can only pick one, maybe two things. But how do you compare

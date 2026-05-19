@@ -18,6 +18,7 @@ import {
   ScopeDecompositionBoard,
 } from './Tech101WorkflowVisuals';
 import { GitForPMsViz, PostmanAPIExplorer } from './Module9Additions';
+import { RestaurantKitchenViz } from './SignatureVisualsTrack1';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -141,6 +142,8 @@ export default function Track1Tech101SystemDesign({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya describes Enterprise Admin Workspace as &ldquo;just a dashboard with filters, export, and role-based views.&rdquo; Dev looks at the sentence for a second and says: &ldquo;That is not one thing. That is a user interface, a reporting path, a permission system, and a background job.&rdquo; Priya feels the room shift. She thought she was naming a feature. Dev heard four technical systems hiding in one PM sentence.
         </SituationCard>
+
+        <RestaurantKitchenViz />
 
         <ConversationScene mentor="dev" name="Dev" role="Engineer" accent="#3A86FF" lines={[
           { speaker: 'priya', text: 'From the user side, it feels pretty simple. Filter, view, export.' },

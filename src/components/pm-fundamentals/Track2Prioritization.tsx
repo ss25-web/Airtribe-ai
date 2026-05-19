@@ -9,6 +9,7 @@ import {
 } from './designSystem';
 import { MentorFace } from './MentorFaces';
 import { CorrelationVsMechanism, NowNextLaterOrbits, KillCriteriaMonitor, MoSCoWBoard, UserStoryBuilder, FigJamBoardMockup } from './PrioritizationVisualizations';
+import { KillCriteriaContractViz } from './SignatureVisualsTrack2';
 
 // ─────────────────────────────────────────
 // CONSTANTS
@@ -613,6 +614,9 @@ export default function Track2Prioritization({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Monday morning. Priya opens Slack. The VP of Sales has sent four messages about CRM integration. The ML team lead has sent a deck: &ldquo;Recommendation Engine — Q2 Proposal.&rdquo; Kiran has pinged a single link to an Amplitude chart with no context. The board deck is due Thursday.
         </SituationCard>
+
+        <KillCriteriaContractViz />
+
         {h2(<>What goes into a strategic prioritisation</>)}
         {para(<>At the individual contributor level, prioritisation inputs are mostly local: customer requests, support tickets, your own observations. At the APM level the inputs multiply. You are now integrating signals from enterprise CSMs, a VP with quota pressure, a technical team with a roadmap of its own, and a board that wants quarterly commitments. The challenge is not volume — it&apos;s signal quality.</>)}
         {para(<>Every input arrives with a frame already on it. The VP says &ldquo;our top accounts want CRM.&rdquo; That framing — &ldquo;top accounts want&rdquo; — is doing a lot of work. Does want mean &ldquo;would use if built,&rdquo; &ldquo;asked once in a QBR,&rdquo; or &ldquo;will churn if not delivered by June&rdquo;? Those are three completely different prioritisation signals, and they arrive in the same sentence.</>)}

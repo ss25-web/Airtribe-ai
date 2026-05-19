@@ -18,6 +18,7 @@ import {
   RoadmapConfidenceSimulator,
 } from './Tech101WorkflowVisuals';
 import { GitForPMsViz, PostmanAPIExplorer } from './Module9Additions';
+import { TechDebtFoundationViz } from './SignatureVisualsTrack2';
 
 const ACCENT     = '#7843EE';
 const ACCENT_RGB = '120,67,238';
@@ -137,6 +138,8 @@ export default function Track2Tech101SystemDesign({
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya wants to accelerate enterprise rollout of Enterprise Admin Workspace. Dev says shipping on top of the current reporting and permissions layer would increase fragility fast. What sounds like an engineering hygiene conversation is actually a product throughput conversation. If the architecture becomes harder to change, the roadmap becomes slower and riskier &mdash; whether leadership notices immediately or not.
         </SituationCard>
+
+        <TechDebtFoundationViz />
 
         <ConversationScene mentor="dev" name="Dev" role="Engineer" accent="#3A86FF" lines={[
           { speaker: 'priya', text: 'Are we delaying product momentum for engineering cleanliness?' },
