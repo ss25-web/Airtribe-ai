@@ -909,178 +909,241 @@ export function AccountHealthCockpit() {
   );
 }
 
-// ─── M08 · T2 · FUNNEL VS LOOP ─────────────────────────────────────────────────
-// Left: a traditional leaky bucket with users dripping out at each stage.
-// Right: a closed PLG loop where users activate and invite more users.
-// Teaches: product-led growth replaces the linear funnel with a compounding loop.
+// ─── M08 · T2 · FUNNEL VS LOOP ────────────────────────────────────────────────
+// Left: a leaky funnel. 1,000 users enter at the top. At each stage band the
+// survivors carry on but a visible spray of dots leaks out to a "LOST" pile on
+// the right — 96% gone by the bottom. Right: a compounding loop. 100 seed users
+// at the centre; each cycle adds new dots connected by invite-edges to existing
+// users. After 4 cycles the network has 7x more nodes. Teaches: funnels leak,
+// loops compound — the same underlying number behaves opposite over time.
 
-const FUNNEL_STAGES = [
-  { label: 'Aware', users: 1000, lost: 600, color: '#6366F1' },
-  { label: 'Trial', users: 400, lost: 280, color: '#8B5CF6' },
-  { label: 'Active', users: 120, lost: 80, color: '#A78BFA' },
-  { label: 'Paid', users: 40, lost: 0, color: '#C4B5FD' },
-];
+// Deterministic pseudo-random offset (avoids hydration mismatches)
+const fjit = (i: number, salt: number) => ((Math.sin((i + 1) * salt) * 10000) % 1 + 1) % 1;
 
-const LOOP_NODES = [
-  { label: 'Discover', x: 310, y: 70, color: '#22C55E' },
-  { label: 'Sign Up', x: 440, y: 160, color: '#16A34A' },
-  { label: 'Get Value', x: 430, y: 290, color: '#22C55E' },
-  { label: 'Invite', x: 310, y: 360, color: '#4ADE80' },
-  { label: 'Advocate', x: 185, y: 290, color: '#86EFAC' },
-  { label: 'Refer', x: 178, y: 160, color: '#22C55E' },
+const FN_STAGES = [
+  { label: 'AWARE',  count: 1000, color: '#A78BFA', dark: '#6D28D9', topY: 102, botY: 178, topW: 240, botW: 180 },
+  { label: 'TRIAL',  count: 400,  color: '#8B5CF6', dark: '#5B21B6', topY: 188, botY: 264, topW: 180, botW: 124 },
+  { label: 'ACTIVE', count: 120,  color: '#7C3AED', dark: '#4C1D95', topY: 274, botY: 350, topW: 124, botW: 70  },
+  { label: 'PAID',   count: 40,   color: '#6D28D9', dark: '#3B0764', topY: 360, botY: 432, topW: 70,  botW: 36  },
 ];
 
 export function FunnelVsLoopViz() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [funnelStage, setFunnelStage] = useState(0);
-  const [loopStage, setLoopStage] = useState(0);
+  const [fnStage, setFnStage] = useState(0);
+  const [loopCycle, setLoopCycle] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setFunnelStage(0); setLoopStage(0);
-    FUNNEL_STAGES.forEach((_, i) => setTimeout(() => setFunnelStage(i + 1), 400 + i * 500));
-    LOOP_NODES.forEach((_, i) => setTimeout(() => setLoopStage(i + 1), 400 + i * 300));
+    setFnStage(0); setLoopCycle(0);
+    FN_STAGES.forEach((_, i) => setTimeout(() => setFnStage(i + 1), 500 + i * 700));
+    [1,2,3,4].forEach((c) => setTimeout(() => setLoopCycle(c), 500 + c * 800));
   }, [inView, tick]);
+
+  // Centre x for funnel panel: 175 (panel width 350)
+  const FN_CX = 175;
+  // Centre x for loop panel: 540 (panel width 360)
+  const LP_CX = 540;
+  const LP_CY = 268;
+
+  // Loop nodes per cycle (concentric, growing)
+  const cyclePoints: Array<{ x: number; y: number; cycle: number; parentIdx: number }> = [];
+  // Cycle 0: 6 seed users in inner ring
+  for (let i = 0; i < 6; i++) {
+    const ang = (i / 6) * Math.PI * 2;
+    cyclePoints.push({ x: LP_CX + Math.cos(ang) * 22, y: LP_CY + Math.sin(ang) * 22, cycle: 0, parentIdx: -1 });
+  }
+  // Cycle 1: each seed invites 1 → +6 = 12 total
+  for (let i = 0; i < 6; i++) {
+    const ang = (i / 6) * Math.PI * 2 + 0.18;
+    cyclePoints.push({ x: LP_CX + Math.cos(ang) * 56, y: LP_CY + Math.sin(ang) * 56, cycle: 1, parentIdx: i });
+  }
+  // Cycle 2: each cycle-1 invites ~1.3 → +9 ≈ 21 total
+  for (let i = 0; i < 9; i++) {
+    const ang = (i / 9) * Math.PI * 2 + 0.34;
+    cyclePoints.push({ x: LP_CX + Math.cos(ang) * 86, y: LP_CY + Math.sin(ang) * 86, cycle: 2, parentIdx: 6 + (i % 6) });
+  }
+  // Cycle 3: +12 ≈ 33 total
+  for (let i = 0; i < 12; i++) {
+    const ang = (i / 12) * Math.PI * 2 + 0.5;
+    cyclePoints.push({ x: LP_CX + Math.cos(ang) * 116, y: LP_CY + Math.sin(ang) * 116, cycle: 3, parentIdx: 15 + (i % 9) });
+  }
+  // Cycle 4: +16 ≈ 49 total
+  for (let i = 0; i < 16; i++) {
+    const ang = (i / 16) * Math.PI * 2 + 0.66;
+    cyclePoints.push({ x: LP_CX + Math.cos(ang) * 144, y: LP_CY + Math.sin(ang) * 144, cycle: 4, parentIdx: 27 + (i % 12) });
+  }
+
+  // Funnel survivor counts mapped to visible dot scale (÷25, min 1)
+  const funnelDots = (count: number) => Math.max(1, Math.round(count / 25));
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.1)' }}>
-        <svg viewBox="0 0 620 440" style={{ width: '100%', display: 'block' }}>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
+        <svg viewBox="0 0 720 520" style={{ width: '100%', display: 'block' }}>
           <defs>
-            <linearGradient id="funnel-bg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#FDF2F8" />
-              <stop offset="100%" stopColor="#FCE7F3" />
+            <linearGradient id="fnl-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FDF4FF" /><stop offset="100%" stopColor="#FAE8FF" />
             </linearGradient>
-            <linearGradient id="loop-bg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F0FDF4" />
-              <stop offset="100%" stopColor="#DCFCE7" />
+            <linearGradient id="lp-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F0FDF4" /><stop offset="100%" stopColor="#DCFCE7" />
             </linearGradient>
-            <filter id="loop-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <marker id="arrow-loop" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
-              <path d="M0,0 L0,8 L8,4 Z" fill="#22C55E" opacity="0.8" />
-            </marker>
+            <filter id="fl-soft"><feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="rgba(0,0,0,0.12)"/></filter>
+            <filter id="lp-glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
 
-          {/* Left panel — funnel */}
-          <rect x="0" y="0" width="280" height="440" fill="url(#funnel-bg)" />
-          <text x="140" y="26" textAnchor="middle" style={{ fontSize: '9px', fill: '#BE185D', fontFamily: 'JetBrains Mono, monospace', fontWeight: 900, letterSpacing: '0.14em' }}>
-            TRADITIONAL FUNNEL
-          </text>
-          <text x="140" y="40" textAnchor="middle" style={{ fontSize: '8px', fill: '#9D174D', fontFamily: 'monospace' }}>linear · lossy · expensive</text>
+          {/* Background panels */}
+          <rect x="0" y="0" width="358" height="520" fill="url(#fnl-bg)" />
+          <rect x="362" y="0" width="358" height="520" fill="url(#lp-bg)" />
+          <line x1="360" y1="0" x2="360" y2="520" stroke="rgba(0,0,0,0.08)" strokeWidth="2" strokeDasharray="6 4" />
+          <circle cx="360" cy="260" r="22" fill="#FFFFFF" stroke="rgba(0,0,0,0.15)" strokeWidth="1.2" filter="url(#fl-soft)" />
+          <text x="360" y="265" textAnchor="middle" style={{ fontSize: '10px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 900 }}>VS</text>
 
-          {FUNNEL_STAGES.map((s, i) => {
-            const show = i < funnelStage;
-            const topW = 180 - i * 30;
-            const botW = 180 - (i + 1) * 30;
-            const topY = 55 + i * 82;
-            const botY = topY + 70;
-            const leakY = topY + 35;
-            const leakCount = Math.round(s.lost / 100);
+          {/* ═══ LEFT · FUNNEL ═══ */}
+          <text x={FN_CX} y="40" textAnchor="middle" style={{ fontSize: '11px', fill: '#A21CAF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 900 }}>TRADITIONAL FUNNEL</text>
+          <text x={FN_CX} y="56" textAnchor="middle" style={{ fontSize: '10px', fill: '#86198F', fontFamily: "system-ui", fontStyle: 'italic' }}>linear · lossy · paid traffic refills it</text>
+
+          {/* Top inlet — 40 dots of "1,000 enter" */}
+          <text x={FN_CX} y="80" textAnchor="middle" style={{ fontSize: '9px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>1,000 USERS IN</text>
+          {Array.from({ length: 40 }).map((_, i) => (
+            <circle key={`in-${i}`} cx={FN_CX - 120 + (i % 10) * 26.7 + fjit(i, 17) * 8} cy={88 + Math.floor(i / 10) * 4} r="2.6" fill="#A78BFA" opacity="0.85" />
+          ))}
+
+          {/* Funnel stages */}
+          {FN_STAGES.map((s, i) => {
+            const show = fnStage > i;
             return (
-              <g key={s.label}>
-                {show && (
-                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
-                    {/* Funnel trapezoid */}
-                    <polygon
-                      points={`${140 - topW / 2},${topY} ${140 + topW / 2},${topY} ${140 + botW / 2},${botY} ${140 - botW / 2},${botY}`}
-                      fill={`${s.color}25`} stroke={s.color} strokeWidth="1.5"
-                    />
-                    <text x="140" y={topY + 32} textAnchor="middle" style={{ fontSize: '10px', fill: s.color, fontFamily: 'system-ui', fontWeight: 800 }}>
-                      {s.label}
-                    </text>
-                    <text x="140" y={topY + 46} textAnchor="middle" style={{ fontSize: '8px', fill: '#6B7280', fontFamily: 'monospace' }}>
-                      {s.users} users
-                    </text>
-
-                    {/* Leak droplets */}
-                    {s.lost > 0 && Array.from({ length: Math.min(leakCount, 5) }).map((_, di) => (
-                      <motion.circle key={di} cx={140 + topW / 2 + 8 + di * 6} cy={leakY}
-                        r="4" fill={s.color} opacity="0.5"
-                        animate={{ y: [0, 12, 0] }} transition={{ repeat: Infinity, duration: 1.2 + di * 0.2, delay: di * 0.15 }} />
-                    ))}
-                    {s.lost > 0 && (
-                      <text x={165 + topW / 2} y={leakY + 4} style={{ fontSize: '7px', fill: '#EF4444', fontFamily: 'monospace', fontWeight: 700 }}>-{s.lost}</text>
-                    )}
-                  </motion.g>
+              <motion.g key={s.label} initial={{ opacity: 0 }} animate={{ opacity: show ? 1 : 0 }} transition={{ duration: 0.5 }}>
+                {/* Trapezoid band */}
+                <polygon
+                  points={`${FN_CX - s.topW/2},${s.topY} ${FN_CX + s.topW/2},${s.topY} ${FN_CX + s.botW/2},${s.botY} ${FN_CX - s.botW/2},${s.botY}`}
+                  fill={`${s.color}22`} stroke={s.color} strokeWidth="1.6"
+                />
+                {/* Stage label */}
+                <text x={FN_CX - s.topW/2 - 6} y={s.topY + 14} textAnchor="end" style={{ fontSize: '9.5px', fill: s.dark, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>{s.label}</text>
+                <text x={FN_CX - s.topW/2 - 6} y={s.topY + 28} textAnchor="end" style={{ fontSize: '11px', fill: '#1F2937', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>{s.count.toLocaleString()}</text>
+                {/* Survivor dots inside trapezoid */}
+                {Array.from({ length: funnelDots(s.count) }).map((_, di) => {
+                  const cols = Math.min(funnelDots(s.count), Math.max(3, Math.floor(s.botW / 9)));
+                  const rows = Math.ceil(funnelDots(s.count) / cols);
+                  const r = Math.floor(di / cols), c = di % cols;
+                  const x = FN_CX - (cols-1)*4 + c*8;
+                  const y = s.topY + 38 + r*7;
+                  return <circle key={di} cx={x} cy={y} r="2.3" fill={s.color} opacity="0.95" />;
+                })}
+                {/* Leakage spray — dots streaming out to the right "LOST" pile */}
+                {i < FN_STAGES.length - 1 && Array.from({ length: 6 }).map((_, li) => (
+                  <motion.circle
+                    key={`leak-${li}`}
+                    cx={FN_CX + s.botW/2 + 4 + li * 6}
+                    cy={s.botY - 4 + li * 3}
+                    r="2.2" fill={s.color} opacity={0.5 - li * 0.04}
+                    initial={{ x: 0, y: 0 }}
+                    animate={{ x: [0, 30 + li * 3, 60 + li * 5], y: [0, 18 + li * 2, 40 + li * 3], opacity: [0.5, 0.4, 0.15] }}
+                    transition={{ duration: 1.8, repeat: Infinity, delay: li * 0.18 }}
+                  />
+                ))}
+                {/* Leak count label */}
+                {i < FN_STAGES.length - 1 && (
+                  <text x={FN_CX + s.botW/2 + 26} y={s.botY + 4} style={{ fontSize: '8px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+                    −{s.count - FN_STAGES[i+1].count}
+                  </text>
                 )}
-              </g>
+              </motion.g>
             );
           })}
 
-          {/* Divider */}
-          <line x1="300" y1="0" x2="300" y2="440" stroke="#E5E7EB" strokeWidth="2" />
-          <text x="300" y="225" textAnchor="middle" style={{ fontSize: '11px', fill: '#9CA3AF', fontFamily: 'system-ui' }}>VS</text>
+          {/* "LOST" pile in bottom-right of funnel panel */}
+          {fnStage >= 3 && (
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.5 }}>
+              <rect x="262" y="378" width="86" height="56" rx="6" fill="rgba(220,38,38,0.08)" stroke="#FCA5A5" strokeWidth="0.8" strokeDasharray="3 2" />
+              <text x="305" y="394" textAnchor="middle" style={{ fontSize: '8px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>LOST</text>
+              <text x="305" y="411" textAnchor="middle" style={{ fontSize: '16px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>960</text>
+              <text x="305" y="425" textAnchor="middle" style={{ fontSize: '8px', fill: '#7F1D1D', fontFamily: "system-ui", fontStyle: 'italic' }}>require paid refill</text>
+            </motion.g>
+          )}
 
-          {/* Right panel — loop */}
-          <rect x="300" y="0" width="320" height="440" fill="url(#loop-bg)" />
-          <text x="462" y="26" textAnchor="middle" style={{ fontSize: '9px', fill: '#166534', fontFamily: 'JetBrains Mono, monospace', fontWeight: 900, letterSpacing: '0.14em' }}>
-            PRODUCT-LED LOOP
-          </text>
-          <text x="462" y="40" textAnchor="middle" style={{ fontSize: '8px', fill: '#15803D', fontFamily: 'monospace' }}>viral · compounding · self-sustaining</text>
+          {/* Final survivors marker */}
+          {fnStage >= FN_STAGES.length && (
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              <text x={FN_CX} y="455" textAnchor="middle" style={{ fontSize: '9px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>SURVIVORS</text>
+              <text x={FN_CX} y="478" textAnchor="middle" style={{ fontSize: '26px', fill: '#6D28D9', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>40</text>
+              <text x={FN_CX} y="496" textAnchor="middle" style={{ fontSize: '9px', fill: '#86198F', fontFamily: "system-ui", fontStyle: 'italic' }}>4% conversion · 96% lost</text>
+            </motion.g>
+          )}
 
-          {/* Loop arrows */}
-          {LOOP_NODES.map((node, i) => {
-            const next = LOOP_NODES[(i + 1) % LOOP_NODES.length];
-            const show = i < loopStage && (i + 1) < loopStage;
-            const midX = (node.x + next.x) / 2;
-            const midY = (node.y + next.y) / 2;
-            return show && (
-              <motion.path key={`arrow-${i}`}
-                d={`M${node.x},${node.y} Q${midX + (i % 2 === 0 ? 15 : -15)},${midY} ${next.x},${next.y}`}
-                fill="none" stroke="#22C55E" strokeWidth="1.5" opacity="0.5" markerEnd="url(#arrow-loop)"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4 }} />
+          {/* ═══ RIGHT · LOOP ═══ */}
+          <text x={LP_CX} y="40" textAnchor="middle" style={{ fontSize: '11px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.2em', fontWeight: 900 }}>PRODUCT-LED LOOP</text>
+          <text x={LP_CX} y="56" textAnchor="middle" style={{ fontSize: '10px', fill: '#166534', fontFamily: "system-ui", fontStyle: 'italic' }}>viral · compounding · refills itself</text>
+
+          <text x={LP_CX} y="80" textAnchor="middle" style={{ fontSize: '9px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>1,000 SEED USERS</text>
+
+          {/* Cycle rings (visual elevation) */}
+          {[22, 56, 86, 116, 144].map((r, i) => (
+            <circle key={i} cx={LP_CX} cy={LP_CY} r={r} fill="none" stroke="#86EFAC" strokeWidth="0.5" strokeDasharray="2 3" opacity={loopCycle >= i ? 0.5 : 0} />
+          ))}
+
+          {/* Invite edges */}
+          {cyclePoints.map((p, i) => {
+            if (p.parentIdx < 0) return null;
+            if (loopCycle < p.cycle) return null;
+            const parent = cyclePoints[p.parentIdx];
+            return (
+              <motion.line key={`e${i}`}
+                x1={parent.x} y1={parent.y} x2={p.x} y2={p.y}
+                stroke="#22C55E" strokeWidth="0.9" opacity="0.55"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }}
+              />
             );
           })}
 
           {/* Loop nodes */}
-          {LOOP_NODES.map((node, i) => {
-            const show = i < loopStage;
+          {cyclePoints.map((p, i) => {
+            if (loopCycle < p.cycle) return null;
+            const isSeed = p.cycle === 0;
             return (
-              <g key={node.label}>
-                {show && (
-                  <motion.g initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                    style={{ transformOrigin: `${node.x}px ${node.y}px` }} transition={{ type: 'spring', stiffness: 300, damping: 20 }}>
-                    <circle cx={node.x} cy={node.y} r="28" fill={`${node.color}25`} stroke={node.color} strokeWidth="2" filter="url(#loop-glow)" />
-                    <text x={node.x} y={node.y + 4} textAnchor="middle" style={{ fontSize: '9px', fill: node.color, fontFamily: 'system-ui', fontWeight: 800 }}>
-                      {node.label}
-                    </text>
-                  </motion.g>
-                )}
-              </g>
+              <motion.g key={`n${i}`} initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                style={{ transformOrigin: `${p.x}px ${p.y}px` }} transition={{ type: 'spring', stiffness: 280, damping: 22, delay: 0.1 + (i * 0.015) }}>
+                <circle cx={p.x} cy={p.y} r={isSeed ? 5 : 3.6} fill={isSeed ? '#15803D' : '#22C55E'} stroke="#FFF" strokeWidth="1.2" filter="url(#lp-glow)" />
+              </motion.g>
             );
           })}
 
-          {/* Centre of loop */}
-          {loopStage >= LOOP_NODES.length && (
-            <motion.g initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }}
-              style={{ transformOrigin: '310px 215px' }} transition={{ type: 'spring', stiffness: 280, damping: 20 }}>
-              <circle cx="310" cy="215" r="30" fill="#22C55E" opacity="0.15" />
-              <text x="310" y="211" textAnchor="middle" style={{ fontSize: '8px', fill: '#16A34A', fontFamily: 'JetBrains Mono, monospace', fontWeight: 900, letterSpacing: '0.08em' }}>VIRAL</text>
-              <text x="310" y="224" textAnchor="middle" style={{ fontSize: '8px', fill: '#16A34A', fontFamily: 'JetBrains Mono, monospace', fontWeight: 900, letterSpacing: '0.08em' }}>LOOP</text>
-            </motion.g>
-          )}
+          {/* Centre seed label */}
+          <circle cx={LP_CX} cy={LP_CY} r="6" fill="#15803D" stroke="#FFF" strokeWidth="1.4" />
+          <text x={LP_CX} y={LP_CY + 2} textAnchor="middle" style={{ fontSize: '6px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>1k</text>
 
-          {/* Funnel result */}
-          {funnelStage >= FUNNEL_STAGES.length && (
-            <motion.text x="140" y="415" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ fontSize: '9px', fill: '#BE185D', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>
-              960 of 1000 users lost
-            </motion.text>
-          )}
-          {loopStage >= LOOP_NODES.length && (
-            <motion.text x="462" y="415" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ fontSize: '9px', fill: '#16A34A', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>
-            each user can become a source
-            </motion.text>
+          {/* Cycle counters */}
+          {[1,2,3,4].map((c) => {
+            const counts = [1000, 1400, 2100, 3150, 4730];
+            const show = loopCycle >= c;
+            const angle = (c - 0.5) / 4 * Math.PI - Math.PI / 2;
+            const lx = LP_CX + Math.cos(angle) * 168;
+            const ly = LP_CY + Math.sin(angle) * 168;
+            return show ? (
+              <motion.g key={c} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.4 }}>
+                <rect x={lx - 28} y={ly - 12} width="56" height="24" rx="4" fill="#FFFFFF" stroke="#22C55E" strokeWidth="0.8" filter="url(#fl-soft)" />
+                <text x={lx} y={ly - 1} textAnchor="middle" style={{ fontSize: '7px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', fontWeight: 800 }}>{`C${c}`}</text>
+                <text x={lx} y={ly + 8} textAnchor="middle" style={{ fontSize: '9px', fill: '#1F2937', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>{counts[c].toLocaleString()}</text>
+              </motion.g>
+            ) : null;
+          })}
+
+          {/* Loop final result */}
+          {loopCycle >= 4 && (
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.5 }}>
+              <text x={LP_CX} y="455" textAnchor="middle" style={{ fontSize: '9px', fill: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>AFTER 4 CYCLES</text>
+              <text x={LP_CX} y="478" textAnchor="middle" style={{ fontSize: '26px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", fontWeight: 900 }}>4,730</text>
+              <text x={LP_CX} y="496" textAnchor="middle" style={{ fontSize: '9px', fill: '#166534', fontFamily: "system-ui", fontStyle: 'italic' }}>k = 1.4 · loop refills itself</text>
+            </motion.g>
           )}
         </svg>
       </div>
-      <InsightBox color="#22C55E" label="Funnels leak. Loops compound: ">
-        {' '}in a PLG loop, a delighted user invites colleagues. Each new user strengthens the loop. The funnel requires constant paid traffic to refill — the loop refills itself.
+      <InsightBox color="#22C55E" label="Funnels leak. Loops compound. ">
+        {' '}Same 1,000 users, two physics. In a funnel each stage subtracts; you finish with 40 and need paid traffic to refill. In a loop each cycle multiplies; same 1,000 reach 4,730 in four cycles because every delighted user invites the next. The funnel costs CAC every month. The loop pays itself back.
       </InsightBox>
-      <ReplayBtn onReplay={() => { setFunnelStage(0); setLoopStage(0); setTick(t => t + 1); }} />
+      <ReplayBtn onReplay={() => { setFnStage(0); setLoopCycle(0); setTick(t => t + 1); }} />
     </div>
   );
 }
