@@ -412,140 +412,177 @@ export function RICEBubble3D() {
   );
 }
 
-// ─── 4. LOCAL MAXIMA TERRAIN ───────────────────────────────────────────────────
-
-function terrainH(x: number, z: number) {
-  const lo = 3.8 * Math.exp(-((x + 2.8) ** 2 + z ** 2) / 1.4);
-  const hi = 6.2 * Math.exp(-((x - 2.6) ** 2 + z ** 2) / 1.8);
-  return lo + hi - 0.003 * (x * x + z * z);
-}
-
-function TerrainMesh() {
-  const geo = useMemo(() => {
-    const g = new THREE.PlaneGeometry(16, 16, 120, 120);
-    const pos = g.attributes.position;
-    for (let i = 0; i < pos.count; i++) pos.setZ(i, terrainH(pos.getX(i), pos.getY(i)));
-    pos.needsUpdate = true;
-    g.computeVertexNormals();
-    return g;
-  }, []);
-  return (
-    <mesh geometry={geo} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <meshStandardMaterial color="#1E3A5C" roughness={0.82} metalness={0.18} />
-    </mesh>
-  );
-}
-
-const BALL_WP = [{ x: -6, z: 0, t: 0 }, { x: -2.8, z: 0, t: 3.5 }, { x: -2.8, z: 0, t: 1.5 }, { x: 0.1, z: 0, t: 2.5 }, { x: 2.6, z: 0, t: 3.5 }];
-
-function RollingBall({ elapsed }: { elapsed: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame(() => {
-    if (!ref.current) return;
-    let cum = 0, x = BALL_WP[0].x, z = BALL_WP[0].z;
-    for (let i = 0; i < BALL_WP.length - 1; i++) {
-      const seg = BALL_WP[i + 1].t;
-      if (elapsed <= cum + seg) {
-        const p = easeInOut((elapsed - cum) / seg);
-        x = THREE.MathUtils.lerp(BALL_WP[i].x, BALL_WP[i + 1].x, p);
-        z = THREE.MathUtils.lerp(BALL_WP[i].z, BALL_WP[i + 1].z, p);
-        break;
-      }
-      cum += seg; x = BALL_WP[i + 1].x; z = BALL_WP[i + 1].z;
-    }
-    ref.current.position.set(x, terrainH(x, z) + 0.32, z);
-  });
-  return (
-    <mesh ref={ref} castShadow>
-      <sphereGeometry args={[0.32, 32, 32]} />
-      <meshStandardMaterial color="#FF4444" metalness={0.8} roughness={0.15} emissive="#CC0000" emissiveIntensity={0.4} />
-    </mesh>
-  );
-}
-
-function LMAnnotations({ elapsed }: { elapsed: number }) {
-  return (
-    <>
-      {elapsed >= 3.5 && (
-        <Html position={[-2.8, terrainH(-2.8, 0) + 1.3, 0]} center>
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            style={{ background: '#EF4444', color: '#fff', borderRadius: '8px', padding: '7px 13px', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 800, boxShadow: '0 4px 18px rgba(239,68,68,0.6)' }}>
-            ⚠ Local maximum<div style={{ fontSize: '9px', fontWeight: 400, opacity: 0.85, marginTop: '2px' }}>You think you&apos;re done.</div>
-          </motion.div>
-        </Html>
-      )}
-      {elapsed >= 7 && (
-        <Html position={[2.6, terrainH(2.6, 0) + 1.5, 0]} center>
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            style={{ background: '#22C55E', color: '#fff', borderRadius: '8px', padding: '7px 13px', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', whiteSpace: 'nowrap', fontWeight: 800, boxShadow: '0 4px 18px rgba(34,197,94,0.6)' }}>
-            ✓ Higher opportunity<div style={{ fontSize: '9px', fontWeight: 400, opacity: 0.85, marginTop: '2px' }}>Required going back down first.</div>
-          </motion.div>
-        </Html>
-      )}
-    </>
-  );
-}
-
-function LMScene({ elapsed }: { elapsed: number }) {
-  return (
-    <>
-      <PerspectiveCamera makeDefault position={[-1, 9, 14]} fov={42} />
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[8, 12, 6]} intensity={1.2} castShadow />
-      <pointLight position={[-6, 6, 2]} intensity={0.6} color="#3B82F6" />
-      <pointLight position={[5, 8, 2]} intensity={0.5} color="#22C55E" />
-      <TerrainMesh />
-      <RollingBall elapsed={elapsed} />
-      <LMAnnotations elapsed={elapsed} />
-      <OrbitControls enablePan={false} enableZoom={false} />
-    </>
-  );
-}
+// ─── 4. LOCAL MAXIMA · 2D STRATEGY LANDSCAPE ──────────────────────────────────
+// Side-view cross-section of two product directions as peaks. Current product
+// sits on a small local-max peak; real PMF is a taller peak across a valley.
+// A red marker shows "you are here", an orange descent arrow goes through the
+// valley, a green climb arrow reaches the higher peak. Teaches: reaching real
+// PMF often requires descending first — which looks like regression and is why
+// most teams stay stuck.
 
 export function LocalMaximaScene() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [elapsed, setElapsed] = useState(0);
-  const [running, setRunning] = useState(false);
+  const [stage, setStage] = useState(0);
   const [tick, setTick] = useState(0);
-  const startT = useRef<number | null>(null);
-  const raf = useRef(0);
-  const totalDur = BALL_WP.reduce((s, p) => s + p.t, 0);
 
   useEffect(() => {
     if (!inView) return;
-    const d = setTimeout(() => setRunning(true), 600);
-    return () => clearTimeout(d);
+    setStage(0);
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 400 + i * 850));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
-
-  useEffect(() => {
-    if (!running) return;
-    startT.current = performance.now() / 1000;
-    const loop = () => {
-      const t = Math.min(performance.now() / 1000 - (startT.current ?? 0), totalDur);
-      setElapsed(t);
-      if (t < totalDur) raf.current = requestAnimationFrame(loop);
-    };
-    raf.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf.current);
-  }, [running, totalDur]);
-
-  const replay = () => { setElapsed(0); setRunning(false); setTick(t => t + 1); };
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <VizLabel>PMF Local Maxima — 3D terrain · auto-animated</VizLabel>
-      <div style={{ borderRadius: '20px', overflow: 'hidden', background: 'linear-gradient(180deg, #06101A 0%, #0A1929 100%)', border: '1px solid rgba(59,130,246,0.2)', height: '420px', boxShadow: '0 24px 48px rgba(0,0,0,0.35)' }}>
-        <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', fontSize: '12px' }}>Loading terrain…</div>}>
-          <Canvas shadows>
-            <LMScene elapsed={elapsed} />
-          </Canvas>
-        </Suspense>
+      <VizLabel>PMF Local Maxima — strategy landscape</VizLabel>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.12)' }}>
+        <svg viewBox="0 0 720 460" style={{ width: '100%', display: 'block' }}>
+          <defs>
+            <linearGradient id="lm-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#FCE7BB" /><stop offset="60%" stopColor="#F8DAA8" /><stop offset="100%" stopColor="#F0C588" />
+            </linearGradient>
+            <linearGradient id="lm-mountain" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1E3A8A" /><stop offset="65%" stopColor="#1E1B4B" /><stop offset="100%" stopColor="#0F172A" />
+            </linearGradient>
+            <linearGradient id="lm-mountainBack" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.45" /><stop offset="100%" stopColor="#3730A3" stopOpacity="0.6" />
+            </linearGradient>
+            <radialGradient id="lm-sun" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFE9B0" /><stop offset="50%" stopColor="#FFD080" /><stop offset="100%" stopColor="#FFD080" stopOpacity="0" />
+            </radialGradient>
+            <filter id="lm-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.15)"/></filter>
+          </defs>
+
+          {/* Sky */}
+          <rect width="720" height="460" fill="url(#lm-sky)" />
+
+          {/* Sun glow behind right (taller) peak */}
+          <circle cx="600" cy="120" r="84" fill="url(#lm-sun)" />
+          <circle cx="600" cy="120" r="30" fill="#FFE9B0" opacity="0.85" />
+
+          {/* Distant violet mountain range silhouette */}
+          <path d="M 0 320 L 70 270 L 140 295 L 200 250 L 280 280 L 360 240 L 440 270 L 520 230 L 600 260 L 700 235 L 720 240 L 720 460 L 0 460 Z"
+                fill="url(#lm-mountainBack)" />
+
+          {/* Y-axis dotted reference line */}
+          <line x1="56" y1="60" x2="56" y2="420" stroke="#5B4423" strokeWidth="0.8" strokeDasharray="3 4" opacity="0.35" />
+          <text x="20" y="40" style={{ fontSize: '10px', fill: '#5B4423', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>↑ VALUE</text>
+          <text x="700" y="448" textAnchor="end" style={{ fontSize: '10px', fill: '#5B4423', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>PRODUCT DIRECTION →</text>
+
+          {/* Foreground terrain — TWO peaks clearly visible */}
+          <motion.path
+            d="M 0 400
+               C 40 400, 90 340, 130 280
+               C 160 230, 200 200, 250 230
+               C 280 250, 310 290, 360 320
+               C 390 340, 420 345, 460 335
+               C 500 320, 540 250, 580 140
+               C 605 80, 640 60, 670 80
+               C 695 100, 710 200, 720 320
+               L 720 460 L 0 460 Z"
+            fill="url(#lm-mountain)"
+            initial={{ opacity: 0 }} animate={{ opacity: stage >= 1 ? 1 : 0 }} transition={{ duration: 0.8 }}
+          />
+
+          {/* Topography elevation lines on the terrain */}
+          {[
+            { d: "M 90 372 C 145 320, 215 280, 275 290 C 320 305, 360 345, 460 360 C 540 360, 600 200, 680 140", op: 0.18 },
+            { d: "M 110 350 C 165 300, 230 250, 285 265 C 330 275, 380 320, 470 340 C 540 340, 615 175, 690 115", op: 0.14 },
+            { d: "M 130 325 C 180 280, 240 225, 290 240 C 335 250, 385 295, 475 320 C 540 320, 625 150, 695 95",  op: 0.10 },
+          ].map((line, i) => (
+            <motion.path key={i} d={line.d} fill="none" stroke="rgba(186,230,253,0.8)" strokeWidth="0.7" strokeDasharray="2 2" opacity={line.op}
+              initial={{ opacity: 0 }} animate={{ opacity: stage >= 1 ? line.op : 0 }} transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }}
+            />
+          ))}
+
+          {/* === LEFT PEAK · CURRENT PRODUCT === */}
+          {/* Ball on small peak with "You are here" flag */}
+          {stage >= 2 && (
+            <motion.g initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 22 }}>
+              <line x1="240" y1="208" x2="240" y2="172" stroke="#EF4444" strokeWidth="1.5" />
+              <rect x="182" y="148" width="116" height="22" rx="4" fill="#EF4444" filter="url(#lm-soft)" />
+              <text x="240" y="162" textAnchor="middle" style={{ fontSize: '9.5px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>YOU ARE HERE</text>
+              <circle cx="240" cy="208" r="9" fill="#EF4444" stroke="#FFF" strokeWidth="2" filter="url(#lm-soft)" />
+              <circle cx="237" cy="206" r="2.5" fill="rgba(255,255,255,0.6)" />
+            </motion.g>
+          )}
+
+          {/* Left peak label card */}
+          {stage >= 3 && (
+            <motion.g initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <rect x="84" y="276" width="184" height="68" rx="8" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1.2" filter="url(#lm-soft)" />
+              <rect x="84" y="276" width="184" height="4" rx="2" fill="#EF4444" />
+              <text x="94" y="298" style={{ fontSize: '8.5px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>LOCAL MAXIMUM</text>
+              <text x="94" y="316" style={{ fontSize: '12px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Sales Coaching v1</text>
+              <text x="94" y="332" style={{ fontSize: '9.5px', fill: '#6B7280', fontFamily: "system-ui" }}>$2.4M ARR · 11% MoM · stalling</text>
+            </motion.g>
+          )}
+
+          {/* === PATH ARROW: DESCEND into the valley === */}
+          {stage >= 4 && (
+            <>
+              <motion.path
+                d="M 248 218 Q 320 280, 400 348 Q 450 360, 510 320"
+                stroke="#F97316" strokeWidth="2.8" strokeDasharray="6 4" strokeLinecap="round" fill="none"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }}
+              />
+              {/* Down-arrow icons along the descent */}
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.4 }}>
+                <polygon points="340,290 348,290 344,302" fill="#F97316" />
+                <polygon points="410,348 418,348 414,360" fill="#F97316" />
+              </motion.g>
+              {/* Valley warning card */}
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.5 }}>
+                <rect x="332" y="372" width="208" height="48" rx="6" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1" filter="url(#lm-soft)" />
+                <rect x="332" y="372" width="3" height="48" fill="#EF4444" />
+                <text x="344" y="390" style={{ fontSize: '8.5px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>THE VALLEY · MOST TEAMS QUIT HERE</text>
+                <text x="344" y="406" style={{ fontSize: '10px', fill: '#7F1D1D', fontFamily: "system-ui", fontStyle: 'italic' }}>{'“'}but this feels like regression…{'”'}</text>
+              </motion.g>
+            </>
+          )}
+
+          {/* === PATH ARROW: CLIMB to taller peak === */}
+          {stage >= 5 && (
+            <>
+              <motion.path
+                d="M 510 320 Q 555 220, 605 138"
+                stroke="#22C55E" strokeWidth="2.8" strokeDasharray="6 4" strokeLinecap="round" fill="none"
+                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, ease: 'easeOut' }}
+              />
+              {/* Up-arrow chevrons */}
+              <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6, duration: 0.4 }}>
+                <polygon points="563,228 571,228 567,216" fill="#22C55E" />
+                <polygon points="600,150 608,150 604,138" fill="#22C55E" />
+              </motion.g>
+            </>
+          )}
+
+          {/* === RIGHT PEAK · REAL OPPORTUNITY === */}
+          {stage >= 6 && (
+            <motion.g initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              {/* Star marker on summit */}
+              <g transform="translate(620, 70)">
+                <polygon points="0,-13 4,-4 14,-4 6,3 9,13 0,8 -9,13 -6,3 -14,-4 -4,-4" fill="#22C55E" stroke="#FFF" strokeWidth="1.5" filter="url(#lm-soft)" />
+              </g>
+              {/* REAL PMF flag pole */}
+              <line x1="620" y1="70" x2="620" y2="36" stroke="#22C55E" strokeWidth="1.5" />
+              <rect x="558" y="14" width="124" height="22" rx="4" fill="#22C55E" filter="url(#lm-soft)" />
+              <text x="620" y="28" textAnchor="middle" style={{ fontSize: '9.5px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>REAL PMF · PEAK</text>
+              {/* Right peak label card */}
+              <rect x="452" y="150" width="200" height="68" rx="8" fill="#FFFFFF" stroke="#22C55E" strokeWidth="1.2" filter="url(#lm-soft)" />
+              <rect x="452" y="150" width="200" height="4" rx="2" fill="#22C55E" />
+              <text x="462" y="172" style={{ fontSize: '8.5px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.16em', fontWeight: 800 }}>HIGHER OPPORTUNITY</text>
+              <text x="462" y="190" style={{ fontSize: '12px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Team Workspace</text>
+              <text x="462" y="206" style={{ fontSize: '9.5px', fill: '#6B7280', fontFamily: "system-ui" }}>$8M ARR potential · viral loop</text>
+            </motion.g>
+          )}
+        </svg>
       </div>
       <div style={{ marginTop: '12px', padding: '12px 16px', borderRadius: '10px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#EF4444' }}>The trap:</strong> Your product is optimized — for the wrong peak. Reaching the real opportunity requires going back down first. Most teams don&apos;t, because it looks like regression.
+        <strong style={{ color: '#EF4444' }}>The trap:</strong> Your product is optimised — for the wrong peak. Reaching the real opportunity requires going back down first. Most teams don&apos;t, because it looks like regression.
       </div>
-      <ReplayBtn onReplay={replay} />
+      <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
   );
 }
