@@ -869,8 +869,6 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             Priya&apos;s first day at EdSpark. She&apos;s been given the title &ldquo;Product Manager.&rdquo; She expected to design features, manage a team, sit in strategy meetings. Instead, her manager says six words: &ldquo;You&apos;re responsible for the product.&rdquo; Priya nods. She has no idea what that means.
           </SituationCard>
 
-          <SignalSwitchboard />
-
           <CharacterCallout mentor="priya" activity="thinks">
             She spends the morning looking busy. She opens Figma. Closes it. Opens Jira. Closes it. By 11am she types into Google: &ldquo;what does a product manager actually do.&rdquo; The results are not helpful.
           </CharacterCallout>
@@ -912,6 +910,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             &ldquo;You tell them <em>what problem to solve</em>. They figure out how to solve it. That distinction matters more than you think.&rdquo;
           </CharacterCallout>
           {pullQuote('A PM\'s job isn\'t to have the best ideas. It\'s to make sure the team is solving the most important problem.', 'var(--purple)')}
+        </div>
+
+        <div className="rv">
+          <SignalSwitchboard />
         </div>
 
         <div className="rv">
