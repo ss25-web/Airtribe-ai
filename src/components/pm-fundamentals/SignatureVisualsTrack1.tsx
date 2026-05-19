@@ -27,6 +27,13 @@ function InsightBox({ color, label, children }: { color: string; label: string; 
 // decision that explicitly cites each input. Teaches: PM = translator across
 // three vocabularies who produces one coherent priority.
 
+// Card geometry — three even input panels: 30 margin / 200 width / 30 gap
+const CARDS = [
+  { x: 30,  cx: 130, color: '#6366F1', headerFill: '#6366F1', langLabel: 'USER LANGUAGE',     langQuote: '“the thing is broken”',  bgTint: 'rgba(99,102,241,0.06)' },
+  { x: 260, cx: 360, color: '#F97316', headerFill: '#1B2A47', langLabel: 'BUSINESS LANGUAGE', langQuote: '“the number is wrong”',  bgTint: 'rgba(249,115,22,0.06)' },
+  { x: 490, cx: 590, color: '#22C55E', headerFill: '#3F0E40', langLabel: 'ENG LANGUAGE',      langQuote: '“the system is fragile”', bgTint: 'rgba(34,197,94,0.06)' },
+];
+
 export function SignalSwitchboard() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
@@ -40,29 +47,26 @@ export function SignalSwitchboard() {
     return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
 
-  // Sparkline for retention chart (declining trend, deterministic)
-  const sparkPts = [10, 16, 14, 22, 28, 36, 44, 52, 58].map((y, i) => `${i * 18 + 8},${y}`).join(' ');
-
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
       <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)' }}>
-        <svg viewBox="0 0 720 620" style={{ width: '100%', display: 'block' }}>
+        <svg viewBox="0 0 720 700" style={{ width: '100%', display: 'block' }}>
           <defs>
             <linearGradient id="m1-page" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#F7F4EC" /><stop offset="100%" stopColor="#EFEAD9" />
             </linearGradient>
-            <linearGradient id="m1-redLine" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F97316" stopOpacity="0.3" />
+            <linearGradient id="m1-redArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#F97316" stopOpacity="0.28" />
               <stop offset="100%" stopColor="#F97316" stopOpacity="0" />
             </linearGradient>
             <filter id="m1-soft"><feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="rgba(0,0,0,0.10)"/></filter>
-            <filter id="m1-priya"><feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="rgba(99,102,241,0.25)"/></filter>
+            <filter id="m1-priya"><feDropShadow dx="0" dy="6" stdDeviation="14" floodColor="rgba(79,70,229,0.30)"/></filter>
           </defs>
 
-          {/* Page background */}
-          <rect width="720" height="620" fill="url(#m1-page)" />
+          {/* Page */}
+          <rect width="720" height="700" fill="url(#m1-page)" />
 
-          {/* Top status bar — "EdSpark · Sprint 14 · Monday 09:42 AM · Priya's desk" */}
+          {/* Status bar */}
           <rect x="0" y="0" width="720" height="36" fill="#1E1B2E" />
           <circle cx="20" cy="18" r="4" fill="#22C55E" />
           <text x="32" y="22" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: '0.08em' }}>EdSpark</text>
@@ -72,207 +76,191 @@ export function SignalSwitchboard() {
           <text x="178" y="22" style={{ fontSize: '11px', fill: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>Mon 09:42</text>
           <text x="710" y="22" textAnchor="end" style={{ fontSize: '10px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>PRIYA&apos;S MONDAY MORNING</text>
 
-          {/* Caption above three panels */}
+          {/* Caption */}
           <text x="360" y="62" textAnchor="middle" style={{ fontSize: '11px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>THREE INPUTS · THREE LANGUAGES</text>
 
-          {/* ═══════════════ INPUT PANEL 1 · USER SUPPORT INBOX ═══════════════ */}
+          {/* ═══ Card 1: Support Inbox ═══ */}
           <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : 12 }} transition={{ duration: 0.5 }}>
-            {/* Card */}
-            <rect x="24" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
-            {/* Top tab strip — Zendesk-style */}
-            <rect x="24" y="80" width="216" height="32" rx="10" fill="#6366F1" />
-            <rect x="24" y="100" width="216" height="12" fill="#6366F1" />
-            <circle cx="42" cy="96" r="4" fill="#FFF" opacity="0.95" />
-            <rect x="38" y="92" width="8" height="2" fill="#6366F1" />
-            <text x="56" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800, letterSpacing: '0.04em' }}>Support · Inbox</text>
-            <text x="225" y="100" textAnchor="end" style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.85)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>47 OPEN</text>
+            <rect x="30" y="80" width="200" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            {/* Header */}
+            <path d="M 30 90 Q 30 80 40 80 L 220 80 Q 230 80 230 90 L 230 112 L 30 112 Z" fill="#6366F1" />
+            <circle cx="44" cy="96" r="4" fill="#FFF" />
+            <rect x="40" y="92" width="8" height="2" fill="#6366F1" />
+            <text x="56" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>Support · Inbox</text>
+            <text x="222" y="100" textAnchor="end" style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.9)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>47 OPEN</text>
 
-            {/* Ticket rows */}
+            {/* 4 ticket rows */}
             {[
-              { user: 'Sarah K.', msg: '"keeps logging me out when I switch tabs"', time: '8m', priority: '#EF4444' },
-              { user: 'Marcus T.', msg: '"can&apos;t stay signed in"', time: '14m', priority: '#EF4444' },
-              { user: 'Priya N.',  msg: '"have to log in 5x per session"', time: '22m', priority: '#F59E0B' },
-              { user: 'Devon R.',  msg: '"keeps booting me out"', time: '41m', priority: '#EF4444' },
+              { user: 'Sarah K.', msg: '“keeps logging me out”',  time: '8m',  pri: '#EF4444' },
+              { user: 'Marcus T.', msg: '“can’t stay signed in”', time: '14m', pri: '#EF4444' },
+              { user: 'Priya N.',  msg: '“log in 5x per session”',     time: '22m', pri: '#F59E0B' },
+              { user: 'Devon R.',  msg: '“keeps booting me out”',      time: '41m', pri: '#EF4444' },
             ].map((t, i) => (
-              <motion.g key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: stage >= 1 ? 1 : 0, x: stage >= 1 ? 0 : -8 }} transition={{ delay: 0.15 + i * 0.1, duration: 0.4 }}>
-                <rect x="34" y={124 + i * 38} width="196" height="32" rx="5" fill="#FAF8F2" stroke="#E5DDC1" strokeWidth="0.6" />
-                <rect x="34" y={124 + i * 38} width="3" height="32" rx="1" fill={t.priority} />
-                <circle cx="48" cy={140 + i * 38} r="6" fill="#E5E7EB" />
-                <text x="48" y={143 + i * 38} textAnchor="middle" style={{ fontSize: '7px', fill: '#6B7280', fontWeight: 800, fontFamily: 'system-ui' }}>{t.user[0]}</text>
-                <text x="62" y={138 + i * 38} style={{ fontSize: '9px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 700 }}>{t.user}</text>
-                <text x="225" y={138 + i * 38} textAnchor="end" style={{ fontSize: '8px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{t.time}</text>
-                <text x="62" y={150 + i * 38} style={{ fontSize: '8.5px', fill: '#4B5563', fontFamily: "system-ui" }} dangerouslySetInnerHTML={{__html: t.msg}} />
+              <motion.g key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: stage >= 1 ? 1 : 0, x: 0 }} transition={{ delay: 0.15 + i * 0.1, duration: 0.4 }}>
+                <rect x="40" y={124 + i * 36} width="180" height="30" rx="5" fill="#FAF8F2" stroke="#E5DDC1" strokeWidth="0.6" />
+                <rect x="40" y={124 + i * 36} width="3" height="30" rx="1" fill={t.pri} />
+                <circle cx="54" cy={139 + i * 36} r="6" fill="#E5E7EB" />
+                <text x="54" y={142 + i * 36} textAnchor="middle" style={{ fontSize: '7px', fill: '#6B7280', fontWeight: 800, fontFamily: 'system-ui' }}>{t.user[0]}</text>
+                <text x="66" y={137 + i * 36} style={{ fontSize: '9px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 700 }}>{t.user}</text>
+                <text x="215" y={137 + i * 36} textAnchor="end" style={{ fontSize: '8px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>{t.time}</text>
+                <text x="66" y={149 + i * 36} style={{ fontSize: '8.5px', fill: '#4B5563', fontFamily: "system-ui" }}>{t.msg}</text>
               </motion.g>
             ))}
 
-            {/* Pattern callout at bottom */}
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 1 ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
-              <rect x="34" y="278" width="196" height="2" rx="1" fill="#6366F1" opacity="0.15" />
-            </motion.g>
+            {/* Footer language band (inside card) */}
+            <rect x="30" y="280" width="200" height="40" fill="rgba(99,102,241,0.07)" />
+            <rect x="30" y="280" width="200" height="1" fill="rgba(99,102,241,0.25)" />
+            <text x="130" y="296" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.2em' }}>USER LANGUAGE</text>
+            <text x="130" y="311" textAnchor="middle" style={{ fontSize: '10px', fill: '#3730A3', fontFamily: "system-ui", fontStyle: 'italic' }}>{'“'}the thing is broken{'”'}</text>
           </motion.g>
-          {/* Lane label */}
-          <text x="132" y="305" textAnchor="middle" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>USER LANGUAGE</text>
-          <text x="132" y="318" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the thing is broken&rdquo;</text>
 
-          {/* ═══════════════ INPUT PANEL 2 · BUSINESS DASHBOARD ═══════════════ */}
+          {/* ═══ Card 2: Exec Dashboard ═══ */}
           <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 2 ? 1 : 0, y: stage >= 2 ? 0 : 12 }} transition={{ duration: 0.5 }}>
-            <rect x="252" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
-            <rect x="252" y="80" width="216" height="32" rx="10" fill="#1B2A47" />
-            <rect x="252" y="100" width="216" height="12" fill="#1B2A47" />
-            <rect x="262" y="92" width="10" height="8" rx="1" fill="#F97316" />
-            <rect x="266" y="90" width="2" height="10" fill="#F97316" />
-            <text x="280" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800, letterSpacing: '0.04em' }}>Exec Dashboard</text>
-            <text x="453" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>WEEKLY</text>
+            <rect x="260" y="80" width="200" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            <path d="M 260 90 Q 260 80 270 80 L 450 80 Q 460 80 460 90 L 460 112 L 260 112 Z" fill="#1B2A47" />
+            <rect x="272" y="92" width="10" height="8" rx="1" fill="#F97316" />
+            <rect x="276" y="90" width="2" height="10" fill="#F97316" />
+            <text x="290" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>Exec Dashboard</text>
+            <text x="452" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>WEEKLY</text>
 
-            {/* Metric title */}
-            <text x="262" y="132" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>WEEK-2 RETENTION</text>
-            {/* Big number */}
-            <text x="262" y="166" style={{ fontSize: '34px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 900, letterSpacing: '-0.02em' }}>32%</text>
-            {/* Delta pill */}
-            <rect x="338" y="148" width="56" height="20" rx="10" fill="#FEE2E2" />
-            <text x="366" y="162" textAnchor="middle" style={{ fontSize: '11px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>−8.3pp</text>
-            <text x="262" y="184" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "system-ui" }}>vs last sprint · target 45%</text>
+            <text x="272" y="130" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>WEEK-2 RETENTION</text>
+            <text x="272" y="166" style={{ fontSize: '32px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 900, letterSpacing: '-0.02em' }}>32%</text>
+            <rect x="346" y="148" width="58" height="22" rx="11" fill="#FEE2E2" />
+            <text x="375" y="163" textAnchor="middle" style={{ fontSize: '11px', fill: '#DC2626', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>−8.3pp</text>
+            <text x="272" y="184" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "system-ui" }}>vs last sprint · target 45%</text>
 
-            {/* Mini line chart with declining curve */}
+            {/* Chart */}
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 2 ? 1 : 0 }} transition={{ delay: 0.3, duration: 0.5 }}>
-              <rect x="262" y="200" width="196" height="74" rx="6" fill="#FAFAFA" stroke="#E5E7EB" strokeWidth="0.6" />
-              {/* Grid lines */}
-              {[214, 230, 246, 262].map(y => <line key={y} x1="272" y1={y} x2="448" y2={y} stroke="#E5E7EB" strokeWidth="0.4" />)}
-              {/* Target line */}
-              <line x1="272" y1="218" x2="448" y2="218" stroke="#22C55E" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
-              <text x="447" y="216" textAnchor="end" style={{ fontSize: '7px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace" }}>target 45%</text>
-              {/* Falling area */}
-              <motion.polygon
-                initial={{ opacity: 0 }} animate={{ opacity: stage >= 2 ? 1 : 0 }} transition={{ delay: 0.5 }}
-                points={`272,210 290,212 308,216 326,222 344,230 362,240 380,250 398,256 416,262 434,266 448,268 448,272 272,272`}
-                fill="url(#m1-redLine)" />
-              {/* Line */}
-              <motion.polyline
-                initial={{ pathLength: 0 }} animate={{ pathLength: stage >= 2 ? 1 : 0 }} transition={{ duration: 0.9, delay: 0.4 }}
-                points={`272,210 290,212 308,216 326,222 344,230 362,240 380,250 398,256 416,262 434,266 448,268`}
-                fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              {/* End-point red dot */}
-              <circle cx="448" cy="268" r="3" fill="#EF4444" stroke="#FFF" strokeWidth="1.2" />
+              <rect x="272" y="196" width="178" height="78" rx="6" fill="#FAFAFA" stroke="#E5E7EB" strokeWidth="0.6" />
+              {[214, 232, 250, 268].map(y => <line key={y} x1="282" y1={y} x2="442" y2={y} stroke="#E5E7EB" strokeWidth="0.4" />)}
+              <line x1="282" y1="216" x2="442" y2="216" stroke="#22C55E" strokeWidth="0.8" strokeDasharray="3 2" opacity="0.6" />
+              <text x="441" y="214" textAnchor="end" style={{ fontSize: '7px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace" }}>target 45%</text>
+              <polygon points="282,212 300,214 318,218 336,224 354,232 372,242 390,252 408,258 426,264 442,266 442,272 282,272" fill="url(#m1-redArea)" />
+              <motion.path d="M 282 212 L 300 214 L 318 218 L 336 224 L 354 232 L 372 242 L 390 252 L 408 258 L 426 264 L 442 266"
+                fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                initial={{ pathLength: 0 }} animate={{ pathLength: stage >= 2 ? 1 : 0 }} transition={{ duration: 0.9, delay: 0.4 }} />
+              <circle cx="442" cy="266" r="3" fill="#EF4444" stroke="#FFF" strokeWidth="1.2" />
             </motion.g>
 
-            {/* Rohan's voice bubble */}
-            <motion.g initial={{ opacity: 0, x: 4 }} animate={{ opacity: stage >= 2 ? 1 : 0, x: 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
-              <circle cx="272" cy="296" r="9" fill="#E67E22" />
-              <text x="272" y="299" textAnchor="middle" style={{ fontSize: '9px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>R</text>
-              <rect x="286" y="288" width="174" height="20" rx="4" fill="#FEF3E2" stroke="#F59E0B" strokeWidth="0.6" />
-              <text x="292" y="301" style={{ fontSize: '8.5px', fill: '#92400E', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;Fix retention. This is critical.&rdquo;</text>
-            </motion.g>
+            {/* Footer */}
+            <rect x="260" y="280" width="200" height="40" fill="rgba(249,115,22,0.08)" />
+            <rect x="260" y="280" width="200" height="1" fill="rgba(249,115,22,0.3)" />
+            <text x="360" y="296" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#C2410C', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.2em' }}>BUSINESS LANGUAGE</text>
+            <text x="360" y="311" textAnchor="middle" style={{ fontSize: '10px', fill: '#9A3412', fontFamily: "system-ui", fontStyle: 'italic' }}>{'“'}the number is wrong{'”'}</text>
           </motion.g>
-          <text x="360" y="328" textAnchor="middle" style={{ fontSize: '9px', fill: '#F97316', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>BUSINESS LANGUAGE</text>
-          <text x="360" y="341" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the number is wrong&rdquo;</text>
 
-          {/* ═══════════════ INPUT PANEL 3 · ENGINEERING SLACK ═══════════════ */}
+          {/* ═══ Card 3: Eng Slack ═══ */}
           <motion.g initial={{ opacity: 0, y: 12 }} animate={{ opacity: stage >= 3 ? 1 : 0, y: stage >= 3 ? 0 : 12 }} transition={{ duration: 0.5 }}>
-            <rect x="480" y="80" width="216" height="210" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
-            <rect x="480" y="80" width="216" height="32" rx="10" fill="#3F0E40" />
-            <rect x="480" y="100" width="216" height="12" fill="#3F0E40" />
-            <text x="492" y="100" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}># </text>
-            <text x="508" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>eng-platform</text>
-            <text x="685" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>8 ONLINE</text>
+            <rect x="490" y="80" width="200" height="240" rx="10" fill="#FFFFFF" stroke="#E0DBC9" strokeWidth="1" filter="url(#m1-soft)" />
+            <path d="M 490 90 Q 490 80 500 80 L 680 80 Q 690 80 690 90 L 690 112 L 490 112 Z" fill="#3F0E40" />
+            <text x="502" y="100" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>#</text>
+            <text x="514" y="100" style={{ fontSize: '11px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 800 }}>eng-platform</text>
+            <text x="682" y="100" textAnchor="end" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em' }}>8 ONLINE</text>
 
-            {/* Kiran's message */}
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.15, duration: 0.4 }}>
-              <rect x="490" y="124" width="34" height="34" rx="6" fill="#3A86FF" />
-              <text x="507" y="146" textAnchor="middle" style={{ fontSize: '14px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>K</text>
-              <text x="532" y="138" style={{ fontSize: '11px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>Kiran</text>
+              <rect x="500" y="124" width="30" height="30" rx="5" fill="#3A86FF" />
+              <text x="515" y="144" textAnchor="middle" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>K</text>
+              <text x="538" y="138" style={{ fontSize: '11px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 800 }}>Kiran</text>
               <text x="572" y="138" style={{ fontSize: '9px', fill: '#9CA3AF', fontFamily: "system-ui" }}>9:38 AM</text>
-              <text x="532" y="152" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>folks the auth service is melting</text>
+              <text x="538" y="152" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>auth service is melting.</text>
             </motion.g>
 
-            {/* Kiran continued */}
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
-              <text x="532" y="174" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>every tab-switch hits</text>
-              <rect x="640" y="166" width="50" height="13" rx="3" fill="#F3F4F6" />
-              <text x="665" y="176" textAnchor="middle" style={{ fontSize: '9px', fill: '#7C3AED', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>/session</text>
-              <text x="532" y="190" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>= new JWT mint. p99 hit 4.2s yesterday</text>
+              <text x="538" y="170" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>every tab-switch mints</text>
+              <text x="538" y="184" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>a new JWT. p99 = 4.2s.</text>
             </motion.g>
 
-            {/* Code snippet block */}
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.5, duration: 0.4 }}>
-              <rect x="532" y="200" width="158" height="38" rx="4" fill="#0D1117" />
-              <text x="540" y="214" style={{ fontSize: '8.5px', fill: '#9CD7FF', fontFamily: "'JetBrains Mono', monospace" }}>auth-service.ts</text>
-              <text x="540" y="226" style={{ fontSize: '8px', fill: '#7EE787', fontFamily: "'JetBrains Mono', monospace" }}>// mintJWT(): O(n) ops per call</text>
-              <text x="540" y="234" style={{ fontSize: '8.5px', fill: '#FFA657', fontFamily: "'JetBrains Mono', monospace" }}>needs cache layer · 2 sprints</text>
+              <rect x="500" y="196" width="180" height="48" rx="4" fill="#0D1117" />
+              <text x="508" y="212" style={{ fontSize: '8.5px', fill: '#9CD7FF', fontFamily: "'JetBrains Mono', monospace" }}>auth-service.ts:142</text>
+              <text x="508" y="226" style={{ fontSize: '8.5px', fill: '#7EE787', fontFamily: "'JetBrains Mono', monospace" }}>{`// mintJWT() — O(n) per call`}</text>
+              <text x="508" y="238" style={{ fontSize: '8.5px', fill: '#FFA657', fontFamily: "'JetBrains Mono', monospace" }}>cache fix · 2 sprints</text>
             </motion.g>
 
-            {/* Kiran final ask */}
             <motion.g initial={{ opacity: 0 }} animate={{ opacity: stage >= 3 ? 1 : 0 }} transition={{ delay: 0.7, duration: 0.4 }}>
-              <text x="532" y="258" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>need PM call: ship-the-cache or</text>
-              <text x="532" y="270" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>roll-back? @priya</text>
+              <text x="500" y="262" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>need PM call @priya:</text>
+              <text x="500" y="275" style={{ fontSize: '9.5px', fill: '#1F2937', fontFamily: "system-ui" }}>ship-cache or rollback?</text>
             </motion.g>
-          </motion.g>
-          <text x="588" y="305" textAnchor="middle" style={{ fontSize: '9px', fill: '#22C55E', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.18em' }}>ENG LANGUAGE</text>
-          <text x="588" y="318" textAnchor="middle" style={{ fontSize: '10px', fill: 'var(--ed-ink2)', fontFamily: "system-ui", fontStyle: 'italic' }}>&ldquo;the system is fragile&rdquo;</text>
 
-          {/* ═══════════════ CONVERGING ARROWS TO PM ═══════════════ */}
+            <rect x="490" y="280" width="200" height="40" fill="rgba(34,197,94,0.08)" />
+            <rect x="490" y="280" width="200" height="1" fill="rgba(34,197,94,0.3)" />
+            <text x="590" y="296" textAnchor="middle" style={{ fontSize: '8.5px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.2em' }}>ENG LANGUAGE</text>
+            <text x="590" y="311" textAnchor="middle" style={{ fontSize: '10px', fill: '#14532D', fontFamily: "system-ui", fontStyle: 'italic' }}>{'“'}the system is fragile{'”'}</text>
+          </motion.g>
+
+          {/* ═══ Convergence band ═══ */}
           {stage >= 4 && (
             <>
-              <motion.path d="M 132 350 Q 132 380 360 392" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7 }} />
-              <motion.path d="M 360 350 L 360 392" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: 0.1 }} />
-              <motion.path d="M 588 350 Q 588 380 360 392" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeDasharray="4 3" fill="none"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: 0.2 }} />
+              {/* Soft synthesis lane background */}
+              <rect x="0" y="340" width="720" height="124" fill="rgba(79,70,229,0.04)" />
+              <text x="360" y="358" textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.24em', fontWeight: 800 }}>THE PM SYNTHESISES</text>
 
-              {/* Priya badge at convergence */}
-              <motion.g initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: 'spring', stiffness: 280, damping: 22 }}>
-                <circle cx="360" cy="397" r="20" fill="#FFF" stroke="#4F46E5" strokeWidth="2.5" filter="url(#m1-priya)" />
-                <circle cx="360" cy="397" r="14" fill="#4F46E5" />
-                <text x="360" y="402" textAnchor="middle" style={{ fontSize: '13px', fill: '#FFF', fontFamily: "system-ui", fontWeight: 900 }}>P</text>
-                <text x="360" y="432" textAnchor="middle" style={{ fontSize: '10px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.16em' }}>PRIYA · PM</text>
+              {/* Three converging arrows */}
+              {CARDS.map((c, i) => (
+                <motion.path key={i}
+                  d={`M ${c.cx} 372 Q ${c.cx} 400 360 420`}
+                  stroke={c.color} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="5 3" fill="none"
+                  initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.7, delay: i * 0.12 }}
+                />
+              ))}
+
+              {/* Priya badge */}
+              <motion.g initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.55, type: 'spring', stiffness: 280, damping: 22 }}>
+                <circle cx="360" cy="420" r="26" fill="#FFF" stroke="#4F46E5" strokeWidth="2.5" filter="url(#m1-priya)" />
+                <circle cx="360" cy="420" r="18" fill="#4F46E5" />
+                <text x="360" y="426" textAnchor="middle" style={{ fontSize: '16px', fill: '#FFF', fontFamily: "Georgia, serif", fontWeight: 900 }}>P</text>
+                <text x="360" y="460" textAnchor="middle" style={{ fontSize: '10px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.2em' }}>PRIYA · PM</text>
               </motion.g>
             </>
           )}
 
-          {/* ═══════════════ PRIYA'S SYNTHESIS PRD ═══════════════ */}
+          {/* ═══ Priya's PRD ═══ */}
           {stage >= 5 && (
             <motion.g initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               {/* Card */}
-              <rect x="24" y="450" width="672" height="156" rx="12" fill="#FFFFFF" stroke="#4F46E5" strokeWidth="1.5" filter="url(#m1-priya)" />
-              {/* Accent strip */}
-              <rect x="24" y="450" width="672" height="6" rx="3" fill="#4F46E5" />
-              {/* Doc tab */}
-              <rect x="40" y="466" width="86" height="20" rx="4" fill="#EEF2FF" />
-              <text x="83" y="479" textAnchor="middle" style={{ fontSize: '9px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>ONE-PAGE PRD</text>
-              <text x="140" y="481" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· Sprint 15 · v0.1 · author Priya S.</text>
+              <rect x="30" y="490" width="660" height="190" rx="12" fill="#FFFFFF" stroke="#4F46E5" strokeWidth="1.5" filter="url(#m1-priya)" />
+              <rect x="30" y="490" width="660" height="6" rx="3" fill="#4F46E5" />
+
+              {/* Tab */}
+              <rect x="46" y="508" width="100" height="20" rx="4" fill="#EEF2FF" />
+              <text x="96" y="521" textAnchor="middle" style={{ fontSize: '9px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontWeight: 800 }}>PRIYA&apos;S PRD</text>
+              <text x="156" y="523" style={{ fontSize: '10px', fill: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>· Sprint 15 · v0.1</text>
 
               {/* Title */}
-              <text x="40" y="510" style={{ fontSize: '18px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Decision · Ship the auth-cache (refactor)</text>
+              <text x="46" y="552" style={{ fontSize: '17px', fill: '#1F2937', fontFamily: "Georgia, serif", fontWeight: 800 }}>Decision · Ship the auth-cache (2-sprint refactor)</text>
 
-              {/* Three "WHY" callouts citing the three inputs */}
+              {/* Three callouts */}
               <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.4 }}>
-                <rect x="40" y="528" width="208" height="62" rx="8" fill="#EEF0FF" stroke="#C7D2FE" strokeWidth="0.8" />
-                <rect x="40" y="528" width="3" height="62" rx="1" fill="#6366F1" />
-                <text x="52" y="545" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>USERS REPORT</text>
-                <text x="52" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>47 tickets / week:</text>
-                <text x="52" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>&ldquo;keeps logging me out&rdquo;</text>
+                {/* User */}
+                <rect x="46" y="572" width="204" height="68" rx="8" fill="#EEF0FF" stroke="#C7D2FE" strokeWidth="0.8" />
+                <rect x="46" y="572" width="3" height="68" rx="1" fill="#6366F1" />
+                <text x="58" y="590" style={{ fontSize: '9px', fill: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>USERS REPORT</text>
+                <text x="58" y="608" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>47 tickets / week</text>
+                <text x="58" y="624" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>{'“'}keeps logging me out{'”'}</text>
 
-                <rect x="256" y="528" width="208" height="62" rx="8" fill="#FFF4E6" stroke="#FED7AA" strokeWidth="0.8" />
-                <rect x="256" y="528" width="3" height="62" rx="1" fill="#F97316" />
-                <text x="268" y="545" style={{ fontSize: '9px', fill: '#C2410C', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>BUSINESS IMPACT</text>
-                <text x="268" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>Retention −8.3pp WoW.</text>
-                <text x="268" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>Target 45% · at 32%.</text>
+                {/* Business */}
+                <rect x="258" y="572" width="204" height="68" rx="8" fill="#FFF4E6" stroke="#FED7AA" strokeWidth="0.8" />
+                <rect x="258" y="572" width="3" height="68" rx="1" fill="#F97316" />
+                <text x="270" y="590" style={{ fontSize: '9px', fill: '#C2410C', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>BUSINESS IMPACT</text>
+                <text x="270" y="608" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>Retention −8.3pp WoW</text>
+                <text x="270" y="624" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>at 32% · target 45%</text>
 
-                <rect x="472" y="528" width="208" height="62" rx="8" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="0.8" />
-                <rect x="472" y="528" width="3" height="62" rx="1" fill="#22C55E" />
-                <text x="484" y="545" style={{ fontSize: '9px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>ENG ROOT CAUSE</text>
-                <text x="484" y="562" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>JWT mint on every tab.</text>
-                <text x="484" y="576" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>2-sprint cache fix.</text>
+                {/* Eng */}
+                <rect x="470" y="572" width="204" height="68" rx="8" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="0.8" />
+                <rect x="470" y="572" width="3" height="68" rx="1" fill="#22C55E" />
+                <text x="482" y="590" style={{ fontSize: '9px', fill: '#15803D', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 800 }}>ENG ROOT CAUSE</text>
+                <text x="482" y="608" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui", fontWeight: 600 }}>JWT mint per tab-switch</text>
+                <text x="482" y="624" style={{ fontSize: '10.5px', fill: '#1F2937', fontFamily: "system-ui" }}>cache layer · 2 sprints</text>
               </motion.g>
-            </motion.g>
-          )}
 
-          {/* Bottom strap */}
-          {stage >= 6 && (
-            <motion.text x="360" y="605" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
-              style={{ fontSize: '11px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
-              ONE DECISION · CITES ALL THREE INPUTS
-            </motion.text>
+              {/* Strap inside PRD */}
+              {stage >= 6 && (
+                <motion.text x="360" y="662" textAnchor="middle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+                  style={{ fontSize: '10px', fill: '#4F46E5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.22em', fontWeight: 800 }}>
+                  ONE DECISION · CITES ALL THREE INPUTS
+                </motion.text>
+              )}
+            </motion.g>
           )}
         </svg>
       </div>
