@@ -428,6 +428,14 @@ export default function Track2CommunicationPM({
         </div>
       </div>
 
+      {/* ── Scenario-shift callout · acknowledged break with EdSpark continuity ── */}
+      <div style={{ maxWidth: '780px', margin: '0 auto 32px', padding: '18px 22px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid rgba(${ACCENT_RGB},0.2)`, borderLeft: `4px solid ${ACCENT}` }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.16em', marginBottom: '8px', textTransform: 'uppercase' as const }}>A note before we start</div>
+        <div style={{ fontSize: '13.5px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
+          For this module we step out of the EdSpark universe. The senior-PM communication patterns you&rsquo;re about to learn show up most cleanly in a high-stakes AI launch &mdash; so we follow <strong style={{ color: 'var(--ed-ink)' }}>Aarav Menon</strong>, a Senior PM at <strong style={{ color: 'var(--ed-ink)' }}>CloudBridge</strong> (B2B workflow SaaS), shipping their AI Workflow Assistant. Same Scale-Track principles, fresh scenario. Priya picks back up in M07.
+        </div>
+      </div>
+
       {/* ── PART 1 · COMMUNICATION AS LEVERAGE ── */}
       <ChapterSection id="m6-comm-job" num="01" accentRgb={ACCENT_RGB} first>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
