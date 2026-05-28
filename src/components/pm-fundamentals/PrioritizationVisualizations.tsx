@@ -983,7 +983,7 @@ export function NowNextLaterOrbits() {
 
 const MONITOR_CONDITIONS = [
   { id: 'nps', label: 'NPS exceeds 72', metric: 'Track NPS monthly', color: '#6366F1', trigger: 'Month-3 NPS: 74 ✓' },
-  { id: 'churn', label: 'Week-1 churn below 25%', metric: 'Amplitude cohort watch', color: '#0EA5E9', trigger: 'Sprint 14 cohort: 23% ✓' },
+  { id: 'churn', label: 'Week-2 churn below 25%', metric: 'Amplitude cohort watch', color: '#0EA5E9', trigger: 'Sprint 14 cohort: 23% ✓' },
   { id: 'requests', label: '3+ enterprise deals cite it', metric: 'Sales CRM tag "CRM-blocker"', color: '#F97316', trigger: 'Deals: Infosys, Zendesk, Apex ✓' },
 ];
 

@@ -606,7 +606,7 @@ const SlackResponseComposer = () => {
                           Onboarding fix: Reach=500 &middot; Impact=2 &middot; Confidence=80% &middot; Effort=1 &rarr; <strong style={{ color: '#0D7A5A' }}>Score 800</strong>
                         </div>
                       </div>
-                      <div style={{ marginBottom: '10px' }}>Week-1 churn is at 40% &mdash; roughly <strong>200 users leaving monthly</strong> before they see value. If we don&apos;t stop that leak, we won&apos;t have users to sell CRM sync to.</div>
+                      <div style={{ marginBottom: '10px' }}>Week-2 churn is at 40% &mdash; roughly <strong>200 users leaving monthly</strong> before they see value. If we don&apos;t stop that leak, we won&apos;t have users to sell CRM sync to.</div>
                       <div style={{ padding: '10px 14px', borderRadius: '6px', background: 'rgba(13,122,90,0.07)', border: '1px solid rgba(13,122,90,0.18)', marginBottom: '10px', fontStyle: 'italic' as const }}>
                         This sprint: Onboarding fix. Q2: CRM integration &mdash; I&apos;ll flag it for sprint planning with the Meridian context attached.
                       </div>
@@ -1205,7 +1205,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         </SituationCard>
 
         {para(<>
-          Kiran pulls up three charts. Week-1 churn rate: 40%. CRM feature requests in the last 90 days: three
+          Kiran pulls up three charts. Week-2 churn rate: 40%. CRM feature requests in the last 90 days: three
           customers. Onboarding completion rate: 58%, down from 67% last quarter. Priya looks at the screen
           and feels the picture shift.
         </>)}
