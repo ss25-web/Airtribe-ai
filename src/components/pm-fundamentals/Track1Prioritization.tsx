@@ -25,7 +25,7 @@ const PARTS = [
   { num: '06', id: 'm4-stakeholder', label: "The PM's Real Job" },
   { num: '07', id: 'm4-reflection',  label: 'Final Reflection' },
 ];
-const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to PM.
+const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Foundations Track.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
 
 // ─────────────────────────────────────────
@@ -881,7 +881,7 @@ const IntroHero = ({ completedSections }: { completedSections: Set<string> }) =>
         <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '12px', textTransform: 'uppercase' as const }}>
-              MODULE 04 &middot; NEW TO PM TRACK
+              MODULE 04 &middot; FOUNDATIONS TRACK
             </div>
             <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px', letterSpacing: '-0.02em' }}>
               Problem Framing &amp;<br />Prioritization

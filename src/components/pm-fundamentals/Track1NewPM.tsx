@@ -13,7 +13,7 @@ import { UDBMLoopAnimation, ProblemIcebergViz, RICEBubble3D, MetricsCascadeAnima
 import { ProductSenseViz, B2BvsB2CViz } from './Module1Additions';
 import { SignalSwitchboard } from './SignatureVisualsTrack1';
 
-const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: New to PM.
+const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Foundations Track.
 Follows Priya Sharma, first-time PM at EdSpark (B2B SaaS for sales coaching). Covers: PM role and responsibilities, problem vs solution thinking, working with teams, decision-making and tradeoffs, building with alignment, measuring outcomes, the Understand-Decide-Build-Measure loop.`;
 
 const QUIZZES = [

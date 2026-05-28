@@ -28,7 +28,7 @@ const PARTS = [
   { num: '07', id: 'm5-reflection',  label: "Reflection — what you’ll carry forward" },
 ];
 
-const MODULE_CONTEXT = `Module 05 of Airtribe PM Fundamentals — Track: New to PM.
+const MODULE_CONTEXT = `Module 05 of Airtribe PM Fundamentals — Foundations Track.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: diagnosing UX failures vs feature failures, session recordings, the 45-second drop-off problem, spec completeness (loading/error/empty/success states), and how small feedback changes drive massive metric improvements.`;
 
 
