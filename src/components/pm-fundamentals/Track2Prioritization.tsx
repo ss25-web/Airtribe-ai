@@ -647,14 +647,14 @@ export default function Track2Prioritization({
             { text: "Understand why session frequency is low before prescribing a fix", correct: true, feedback: "Correct. The data shows a correlation, not a cause. Session scheduling might be the fix, or the barrier might be manager buy-in, interface friction, or something else entirely." },
             { text: "Ignore it because stakeholders haven't asked for it", correct: false, feedback: "Stakeholder silence is not a veto. In fact, the most strategically important problems often have no constituency precisely because they're hard to advocate for from the inside." },
           ]}
-          conceptId="raw-inputs-m3"
+          conceptId="raw-inputs-m4"
         />
         <QuizEngine
-          conceptId="raw-inputs-m3"
+          conceptId="raw-inputs-m4"
           conceptName="Strategic Inputs"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "raw-inputs-m3",
+            conceptId: "raw-inputs-m4",
             question: "A VP of Sales says their top accounts 'want CRM integration.' Which is the most useful next question for a PM?",
             options: [
               "A) How many accounts said it?",
@@ -712,7 +712,7 @@ export default function Track2Prioritization({
             { text: "The board approved this roadmap", correct: false, feedback: "Authority isn't a reason. It ends the conversation without building understanding, and it damages your relationship with the VP." },
             { text: "We'll do a spike on CRM to assess feasibility", correct: false, feedback: "A feasibility spike might be appropriate later, but it's not an answer to the priority question right now." },
           ]}
-          conceptId="problem-framing-m3"
+          conceptId="problem-framing-m4"
         />
         <div className="rv">
           <FigJamBoardMockup />
@@ -723,11 +723,11 @@ export default function Track2Prioritization({
         </div>
 
         <QuizEngine
-          conceptId="problem-framing-m3"
+          conceptId="problem-framing-m4"
           conceptName="Portfolio Framing"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "problem-framing-m3",
+            conceptId: "problem-framing-m4",
             question: "A feature scores RICE=120. Another scores RICE=45. Why might the lower-scoring feature get funded first?",
             options: [
               "A) RICE scores aren't reliable",
@@ -779,7 +779,7 @@ export default function Track2Prioritization({
             { text: "Run a holdout before the board deck to get clean data", correct: false, feedback: "A holdout takes weeks and the board deck is Thursday. This trades the right answer for a missed deadline. Get the best answer you can with what you have, and name the limitation." },
             { text: "Remove session scheduling from the roadmap until you have cleaner data", correct: false, feedback: "Waiting for perfect data before making a bet is itself a decision — to do nothing. The cost of delay is real and should be part of the analysis." },
           ]}
-          conceptId="data-vs-requests-m3"
+          conceptId="data-vs-requests-m4"
         />
         <div className="rv">
           <UserStoryBuilder />
@@ -790,11 +790,11 @@ export default function Track2Prioritization({
         </div>
 
         <QuizEngine
-          conceptId="data-vs-requests-m3"
+          conceptId="data-vs-requests-m4"
           conceptName="Data vs Requests"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "data-vs-requests-m3",
+            conceptId: "data-vs-requests-m4",
             question: "12 CRM tickets came from 3 enterprise accounts. Session frequency has zero tickets but is the strongest retention predictor. How should Priya weight these signals?",
             options: [
               "A) CRM gets priority — 12 tickets is strong signal volume",
@@ -850,14 +850,14 @@ export default function Track2Prioritization({
             { text: "Both scores are inputs; the decision is: in an enterprise expansion phase, a bet with low enterprise alignment and no clear churn linkage goes to Later regardless of RICE", correct: true, feedback: "Correct. The synthesis is the PM's job. Data doesn't decide — the PM uses the data to make the reasoning legible to the team." },
             { text: "Run both bets in parallel to avoid a conflict with the ML team", correct: false, feedback: "Parallel execution to avoid conflict is conflict avoidance disguised as resource allocation. It compounds the problem: now you've split capacity on a bet that shouldn't be funded this quarter." },
           ]}
-          conceptId="rice-framework-m3"
+          conceptId="rice-framework-m4"
         />
         <QuizEngine
-          conceptId="rice-framework-m3"
+          conceptId="rice-framework-m4"
           conceptName="RICE & Opportunity Scoring"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "rice-framework-m3",
+            conceptId: "rice-framework-m4",
             question: "Which of the following is NOT captured by a standard RICE score?",
             options: [
               "A) How many users will be affected (Reach)",
@@ -907,14 +907,14 @@ export default function Track2Prioritization({
             { text: "Because we don't have the capacity this quarter", correct: false, feedback: "Capacity is often real, but it's not the primary reason here. Leading with capacity instead of strategic reasoning makes the decision look accidental." },
             { text: "Because the board didn't approve it", correct: false, feedback: "The board sees the roadmap, not the individual scoring. And again — authority without reasoning doesn't build trust." },
           ]}
-          conceptId="stakeholder-decisions-m3"
+          conceptId="stakeholder-decisions-m4"
         />
         <QuizEngine
-          conceptId="stakeholder-decisions-m3"
+          conceptId="stakeholder-decisions-m4"
           conceptName="Stakeholder Decisions"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "stakeholder-decisions-m3",
+            conceptId: "stakeholder-decisions-m4",
             question: "Priya writes kill criteria for the deferred recommendation engine. Which is a well-written kill criterion?",
             options: [
               "A) We'll revisit if the team has more bandwidth next quarter",
@@ -975,7 +975,7 @@ export default function Track2Prioritization({
             { text: "Escalate to Rohan and let him decide", correct: false, feedback: "Escalating without a recommendation is abdicating the role. Your job is to come with a position and defend it, not to pass the conversation upward." },
             { text: "Agree to scope down CRM to a lightweight version that can ship in Q3", correct: false, feedback: "Scoping down to accommodate pressure — without checking whether the conditions have changed — is still letting the conversation override the framework. A scoped-down version doesn't change whether the bet is strategically aligned." },
           ]}
-          conceptId="stakeholder-decisions-m3"
+          conceptId="stakeholder-decisions-m4"
         />
         <div className="rv">
           <MoSCoWBoard />
@@ -986,11 +986,11 @@ export default function Track2Prioritization({
         </div>
 
         <QuizEngine
-          conceptId="stakeholder-decisions-m3"
+          conceptId="stakeholder-decisions-m4"
           conceptName="Stakeholder Communication"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "stakeholder-decisions-m3",
+            conceptId: "stakeholder-decisions-m4",
             question: "The board chair asks: 'Why is the AI recommendation engine deferred?' What's the strongest one-sentence answer?",
             options: [
               "A) It has the highest RICE score but the lowest enterprise alignment score, and we're in an enterprise expansion phase",
@@ -1047,14 +1047,14 @@ export default function Track2Prioritization({
             { text: "Rohan backed her in the board meeting", correct: false, feedback: "Rohan's support helped, but it was downstream of Priya's preparation. If the reasoning hadn't been solid, Rohan's backing wouldn't have mattered for long." },
             { text: "She used the Now/Next/Later framework, which is inherently credible with boards", correct: false, feedback: "The framework is a tool. A poorly reasoned Now/Next/Later is just a poorly reasoned roadmap in a different format. The credibility comes from the quality of reasoning, not the format." },
           ]}
-          conceptId="prioritization-summary-m3"
+          conceptId="prioritization-summary-m4"
         />
         <QuizEngine
-          conceptId="prioritization-summary-m3"
+          conceptId="prioritization-summary-m4"
           conceptName="Prioritisation at Scale"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: "prioritization-summary-m3",
+            conceptId: "prioritization-summary-m4",
             question: "Which statement best describes the difference between a PM who manages requests and a PM who manages outcomes?",
             options: [
               "A) The outcomes PM says no more often",

@@ -1081,11 +1081,11 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         </div>
 
         <QuizEngine
-          conceptId="raw-inputs-m3"
+          conceptId="raw-inputs-m4"
           conceptName="Raw Inputs"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: 'raw-inputs-m3',
+            conceptId: 'raw-inputs-m4',
             question: 'You get a Slack message: "We need a referral feature." What should you do first?',
             options: [
               'A) Add it to the roadmap immediately',
@@ -1176,11 +1176,11 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         </div>
 
         <QuizEngine
-          conceptId="problem-framing-m3"
+          conceptId="problem-framing-m4"
           conceptName="Problem Framing"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: 'problem-framing-m3',
+            conceptId: 'problem-framing-m4',
             question: 'Which of these is a proper problem statement?',
             options: [
               'A) "We need better onboarding screens"',
@@ -1349,7 +1349,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
             { text: 'You need more stakeholder approval before proceeding', correct: false, feedback: 'RICE is about impact vs. effort, not stakeholder politics. Approval and prioritization are separate conversations.' },
             { text: 'You should reduce scope to increase the score', correct: false, feedback: 'Scope reduction can help, but first ask whether the problem is even worth solving at this moment. Scoping down a wrong priority is still wrong.' },
           ]}
-          conceptId="rice-framework-m3"
+          conceptId="rice-framework-m4"
         />
 
         <div className="rv">
@@ -1426,7 +1426,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
             { text: 'Explain your reasoning with data and connect it to shared goals', correct: true, feedback: 'Clarity over consensus. Show your work, connect it to what they care about, and give them a way to change your mind with new data.' },
             { text: 'Escalate immediately to the CEO or VP', correct: false, feedback: 'Escalation before explanation is a last resort, not a first move. Try to resolve with data and direct conversation first.' },
           ]}
-          conceptId="stakeholder-decisions-m3"
+          conceptId="stakeholder-decisions-m4"
         />
 
         {para(<>
@@ -1458,7 +1458,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
             { text: 'Acknowledge the feeling, restate the shared interest, offer a concrete next step: "Closing Meridian matters to me too. Let\'s find 30 minutes to explore what we can offer them right now with existing features."', correct: true, feedback: 'Holding a decision and caring about someone\'s goal are not in conflict. Acknowledge the frustration, name what you share, and give a path forward that doesn\'t require you to reverse the sprint. This keeps Marcus as an ally.' },
             { text: 'Loop in your manager to help mediate.', correct: false, feedback: 'Escalating before attempting a direct conversation signals you can\'t handle stakeholder friction independently. Try the human conversation first — escalation is a last resort, not a first move.' },
           ]}
-          conceptId="stakeholder-pushback-m3"
+          conceptId="stakeholder-pushback-m4"
         />
 
         {keyBox('How to communicate a hard priority call', [
@@ -1505,11 +1505,11 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         ], ACCENT)}
 
         <QuizEngine
-          conceptId="prioritization-summary-m3"
+          conceptId="prioritization-summary-m4"
           conceptName="Prioritization Loop"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: 'prioritization-summary-m3',
+            conceptId: 'prioritization-summary-m4',
             question: 'You have 5 feature requests from different stakeholders. What\'s the right order of operations?',
             options: [
               'A) Build → Decide → Understand',
@@ -1561,11 +1561,11 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         ], ACCENT)}
 
         <QuizEngine
-          conceptId="prioritization-mindset-m3"
+          conceptId="prioritization-mindset-m4"
           conceptName="Prioritization Mindset"
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
-            conceptId: 'prioritization-mindset-m3',
+            conceptId: 'prioritization-mindset-m4',
             question: "Priya\u2019s RICE scores show onboarding at 800 and CRM at 12.5. Marcus pushes back emotionally. What\u2019s the right move?",
             options: [
               'A) Revisit the RICE scores to account for Marcus\'s stated business context',
