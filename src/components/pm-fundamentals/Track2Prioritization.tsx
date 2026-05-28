@@ -584,9 +584,9 @@ export default function Track2Prioritization({
 
       {/* Hero */}
       <div style={{ padding: '72px 210px 48px 0', marginBottom: '48px', position: 'relative', overflow: 'visible' }}>
-        <div aria-hidden="true" style={{ position: 'absolute', right: '-20px', top: '-10px', fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.06)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>03</div>
+        <div aria-hidden="true" style={{ position: 'absolute', right: '-20px', top: '-10px', fontSize: 'clamp(140px, 18vw, 220px)', fontWeight: 700, lineHeight: 1, color: `rgba(${ACCENT_RGB},0.06)`, fontFamily: "'Lora','Georgia',serif", letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none' }}>04</div>
         <div style={{ position: 'absolute', right: 0, top: '24px' }}>
-          <TrackHeroCard moduleNum="03" moduleLabel="Strategic Prioritisation" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+          <TrackHeroCard moduleNum="04" moduleLabel="Strategic Prioritisation" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
         </div>
         <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: ACCENT, marginBottom: '10px' }}>Module 03 · Scale Track</div>
         <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 800, color: 'var(--ed-ink)', lineHeight: 1.12, letterSpacing: '-0.03em', fontFamily: "'Lora','Georgia',serif", marginBottom: '16px' }}>

@@ -826,9 +826,9 @@ export default function Track2UXDesign({
           color: `rgba(${ACCENT_RGB},0.06)`,
           fontFamily: "'Lora', Georgia, serif",
           letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
-        }}>04</div>
+        }}>05</div>
         <div style={{ position: 'absolute', right: 0, top: '24px' }}>
-          <TrackHeroCard moduleNum="04" moduleLabel="UX Leadership" trackLabel="APM Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+          <TrackHeroCard moduleNum="05" moduleLabel="UX Leadership" trackLabel="APM Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
         </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
