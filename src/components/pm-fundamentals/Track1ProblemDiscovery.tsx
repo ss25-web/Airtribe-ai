@@ -930,7 +930,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '40px', flexWrap: 'wrap' as const }}>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
-          MODULE 02 · PROBLEM DISCOVERY
+          MODULE 03 · PROBLEM DISCOVERY
         </div>
         <h1 style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(26px, 3.5vw, 42px)', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.2, marginBottom: '16px', letterSpacing: '-0.02em' }}>
           Problem Discovery<br />&amp; User Research
@@ -996,7 +996,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
           <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
             <div style={{ background: 'linear-gradient(145deg, #0A1A1C 0%, #0D2426 100%)', borderRadius: '14px', padding: '20px 18px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: '#00BCD4', marginBottom: '10px' }}>MODULE 02</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: '#00BCD4', marginBottom: '10px' }}>MODULE 03</div>
               <div style={{ fontSize: '14px', fontWeight: 700, color: '#E8F8FA', fontFamily: "'Lora', serif", lineHeight: 1.25, marginBottom: '4px' }}>Problem Discovery</div>
               <div style={{ fontSize: '10px', color: 'rgba(232,248,250,0.45)', marginBottom: '16px' }}>Foundations Track</div>
               <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>

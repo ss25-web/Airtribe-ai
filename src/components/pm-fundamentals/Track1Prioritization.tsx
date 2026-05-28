@@ -689,7 +689,7 @@ const PrioritizationCheatSheet = () => {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.2em', marginBottom: '6px' }}>PM FUNDAMENTALS &middot; MODULE 03</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.2em', marginBottom: '6px' }}>PM FUNDAMENTALS &middot; MODULE 04</div>
             <div style={{ fontFamily: "'Lora', serif", fontSize: '20px', fontWeight: 700, color: '#fff' }}>Prioritization Cheat Sheet</div>
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '32px', fontWeight: 700, color: 'rgba(255,255,255,0.15)', lineHeight: 1 }}>03</div>
