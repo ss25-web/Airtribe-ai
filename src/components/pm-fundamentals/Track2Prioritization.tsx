@@ -17,13 +17,13 @@ import { KillCriteriaContractViz } from './SignatureVisualsTrack2';
 const ACCENT     = '#C85A40';
 const ACCENT_RGB = '200,90,64';
 const PARTS = [
-  { num: '01', id: 'm3-raw-inputs', label: 'Raw Inputs at Scale' },
-  { num: '02', id: 'm3-reframe', label: 'Reframe the Decision' },
-  { num: '03', id: 'm3-data', label: 'Data Before Priority' },
-  { num: '04', id: 'm3-rice', label: 'RICE Under Pressure' },
-  { num: '05', id: 'm3-call', label: 'Make the Call' },
-  { num: '06', id: 'm3-stakeholder', label: 'Stakeholder Alignment' },
-  { num: '07', id: 'm3-reflection', label: 'Final Reflection' },
+  { num: '01', id: 'm4-raw-inputs', label: 'Raw Inputs at Scale' },
+  { num: '02', id: 'm4-reframe', label: 'Reframe the Decision' },
+  { num: '03', id: 'm4-data', label: 'Data Before Priority' },
+  { num: '04', id: 'm4-rice', label: 'RICE Under Pressure' },
+  { num: '05', id: 'm4-call', label: 'Make the Call' },
+  { num: '06', id: 'm4-stakeholder', label: 'Stakeholder Alignment' },
+  { num: '07', id: 'm4-reflection', label: 'Final Reflection' },
 ];
 const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: APM (Scale Track).
 Follows Priya Sharma, 2-year APM at EdSpark (B2B SaaS for sales coaching). EdSpark has just landed Salesforce, Zendesk, and Infosys as enterprise clients. Covers: strategic prioritisation at scale, opportunity scoring vs. RICE, Now/Next/Later roadmaps, managing upward on priority calls, kill criteria, and communicating hard cuts to boards and VPs.`;
@@ -610,7 +610,7 @@ export default function Track2Prioritization({
       </div>
 
       {/* ── PART I ── Raw Inputs at Scale */}
-      <ChapterSection id="m3-raw-inputs" num="01" accentRgb={ACCENT_RGB} first>
+      <ChapterSection id="m4-raw-inputs" num="01" accentRgb={ACCENT_RGB} first>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Monday morning. Priya opens Slack. The VP of Sales has sent four messages about CRM integration. The ML team lead has sent a deck: &ldquo;Recommendation Engine — Q2 Proposal.&rdquo; Kiran has pinged a single link to an Amplitude chart with no context. The board deck is due Thursday.
         </SituationCard>
@@ -670,7 +670,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART II ── Reframing at Scale */}
-      <ChapterSection id="m3-reframe" num="02" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-reframe" num="02" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya has the data. She also has thirty items on the backlog and three constituencies pushing in different directions. Her job now is not to pick one — it&apos;s to build a frame that makes the trade-offs legible to everyone.
         </SituationCard>
@@ -743,7 +743,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART III ── Data at Scale */}
-      <ChapterSection id="m3-data" num="03" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-data" num="03" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya schedules an hour with Kiran. She wants to understand not just what the session-frequency data shows, but whether it&apos;s causal or correlational — and whether there&apos;s anything actionable in the enterprise cohorts specifically.
         </SituationCard>
@@ -810,7 +810,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART IV ── RICE & Opportunity Scoring */}
-      <ChapterSection id="m3-rice" num="04" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-rice" num="04" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           The ML team&apos;s recommendation engine scores RICE=120 — the highest on the board. Session Scheduling scores RICE=72. CRM scores RICE=45. By raw RICE, the ML team should win. But Priya knows it&apos;s not that simple.
         </SituationCard>
@@ -873,7 +873,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART V ── Making the Call */}
-      <ChapterSection id="m3-call" num="05" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-call" num="05" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya has her recommendation: fund Session Scheduling and Coaching Progress Reports. Defer the recommendation engine to H2. Now she has to tell the ML team lead — who has spent two months on the proposal — and put it in writing.
         </SituationCard>
@@ -930,7 +930,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART VI ── Stakeholder Communication */}
-      <ChapterSection id="m3-stakeholder" num="06" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-stakeholder" num="06" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Thursday. Board deck due in three hours. Priya has the roadmap, the decision memo, and the data. Now she has to compress it into one slide that a board can consume in ninety seconds — and a conversation with the VP of Sales that has to happen before the meeting.
         </SituationCard>
@@ -1006,7 +1006,7 @@ export default function Track2Prioritization({
       </ChapterSection>
 
       {/* ── PART VII ── Reflection */}
-      <ChapterSection id="m3-reflection" num="07" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-reflection" num="07" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Two weeks after the board meeting. Session Scheduling v2 is in sprint. The ML team is watching their kill criteria. The VP of Sales checked in once — Priya showed her the week-1 session frequency chart for the Salesforce cohort and she didn&apos;t follow up. The roadmap is holding.
         </SituationCard>

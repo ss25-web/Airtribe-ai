@@ -913,13 +913,13 @@ const DiscoveryBriefBuilder = () => {
 // INTRO HERO
 // ─────────────────────────────────────────
 const PARTS_PD = [
-  { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset'  },
-  { num: '02', id: 'm2-customer-segments', label: 'Know Your Users'    },
-  { num: '03', id: 'm2-research-methods',  label: 'Research Methods'   },
-  { num: '04', id: 'm2-interview',         label: 'Run an Interview'   },
-  { num: '05', id: 'm2-synthesis',         label: 'Synthesize Insights'},
-  { num: '06', id: 'm2-problem-statement', label: 'Discovery Brief'    },
-  { num: '07', id: 'm2-reflection',        label: 'Final Reflection'   },
+  { num: '01', id: 'm3-discovery-mindset', label: 'Discovery Mindset'  },
+  { num: '02', id: 'm3-customer-segments', label: 'Know Your Users'    },
+  { num: '03', id: 'm3-research-methods',  label: 'Research Methods'   },
+  { num: '04', id: 'm3-interview',         label: 'Run an Interview'   },
+  { num: '05', id: 'm3-synthesis',         label: 'Synthesize Insights'},
+  { num: '06', id: 'm3-problem-statement', label: 'Discovery Brief'    },
+  { num: '07', id: 'm3-reflection',        label: 'Final Reflection'   },
 ];
 
 const IntroHero = ({ completedSections = new Set<string>() }: { completedSections?: Set<string> }) => {
@@ -1058,7 +1058,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       <IntroHero completedSections={completedSections} />
 
       {/* ── PART 1: Don't Build Yet ── */}
-      <ChapterSection num="01" accentRgb="0,151,167" id="m2-discovery-mindset" first>
+      <ChapterSection num="01" accentRgb="0,151,167" id="m3-discovery-mindset" first>
         <div className="rv">
           {chLabel('Part 1 · Discovery Mindset', 'var(--teal)')}
           {h2(<>You spent the weekend building the wrong thing</>)}
@@ -1150,7 +1150,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── PART 2: Know Your Users ── */}
-      <ChapterSection num="02" accentRgb="120,67,238" id="m2-customer-segments">
+      <ChapterSection num="02" accentRgb="120,67,238" id="m3-customer-segments">
         <div className="rv">
           {chLabel('Part 2 · Customer Segments', 'var(--purple)')}
           {h2(<>340 churned users. Three completely different problems.</>)}
@@ -1229,7 +1229,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── PART 3: Choose Your Method ── */}
-      <ChapterSection num="03" accentRgb="58,134,255" id="m2-research-methods">
+      <ChapterSection num="03" accentRgb="58,134,255" id="m3-research-methods">
         <div className="rv">
           {chLabel('Part 3 · Research Methods', 'var(--blue)')}
           {h2(<>Data shows you where. Users tell you why.</>)}
@@ -1316,7 +1316,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── PART 4: Run the Interview ── */}
-      <ChapterSection num="04" accentRgb="224,122,95" id="m2-interview">
+      <ChapterSection num="04" accentRgb="224,122,95" id="m3-interview">
         <div className="rv">
           {chLabel('Part 4 · The Interview', 'var(--coral)')}
           {h2(<>Rahul says the thing that changes everything</>)}
@@ -1413,7 +1413,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── PART 5: Synthesis ── */}
-      <ChapterSection num="05" accentRgb="21,129,88" id="m2-synthesis">
+      <ChapterSection num="05" accentRgb="21,129,88" id="m3-synthesis">
         <div className="rv">
           {chLabel('Part 5 · Insight Synthesis', 'var(--green)')}
           {h2(<>Eight pages of notes. Three things that matter.</>)}
@@ -1529,7 +1529,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── PART 6: Discovery Brief ── */}
-      <ChapterSection num="06" accentRgb="181,114,10" id="m2-problem-statement">
+      <ChapterSection num="06" accentRgb="181,114,10" id="m3-problem-statement">
         <div className="rv">
           {chLabel('Part 6 · The Discovery Brief', 'var(--amber)')}
           {h2(<>One page that unlocks the whole team</>)}
@@ -1592,7 +1592,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
       </ChapterSection>
 
       {/* ── FINAL REFLECTION ── */}
-      <ChapterSection num="07" accentRgb="120,67,238" id="m2-reflection">
+      <ChapterSection num="07" accentRgb="120,67,238" id="m3-reflection">
         <div className="rv">
           {chLabel('Final Reflection · Module 02', 'var(--purple)')}
           {h2(<>What changed between Monday and Friday</>)}

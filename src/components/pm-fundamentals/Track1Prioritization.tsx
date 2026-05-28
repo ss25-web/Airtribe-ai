@@ -17,13 +17,13 @@ import { PrioritisationFunnelViz } from './SignatureVisualsTrack1';
 const ACCENT = '#C85A40';
 const ACCENT_RGB = '200,90,64';
 const PARTS = [
-  { num: '01', id: 'm3-raw-inputs',  label: 'Raw Inputs' },
-  { num: '02', id: 'm3-reframe',     label: 'Reframe the List' },
-  { num: '03', id: 'm3-data',        label: 'Data Changes Everything' },
-  { num: '04', id: 'm3-rice',        label: 'RICE Framework' },
-  { num: '05', id: 'm3-call',        label: 'Making the Call' },
-  { num: '06', id: 'm3-stakeholder', label: "The PM's Real Job" },
-  { num: '07', id: 'm3-reflection',  label: 'Final Reflection' },
+  { num: '01', id: 'm4-raw-inputs',  label: 'Raw Inputs' },
+  { num: '02', id: 'm4-reframe',     label: 'Reframe the List' },
+  { num: '03', id: 'm4-data',        label: 'Data Changes Everything' },
+  { num: '04', id: 'm4-rice',        label: 'RICE Framework' },
+  { num: '05', id: 'm4-call',        label: 'Making the Call' },
+  { num: '06', id: 'm4-stakeholder', label: "The PM's Real Job" },
+  { num: '07', id: 'm4-reflection',  label: 'Final Reflection' },
 ];
 const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
@@ -996,7 +996,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       <IntroHero completedSections={completedSections} />
 
       {/* ── PART I ── Too Many "Urgent" Problems ── */}
-      <ChapterSection id="m3-raw-inputs" num="01" accentRgb={ACCENT_RGB} first>
+      <ChapterSection id="m4-raw-inputs" num="01" accentRgb={ACCENT_RGB} first>
         {h2(<>Part I &middot; Too Many &ldquo;Urgent&rdquo; Problems</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1101,7 +1101,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART II ── Priya Reframes Everything ── */}
-      <ChapterSection id="m3-reframe" num="02" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-reframe" num="02" accentRgb={ACCENT_RGB}>
         {h2(<>Part II &middot; Priya Reframes Everything</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1196,7 +1196,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART III ── Data Changes Everything ── */}
-      <ChapterSection id="m3-data" num="03" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-data" num="03" accentRgb={ACCENT_RGB}>
         {h2(<>Part III &middot; Data Changes Everything</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1257,7 +1257,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART IV ── The RICE Framework ── */}
-      <ChapterSection id="m3-rice" num="04" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-rice" num="04" accentRgb={ACCENT_RGB}>
         {h2(<>Part IV &middot; The RICE Framework</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1370,7 +1370,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART V ── Making the Call ── */}
-      <ChapterSection id="m3-call" num="05" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-call" num="05" accentRgb={ACCENT_RGB}>
         {h2(<>Part V &middot; Making the Call</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1471,7 +1471,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART VI ── The PM's Real Job ── */}
-      <ChapterSection id="m3-stakeholder" num="06" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-stakeholder" num="06" accentRgb={ACCENT_RGB}>
         {h2(<>Part VI &middot; The PM&apos;s Real Job</>)}
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
@@ -1537,7 +1537,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
       </ChapterSection>
 
       {/* ── PART VII ── Final Reflection ── */}
-      <ChapterSection id="m3-reflection" num="07" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m4-reflection" num="07" accentRgb={ACCENT_RGB}>
         {h2(<>Part VII &middot; What Priya Learned</>)}
 
         {para(<>

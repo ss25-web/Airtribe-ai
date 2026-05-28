@@ -13,13 +13,13 @@ import { AccessibilityChecker, DesignSystemROICalc } from './UXRevampVisualizati
 import { DesignSystemShovelViz } from './SignatureVisualsTrack2';
 
 const PARTS = [
-  { num: '01', id: 'm4-apm-demo', label: 'UX Debt as Revenue Risk' },
-  { num: '02', id: 'm4-apm-audit', label: 'Design Audit' },
-  { num: '03', id: 'm4-apm-ds-decision', label: 'Design System Decision' },
-  { num: '04', id: 'm4-apm-critique', label: 'Design Critique' },
-  { num: '05', id: 'm4-apm-threshold', label: 'Speed vs Craft' },
-  { num: '06', id: 'm4-apm-pitch', label: 'Business Case' },
-  { num: '07', id: 'm4-apm-reflection', label: 'Final Reflection' },
+  { num: '01', id: 'm5-apm-demo', label: 'UX Debt as Revenue Risk' },
+  { num: '02', id: 'm5-apm-audit', label: 'Design Audit' },
+  { num: '03', id: 'm5-apm-ds-decision', label: 'Design System Decision' },
+  { num: '04', id: 'm5-apm-critique', label: 'Design Critique' },
+  { num: '05', id: 'm5-apm-threshold', label: 'Speed vs Craft' },
+  { num: '06', id: 'm5-apm-pitch', label: 'Business Case' },
+  { num: '07', id: 'm5-apm-reflection', label: 'Final Reflection' },
 ];
 
 // ─────────────────────────────────────────
@@ -884,7 +884,7 @@ export default function Track2UXDesign({
       </div>
 
       {/* ── SECTION 01 — The Demo That Went Quiet ── */}
-      <ChapterSection id="m4-apm-demo" num="01" accentRgb={ACCENT_RGB} first>
+      <ChapterSection id="m5-apm-demo" num="01" accentRgb={ACCENT_RGB} first>
 
         <div style={{ padding: '16px 20px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid rgba(${ACCENT_RGB},0.18)`, marginBottom: '28px' }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px' }}>HOW THIS TRACK IS DIFFERENT</div>
@@ -979,7 +979,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 02 — The Audit Kiran Runs ── */}
-      <ChapterSection id="m4-apm-audit" num="02" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-audit" num="02" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Kiran didn&apos;t wait to be asked. The day after the Infosys demo he pulled three months of feature
@@ -1062,7 +1062,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 03 — The Design System Argument ── */}
-      <ChapterSection id="m4-apm-ds-decision" num="03" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-ds-decision" num="03" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Maya puts the proposal on the table at the Monday planning meeting. Six weeks. Two engineers. The
@@ -1143,7 +1143,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 04 — The Critique Priya Got Wrong ── */}
-      <ChapterSection id="m4-apm-critique" num="04" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-critique" num="04" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           The first design critique Priya ran as PM was a disaster. Not visibly — nobody walked out. But after
@@ -1222,7 +1222,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 05 — The Speed-Craft Threshold ── */}
-      <ChapterSection id="m4-apm-threshold" num="05" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-threshold" num="05" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Dev has two hours before the sprint closes. Maya&apos;s proposed completion animation for the skill gap
@@ -1309,7 +1309,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 06 — The Pitch That Changed the Budget ── */}
-      <ChapterSection id="m4-apm-pitch" num="06" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-pitch" num="06" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya has 20 minutes on Rohan&apos;s calendar. She asked for it two weeks ago, before the Infosys demo
@@ -1388,7 +1388,7 @@ export default function Track2UXDesign({
       </ChapterSection>
 
       {/* ── SECTION 07 — Final Reflection ── */}
-      <ChapterSection id="m4-apm-reflection" num="07" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-apm-reflection" num="07" accentRgb={ACCENT_RGB}>
 
         {h2(<>Design leadership isn&apos;t about having taste. It&apos;s about knowing where taste matters.</>)}
 

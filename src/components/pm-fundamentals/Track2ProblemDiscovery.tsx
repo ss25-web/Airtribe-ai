@@ -13,13 +13,13 @@ import { ResearchQuadrantMap, AffinityClusterAnimation, STPFrameworkViz, BuyingC
 import { BuyingCommitteeRoomViz } from './SignatureVisualsTrack2';
 
 const PARTS = [
-  { num: '01', id: 'm2-discovery-mindset', label: 'Discovery Mindset' },
-  { num: '02', id: 'm2-customer-segments', label: 'Customer Segments' },
-  { num: '03', id: 'm2-research-methods', label: 'Research Methods' },
-  { num: '04', id: 'm2-interview', label: 'Interview Practice' },
-  { num: '05', id: 'm2-synthesis', label: 'Synthesis' },
-  { num: '06', id: 'm2-problem-statement', label: 'Problem Statement' },
-  { num: '07', id: 'm2-reflection', label: 'Final Reflection' },
+  { num: '01', id: 'm3-discovery-mindset', label: 'Discovery Mindset' },
+  { num: '02', id: 'm3-customer-segments', label: 'Customer Segments' },
+  { num: '03', id: 'm3-research-methods', label: 'Research Methods' },
+  { num: '04', id: 'm3-interview', label: 'Interview Practice' },
+  { num: '05', id: 'm3-synthesis', label: 'Synthesis' },
+  { num: '06', id: 'm3-problem-statement', label: 'Problem Statement' },
+  { num: '07', id: 'm3-reflection', label: 'Final Reflection' },
 ];
 
 // ─────────────────────────────────────────
@@ -764,7 +764,7 @@ export default function Track2ProblemDiscovery({
       <IntroHero completedSections={completedSections} />
 
       {/* PART 1 — THE BRIEF THAT'S WRONG */}
-      <ChapterSection id="m2-discovery-mindset" num="01" accentRgb="0,151,167">
+      <ChapterSection id="m3-discovery-mindset" num="01" accentRgb="0,151,167">
         {h2(<>Part I · When the Brief Is Wrong</>)}
         <SituationCard>
           Monday 9:30am. Priya walks into the weekly product sync. Rohan, the CEO, opens his laptop and points at a dashboard. <strong>&ldquo;Retention is still stuck at 60%. We shipped three onboarding improvements. Nothing moved. I think onboarding still isn&apos;t clear enough — let&apos;s do another round.&rdquo;</strong>
@@ -862,7 +862,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* PART 2 — RESEARCH OPS */}
-      <ChapterSection id="m2-customer-segments" num="02" accentRgb="0,151,167">
+      <ChapterSection id="m3-customer-segments" num="02" accentRgb="0,151,167">
         {h2(<>Part II · Research Ops: Building Team Memory</>)}
         <SituationCard>
           After the Monday meeting, Rohan agreed to pause and re-scope. &ldquo;Okay, Priya — what do we actually know about why managers leave? And please don&apos;t tell me we need to start from scratch.&rdquo;
@@ -929,7 +929,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* PART 3 — RESEARCH BIASES */}
-      <ChapterSection id="m2-research-methods" num="03" accentRgb="0,151,167">
+      <ChapterSection id="m3-research-methods" num="03" accentRgb="0,151,167">
         {h2(<>Part III · The Biases That Corrupt Discovery</>)}
         <SituationCard>
           Priya asked Maya, EdSpark&apos;s designer, to help prep the interview study. Maya drafted a plan: 10 interviews with active managers who were still using the platform. &ldquo;These are our best users — they&apos;ll know the product well.&rdquo; Priya read it and called Maya immediately.
@@ -1009,7 +1009,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* PART 4 — THE INTERVIEWS */}
-      <ChapterSection id="m2-interview" num="04" accentRgb="0,151,167">
+      <ChapterSection id="m3-interview" num="04" accentRgb="0,151,167">
         {h2(<>Part IV · Running 14 Interviews in 8 Days</>)}
         <SituationCard>
           Priya and Maya split the interviews: Priya took the churned managers (recruited via email from the CRM), Maya took the active ones. They used the same Notion template — but Priya added one rule: <strong>don&apos;t mention onboarding until the participant does.</strong>
@@ -1080,7 +1080,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* PART 5 — SYNTHESIS */}
-      <ChapterSection id="m2-synthesis" num="05" accentRgb="0,151,167">
+      <ChapterSection id="m3-synthesis" num="05" accentRgb="0,151,167">
         {h2(<>Part V · Synthesising 14 Interviews into One Insight</>)}
         <SituationCard>
           Friday afternoon. Priya and Maya had 14 interview transcripts tagged in Dovetail. 94 individual moments. They booked a 2-hour synthesis session and opened the clusters.
@@ -1139,7 +1139,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* PART 6 — PROBLEM FRAMING */}
-      <ChapterSection id="m2-problem-statement" num="06" accentRgb="0,151,167">
+      <ChapterSection id="m3-problem-statement" num="06" accentRgb="0,151,167">
         {h2(<>Part VI · Framing the Problem That Gets Teams Aligned</>)}
         <SituationCard>
           Monday morning again. Priya had one slide and one sentence. She opened the meeting. &ldquo;I said we&apos;d come back with a validated research question. Here&apos;s what we found.&rdquo;
@@ -1180,7 +1180,7 @@ export default function Track2ProblemDiscovery({
       </ChapterSection>
 
       {/* FINAL REFLECTION */}
-      <ChapterSection id="m2-reflection" num="07" accentRgb="0,151,167">
+      <ChapterSection id="m3-reflection" num="07" accentRgb="0,151,167">
         {h2(<>Final Reflection · The Discovery Playbook for APMs</>)}
         {para(<>
           Priya had done discovery before. But this sprint was different — she had run it as an APM, not as an individual contributor. She&apos;d challenged a CEO brief, used a shared repo to avoid redundant research, caught a bias in her team&apos;s study design, and compressed 14 interviews into one sentence that changed the product direction.

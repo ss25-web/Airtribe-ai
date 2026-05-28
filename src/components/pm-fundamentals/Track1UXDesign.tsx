@@ -19,13 +19,13 @@ const ACCENT = '#E07A5F';
 const ACCENT_RGB = '224,122,95';
 
 const PARTS = [
-  { num: '01', id: 'm4-illusion',    label: "The Illusion of Done — shipping isn’t the same as fixing" },
-  { num: '02', id: 'm4-session',     label: "Session Recordings — see what users actually do" },
-  { num: '03', id: 'm4-45sec',       label: "The 45-Second Drop-Off — the moment you lose them" },
-  { num: '04', id: 'm4-spec-gap',    label: "Spec Completeness — loading, error, empty, success" },
-  { num: '05', id: 'm4-small-fix',   label: "Small Fix, Big Impact — one label, 18-point lift" },
-  { num: '06', id: 'm4-outcome',     label: "The UX Debug Loop — metric to friction to fix" },
-  { num: '07', id: 'm4-reflection',  label: "Reflection — what you’ll carry forward" },
+  { num: '01', id: 'm5-illusion',    label: "The Illusion of Done — shipping isn’t the same as fixing" },
+  { num: '02', id: 'm5-session',     label: "Session Recordings — see what users actually do" },
+  { num: '03', id: 'm5-45sec',       label: "The 45-Second Drop-Off — the moment you lose them" },
+  { num: '04', id: 'm5-spec-gap',    label: "Spec Completeness — loading, error, empty, success" },
+  { num: '05', id: 'm5-small-fix',   label: "Small Fix, Big Impact — one label, 18-point lift" },
+  { num: '06', id: 'm5-outcome',     label: "The UX Debug Loop — metric to friction to fix" },
+  { num: '07', id: 'm5-reflection',  label: "Reflection — what you’ll carry forward" },
 ];
 
 const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to PM.
@@ -1297,7 +1297,7 @@ export default function Track1UXDesign({
       </div>
 
       {/* ── PART I — The Illusion of "Done" ── */}
-      <ChapterSection id="m4-illusion" num="01" accentRgb={ACCENT_RGB} first>
+      <ChapterSection id="m5-illusion" num="01" accentRgb={ACCENT_RGB} first>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Two weeks after launch. Onboarding completion: 30%. Target: 60%. The office has the quiet
@@ -1385,7 +1385,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART II — The Room You've Never Been In ── */}
-      <ChapterSection id="m4-session" num="02" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-session" num="02" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Maya doesn&apos;t explain. She shows. She plugs in her laptop, opens a session recording, and presses play.
@@ -1478,7 +1478,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART III — The 45-Second Problem ── */}
-      <ChapterSection id="m4-45sec" num="03" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-45sec" num="03" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Kiran is already pulling up a new chart before Maya closes her laptop. &ldquo;Average processing
@@ -1598,7 +1598,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART IV — Rewriting Reality ── */}
-      <ChapterSection id="m4-spec-gap" num="04" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-spec-gap" num="04" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Priya opens the original spec. She finds the offending line. &ldquo;Step 2: Analyze recording.&rdquo;
@@ -1719,7 +1719,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART V — Small Changes, Heavy Impact ── */}
-      <ChapterSection id="m4-small-fix" num="05" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-small-fix" num="05" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           They don&apos;t redesign the flow. They don&apos;t add features. Priya writes three lines in a new doc.
@@ -1802,7 +1802,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART VI — One Week Later ── */}
-      <ChapterSection id="m4-outcome" num="06" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-outcome" num="06" accentRgb={ACCENT_RGB}>
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Kiran. Same chair. Same laptop. One number changed. Completion rate: 58%.
@@ -1904,7 +1904,7 @@ export default function Track1UXDesign({
       </ChapterSection>
 
       {/* ── PART VII — Final Reflection ── */}
-      <ChapterSection id="m4-reflection" num="07" accentRgb={ACCENT_RGB}>
+      <ChapterSection id="m5-reflection" num="07" accentRgb={ACCENT_RGB}>
 
         {h2(<>Confusion is the real bug</>)}
 
