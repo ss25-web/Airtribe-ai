@@ -14,7 +14,7 @@ import { B2BvsB2CViz } from './Module1Additions';
 import { ProductTeardownViz, NewPMOperatingModelViz } from './ProductStrategyVisualizations';
 import { OutputVsOutcomeFactory } from './SignatureVisualsTrack2';
 
-const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Track: Experienced APM.
+const MODULE_CONTEXT = `Module 01 of Airtribe PM Fundamentals — Scale Track.
 Follows Priya Sharma, 2 years into her PM role at EdSpark (B2B sales coaching SaaS). Her metrics look fine. Her products ship on time. But something's not right at a deeper level. Covers: decision quality vs outcome quality, product triangle tradeoffs, problem framing, research bias, strategy as saying no, PMF local maxima, stakeholder negotiation, guardrail metrics.`;
 
 const QUIZZES = [

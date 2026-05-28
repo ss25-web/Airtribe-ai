@@ -591,7 +591,7 @@ const ProblemFramingShowdown = () => {
 // ─────────────────────────────────────────
 // QUIZZES
 // ─────────────────────────────────────────
-const MODULE_CONTEXT = `Module 02 of Airtribe PM Fundamentals — Track: Experienced APM.
+const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Scale Track.
 Priya is a 2-year PM at EdSpark, leading a team doing a discovery sprint. Covers: challenging stakeholder-defined briefs, research ops and insight repositories, research bias (survivorship, confirmation, framing), strategic problem framing, and running discovery at the organisational level with Notion, Dovetail, and Kraftful.`;
 
 const QUIZZES = [

@@ -468,7 +468,7 @@ const DovetailTaggingSession = () => {
   );
 };
 
-const MODULE_CONTEXT = `Module 02 of Airtribe PM Fundamentals — Track: New to PM.
+const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to PM.
 Continues with Priya Sharma, PM at EdSpark (B2B SaaS for sales coaching). She must investigate why 40% of users churn in week 2. Covers: resisting premature solutions, customer segmentation, Jobs to Be Done, choosing research methods (using Notion for notes, Dovetail for synthesis, Kraftful for AI analysis), running user interviews, affinity mapping, and writing a discovery brief.`;
 
 const QUIZZES = [

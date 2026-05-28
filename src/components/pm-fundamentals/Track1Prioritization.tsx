@@ -25,7 +25,7 @@ const PARTS = [
   { num: '06', id: 'm4-stakeholder', label: "The PM's Real Job" },
   { num: '07', id: 'm4-reflection',  label: 'Final Reflection' },
 ];
-const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: New to PM.
+const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Track: New to PM.
 Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: problem framing, converting feature requests into problem statements, using data for prioritization, the RICE framework, stakeholder communication, and making hard prioritization calls with clarity.`;
 
 // ─────────────────────────────────────────

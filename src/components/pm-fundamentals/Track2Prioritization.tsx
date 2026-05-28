@@ -25,7 +25,7 @@ const PARTS = [
   { num: '06', id: 'm4-stakeholder', label: 'Stakeholder Alignment' },
   { num: '07', id: 'm4-reflection', label: 'Final Reflection' },
 ];
-const MODULE_CONTEXT = `Module 03 of Airtribe PM Fundamentals — Track: APM (Scale Track).
+const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — Scale Track.
 Follows Priya Sharma, 2-year APM at EdSpark (B2B SaaS for sales coaching). EdSpark has just landed Salesforce, Zendesk, and Infosys as enterprise clients. Covers: strategic prioritisation at scale, opportunity scoring vs. RICE, Now/Next/Later roadmaps, managing upward on priority calls, kill criteria, and communicating hard cuts to boards and VPs.`;
 
 
