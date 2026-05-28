@@ -14,7 +14,7 @@ import { BetBoard } from './SignatureVisualsTrack1';
 
 const ACCENT     = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
-const MODULE_CONTEXT = `Priya Sharma is an APM at EdSpark, a B2B SaaS platform for sales coaching. EdSpark has 40% week-1 churn and a Series A board meeting in 6 weeks. This module follows Priya as she builds EdSpark's product strategy from scratch — five decisions that will define the company's direction.`;
+const MODULE_CONTEXT = `Priya Sharma is an APM at EdSpark, a B2B SaaS platform for sales coaching. EdSpark has 40% week-2 churn and a Series A board meeting in 6 weeks. This module follows Priya as she builds EdSpark's product strategy from scratch — five decisions that will define the company's direction.`;
 
 // ─────────────────────────────────────────
 // QUIZZES — tied to the storyline
@@ -357,7 +357,7 @@ const DECISIONS: { key: DecisionKey; label: string; sublabel: string; first: str
     key: 'sequence',
     label: 'Fix onboarding first, then Salesforce',
     sublabel: 'Sequence the bets — one at a time',
-    first: 'Onboarding ships in week 4. Week-1 churn drops from 40% to 22%.',
+    first: 'Onboarding ships in week 4. Week-2 churn drops from 40% to 22%.',
     second: 'Retention metric cleans up before the board meeting. Series A story is credible.',
     third: 'Salesforce integration starts with real usage data to scope it right — less rework, better outcome.',
   },
@@ -374,7 +374,7 @@ const DECISIONS: { key: DecisionKey; label: string; sublabel: string; first: str
     label: 'Prioritize Salesforce — it closes enterprise deals',
     sublabel: 'Highest revenue potential, ship it first',
     first: 'Salesforce integration ships. Two enterprise prospects move forward in the pipeline.',
-    second: 'Week-1 churn is still 40%. The root problem wasn\'t Salesforce access.',
+    second: 'Week-2 churn is still 40%. The root problem wasn\'t Salesforce access.',
     third: 'Board meeting: strong pipeline, broken retention. Series A is conditional on fixing churn before close.',
   },
 ];
@@ -803,7 +803,7 @@ export default function Track1ProductStrategy({
 
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
           Monday morning. Rohan calls Priya into his office before the all-hands. The door closes.
-          He pulls up a slide: one number, centered, red. <strong>40%</strong>. Week-1 churn. &ldquo;The board sees this in six weeks,&rdquo; he says. &ldquo;I don&apos;t want a feature list. I want a strategy. Something that tells the board exactly why we win — and exactly what we&apos;re betting on.&rdquo;
+          He pulls up a slide: one number, centered, red. <strong>40%</strong>. Week-2 churn. &ldquo;The board sees this in six weeks,&rdquo; he says. &ldquo;I don&apos;t want a feature list. I want a strategy. Something that tells the board exactly why we win — and exactly what we&apos;re betting on.&rdquo;
           Priya nods. She has never built a strategy from scratch.
         </SituationCard>
 
@@ -814,7 +814,7 @@ export default function Track1ProductStrategy({
           lines={[
             { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters — and why." },
             { speaker: 'priya', text: "Which problem are we actually solving? Not which feature — which problem." },
-            { speaker: 'other', text: "40% week-one churn. Pick whatever fixes it fastest. The board sees this in six weeks." },
+            { speaker: 'other', text: "40% week-two churn. Pick whatever fixes it fastest. The board sees this in six weeks." },
             { speaker: 'priya', text: "We don\u2019t have a problem statement yet — we have a symptom. The backlog can\u2019t tell us why they\u2019re churning. Only the customers can." },
           ]}
         />
@@ -825,7 +825,7 @@ export default function Track1ProductStrategy({
           Priya&apos;s instinct is to open the backlog and start sorting. That&apos;s the wrong move.
           A feature list is a collection of answers. Strategy is the process of figuring out which questions are worth asking at all.
           The Spanish restaurant El Bulli didn&apos;t win by adding more dishes than its competitors — it won by redefining what fine dining meant entirely. The question was different, so the answers were different.
-          EdSpark&apos;s question isn&apos;t &ldquo;what features should we ship?&rdquo; It&apos;s &ldquo;what does a new sales manager need to stop churning in week one — and can we build a defensible position around solving that?&rdquo;
+          EdSpark&apos;s question isn&apos;t &ldquo;what features should we ship?&rdquo; It&apos;s &ldquo;what does a new sales manager need to stop churning in week two — and can we build a defensible position around solving that?&rdquo;
         </>)}
 
         {pullQuote("The board doesn\u2019t want a roadmap. They want a reason to believe.")}
@@ -1073,7 +1073,7 @@ export default function Track1ProductStrategy({
         {para(<>
           Priya fills in the whiteboard: five weeks for onboarding (enough to ship a proper fix, not a patch), three weeks for analytics scoped to coaching frequency and manager involvement only, four weeks for a Salesforce discovery sprint — not a full build.
           Rohan stares at it. &ldquo;The board is going to ask why Salesforce isn&apos;t done.&rdquo;
-          Priya&apos;s answer: &ldquo;Because we can&apos;t sell enterprise integrations to customers who are still churning in week one. Bet A is what makes Bet C worth the investment.&rdquo;
+          Priya&apos;s answer: &ldquo;Because we can&apos;t sell enterprise integrations to customers who are still churning in week two. Bet A is what makes Bet C worth the investment.&rdquo;
           That&apos;s strategic sequencing. It wins.
         </>)}
 
@@ -1087,7 +1087,7 @@ export default function Track1ProductStrategy({
           options={[
             { text: "All three bets in parallel — shows the board maximum ambition and urgency", correct: false, feedback: "Parallel bets with 6 engineers means none of them ship before the board meeting. Maximum ambition, zero execution signal." },
             { text: "Onboarding fix first, analytics scoped tightly, then Salesforce discovery sprint", correct: true, feedback: "Right. Bet A unblocks the retention metric. Analytics scoped to coaching frequency reveals why churn is changing. Discovery sprint de-risks Bet C scope before full investment." },
-            { text: "Salesforce integration first — highest revenue potential always justifies the timeline", correct: false, feedback: "High revenue potential on a product with 40% week-1 churn is a leaky bucket. The board will see enterprise pipeline AND broken retention. Series A gets conditional." },
+            { text: "Salesforce integration first — highest revenue potential always justifies the timeline", correct: false, feedback: "High revenue potential on a product with 40% week-2 churn is a leaky bucket. The board will see enterprise pipeline AND broken retention. Series A gets conditional." },
           ]}
           conceptId="bet-sizing"
         />
