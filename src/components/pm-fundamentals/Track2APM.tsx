@@ -774,7 +774,7 @@ export default function Track2APM() {
       {/* ── M1: PM Role (APM) ── */}
       <ChapterSection num="01" accent="var(--purple)" accentRgb="120,67,238" id="m1-pm-role" first>
         <div className="rv">
-          {chLabel('Module 01 · The PM Role — Advanced', 'var(--purple)')}
+          {chLabel('The PM Role — Advanced', 'var(--purple)')}
           {h2(<>Two years in. The metrics look fine. Something&apos;s still wrong.</>)}
 
           {/* Advanced track framing */}
@@ -869,7 +869,7 @@ export default function Track2APM() {
       {/* ── M1: Product Triangle (APM) ── */}
       <ChapterSection num="02" accent="var(--purple)" accentRgb="120,67,238" id="m1-product-triangle">
         <div className="rv">
-          {chLabel('Module 01 · What is Product Management', 'var(--purple)')}
+          {chLabel('What Product Management Actually Is', 'var(--purple)')}
           {h2(<>Every optimization has a cost. The triangle doesn't balance — it shifts.</>)}
           <SituationCard accent="var(--purple)" accentRgb="120,67,238">
             Priya's team just shipped a major feature in half the normal time. Stakeholders are thrilled. Three weeks later, engineering tells her that two of her next four features will take twice as long because of code shortcuts taken in the fast sprint. She did the math: she bought 4 weeks of stakeholder satisfaction and spent 8 weeks of future velocity. The tradeoff was invisible at decision time.
@@ -930,7 +930,7 @@ export default function Track2APM() {
       {/* ── M2: Problem vs Solution (APM) ── */}
       <ChapterSection num="03" accent="var(--teal)" accentRgb="0,151,167" id="m2-problem-solution">
         <div className="rv">
-          {chLabel('Module 02 · Understanding Users & Problems', 'var(--teal)')}
+          {chLabel('Understanding Users & Problems', 'var(--teal)')}
           {h2(<>The problem you're solving depends on who's describing it</>)}
           <SituationCard accent="var(--teal)" accentRgb="0,151,167">
             Monthly business review. EdSpark's retention dropped 15% this quarter. Three back-to-back stakeholder conversations, three completely different diagnoses. The CEO is worried about pricing relative to competitors. Engineering is flagging performance regressions. Design is pointing at the onboarding redesign that shipped last month. Priya has to decide which problem to solve. She realizes: each of them is right. And each of their solutions would make things worse if the others are also true.
@@ -987,7 +987,7 @@ export default function Track2APM() {
       {/* ── M2: Research Methods (APM) ── */}
       <ChapterSection num="04" accent="var(--teal)" accentRgb="0,151,167" id="m2-research">
         <div className="rv">
-          {chLabel('Module 02 · Understanding Users & Problems', 'var(--teal)')}
+          {chLabel('Understanding Users & Problems', 'var(--teal)')}
           {h2(<>All research introduces distortion. The goal is to know which kind.</>)}
           <SituationCard accent="var(--teal)" accentRgb="0,151,167">
             Priya runs an interview study to understand retention. She interviews 12 users. The results are glowing — users love EdSpark, find it valuable, would recommend it. She prepares the findings. Her manager asks: "Who did you interview?" Priya lists the users. Her manager: "These are all 6-month+ retained users. What did your churned users say?" Priya hadn't thought to interview them. She realizes: she only interviewed the survivors.
@@ -1044,7 +1044,7 @@ export default function Track2APM() {
       {/* ── M3: Strategy (APM) ── */}
       <ChapterSection num="05" accent="var(--blue)" accentRgb="58,134,255" id="m3-strategy">
         <div className="rv">
-          {chLabel('Module 03 · Product Strategy', 'var(--blue)')}
+          {chLabel('Product Strategy', 'var(--blue)')}
           {h2(<>Strategy is what you say no to. Good opportunities are the hardest ones to decline.</>)}
           <SituationCard accent="var(--blue)" accentRgb="58,134,255">
             Q3 planning. EdSpark's BD team brings in a proposal: expand from sales teams to HR teams. "HR has training budgets, similar enterprise dynamics, and we already have contacts." The revenue case is real. The CEO is excited. Three people on the leadership team are already half-sold. Priya is the PM on point. She does the analysis. On paper, the move is clearly good. But something doesn't add up.
@@ -1105,7 +1105,7 @@ export default function Track2APM() {
       {/* ── M3: PMF (APM) ── */}
       <ChapterSection num="06" accent="var(--blue)" accentRgb="58,134,255" id="m3-pmf">
         <div className="rv">
-          {chLabel('Module 03 · Product Strategy', 'var(--blue)')}
+          {chLabel('Product Strategy', 'var(--blue)')}
           {h2(<>PMF isn't binary. You can have it with one segment and lose it with the next.</>)}
           <SituationCard accent="var(--blue)" accentRgb="58,134,255">
             Q4 business review. EdSpark's early cohorts are still excellent — Q1 2023 users have 68% six-month retention. But Priya notices something: each new cohort retains worse than the last. Q3 2024 cohort has 18% six-month retention. The CEO reads this as "growth is hard." Priya reads it differently. The product hasn't changed dramatically. The users have. And the product isn't working as well for the users they're now attracting.
@@ -1166,7 +1166,7 @@ export default function Track2APM() {
       {/* ── M4: Prioritization (APM) ── */}
       <ChapterSection num="07" accent="var(--coral)" accentRgb="224,122,95" id="m4-prioritization">
         <div className="rv">
-          {chLabel('Module 04 · Prioritization', 'var(--coral)')}
+          {chLabel('Prioritization', 'var(--coral)')}
           {h2(<>Prioritization is a negotiation about strategy. The RICE score starts the conversation.</>)}
           <SituationCard accent="var(--coral)" accentRgb="224,122,95">
             Sprint planning. Priya presents her prioritized backlog. Feature A has the highest RICE score. The VP of Sales immediately questions the Reach estimate. The VP of Customer Success says the effort score is too low. The engineering lead says Confidence should be 40%, not 80%. Within 15 minutes, three people have disputed different inputs, and every score has shifted. Priya realizes: they're not arguing about scores. They're arguing about strategy.
@@ -1223,7 +1223,7 @@ export default function Track2APM() {
       {/* ── M4: Frameworks (APM) ── */}
       <ChapterSection num="08" accent="var(--coral)" accentRgb="224,122,95" id="m4-frameworks">
         <div className="rv">
-          {chLabel('Module 04 · Prioritization', 'var(--coral)')}
+          {chLabel('Prioritization', 'var(--coral)')}
           {h2(<>Frameworks create false precision. Experienced PMs use them as tools, not verdicts.</>)}
           <SituationCard accent="var(--coral)" accentRgb="224,122,95">
             Priya notices something over the course of two quarters. The RICE scores her team produces always seem to favor the features the most senior stakeholder wanted to build. Not because the math is wrong — the inputs are plausible. But the inputs are being shaped by what conclusion people want to reach. The framework didn't remove politics. It just gave politics a spreadsheet.
@@ -1279,7 +1279,7 @@ export default function Track2APM() {
       {/* ── M5: Cross-functional work (APM) ── */}
       <ChapterSection num="09" accent="var(--green)" accentRgb="21,129,88" id="m5-teams">
         <div className="rv">
-          {chLabel('Module 05 · Execution & Collaboration', 'var(--green)')}
+          {chLabel('Execution & Collaboration', 'var(--green)')}
           {h2(<>Misalignment is the default state. Communication quality determines execution quality.</>)}
           <SituationCard accent="var(--green)" accentRgb="21,129,88">
             Priya's search feature shipped clean. But three weeks later, usage is flat. She digs into the design handoff notes. The spec said "filter by date." Design interpreted that as upload date — the date the recording was added to the system. Engineering built exactly what design specified. Users needed call date — the date the conversation happened. Three people, one ambiguous phrase, three weeks of work aimed at the wrong target.
@@ -1334,7 +1334,7 @@ export default function Track2APM() {
       {/* ── M5: Execution Risks (APM) ── */}
       <ChapterSection num="10" accent="var(--green)" accentRgb="21,129,88" id="m5-execution">
         <div className="rv">
-          {chLabel('Module 05 · Execution & Collaboration', 'var(--green)')}
+          {chLabel('Execution & Collaboration', 'var(--green)')}
           {h2(<>Execution failures are rarely about effort. They're about diverging mental models.</>)}
           <SituationCard accent="var(--green)" accentRgb="21,129,88">
             Post-mortem. The date filter bug. Priya leads the retro. Everyone on the team was working hard. Nobody was confused. They shipped exactly what they thought was right. The post-mortem surfaces: Priya had been thinking about this from a user's perspective — "find the call from Tuesday." Design was thinking from a data architecture perspective — "when was this uploaded?" Engineering was building what design specified. Three valid perspectives, one catastrophic mismatch. Nobody was wrong. The mental models were.
@@ -1389,7 +1389,7 @@ export default function Track2APM() {
       {/* ── M6: Metrics (APM) ── */}
       <ChapterSection num="11" accent="var(--purple)" accentRgb="120,67,238" id="m6-metrics">
         <div className="rv">
-          {chLabel('Module 06 · Metrics & Growth', 'var(--purple)')}
+          {chLabel('Metrics & Growth', 'var(--purple)')}
           {h2(<>Metrics are proxies. They measure a shadow of what you care about — and the shadow can move independently.</>)}
           <SituationCard accent="var(--purple)" accentRgb="120,67,238">
             End of quarter. EdSpark's DAU is up 20%. Priya's manager is pleased. Priya is not. She digs into what users are actually doing during those active sessions. Turns out: a large fraction of the DAU increase is users who come back, check their notification badge, and leave within 30 seconds. They're "daily active" by definition. They're not engaging with the product by any meaningful measure. The metric is technically accurate. It's not measuring what everyone assumed it was measuring.
@@ -1444,7 +1444,7 @@ export default function Track2APM() {
       {/* ── M6: North Star (APM) ── */}
       <ChapterSection num="12" accent="var(--purple)" accentRgb="120,67,238" id="m6-north-star">
         <div className="rv">
-          {chLabel('Module 06 · Metrics & Growth', 'var(--purple)')}
+          {chLabel('Metrics & Growth', 'var(--purple)')}
           {h2(<>The north star can be right and still mislead you. Guardrail metrics are how you know.</>)}
           <SituationCard accent="var(--purple)" accentRgb="120,67,238">
             Q4 business review. Sessions per user — EdSpark's north star — hit an all-time high. Priya is about to call it a success. Then she opens the support dashboard: tickets per user up 41%. She opens the NPS tracking: down 8 points. Churn: up 15%. More sessions, more problems, lower satisfaction, more users leaving. The north star is going up. Everything else is going wrong.
