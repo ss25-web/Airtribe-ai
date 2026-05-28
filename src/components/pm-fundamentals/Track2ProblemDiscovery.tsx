@@ -820,7 +820,7 @@ export default function Track2ProblemDiscovery({
         />
 
         <ConversationScene
-          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="var(--coral)"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'priya', text: "Before we commit to a direction — I found something in Kraftful last night I want to show the room." },
             { speaker: 'other', text: "Show me." },
@@ -830,7 +830,7 @@ export default function Track2ProblemDiscovery({
         />
         <Avatar
           name="Rohan"
-          nameColor="var(--coral)"
+          nameColor="#E67E22"
           borderColor="#E67E22"
           content={<>A brief is a hypothesis about where the problem is — not a permanent directive. When new data arrives, good leaders update it. Priya wasn\u2019t challenging Rohan — she was updating the shared model. That\u2019s the PM\u2019s job.</>}
           expandedContent={<>The moment Priya showed Rohan the Kraftful trend, she positioned herself as bringing value, not picking a fight. Evidence should do the work — not the framing of the disagreement.</>}
@@ -956,7 +956,7 @@ export default function Track2ProblemDiscovery({
         <Avatar
           name="Maya"
           nameColor="var(--coral)"
-          borderColor="var(--purple)"
+          borderColor="var(--coral)"
           content={<>Survivorship bias in research recruitment is a process failure, not a judgement failure. Maya didn\u2019t ask the wrong question — she built a sample that made the right answer impossible to find. Before you recruit, write down exactly who needs to be in your sample for the research question to be answerable.</>}
           expandedContent={<>Then build your recruitment list from that — not from who\u2019s easy to reach. The most important users for a churn study are the ones who can no longer reply to your emails.</>}
           question="You need to understand why managers churn. Which recruitment approach gives you the most useful signal?"
