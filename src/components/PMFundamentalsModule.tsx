@@ -43,7 +43,7 @@ const TRACK_CONFIG: Record<Track, {
   },
   'apm': {
     accent: '#7843EE', accentRgb: '120,67,238',
-    label: 'APM Advanced', emoji: '⚡', time: '30 min · 12 concepts',
+    label: 'Scale Track', emoji: '⚡', time: '30 min · 12 concepts',
     sections: [
       { id: 'm1-pm-role',          label: 'The PM Role' },
       { id: 'm1-product-triangle', label: 'Product Triangle' },

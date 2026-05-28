@@ -27,7 +27,7 @@ const PARTS = [
 // ─────────────────────────────────────────
 const ACCENT = '#E07A5F';
 const ACCENT_RGB = '224,122,95';
-const MODULE_CONTEXT = `Module 04 of Airtribe PM Fundamentals — APM Track. Priya Sharma at EdSpark has just landed 3 enterprise clients (Salesforce, Zendesk, Infosys). Covers: UX debt as revenue risk, design systems vs. shipping speed, design critique facilitation, the speed-vs-craft threshold, and making the business case for design investment.`;
+const MODULE_CONTEXT = `Module 05 of Airtribe PM Fundamentals — Scale Track. Priya Sharma at EdSpark has just landed 3 enterprise clients (Salesforce, Zendesk, Infosys). Covers: UX debt as revenue risk, design systems vs. shipping speed, design critique facilitation, the speed-vs-craft threshold, and making the business case for design investment.`;
 
 
 
@@ -828,12 +828,12 @@ export default function Track2UXDesign({
           letterSpacing: '-0.04em', userSelect: 'none', pointerEvents: 'none',
         }}>05</div>
         <div style={{ position: 'absolute', right: 0, top: '24px' }}>
-          <TrackHeroCard moduleNum="05" moduleLabel="UX Leadership" trackLabel="APM Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
+          <TrackHeroCard moduleNum="05" moduleLabel="UX Leadership" trackLabel="Scale Track" accent={ACCENT} parts={PARTS} completedSections={completedSections} />
         </div>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>
-            PM Fundamentals · Module 04 · APM Track
+            PM Fundamentals · Module 05 · Scale Track
           </div>
           <h1 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '16px', fontFamily: "'Lora', Georgia, serif" }}>
             UX Leadership &amp;<br />Design Investment
@@ -865,7 +865,7 @@ export default function Track2UXDesign({
           {/* Learning objectives */}
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', borderLeft: `4px solid ${ACCENT}`, border: `1px solid var(--ed-rule)`, borderLeftWidth: '4px' }}>
             <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>
-              APM Track · Learning Objectives
+              Scale Track · Learning Objectives
             </div>
             {[
               'Recognise UX debt as a quantifiable revenue risk — not just a design complaint',

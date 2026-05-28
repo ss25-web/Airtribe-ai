@@ -699,7 +699,7 @@ const IntroHero = () => (
     {/* Breadcrumb */}
     <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'var(--ed-ink3)', marginBottom: '32px', letterSpacing: '0.04em' }}>
       PM Fundamentals <span style={{ margin: '0 8px', color: 'var(--ed-ink3)' }}>›</span>
-      <span style={{ color: 'var(--ed-ink2)' }}>Advanced Track</span>
+      <span style={{ color: 'var(--ed-ink2)' }}>Scale Track</span>
       <span style={{ margin: '0 10px', color: 'var(--ed-rule)' }}>·</span>
       <span style={{ color: 'var(--ed-ink3)' }}>30 min · 12 concepts</span>
     </div>
@@ -708,7 +708,7 @@ const IntroHero = () => (
       <TrackHeroCard
         moduleNum="01"
         moduleLabel="Advanced PM Foundations"
-        trackLabel="Advanced Track"
+        trackLabel="Scale Track"
         accent="var(--purple)"
         parts={APM_MODULES.map(m => ({ num: m.roman, label: m.label }))}
       />

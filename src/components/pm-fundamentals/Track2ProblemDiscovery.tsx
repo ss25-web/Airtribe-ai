@@ -690,7 +690,7 @@ const IntroHero = ({ completedSections = new Set<string>() }: { completedSection
       {/* Full-width text content */}
       <div style={{ position: 'relative', marginBottom: '48px', paddingRight: '210px' }}>
         <div style={{ position: 'absolute', right: 0, top: '-48px' }}>
-          <TrackHeroCard moduleNum="03" moduleLabel="Problem Discovery" trackLabel="APM Track" accent="var(--teal)" parts={PARTS} completedSections={completedSections} />
+          <TrackHeroCard moduleNum="03" moduleLabel="Problem Discovery" trackLabel="Scale Track" accent="var(--teal)" parts={PARTS} completedSections={completedSections} />
         </div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: 'var(--teal)', marginBottom: '12px', textTransform: 'uppercase' as const }}>
           MODULE 03 · APM TRACK

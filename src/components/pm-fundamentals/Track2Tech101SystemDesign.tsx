@@ -61,7 +61,7 @@ export default function Track2Tech101SystemDesign({
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
             <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '14px', textTransform: 'uppercase' as const }}>
-              PM Fundamentals &middot; Module {MODULE_NUM} &middot; APM Track
+              PM Fundamentals &middot; Module {MODULE_NUM} &middot; Scale Track
             </div>
             <h1 style={{ fontSize: 'clamp(32px,5vw,52px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.03em', color: 'var(--ed-ink)', marginBottom: '16px', fontFamily: "'Lora',Georgia,serif" }}>
               {MODULE_LABEL}
@@ -85,7 +85,7 @@ export default function Track2Tech101SystemDesign({
             </div>
 
             <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '20px 24px', borderLeft: `4px solid ${ACCENT}`, border: '1px solid var(--ed-rule)', borderLeftWidth: '4px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>APM Track Focus</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '12px', textTransform: 'uppercase' as const }}>Scale Track Focus</div>
               {[
                 'Where technical debt becomes product drag — and how to frame it for leadership',
                 'When to platform vs when one-off feature thinking is actually the right bet',
@@ -103,9 +103,9 @@ export default function Track2Tech101SystemDesign({
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
               <div className="float3d" style={{ transformStyle: 'preserve-3d' }}>
                 <div style={{ background: 'linear-gradient(145deg, #0D0820 0%, #150D2A 100%)', borderRadius: '14px', padding: '20px 18px', boxShadow: '0 24px 60px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE {MODULE_NUM} · APM</div>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 700, letterSpacing: '0.18em', color: ACCENT, marginBottom: '10px' }}>MODULE {MODULE_NUM} · SCALE</div>
                   <div style={{ fontSize: '13px', fontWeight: 700, color: '#F0E8D8', fontFamily: "'Lora',serif", lineHeight: 1.25, marginBottom: '4px' }}>Tech 101</div>
-                  <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>APM / Scale Track</div>
+                  <div style={{ fontSize: '10px', color: 'rgba(240,232,216,0.45)', marginBottom: '16px' }}>Scale Track</div>
                   <div style={{ height: '2px', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '14px' }}>
                     <motion.div animate={{ width: `${donePct}%` }} transition={{ duration: 0.6 }} style={{ height: '100%', background: ACCENT, borderRadius: '1px' }} />
                   </div>
@@ -186,7 +186,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-debt"
           conceptName="Technical Debt as Product Debt"
-          moduleContext="PM Module 09 APM Track. Learner understands technical debt from a product strategy perspective."
+          moduleContext="PM Module 09 Scale Track. Learner understands technical debt from a product strategy perspective."
           staticQuiz={{
             conceptId: 'tech101-apm-debt',
             question: "Engineering says the current permissions layer is fragile and risky to build on. What is the most useful PM response?",
@@ -251,7 +251,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-platform"
           conceptName="Feature vs Platform Architecture"
-          moduleContext="PM Module 09 APM Track. Learner understands when to make platform vs one-off architectural bets."
+          moduleContext="PM Module 09 Scale Track. Learner understands when to make platform vs one-off architectural bets."
           staticQuiz={{
             conceptId: 'tech101-apm-platform',
             question: "A PM proposes building a 'flexible reporting platform' before any second consumer exists. What risk should an experienced PM flag?",
@@ -311,7 +311,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-data"
           conceptName="Instrumentation and Metric Trust"
-          moduleContext="PM Module 09 APM Track. Learner understands how instrumentation quality shapes strategic trust."
+          moduleContext="PM Module 09 Scale Track. Learner understands how instrumentation quality shapes strategic trust."
           staticQuiz={{
             conceptId: 'tech101-apm-data',
             question: "Two teams report different retention numbers for the same cohort. What is the PM's most important first question?",
@@ -380,7 +380,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-contracts"
           conceptName="API Contracts and Organizational Dependency"
-          moduleContext="PM Module 09 APM Track. Learner understands how API contracts become organizational coordination surfaces."
+          moduleContext="PM Module 09 Scale Track. Learner understands how API contracts become organizational coordination surfaces."
           staticQuiz={{
             conceptId: 'tech101-apm-contracts',
             question: "An engineer proposes removing an unused field from a widely used API response. What should a senior PM check first?",
@@ -438,7 +438,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-reliability"
           conceptName="Reliability as Enterprise Value"
-          moduleContext="PM Module 09 APM Track. Learner understands how reliability shapes B2B trust and renewal risk."
+          moduleContext="PM Module 09 Scale Track. Learner understands how reliability shapes B2B trust and renewal risk."
           staticQuiz={{
             conceptId: 'tech101-apm-reliability',
             question: "An enterprise admin reports that a dashboard 'feels unreliable' despite technically working. What is the most useful PM frame for this?",
@@ -503,7 +503,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-buildvsbuy"
           conceptName="Build vs Buy as Product Strategy"
-          moduleContext="PM Module 09 APM Track. Learner understands build vs buy as a product advantage decision."
+          moduleContext="PM Module 09 Scale Track. Learner understands build vs buy as a product advantage decision."
           staticQuiz={{
             conceptId: 'tech101-apm-buildvsbuy',
             question: "A vendor offers a reporting solution that covers 80% of the PM's requirements faster and cheaper. What is the right PM question before deciding?",
@@ -568,7 +568,7 @@ export default function Track2Tech101SystemDesign({
         <QuizEngine
           conceptId="tech101-apm-planning"
           conceptName="Senior PM Planning Credibility"
-          moduleContext="PM Module 09 APM Track. Learner understands how to communicate structured uncertainty to build planning trust."
+          moduleContext="PM Module 09 Scale Track. Learner understands how to communicate structured uncertainty to build planning trust."
           staticQuiz={{
             conceptId: 'tech101-apm-planning',
             question: "Leadership asks a PM for a firm Q3 delivery date on a feature with several unresolved dependencies. What is the senior PM response?",
