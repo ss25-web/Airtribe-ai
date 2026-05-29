@@ -567,125 +567,253 @@ export function PrioritisationFunnelViz() {
   );
 }
 
-// ─── M05 · T1 · FIVE STATES SOLAR SYSTEM ─────────────────────────────────────
-// Success state = the Sun. Four UI states orbit it as planets.
-// Most PMs spec only the Sun and forget the 4 planets.
+// ─── M05 · T1 · ONE SCREEN, FIVE STATES ──────────────────────────────────────
+// A single EdSpark retention-dashboard mockup rendered five ways, side by side
+// in a tabbed phone frame: Empty (Day 1 · no data yet), Loading (skeleton bars),
+// Partial (2 rows + 'loading more'), Error (failed request + retry), Success
+// (full table). Each state has its own micro-copy and what-broke note. Teaches:
+// spec the Success State and you're 20% done. The other four are the experience
+// most users actually live in.
 
-const UI_STATE_PLANETS = [
-  { id: 'loading', label: 'Loading', angle: -90, orbitR: 100, r: 22, color: '#6366F1', dark: '#3730A3', icon: '⏳', note: 'What the user sees while waiting — the most-used, least-specced state' },
-  { id: 'error',   label: 'Error',   angle: 0,   orbitR: 140, r: 18, color: '#EF4444', dark: '#B91C1C', icon: '⚠️', note: 'What the user sees when something breaks — always written by engineers' },
-  { id: 'empty',   label: 'Empty',   angle: 90,  orbitR: 100, r: 16, color: '#F59E0B', dark: '#D97706', icon: '📭', note: 'Day-1 experience before any data exists — abandonment lives here' },
-  { id: 'edge',    label: 'Edge',    angle: 180, orbitR: 130, r: 14, color: '#94A3B8', dark: '#64748B', icon: '🔧', note: 'Files too large, names too long, network too slow — found in production' },
+const UI_STATES = [
+  { id: 'empty',   label: 'EMPTY',   color: '#F59E0B', dark: '#9A3412', note: 'Day-1 experience before any data exists.', whoSpecs: 'Often nobody. Designer writes the copy at the last minute.', tab: 'Empty' },
+  { id: 'loading', label: 'LOADING', color: '#6366F1', dark: '#3730A3', note: 'What the user sees during every fetch — the most-used state in the app.', whoSpecs: 'Engineer picks a spinner. PM rarely specs.', tab: 'Loading' },
+  { id: 'partial', label: 'PARTIAL', color: '#0EA5E9', dark: '#0369A1', note: 'Some rows rendered while the rest stream in. Users expect to act on what is visible.', whoSpecs: 'Edge case the team finds in QA — or in production.', tab: 'Partial' },
+  { id: 'error',   label: 'ERROR',   color: '#EF4444', dark: '#B91C1C', note: 'Request failed, network broke, server tripped. User gets the only message they see when things break.', whoSpecs: 'Engineer ships the default. Microcopy is the alert text.', tab: 'Error' },
+  { id: 'success', label: 'SUCCESS', color: '#22C55E', dark: '#15803D', note: 'The state the PM speccs. Specced once, ships forever.', whoSpecs: 'The PM. With three rounds of review.', tab: 'Success' },
 ];
+
+function PhoneStateMockup({ state }: { state: string }) {
+  const headerRow = (
+    <div style={{ background: '#1B2A47', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div>
+        <div style={{ fontSize: '7px', color: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em', fontWeight: 700 }}>EDSPARK</div>
+        <div style={{ fontSize: '10px', color: '#FFF', fontFamily: 'system-ui', fontWeight: 700, marginTop: '1px' }}>Retention Report</div>
+      </div>
+      <div style={{ fontSize: '7px', color: 'rgba(255,255,255,0.55)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em' }}>SPRINT 14</div>
+    </div>
+  );
+
+  // EMPTY · Day 1
+  if (state === 'empty') return (
+    <div style={{ flex: 1, background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+      {headerRow}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '24px 16px', textAlign: 'center' as const, background: 'linear-gradient(180deg, #FFF 0%, #FEF3C7 100%)' }}>
+        <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px', border: '2px dashed #F59E0B' }}>
+          <span style={{ fontSize: '20px' }}>📭</span>
+        </div>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#92400E', marginBottom: '6px' }}>No retention data yet</div>
+        <div style={{ fontSize: '9px', color: '#92400E', opacity: 0.7, lineHeight: 1.5, marginBottom: '14px' }}>Once your team has had its first week, your cohort retention will appear here.</div>
+        <button style={{ padding: '7px 14px', borderRadius: '6px', background: '#F59E0B', color: '#FFF', fontSize: '9px', fontWeight: 800, border: 'none', fontFamily: 'system-ui', letterSpacing: '0.04em' }}>
+          Invite your team →
+        </button>
+      </div>
+    </div>
+  );
+
+  // LOADING · skeleton
+  if (state === 'loading') return (
+    <div style={{ flex: 1, background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+      {headerRow}
+      <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
+          {[60, 80, 50].map((w, i) => <div key={i} style={{ height: '8px', width: `${w}px`, background: 'rgba(99,102,241,0.18)', borderRadius: '2px' }} />)}
+        </div>
+        {[0,1,2,3].map(i => (
+          <div key={i} style={{ display: 'flex', gap: '6px', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+            <div style={{ width: '24px', height: '24px', borderRadius: '4px', background: '#E5E7EB' }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+              <div style={{ height: '7px', width: '70%', background: '#E5E7EB', borderRadius: '2px' }} />
+              <div style={{ height: '6px', width: '40%', background: '#F3F4F6', borderRadius: '2px' }} />
+            </div>
+            <div style={{ width: '32px', height: '10px', background: '#E5E7EB', borderRadius: '2px' }} />
+          </div>
+        ))}
+        <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+          <div style={{ width: '12px', height: '12px', border: '2px solid #6366F1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <div style={{ fontSize: '8px', color: '#6366F1', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em' }}>FETCHING COHORTS…</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // PARTIAL · 2 rows + still loading
+  if (state === 'partial') return (
+    <div style={{ flex: 1, background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+      {headerRow}
+      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column' as const, gap: '0' }}>
+        <div style={{ fontSize: '7px', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '6px' }}>WEEK · COHORT · RETENTION</div>
+        {[
+          { w: 'W14', c: 'Enterprise', r: '58%' },
+          { w: 'W13', c: 'Mid-market', r: '41%' },
+        ].map((row, i) => (
+          <div key={i} style={{ padding: '7px 0', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#1F2937' }}>{row.w} · {row.c}</div>
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: '#0EA5E9' }}>{row.r}</div>
+          </div>
+        ))}
+        {/* The "still loading" placeholders */}
+        {[0,1].map(i => (
+          <div key={i} style={{ padding: '7px 0', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ height: '8px', width: '110px', background: '#E5E7EB', borderRadius: '2px' }} />
+            <div style={{ height: '8px', width: '28px', background: '#E5E7EB', borderRadius: '2px' }} />
+          </div>
+        ))}
+        <div style={{ marginTop: '8px', padding: '6px 8px', background: 'rgba(14,165,233,0.07)', borderRadius: '5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '8px', height: '8px', border: '1.5px solid #0EA5E9', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <div style={{ fontSize: '8px', color: '#0369A1', fontFamily: "'JetBrains Mono', monospace" }}>Loading 12 more cohorts…</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ERROR
+  if (state === 'error') return (
+    <div style={{ flex: 1, background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+      {headerRow}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '20px 16px', textAlign: 'center' as const, background: 'linear-gradient(180deg, #FFF 0%, #FEE2E2 100%)' }}>
+        <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px', border: '2px solid #EF4444' }}>
+          <span style={{ fontSize: '22px' }}>⚠</span>
+        </div>
+        <div style={{ fontSize: '11px', fontWeight: 800, color: '#991B1B', marginBottom: '6px' }}>Couldn&apos;t load retention data</div>
+        <div style={{ fontSize: '9px', color: '#7F1D1D', opacity: 0.85, lineHeight: 1.5, marginBottom: '4px' }}>Request to <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>/api/cohorts</span> timed out after 8s.</div>
+        <div style={{ fontSize: '9px', color: '#7F1D1D', opacity: 0.7, lineHeight: 1.5, marginBottom: '14px' }}>Your data is safe — refresh to try again.</div>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          <button style={{ padding: '6px 14px', borderRadius: '6px', background: '#EF4444', color: '#FFF', fontSize: '9px', fontWeight: 800, border: 'none', fontFamily: 'system-ui' }}>
+            Retry
+          </button>
+          <button style={{ padding: '6px 14px', borderRadius: '6px', background: 'transparent', color: '#991B1B', fontSize: '9px', fontWeight: 700, border: '1px solid #EF4444', fontFamily: 'system-ui' }}>
+            Report
+          </button>
+        </div>
+        <div style={{ marginTop: '12px', fontSize: '7px', color: '#7F1D1D', opacity: 0.5, fontFamily: "'JetBrains Mono', monospace" }}>error id · ERR-A47F2</div>
+      </div>
+    </div>
+  );
+
+  // SUCCESS · full table
+  return (
+    <div style={{ flex: 1, background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+      {headerRow}
+      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column' as const, gap: '0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div>
+            <div style={{ fontSize: '7px', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em', fontWeight: 700 }}>WEEK-2 RETENTION</div>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: '#1F2937', marginTop: '2px' }}>32% <span style={{ fontSize: '9px', color: '#DC2626', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace" }}>−8.3pp</span></div>
+          </div>
+          <div style={{ padding: '3px 7px', borderRadius: '3px', background: '#DCFCE7', fontSize: '8px', color: '#15803D', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.08em' }}>LIVE</div>
+        </div>
+        <div style={{ fontSize: '7px', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginBottom: '4px' }}>WEEK · COHORT · RETENTION</div>
+        {[
+          { w: 'W14', c: 'Enterprise', r: '58%', col: '#15803D' },
+          { w: 'W13', c: 'Mid-market', r: '41%', col: '#F59E0B' },
+          { w: 'W12', c: 'SMB',        r: '32%', col: '#DC2626' },
+          { w: 'W11', c: 'Enterprise', r: '61%', col: '#15803D' },
+        ].map((row, i) => (
+          <div key={i} style={{ padding: '7px 0', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#1F2937' }}>{row.w} · {row.c}</div>
+            </div>
+            <div style={{ fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: row.col }}>{row.r}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function FiveStatesSolarSystem() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [visible, setVisible] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
+  const [active, setActive] = useState('success');
+  const [autoPlay, setAutoPlay] = useState(true);
 
   useEffect(() => {
-    if (!inView) return;
-    setVisible(0); setSelected(null);
-    setTimeout(() => setVisible(1), 400);
-    UI_STATE_PLANETS.forEach((_, i) => setTimeout(() => setVisible(i + 2), 1000 + i * 700));
-    setTimeout(() => setSelected('loading'), 1000 + UI_STATE_PLANETS.length * 700 + 400);
-  }, [inView, tick]);
+    if (!inView || !autoPlay) return;
+    const id = setInterval(() => {
+      setActive(prev => {
+        const idx = UI_STATES.findIndex(s => s.id === prev);
+        return UI_STATES[(idx + 1) % UI_STATES.length].id;
+      });
+    }, 2400);
+    return () => clearInterval(id);
+  }, [inView, autoPlay]);
 
-  const CX = 240, CY = 210;
+  const current = UI_STATES.find(s => s.id === active)!;
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', background: 'radial-gradient(ellipse at center, #0D1929 0%, #060D14 100%)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 24px 56px rgba(0,0,0,0.35)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', alignItems: 'center' }}>
-          <svg viewBox="0 0 480 420" style={{ width: '100%', display: 'block' }}>
-            {/* Orbit rings */}
-            {UI_STATE_PLANETS.map((p, i) => (
-              <circle key={i} cx={CX} cy={CY} r={p.orbitR} fill="none" stroke={p.color} strokeWidth="0.8" strokeDasharray="4 4" opacity={visible >= i + 2 ? 0.3 : 0} />
-            ))}
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)', background: 'linear-gradient(160deg, #F7F4EC 0%, #EFEAD9 100%)' }}>
 
-            {/* Sun — Success State */}
-            {visible >= 1 && (
-              <motion.g initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                style={{ transformOrigin: `${CX}px ${CY}px` }}>
-                {/* Sun glow */}
-                <circle cx={CX} cy={CY} r="55" fill="rgba(245,158,11,0.1)" />
-                <circle cx={CX} cy={CY} r="42" fill="rgba(245,158,11,0.2)" />
-                <motion.circle cx={CX} cy={CY} r="32"
-                  fill="#F59E0B"
-                  animate={{ r: [32, 35, 32] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{ filter: 'drop-shadow(0 0 12px rgba(245,158,11,0.8))' }} />
-                <text x={CX} y={CY - 6} textAnchor="middle" style={{ fontSize: '9px', fill: '#fff', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>SUCCESS</text>
-                <text x={CX} y={CY + 8} textAnchor="middle" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.7)', fontFamily: 'JetBrains Mono, monospace' }}>STATE</text>
-                <text x={CX} y={CY + 22} textAnchor="middle" style={{ fontSize: '9px', fill: 'rgba(245,158,11,0.6)', fontFamily: 'JetBrains Mono, monospace' }}>☀ THE SUN</text>
-              </motion.g>
-            )}
+        {/* Top status bar */}
+        <div style={{ background: '#1E1B2E', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E' }} />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#FFF', fontWeight: 700, letterSpacing: '0.06em' }}>One screen · five states</div>
+          <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.12em' }}>EDSPARK · RETENTION REPORT</div>
+        </div>
 
-            {/* Planets */}
-            {UI_STATE_PLANETS.map((p, i) => {
-              const rad = p.angle * Math.PI / 180;
-              const px = CX + p.orbitR * Math.cos(rad);
-              const py = CY + p.orbitR * Math.sin(rad);
-              const isSel = selected === p.id;
-              return (
-                <AnimatePresence key={p.id}>
-                  {visible >= i + 2 && (
-                    <motion.g initial={{ opacity: 0, scale: 0.3 }} animate={{ opacity: 1, scale: isSel ? 1.2 : 1 }}
-                      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-                      style={{ transformOrigin: `${px}px ${py}px`, cursor: 'pointer' }}
-                      onClick={() => setSelected(selected === p.id ? null : p.id)}>
-                      <circle cx={px} cy={py} r={p.r} fill={p.color}
-                        style={{ filter: isSel ? `drop-shadow(0 0 8px ${p.color})` : 'none' }} />
-                      {isSel && <circle cx={px} cy={py} r={p.r + 8} fill="none" stroke={p.color} strokeWidth="2" opacity="0.4" />}
-                      <text x={px} y={py + 1} textAnchor="middle" dominantBaseline="middle" style={{ fontSize: p.r < 18 ? '10px' : '12px', pointerEvents: 'none' }}>
-                        {p.icon}
-                      </text>
-                      <text x={px} y={py + p.r + 12} textAnchor="middle" style={{ fontSize: '8px', fill: p.color, fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>
-                        {p.label}
-                      </text>
-                    </motion.g>
-                  )}
-                </AnimatePresence>
-              );
-            })}
+        {/* Tab strip */}
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--ed-rule)', background: 'var(--ed-card)' }}>
+          {UI_STATES.map(s => {
+            const isActive = active === s.id;
+            return (
+              <button key={s.id} onClick={() => { setActive(s.id); setAutoPlay(false); }}
+                style={{ flex: 1, padding: '12px 8px', background: isActive ? s.color : 'transparent', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px', borderBottom: isActive ? `3px solid ${s.dark}` : '3px solid transparent', transition: 'all 0.2s' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, letterSpacing: '0.16em', color: isActive ? '#FFF' : 'var(--ed-ink3)' }}>{s.label}</div>
+                <div style={{ fontSize: '8px', color: isActive ? 'rgba(255,255,255,0.85)' : 'var(--ed-ink3)', fontFamily: 'system-ui' }}>state {UI_STATES.indexOf(s) + 1} of 5</div>
+              </button>
+            );
+          })}
+        </div>
 
-            {/* Legend */}
-            <text x="24" y="400" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.3)', fontFamily: 'JetBrains Mono, monospace' }}>click any planet to learn why it matters</text>
-          </svg>
-
-          {/* Right panel */}
-          <div style={{ padding: '24px 20px' }}>
-            <AnimatePresence mode="wait">
-              {selected ? (
-                <motion.div key={selected} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}>
-                  {UI_STATE_PLANETS.filter(p => p.id === selected).map(p => (
-                    <div key={p.id} style={{ padding: '18px', borderRadius: '16px', background: `${p.color}14`, border: `1.5px solid ${p.color}40`, borderLeft: `4px solid ${p.color}` }}>
-                      <div style={{ fontSize: '24px', marginBottom: '10px' }}>{p.icon}</div>
-                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: p.color, letterSpacing: '0.14em', marginBottom: '8px' }}>{p.label.toUpperCase()} STATE</div>
-                      <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.7, fontWeight: 600 }}>{p.note}</div>
-                    </div>
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#F59E0B', letterSpacing: '0.14em', marginBottom: '12px' }}>THE PM MISTAKE</div>
-                  <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.75 }}>
-                    Most PMs spec only the Sun — the success state. The product ships. Then 4 forgotten planets crash in from orbit.
-                  </div>
-                  <div style={{ marginTop: '16px', fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
-                    A spec that covers only success is 20% complete.
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Main split */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', minHeight: '440px' }}>
+          {/* LEFT: phone mockup */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '30px 20px', background: 'rgba(0,0,0,0.04)' }}>
+            <motion.div key={active} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+              style={{ width: '260px', height: '380px', borderRadius: '28px', background: '#1F2937', padding: '8px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+              {/* Notch */}
+              <div style={{ height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '54px', height: '4px', borderRadius: '2px', background: '#0F172A' }} />
+              </div>
+              {/* Screen */}
+              <div style={{ width: '100%', height: 'calc(100% - 14px)', borderRadius: '22px', overflow: 'hidden', background: '#FFF', display: 'flex', flexDirection: 'column' as const }}>
+                <PhoneStateMockup state={active} />
+              </div>
+            </motion.div>
           </div>
+
+          {/* RIGHT: info panel */}
+          <div style={{ padding: '24px 22px', background: 'var(--ed-card)', borderLeft: '1px solid var(--ed-rule)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
+            <motion.div key={active} initial={{ opacity: 0, x: 6 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: current.color, letterSpacing: '0.2em', marginBottom: '8px' }}>{current.label} STATE</div>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--ed-ink)', marginBottom: '14px', lineHeight: 1.4, fontFamily: 'Georgia, serif' }}>{current.note}</div>
+              <div style={{ padding: '12px 14px', borderRadius: '8px', background: `${current.color}12`, borderLeft: `3px solid ${current.color}`, marginBottom: '14px' }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: current.dark, letterSpacing: '0.14em', marginBottom: '4px' }}>WHO SPECS IT</div>
+                <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.55 }}>{current.whoSpecs}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: autoPlay ? '#22C55E' : '#9CA3AF' }} />
+                {autoPlay ? 'AUTO-CYCLING · CLICK A TAB TO PAUSE' : 'PAUSED · CLICK TABS TO COMPARE'}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Bottom strap */}
+        <div style={{ background: '#1E1B2E', padding: '12px 20px', textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#F59E0B', letterSpacing: '0.22em', fontWeight: 800 }}>
+          SPEC THE SUCCESS STATE · YOU&apos;RE 20% DONE
         </div>
       </div>
       <InsightBox color="#F59E0B" label="Every screen has 5 states. ">
-        {' '}Spec the Success State and you&apos;re done with 20%. The four planets — Loading, Error, Empty, Edge — are used constantly and specced almost never.
+        {' '}Spec the Success State and you&apos;re done with 20%. Empty, Loading, Partial and Error are used constantly — and specced almost never. They are the experience users actually live in between every successful render.
       </InsightBox>
-      <ReplayBtn onReplay={() => { setVisible(0); setSelected(null); setTick(t => t + 1); }} />
+      <button onClick={() => setAutoPlay(true)} style={{ marginTop: '16px', padding: '7px 22px', borderRadius: '10px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--ed-rule)', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', letterSpacing: '0.08em' }}>
+        ↺ replay auto-cycle
+      </button>
     </div>
   );
 }
