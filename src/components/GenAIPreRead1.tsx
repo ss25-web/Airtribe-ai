@@ -1059,24 +1059,24 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
         )}
         <SituationCard accent="#0F766E" accentRgb="15,118,110" label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
           {track === 'tech'
-            ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Priya&apos;s prompts. The bad ones came from Dev&apos;s. The model is the same. The prompts are not. Priya&apos;s specify a role, output format, required fields, and length. Dev&apos;s are three words followed by a case note. He messages Anika.</>
-            : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Priya&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Dev&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Priya has some intuition Dev hasn&apos;t developed. She messages Anika to check.</>}
+            ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Aisha&apos;s prompts. The bad ones came from Imran&apos;s. The model is the same. The prompts are not. Aisha&apos;s specify a role, output format, required fields, and length. Imran&apos;s are three words followed by a case note. He messages Anika.</>
+            : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Aisha&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Imran&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Aisha has some intuition Imran hasn&apos;t developed. She messages Anika to check.</>}
         </SituationCard>
         <GenAIConversationScene
           mentor="anika"
           track={track}
           accent="#0F766E"
           techLines={[
-            { speaker: 'protagonist', text: "Same model, same task — Priya gets sharp, structured outputs. Dev gets meandering ones. I can\u2019t explain it." },
-            { speaker: 'mentor', text: "Read me one of Dev\u2019s prompts and one of Priya\u2019s. Exactly as written." },
-            { speaker: 'protagonist', text: "Dev: \u2018Summarise this case note.\u2019 Priya: role, task, format, length, what to exclude, one example output." },
-            { speaker: 'mentor', text: "Dev\u2019s prompt has one dimension specified. Priya\u2019s has six. Every gap Dev leaves, the model fills with whatever seems statistically plausible — differently each run." },
+            { speaker: 'protagonist', text: "Same model, same task — Aisha gets sharp, structured outputs. Imran gets meandering ones. I can\u2019t explain it." },
+            { speaker: 'mentor', text: "Read me one of Imran\u2019s prompts and one of Aisha\u2019s. Exactly as written." },
+            { speaker: 'protagonist', text: "Imran: \u2018Summarise this case note.\u2019 Aisha: role, task, format, length, what to exclude, one example output." },
+            { speaker: 'mentor', text: "Imran\u2019s prompt has one dimension specified. Aisha\u2019s has six. Every gap Imran leaves, the model fills with whatever seems statistically plausible — differently each run." },
           ]}
           nonTechLines={[
-            { speaker: 'protagonist', text: "Priya gets useful outputs consistently. Dev gets all over the place. I assumed Priya just has better instincts." },
-            { speaker: 'mentor', text: "It\u2019s not instincts. \u2018Summarise this\u2019 is a question. Priya\u2019s version is a specification. They\u2019re different briefs." },
-            { speaker: 'protagonist', text: "So the model is choosing everything Dev didn\u2019t specify — format, length, what to include." },
-            { speaker: 'mentor', text: "And it chooses differently every run. Priya\u2019s prompts don\u2019t leave anything to chance. That\u2019s not intuition — it\u2019s discipline." },
+            { speaker: 'protagonist', text: "Aisha gets useful outputs consistently. Imran gets all over the place. I assumed Aisha just has better instincts." },
+            { speaker: 'mentor', text: "It\u2019s not instincts. \u2018Summarise this\u2019 is a question. Aisha\u2019s version is a specification. They\u2019re different briefs." },
+            { speaker: 'protagonist', text: "So the model is choosing everything Imran didn\u2019t specify — format, length, what to include." },
+            { speaker: 'mentor', text: "And it chooses differently every run. Aisha\u2019s prompts don\u2019t leave anything to chance. That\u2019s not intuition — it\u2019s discipline." },
           ]}
         />
         <GenAIAvatar
@@ -1085,14 +1085,14 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'tech'
-            ? "Dev\u2019s prompt has one dimension specified. Priya\u2019s has five. Every unspecified dimension is a choice the model makes for you."
-            : "It\u2019s not a skill gap. Priya is specifying a task. Dev is asking a question. Those are not the same thing."}
+            ? "Imran\u2019s prompt has one dimension specified. Aisha\u2019s has five. Every unspecified dimension is a choice the model makes for you."
+            : "It\u2019s not a skill gap. Aisha is specifying a task. Imran is asking a question. Those are not the same thing."}
           expandedContent={track === 'tech'
-            ? "There it is. Dev's prompt has one dimension specified: the task. Priya's has five: role, task, format, length, and constraints. Every dimension that's unspecified in a prompt is a decision the model makes for you — format, length, perspective, tone, level of detail, what to include. It fills those gaps with the most statistically plausible defaults from its training data. Sometimes that matches what you want. Often it doesn't. Dev's variance isn't a model problem. It's a specification problem. The model is doing exactly what it was asked to do — it just had to choose everything Dev didn't specify."
-            : "When you type 'Summarise this', the model has to decide: how long? What format? What to include? What to leave out? What level of detail? It fills every one of those gaps with whatever seems most plausible based on its training. Sometimes that matches what you needed. Often it doesn't. Priya's prompts leave almost no gaps. Dev's prompts are almost entirely gaps. The model isn't performing differently — it's just completing very different briefs. The good news is this is immediately fixable. You don't need a new tool, a new model, or any technical changes."}
+            ? "There it is. Imran's prompt has one dimension specified: the task. Aisha's has five: role, task, format, length, and constraints. Every dimension that's unspecified in a prompt is a decision the model makes for you — format, length, perspective, tone, level of detail, what to include. It fills those gaps with the most statistically plausible defaults from its training data. Sometimes that matches what you want. Often it doesn't. Imran's variance isn't a model problem. It's a specification problem. The model is doing exactly what it was asked to do — it just had to choose everything Imran didn't specify."
+            : "When you type 'Summarise this', the model has to decide: how long? What format? What to include? What to leave out? What level of detail? It fills every one of those gaps with whatever seems most plausible based on its training. Sometimes that matches what you needed. Often it doesn't. Aisha's prompts leave almost no gaps. Imran's prompts are almost entirely gaps. The model isn't performing differently — it's just completing very different briefs. The good news is this is immediately fixable. You don't need a new tool, a new model, or any technical changes."}
           question={track === 'tech'
-            ? "Dev says 'I can't control model variance — it's a fundamental limitation.' What would you tell him?"
-            : "Dev wants to know what to add to his prompt first. What would you start with?"}
+            ? "Imran says 'I can't control model variance — it's a fundamental limitation.' What would you tell him?"
+            : "Imran wants to know what to add to his prompt first. What would you start with?"}
           options={track === 'tech'
             ? [
                 { text: 'Agree — LLM variance is a known limitation that can\'t be engineered around', correct: false, feedback: 'Variance exists, but it fills the space you leave for it. Specify format, length, and constraints, and the variance mostly disappears.' },
@@ -1101,7 +1101,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
                 { text: 'Switch to a lower temperature setting to reduce the model\'s randomness', correct: false, feedback: 'Temperature reduction helps at the margins, but output variance from an underspecified brief isn\'t primarily a temperature problem. A lower-temperature model still has to choose format, length, and structure when you leave them open.' },
               ]
             : [
-                { text: 'More context about the case — the model needs more background to produce a good summary', correct: false, feedback: 'More input context helps the model understand the situation. But the inconsistency is about output specification — Dev\'s prompt doesn\'t tell the model what format, length, or structure to use.' },
+                { text: 'More context about the case — the model needs more background to produce a good summary', correct: false, feedback: 'More input context helps the model understand the situation. But the inconsistency is about output specification — Imran\'s prompt doesn\'t tell the model what format, length, or structure to use.' },
                 { text: 'Format and length — define what the output should look like before anything else', correct: true, feedback: 'Yes. "Write a 3-sentence summary in plain language, covering: what happened, what action is needed, and urgency level" immediately collapses most of the variance.' },
                 { text: 'A role instruction — telling the model it\'s a claims specialist', correct: false, feedback: 'Role helps orient the model, but if format and length are still unspecified, the outputs will still vary significantly.' },
                 { text: 'A stricter instruction at the end — \'be consistent and professional\'', correct: false, feedback: 'Vague quality instructions don\'t anchor specific dimensions. \'Be consistent\' doesn\'t tell the model what consistent looks like. Format and length specifications do.' },
@@ -1116,11 +1116,11 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'tech'
-            ? "Aarav, there\u2019s one more thing Priya does that Dev doesn\u2019t. Look at her prompts again."
-            : "Rhea, there\u2019s one thing I\u2019ve watched consistently narrow the gap between what people want and what the model produces. Does Priya ever include an example in her prompts?"}
+            ? "Aarav, there\u2019s one more thing Aisha does that Imran doesn\u2019t. Look at her prompts again."
+            : "Rhea, there\u2019s one thing I\u2019ve watched consistently narrow the gap between what people want and what the model produces. Does Aisha ever include an example in her prompts?"}
           expandedContent={track === 'tech'
             ? "She includes an example output. Not always — but for any task where the format really matters, she pastes one previous output and says 'like this.' I've watched teams spend hours writing instruction paragraphs trying to explain exactly what format they need, and then still be surprised when the model interprets it differently. One concrete example teaches format, tone, level of detail, and scope simultaneously. It shows the model what you mean instead of describing it. That's the fastest way to collapse the gap between the output you're imagining and the output you get."
-            : "That's the pattern. Instructions tell the model what you want. Examples show it. When Priya includes a sample output, the model has a concrete reference for length, format, and style — not a description to interpret. I've seen teams spend a whole afternoon writing detailed prompt instructions and still get variance because there's always room to interpret a description differently. One well-chosen example closes most of that gap immediately."}
+            : "That's the pattern. Instructions tell the model what you want. Examples show it. When Aisha includes a sample output, the model has a concrete reference for length, format, and style — not a description to interpret. I've seen teams spend a whole afternoon writing detailed prompt instructions and still get variance because there's always room to interpret a description differently. One well-chosen example closes most of that gap immediately."}
           question={track === 'tech'
             ? "You're building a reusable prompt for weekly case triage summaries. What's the most efficient way to lock in consistent format?"
             : "You're writing a prompt for a recurring task — weekly escalation summaries for the director. What's the fastest way to make sure the format stays consistent?"}

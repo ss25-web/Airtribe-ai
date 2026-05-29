@@ -835,7 +835,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           expandedContent={<>The most reliable test for session isolation: two browser windows, two different user IDs, same question asked in both. Open both at the same time. If one window&apos;s answer is influenced by the other window&apos;s conversation, the session IDs are colliding. Run this test before any production deployment of a multi-user agent.</>}
           question={track === 'tech'
             ? "Aarav sets the session ID to `{{ $json.userId }}`. Two engineers with different user IDs still see each other's context. What is the most likely cause?"
-            : "Rhea sets the session ID to the employee's name. Two employees named 'Priya' at different sites report sharing context. What is the fix?"}
+            : "Rhea sets the session ID to the employee's name. Two employees named 'Aisha' at different sites report sharing context. What is the fix?"}
           options={[
             { text: track === 'tech' ? "The Window Buffer Memory node doesn't support dynamic session IDs" : "Names are not reliable unique identifiers — use a unique employee ID or a generated session token instead", correct: true, feedback: "Correct. Two users with the same name share the same session. Unique IDs must be genuinely unique across all users." },
             { text: track === 'tech' ? "The userId field is missing from the request body — it defaults to a static fallback" : "The memory node needs to be reset between sessions", correct: false, feedback: "Possible but not the most likely cause given the question framing." },
