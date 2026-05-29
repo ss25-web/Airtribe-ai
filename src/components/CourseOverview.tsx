@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import type { Track } from './pm-fundamentals/designSystem';
+import { AirtribeLogo } from './AirtribeBrand';
 
 const TRACK_META = {
   'new-pm': {
@@ -199,14 +200,10 @@ export default function CourseOverview({ track, onStartModule, onBack }: Props) 
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ed-ink3)', fontSize: '13px', fontFamily: 'inherit' }}>
           ← Back
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: 'linear-gradient(135deg, #7843EE, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2L14 13H2L8 2Z" fill="none" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
-              <path d="M5.5 9.5H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <AirtribeLogo />
+          <div style={{ width: '1px', height: '18px', background: 'var(--ed-rule)' }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'var(--ed-ink3)', letterSpacing: '0.14em' }}>
             AI-FIRST PRODUCT MANAGEMENT
           </span>
         </div>
