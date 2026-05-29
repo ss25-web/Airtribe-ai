@@ -368,6 +368,11 @@ export default function ModuleShell({ config, track, onBack, onNext, nextLabel, 
   }, []);
 
   useEffect(() => {
+    // threshold:0 + a middle-zone rootMargin so any pixel of a section that
+    // enters the centre 40% of the viewport counts as "viewed". The previous
+    // threshold:0.25 setup broke for tall sections (>~4× viewport): max
+    // possible visible ratio fell under 25%, so the callback never fired and
+    // badges never lit up.
     const sectionObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         const sid = entry.target.getAttribute('data-section');
@@ -378,7 +383,7 @@ export default function ModuleShell({ config, track, onBack, onNext, nextLabel, 
           store.markSectionCompleted(moduleId, sid);
         }
       });
-    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0, rootMargin: '-30% 0px -30% 0px' });
 
     const tid = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => sectionObserver.observe(el));

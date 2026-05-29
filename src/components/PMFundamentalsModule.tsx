@@ -498,7 +498,9 @@ const [track, setTrack] = useState<Track>(startTrack);
 
   useEffect(() => {
     if (!track) return;
-    // Section observer — tracks reading progress and active section
+    // threshold:0 + middle-zone rootMargin so any pixel of a section that
+    // enters the centre 40% of the viewport counts as viewed. The previous
+    // threshold:0.25 setup never fired for tall sections (>~4× viewport).
     const sectionObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         const sid = entry.target.getAttribute('data-section');
@@ -509,7 +511,7 @@ const [track, setTrack] = useState<Track>(startTrack);
           store.markSectionCompleted(moduleId, sid);
         }
       });
-    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0, rootMargin: '-30% 0px -30% 0px' });
 
     const tid = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => sectionObserver.observe(el));
