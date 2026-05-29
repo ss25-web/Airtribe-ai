@@ -50,22 +50,22 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. An agent — it is more flexible and can handle edge cases',
-        'B. A chain — the steps are fixed and predictable; an agent adds tool-calling overhead with no benefit',
-        'C. An agent — agents always perform better than chains for multi-step tasks',
-        'D. A chain with an agent fallback for edge cases',
+        'A. An agent — its tool-calling flexibility handles unexpected edge cases for free',
+        'B. A chain — fixed sequence, no decisions to make; an agent only adds overhead',
+        'C. An agent — agents outperform chains on multi-step tasks across most workloads',
+        'D. A chain with an agent fallback whenever any step returns a non-happy-path result',
       ],
       'non-tech': [
-        'A. An agent — agents are smarter and will handle the task better',
-        'B. A workflow chain — fixed steps with no decisions needed means an agent is the wrong tool',
-        'C. An agent because agents can be reused across different tasks',
-        'D. Neither — use a scheduled trigger without any AI',
+        'A. An agent — agents are smarter and tend to handle structured tasks better',
+        'B. A workflow chain — fixed steps with no decisions means an agent is the wrong tool',
+        'C. An agent — agents can be reused across different tasks with minimal reconfiguration',
+        'D. Neither — use a plain scheduled trigger with no AI in the loop at all',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Agents are for tasks where the sequence of actions is uncertain and the model needs to decide what to do next. Fixed-sequence tasks are chains. Using an agent for a predictable 3-step process adds latency, token cost, and unpredictability — without any benefit.",
-      'non-tech': "An agent decides what to do next based on intermediate results. A chain executes a fixed sequence. If there are no decisions to make, a chain is cheaper, faster, and more predictable. Agents are the right tool when the path through the task is uncertain.",
+      tech: "Agents are for tasks where the next action is uncertain. A fixed-sequence task is a chain — an agent only adds latency, token cost, and unpredictability with no benefit.",
+      'non-tech': "An agent decides what to do next based on what it finds. A chain runs a fixed sequence. With no decisions to make, a chain is cheaper, faster, and more predictable.",
     },
     keyInsight: "Use a chain when the steps are known. Use an agent when the steps depend on what the previous step found. Most automation tasks are chains.",
   },
@@ -77,24 +77,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The agent\'s model is too powerful and over-uses available tools',
-        'B. The tool description is too vague — the agent calls it whenever search might be relevant because it has no guidance on when NOT to call it',
-        'C. The tool schema is missing required parameters, so the agent defaults to calling it',
-        'D. The agent node is set to always call all available tools',
+        "A. The model is too capable — strong models over-use tools whenever any are available",
+        'B. Tool description is too vague — model has no rule for when NOT to call it',
+        'C. The tool schema is missing required params, so the model defaults to calling it',
+        'D. The agent node is configured to invoke every available tool on every turn',
       ],
       'non-tech': [
-        'A. The Send Email tool is too accessible — move it to a restricted toolset',
-        'B. The tool description needs to specify exactly when the tool should and should not be called',
-        'C. Reduce the number of tools available to the agent',
-        'D. Add a human approval step before every email tool call',
+        'A. The Send Email tool is too prominent — move it to a separate, gated toolset',
+        'B. Tool description needs to spell out exactly when the tool should NOT be called',
+        'C. Reduce the total number of tools available so the agent has fewer to over-use',
+        'D. Add a human approval gate that fires before every Send Email tool call',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "The model uses tool descriptions to decide when to call a tool. A vague description like 'Searches claims' gives the model no guidance on when NOT to use it. A precise description includes the trigger condition: 'Call this when the user is looking for a specific claim by ID or status. Do not call for general questions about claims policy.'",
-      'non-tech': "Tool descriptions are instructions to the model. 'Send Email' with no constraints tells the model it can send email whenever it seems helpful. Add: 'Only call this tool when the user explicitly requests an email be sent. Do not call for summaries, lookups, or confirmations.'",
+      tech: "Models use tool descriptions to decide when to call a tool. Add a precise trigger clause and a non-call clause: 'Call this when the user is looking for a specific claim by ID. Do not call for general questions about claims policy.'",
+      'non-tech': "'Send Email' with no constraints tells the model it can send email whenever it seems helpful. Add: 'Only call this when the user explicitly requests an email. Do not call for summaries, lookups, or confirmations.'",
     },
-    keyInsight: "Tool descriptions are instructions to the model. A good tool description tells the model both when to call the tool and when not to. Vague descriptions cause over-use.",
+    keyInsight: "Tool descriptions are instructions to the model. A good description names both when to call AND when not to call. Vague descriptions cause over-use.",
   },
   {
     conceptId: 'genai-m6-reasoning',
@@ -104,24 +104,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The agent should use a more powerful model for arithmetic',
-        'B. Arithmetic in response text is unreliable — add a code tool or calculation node that sums the amounts precisely and passes the result back to the agent',
-        'C. The agent needs more context about the claims data format',
-        'D. Filter the claims before returning them to reduce the number of values to sum',
+        'A. Use a more capable model — it will handle arithmetic over many values more reliably',
+        'B. Add a code/calc tool that sums precisely; agent narrates the deterministic result',
+        'C. Give the agent richer context about the claim data format and field semantics',
+        'D. Pre-filter the claim list before returning it so the agent has fewer values to sum',
       ],
       'non-tech': [
-        'A. Ask the agent to rank by risk score instead of returning names',
-        'B. Add a scratchpad step where the agent writes its reasoning for each account before selecting the top 3',
-        'C. Return 5 accounts instead of 3 to give more options',
-        'D. Have a human review the accounts and confirm the ranking',
+        'A. Ask the agent to return risk scores per account instead of names alone',
+        'B. Require a scratchpad step — agent writes a one-line reason per account first',
+        'C. Return 5 accounts instead of 3 so Rhea has more options to evaluate manually',
+        'D. Add a human review step where someone confirms the agent ranking each time',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "LLMs are not reliable calculators. Arithmetic done in the model's response generation is error-prone for anything beyond trivial sums. Calculations should be done by a deterministic tool — a code execution node, a formula node, or a function — and the result handed back to the agent for framing.",
-      'non-tech': "When an agent makes a decision that needs to be verifiable, require it to write intermediate reasoning before the final answer. This is the scratchpad pattern: 'Before listing the top 3 accounts, explain in 1 sentence why each is a renewal risk.' The reasoning is auditable; the unexplained list is not.",
+      tech: "LLMs are not reliable calculators. Arithmetic should be done by a deterministic tool — code node, formula node, function — and the result handed back to the agent for narration.",
+      'non-tech': "When an agent makes a decision that needs to be auditable, require intermediate reasoning before the final answer. The scratchpad makes the ranking inspectable.",
     },
-    keyInsight: "Don't ask the model to do math or make invisible decisions. Give it tools for computation and require intermediate reasoning for decisions that need to be auditable.",
+    keyInsight: "Don't ask the model to do math or make invisible decisions. Give it tools for computation and require intermediate reasoning for auditable decisions.",
   },
   {
     conceptId: 'genai-m6-rag',
@@ -131,24 +131,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The similarity threshold is too low — irrelevant documents are being retrieved',
-        'B. The retrieved documents are relevant but the answer requires information that spans multiple documents and the model is not synthesizing across all 3 correctly',
-        'C. The embedding model needs to be retrained on the policy domain',
-        'D. The model context window is too small to hold 3 documents',
+        'A. Similarity threshold is too low — irrelevant docs are being retrieved into context',
+        'B. Multi-doc synthesis failure — answer spans 3 docs and the model is not combining them',
+        'C. The embedding model needs to be retrained on the in-domain policy corpus',
+        'D. Model context window is too small to hold all 3 retrieved documents at once',
       ],
       'non-tech': [
-        'A. The similarity score should be higher — increase the threshold to retrieve fewer, better documents',
-        'B. The prompt does not instruct the model to use only the retrieved documents — it may be mixing in training data',
-        'C. Use a larger model for complex questions',
-        'D. Reduce the number of retrieved documents from 5 to 3',
+        'A. Similarity threshold is too low — raise it so fewer, better docs are retrieved',
+        'B. Prompt does not instruct the model to use only the retrieved docs — training-data leakage',
+        'C. Use a larger model for complex questions so reasoning has more room to play out',
+        'D. Reduce the number of retrieved documents from 5 to 3 to keep context focused',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Retrieval can be correct while generation is wrong. Multi-document synthesis — combining information spread across 3 separate documents — is harder than single-document lookup. Check whether the 20% failure cases all require cross-document reasoning. If so, the issue is in how the context is presented to the model, not in retrieval.",
-      'non-tech': "Without explicit grounding instructions, models blend retrieved context with training data. The prompt should state: 'Answer using only the provided documents. If the answer is not in the documents, say so.' This forces grounding and makes hallucination visible.",
+      tech: "Retrieval can be correct while generation is wrong. Multi-doc synthesis is harder than single-doc lookup. Check whether the 20% failures all need cross-doc reasoning — if so, fix presentation, not retrieval.",
+      'non-tech': "Without explicit grounding, models blend retrieved context with training data. Add: 'Answer using only the provided documents. If the answer isn't there, say so.' Grounding makes hallucination visible.",
     },
-    keyInsight: "Retrieval accuracy and generation accuracy are separate problems. Correct retrieval does not guarantee correct answers. Audit them independently.",
+    keyInsight: "Retrieval accuracy and generation accuracy are separate problems. Correct retrieval doesn't guarantee correct answers. Audit them independently.",
   },
   {
     conceptId: 'genai-m6-scale',
@@ -158,24 +158,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The agent is making too many tool calls — add a tool call limit',
-        'B. Per-run token logging: input tokens, output tokens, model used, tool calls made. Without this, cost attribution is impossible',
-        'C. Switch to a cheaper model to reduce costs automatically',
-        'D. Add a cost alert when the monthly bill exceeds a threshold',
+        'A. The agent is making too many tool calls — add a hard tool-call limit per run',
+        'B. Per-run token logging: input + output tokens, model, tool calls — for attribution',
+        'C. Switch to a cheaper model across the board to bring monthly spend back in budget',
+        'D. Add a cost alert that fires when the rolling monthly bill exceeds a threshold',
       ],
       'non-tech': [
-        'A. A dashboard showing total emails sent per month',
-        'B. Structured per-run logs that record every tool call made: tool name, timestamp, inputs, outputs',
-        'C. An audit trail showing which team members used the agent',
-        'D. A weekly summary email of agent activity',
+        'A. A monthly dashboard showing the total number of emails sent across the workflow',
+        'B. Per-run structured logs of every tool call — name, timestamp, inputs, outputs',
+        'C. An audit trail showing which team members triggered the agent each session',
+        'D. A weekly summary email that recaps everything the agent did last week',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Success/failure logging tells you the workflow ran. It does not tell you what it cost to run. Per-run token logging (input + output tokens per model call, per workflow execution) is the foundation of cost attribution. Without it, you cannot identify which workflows, which users, or which tools are driving the bill.",
-      'non-tech': "Knowing that a workflow ran is not the same as knowing what it did. Structured logs should record every tool call: which tool, when, with what inputs, producing what outputs. This is the audit trail that answers 'how many emails did the agent send' and 'what did it send them about.'",
+      tech: "Success/failure tells you the workflow ran. Per-run token logging is what tells you what it cost — and which workflow, user, or tool is driving the bill.",
+      'non-tech': "Knowing the workflow ran isn't the same as knowing what it did. Per-run structured logs of every tool call are the audit trail that answers 'how many emails did it send and about what.'",
     },
-    keyInsight: "Logging execution is not the same as logging behavior. Agent observability requires per-run records of every tool call — not just whether the workflow succeeded.",
+    keyInsight: "Logging execution is not the same as logging behaviour. Agent observability requires per-run records of every tool call, not just whether the workflow succeeded.",
   },
 ];
 
@@ -514,7 +514,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 06</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>AI Agent Workflows — Building & Scaling</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;An agent you can&apos;t observe is a liability. An agent you can observe is infrastructure.&rdquo;</p>
-          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela']} />
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
