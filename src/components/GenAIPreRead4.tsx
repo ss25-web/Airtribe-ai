@@ -50,22 +50,22 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. Choose between OpenAI and Anthropic for the AI node',
-        'B. Document the current manual process node by node — input schema and output contract',
-        'C. Get sign-off from compliance before automating exception handling',
-        'D. Set up n8n credentials before mapping the workflow',
+        'A. Pick the AI provider — OpenAI vs Anthropic vs Bedrock — and stub the node',
+        'B. Document the current manual process node-by-node with input and output contracts',
+        'C. Get compliance sign-off on automating the exception-handling decision path',
+        'D. Provision n8n credentials and a shared service account before building anything',
       ],
       'non-tech': [
-        'A. What AI model Rhea wants to use',
-        'B. How many exceptions the team processes per week',
-        "C. What Rhea does between 7am Monday and the moment she hits send — the full manual process",
-        'D. Whether Rhea has n8n access set up already',
+        'A. Which AI model Rhea wants to use as the classifier node in the workflow',
+        'B. How many exceptions the team currently processes through the manual path each week',
+        'C. What Rhea actually does between 7am Monday and the moment she hits send',
+        'D. Whether Rhea already has n8n access set up and the credentials configured',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 2 },
     explanation: {
       tech: "The workflow spec — current process, input schema, output contract, edge cases — is the prerequisite. Building the AI node first produces a fast solution to an undefined problem.",
-      'non-tech': "Kabir maps the manual process before touching n8n — because automation of a fuzzy process produces a fast, fuzzy automated process. The manual steps are the workflow spec.",
+      'non-tech': "Kabir maps the manual process before touching n8n — automating a fuzzy process produces a fast, fuzzy automated process. The manual steps are the spec.",
     },
     keyInsight: "Automation is about reliable data plumbing first. The AI node is one step in a pipeline, not the pipeline itself.",
   },
@@ -77,49 +77,49 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The Slack node API has changed and needs updating',
-        'B. A JSON Parse node is missing between AI Classify and Slack Notify — the data shape does not match',
-        'C. The AI node temperature is too high, causing malformed JSON',
-        'D. The Email Trigger is passing the wrong fields to the AI node',
+        'A. The Slack API version has changed and the node connector needs a version bump',
+        'B. A JSON Parse node is missing between AI Classify and Slack — data shape mismatch',
+        'C. The AI node temperature is too high, so it produces malformed JSON some of the time',
+        'D. The Email Trigger is passing the wrong fields to the AI node in the body payload',
       ],
       'non-tech': [
-        'A. Google Sheets permissions need to be re-granted',
-        'B. The Write node is mapped to the wrong column in the sheet',
-        'C. The node before the Write node is passing empty fields — the Write node succeeded in writing nothing',
-        'D. The workflow needs to be re-activated after adding the Write node',
+        'A. Google Sheets permissions have expired and need to be re-granted to the workflow',
+        'B. The Write node is mapped to a column that does not exist on the destination sheet',
+        'C. The node before Write is passing empty fields — Write succeeded in writing nothing',
+        'D. The workflow needs to be re-activated after adding the Write node to the canvas',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 2 },
     explanation: {
-      tech: "Most n8n failures at the boundary between an AI node and a downstream node are data shape mismatches — the AI returns a string, downstream expects an object. A Parse or Set node in between transforms the shape.",
-      'non-tech': "Green nodes confirm execution, not correct output. A Write node that receives empty fields writes empty fields successfully. The bug is in the upstream node, not the Write node.",
+      tech: "n8n boundary failures between an AI node and a downstream node are almost always shape mismatches — string vs object. A Parse or Set node transforms the shape.",
+      'non-tech': "Green nodes confirm execution, not correct output. A Write node that receives empty fields writes empty fields successfully. The bug is upstream.",
     },
-    keyInsight: "Green nodes confirm execution, not correct output. Data shape errors between nodes are the most common source of silent failures.",
+    keyInsight: "Green nodes confirm execution, not correct output. Shape errors between nodes are the most common silent-failure mode.",
   },
   {
     conceptId: 'genai-m4-connect',
     question: {
-      tech: "Aarav creates an n8n credential for the OpenAI API using the team's shared API key. Rohan asks him to change it. Why?",
+      tech: "Aarav creates an n8n credential for OpenAI using the team's shared API key. Rohan asks him to change it. Why?",
       'non-tech': "Rhea's assistant sets up the Google Sheets credential using Rhea's personal Google account. Kabir says this is a problem. What is the risk?",
     },
     options: {
       tech: [
-        "A. Shared API keys can't be used in n8n credentials",
-        'B. A shared key means any workflow run by any team member is billed to the same budget with no per-workflow cost tracking or rotation capability',
-        'C. OpenAI rate limits are per-key, so a shared key will hit limits faster',
-        'D. Rohan prefers service accounts for all API connections',
+        "A. Shared API keys are not technically supported by n8n's credential store",
+        'B. Shared key means no per-workflow cost tracking, no audit, no safe rotation',
+        'C. OpenAI rate limits apply per key, so the shared key throttles every workflow',
+        'D. Rohan prefers per-service accounts as a default standard for API connections',
       ],
       'non-tech': [
-        "A. Personal Google accounts can't be used for Google Sheets in n8n",
-        "B. If Rhea leaves the company or changes her password, the workflow breaks and no one else can fix it without re-credentialing",
-        'C. Personal accounts have lower Google Sheets API rate limits',
-        "D. The workflow will only run when Rhea is logged in",
+        "A. Personal Google accounts technically can't be wired into n8n's Sheets credential",
+        "B. If Rhea leaves or rotates her password, the workflow breaks and no one can fix it",
+        'C. Personal accounts hit Google Sheets API rate limits faster than service accounts',
+        "D. The workflow will only run when Rhea is actively logged into her Google account",
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Shared API keys are a cost, security, and rotation problem: every workflow uses the same budget pool, you can't audit per-workflow usage, and rotating the key breaks everything at once. Service accounts per workflow solve this.",
-      'non-tech': "Personal account credentials create a single point of failure. When the person changes their password, enables 2FA, or leaves — the workflow breaks. Team-owned service credentials are the correct design.",
+      tech: "Shared keys are a cost, security, and rotation problem at once — same budget pool, no per-workflow attribution, rotating the key breaks every workflow simultaneously. Per-workflow service accounts solve all three.",
+      'non-tech': "Personal credentials are a single point of failure. Password rotation, 2FA changes, or the person leaving — and the workflow breaks. Team-owned service credentials are the correct design.",
     },
     keyInsight: "Credentials are infrastructure. Personal credentials in production workflows are a single point of failure waiting to happen.",
   },
@@ -127,28 +127,28 @@ const QUIZZES = [
     conceptId: 'genai-m4-errors',
     question: {
       tech: "Aarav's workflow runs overnight. In the morning, 14 of 22 exceptions were classified and routed. 8 are missing. The workflow shows no errors. What is the most likely design gap?",
-      'non-tech': "Rhea's Monday report workflow ran, sent the email, but the email body was empty. Nobody noticed until her director asked at 10am. What is the process gap?",
+      'non-tech': "Rhea's Monday report workflow ran, sent the email, but the body was empty. Nobody noticed until her director asked at 10am. What is the process gap?",
     },
     options: {
       tech: [
-        "A. The AI classification node timed out on 8 exceptions and the workflow skipped them silently",
-        'B. The email trigger only captured 14 of 22 exceptions',
-        'C. The Slack notification failed and the exceptions are in a dead-letter queue',
-        'D. n8n has an execution limit that capped the run at 14 items',
+        "A. The AI node timed out on 8 items and the workflow continued past them silently",
+        'B. The email trigger only captured 14 of 22 exception emails from the source inbox',
+        'C. The Slack notify node failed and the 8 items routed to an unread dead-letter queue',
+        'D. The n8n instance has an execution-volume cap that throttled the run at 14 items',
       ],
       'non-tech': [
-        'A. The Google Sheets connection failed and the data was not available for the summary',
-        'B. The workflow has no output validation step — it sent whatever the AI produced, including empty output, without checking it first',
-        'C. Claude produced an empty output because the input data was malformed',
-        "D. The email node sent successfully but the recipient's email client stripped the body",
+        'A. The Google Sheets connection failed mid-run and the report had no data to summarise',
+        'B. The workflow has no output validation — it shipped whatever the AI returned, blank included',
+        'C. Claude produced an empty output because the input data this week was malformed somehow',
+        "D. The email node sent successfully but the recipient's mail client stripped the body content",
       ],
     },
     correctIndex: { tech: 0, 'non-tech': 1 },
     explanation: {
-      tech: "Silent skips are an error handling design gap: the node errored, the workflow's error mode was set to 'continue,' and 8 items were dropped without any alert or dead-letter mechanism. Always design explicit failure paths.",
-      'non-tech': "The workflow sent successfully — an empty output is a correct execution of the wrong design. Output validation before the send step catches empty, malformed, or too-short outputs and either retries or alerts instead of sending.",
+      tech: "Silent skips are an error-handling design gap: the node failed, error mode was set to 'continue,' and 8 items dropped with no alert or dead-letter handling. Failure paths must be explicit.",
+      'non-tech': "The workflow sent successfully — an empty output is a correct execution of the wrong design. Output validation before send catches empty/malformed output and either retries or alerts.",
     },
-    keyInsight: "Success means the workflow executed. It does not mean the output was correct. Output validation before handoff is a required step, not an optional one.",
+    keyInsight: "Success means the workflow executed. It does not mean the output was correct. Output validation before handoff is required, not optional.",
   },
   {
     conceptId: 'genai-m4-e2e',
@@ -643,7 +643,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 04</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>Workflow Automation with n8n</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;Adding AI to a broken process doesn&apos;t fix the process. It automates the broken parts faster.&rdquo;</p>
-          <GenAIHeroCharacterStrip track={track} mentors={['rohan', 'kabir', 'leela']} />
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
