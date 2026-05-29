@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState, CSSProperties, useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState, CSSProperties, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
@@ -196,128 +196,264 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 
 // --- Interactive Tool Components ---
 
+// ─── PromptBuilderTool — authentic OpenAI Playground rebuild ───────────────
+// Looks and behaves like OpenAI's actual chat Playground: SYSTEM/USER message
+// panes on the left, model + sampling controls on the right, run button and
+// token meter at the bottom. The learner toggles which prompt-anatomy
+// components are present (Role, Task, Context, Format, Constraints); each
+// component slots into the SYSTEM or USER message where it actually belongs.
+// Pressing Run animates a streaming assistant reply whose quality matches the
+// specification level — same as you'd see in the real Playground.
 const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  const [activeChips, setActiveChips] = useState<{ [key: string]: boolean }>({
-    Role: false,
-    Task: false,
-    Context: false,
-    Format: false,
-    Constraints: false,
+  type Anatomy = 'Role' | 'Task' | 'Context' | 'Format' | 'Constraints';
+  const CHIPS: { key: Anatomy; slot: 'system' | 'user'; line: string }[] = track === 'non-tech'
+    ? [
+        { key: 'Role',        slot: 'system', line: 'You are a clinical documentation specialist at Northstar Health. Write in formal clinical register.' },
+        { key: 'Task',        slot: 'user',   line: 'Summarise the discharge plan for the patient record below.' },
+        { key: 'Context',     slot: 'system', line: 'Use only the care notes from the last 7 days. If a field is missing, write "not documented" — do not infer.' },
+        { key: 'Format',      slot: 'system', line: 'Return four numbered sections in order: 1) Primary diagnosis, 2) Medications (name + dose + frequency), 3) Follow-up appointments, 4) Restrictions.' },
+        { key: 'Constraints', slot: 'system', line: 'Maximum 200 words. No PHI in section headers. Empathetic but factual tone.' },
+      ]
+    : [
+        { key: 'Role',        slot: 'system', line: 'You are a structured data extraction API. Return only valid JSON matching the schema below — no prose, no commentary.' },
+        { key: 'Task',        slot: 'user',   line: 'Extract the required fields from the support ticket below.' },
+        { key: 'Context',     slot: 'system', line: 'Ticket fields available: subject, body, user_role, attachments_count. Treat user_role values not in the enum as "other".' },
+        { key: 'Format',      slot: 'system', line: 'Schema: { "category": "hardware|software|network|access|other", "urgency": "low|medium|high", "callback_required": true|false, "summary": "<one sentence, ≤20 words>" }' },
+        { key: 'Constraints', slot: 'system', line: 'Never include keys outside the schema. If the model is uncertain on category, output "other" — do not guess.' },
+      ];
+  const SAMPLE_DATA = track === 'non-tech'
+    ? '[PATIENT RECORD: 68F, admitted 2024-03-12, primary dx hypertensive heart failure, on furosemide 40mg BID, lisinopril 20mg daily, low-sodium diet, f/u cardiology 2 weeks…]'
+    : '[TICKET #4412: subject="VPN keeps dropping mid-call"; body="Worked Tue, started failing Wed. Other apps fine."; user_role="sales"; attachments=0]';
+
+  const [active, setActive] = useState<Record<Anatomy, boolean>>({
+    Role: false, Task: true, Context: false, Format: false, Constraints: false,
   });
+  const [temperature, setTemperature] = useState(0.7);
+  const [running, setRunning] = useState(false);
+  const [response, setResponse] = useState<string>('');
+  const [responseKey, setResponseKey] = useState(0);
 
-  const toggleChip = (chip: string) => {
-    setActiveChips((prev) => ({ ...prev, [chip]: !prev[chip] }));
-  };
+  const activeCount = (Object.keys(active) as Anatomy[]).filter(k => active[k]).length;
+  const systemLines  = CHIPS.filter(c => active[c.key] && c.slot === 'system').map(c => c.line);
+  const userLines    = CHIPS.filter(c => active[c.key] && c.slot === 'user').map(c => c.line);
+  const userBody     = [...userLines, SAMPLE_DATA].join('\n\n');
 
-  const chips = ['Role', 'Task', 'Context', 'Format', 'Constraints'];
+  const tokenCount = useMemo(() => {
+    const text = [...systemLines, userBody].join(' ');
+    return Math.max(1, Math.round(text.split(/\s+/).filter(Boolean).length * 1.35));
+  }, [systemLines, userBody]);
 
-  const assembledPrompt = chips
-    .filter((chip) => activeChips[chip])
-    .map((chip) => {
-      if (track === 'non-tech') {
-        switch (chip) {
-          case 'Role': return 'You are a clinical documentation assistant.';
-          case 'Task': return 'Summarize the patient\'s discharge plan.';
-          case 'Context': return 'Use only the provided care notes from the last 7 days.';
-          case 'Format': return 'Output a bulleted list of key actions for home care.';
-          case 'Constraints': return 'Ensure a professional, empathetic tone. Do not include PHI directly.';
-          default: return '';
-        }
-      } else { // tech track
-        switch (chip) {
-          case 'Role': return 'System: You are an API endpoint for generating code snippets.';
-          case 'Task': return 'User: Generate a Python function to parse CSV data.';
-          case 'Context': return 'System: The CSV has headers. Use the `csv` module. User: Data: [CSV_DATA_HERE]';
-          case 'Format': return 'System: Output only the Python code block, no explanations. User: Format: JSON with `code` field.';
-          case 'Constraints': return 'System: Ensure the function handles missing values gracefully. User: Max 100 lines of code.';
-          default: return '';
-        }
+  const fullSpec = active.Role && active.Format;
+  const RESPONSES = useMemo(() => track === 'non-tech'
+    ? {
+        vague:    'Patient was discharged. They should follow up with their doctor and take medications as prescribed. Further care may be needed.',
+        partial:  '• Discharged 2024-03-20.\n• Continue furosemide and lisinopril.\n• Follow up with cardiology in 2 weeks.',
+        full:     '1) Primary diagnosis: Hypertensive heart failure (NYHA II).\n2) Medications: furosemide 40 mg PO BID; lisinopril 20 mg PO daily.\n3) Follow-up appointments: Cardiology — 2 weeks (2024-04-03, Dr. Patel); PCP — 1 week.\n4) Restrictions: Low-sodium diet (<2g/day); daily weights; no driving for 72h post-discharge.',
+        chaotic:  'discharge done, take the meds, see cardio later. note documented in chart.',
       }
-    })
-    .join('\n\n');
+    : {
+        vague:    'The ticket is about VPN issues. The user reports that the VPN keeps disconnecting. They may need to check their network or contact IT support for further assistance.',
+        partial:  '{\n  "category": "network",\n  "summary": "VPN drops mid-call after working previously."\n}',
+        full:     '{\n  "category": "network",\n  "urgency": "high",\n  "callback_required": true,\n  "summary": "VPN began dropping mid-call Wed after working Tue; other apps unaffected."\n}',
+        chaotic:  'category=network/maybe-vpn ; urgency: probably high; cb=yes\nsummary: vpn dies during calls but the rest works fine i guess?',
+      }
+  , [track]);
 
-  const qualityScore = Object.values(activeChips).filter(Boolean).length * 20;
-  const qualityColor = qualityScore === 100 ? '#22C55E' : '#EAB308';
+  const stream = useCallback((text: string) => {
+    setResponse('');
+    setRunning(true);
+    setResponseKey(k => k + 1);
+    const chars = Array.from(text);
+    let i = 0;
+    const tick = () => {
+      if (i >= chars.length) { setRunning(false); return; }
+      const burst = Math.max(1, Math.round(2 + Math.random() * 4));
+      const next = chars.slice(i, i + burst).join('');
+      setResponse(prev => prev + next);
+      i += burst;
+      setTimeout(tick, 16 + Math.random() * 12);
+    };
+    setTimeout(tick, 60);
+  }, []);
 
-  const chipStyle: CSSProperties = {
-    padding: '10px 15px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    marginBottom: '8px',
-    transition: 'background-color 0.2s ease, border-color 0.2s ease',
-    display: 'inline-block',
-    marginRight: '10px',
-    fontWeight: 600,
-    fontSize: '14px',
+  const run = () => {
+    let pick: string;
+    if (!fullSpec) pick = activeCount <= 1 ? RESPONSES.vague : RESPONSES.partial;
+    else if (temperature >= 1.4) pick = RESPONSES.chaotic;
+    else pick = RESPONSES.full;
+    stream(pick);
   };
+
+  const toggle = (k: Anatomy) => setActive(prev => ({ ...prev, [k]: !prev[k] }));
+
+  // ─── Playground UI styling — matches OpenAI's actual chat Playground ──
+  const playgroundBg = '#0F0F0F';
+  const panelBg = '#171717';
+  const panelBorder = '1px solid #262626';
+  const labelStyle: CSSProperties = { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: '#737373', textTransform: 'uppercase' };
 
   return (
-    <TiltCard style={{
-      background: '#0F172A',
-      borderRadius: '12px',
-      padding: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-      color: '#E2E8F0',
-      maxWidth: '700px',
-      margin: '0 auto',
+    <div style={{
+      background: playgroundBg,
+      borderRadius: 12,
+      overflow: 'hidden',
+      border: '1px solid #1F1F1F',
+      boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: '#E5E5E5',
+      fontFamily: "Inter, -apple-system, system-ui, sans-serif",
     }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>PROMPT ANATOMY BUILDER</div>
-      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
-        Assemble Your Prompt
-      </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
-        {chips.map((chip) => (
-          <div
-            key={chip}
-            onClick={() => toggleChip(chip)}
-            style={{
-              ...chipStyle,
-              backgroundColor: activeChips[chip] ? ACCENT : '#1E293B',
-              border: `1px solid ${activeChips[chip] ? ACCENT : '#475569'}`,
-              color: activeChips[chip] ? 'white' : '#CBD5E1',
-            }}
-          >
-            {chip}
-          </div>
-        ))}
-      </div>
-
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Assembled Prompt:</div>
-        <div style={{
-          backgroundColor: '#1E293B',
-          border: '1px solid #475569',
-          borderRadius: '8px',
-          padding: '15px',
-          minHeight: '120px',
-          whiteSpace: 'pre-wrap',
-          fontFamily: 'monospace',
-          fontSize: '13px',
-          color: '#E2E8F0',
-        }}>
-          {assembledPrompt || 'Click chips above to build your prompt...'}
+      {/* Top bar — Playground header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: panelBorder, background: '#0A0A0A' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #10A37F, #0E8567)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 900 }}>◯</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#E5E5E5' }}>Playground</div>
+          <div style={{ fontSize: 10, color: '#525252' }}>·</div>
+          <div style={{ fontSize: 11, color: '#A3A3A3' }}>Chat</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 10, color: '#737373' }}>Northstar · workspace</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: '#A3A3A3', border: '1px solid #262626' }}>Save</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: '#A3A3A3', border: '1px solid #262626' }}>View code</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '10px' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8' }}>Output Quality:</div>
-        <motion.div
-          key={qualityScore}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            color: qualityColor,
-            minWidth: '60px',
-            textAlign: 'right',
-          }}
-        >
-          {qualityScore}%
-        </motion.div>
+      {/* Body — 2 column: messages | controls */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px' }}>
+        {/* LEFT: messages */}
+        <div style={{ borderRight: panelBorder }}>
+          {/* SYSTEM */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
+            <div style={labelStyle}>SYSTEM</div>
+            <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, minHeight: 56, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const }}>
+              {systemLines.length === 0
+                ? <span style={{ color: '#525252', fontStyle: 'italic' as const }}>(no system message — model has no role, no format, no guard-rails)</span>
+                : systemLines.join('\n\n')}
+            </div>
+          </div>
+
+          {/* USER */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
+            <div style={labelStyle}>USER</div>
+            <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const }}>
+              {userBody}
+            </div>
+          </div>
+
+          {/* ASSISTANT (response) */}
+          <div style={{ padding: '14px 16px 14px', minHeight: 130 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={labelStyle}>ASSISTANT</div>
+              {running && (
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {[0, 1, 2].map(i => (
+                    <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} style={{ width: 4, height: 4, borderRadius: '50%', background: '#10A37F' }} />
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{ marginTop: 8, padding: response || running ? '11px 12px' : 0, background: response || running ? panelBg : 'transparent', border: response || running ? panelBorder : 'none', borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.7, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const, minHeight: response || running ? 60 : 16 }}>
+              <AnimatePresence mode="wait">
+                <motion.span key={responseKey} initial={{ opacity: 1 }} style={{ display: 'inline' }}>
+                  {response}
+                  {running && <span style={{ display: 'inline-block', width: 7, height: 13, background: '#10A37F', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.8s steps(1) infinite' }} />}
+                </motion.span>
+              </AnimatePresence>
+              {!response && !running && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11.5 }}>Click Run to send the messages above to the model.</span>}
+            </div>
+          </div>
+
+          {/* Bottom action bar */}
+          <div style={{ padding: '10px 14px', borderTop: panelBorder, background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#737373' }}>{tokenCount} tokens · ~${(tokenCount / 1000 * 0.005).toFixed(4)}</div>
+            <button
+              type="button"
+              onClick={run}
+              disabled={running}
+              style={{
+                appearance: 'none',
+                background: running ? '#1F1F1F' : '#10A37F',
+                border: 'none',
+                borderRadius: 6,
+                padding: '7px 18px',
+                fontSize: 12,
+                fontWeight: 700,
+                color: running ? '#737373' : '#fff',
+                fontFamily: 'inherit',
+                cursor: running ? 'wait' : 'pointer',
+                boxShadow: running ? 'none' : '0 1px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+              }}
+            >{running ? 'Streaming…' : 'Run ▶'}</button>
+          </div>
+        </div>
+
+        {/* RIGHT: anatomy + sampling controls */}
+        <div style={{ padding: '14px 14px 14px' }}>
+          <div style={labelStyle}>MODEL</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 11.5, color: '#E5E5E5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>gpt-4o</span>
+            <span style={{ color: '#525252' }}>▾</span>
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>TEMPERATURE</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <span style={{ fontSize: 11.5, color: '#E5E5E5', fontFamily: "'JetBrains Mono', monospace" }}>{temperature.toFixed(2)}</span>
+              <span style={{ fontSize: 9, color: '#525252' }}>0 — 2</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={2}
+              step={0.05}
+              value={temperature}
+              onChange={e => setTemperature(parseFloat(e.target.value))}
+              style={{ width: '100%', accentColor: '#10A37F' }}
+            />
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>ANATOMY (TOGGLE)</div>
+          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
+            {CHIPS.map(c => {
+              const on = active[c.key];
+              return (
+                <button
+                  key={c.key}
+                  type="button"
+                  onClick={() => toggle(c.key)}
+                  style={{
+                    appearance: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left' as const,
+                    background: on ? 'rgba(16,163,127,0.16)' : panelBg,
+                    border: `1px solid ${on ? '#10A37F' : '#262626'}`,
+                    borderRadius: 6,
+                    padding: '6px 9px',
+                    fontFamily: 'inherit',
+                    color: on ? '#10A37F' : '#A3A3A3',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span>{c.key}</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, opacity: 0.65 }}>{c.slot.toUpperCase()}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 14, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10, color: '#A3A3A3', lineHeight: 1.5 }}>
+            {!fullSpec ? <span><span style={{ color: '#F59E0B' }}>●</span> Role + Format both off — expect a vague output.</span>
+              : temperature >= 1.4 ? <span><span style={{ color: '#EF4444' }}>●</span> Temperature very high — even a tight spec will drift.</span>
+              : <span><span style={{ color: '#10A37F' }}>●</span> Tight spec, low temperature — output should be production-grade.</span>}
+          </div>
+        </div>
       </div>
-    </TiltCard>
+
+      <style>{`@keyframes blink { 0%, 50% { opacity: 1 } 51%, 100% { opacity: 0 } }`}</style>
+    </div>
   );
 };
 
