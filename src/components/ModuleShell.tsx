@@ -19,7 +19,7 @@
  *   }
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import type { Track } from './pm-fundamentals/designSystem';
@@ -353,7 +353,11 @@ export default function ModuleShell({ config, track, onBack, onNext, nextLabel, 
 
   const sectionIds = new Set(activeSections.map(s => s.id));
 
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
+  // Derive completedSections from the store so it stays in sync after Zustand
+  // persist hydration (localStorage). Initializing useState from storedSections
+  // snapshots the empty pre-hydration value and never refreshes — that's how
+  // existing-progress badges and ticks "disappear" on reload.
+  const completedSections = useMemo(() => new Set(storedSections), [storedSections]);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -370,7 +374,6 @@ export default function ModuleShell({ config, track, onBack, onNext, nextLabel, 
         if (!sid) return;
         if (entry.isIntersecting) {
           setActiveSection(sid);
-          setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
           store.markSectionCompleted(moduleId, sid);
         }

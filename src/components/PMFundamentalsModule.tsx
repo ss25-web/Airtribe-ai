@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import Track1NewPM from './pm-fundamentals/Track1NewPM';
@@ -478,7 +478,10 @@ const [track, setTrack] = useState<Track>(startTrack);
   const moduleId = `pm-01-${track}`;
   const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
   const [activeModule, setActiveModule] = useState('01');
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
+  // Derive from store so badges/ticks reflect persisted progress after
+  // Zustand hydration. Snapshotting with useState was discarding existing
+  // progress on every reload.
+  const completedSections = useMemo(() => new Set(storedSections), [storedSections]);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -502,7 +505,6 @@ const [track, setTrack] = useState<Track>(startTrack);
         if (!sid) return;
         if (entry.isIntersecting) {
           setActiveSection(sid);
-          setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
           store.markSectionCompleted(moduleId, sid);
         }
