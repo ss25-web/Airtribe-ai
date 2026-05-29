@@ -368,11 +368,14 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
     { id: 'c', text: 'Accounts #4412 and #7089 are 6 and 8 days over SLA respectively.', verdict: 'V', verdictLabel: 'Verifiable', explain: 'Traceable to exception tracker sheet, rows 14 and 23, column "Days Open" vs SLA column. Source is explicit.' },
     { id: 'd', text: '2 accounts need your decision before Friday — rest is resolved.', verdict: 'E', verdictLabel: 'Effective', explain: 'Directly answers what the director is asking. Filters to action items only. Clears everything else explicitly.' },
   ];
+  // COVE dimensions — each claim primarily exercises ONE of these four lenses,
+  // whether it passes or fails. Naming the dimensions consistently (not as
+  // pass/fail verbs) keeps the picker readable.
   const opts = [
-    { key: 'C', label: 'Correct', color: '#0891B2' },
-    { key: 'O', label: 'Not Original', color: '#7C3AED' },
-    { key: 'V', label: 'Verifiable', color: '#2563EB' },
-    { key: 'E', label: 'Effective', color: '#0F766E' },
+    { key: 'C', label: 'Correctness',     color: '#0891B2' },
+    { key: 'O', label: 'Originality',     color: '#7C3AED' },
+    { key: 'V', label: 'Verifiability',   color: '#2563EB' },
+    { key: 'E', label: 'Effectiveness',   color: '#0F766E' },
   ];
   const [picks, setPicks] = useState<Record<string, string>>({});
   const allPicked = claims.every(c => picks[c.id]);
@@ -381,7 +384,7 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
     <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>COVE AUDITOR — EVALUATE EACH CLAIM</div>
       <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Read each claim. Tag it with the COVE dimension it primarily tests.</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>C = Correct · O = Original (not model-generated) · V = Verifiable · E = Effective</div>
+      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>C = Correctness (factually right) · O = Originality (drawn from sources, not model) · V = Verifiability (traceable to a source line) · E = Effectiveness (serves a decision)</div>
       <div style={{ display: 'grid', gap: '10px' }}>
         {claims.map(c => {
           const picked = picks[c.id];
@@ -460,7 +463,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 03</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>Research, Summarization &amp; Drafting</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;A summary that looks complete is the most dangerous kind of wrong.&rdquo;</p>
-          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela']} />
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
