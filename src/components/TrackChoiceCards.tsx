@@ -23,229 +23,287 @@ interface Props<T extends string> {
   onBack: () => void;
 }
 
+// Leather palette per track — both brown books, slightly different leather shades
+// so the two volumes still feel like sibling volumes of the same series.
+const LEATHER: Record<number, {
+  coverTop: string; coverBottom: string;
+  spineTop: string; spineMid: string; spineBot: string;
+  edgeDark: string;
+  inkOnCover: string;
+}> = {
+  0: { // Foundations — warm tan leather
+    coverTop: '#A87045', coverBottom: '#7C4A24',
+    spineTop: '#7C4A24', spineMid: '#5C3517', spineBot: '#3F2410',
+    edgeDark: '#3F2410',
+    inkOnCover: '#F6E5C4',
+  },
+  1: { // Scale — deeper oxblood / aged leather
+    coverTop: '#8E4F2E', coverBottom: '#5E2F18',
+    spineTop: '#5E2F18', spineMid: '#3F1E0D', spineBot: '#2A1206',
+    edgeDark: '#2A1206',
+    inkOnCover: '#F4DEB2',
+  },
+};
+
 function ChoiceCard<T extends string>({ option, index, onSelect }: {
   option: TrackChoiceOption<T>;
   index: number;
   onSelect: (id: T) => void;
 }) {
-  // Open angles: each book tilts slightly toward the centre of the spread.
-  const baseRotateY = index % 2 === 0 ? -16 : 16;
-  const hoverRotateY = index % 2 === 0 ? -6 : 6;
+  const skin = LEATHER[index % 2];
+  // Tilt each book slightly toward the centre of the spread.
+  const tiltY = index % 2 === 0 ? 14 : -14;
+  const hoverY = index % 2 === 0 ? 6 : -6;
+
+  // Page edge stripes — produces the layered-paper look.
+  const pageStripe =
+    'repeating-linear-gradient(' +
+    '180deg, ' +
+    '#F4E7CC 0px, #F4E7CC 1px, ' +
+    '#E1CFA4 1px, #E1CFA4 1.5px, ' +
+    '#D7C290 1.5px, #D7C290 2px' +
+    ')';
+  const pageStripeH =
+    'repeating-linear-gradient(' +
+    '90deg, ' +
+    '#F4E7CC 0px, #F4E7CC 1px, ' +
+    '#E1CFA4 1px, #E1CFA4 1.5px, ' +
+    '#D7C290 1.5px, #D7C290 2px' +
+    ')';
+
+  const SPINE_W = 22;       // spine thickness (left side strip)
+  const PAGE_DEPTH = 14;    // page stack thickness (top / right / bottom)
 
   return (
     <motion.button
       type="button"
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.45, delay: 0.08 + index * 0.08 }}
+      whileTap={{ scale: 0.985 }}
       onClick={() => onSelect(option.id)}
       style={{
         appearance: 'none',
         background: 'transparent',
         border: 'none',
-        padding: '20px 20px 50px',
+        padding: '12px',
         cursor: 'pointer',
         textAlign: 'left' as const,
-        perspective: '1800px',
-        perspectiveOrigin: '50% 35%',
+        perspective: '1400px',
+        perspectiveOrigin: '50% 40%',
+        width: '100%',
+        maxWidth: 260,
+        justifySelf: 'center',
       }}
     >
       <motion.div
-        initial={{ rotateY: baseRotateY, rotateX: 4, y: 0 }}
-        whileHover={{ rotateY: hoverRotateY, rotateX: 1, y: -8 }}
+        initial={{ rotateY: tiltY, rotateX: 3, y: 0 }}
+        whileHover={{ rotateY: hoverY, rotateX: 1, y: -6 }}
         transition={{ duration: 0.5, ease: [0.2, 0.65, 0.3, 0.95] }}
         style={{
           position: 'relative',
           width: '100%',
-          aspectRatio: '0.78',
+          aspectRatio: '0.7',
           transformStyle: 'preserve-3d' as const,
         }}
       >
-        {/* Ground shadow under the book */}
+        {/* Ground shadow */}
         <div
+          aria-hidden
           style={{
             position: 'absolute',
-            left: '8%',
-            right: '8%',
-            bottom: '-32px',
-            height: '40px',
-            background: `radial-gradient(ellipse at center, rgba(${option.accentRgb},0.28) 0%, rgba(${option.accentRgb},0.10) 50%, transparent 75%)`,
-            filter: 'blur(14px)',
+            left: '10%',
+            right: '10%',
+            bottom: '-18px',
+            height: '24px',
+            background:
+              'radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.12) 55%, transparent 80%)',
+            filter: 'blur(10px)',
             transform: 'translateZ(-1px)',
             pointerEvents: 'none',
           }}
         />
 
-        {/* TOP edge of the book — the leaves stack, viewed from above */}
+        {/* TOP edge — stacked page leaves seen from above */}
         <div
+          aria-hidden
           style={{
             position: 'absolute',
-            inset: 0,
-            transform: 'translateZ(38px)',
-            transformStyle: 'preserve-3d',
-            pointerEvents: 'none',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: '14px',
-              right: '4px',
-              top: '-1px',
-              height: '38px',
-              transform: 'rotateX(90deg)',
-              transformOrigin: 'top center',
-              background:
-                'repeating-linear-gradient(180deg, #FBF6E6 0px, #FBF6E6 2px, #E5D6A8 2.5px, #E5D6A8 3px)',
-              borderRadius: '2px 4px 0 0',
-              boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.05)',
-            }}
-          />
-        </div>
-
-        {/* RIGHT edge of the book — pages fanned slightly */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '14px',
-            bottom: '4px',
-            right: '0',
-            width: '38px',
-            transform: 'rotateY(90deg)',
-            transformOrigin: 'left center',
-            background:
-              'repeating-linear-gradient(90deg, #FBF6E6 0px, #FBF6E6 2px, #E5D6A8 2.5px, #E5D6A8 3px)',
-            borderRadius: '0 4px 4px 0',
-            boxShadow: 'inset 1px 0 0 rgba(0,0,0,0.05)',
+            left: SPINE_W,
+            right: 0,
+            top: 0,
+            height: PAGE_DEPTH,
+            transform: `translateY(-${PAGE_DEPTH}px) rotateX(90deg)`,
+            transformOrigin: 'bottom center',
+            background: pageStripe,
+            boxShadow: 'inset 0 -1px 0 rgba(0,0,0,0.18)',
+            borderRadius: '2px 4px 0 0',
             pointerEvents: 'none',
           }}
         />
 
-        {/* BOTTOM edge of the book */}
+        {/* RIGHT edge — fanned page edges */}
         <div
+          aria-hidden
           style={{
             position: 'absolute',
-            left: '14px',
-            right: '4px',
-            bottom: '-1px',
-            height: '38px',
-            transform: 'translateZ(0) rotateX(-90deg)',
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: PAGE_DEPTH,
+            transform: `translateX(${PAGE_DEPTH}px) rotateY(90deg)`,
+            transformOrigin: 'left center',
+            background: pageStripeH,
+            boxShadow: 'inset 1px 0 0 rgba(0,0,0,0.10)',
+            borderRadius: '0 4px 4px 0',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* BOTTOM edge — pages */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: SPINE_W,
+            right: 0,
+            bottom: 0,
+            height: PAGE_DEPTH,
+            transform: `translateY(${PAGE_DEPTH}px) rotateX(-90deg)`,
             transformOrigin: 'top center',
-            background:
-              'repeating-linear-gradient(180deg, #E5D6A8 0px, #E5D6A8 2px, #FBF6E6 2.5px, #FBF6E6 3px)',
+            background: pageStripe,
+            boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.20)',
             borderRadius: '0 0 4px 2px',
             pointerEvents: 'none',
           }}
         />
 
-        {/* SPINE — the left side strip */}
+        {/* SPINE — left side strip, leather + bands + vertical title */}
         <div
           style={{
             position: 'absolute',
-            left: 0,
+            left: -SPINE_W,
             top: 0,
             bottom: 0,
-            width: '38px',
-            transform: 'rotateY(-90deg) translateZ(0)',
+            width: SPINE_W,
+            transform: 'rotateY(-90deg)',
             transformOrigin: 'right center',
-            background: `linear-gradient(180deg, ${option.accent} 0%, rgba(${option.accentRgb},0.7) 60%, rgba(${option.accentRgb},0.85) 100%)`,
-            borderRadius: '4px 0 0 4px',
-            boxShadow: 'inset -1px 0 0 rgba(0,0,0,0.18), inset 2px 0 0 rgba(255,255,255,0.15)',
+            background: `linear-gradient(180deg, ${skin.spineTop} 0%, ${skin.spineMid} 50%, ${skin.spineBot} 100%)`,
+            borderRadius: '3px 0 0 3px',
+            boxShadow:
+              'inset -1px 0 0 rgba(0,0,0,0.4), inset 2px 0 0 rgba(255,255,255,0.06)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             pointerEvents: 'none',
           }}
         >
-          {/* Vertical title up the spine */}
           <div
             style={{
               fontFamily: "'Lora', Georgia, serif",
-              fontSize: 13,
+              fontSize: 9,
               fontWeight: 700,
-              color: 'rgba(255,255,255,0.94)',
+              color: skin.inkOnCover,
               writingMode: 'vertical-rl' as const,
               transform: 'rotate(180deg)',
-              letterSpacing: '0.04em',
-              textShadow: '0 1px 1px rgba(0,0,0,0.18)',
+              letterSpacing: '0.08em',
+              textShadow: '0 1px 0 rgba(0,0,0,0.35)',
               whiteSpace: 'nowrap',
+              opacity: 0.92,
             }}
           >
-            {option.title}
+            AIRTRIBE · {option.title.toUpperCase()}
           </div>
-          {/* Spine bands */}
-          <div style={{ position: 'absolute', top: '14%', left: 4, right: 4, height: '2px', background: 'rgba(255,255,255,0.25)' }} />
-          <div style={{ position: 'absolute', bottom: '14%', left: 4, right: 4, height: '2px', background: 'rgba(255,255,255,0.25)' }} />
+          {/* Gilt bands */}
+          <div style={{ position: 'absolute', top: '12%', left: 2, right: 2, height: 1.5, background: 'rgba(244,222,178,0.55)' }} />
+          <div style={{ position: 'absolute', top: '20%', left: 2, right: 2, height: 0.5, background: 'rgba(244,222,178,0.35)' }} />
+          <div style={{ position: 'absolute', bottom: '20%', left: 2, right: 2, height: 0.5, background: 'rgba(244,222,178,0.35)' }} />
+          <div style={{ position: 'absolute', bottom: '12%', left: 2, right: 2, height: 1.5, background: 'rgba(244,222,178,0.55)' }} />
         </div>
 
-        {/* FRONT COVER — the face the user reads */}
+        {/* FRONT COVER — leather, embossed border, gilt title */}
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            borderRadius: '4px 14px 14px 4px',
+            borderRadius: '2px 6px 6px 2px',
             background: `
-              linear-gradient(135deg, rgba(${option.accentRgb},0.18) 0%, rgba(${option.accentRgb},0.04) 60%, var(--ed-card) 100%),
-              var(--ed-card)
+              radial-gradient(ellipse at 30% 20%, rgba(255,220,170,0.18) 0%, transparent 55%),
+              radial-gradient(ellipse at 70% 80%, rgba(0,0,0,0.22) 0%, transparent 60%),
+              linear-gradient(160deg, ${skin.coverTop} 0%, ${skin.coverBottom} 100%)
             `,
-            border: `1.5px solid rgba(${option.accentRgb},0.32)`,
-            borderLeft: `4px solid ${option.accent}`,
+            border: `1px solid ${skin.edgeDark}`,
+            borderLeft: `2px solid ${skin.edgeDark}`,
             boxShadow: `
-              0 1px 0 rgba(255,255,255,0.6) inset,
-              -2px 0 0 rgba(0,0,0,0.12) inset,
-              0 30px 60px rgba(${option.accentRgb},0.22),
-              0 18px 30px rgba(0,0,0,0.12)
+              inset 0 1px 0 rgba(255,255,255,0.18),
+              inset 0 -2px 6px rgba(0,0,0,0.35),
+              inset 3px 0 6px rgba(0,0,0,0.30),
+              0 14px 26px rgba(60,30,10,0.35),
+              0 6px 10px rgba(0,0,0,0.20)
             `,
-            padding: '28px 26px 26px',
+            padding: '16px 14px 14px',
             display: 'flex',
             flexDirection: 'column' as const,
+            color: skin.inkOnCover,
             transform: 'translateZ(0)',
           }}
         >
-          {/* Embossed corner ornament */}
+          {/* Embossed inner frame */}
           <div
+            aria-hidden
             style={{
               position: 'absolute',
-              right: 14,
-              top: 14,
-              width: 44,
-              height: 44,
-              borderRadius: 8,
-              border: `1px solid rgba(${option.accentRgb},0.35)`,
-              opacity: 0.5,
+              inset: 8,
+              borderRadius: 3,
+              border: `1px solid rgba(244,222,178,0.32)`,
+              boxShadow: 'inset 0 0 0 0.5px rgba(0,0,0,0.25)',
+              pointerEvents: 'none',
             }}
           />
-          <div
-            style={{
-              position: 'absolute',
-              right: 18,
-              top: 18,
-              width: 36,
-              height: 36,
-              borderRadius: 6,
-              border: `0.5px solid rgba(${option.accentRgb},0.55)`,
-              opacity: 0.6,
-            }}
-          />
+          {/* Decorative gilt corners */}
+          {[{ t: 12, l: 12 }, { t: 12, r: 12 }, { b: 12, l: 12 }, { b: 12, r: 12 }].map((p, i) => (
+            <div
+              key={i}
+              aria-hidden
+              style={{
+                position: 'absolute',
+                top: p.t,
+                left: p.l,
+                right: p.r,
+                bottom: p.b,
+                width: 8,
+                height: 8,
+                border: `1px solid rgba(244,222,178,0.45)`,
+                borderRight: (p.r !== undefined) ? '1px solid rgba(244,222,178,0.45)' : 'none',
+                borderLeft: (p.l !== undefined) ? '1px solid rgba(244,222,178,0.45)' : 'none',
+                borderTop: (p.t !== undefined) ? '1px solid rgba(244,222,178,0.45)' : 'none',
+                borderBottom: (p.b !== undefined) ? '1px solid rgba(244,222,178,0.45)' : 'none',
+                opacity: 0.7,
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
 
-          {/* Icon block */}
+          {/* Icon block — embossed circle */}
           <div
             style={{
+              alignSelf: 'center',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 54,
-              height: 54,
-              borderRadius: 14,
-              background: `linear-gradient(145deg, ${option.accent}, rgba(${option.accentRgb},0.78))`,
-              fontSize: 26,
-              marginBottom: 20,
-              boxShadow: `
-                0 8px 16px rgba(${option.accentRgb},0.32),
-                inset 0 1px 0 rgba(255,255,255,0.35)
-              `,
-              color: '#FFFFFF',
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              background: `radial-gradient(circle at 30% 30%, rgba(244,222,178,0.95), rgba(180,130,60,0.85))`,
+              color: skin.edgeDark,
+              fontSize: 14,
+              fontWeight: 900,
+              fontFamily: "'Lora', Georgia, serif",
+              marginTop: 6,
+              marginBottom: 10,
+              boxShadow:
+                'inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -1px 0 rgba(0,0,0,0.35), 0 1px 1px rgba(0,0,0,0.25)',
+              letterSpacing: '0.02em',
             }}
           >
             {option.icon}
@@ -254,71 +312,82 @@ function ChoiceCard<T extends string>({ option, index, onSelect }: {
           {/* Eyebrow */}
           <div
             style={{
+              textAlign: 'center' as const,
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 9.5,
+              fontSize: 7.5,
               fontWeight: 800,
-              color: option.accent,
-              letterSpacing: '0.22em',
+              color: skin.inkOnCover,
+              opacity: 0.78,
+              letterSpacing: '0.28em',
               textTransform: 'uppercase' as const,
-              marginBottom: 10,
+              marginBottom: 6,
             }}
           >
             {option.eyebrow}
           </div>
 
-          {/* Title */}
+          {/* Title — gilt-letterpress */}
           <h2
             style={{
               margin: 0,
-              marginBottom: 14,
+              textAlign: 'center' as const,
               fontFamily: "'Lora', Georgia, serif",
-              fontSize: 'clamp(22px, 2.6vw, 30px)',
-              lineHeight: 1.08,
-              color: 'var(--ed-ink)',
-              letterSpacing: '-0.025em',
+              fontSize: 16,
+              lineHeight: 1.15,
+              color: skin.inkOnCover,
+              letterSpacing: '-0.01em',
+              textShadow:
+                '0 1px 0 rgba(0,0,0,0.30), 0 0 1px rgba(255,235,180,0.55)',
+              marginBottom: 8,
             }}
           >
             {option.title}
           </h2>
 
-          {/* Hairline divider */}
+          {/* Hairline */}
           <div
+            aria-hidden
             style={{
-              width: 38,
-              height: 2,
-              borderRadius: 1,
-              background: `linear-gradient(90deg, ${option.accent}, transparent)`,
-              marginBottom: 14,
+              alignSelf: 'center',
+              width: 30,
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${skin.inkOnCover}, transparent)`,
+              opacity: 0.55,
+              marginBottom: 8,
             }}
           />
 
           {/* Description */}
           <p
             style={{
-              margin: '0 0 16px',
-              color: 'var(--ed-ink2)',
-              fontSize: 13.5,
-              lineHeight: 1.65,
+              margin: '0 4px 8px',
+              textAlign: 'center' as const,
+              color: skin.inkOnCover,
+              opacity: 0.85,
+              fontFamily: "'Lora', Georgia, serif",
+              fontSize: 10.5,
+              lineHeight: 1.45,
               flex: 1,
             }}
           >
             {option.description}
           </p>
 
-          {/* Tag chips */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+          {/* Tag chips — small gilt pills */}
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, justifyContent: 'center', marginBottom: 4 }}>
             {option.details.map(detail => (
               <span
                 key={detail}
                 style={{
-                  padding: '4px 9px',
-                  borderRadius: 4,
-                  border: `1px solid rgba(${option.accentRgb},0.28)`,
-                  background: `rgba(${option.accentRgb},0.08)`,
-                  color: option.accent,
-                  fontSize: 10.5,
+                  padding: '2px 6px',
+                  borderRadius: 3,
+                  border: `0.5px solid rgba(244,222,178,0.45)`,
+                  background: 'rgba(0,0,0,0.18)',
+                  color: skin.inkOnCover,
+                  fontSize: 8.5,
                   fontWeight: 700,
-                  letterSpacing: '0.02em',
+                  letterSpacing: '0.05em',
+                  fontFamily: "'JetBrains Mono', monospace",
                 }}
               >
                 {detail}
@@ -326,21 +395,20 @@ function ChoiceCard<T extends string>({ option, index, onSelect }: {
             ))}
           </div>
 
-          {/* Open-this-book hint at footer */}
+          {/* OPEN hint */}
           <div
             style={{
-              position: 'absolute',
-              right: 22,
-              bottom: 18,
+              textAlign: 'center' as const,
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 9.5,
+              fontSize: 8,
               fontWeight: 800,
-              letterSpacing: '0.16em',
-              color: option.accent,
-              opacity: 0.85,
+              letterSpacing: '0.22em',
+              color: skin.inkOnCover,
+              opacity: 0.78,
+              marginTop: 4,
             }}
           >
-            OPEN →
+            ◆ OPEN ◆
           </div>
         </div>
       </motion.div>
@@ -388,12 +456,12 @@ export default function TrackChoiceCards<T extends string>({
         </div>
       </header>
 
-      <main style={{ maxWidth: 1160, margin: '0 auto', padding: '56px 28px 80px' }}>
+      <main style={{ maxWidth: 920, margin: '0 auto', padding: '56px 28px 100px' }}>
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
-          style={{ textAlign: 'center', marginBottom: 42 }}
+          style={{ textAlign: 'center', marginBottom: 50 }}
         >
           <div style={{
             fontFamily: "'JetBrains Mono', monospace",
@@ -422,14 +490,48 @@ export default function TrackChoiceCards<T extends string>({
           </p>
         </motion.div>
 
+        {/* Shelf */}
         <div style={{
+          position: 'relative',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 22,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 36,
+          justifyItems: 'center',
+          alignItems: 'end',
+          padding: '24px 28px 8px',
+          maxWidth: 760,
+          margin: '0 auto',
         }}>
           {options.map((option, index) => (
             <ChoiceCard key={option.id} option={option} index={index} onSelect={onSelect} />
           ))}
+
+          {/* Wooden shelf plank under the books */}
+          <div
+            aria-hidden
+            style={{
+              gridColumn: '1 / -1',
+              height: 10,
+              marginTop: 22,
+              borderRadius: 3,
+              background:
+                'linear-gradient(180deg, #B58A5C 0%, #8E6534 45%, #6B4A23 100%)',
+              boxShadow:
+                '0 6px 16px rgba(60,30,10,0.35), inset 0 1px 0 rgba(255,230,190,0.45), inset 0 -1px 0 rgba(0,0,0,0.4)',
+            }}
+          />
+          <div
+            aria-hidden
+            style={{
+              gridColumn: '1 / -1',
+              height: 4,
+              marginTop: -2,
+              borderRadius: 2,
+              background: 'linear-gradient(180deg, #4A2E14 0%, #2A1808 100%)',
+              opacity: 0.85,
+              boxShadow: '0 8px 18px rgba(0,0,0,0.25)',
+            }}
+          />
         </div>
       </main>
     </div>
