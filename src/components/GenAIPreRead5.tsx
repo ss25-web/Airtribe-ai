@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
@@ -12,6 +12,7 @@ import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
+import { N8N_NW, N8N_NH, N8nFrame, N8nNodeCard, n8nBezier, N8nCanvas } from './n8nCanvas';
 
 const ACCENT = '#059669';
 const ACCENT_RGB = '5,150,105';
@@ -204,65 +205,190 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 }
 
 
-// ── M5 TiltCard Mockups ──────────────────────────────────────────────────────
+// ── M5 Interactive Tools — authentic n8n editor mockups ─────────────────────
 
+// Section 01: SplitInBatches as an n8n canvas. The learner sees the actual
+// SplitInBatches node wired into a downstream Process step, drags the
+// feedback edge ON/OFF, scrubs array + batch size, and watches a row of
+// batch tokens animate through the loop (or stall after batch 1 when the
+// feedback edge is broken).
 const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
   const [arraySize, setArraySize] = useState(track === 'tech' ? 20 : 50);
   const [batchSize, setBatchSize] = useState(track === 'tech' ? 5 : 10);
   const [feedbackEdge, setFeedbackEdge] = useState(false);
-  const batches = Math.ceil(arraySize / batchSize);
+  const [running, setRunning] = useState(false);
+  const [activeBatch, setActiveBatch] = useState<number | null>(null);
+  const batches = Math.max(1, Math.ceil(arraySize / batchSize));
+  const visibleBatches = Math.min(batches, 6);
+  const willRunCount = feedbackEdge ? batches : 1;
+  const processedItems = feedbackEdge ? arraySize : Math.min(batchSize, arraySize);
+
+  const run = useCallback(() => {
+    if (running) return;
+    setRunning(true);
+    setActiveBatch(0);
+    const total = feedbackEdge ? batches : 1;
+    let i = 0;
+    const tick = () => {
+      i += 1;
+      if (i >= total) {
+        setActiveBatch(total - 1);
+        setTimeout(() => { setRunning(false); setActiveBatch(null); }, 600);
+        return;
+      }
+      setActiveBatch(i);
+      setTimeout(tick, 380);
+    };
+    setTimeout(tick, 380);
+  }, [feedbackEdge, batches, running]);
+
+  // Node geometry
+  const triggerX = 12, splitX = 188, procX = 396, sheetX = 600;
+  const nodeY = 30;
+  // Feedback loop curve goes UP from procX above and back DOWN into splitX
+  const feedbackPath = `M ${procX + N8N_NW / 2} ${nodeY} C ${procX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} ${nodeY}`;
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '16px' }}>SPLITINBATCHES — BATCH SIMULATOR</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+    <N8nFrame filename={track === 'tech' ? 'splitinbatches-backlog.json' : 'splitinbatches-renewals.json'} status={running ? 'IDLE' : feedbackEdge ? 'ACTIVE' : 'ERROR'}>
+      {/* Canvas */}
+      <N8nCanvas width={780} height={150}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id="bs-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+            <marker id="bs-arrow-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0891B2" />
+            </marker>
+          </defs>
+          {/* trigger → split */}
+          <path d={n8nBezier(triggerX + N8N_NW, nodeY + N8N_NH / 2, splitX, nodeY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#bs-arrow)" />
+          {/* split → process */}
+          <path d={n8nBezier(splitX + N8N_NW, nodeY + N8N_NH / 2, procX, nodeY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#bs-arrow)" />
+          {/* process → sheet */}
+          <path d={n8nBezier(procX + N8N_NW, nodeY + N8N_NH / 2, sheetX, nodeY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#bs-arrow)" />
+          {/* feedback edge (process bottom → split bottom) */}
+          <path
+            d={`M ${procX + N8N_NW / 2} ${nodeY + N8N_NH} C ${procX + N8N_NW / 2} ${nodeY + N8N_NH + 50} ${splitX + N8N_NW / 2} ${nodeY + N8N_NH + 50} ${splitX + N8N_NW / 2} ${nodeY + N8N_NH}`}
+            stroke={feedbackEdge ? '#0891B2' : 'rgba(220,38,38,0.55)'} strokeWidth={2}
+            strokeDasharray={feedbackEdge ? undefined : '6 5'} fill="none"
+            markerEnd={feedbackEdge ? 'url(#bs-arrow-loop)' : undefined}
+          />
+        </svg>
+        <N8nNodeCard x={triggerX} y={nodeY} label={track === 'tech' ? 'HTTP Pull Backlog' : 'Read Renewals Sheet'} typeKey={track === 'tech' ? 'data' : 'data'} icon={track === 'tech' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={splitX}   y={nodeY} label="SplitInBatches" typeKey="loop" icon="↻" subLabel={`BATCH SIZE ${batchSize}`} status={activeBatch !== null ? 'pending' : undefined} />
+        <N8nNodeCard x={procX}    y={nodeY} label={track === 'tech' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" status={activeBatch !== null ? 'pending' : undefined} />
+        <N8nNodeCard x={sheetX}   y={nodeY} label={track === 'tech' ? 'Tracker Sheet' : 'Send Digest'} typeKey="output" icon={track === 'tech' ? '⊞' : '✉'} />
+      </N8nCanvas>
+
+      {/* Batch ticker */}
+      <div style={{ padding: '10px 16px', background: '#0A0D14', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>EXECUTION · {batches} batches of {batchSize}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3' }}>{processedItems}/{arraySize} items would process</div>
+        </div>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+          {Array.from({ length: visibleBatches }, (_, i) => {
+            const willRun = i < willRunCount;
+            const isActive = activeBatch === i;
+            const start = i * batchSize + 1;
+            const end = Math.min((i + 1) * batchSize, arraySize);
+            return (
+              <div key={i} style={{
+                padding: '4px 8px',
+                borderRadius: 5,
+                background: isActive ? '#0891B2' : willRun ? 'rgba(8,145,178,0.14)' : 'rgba(220,38,38,0.10)',
+                border: `1px solid ${isActive ? '#06B6D4' : willRun ? 'rgba(8,145,178,0.40)' : 'rgba(220,38,38,0.35)'}`,
+                fontSize: 10,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 700,
+                color: isActive ? '#fff' : willRun ? '#67E8F9' : '#FCA5A5',
+                transition: 'all 0.2s',
+              }}>{i + 1}·{start}-{end}</div>
+            );
+          })}
+          {batches > visibleBatches && <div style={{ padding: '4px 8px', fontSize: 10, color: '#525252', fontFamily: "'JetBrains Mono', monospace" }}>+{batches - visibleBatches} more</div>}
+        </div>
+      </div>
+
+      {/* Controls + verdict */}
+      <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'center', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div>
-          <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '6px' }}>ARRAY SIZE: <span style={{ color: '#C9D1D9', fontWeight: 700 }}>{arraySize} items</span></div>
-          <input type="range" min={10} max={track === 'tech' ? 50 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#059669' }} />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>ARRAY SIZE · {arraySize}</div>
+          <input type="range" min={5} max={track === 'tech' ? 60 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
         </div>
         <div>
-          <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '6px' }}>BATCH SIZE: <span style={{ color: '#C9D1D9', fontWeight: 700 }}>{batchSize} items</span></div>
-          <input type="range" min={2} max={20} value={batchSize} onChange={e => setBatchSize(+e.target.value)} style={{ width: '100%', accentColor: '#059669' }} />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>BATCH SIZE · {batchSize}</div>
+          <input type="range" min={2} max={20} value={batchSize} onChange={e => setBatchSize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
         </div>
+        <button
+          type="button"
+          onClick={run}
+          disabled={running}
+          style={{
+            appearance: 'none', cursor: running ? 'wait' : 'pointer',
+            background: running ? 'rgba(255,255,255,0.06)' : '#FF6D5A',
+            border: 'none', borderRadius: 5, padding: '7px 16px',
+            fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: 'inherit',
+          }}
+        >{running ? '▶ Running…' : '▶ Execute'}</button>
       </div>
-      <div style={{ marginBottom: '16px', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: `2px solid ${feedbackEdge ? 'rgba(5,150,105,0.4)' : 'rgba(220,38,38,0.3)'}`, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }} onClick={() => setFeedbackEdge(f => !f)}>
+
+      {/* Feedback edge toggle */}
+      <div
+        onClick={() => { setFeedbackEdge(f => !f); setActiveBatch(null); }}
+        style={{ padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', background: feedbackEdge ? 'rgba(8,145,178,0.10)' : 'rgba(220,38,38,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
         <div>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: feedbackEdge ? '#6EE7B7' : '#FCA5A5', marginBottom: '2px' }}>Feedback Edge (↺ has_items → self): {feedbackEdge ? 'CONNECTED' : 'DISCONNECTED'}</div>
-          <div style={{ fontSize: '9px', color: '#6B7280' }}>Click to toggle</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: feedbackEdge ? '#67E8F9' : '#FCA5A5', marginBottom: 2 }}>
+            FEEDBACK EDGE (has_items → SplitInBatches): {feedbackEdge ? 'CONNECTED' : 'DISCONNECTED'}
+          </div>
+          <div style={{ fontSize: 10, color: feedbackEdge ? 'rgba(103,232,249,0.85)' : 'rgba(252,165,165,0.85)', lineHeight: 1.5 }}>
+            {feedbackEdge ? `All ${arraySize} items will process across ${batches} batches.` : `Only batch 1 (${Math.min(batchSize, arraySize)} of ${arraySize} items) processes — rest are silently dropped.`}
+          </div>
         </div>
-        <div style={{ width: '36px', height: '20px', borderRadius: '10px', background: feedbackEdge ? '#059669' : '#374151', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-          <div style={{ position: 'absolute', top: '2px', left: feedbackEdge ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--ed-card)', transition: 'left 0.2s' }} />
+        <div style={{ width: 40, height: 22, borderRadius: 11, background: feedbackEdge ? '#0891B2' : '#374151', position: 'relative', flexShrink: 0 }}>
+          <div style={{ position: 'absolute', top: 2, left: feedbackEdge ? 20 : 2, width: 18, height: 18, borderRadius: '50%', background: '#fff', transition: 'left 0.2s' }} />
         </div>
       </div>
-      <div style={{ display: 'grid', gap: '6px', marginBottom: '14px' }}>
-        {Array.from({ length: Math.min(batches, 5) }, (_, i) => {
-          const start = i * batchSize + 1;
-          const end = Math.min((i + 1) * batchSize, arraySize);
-          const willRun = feedbackEdge || i === 0;
-          return (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: willRun ? 'rgba(5,150,105,0.06)' : 'rgba(220,38,38,0.04)', border: `1px solid ${willRun ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.15)'}`, borderRadius: '6px', opacity: willRun ? 1 : 0.5 }}>
-              <div style={{ fontSize: '9px', color: willRun ? '#059669' : '#6B7280', width: '60px', flexShrink: 0 }}>Batch {i + 1}{batches > 5 && i === 4 ? '…' : ''}</div>
-              <div style={{ fontSize: '9px', color: '#C9D1D9', flex: 1 }}>items {start}–{end}</div>
-              <div style={{ fontSize: '8px', color: willRun ? '#6EE7B7' : '#EF4444' }}>{willRun ? (i < batches - 1 ? '↺ loops' : '✓ done') : '✗ skipped'}</div>
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ padding: '8px 12px', background: feedbackEdge ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.08)', border: `1px solid ${feedbackEdge ? 'rgba(5,150,105,0.25)' : 'rgba(220,38,38,0.25)'}`, borderRadius: '6px', fontSize: '10px', color: feedbackEdge ? '#6EE7B7' : '#FCA5A5', fontWeight: 600 }}>
-        {feedbackEdge
-          ? `✓ All ${arraySize} items processed across ${batches} batches`
-          : `✗ Only ${batchSize} of ${arraySize} items processed — feedback edge missing`}
-      </div>
-    </div>
+    </N8nFrame>
   );
 };
 
+// Section 02: Field mapper rendered as the n8n Set node configuration
+// pane — actual canvas above (Source → Set → Downstream), Set node
+// editor below showing source schema on the left and target schema on
+// the right with mapping arrows drawn between them when the learner
+// connects fields.
 const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
-  const sourceFields = track === 'tech'
-    ? ['claimID', 'subject', 'body', 'policyCode']
-    : ['row_id', 'exception_date', 'Renewal Manager', 'Status', 'Notes'];
-  const targetFields = track === 'tech'
-    ? ['claim_id', 'policy_code', 'classification_input']
-    : ['exception_id', 'date', 'manager', 'status', 'summary_input'];
+  type Field = { name: string; type: string };
+  const sourceFields: Field[] = track === 'tech'
+    ? [
+        { name: 'claimID',     type: 'string' },
+        { name: 'subject',     type: 'string' },
+        { name: 'body',        type: 'text'   },
+        { name: 'policyCode',  type: 'string' },
+      ]
+    : [
+        { name: 'row_id',          type: 'string' },
+        { name: 'exception_date',  type: 'date'   },
+        { name: 'Renewal Manager', type: 'string' },
+        { name: 'Status',          type: 'string' },
+        { name: 'Notes',           type: 'text'   },
+      ];
+  const targetFields: Field[] = track === 'tech'
+    ? [
+        { name: 'claim_id',             type: 'string' },
+        { name: 'policy_code',          type: 'string' },
+        { name: 'classification_input', type: 'text'   },
+      ]
+    : [
+        { name: 'exception_id',  type: 'string' },
+        { name: 'date',          type: 'date'   },
+        { name: 'manager',       type: 'string' },
+        { name: 'status',        type: 'string' },
+        { name: 'summary_input', type: 'text'   },
+      ];
   const correct: Record<string, string> = track === 'tech'
     ? { claimID: 'claim_id', policyCode: 'policy_code', subject: 'classification_input', body: 'classification_input' }
     : { row_id: 'exception_id', exception_date: 'date', 'Renewal Manager': 'manager', Status: 'status', Notes: 'summary_input' };
@@ -277,114 +403,308 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
     setSelected(null);
     setChecked(false);
   };
+  const reset = () => { setMappings({}); setSelected(null); setChecked(false); };
 
   const score = Object.entries(mappings).filter(([src, tgt]) => correct[src] === tgt).length;
   const total = Object.keys(correct).length;
+  const allMapped = score === total;
+
+  // Layout
+  const ROW_H = 26;
+  const SRC_X = 24, TGT_X = 384;
+  const FIELD_W = 200;
+  const HEADER_Y = 14;
+  const FIRST_FIELD_Y = 44;
+
+  const fieldY = (idx: number) => FIRST_FIELD_Y + idx * (ROW_H + 4);
 
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>SET NODE — FIELD MAPPER</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Click a source field, then click the target field to map it.</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '14px' }}>
-        <div>
-          <div style={{ fontSize: '9px', color: '#DC2626', letterSpacing: '0.08em', marginBottom: '8px' }}>RAW INPUT FIELDS</div>
-          {sourceFields.map(f => (
-            <div key={f} onClick={() => { setSelected(f === selected ? null : f); setChecked(false); }}
-              style={{ marginBottom: '6px', padding: '6px 10px', background: selected === f ? 'rgba(124,58,237,0.15)' : mappings[f] ? 'rgba(5,150,105,0.06)' : 'rgba(255,255,255,0.04)', border: `1px solid ${selected === f ? '#7C3AED' : mappings[f] ? 'rgba(5,150,105,0.25)' : 'rgba(255,255,255,0.1)'}`, borderRadius: '5px', fontSize: '10px', color: selected === f ? '#A78BFA' : mappings[f] ? '#6EE7B7' : '#C9D1D9', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>{f}</span>
-              {mappings[f] && <span style={{ fontSize: '8px', color: '#6B7280' }}>→ {mappings[f]}</span>}
-            </div>
-          ))}
+    <N8nFrame filename={track === 'tech' ? 'set-node-classifier-input.json' : 'set-node-renewals-input.json'} status={checked && allMapped ? 'ACTIVE' : 'EDITING'}>
+      {/* Mini canvas at top */}
+      <N8nCanvas width={640} height={100}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 640, height: 100, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id="fm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+          </defs>
+          <path d={n8nBezier(12 + N8N_NW, 20 + N8N_NH / 2, 220, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
+          <path d={n8nBezier(220 + N8N_NW, 20 + N8N_NH / 2, 428, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
+        </svg>
+        <N8nNodeCard x={12}  y={20} label={track === 'tech' ? 'Claims Source' : 'Renewals Sheet'} typeKey="data" icon={track === 'tech' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={220} y={20} label="Set (Edit Fields)" typeKey="transform" icon="⚙" subLabel={`MAPPING ${Object.keys(mappings).length}/${total}`} status={checked ? (allMapped ? 'ok' : 'fail') : undefined} />
+        <N8nNodeCard x={428} y={20} label={track === 'tech' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" ghost={!checked || !allMapped} />
+      </N8nCanvas>
+
+      {/* Set node editor panel */}
+      <div style={{ padding: '12px 16px', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>SET NODE · MAP RAW FIELDS → CANONICAL SCHEMA</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3' }}>{Object.keys(mappings).length}/{total} mapped</div>
         </div>
-        <div>
-          <div style={{ fontSize: '9px', color: '#16A34A', letterSpacing: '0.08em', marginBottom: '8px' }}>TARGET SCHEMA</div>
-          {targetFields.map(f => {
-            const isMapped = Object.values(mappings).includes(f);
+
+        <div style={{ position: 'relative' as const, height: Math.max(FIRST_FIELD_Y + Math.max(sourceFields.length, targetFields.length) * (ROW_H + 4) + 6, 200) }}>
+          {/* mapping arrows */}
+          <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' as const }}>
+            {Object.entries(mappings).map(([src, tgt]) => {
+              const srcIdx = sourceFields.findIndex(f => f.name === src);
+              const tgtIdx = targetFields.findIndex(f => f.name === tgt);
+              if (srcIdx < 0 || tgtIdx < 0) return null;
+              const x1 = SRC_X + FIELD_W;
+              const y1 = fieldY(srcIdx) + ROW_H / 2;
+              const x2 = TGT_X;
+              const y2 = fieldY(tgtIdx) + ROW_H / 2;
+              const isOk = checked && correct[src] === tgt;
+              const isWrong = checked && correct[src] !== tgt;
+              const stroke = isOk ? '#10B981' : isWrong ? '#DC2626' : '#7C3AED';
+              return <path key={`${src}-${tgt}`} d={n8nBezier(x1, y1, x2, y2)} stroke={stroke} strokeWidth={1.5} fill="none" />;
+            })}
+          </svg>
+
+          {/* Column headers */}
+          <div style={{ position: 'absolute' as const, top: HEADER_Y, left: SRC_X, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#FCA5A5', letterSpacing: '0.10em' }}>RAW SOURCE</div>
+          <div style={{ position: 'absolute' as const, top: HEADER_Y, left: TGT_X, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#67E8F9', letterSpacing: '0.10em' }}>CANONICAL TARGET</div>
+
+          {/* Source fields */}
+          {sourceFields.map((f, i) => {
+            const isSel = selected === f.name;
+            const tgt = mappings[f.name];
+            const isOk = checked && tgt && correct[f.name] === tgt;
+            const isWrong = checked && tgt && correct[f.name] !== tgt;
             return (
-              <div key={f} onClick={() => mapTo(f)}
-                style={{ marginBottom: '6px', padding: '6px 10px', background: isMapped ? 'rgba(5,150,105,0.1)' : selected ? 'rgba(22,163,74,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isMapped ? 'rgba(5,150,105,0.35)' : selected ? 'rgba(22,163,74,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: '5px', fontSize: '10px', color: isMapped ? '#6EE7B7' : selected ? '#4ADE80' : '#9CA3AF', cursor: selected ? 'pointer' : 'default' }}>
-                {f}
-              </div>
+              <button
+                key={f.name}
+                type="button"
+                onClick={() => { setSelected(prev => prev === f.name ? null : f.name); setChecked(false); }}
+                style={{
+                  appearance: 'none', cursor: 'pointer',
+                  position: 'absolute' as const,
+                  left: SRC_X, top: fieldY(i), width: FIELD_W, height: ROW_H,
+                  padding: '0 10px',
+                  background: isSel ? 'rgba(124,58,237,0.20)' : (isWrong ? 'rgba(220,38,38,0.10)' : isOk ? 'rgba(16,185,129,0.10)' : tgt ? 'rgba(124,58,237,0.10)' : '#0F1117'),
+                  border: `1px solid ${isSel ? '#A78BFA' : isWrong ? '#DC2626' : isOk ? '#10B981' : tgt ? 'rgba(124,58,237,0.30)' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 5,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: isWrong ? '#FCA5A5' : isOk ? '#86EFAC' : '#E5E5E5' }}>{f.name}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: '#A3A3A3' }}>{f.type}</span>
+              </button>
+            );
+          })}
+
+          {/* Target fields */}
+          {targetFields.map((f, i) => {
+            const isMapped = Object.values(mappings).includes(f.name);
+            return (
+              <button
+                key={f.name}
+                type="button"
+                onClick={() => selected && mapTo(f.name)}
+                disabled={!selected}
+                style={{
+                  appearance: 'none', cursor: selected ? 'pointer' : 'default',
+                  position: 'absolute' as const,
+                  left: TGT_X, top: fieldY(i), width: FIELD_W, height: ROW_H,
+                  padding: '0 10px',
+                  background: isMapped ? 'rgba(8,145,178,0.14)' : selected ? 'rgba(103,232,249,0.08)' : '#0F1117',
+                  border: `1px solid ${isMapped ? '#06B6D4' : selected ? 'rgba(103,232,249,0.40)' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 5,
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: isMapped ? '#67E8F9' : '#E5E5E5' }}>{f.name}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: '#A3A3A3' }}>{f.type}</span>
+              </button>
             );
           })}
         </div>
+
+        {/* Action bar */}
+        <div style={{ marginTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 10, color: '#A3A3A3', fontFamily: "'JetBrains Mono', monospace" }}>
+            {selected ? `Selected ${selected} — click a canonical field to map it.` : 'Click a raw source field, then click a canonical target to wire them.'}
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 11px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>RESET</button>
+            <button type="button" onClick={() => setChecked(true)} disabled={Object.keys(mappings).length < total} style={{ appearance: 'none', cursor: Object.keys(mappings).length < total ? 'not-allowed' : 'pointer', background: Object.keys(mappings).length < total ? 'rgba(255,255,255,0.06)' : '#FF6D5A', border: 'none', borderRadius: 5, padding: '6px 14px', fontSize: 11, fontWeight: 700, color: Object.keys(mappings).length < total ? 'rgba(255,255,255,0.4)' : '#fff', fontFamily: 'inherit' }}>EXECUTE NODE</button>
+          </div>
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        <div onClick={() => setChecked(true)} style={{ padding: '6px 14px', background: '#059669', borderRadius: '5px', fontSize: '10px', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>Check Mappings</div>
-        <div onClick={() => { setMappings({}); setSelected(null); setChecked(false); }} style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '5px', fontSize: '10px', color: '#9CA3AF', cursor: 'pointer' }}>Reset</div>
-      </div>
+
       {checked && (
-        <div style={{ marginTop: '12px', padding: '10px 12px', background: score === total ? 'rgba(5,150,105,0.08)' : 'rgba(245,158,11,0.08)', border: `1px solid ${score === total ? 'rgba(5,150,105,0.25)' : 'rgba(245,158,11,0.25)'}`, borderRadius: '6px', fontSize: '10px', color: score === total ? '#6EE7B7' : '#FCD34D' }}>
-          {score}/{total} mappings correct. {score < total ? 'Tip: look for the canonical field name the AI node expects.' : 'All fields mapped — Set node is ready.'}
+        <div style={{ padding: '10px 16px', background: allMapped ? 'rgba(16,185,129,0.10)' : 'rgba(245,158,11,0.10)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: 11.5, color: allMapped ? '#86EFAC' : '#FCD34D' }}>
+            <span style={{ fontWeight: 700 }}>{score}/{total} mappings correct.</span> {allMapped ? 'Downstream node can run — every required field is wired.' : 'Red arrows are wrong; reset and look for the canonical field the downstream node expects.'}
+          </span>
         </div>
       )}
-    </div>
+    </N8nFrame>
   );
 };
 
+// Section 03: IF/Switch routing rendered as an n8n canvas with the Switch
+// node fanning out to three downstream branches. The learner sees an
+// inbound queue at the top, picks the branch each item should take, then
+// presses Execute — items animate into the correct downstream node when
+// right, into the wrong one (flashing red) when wrong.
 const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
-  const items = track === 'tech' ? [
-    { label: 'Claim CLM-4412', value: '0.71', key: 'confidence', correct: 'B' },
-    { label: 'Claim CLM-4413', value: '0.91', key: 'confidence', correct: 'A' },
-    { label: 'Claim CLM-4414', value: '0.55', key: 'confidence', correct: 'C' },
-    { label: 'Claim CLM-4415', value: '0.63', key: 'confidence', correct: 'B' },
+  type Branch = 'A' | 'B' | 'C';
+  type Item = { id: string; label: string; field: string; value: string; correct: Branch };
+  const items: Item[] = track === 'tech' ? [
+    { id: 'CLM-4412', label: 'CLM-4412', field: 'confidence', value: '0.71', correct: 'B' },
+    { id: 'CLM-4413', label: 'CLM-4413', field: 'confidence', value: '0.91', correct: 'A' },
+    { id: 'CLM-4414', label: 'CLM-4414', field: 'confidence', value: '0.55', correct: 'C' },
+    { id: 'CLM-4415', label: 'CLM-4415', field: 'confidence', value: '0.63', correct: 'B' },
   ] : [
-    { label: 'Exception #4412', value: 'critical', key: 'status', correct: 'A' },
-    { label: 'Exception #4419', value: 'pending+2d', key: 'status', correct: 'C' },
-    { label: 'Exception #4433', value: 'pending+5d', key: 'status', correct: 'B' },
-    { label: 'Exception #4441', value: 'critical', key: 'status', correct: 'A' },
+    { id: '4412', label: '#4412', field: 'status',  value: 'critical',   correct: 'A' },
+    { id: '4419', label: '#4419', field: 'status',  value: 'pending+2d', correct: 'C' },
+    { id: '4433', label: '#4433', field: 'status',  value: 'pending+5d', correct: 'B' },
+    { id: '4441', label: '#4441', field: 'status',  value: 'critical',   correct: 'A' },
   ];
-  const branchLabels = track === 'tech'
-    ? { A: 'Auto-write (≥0.85)', B: 'Human review (0.60–0.85)', C: 'Manual triage (<0.60)' }
-    : { A: 'Immediate escalation', B: 'Manager follow-up', C: 'Weekly summary' };
+  const BRANCHES: { id: Branch; label: string; node: string; icon: string; rule: string }[] = track === 'tech' ? [
+    { id: 'A', label: 'Auto-write',     node: 'Tracker Sheet',     icon: '⊞', rule: 'confidence ≥ 0.85' },
+    { id: 'B', label: 'Human review',   node: 'Review Queue',      icon: '⚑', rule: '0.60 ≤ conf < 0.85' },
+    { id: 'C', label: 'Manual triage',  node: 'Triage Dead-letter', icon: '⚠', rule: 'confidence < 0.60' },
+  ] : [
+    { id: 'A', label: 'Immediate',      node: 'Escalate Slack',    icon: '⚡', rule: 'status = critical' },
+    { id: 'B', label: 'Manager F/U',    node: 'Manager Email',     icon: '✉', rule: 'pending > 4d' },
+    { id: 'C', label: 'Weekly summary', node: 'Weekly Digest',     icon: '☰', rule: 'pending ≤ 4d' },
+  ];
 
-  const [picks, setPicks] = useState<Record<number, string>>({});
+  const [picks, setPicks] = useState<Record<string, Branch>>({});
   const [revealed, setRevealed] = useState(false);
-  const allPicked = items.every((_, i) => picks[i] !== undefined);
-  const score = revealed ? items.filter((item, i) => picks[i] === item.correct).length : 0;
+  const allPicked = items.every(i => picks[i.id]);
+  const score = revealed ? items.filter(i => picks[i.id] === i.correct).length : 0;
+
+  // Geometry
+  const switchX = 280, switchY = 160;
+  const branchX = [560, 560, 560];
+  const branchY = [40, 160, 280];
 
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>ROUTE PREDICTOR — IF/SWITCH NODE</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>For each item, predict which branch it takes.</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '12px', padding: '8px 10px', background: 'var(--ed-cream)', borderRadius: '6px' }}>
-        {(['A', 'B', 'C'] as const).map(l => (
-          <div key={l} style={{ fontSize: '9px', color: '#78716C' }}><strong>{l}:</strong> {branchLabels[l]}</div>
-        ))}
-      </div>
-      <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
-        {items.map((item, i) => {
-          const userPick = picks[i];
-          const isRight = revealed && userPick === item.correct;
-          const isWrong = revealed && userPick && userPick !== item.correct;
-          return (
-            <div key={i} style={{ padding: '10px 12px', background: isRight ? 'rgba(22,163,74,0.06)' : isWrong ? 'rgba(220,38,38,0.04)' : '#fff', border: `1px solid ${isRight ? 'rgba(22,163,74,0.25)' : isWrong ? 'rgba(220,38,38,0.2)' : '#E7E5E4'}`, borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#292524' }}>{item.label}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#059669' }}>{item.key} = {item.value}</div>
+    <N8nFrame filename={track === 'tech' ? 'confidence-router.json' : 'priority-router.json'} status={revealed ? (score === items.length ? 'ACTIVE' : 'ERROR') : 'EDITING'}>
+      <N8nCanvas width={780} height={400}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 400, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id="rp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+          </defs>
+          {/* Switch → each branch */}
+          {BRANCHES.map((b, i) => {
+            const x1 = switchX + N8N_NW, y1 = switchY + N8N_NH / 2;
+            const x2 = branchX[i], y2 = branchY[i] + N8N_NH / 2;
+            return <path key={b.id} d={n8nBezier(x1, y1, x2, y2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#rp-arrow)" />;
+          })}
+        </svg>
+
+        {/* Inbound queue (left) */}
+        <div style={{ position: 'absolute' as const, left: 12, top: 30, width: 200 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: 6 }}>INBOUND QUEUE</div>
+          <div style={{ display: 'grid', gap: 6 }}>
+            {items.map(item => {
+              const pick = picks[item.id];
+              const isRight = revealed && pick === item.correct;
+              const isWrong = revealed && pick && pick !== item.correct;
+              return (
+                <div key={item.id} style={{
+                  background: isRight ? 'rgba(16,185,129,0.10)' : isWrong ? 'rgba(220,38,38,0.10)' : '#13182A',
+                  border: `1px solid ${isRight ? '#10B981' : isWrong ? '#DC2626' : 'rgba(255,255,255,0.10)'}`,
+                  borderRadius: 6, padding: '7px 9px',
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#E5E5E5', fontFamily: "'JetBrains Mono', monospace" }}>{item.label}</span>
+                    <span style={{ fontSize: 9, color: '#A3A3A3', fontFamily: "'JetBrains Mono', monospace" }}>{item.field}={item.value}</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    {BRANCHES.map(b => {
+                      const isPicked = pick === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => !revealed && setPicks(p => ({ ...p, [item.id]: b.id }))}
+                          disabled={revealed}
+                          style={{
+                            appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                            flex: 1, padding: '3px 0',
+                            background: isPicked ? (revealed ? (b.id === item.correct ? '#10B981' : '#DC2626') : '#7C3AED') : 'rgba(255,255,255,0.04)',
+                            border: `1px solid ${isPicked ? 'transparent' : 'rgba(255,255,255,0.10)'}`,
+                            borderRadius: 4, fontSize: 9.5, fontWeight: 700,
+                            color: isPicked ? '#fff' : '#A3A3A3',
+                            fontFamily: "'JetBrains Mono', monospace",
+                          }}
+                        >{b.id}</button>
+                      );
+                    })}
+                  </div>
                 </div>
-                {revealed && <div style={{ fontSize: '11px', fontWeight: 700, color: isRight ? '#16A34A' : '#DC2626' }}>{isRight ? '✓' : `✗ → ${item.correct}`}</div>}
-              </div>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {['A', 'B', 'C'].map(b => (
-                  <div key={b} onClick={() => !revealed && setPicks(p => ({ ...p, [i]: b }))}
-                    style={{ flex: 1, padding: '5px 0', textAlign: 'center' as const, borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: revealed ? 'default' : 'pointer', background: userPick === b ? (revealed ? (b === item.correct ? '#16A34A' : '#DC2626') : '#059669') : '#F5F5F4', color: userPick === b ? '#fff' : '#78716C', border: `1px solid ${userPick === b ? 'transparent' : '#E7E5E4'}` }}>{b}</div>
-                ))}
-              </div>
-            </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Switch node center */}
+        <N8nNodeCard x={switchX} y={switchY} label="Switch" typeKey="transform" icon="◆" subLabel={`ON ${items[0]?.field}`} />
+
+        {/* Branch nodes */}
+        {BRANCHES.map((b, i) => {
+          const itemsInBranch = revealed ? items.filter(it => picks[it.id] === b.id) : [];
+          const correctInBranch = revealed ? itemsInBranch.filter(it => it.correct === b.id).length : 0;
+          const wrongInBranch = itemsInBranch.length - correctInBranch;
+          return (
+            <React.Fragment key={b.id}>
+              <N8nNodeCard
+                x={branchX[i]} y={branchY[i]}
+                label={b.node}
+                typeKey={b.id === 'A' ? 'output' : b.id === 'B' ? 'wait' : 'error'}
+                icon={b.icon}
+                subLabel={b.rule.toUpperCase()}
+              />
+              {revealed && itemsInBranch.length > 0 && (
+                <div style={{ position: 'absolute' as const, left: branchX[i] + N8N_NW + 10, top: branchY[i] + 2, width: 100, fontFamily: "'JetBrains Mono', monospace", fontSize: 9 }}>
+                  {correctInBranch > 0 && <div style={{ color: '#10B981' }}>{correctInBranch} correct</div>}
+                  {wrongInBranch > 0 && <div style={{ color: '#DC2626' }}>{wrongInBranch} misrouted</div>}
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
+      </N8nCanvas>
+
+      {/* Rule legend + actions */}
+      <div style={{ padding: '10px 16px', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' as const }}>
+          {BRANCHES.map(b => (
+            <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ padding: '2px 6px', background: 'rgba(124,58,237,0.20)', borderRadius: 3, fontSize: 9, fontWeight: 800, color: '#A78BFA', fontFamily: "'JetBrains Mono', monospace" }}>{b.id}</span>
+              <span style={{ fontSize: 10, color: '#A3A3A3' }}>{b.rule}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {revealed ? (
+            <>
+              <span style={{ fontSize: 11, fontWeight: 700, color: score === items.length ? '#10B981' : '#F59E0B', alignSelf: 'center' as const }}>{score}/{items.length} correct</span>
+              <button type="button" onClick={() => { setPicks({}); setRevealed(false); }} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>TRY AGAIN</button>
+            </>
+          ) : (
+            <button type="button" onClick={() => allPicked && setRevealed(true)} disabled={!allPicked} style={{ appearance: 'none', cursor: allPicked ? 'pointer' : 'not-allowed', background: allPicked ? '#FF6D5A' : 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 5, padding: '6px 14px', fontSize: 11, fontWeight: 700, color: allPicked ? '#fff' : 'rgba(255,255,255,0.4)', fontFamily: 'inherit' }}>EXECUTE SWITCH</button>
+          )}
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#059669' : '#D1FAE5', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#6B7280', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Reveal Routes</div>}
-        {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 4 ? '#16A34A' : '#F59E0B' }}>{score}/4 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
-      </div>
-    </div>
+    </N8nFrame>
   );
 };
 
+// Section 04: Wait + webhook approval gate rendered as an n8n canvas
+// running across the top, paired with the actual Slack interactive
+// message the Wait node sends. Both halves stay in sync — pressing
+// Approve/Reject/Simulate-48h in Slack lights up the matching branch
+// in the canvas and animates the workflow's resume.
 const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
   type ItemState = 'pending' | 'approved' | 'rejected' | 'escalated';
   const [state, setState] = useState<ItemState>('pending');
@@ -392,99 +712,198 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
     ? { id: 'CLM-4412', label: 'Pharmacy override · Tier 2', confidence: '0.71', sla: 'Thursday 17:00', channel: 'claims-review' }
     : { id: '#4412', label: 'Escalate to regional manager', days: '6d open (SLA: 5d)', sla: 'Thursday 12:00', channel: 'ops-approvals' };
 
-  const stateColor: Record<ItemState, string> = { pending: '#F59E0B', approved: '#16A34A', rejected: '#DC2626', escalated: '#7C3AED' };
-  const stateLabel: Record<ItemState, string> = { pending: 'PENDING', approved: '✓ APPROVED', rejected: '✗ REJECTED', escalated: '⇑ ESCALATED' };
+  const upstreamX = 12, waitX = 200, approveX = 408, rejectX = 408, escalateX = 408;
+  const upstreamY = 140;
+  const waitY = 140;
+  const approveY = 30;
+  const rejectY = 140;
+  const escalateY = 250;
 
   return (
-    <div style={{ background: '#1A1D21', borderRadius: '12px', padding: '0', overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ background: '#19171D', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #2D2D2D' }}>
-        <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#4A154B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>⧬</div>
-        <div style={{ color: '#D1D1D1', fontSize: '12px', fontWeight: 600 }}># {item.channel}</div>
-        <div style={{ marginLeft: 'auto', padding: '2px 8px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: `${stateColor[state]}20`, color: stateColor[state] }}>{stateLabel[state]}</div>
-      </div>
-      <div style={{ padding: '16px' }}>
-        <div style={{ background: '#222529', border: '1px solid #2D2D2D', borderRadius: '8px', padding: '12px 14px', marginBottom: '10px' }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#fff', fontWeight: 700, flexShrink: 0 }}>n8</div>
-            <div>
-              <div style={{ fontSize: '11px', color: '#D1D1D1', fontWeight: 600 }}>n8n Workflow Bot</div>
-              <div style={{ fontSize: '9px', color: '#616061' }}>Today at 09:14</div>
-            </div>
-          </div>
-          <div style={{ fontSize: '11px', color: '#D1D1D1', lineHeight: 1.6, marginBottom: '10px' }}>
-            {track === 'tech'
-              ? <><strong>⚑ Review Required</strong><br />Claim <span style={{ color: '#059669' }}>{item.id}</span> — confidence: <span style={{ color: '#F59E0B' }}>{item.confidence}</span><br />Suggested: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>
-              : <><strong>⚑ Approval Required</strong><br />Exception <span style={{ color: '#059669' }}>{item.id}</span> — {item.days}<br />Action: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>}
-          </div>
-          {state === 'approved' && <div style={{ padding: '8px 12px', background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', borderRadius: '6px', fontSize: '10px', color: '#6EE7B7' }}>✓ Approved — workflow resumed. {track === 'tech' ? 'Classification written to tracker.' : 'Escalation email sent.'}</div>}
-          {state === 'rejected' && <div style={{ padding: '8px 12px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.25)', borderRadius: '6px', fontSize: '10px', color: '#FCA5A5' }}>✗ Rejected — workflow stopped. {track === 'tech' ? 'Claim returned to manual triage.' : 'Exception held for re-review.'}</div>}
-          {state === 'escalated' && <div style={{ padding: '8px 12px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)', borderRadius: '6px', fontSize: '10px', color: '#C4B5FD' }}>⏱ 48h timeout — auto-escalated to team lead. Webhook: /webhook/escalate fired.</div>}
-          {state === 'pending' && (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <div onClick={() => setState('approved')} style={{ padding: '6px 16px', background: '#007A5A', borderRadius: '4px', fontSize: '10px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>✓ Approve</div>
-              <div onClick={() => setState('rejected')} style={{ padding: '6px 16px', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#D1D1D1', cursor: 'pointer' }}>✗ Reject</div>
-              <div onClick={() => setState('escalated')} style={{ padding: '6px 16px', border: '1px solid #616061', borderRadius: '4px', fontSize: '10px', color: '#A78BFA', cursor: 'pointer' }}>⏱ Sim. 48h</div>
-            </div>
-          )}
-          {state !== 'pending' && <div onClick={() => setState('pending')} style={{ marginTop: '8px', padding: '5px 12px', border: '1px solid #2D2D2D', borderRadius: '4px', fontSize: '9px', color: '#616061', cursor: 'pointer', display: 'inline-block' }}>↺ Reset</div>}
+    <N8nFrame filename={track === 'tech' ? 'wait-approval-claim.json' : 'wait-approval-exception.json'} status={state === 'pending' ? 'IDLE' : 'ACTIVE'}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
+        {/* LEFT: canvas */}
+        <div style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+          <N8nCanvas width={620} height={340}>
+            <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 620, height: 340, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+              <defs>
+                <marker id="ap-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+                </marker>
+              </defs>
+              {/* upstream → wait */}
+              <path d={n8nBezier(upstreamX + N8N_NW, upstreamY + N8N_NH / 2, waitX, waitY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#ap-arrow)" />
+              {/* wait → approve (top) */}
+              <path d={n8nBezier(waitX + N8N_NW, waitY + N8N_NH / 2, approveX, approveY + N8N_NH / 2)} stroke={state === 'approved' ? '#10B981' : 'rgba(255,255,255,0.10)'} strokeWidth={state === 'approved' ? 2 : 1.5} strokeDasharray={state === 'approved' ? undefined : '4 5'} fill="none" markerEnd="url(#ap-arrow)" />
+              {/* wait → reject (middle) */}
+              <path d={n8nBezier(waitX + N8N_NW, waitY + N8N_NH / 2, rejectX, rejectY + N8N_NH / 2)} stroke={state === 'rejected' ? '#DC2626' : 'rgba(255,255,255,0.10)'} strokeWidth={state === 'rejected' ? 2 : 1.5} strokeDasharray={state === 'rejected' ? undefined : '4 5'} fill="none" markerEnd="url(#ap-arrow)" />
+              {/* wait → escalate (bottom) */}
+              <path d={n8nBezier(waitX + N8N_NW, waitY + N8N_NH / 2, escalateX, escalateY + N8N_NH / 2)} stroke={state === 'escalated' ? '#A855F7' : 'rgba(255,255,255,0.10)'} strokeWidth={state === 'escalated' ? 2 : 1.5} strokeDasharray={state === 'escalated' ? undefined : '4 5'} fill="none" markerEnd="url(#ap-arrow)" />
+            </svg>
+
+            <N8nNodeCard x={upstreamX} y={upstreamY} label={track === 'tech' ? 'OpenAI Classify' : 'Validate Brief'} typeKey={track === 'tech' ? 'ai' : 'transform'} icon={track === 'tech' ? '◈' : '✓'} />
+            <N8nNodeCard x={waitX}     y={waitY}     label="Wait (webhook)" typeKey="wait" icon="⏱" subLabel={`TIMEOUT 48H · ${state.toUpperCase()}`} status={state === 'pending' ? 'pending' : 'ok'} />
+            <N8nNodeCard x={approveX}  y={approveY}  label={track === 'tech' ? 'Write Tracker' : 'Send Escalation'} typeKey="output" icon={track === 'tech' ? '⊞' : '✉'} ghost={state !== 'approved'} status={state === 'approved' ? 'ok' : undefined} />
+            <N8nNodeCard x={rejectX}   y={rejectY}   label={track === 'tech' ? 'Manual Triage' : 'Hold for Review'} typeKey="error" icon="⚠" ghost={state !== 'rejected'} status={state === 'rejected' ? 'fail' : undefined} />
+            <N8nNodeCard x={escalateX} y={escalateY} label="Auto-Escalate" typeKey="transform" icon="⇑" ghost={state !== 'escalated'} status={state === 'escalated' ? 'pending' : undefined} subLabel="WEBHOOK /escalate" />
+          </N8nCanvas>
         </div>
-        <div style={{ fontSize: '9px', color: '#616061' }}>Wait node holds execution until response. Timeout 48h → escalation webhook fires automatically.</div>
+
+        {/* RIGHT: Slack interactive message */}
+        <div style={{ background: '#1A1D21', display: 'flex', flexDirection: 'column' as const }}>
+          {/* Slack header */}
+          <div style={{ background: '#19171D', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #2D2D2D' }}>
+            <div style={{ width: 24, height: 24, borderRadius: 5, background: '#4A154B', color: '#fff', fontWeight: 900, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'serif' }}>⧬</div>
+            <div style={{ color: '#D1D1D1', fontSize: 12, fontWeight: 700 }}># {item.channel}</div>
+            <div style={{ marginLeft: 'auto', fontSize: 9, color: '#616061', fontFamily: "'JetBrains Mono', monospace" }}>Slack</div>
+          </div>
+
+          {/* Slack message */}
+          <div style={{ padding: 14, flex: 1 }}>
+            <div style={{ background: '#222529', border: '1px solid #2D2D2D', borderLeft: '3px solid #4A154B', borderRadius: 6, padding: '10px 12px' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 5, background: '#059669', color: '#fff', fontWeight: 900, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>n8</div>
+                <div>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: '#D1D1D1' }}>n8n Workflow Bot · <span style={{ background: '#3F0E40', padding: '0 4px', borderRadius: 3, fontSize: 9, color: '#D1D1D1' }}>APP</span></div>
+                  <div style={{ fontSize: 9.5, color: '#616061', marginTop: 1 }}>Today at 09:14</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 11.5, color: '#D1D1D1', lineHeight: 1.6, marginBottom: 10 }}>
+                {track === 'tech'
+                  ? <><strong>⚑ Review Required</strong><br />Claim <span style={{ color: '#7BCFA0' }}>{item.id}</span> — confidence <span style={{ color: '#F5A623' }}>{item.confidence}</span><br />Suggested: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>
+                  : <><strong>⚑ Approval Required</strong><br />Exception <span style={{ color: '#7BCFA0' }}>{item.id}</span> — {item.days}<br />Action: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>}
+              </div>
+              {state === 'pending' && (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button type="button" onClick={() => setState('approved')} style={{ appearance: 'none', cursor: 'pointer', background: '#007A5A', border: 'none', borderRadius: 4, padding: '6px 14px', fontSize: 10.5, fontWeight: 700, color: '#fff', fontFamily: 'inherit' }}>✓ Approve</button>
+                  <button type="button" onClick={() => setState('rejected')} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #616061', borderRadius: 4, padding: '6px 14px', fontSize: 10.5, fontWeight: 700, color: '#D1D1D1', fontFamily: 'inherit' }}>✗ Reject</button>
+                  <button type="button" onClick={() => setState('escalated')} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #616061', borderRadius: 4, padding: '6px 14px', fontSize: 10.5, fontWeight: 700, color: '#A78BFA', fontFamily: 'inherit' }}>⏱ Sim. 48h</button>
+                </div>
+              )}
+              {state === 'approved' && <div style={{ padding: '6px 10px', background: 'rgba(22,163,74,0.12)', border: '1px solid rgba(22,163,74,0.30)', borderRadius: 4, fontSize: 10, color: '#7BCFA0' }}>✓ Approved — webhook fired. Workflow resumed at Write Tracker.</div>}
+              {state === 'rejected' && <div style={{ padding: '6px 10px', background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.30)', borderRadius: 4, fontSize: 10, color: '#FCA5A5' }}>✗ Rejected — webhook fired. Item routed to manual triage queue.</div>}
+              {state === 'escalated' && <div style={{ padding: '6px 10px', background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.30)', borderRadius: 4, fontSize: 10, color: '#C4B5FD' }}>⏱ 48h timeout — workflow auto-escalated to team lead via /webhook/escalate.</div>}
+            </div>
+            {state !== 'pending' && (
+              <button type="button" onClick={() => setState('pending')} style={{ appearance: 'none', cursor: 'pointer', marginTop: 10, padding: '5px 12px', background: 'transparent', border: '1px solid #2D2D2D', borderRadius: 4, fontSize: 9.5, color: '#616061', fontFamily: 'inherit' }}>↺ Reset state</button>
+            )}
+          </div>
+
+          <div style={{ padding: '8px 14px', borderTop: '1px solid #2D2D2D', fontSize: 9, color: '#616061', fontFamily: "'JetBrains Mono', monospace" }}>
+            Wait node webhook: <span style={{ color: '#A78BFA' }}>/webhook/approve-{item.id}</span>
+          </div>
+        </div>
       </div>
-    </div>
+    </N8nFrame>
   );
 };
 
+// Section 05: Window Buffer Memory rendered as the n8n AI Agent canvas
+// (Chat Trigger → Agent → Memory) with TWO parallel session threads
+// shown as Anthropic Console-style chat panels below. The learner steps
+// each session forward and watches the memory IDs stay isolated — the
+// second user never sees the first user's context.
 const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
-  const users = track === 'tech'
+  type User = { id: string; name: string; color: string; questions: string[]; answers: string[] };
+  const users: User[] = track === 'tech'
     ? [
-        { id: 'user-7821', name: 'Aarav', color: '#059669', questions: ['What is deductible for Plan B, Tier 2?', 'What about Tier 3?', 'Is there a family cap?'], answers: ['Plan B Tier 2 deductible: $1,400/yr (plan schedule)', 'Plan B Tier 3: $2,100/yr. (Context: Plan B from prior turn)', 'Family OOP max for Plan B: $8,700 across all tiers.'] },
-        { id: 'user-4203', name: 'Guest', color: '#7C3AED', questions: ['What is the deductible?', 'For which plan?'], answers: ['I need more context — which plan and tier are you asking about?', 'No prior context in this session. Please specify plan and tier.'] },
+        { id: 'user-7821', name: 'Aarav', color: '#10B981', questions: ['What is deductible for Plan B, Tier 2?', 'What about Tier 3?', 'Is there a family cap?'], answers: ['Plan B Tier 2 deductible: $1,400/yr (per plan_schedule.pdf).', 'Plan B Tier 3: $2,100/yr. (Plan B inherited from prior turn.)', 'Family OOP max for Plan B: $8,700 across all tiers.'] },
+        { id: 'user-4203', name: 'Guest', color: '#A855F7', questions: ['What is the deductible?', 'For which plan?'],                                  answers: ['I need more context — which plan and tier?', 'No prior context in this session. Please specify the plan and tier.'] },
       ]
     : [
-        { id: 'rhea-3', name: 'Rhea', color: '#059669', questions: ['List open exceptions for Northstar West.', 'Which is highest priority?', 'Draft escalation for it.'], answers: ['3 open: #4412 (6d), #4419 (2d), #4433 (1d). SLA: 5d.', '#4412 — 6d open, 1d past SLA. (Context retained)', 'Drafting escalation for #4412 (Northstar West, 6d) to regional manager…'] },
-        { id: 'ops-9', name: 'Guest', color: '#7C3AED', questions: ['What is the highest priority exception?', 'Escalate it.'], answers: ['No account context in this session. Please specify account or exception ID.', 'I need an exception ID and account before escalating. (No prior context)'] },
+        { id: 'rhea-3', name: 'Rhea', color: '#10B981', questions: ['List open exceptions for Northstar West.', 'Which is highest priority?', 'Draft escalation for it.'], answers: ['3 open: #4412 (6d), #4419 (2d), #4433 (1d). SLA: 5d.', '#4412 — 6d open, 1d past SLA. (Carried from prior turn.)', 'Drafting escalation for #4412 (Northstar West, 6d) to regional manager…'] },
+        { id: 'ops-9', name: 'Guest', color: '#A855F7', questions: ['What is the highest-priority exception?', 'Escalate it.'],                       answers: ['No account context in this session. Specify an account or exception ID.', 'I need an exception ID before escalating. (No prior context.)'] },
       ];
 
   const [turns, setTurns] = useState<Record<string, number>>({});
-
-  const ask = (userId: string, user: typeof users[0]) => {
-    const current = turns[userId] ?? 0;
-    if (current < user.questions.length) {
-      setTurns(t => ({ ...t, [userId]: current + 1 }));
-    }
+  const ask = (user: User) => {
+    const current = turns[user.id] ?? 0;
+    if (current < user.questions.length) setTurns(prev => ({ ...prev, [user.id]: current + 1 }));
   };
+  const reset = () => setTurns({});
+
+  // Canvas geometry
+  const trigX = 12, agentX = 200, memX = 388, memY = 240, outX = 388;
+  const upperY = 30;
 
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>AI AGENT — WINDOW BUFFER MEMORY · SESSION ISOLATION</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Two users. Separate sessions. Click &quot;Ask Next&quot; to advance each conversation.</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-        {users.map(user => {
-          const t = turns[user.id] ?? 0;
-          return (
-            <div key={user.id} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${user.color}30`, borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <div style={{ fontSize: '10px', fontWeight: 700, color: user.color }}>{user.name}</div>
-                <div style={{ fontSize: '8px', color: '#374151', background: `${user.color}15`, padding: '2px 6px', borderRadius: '4px' }}>session: {user.id}</div>
+    <N8nFrame filename={track === 'tech' ? 'agent-claims-faq.json' : 'agent-ops-faq.json'} status="ACTIVE">
+      {/* Mini canvas at top */}
+      <N8nCanvas width={620} height={150}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 620, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id="si-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+          </defs>
+          <path d={n8nBezier(trigX + N8N_NW, upperY + N8N_NH / 2, agentX, upperY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#si-arrow)" />
+          <path d={n8nBezier(agentX + N8N_NW, upperY + N8N_NH / 2, outX, upperY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#si-arrow)" />
+          {/* memory attaches below agent */}
+          <path d={`M ${agentX + N8N_NW / 2} ${upperY + N8N_NH} L ${agentX + N8N_NW / 2} ${upperY + N8N_NH + 35}`} stroke="rgba(234,179,8,0.55)" strokeWidth={1.5} fill="none" strokeDasharray="4 4" />
+        </svg>
+        <N8nNodeCard x={trigX}  y={upperY} label="Chat Trigger"     typeKey="trigger" icon="💬" subLabel="WEBHOOK · sessionId" />
+        <N8nNodeCard x={agentX} y={upperY} label="AI Agent (Claude)" typeKey="ai"      icon="◈" />
+        <N8nNodeCard x={outX}   y={upperY} label="Respond to Chat"  typeKey="output"  icon="↩" />
+        {/* Memory node attached under the agent */}
+        <N8nNodeCard x={agentX} y={upperY + N8N_NH + 35} label="Window Buffer Memory" typeKey="memory" icon="⌬" subLabel={`KEY {{ $json.sessionId }}`} />
+      </N8nCanvas>
+
+      {/* Two session threads */}
+      <div style={{ padding: '12px 16px 14px', borderTop: '1px solid rgba(255,255,255,0.06)', background: '#0A0D14' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>LIVE SESSIONS · MEMORY STORE KEYED BY sessionId</div>
+          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '4px 10px', fontSize: 9.5, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>RESET ALL</button>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          {users.map(user => {
+            const t = turns[user.id] ?? 0;
+            const done = t >= user.questions.length;
+            return (
+              <div key={user.id} style={{ background: '#13182A', border: `1px solid ${user.color}40`, borderRadius: 8, padding: '10px 12px', display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                {/* Session header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: user.color, color: '#0F1117', fontWeight: 900, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{user.name[0]}</div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#E5E5E5' }}>{user.name}</div>
+                      <div style={{ fontSize: 8.5, color: 'rgba(255,255,255,0.4)', fontFamily: "'JetBrains Mono', monospace" }}>sessionId: {user.id}</div>
+                    </div>
+                  </div>
+                  <div style={{ padding: '2px 6px', background: `${user.color}1A`, borderRadius: 4, fontSize: 8.5, fontWeight: 700, color: user.color, fontFamily: "'JetBrains Mono', monospace" }}>BUFFER {t} / 10</div>
+                </div>
+
+                {/* Thread */}
+                <div style={{ minHeight: 130, display: 'grid', gap: 5, alignContent: 'start' }}>
+                  {Array.from({ length: t }, (_, i) => (
+                    <React.Fragment key={i}>
+                      <div style={{ alignSelf: 'flex-start' as const, maxWidth: '85%', padding: '5px 9px', background: 'rgba(255,255,255,0.06)', borderRadius: '8px 8px 8px 2px', fontSize: 10.5, color: '#D4D4D4', lineHeight: 1.45 }}>{user.questions[i]}</div>
+                      <div style={{ alignSelf: 'flex-end' as const, maxWidth: '85%', padding: '5px 9px', background: `${user.color}1A`, border: `1px solid ${user.color}40`, borderRadius: '8px 8px 2px 8px', fontSize: 10.5, color: '#E5E5E5', lineHeight: 1.45 }}>{user.answers[i]}</div>
+                    </React.Fragment>
+                  ))}
+                  {t === 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontStyle: 'italic' as const, padding: '4px 0' }}>No conversation yet.</div>}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => ask(user)}
+                  disabled={done}
+                  style={{
+                    appearance: 'none', cursor: done ? 'default' : 'pointer',
+                    background: done ? 'rgba(255,255,255,0.06)' : user.color,
+                    border: 'none', borderRadius: 5, padding: '6px 12px',
+                    fontSize: 10.5, fontWeight: 700, color: done ? 'rgba(255,255,255,0.5)' : '#0F1117', fontFamily: 'inherit',
+                    marginTop: 'auto' as const,
+                  }}
+                >{done ? '✓ Session complete' : 'Ask next turn →'}</button>
               </div>
-              <div style={{ minHeight: '120px', display: 'grid', gap: '5px', alignContent: 'start' }}>
-                {Array.from({ length: t }, (_, i) => (
-                  <React.Fragment key={i}>
-                    <div style={{ fontSize: '9px', background: 'rgba(255,255,255,0.06)', borderRadius: '4px', padding: '4px 8px', color: '#C9D1D9' }}>👤 {user.questions[i]}</div>
-                    <div style={{ fontSize: '9px', background: `${user.color}10`, border: `1px solid ${user.color}20`, borderRadius: '4px', padding: '4px 8px', color: '#9CA3AF' }}>🤖 {user.answers[i]}</div>
-                  </React.Fragment>
-                ))}
-                {t === 0 && <div style={{ fontSize: '9px', color: '#374151', fontStyle: 'italic', padding: '4px 0' }}>No conversation yet.</div>}
-              </div>
-              <div onClick={() => ask(user.id, user)} style={{ marginTop: 'auto', padding: '5px 10px', background: t < user.questions.length ? user.color : '#374151', borderRadius: '5px', fontSize: '9px', color: '#fff', cursor: t < user.questions.length ? 'pointer' : 'not-allowed', textAlign: 'center' as const, fontWeight: 700 }}>
-                {t < user.questions.length ? 'Ask Next →' : '✓ Session complete'}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 10, padding: '7px 10px', background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.30)', borderRadius: 6, fontSize: 10, color: '#FCD34D', lineHeight: 1.55 }}>
+          Each <code style={{ background: 'rgba(255,255,255,0.06)', padding: '0 4px', borderRadius: 3, fontFamily: "'JetBrains Mono', monospace" }}>sessionId</code> keys a separate Window Buffer. {users[0].name}'s context doesn't leak into Guest's session — even though both hit the same Agent + Memory node.
+        </div>
       </div>
-      <div style={{ marginTop: '12px', padding: '6px 10px', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: '4px', fontSize: '9px', color: '#D97706' }}>Each session ID keeps memory separate. {users[0].name}&apos;s context doesn&apos;t leak into Guest&apos;s session — even on the same agent.</div>
-    </div>
+    </N8nFrame>
   );
 };
 
