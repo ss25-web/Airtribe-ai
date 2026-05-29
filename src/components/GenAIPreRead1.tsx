@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
@@ -177,51 +177,152 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
   );
 };
 
+// Interactive zone classifier. Learner picks a zone for each task; correct
+// placements turn green and slot into the zone column, wrong placements
+// flash red and stay in the tray for a retry.
+type ZoneKey = 'reliable' | 'extended' | 'unreliable';
 const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
-  const zones = [
-    {
-      label: 'Reliable', color: '#16A34A', bg: 'rgba(22,163,74,0.08)', border: 'rgba(22,163,74,0.3)',
-      tasks: track === 'tech'
-        ? ['Summarise case notes', 'Classify support tickets', 'Draft API docs', 'Reformat structured data']
-        : ['Draft correspondence', 'Summarise case files', 'Classify escalations', 'Rewrite in plain language'],
-    },
-    {
-      label: 'Extended', color: '#D97706', bg: 'rgba(217,119,6,0.08)', border: 'rgba(217,119,6,0.3)',
-      tasks: track === 'tech'
-        ? ['Coverage rate lookup (+ retrieval)', 'Policy Q&A (+ RAG)', 'Claim status check (+ tool)']
-        : ['Procedure lookup (+ document retrieval)', 'Case history Q&A (+ database)', 'Compliance check (+ rules engine)'],
-    },
-    {
-      label: 'Unreliable', color: '#DC2626', bg: 'rgba(220,38,38,0.08)', border: 'rgba(220,38,38,0.3)',
-      tasks: track === 'tech'
-        ? ['Precise claim arithmetic', 'Real-time account balances', 'Legally binding determinations']
-        : ['Exact premium calculations', 'Live case status', 'Binding compliance decisions'],
-    },
+  const ZONES: { key: ZoneKey; label: string; color: string; bg: string; border: string; sub: string }[] = [
+    { key: 'reliable',   label: 'Reliable',   color: '#16A34A', bg: 'rgba(22,163,74,0.10)',  border: 'rgba(22,163,74,0.35)',  sub: 'Text in, text out.' },
+    { key: 'extended',   label: 'Extended',   color: '#D97706', bg: 'rgba(217,119,6,0.10)',  border: 'rgba(217,119,6,0.35)',  sub: 'Reliable after retrieval.' },
+    { key: 'unreliable', label: 'Unreliable', color: '#DC2626', bg: 'rgba(220,38,38,0.10)',  border: 'rgba(220,38,38,0.35)',  sub: 'Wrong even with help.' },
   ];
+
+  type Task = { id: string; label: string; zone: ZoneKey; why: string };
+  const TASKS: Task[] = track === 'tech'
+    ? [
+        { id: 't1', label: 'Summarise a case note',                  zone: 'reliable',   why: 'Pure language work — input and output are text.' },
+        { id: 't2', label: 'Classify a support ticket',              zone: 'reliable',   why: 'Reading text and applying a label is a language task.' },
+        { id: 't3', label: 'Look up current coverage rate for a plan', zone: 'extended', why: 'Needs a query to the plan database first — model handles the language.' },
+        { id: 't4', label: 'Answer a policy question with citations', zone: 'extended',   why: 'Reliable once relevant policy text is retrieved into the prompt (RAG).' },
+        { id: 't5', label: 'Compute an exact claim adjustment amount', zone: 'unreliable', why: 'Precise arithmetic on real financial data — even with retrieval the model drifts.' },
+        { id: 't6', label: 'Decide whether to approve a high-stakes claim', zone: 'unreliable', why: 'Legally binding determination — completion fluency ≠ correctness.' },
+      ]
+    : [
+        { id: 't1', label: 'Draft a reply to a provider complaint',   zone: 'reliable',   why: 'Drafting from a complaint description is language work.' },
+        { id: 't2', label: 'Classify an escalation by category',      zone: 'reliable',   why: 'Reading the text and picking a label is a language task.' },
+        { id: 't3', label: 'Answer a policy question from the handbook', zone: 'extended', why: 'Reliable when the right handbook section is retrieved into the prompt.' },
+        { id: 't4', label: 'Look up current premium for a plan',      zone: 'extended',   why: 'Needs a lookup from the plan database before the model can respond.' },
+        { id: 't5', label: 'Check whether an SLA window is met live', zone: 'unreliable', why: 'Needs real timestamps and a clock — even with tools the silent-failure risk is too high.' },
+        { id: 't6', label: 'Make a binding compliance determination', zone: 'unreliable', why: 'Cannot be safely automated by a completion model regardless of context.' },
+      ];
+
+  const [placed, setPlaced] = useState<Record<string, ZoneKey>>({});
+  const [wrong, setWrong] = useState<string | null>(null);
+
+  const tray = TASKS.filter(t => !placed[t.id]);
+  const correctCount = Object.entries(placed).filter(([id, z]) => TASKS.find(t => t.id === id)?.zone === z).length;
+  const sorted = Object.keys(placed).length === TASKS.length;
+
+  const tryPlace = (taskId: string, zone: ZoneKey) => {
+    const task = TASKS.find(t => t.id === taskId);
+    if (!task) return;
+    if (task.zone !== zone) {
+      setWrong(taskId);
+      setTimeout(() => setWrong(null), 600);
+      return;
+    }
+    setPlaced(prev => ({ ...prev, [taskId]: zone }));
+  };
+
+  const reset = () => { setPlaced({}); setWrong(null); };
+
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#78716C', fontFamily: "'JetBrains Mono', monospace", marginBottom: '16px' }}>CAPABILITY ZONE MAP</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-        {zones.map((z) => (
-          <div key={z.label} style={{ background: z.bg, border: `1px solid ${z.border}`, borderRadius: '8px', padding: '14px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: z.color, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: z.color }} />
-              {z.label}
-            </div>
-            {z.tasks.map((t, i) => (
-              <div key={i} style={{ fontSize: '11px', color: '#44403C', lineHeight: 1.5, marginBottom: '4px', paddingLeft: '8px', borderLeft: `2px solid ${z.border}` }}>{t}</div>
-            ))}
-          </div>
-        ))}
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: 12, padding: '20px 24px', fontFamily: 'inherit' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>CAPABILITY ZONE MAP — SORT EACH TASK</div>
+        <div style={{ fontSize: 10, color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>{correctCount}/{TASKS.length} placed</div>
       </div>
-      <div style={{ marginTop: '12px', fontSize: '11px', color: '#78716C', lineHeight: 1.6 }}>
+
+      {/* Zone columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
+        {ZONES.map(z => {
+          const occupants = TASKS.filter(t => placed[t.id] === z.key);
+          return (
+            <div key={z.key} style={{ background: z.bg, border: `1px solid ${z.border}`, borderRadius: 8, padding: 12, minHeight: 130 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: z.color }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: z.color }}>{z.label}</span>
+              </div>
+              <div style={{ fontSize: 9.5, color: '#78716C', marginBottom: 10 }}>{z.sub}</div>
+              {occupants.map(t => (
+                <div key={t.id} style={{ background: 'var(--ed-card)', border: `1px solid ${z.border}`, borderRadius: 6, padding: '6px 8px', marginBottom: 6 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#44403C' }}>{t.label}</div>
+                  <div style={{ fontSize: 9.5, color: z.color, marginTop: 3, lineHeight: 1.45 }}>{t.why}</div>
+                </div>
+              ))}
+              {occupants.length === 0 && (
+                <div style={{ fontSize: 10, color: '#A8A29E', fontStyle: 'italic' as const }}>(empty)</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tray */}
+      {!sorted && (
+        <div style={{ background: 'var(--ed-card)', border: '1px solid #E7E5E4', borderRadius: 8, padding: 12 }}>
+          <div style={{ fontSize: 9.5, color: '#78716C', letterSpacing: '0.12em', marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" }}>TASKS TO SORT — PICK A ZONE FOR EACH</div>
+          {tray.map(t => (
+            <div key={t.id} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.04)',
+              background: wrong === t.id ? 'rgba(220,38,38,0.08)' : 'transparent',
+              transition: 'background 0.2s',
+            }}>
+              <span style={{ fontSize: 12, color: '#44403C' }}>{t.label}</span>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {ZONES.map(z => (
+                  <button
+                    key={z.key}
+                    type="button"
+                    onClick={() => tryPlace(t.id, z.key)}
+                    style={{
+                      appearance: 'none',
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      border: `1px solid ${z.border}`,
+                      borderRadius: 5,
+                      padding: '4px 8px',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: z.color,
+                      fontFamily: 'inherit',
+                    }}
+                  >{z.label}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* All sorted */}
+      {sorted && (
+        <div style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.35)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 9.5, fontWeight: 700, color: '#16A34A', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace" }}>ALL TASKS SORTED</div>
+            <div style={{ fontSize: 11, color: '#44403C', marginTop: 2 }}>Reliable zone = language tasks. Everything else needs more than a model call.</div>
+          </div>
+          <button
+            type="button"
+            onClick={reset}
+            style={{ appearance: 'none', cursor: 'pointer', background: 'var(--ed-card)', border: '1px solid #E7E5E4', borderRadius: 6, padding: '6px 10px', fontSize: 10, fontWeight: 700, color: '#44403C', fontFamily: 'inherit' }}
+          >Reset</button>
+        </div>
+      )}
+
+      <div style={{ marginTop: 12, fontSize: 10.5, color: '#78716C', lineHeight: 1.55 }}>
         <strong style={{ color: '#44403C' }}>Key question:</strong> Does the correct answer require a fact from a live system not in the prompt? → Extended or Unreliable.
       </div>
     </div>
   );
 };
 
+// Tab-switchable brief comparison. Learner toggles between Vague and Specified
+// briefs to watch the output drift from generic filler to structured analysis.
 const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
   const vague = track === 'tech' ? 'Summarise this case note.' : 'What should I do about this case?';
   const specific = track === 'tech'
     ? 'You are a claims triage assistant. Given the case note below, write a 3-sentence summary covering: (1) category, (2) key action required, (3) urgency level. Use plain language for a case worker. No bullet points.'
@@ -232,30 +333,69 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
   const specificOutput = track === 'tech'
     ? 'Category: Disputed claim — pharmacy benefit. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High.'
     : 'Category: Overdue exception request — provider credentialing. Recommended next step: Assign to credentialing team with 24h SLA flag; case has been pending 11 days past standard window.';
+
+  const TABS = [
+    { id: 'vague',    label: `Vague brief — ${protagonist}'s first attempt`,    prompt: vague,    output: vagueOutput,    accent: '#DC2626', verdict: 'Model filled the missing spec with generic filler.' },
+    { id: 'specific', label: `Specified brief — ${protagonist} after coaching`, prompt: specific, output: specificOutput, accent: '#16A34A', verdict: 'Format, role, length, audience all named — model has nothing left to invent.' },
+  ] as const;
+  type TabId = typeof TABS[number]['id'];
+  const [tab, setTab] = useState<TabId>('vague');
+  const active = TABS.find(t => t.id === tab)!;
+
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E9ECEF', borderRadius: '12px', overflow: 'hidden' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-        {[
-          { label: 'Vague brief (Dev)', prompt: vague, output: vagueOutput, accent: '#DC2626', bg: 'rgba(220,38,38,0.04)' },
-          { label: 'Specified brief (Priya)', prompt: specific, output: specificOutput, accent: '#16A34A', bg: 'rgba(22,163,74,0.04)' },
-        ].map((col) => (
-          <div key={col.label} style={{ padding: '16px', background: col.bg, borderRight: col.accent === '#DC2626' ? '1px solid #E9ECEF' : undefined }}>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: col.accent, letterSpacing: '0.1em', fontFamily: "'JetBrains Mono', monospace", marginBottom: '10px' }}>{col.label.toUpperCase()}</div>
-            <div style={{ background: 'var(--ed-card)', border: `1px solid ${col.accent}33`, borderRadius: '6px', padding: '10px 12px', marginBottom: '10px' }}>
-              <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>PROMPT</div>
-              <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6, fontStyle: 'italic' }}>&ldquo;{col.prompt}&rdquo;</div>
-            </div>
-            <div style={{ background: 'var(--ed-card)', border: '1px solid #E9ECEF', borderRadius: '6px', padding: '10px 12px' }}>
-              <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>OUTPUT</div>
-              <div style={{ fontSize: '11px', color: '#374151', lineHeight: 1.6 }}>{col.output}</div>
-            </div>
-          </div>
-        ))}
+    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E9ECEF', borderRadius: 12, padding: '16px 18px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 12 }}>
+        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace" }}>BRIEF COMPARE — TOGGLE TO COMPARE OUTPUTS</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {TABS.map(t => {
+            const isActive = t.id === tab;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                style={{
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  background: isActive ? `${t.accent}18` : 'var(--ed-card)',
+                  border: `1px solid ${isActive ? t.accent : '#E9ECEF'}`,
+                  borderRadius: 6,
+                  padding: '5px 10px',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: isActive ? t.accent : '#6B7280',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: '0.06em',
+                }}
+              >{t.id === 'vague' ? 'VAGUE' : 'SPECIFIED'}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ fontSize: 10, color: active.accent, fontWeight: 700, letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 10 }}>
+        {active.label.toUpperCase()}
+      </div>
+
+      <div style={{ background: 'var(--ed-card)', border: `1px solid ${active.accent}33`, borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
+        <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 4, fontFamily: "'JetBrains Mono', monospace" }}>PROMPT</div>
+        <div style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.65, fontStyle: 'italic' as const }}>&ldquo;{active.prompt}&rdquo;</div>
+      </div>
+
+      <div style={{ background: 'var(--ed-card)', border: '1px solid #E9ECEF', borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
+        <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 4, fontFamily: "'JetBrains Mono', monospace" }}>MODEL OUTPUT</div>
+        <div style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.65 }}>{active.output}</div>
+      </div>
+
+      <div style={{ fontSize: 10.5, color: active.accent, lineHeight: 1.55 }}>
+        <strong>{tab === 'vague' ? 'Why this drifts:' : 'Why this lands:'}</strong> {active.verdict}
       </div>
     </div>
   );
 };
 
+// Tab-switchable context packet. Toggle to see the same prompt run on a
+// complete vs broken payload — and what the model actually returned in each.
 const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
   const goodFields = track === 'tech'
     ? [
@@ -287,26 +427,320 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
         { label: 'case_notes', value: '(blank — pre-migration)', ok: false },
         { label: 'attachments', value: '2 × "unavailable"', ok: false },
       ];
+
+  const goodOutput = track === 'tech'
+    ? 'Category: Disputed pharmacy benefit claim. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High. Risk: $2,840 exposure on PT-88412 if SLA breached.'
+    : 'Category: Provider credentialing exception, submitted 2024-03-01 (case 7712). Recommended next step: Route to credentialing team; attached docs cover physician licensure and OON contract — sufficient for review without follow-up.';
+  const badOutput = track === 'tech'
+    ? 'A patient case was reviewed and requires further triage. The claim is being processed per standard procedure. Please escalate as needed.'
+    : 'Based on the available information, this case requires standard review. We recommend following the appropriate escalation process based on category and urgency.';
+
+  const TABS = [
+    { id: 'good', label: '✓ COMPLETE PACKET', fields: goodFields, output: goodOutput, color: '#16A34A', verdict: 'Every field filled — model writes from facts, not pattern-filler.' },
+    { id: 'bad',  label: '✗ BROKEN PACKET',  fields: badFields,  output: badOutput,  color: '#DC2626', verdict: 'Missing fields silently — model generates plausible filler. No error thrown.' },
+  ] as const;
+  type TabId = typeof TABS[number]['id'];
+  const [tab, setTab] = useState<TabId>('good');
+  const active = TABS.find(t => t.id === tab)!;
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#8B949E', marginBottom: '16px' }}>CONTEXT PACKET AUDIT — SAME PROMPT, DIFFERENT INPUTS</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-        {[
-          { label: '✓ Complete packet', fields: goodFields, color: '#16A34A' },
-          { label: '✗ Broken packet', fields: badFields, color: '#DC2626' },
-        ].map((col) => (
-          <div key={col.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '12px 14px' }}>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: col.color, marginBottom: '10px' }}>{col.label}</div>
-            {col.fields.map((f, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize: '10px', color: '#8B949E' }}>{f.label}</span>
-                <span style={{ fontSize: '10px', color: f.ok ? '#16A34A' : '#DC2626', fontWeight: f.ok ? 400 : 600 }}>{f.value}</span>
-              </div>
-            ))}
-          </div>
-        ))}
+    <div style={{ background: '#0D1117', borderRadius: 12, padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8B949E' }}>CONTEXT PACKET AUDIT — SAME PROMPT, DIFFERENT INPUTS</div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {TABS.map(t => {
+            const isActive = t.id === tab;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                style={{
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  background: isActive ? `${t.color}28` : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${isActive ? t.color : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 5,
+                  padding: '4px 8px',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: isActive ? t.color : '#7C7F84',
+                  fontFamily: 'inherit',
+                  letterSpacing: '0.06em',
+                }}
+              >{t.id === 'good' ? 'COMPLETE' : 'BROKEN'}</button>
+            );
+          })}
+        </div>
       </div>
-      <div style={{ marginTop: '12px', fontSize: '10px', color: '#484F58', lineHeight: 1.5 }}>The model generated a summary in both cases. The broken packet produced a plausible-looking but incomplete output. No error was thrown.</div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: active.color, marginBottom: 10 }}>{active.label}</div>
+          {active.fields.map((f, i) => (
+            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <span style={{ fontSize: 10, color: '#8B949E' }}>{f.label}</span>
+              <span style={{ fontSize: 10, color: f.ok ? '#16A34A' : '#DC2626', fontWeight: f.ok ? 400 : 600 }}>{f.value}</span>
+            </div>
+          ))}
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#8B949E', marginBottom: 10, letterSpacing: '0.08em' }}>MODEL OUTPUT</div>
+          <div style={{ fontSize: 10.5, color: '#C9D1D9', lineHeight: 1.65, fontFamily: "'Lora', Georgia, serif" }}>{active.output}</div>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 12, fontSize: 10.5, color: active.color, lineHeight: 1.55 }}>
+        <strong>{tab === 'good' ? 'Why this works:' : 'Why this drifts silently:'}</strong> {active.verdict}
+      </div>
+    </div>
+  );
+};
+
+// ── Section 5: Use-Case Readiness Scorer (interactive) ──────────────────────
+// Learner picks one of three candidate first AI use cases (auto-approve,
+// classify-with-review, autonomous intake) and walks through five readiness
+// criteria. Each row reveals a pass/fail verdict with a one-line explanation;
+// a final verdict ribbon shows whether this is a safe first build.
+const UseCaseReadinessCard = ({ track }: { track: GenAITrack }) => {
+  type CriterionKey = 'language' | 'bounded' | 'verify' | 'recover' | 'observe';
+  type Outcome = { pass: boolean; note: string };
+  type Candidate = {
+    id: 'auto' | 'review' | 'autonomous';
+    label: string;
+    blurb: string;
+    verdict: 'Build first' | 'Wait — needs review step' | 'Don’t build';
+    verdictColor: string;
+    rows: Record<CriterionKey, Outcome>;
+  };
+
+  const CRITERIA: { key: CriterionKey; label: string; sub: string }[] = [
+    { key: 'language', label: 'Language-based', sub: 'Text in, text out — no live data lookup.' },
+    { key: 'bounded',  label: 'Bounded output', sub: 'A category, draft or summary — not a final action.' },
+    { key: 'verify',   label: 'Easy to verify', sub: 'A human can spot a wrong output quickly.' },
+    { key: 'recover',  label: 'Recoverable',    sub: 'Errors caught before they affect anything downstream.' },
+    { key: 'observe',  label: 'Observable',     sub: 'You can see what the model gets wrong, not just right.' },
+  ];
+
+  const CANDIDATES: Candidate[] = track === 'tech'
+    ? [
+        {
+          id: 'auto',
+          label: 'Auto-approve routine exceptions at >80% confidence',
+          blurb: 'Biggest headline ROI. No human in the loop. Confidence threshold gates the action.',
+          verdict: 'Don’t build',
+          verdictColor: '#DC2626',
+          rows: {
+            language: { pass: false, note: 'Approval requires policy + claim record. That’s a lookup, not language work.' },
+            bounded:  { pass: false, note: 'Output is an irreversible decision on a live case.' },
+            verify:   { pass: false, note: 'Nobody reads correct approvals — wrong ones are invisible.' },
+            recover:  { pass: false, note: 'Wrong approval routes through downstream systems silently.' },
+            observe:  { pass: false, note: 'You see headline volume, not the failure pattern.' },
+          },
+        },
+        {
+          id: 'review',
+          label: 'Classify case requests + flag low-confidence for human review',
+          blurb: 'Model suggests a category. Human confirms anything uncertain. Tickets land in the right queue.',
+          verdict: 'Build first',
+          verdictColor: '#16A34A',
+          rows: {
+            language: { pass: true,  note: 'Reading a request and assigning a label is pure language work.' },
+            bounded:  { pass: true,  note: 'Output is one label from a small set — not an action.' },
+            verify:   { pass: true,  note: 'A reviewer can confirm or override a label in seconds.' },
+            recover:  { pass: true,  note: 'Wrong labels are caught at review before anything routes.' },
+            observe:  { pass: true,  note: 'You log every disagreement — that’s your failure-mode dataset.' },
+          },
+        },
+        {
+          id: 'autonomous',
+          label: 'Autonomous intake agent: monitor, route, act',
+          blurb: 'Long-running agent watches the queue and takes action without checkpoints.',
+          verdict: 'Don’t build',
+          verdictColor: '#DC2626',
+          rows: {
+            language: { pass: false, note: 'Routing decisions touch live system state — not in the prompt.' },
+            bounded:  { pass: false, note: 'Multi-step actions, not a single bounded output.' },
+            verify:   { pass: false, note: 'A reviewer can’t reconstruct what the agent did across N steps.' },
+            recover:  { pass: false, note: 'Side-effects from step 3 are live by the time step 7 fails.' },
+            observe:  { pass: false, note: 'Compound failure modes — hard to attribute which step went wrong.' },
+          },
+        },
+      ]
+    : [
+        {
+          id: 'auto',
+          label: 'Auto-resolve routine exceptions at >80% confidence',
+          blurb: 'Biggest headcount story. No human in the loop. Confidence score gates the action.',
+          verdict: 'Don’t build',
+          verdictColor: '#DC2626',
+          rows: {
+            language: { pass: false, note: 'Resolving an exception needs policy + case data the model can’t see.' },
+            bounded:  { pass: false, note: 'The output is a real action affecting the submitter — not just text.' },
+            verify:   { pass: false, note: 'Nobody reads correct resolutions; wrong ones surface only downstream.' },
+            recover:  { pass: false, note: 'A wrong resolution notice is hard to walk back.' },
+            observe:  { pass: false, note: 'You see how many got resolved — not how many got resolved wrong.' },
+          },
+        },
+        {
+          id: 'review',
+          label: 'Classify escalations + flag low-confidence for human review',
+          blurb: 'Model suggests a category and urgency. A reviewer confirms anything uncertain before it routes.',
+          verdict: 'Build first',
+          verdictColor: '#16A34A',
+          rows: {
+            language: { pass: true,  note: 'Reading an escalation and assigning a category is language work.' },
+            bounded:  { pass: true,  note: 'Output is one label — bounded, not an action.' },
+            verify:   { pass: true,  note: 'A reviewer can confirm or correct in under a minute.' },
+            recover:  { pass: true,  note: 'Wrong labels caught at the review step before routing.' },
+            observe:  { pass: true,  note: 'Every reviewer correction is data on where the model fails.' },
+          },
+        },
+        {
+          id: 'autonomous',
+          label: 'AI drafts complaint responses sent after a 30-sec spot check',
+          blurb: 'AI writes the reply, an assistant glances, then it goes out the door.',
+          verdict: 'Wait — needs review step',
+          verdictColor: '#D97706',
+          rows: {
+            language: { pass: true,  note: 'Drafting a reply from a complaint description is language work.' },
+            bounded:  { pass: true,  note: 'Output is a draft — bounded.' },
+            verify:   { pass: false, note: '30-second spot checks miss tone errors and factual drift.' },
+            recover:  { pass: false, note: 'A bad reply is already in the provider’s inbox.' },
+            observe:  { pass: false, note: 'You won’t see the bad drafts that slipped through.' },
+          },
+        },
+      ];
+
+  const [pickedId, setPickedId] = useState<Candidate['id']>('review');
+  const [revealed, setRevealed] = useState<Record<CriterionKey, boolean>>({
+    language: false, bounded: false, verify: false, recover: false, observe: false,
+  });
+
+  const picked = CANDIDATES.find(c => c.id === pickedId)!;
+  const revealedCount = (Object.keys(revealed) as CriterionKey[]).filter(k => revealed[k]).length;
+  const allRevealed = revealedCount === CRITERIA.length;
+  const passCount = (Object.keys(revealed) as CriterionKey[]).filter(k => revealed[k] && picked.rows[k].pass).length;
+
+  const switchCandidate = (id: Candidate['id']) => {
+    setPickedId(id);
+    setRevealed({ language: false, bounded: false, verify: false, recover: false, observe: false });
+  };
+
+  return (
+    <div style={{ background: '#0D1117', borderRadius: 12, padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8B949E', marginBottom: 14 }}>FIRST USE-CASE READINESS SCORER — PICK ONE, WALK THE CRITERIA</div>
+
+      {/* Candidate chooser */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
+        {CANDIDATES.map(c => {
+          const active = c.id === pickedId;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => switchCandidate(c.id)}
+              style={{
+                appearance: 'none',
+                cursor: 'pointer',
+                textAlign: 'left' as const,
+                background: active ? `rgba(${ACCENT_RGB},0.18)` : 'rgba(255,255,255,0.03)',
+                border: active ? `1.5px solid ${ACCENT}` : '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 8,
+                padding: '10px 12px',
+                color: '#C9D1D9',
+                fontFamily: 'inherit',
+              }}
+            >
+              <div style={{ fontSize: 9, color: active ? ACCENT : '#7C7F84', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4 }}>
+                OPTION {c.id === 'auto' ? '01' : c.id === 'review' ? '02' : '03'}
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#F0F6FC', lineHeight: 1.3, marginBottom: 6 }}>{c.label}</div>
+              <div style={{ fontSize: 9.5, color: '#8B949E', lineHeight: 1.45 }}>{c.blurb}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Criteria rows */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 9.5, color: '#8B949E', letterSpacing: '0.1em' }}>FIVE READINESS CRITERIA · CLICK TO REVEAL</span>
+          <span style={{ fontSize: 9, color: '#7C7F84' }}>{revealedCount}/{CRITERIA.length} revealed</span>
+        </div>
+        {CRITERIA.map(c => {
+          const isRevealed = revealed[c.key];
+          const row = picked.rows[c.key];
+          return (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => setRevealed(prev => ({ ...prev, [c.key]: true }))}
+              disabled={isRevealed}
+              style={{
+                appearance: 'none',
+                cursor: isRevealed ? 'default' : 'pointer',
+                textAlign: 'left' as const,
+                display: 'block',
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                padding: '10px 0',
+                fontFamily: 'inherit',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                  background: isRevealed ? (row.pass ? 'rgba(22,163,74,0.18)' : 'rgba(220,38,38,0.18)') : 'rgba(255,255,255,0.06)',
+                  border: `1px solid ${isRevealed ? (row.pass ? '#16A34A' : '#DC2626') : 'rgba(255,255,255,0.16)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: isRevealed ? (row.pass ? '#16A34A' : '#DC2626') : '#484F58',
+                  fontSize: 10, fontWeight: 800,
+                }}>{isRevealed ? (row.pass ? '✓' : '✗') : '?'}</div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#F0F6FC' }}>{c.label}</div>
+                  <div style={{ fontSize: 9.5, color: '#8B949E', marginTop: 1 }}>{c.sub}</div>
+                  {isRevealed && (
+                    <div style={{ fontSize: 10, color: row.pass ? '#86EFAC' : '#FCA5A5', marginTop: 5, lineHeight: 1.5 }}>
+                      &rarr; {row.note}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Verdict ribbon */}
+      <div style={{
+        background: allRevealed ? `${picked.verdictColor}22` : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${allRevealed ? picked.verdictColor : 'rgba(255,255,255,0.08)'}`,
+        borderRadius: 8,
+        padding: '10px 14px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: 12,
+      }}>
+        <div>
+          <div style={{ fontSize: 9, letterSpacing: '0.15em', color: allRevealed ? picked.verdictColor : '#7C7F84', fontWeight: 700, marginBottom: 2 }}>
+            VERDICT {allRevealed ? '' : '— REVEAL ALL CRITERIA'}
+          </div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: allRevealed ? '#F0F6FC' : '#7C7F84' }}>
+            {allRevealed ? picked.verdict : 'Walk every row before deciding.'}
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: '#8B949E', fontFamily: "'JetBrains Mono', monospace" }}>
+          {passCount}/{CRITERIA.length} pass
+        </div>
+      </div>
+
+      <div style={{ marginTop: 10, fontSize: 10, color: '#484F58', lineHeight: 1.5 }}>
+        Three concrete candidates, five lenses, one bar. The first build maximises observability, not headline impact.
+      </div>
     </div>
   );
 };
@@ -939,6 +1373,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           'Observable: you can see what the model gets wrong, not just what it gets right.',
         ], ACCENT)}
         {PMPrincipleBox({ label: '◈ Principle', principle: 'Win clearly, verify easily, fail cheaply. That is the brief for the first use case.' })}
+        <TiltCard style={{ margin: '28px 0' }}><UseCaseReadinessCard track={track} /></TiltCard>
         <ApplyItBox prompt={track === 'tech' ? "Name three AI integration candidates from your current backlog. Run each through the five criteria: language-based, bounded output, easy to verify, recoverable, observable failures. Which one scores best? What does running it first teach you that the others can't?" : "Name one AI workflow you've been considering. Run it through the five criteria. Where does it pass, where does it fail? What's the smallest, most learnable version of the same idea that clears all five?"} />
         <QuizEngine conceptId="genai-m1-use-case-readiness" conceptName="Use-Case Readiness" moduleContext={moduleContext} staticQuiz={QUIZZES[4]} />
         <NextChapterTeaser text={track === 'tech' ? "Aarav has the mental model, the capability map, the specification habit, the context discipline, and a first use case worth building. Pre-Read 02 goes inside the model: how to write prompts that stay reliable when real, messy data is flowing through them." : "Rhea now has everything she needs to think clearly about GenAI. Pre-Read 02 goes deeper: how to write prompts that produce consistent, reliable outputs when the data is real and the stakes are higher."} />
