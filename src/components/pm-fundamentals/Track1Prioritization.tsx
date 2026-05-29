@@ -694,12 +694,12 @@ const PrioritizationCheatSheet = () => {
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '32px', fontWeight: 700, color: 'rgba(255,255,255,0.15)', lineHeight: 1 }}>03</div>
         </div>
-        <div style={{ background: '#FFFFFF', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <div style={{ background: 'var(--ed-card)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           {sections.map((section, idx) => (
             <div key={section.title} style={{
               padding: '20px 20px',
-              borderRight: idx % 2 === 0 ? '1px solid #F0EDE8' : 'none',
-              borderBottom: idx < 2 ? '1px solid #F0EDE8' : 'none',
+              borderRight: idx % 2 === 0 ? '1px solid var(--ed-rule)' : 'none',
+              borderBottom: idx < 2 ? '1px solid var(--ed-rule)' : 'none',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
                 <span style={{ fontSize: '16px', color: section.color }} dangerouslySetInnerHTML={{ __html: section.icon }} />

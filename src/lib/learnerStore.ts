@@ -244,9 +244,33 @@ export const useLearnerStore = create<LearnerStore>()(
     }),
     {
       name: 'airtribe-learner',
-      version: 3, // bumped for completedSections
+      version: 4, // bumped for PM section ID rename (M03/M04/M05 struct-fix)
       migrate: (persistedState: unknown, _version) => {
         const state = (persistedState as PersistedLearnerStore | undefined) ?? {};
+
+        // PM section-ID migration: struct-fix renamed M03/M04/M05 chapter IDs
+        // to match the routing module number. Any progress stored under the
+        // pre-reorder IDs needs to be re-keyed so badges + section ticks
+        // light up again after the rename.
+        const sectionRenames: Record<string, (id: string) => string> = {
+          'pm-03': (id) => id.startsWith('m2-') ? 'm3-' + id.slice(3) : id,
+          'pm-04': (id) => id.startsWith('m3-') ? 'm4-' + id.slice(3) : id,
+          'pm-05': (id) => {
+            if (id.startsWith('m4-apm-')) return 'm5-apm-' + id.slice(7);
+            if (id.startsWith('m4-'))     return 'm5-' + id.slice(3);
+            return id;
+          },
+        };
+        const migratedCompleted: Record<string, string[]> = {};
+        const sourceCompleted = state.completedSections ?? {};
+        for (const moduleKey of Object.keys(sourceCompleted)) {
+          const rename = sectionRenames[moduleKey];
+          const original = sourceCompleted[moduleKey] ?? [];
+          migratedCompleted[moduleKey] = rename
+            ? Array.from(new Set(original.map(rename)))
+            : original;
+        }
+
         return {
           learnerId: state.learnerId ?? `learner_${Math.random().toString(36).slice(2, 9)}`,
           conceptStates: state.conceptStates ?? {},
@@ -256,7 +280,7 @@ export const useLearnerStore = create<LearnerStore>()(
           streakDays: state.streakDays ?? 0,
           lastActiveDate: state.lastActiveDate ?? '',
           theme: state.theme ?? 'dark',
-          completedSections: state.completedSections ?? {},
+          completedSections: migratedCompleted,
         };
       },
       partialize: (state) => ({
