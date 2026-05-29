@@ -1058,26 +1058,57 @@ export function SignalPrism() {
   );
 }
 
-// ─── M07 · T1 · THE METRIC CONSTELLATION ─────────────────────────────────────
-// North Star = brightest central star. Guardrail metrics = ring of mid-size stars.
-// Secondary/diagnostic = outer ring of small stars. Dotted lines show causality.
+// ─── M07 · T1 · METRIC SYSTEM DASHBOARD ──────────────────────────────────────
+// An Amplitude/Mixpanel-style dashboard rendered as the actual three-layer
+// metric system the chapter teaches: one giant North Star tile at the top,
+// three guardrail tiles in the middle, six diagnostic mini-tiles in the
+// bottom row. Each tile has its real value, trend pill, target and a
+// sparkline so the visual hierarchy IS the lesson — the layers are
+// physically smaller as they get further from the North Star.
 
-const NORTH_STAR = { label: 'Coaching ROI', sub: 'North Star', x: 300, y: 190 };
-const GUARDRAILS = [
-  { label: 'Week-2 retention', color: '#6366F1', angle: -120, r: 110 },
-  { label: 'Session depth', color: '#0EA5E9', angle: -60, r: 110 },
-  { label: 'Activation rate', color: '#22C55E', angle: 0, r: 110 },
-  { label: 'Support load', color: '#F97316', angle: 60, r: 110 },
-  { label: 'NPS', color: '#8B5CF6', angle: 120, r: 110 },
-  { label: 'Churn rate', color: '#EF4444', angle: 180, r: 110 },
+function DashSpark({ points, color, target, h = 26, w = 96 }: { points: number[]; color: string; target?: number; h?: number; w?: number }) {
+  const max = Math.max(...points, target ?? 0) * 1.1;
+  const min = Math.min(...points, target ?? Infinity) * 0.9;
+  const range = max - min || 1;
+  const xs = points.map((_, i) => (i / (points.length - 1)) * w);
+  const ys = points.map(p => h - ((p - min) / range) * h);
+  const path = xs.map((x, i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
+  const area = `${path} L ${w} ${h} L 0 ${h} Z`;
+  const targetY = target !== undefined ? h - ((target - min) / range) * h : null;
+  return (
+    <svg width={w} height={h} style={{ display: 'block' }}>
+      <path d={area} fill={color} opacity="0.12" />
+      {targetY !== null && <line x1="0" y1={targetY} x2={w} y2={targetY} stroke={color} strokeWidth="0.6" strokeDasharray="2 2" opacity="0.5" />}
+      <path d={path} fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="2.4" fill={color} stroke="#FFF" strokeWidth="1" />
+    </svg>
+  );
+}
+
+const NS_TILE = {
+  label: 'Coaching ROI',
+  value: '+34%',
+  delta: '+6pp WoW',
+  deltaCol: '#22C55E',
+  target: 'Target +40% by EOQ',
+  sub: 'Quarterly business-impact lift from EdSpark coaching sessions',
+  spark: [22, 24, 27, 26, 29, 31, 30, 33, 34],
+  targetPt: 36,
+};
+
+const GUARDRAIL_TILES = [
+  { label: 'Week-2 retention', value: '32%',  delta: '−8.3pp WoW', deltaCol: '#DC2626', col: '#6366F1', target: 45,   spark: [44, 43, 41, 40, 38, 37, 35, 34, 32], owner: 'Priya' },
+  { label: 'Activation rate',  value: '71%',  delta: '+4pp WoW',   deltaCol: '#22C55E', col: '#22C55E', target: 75,   spark: [62, 64, 65, 66, 68, 70, 71, 70, 71], owner: 'Maya'  },
+  { label: 'Session depth',    value: '3.4/wk', delta: 'stable',   deltaCol: '#9CA3AF', col: '#0EA5E9', target: 4,    spark: [3.2, 3.3, 3.4, 3.3, 3.4, 3.4, 3.5, 3.4, 3.4], owner: 'Kiran' },
 ];
-const SECONDARY = [
-  { label: 'Onboarding\ncompletion', color: '#94A3B8', angle: -150, r: 185 },
-  { label: 'Search\nusage', color: '#94A3B8', angle: -90, r: 185 },
-  { label: 'Coach\ncomments', color: '#94A3B8', angle: -30, r: 185 },
-  { label: 'DAU/MAU', color: '#94A3B8', angle: 30, r: 185 },
-  { label: 'Feature\nadoption', color: '#94A3B8', angle: 90, r: 185 },
-  { label: 'Ramp\ntime', color: '#94A3B8', angle: 150, r: 185 },
+
+const DIAGNOSTIC_TILES = [
+  { label: 'Onboarding completion', value: '58%',     col: '#94A3B8', spark: [62, 60, 59, 58, 58, 57, 58, 58, 58] },
+  { label: 'Search usage',          value: '12/sess', col: '#94A3B8', spark: [8, 9, 10, 10, 11, 11, 12, 12, 12] },
+  { label: 'Coach comments',        value: '4.2/sess', col: '#94A3B8', spark: [3, 3.4, 3.6, 3.8, 4, 4.1, 4.2, 4.2, 4.2] },
+  { label: 'DAU / MAU',             value: '0.41',     col: '#94A3B8', spark: [0.38, 0.39, 0.40, 0.40, 0.41, 0.41, 0.42, 0.41, 0.41] },
+  { label: 'Feature adoption',      value: '47%',     col: '#94A3B8', spark: [40, 42, 43, 44, 45, 46, 46, 47, 47] },
+  { label: 'Ramp time',             value: '11 days', col: '#94A3B8', spark: [14, 13, 13, 12, 12, 12, 11, 11, 11] },
 ];
 
 export function MetricConstellation() {
@@ -1089,87 +1120,99 @@ export function MetricConstellation() {
   useEffect(() => {
     if (!inView) return;
     setStage(0);
-    [1,2,3].forEach((s, i) => setTimeout(() => setStage(s), 400 + i * 800));
+    const ts = [1,2,3,4].map((s, i) => setTimeout(() => setStage(s), 350 + i * 650));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
-
-  const toXY = (angle: number, r: number) => ({
-    x: NORTH_STAR.x + r * Math.cos(angle * Math.PI / 180),
-    y: NORTH_STAR.y + r * Math.sin(angle * Math.PI / 180),
-  });
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', background: 'radial-gradient(ellipse at 50% 45%, #0D1929 0%, #040810 100%)', border: '1px solid rgba(255,255,255,0.07)', boxShadow: '0 24px 56px rgba(0,0,0,0.35)' }}>
-        <svg viewBox="0 0 600 400" style={{ width: '100%', display: 'block' }}>
-          {/* Background stars */}
-          {Array.from({ length: 40 }, (_, i) => ({ x: (i * 47 + 13) % 590, y: (i * 83 + 29) % 390 })).map((s, i) => (
-            <circle key={i} cx={s.x} cy={s.y} r={0.8} fill="rgba(255,255,255,0.2)" />
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)', background: '#F7F4EC' }}>
+        {/* Top status bar */}
+        <div style={{ background: '#1B2A47', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '14px', height: '14px', borderRadius: '3px', background: '#F97316', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '4px', height: '8px', background: '#FFF' }} />
+          </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: '#FFF', fontWeight: 700 }}>Amplitude</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.5)' }}>·</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '11px', color: 'rgba(255,255,255,0.78)' }}>EdSpark · Metric System · Q2</div>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.12em' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E' }} />
+            LIVE · 6h ago
+          </div>
+        </div>
+
+        {/* Layer label */}
+        <div style={{ padding: '14px 20px 6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#F97316', letterSpacing: '0.24em' }}>
+          LAYER 01 · NORTH STAR
+        </div>
+
+        {/* HERO: North Star tile */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: stage >= 1 ? 1 : 0, y: stage >= 1 ? 0 : 8 }} transition={{ duration: 0.5 }}
+          style={{ margin: '0 20px 16px', padding: '20px 22px', background: '#FFFFFF', border: '1.5px solid #F97316', borderRadius: '10px', display: 'grid', gridTemplateColumns: '1fr 220px', gap: '20px', alignItems: 'center', boxShadow: '0 10px 28px rgba(249,115,22,0.10)' }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#9CA3AF', letterSpacing: '0.16em', fontWeight: 700, marginBottom: '4px' }}>NORTH STAR · QUARTER</div>
+            <div style={{ fontSize: '14px', color: '#1F2937', fontFamily: 'Georgia, serif', fontWeight: 700, marginBottom: '12px' }}>{NS_TILE.label}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+              <div style={{ fontSize: '48px', fontWeight: 900, color: '#1F2937', fontFamily: 'system-ui', letterSpacing: '-0.02em', lineHeight: 1 }}>{NS_TILE.value}</div>
+              <div style={{ padding: '3px 10px', borderRadius: '14px', background: '#DCFCE7', fontSize: '11px', color: NS_TILE.deltaCol, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{NS_TILE.delta}</div>
+            </div>
+            <div style={{ fontSize: '11px', color: '#6B7280', fontFamily: 'system-ui' }}>{NS_TILE.target}</div>
+            <div style={{ fontSize: '11px', color: '#9CA3AF', fontStyle: 'italic', marginTop: '6px' }}>{NS_TILE.sub}</div>
+          </div>
+          <DashSpark points={NS_TILE.spark} target={NS_TILE.targetPt} color="#F97316" h={70} w={220} />
+        </motion.div>
+
+        {/* GUARDRAIL ROW */}
+        <div style={{ padding: '6px 20px 6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#6366F1', letterSpacing: '0.24em' }}>
+          LAYER 02 · GUARDRAILS · &ldquo;don&apos;t game the north star&rdquo;
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '0 20px 18px' }}>
+          {GUARDRAIL_TILES.map((g, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: stage >= 2 ? 1 : 0, y: stage >= 2 ? 0 : 8 }} transition={{ delay: 0.1 + i * 0.1, duration: 0.4 }}
+              style={{ padding: '12px 14px', background: '#FFFFFF', border: `1px solid ${g.col}33`, borderTop: `3px solid ${g.col}`, borderRadius: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                <div>
+                  <div style={{ fontSize: '10px', color: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', fontWeight: 700, marginBottom: '2px' }}>GUARDRAIL</div>
+                  <div style={{ fontSize: '12px', color: '#1F2937', fontWeight: 700 }}>{g.label}</div>
+                </div>
+                <div style={{ padding: '2px 7px', borderRadius: '10px', background: `${g.deltaCol}18`, fontSize: '9px', color: g.deltaCol, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{g.delta}</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: '24px', fontWeight: 900, color: '#1F2937', fontFamily: 'system-ui', lineHeight: 1 }}>{g.value}</div>
+                  <div style={{ fontSize: '9px', color: '#9CA3AF', fontFamily: "'JetBrains Mono', monospace", marginTop: '4px' }}>target {g.target} · owner {g.owner}</div>
+                </div>
+                <DashSpark points={g.spark} target={g.target} color={g.col} w={84} h={28} />
+              </div>
+            </motion.div>
           ))}
+        </div>
 
-          {/* Connection lines to North Star */}
-          {stage >= 2 && GUARDRAILS.map((g, i) => {
-            const pos = toXY(g.angle, g.r);
-            return (
-              <motion.line key={i} x1={NORTH_STAR.x} y1={NORTH_STAR.y} x2={pos.x} y2={pos.y}
-                stroke={g.color} strokeWidth="0.8" strokeDasharray="4 3" opacity="0.35"
-                initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.6, delay: i * 0.08 }} />
-            );
-          })}
-
-          {/* Secondary dots */}
-          {stage >= 3 && SECONDARY.map((s, i) => {
-            const pos = toXY(s.angle, s.r);
-            return (
-              <motion.g key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 280, damping: 22, delay: i * 0.08 }}
-                style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
-                <circle cx={pos.x} cy={pos.y} r="5" fill={s.color} opacity="0.5" />
-                <text x={pos.x} y={pos.y + 15} textAnchor="middle" style={{ fontSize: '7px', fill: 'rgba(255,255,255,0.35)', fontFamily: 'system-ui', lineHeight: 1.3 }}>
-                  {s.label.split('\n')[0]}
-                </text>
-              </motion.g>
-            );
-          })}
-
-          {/* Guardrail stars */}
-          {stage >= 2 && GUARDRAILS.map((g, i) => {
-            const pos = toXY(g.angle, g.r);
-            return (
-              <motion.g key={i} initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 22, delay: i * 0.1 }}
-                style={{ transformOrigin: `${pos.x}px ${pos.y}px` }}>
-                <circle cx={pos.x} cy={pos.y} r="10" fill={g.color} style={{ filter: `drop-shadow(0 0 5px ${g.color})` }} />
-                <text x={pos.x} y={pos.y + 20} textAnchor="middle" style={{ fontSize: '8px', fill: g.color, fontFamily: 'system-ui', fontWeight: 700 }}>
-                  {g.label}
-                </text>
-              </motion.g>
-            );
-          })}
-
-          {/* North Star */}
-          {stage >= 1 && (
-            <motion.g initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              style={{ transformOrigin: `${NORTH_STAR.x}px ${NORTH_STAR.y}px` }}>
-              <motion.circle cx={NORTH_STAR.x} cy={NORTH_STAR.y} r="26"
-                fill="#F59E0B" animate={{ r: [26, 29, 26] }} transition={{ duration: 3, repeat: Infinity }}
-                style={{ filter: 'drop-shadow(0 0 14px rgba(245,158,11,0.9))' }} />
-              <text x={NORTH_STAR.x} y={NORTH_STAR.y - 6} textAnchor="middle" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.7)', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>NORTH</text>
-              <text x={NORTH_STAR.x} y={NORTH_STAR.y + 6} textAnchor="middle" style={{ fontSize: '8px', fill: 'rgba(255,255,255,0.7)', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800 }}>STAR</text>
-              <text x={NORTH_STAR.x} y={NORTH_STAR.y + 44} textAnchor="middle" style={{ fontSize: '9px', fill: '#F59E0B', fontFamily: 'system-ui', fontWeight: 700 }}>{NORTH_STAR.label}</text>
-            </motion.g>
-          )}
-
-          {/* Legend */}
-          {[{ c: '#F59E0B', l: 'North Star' }, { c: '#6366F1', l: 'Guardrails (6)' }, { c: '#94A3B8', l: 'Diagnostics (6)' }].map((item, i) => (
-            <g key={i}>
-              <circle cx={28} cy={355 + i * 16} r="4" fill={item.c} />
-              <text x="38" y={360 + i * 16} style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui' }}>{item.l}</text>
-            </g>
+        {/* DIAGNOSTIC ROW */}
+        <div style={{ padding: '4px 20px 6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: '#6B7280', letterSpacing: '0.24em' }}>
+          LAYER 03 · DIAGNOSTICS · &ldquo;explain why things move&rdquo;
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', padding: '0 20px 20px' }}>
+          {DIAGNOSTIC_TILES.map((d, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: stage >= 3 ? 1 : 0, y: stage >= 3 ? 0 : 6 }} transition={{ delay: 0.05 * i, duration: 0.3 }}
+              style={{ padding: '8px 10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '6px' }}>
+              <div style={{ fontSize: '8.5px', color: '#9CA3AF', fontFamily: 'system-ui', marginBottom: '4px' }}>{d.label}</div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#1F2937', fontFamily: 'system-ui', marginBottom: '4px' }}>{d.value}</div>
+              <DashSpark points={d.spark} color={d.col} w={70} h={16} />
+            </motion.div>
           ))}
-        </svg>
+        </div>
+
+        {/* Bottom strap */}
+        {stage >= 4 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+            style={{ background: '#1B2A47', padding: '12px 20px', textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#F97316', letterSpacing: '0.22em', fontWeight: 800 }}>
+            1 NORTH STAR · 3 GUARDRAILS · 6 DIAGNOSTICS · ONE SYSTEM
+          </motion.div>
+        )}
       </div>
-      <InsightBox color="#F59E0B" label="Metrics form a system. ">
-        {' '}North Star sits at the top. Guardrail metrics ring it — they protect against gaming the north star. Diagnostic metrics sit in the outer ring — they explain why things move. Manage all three layers or the system misleads you.
+      <InsightBox color="#F97316" label="Metrics form a system, not a list. ">
+        {' '}One North Star (Coaching ROI) tells you what the business actually needs. Three guardrails (retention, activation, session depth) protect against gaming it — the orange tile lights up because retention is below target. Six diagnostics explain why. Manage all three layers, or the system misleads you with confidence.
       </InsightBox>
       <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
