@@ -40,136 +40,136 @@ const QUIZZES = [
     conceptId: 'genai-m2-anatomy',
     question: {
       'non-tech': "Rhea's discharge summary prompt gives inconsistent tone — formal sometimes, casual others. What's the most targeted fix?",
-      'tech': "Aarav's entity extraction returns incomplete JSON sometimes. What's the most targeted first fix?",
+      'tech': "Aarav's entity extraction returns incomplete JSON on roughly one call in four. What's the most targeted first fix?",
     },
     options: {
       'non-tech': [
-        "A) Add 'be professional'",
-        "B) Specify role: 'You are a clinical documentation assistant'",
-        "C) Add more patient context",
-        "D) Use a different model",
+        "A) Add 'use professional language' at the end of the existing brief",
+        "B) Open the prompt with 'You are a clinical documentation specialist'",
+        "C) Add five examples of summaries written in the target tone",
+        "D) Switch to a stronger model that defaults to clinical register",
       ],
       'tech': [
-        "A) Increase temperature",
-        "B) Add more examples",
-        "C) Define output schema in response_format",
-        "D) Switch to GPT-4o",
+        "A) Raise temperature so the model varies its phrasing each call",
+        "B) Add five worked examples of the expected JSON in the user message",
+        "C) Define the output schema in the system message or response_format",
+        "D) Wrap the call in a retry loop that discards malformed responses",
       ],
     },
     correctIndex: { 'non-tech': 1, 'tech': 2 },
     explanation: {
-      'non-tech': "Specifying the model's role provides a clear persona and tone, guiding its output more consistently than a vague instruction like 'be professional'.",
-      'tech': "For structured outputs like JSON, explicitly defining the schema in the `response_format` parameter (or system message for older APIs) is crucial for consistency and completeness.",
+      'non-tech': "A role declaration anchors persona, tone, and vocabulary across runs. Vague stylistic instructions like 'be professional' get interpreted differently each call.",
+      'tech': "An explicit schema tells the model exactly which fields to populate and in which shape. Examples reinforce a schema but can't replace it.",
     },
-    keyInsight: "A clear role and output format are foundational for consistent prompt results.",
+    keyInsight: "A clear role and a defined output contract eliminate the largest sources of run-to-run variance.",
   },
   {
     conceptId: 'genai-m2-fewshot',
     question: {
-      'non-tech': "Slightly critical feedback keeps classifying as Neutral instead of Negative. Best fix?",
-      'tech': "Network connectivity tickets misclassify despite 5 examples. Most impactful fix?",
+      'non-tech': "Slightly critical feedback keeps classifying as Neutral when it should be Negative. Best fix?",
+      'tech': "Network connectivity tickets misclassify despite five existing examples in the prompt. Most impactful first move?",
     },
     options: {
       'non-tech': [
-        "A) Add more Neutral examples",
-        "B) Add examples of borderline-negative labeled as Negative",
-        "C) Tell the model to be stricter",
-        "D) Ask model to explain its reasoning",
+        "A) Add three more clearly-Neutral examples to balance the prompt",
+        "B) Add borderline-critical examples explicitly labelled Negative",
+        "C) Tell the model to be stricter when feedback sounds critical",
+        "D) Ask the model to explain its reasoning before labelling",
       ],
       'tech': [
-        "A) Add more diverse examples for that category",
-        "B) Fine-tune the model",
-        "C) Implement RAG",
-        "D) Add confidence threshold",
+        "A) Add examples covering the misclassified subtypes you've seen live",
+        "B) Fine-tune the base model on your full historical ticket dataset",
+        "C) Add a confidence threshold and queue low-scoring tickets for review",
+        "D) Implement retrieval over your past ticket archive at inference time",
       ],
     },
     correctIndex: { 'non-tech': 1, 'tech': 0 },
     explanation: {
-      'non-tech': "Few-shot examples are most effective when they clarify ambiguous cases. Providing examples of what *should* be negative, especially borderline ones, helps the model learn the nuanced boundary.",
-      'tech': "If examples aren't working, it often means the examples themselves aren't representative enough of the real-world variations. Adding more diverse examples helps the model generalize better.",
+      'non-tech': "Few-shot examples teach the boundary. The cases the model misclassifies are exactly the ones it needs as labelled examples — show it what borderline-negative looks like.",
+      'tech': "If five examples aren't enough, the examples aren't representative of the failure modes. Add the specific subtypes that misclassify before reaching for fine-tuning or RAG.",
     },
-    keyInsight: "Few-shot examples teach nuance and edge cases, improving model accuracy on specific domain data.",
+    keyInsight: "Few-shot examples teach edge cases and boundaries — they're cheapest at the misclassified seams.",
   },
   {
     conceptId: 'genai-m2-context',
     question: {
-      'non-tech': "Summarizing hundreds of pages for specialist referral gives generic output. Best first step?",
-      'tech': "RAG chatbot hallucinating with 5-7 large docs in context. Best fix?",
+      'non-tech': "Summarising hundreds of pages of patient history for a specialist referral gives generic output. Best first step?",
+      'tech': "RAG chatbot hallucinates whenever five-to-seven large docs are stuffed into the context. Best fix?",
     },
     options: {
       'non-tech': [
-        "A) Tell model to be more detailed",
-        "B) Manually extract relevant sections then summarize those",
-        "C) Chunk into 10-page pieces",
-        "D) Request bigger context window",
+        "A) Add an instruction telling the model to be more detailed",
+        "B) Manually pull the sections that matter and summarise only those",
+        "C) Chunk the history into ten-page pieces and summarise each chunk",
+        "D) Wait for a model with a much larger context window to ship",
       ],
       'tech': [
-        "A) Summarize each retrieved doc first, then answer from summaries",
-        "B) Add more docs",
-        "C) Switch to GPT-4o",
-        "D) Add system message saying 'only use provided context'",
+        "A) Summarise each retrieved doc first, then answer from the summaries",
+        "B) Append more retrieved docs so the model has fuller coverage",
+        "C) Switch to a model with a multi-million-token context window",
+        "D) Add a system message instructing 'only use the provided context'",
       ],
     },
     correctIndex: { 'non-tech': 1, 'tech': 0 },
     explanation: {
-      'non-tech': "LLMs struggle with very long contexts, often missing details in the middle. Pre-processing to extract and prioritize key information reduces noise and ensures critical details are seen.",
-      'tech': "Large documents can overwhelm the context window, leading to 'lost in the middle' issues or hallucinations. Summarizing each retrieved document before feeding it to the main LLM reduces token count and improves focus.",
+      'non-tech': "Models lose detail in long contexts ('lost in the middle'). Pre-extracting the relevant sections is the highest-leverage move — chunking helps less if every chunk is mostly noise.",
+      'tech': "Compress before you answer. Per-doc summaries strip noise and free up tokens for the actual reasoning step — far more reliable than dumping everything in.",
     },
-    keyInsight: "Context window management is about strategic information delivery, not just dumping data.",
+    keyInsight: "Context window management is about delivering the right tokens, not the most tokens.",
   },
   {
     conceptId: 'genai-m2-models',
     question: {
-      'non-tech': "Two workflows: high-volume simple emails + low-volume complex referrals. Which model strategy?",
-      'tech': "Daily reports (medium complexity, 100/day) + weekly insights (high complexity, 5/week). Budget constrained. Strategy?",
+      'non-tech': "Two workflows: high-volume routine intake emails plus low-volume complex specialist referrals. Which model strategy?",
+      'tech': "Daily reports (medium complexity, 100/day) plus weekly insights (high complexity, 5/week). Budget constrained. Strategy?",
     },
     options: {
       'non-tech': [
-        "A) GPT-4o for both",
-        "B) Haiku for both",
-        "C) Haiku for emails, GPT-4o for referrals",
-        "D) Gemini Flash for both",
+        "A) Run GPT-4o on both workflows — best quality across the board",
+        "B) Run Claude Haiku on both workflows — fast and cheap end-to-end",
+        "C) Haiku for the routine intake, GPT-4o for the complex referrals",
+        "D) Run Gemini Flash on both workflows — balanced speed and quality",
       ],
       'tech': [
-        "A) GPT-4o for both",
-        "B) GPT-3.5-turbo for daily, GPT-4o for weekly",
-        "C) Haiku for both",
-        "D) Gemini Flash for both",
+        "A) Run GPT-4o for both — eliminates routing complexity at higher cost",
+        "B) Cheaper Haiku-class model for daily reports, GPT-4o for weekly insights",
+        "C) Run Claude Haiku for both — minimises cost at unknown quality risk",
+        "D) Run Gemini Flash for both — balances cost and quality uniformly",
       ],
     },
     correctIndex: { 'non-tech': 2, 'tech': 1 },
     explanation: {
-      'non-tech': "Matching model capabilities to task complexity and volume is key. Haiku is cost-effective and fast for simple, high-volume tasks, while GPT-4o excels at complex reasoning for critical, lower-volume tasks.",
-      'tech': "A hybrid strategy optimizes for both cost and quality. Use a more powerful model for high-value, complex tasks and a more economical model for routine, medium-complexity tasks.",
+      'non-tech': "Match model capability to task complexity and volume. The cheap fast model handles bulk routine work; reserve the premium model for the cases that genuinely need it.",
+      'tech': "A hybrid routing strategy preserves quality on the small high-stakes workload while keeping cost low on the high-volume routine workload.",
     },
-    keyInsight: "Model selection is a strategic decision balancing cost, speed, and quality for specific tasks.",
+    keyInsight: "Model selection is a routing decision — different tasks deserve different models.",
   },
   {
     conceptId: 'genai-m2-refine',
     question: {
-      'non-tech': "V3 consent form prompt is more concise but now omits a legal disclaimer that V1 always included. Next step?",
-      'tech': "V2 improved summaries for most cases but introduced a regression for edge cases. Before deploying V3 to prod, what's critical?",
+      'non-tech': "V3 of the consent-form prompt is more concise but now omits a legal disclaimer V1 always included. Next step?",
+      'tech': "V2 improved most summaries but regressed on edge cases. Before deploying V3 to prod, what's critical?",
     },
     options: {
       'non-tech': [
-        "A) Revert to V1",
-        "B) Compare V1 and V3, identify the change, add explicit constraint",
-        "C) Add 'include all legal disclaimers'",
-        "D) Ask legal to simplify the disclaimer",
+        "A) Revert to V1 entirely and stop iterating until legal re-reviews",
+        "B) Diff V1 vs V3, find the dropped clause, restore it as a constraint",
+        "C) Tack 'include all legal disclaimers' onto the end of the V3 prompt",
+        "D) Ask legal to simplify the disclaimer so V3 stays short",
       ],
       'tech': [
-        "A) A/B test with internal users",
-        "B) Run V3 against golden dataset, compare metrics vs V1+V2",
-        "C) Manually review 10-20 outputs",
-        "D) Commit and push to git",
+        "A) A/B test V3 with internal users in staging for a week",
+        "B) Run V3 against the golden eval set and diff metrics vs V1 and V2",
+        "C) Manually spot-check 10-20 V3 outputs and ship if they look fine",
+        "D) Commit V3 to git so we can revert if anything looks off in prod",
       ],
     },
     correctIndex: { 'non-tech': 1, 'tech': 1 },
     explanation: {
-      'non-tech': "The refinement loop requires systematic comparison. Identifying the specific change that caused the regression allows for a targeted fix, ensuring the desired conciseness is kept while restoring the disclaimer.",
-      'tech': "A golden dataset is crucial for detecting regressions. Running V3 against it and comparing performance metrics to previous versions ensures that improvements haven't come at the cost of new errors, especially for edge cases.",
+      'non-tech': "Refinement is a diff, not a rewrite. Find the specific change that dropped the disclaimer and pin it back in as an explicit constraint — preserve the conciseness win.",
+      'tech': "A golden eval set is what makes regressions visible. Run V3 against it and compare per-case metrics vs V1 and V2 before any traffic shifts.",
     },
-    keyInsight: "Prompt refinement is an iterative, data-driven process requiring version control and robust testing.",
+    keyInsight: "Prompt refinement is version-controlled and evaluation-driven — never ship V3 without diffing the regressions.",
   },
 ];
 
@@ -808,8 +808,11 @@ const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
         ? "Write a discharge summary for this patient."
         : "Summarize incident report.",
       output: track === 'non-tech'
-        ? "Patient was discharged. They should follow up with their doctor. Take medications as prescribed. (Vague, misses key details)"
-        : "The system had an issue. It was fixed. (Generic, lacks specifics)",
+        ? "Patient was discharged. They should follow up with their doctor. Take medications as prescribed."
+        : "The system had an issue. It was fixed.",
+      verdict: track === 'non-tech'
+        ? 'Vague brief — model fills every missing dimension with generic filler.'
+        : 'No role, no schema — model returns a paraphrase, not a report.',
     },
     v2: {
       text: track === 'non-tech'
@@ -818,8 +821,11 @@ const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
 User: Summarize the incident report.
 System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact'.`,
       output: track === 'non-tech'
-        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks.\n• Continue Azithromycin for 5 days. (Better, but still misses AKI context)"
-        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service"], "impact": "Partial service degradation for 2.5 hours." } (Structured, but misses data corruption detail)`,
+        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks.\n• Continue Azithromycin for 5 days."
+        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service"], "impact": "Partial service degradation for 2.5 hours." }`,
+      verdict: track === 'non-tech'
+        ? 'Role + format pinned — output is structured but the AKI context is dropped.'
+        : 'Schema enforces shape — but the data_integrity field is missing from the contract.',
     },
     v3: {
       text: track === 'non-tech'
@@ -830,13 +836,17 @@ User: Summarize the incident report.
 System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact', 'data_integrity_status'.
 Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromised, restored from backup'.`,
       output: track === 'non-tech'
-        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks for AKI management.\n• Continue Azithromycin for 5 days.\n• Dietary restrictions: low sodium, monitor fluid intake. (Comprehensive, includes AKI specifics)"
-        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service", "Restored user_sessions table"], "impact": "Partial service degradation for 2.5 hours.", "data_integrity_status": "Compromised, restored from backup" } (Complete, includes critical data integrity info)`,
+        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks for AKI management.\n• Continue Azithromycin for 5 days.\n• Dietary restrictions: low sodium, monitor fluid intake."
+        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service", "Restored user_sessions table"], "impact": "Partial service degradation for 2.5 hours.", "data_integrity_status": "Compromised, restored from backup" }`,
+      verdict: track === 'non-tech'
+        ? 'Scope + worked example added — AKI context now surfaces in the output every run.'
+        : 'New schema field + worked example — data integrity state is now part of the contract.',
     },
   };
 
   const currentPrompt = prompts[`v${version}` as keyof typeof prompts].text;
   const currentOutput = prompts[`v${version}` as keyof typeof prompts].output;
+  const currentVerdict = prompts[`v${version}` as keyof typeof prompts].verdict;
 
   const getDiff = (prev: string, current: string) => {
     const prevLines = prev.split('\n');
@@ -979,6 +989,23 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
           </AnimatePresence>
         </div>
       </div>
+
+      {/* What the diff bought you — verdict lives outside the model output */}
+      <div style={{ marginTop: '12px', background: `${ACCENT}14`, border: `1px solid ${ACCENT}40`, borderRadius: '8px', padding: '10px 14px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: ACCENT, marginBottom: '4px' }}>WHAT THIS VERSION BUYS YOU</div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`verdict-${version}`}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.55 }}
+          >
+            {currentVerdict}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </TiltCard>
   );
 };
@@ -1019,7 +1046,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 02</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "\'Lora\', Georgia, serif" }}>Getting the Model to Do What You Mean</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "\'Lora\', Georgia, serif", marginBottom: '28px' }}>&ldquo;A prompt is a specification. Vague specs produce vague outputs.&rdquo;</p>
-          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'kabir', 'leela']} />
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
