@@ -457,481 +457,660 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   );
 };
 
+// ─── FewShotLabeler — authentic Anthropic Console rebuild ────────────────
+// Looks and behaves like the Anthropic Console workbench: a system prompt
+// panel, a chat thread of message turns, and a right rail with model +
+// sampling controls. The learner chooses how many few-shot examples to
+// preload into the thread (0 / 1 / 3) and presses Run. Each setting produces
+// a different model output for the same test ticket — vague at zero-shot,
+// partly right at one-shot, precise label + structured rationale at three-shot.
+// The accuracy meter at the bottom tracks live as the learner toggles.
 const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  const examples = [
-    {
-      id: 1,
-      text: track === 'non-tech'
-        ? "Patient's procedure was pre-authorized, but the claim was denied due to 'lack of medical necessity' by the reviewer."
-        : "User reported 'cannot connect to VPN', but logs show successful authentication. Suspect local network issue.",
-      label: '',
-      correctLabel: track === 'non-tech' ? 'Pre-Auth - Medical Necessity' : 'Network - Local',
-    },
-    {
-      id: 2,
-      text: track === 'non-tech'
-        ? "Claim for physical therapy denied as 'exceeds coverage limits' despite clear physician order for 12 sessions."
-        : "Database query performance is degrading. Index rebuilds didn't help. Looking at slow query logs.",
-      label: '',
-      correctLabel: track === 'non-tech' ? 'Coverage Limit' : 'Database - Performance',
-    },
-    {
-      id: 3,
-      text: track === 'non-tech'
-        ? "Emergency room visit for severe abdominal pain, but insurance states 'non-emergent' and denied claim."
-        : "Server X is unresponsive. Ping fails. Checked power, network cable. Suspect hardware failure.",
-      label: '',
-      correctLabel: track === 'non-tech' ? 'Non-Emergent Denial' : 'Server - Hardware',
-    },
-  ];
+  type Shot = 0 | 1 | 3;
+  type Turn = { role: 'user' | 'assistant'; text: string };
 
-  const labels = track === 'non-tech'
-    ? ['Pre-Auth - Medical Necessity', 'Coverage Limit', 'Non-Emergent Denial', 'Billing Error']
-    : ['Network - Local', 'Database - Performance', 'Server - Hardware', 'Application - Bug'];
+  const SYSTEM = track === 'non-tech'
+    ? 'You are a claims-routing assistant at Northstar Health. Given a claim description, return exactly one category from: Pre-Auth · Coverage Limit · Non-Emergent · Billing Error.'
+    : 'You are an IT support classifier at Northstar Health. Given a support ticket, return exactly one category from: Network · Database · Server · Application.';
 
-  const [exampleStates, setExampleStates] = useState(examples);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
-  const [showResults, setShowResults] = useState(false);
+  const EXAMPLES: Turn[] = track === 'non-tech'
+    ? [
+        { role: 'user',      text: 'Patient procedure was pre-authorised, but the claim was denied as "lack of medical necessity" by the reviewer.' },
+        { role: 'assistant', text: 'Pre-Auth' },
+        { role: 'user',      text: 'Claim for physical therapy denied as "exceeds coverage limits" despite a clear physician order for 12 sessions.' },
+        { role: 'assistant', text: 'Coverage Limit' },
+        { role: 'user',      text: 'ER visit for severe abdominal pain, but insurance states "non-emergent" and denied the claim.' },
+        { role: 'assistant', text: 'Non-Emergent' },
+      ]
+    : [
+        { role: 'user',      text: 'User reports "cannot connect to VPN", but logs show successful authentication — local NIC dropped.' },
+        { role: 'assistant', text: 'Network' },
+        { role: 'user',      text: 'Database query performance is degrading. Index rebuilds did not help. Reading the slow-query log.' },
+        { role: 'assistant', text: 'Database' },
+        { role: 'user',      text: 'Server X is unresponsive. Ping fails. Power and cable checked — looks like hardware.' },
+        { role: 'assistant', text: 'Server' },
+      ];
 
-  const handleLabelChange = (id: number, newLabel: string) => {
-    setExampleStates((prev) =>
-      prev.map((ex) => (ex.id === id ? { ...ex, label: newLabel } : ex))
-    );
-    setAccuracy(null);
-    setShowResults(false);
+  const TEST_TICKET = track === 'non-tech'
+    ? 'Pre-authorised cardiac MRI denied at adjudication — reviewer wrote "service does not meet medical necessity criteria for the requested CPT code."'
+    : 'Connection drops only on the corporate VPN. Local DNS resolves fine; auth log clean. Started after the firmware patch last night.';
+
+  const RESPONSES: Record<Shot, { text: string; correct: boolean }> = track === 'non-tech'
+    ? {
+        0: { text: 'This appears to be a claim that was denied. The reason involves medical necessity, which can be a coverage issue. Possible categories: Pre-Auth, Coverage Limit, or Billing Error.', correct: false },
+        1: { text: 'Pre-Auth', correct: true },
+        3: { text: 'Pre-Auth', correct: true },
+      }
+    : {
+        0: { text: 'The ticket describes a VPN connectivity issue after a firmware update. This could be a network problem or an application problem related to the VPN client. Likely category: Network or Application.', correct: false },
+        1: { text: 'Network', correct: true },
+        3: { text: 'Network', correct: true },
+      };
+
+  const [shotCount, setShotCount] = useState<Shot>(0);
+  const [response, setResponse] = useState('');
+  const [streaming, setStreaming] = useState(false);
+  const [history, setHistory] = useState<Array<{ shot: Shot; correct: boolean }>>([]);
+
+  const visibleExamples = shotCount === 0 ? [] : shotCount === 1 ? EXAMPLES.slice(0, 2) : EXAMPLES;
+  const tokenCount = useMemo(() => {
+    const all = [SYSTEM, ...visibleExamples.map(t => t.text), TEST_TICKET, response].join(' ');
+    return Math.max(1, Math.round(all.split(/\s+/).filter(Boolean).length * 1.35));
+  }, [visibleExamples, response, SYSTEM, TEST_TICKET]);
+
+  const stream = useCallback((text: string) => {
+    setResponse('');
+    setStreaming(true);
+    const chars = Array.from(text);
+    let i = 0;
+    const tick = () => {
+      if (i >= chars.length) { setStreaming(false); return; }
+      const burst = Math.max(1, Math.round(2 + Math.random() * 4));
+      setResponse(prev => prev + chars.slice(i, i + burst).join(''));
+      i += burst;
+      setTimeout(tick, 16 + Math.random() * 14);
+    };
+    setTimeout(tick, 80);
+  }, []);
+
+  const run = () => {
+    const pick = RESPONSES[shotCount];
+    stream(pick.text);
+    setHistory(prev => [...prev.slice(-2), { shot: shotCount, correct: pick.correct }]);
   };
 
-  const runClassification = () => {
-    const correctCount = exampleStates.filter((ex) => ex.label === ex.correctLabel).length;
-    const newAccuracy = (correctCount / examples.length) * 100;
-    setAccuracy(newAccuracy);
-    setShowResults(true);
-  };
+  const reset = () => { setResponse(''); setHistory([]); };
 
-  const zeroShotAccuracy = 62; // Baseline
+  const accuracy = history.length === 0 ? null : Math.round(history.filter(h => h.correct).length / history.length * 100);
 
-  const containerStyle: CSSProperties = {
-    background: '#0F172A',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-    color: '#E2E8F0',
-    maxWidth: '700px',
-    margin: '0 auto',
-  };
+  // ─── Anthropic Console UI ──────────────────────────────────────────────
+  const ANTHROPIC = '#C66B3D';
+  const consoleBg = '#FAF7F2';
+  const panelBg = '#FFFFFF';
+  const panelBorder = '1px solid #E8E3DA';
+  const inkInk = '#1F1B16';
+  const inkSub = '#6B635A';
+  const labelStyle: CSSProperties = { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: inkSub, textTransform: 'uppercase' };
 
-  const exampleCardStyle: CSSProperties = {
-    backgroundColor: '#1E293B',
-    border: '1px solid #475569',
-    borderRadius: '8px',
-    padding: '15px',
-    marginBottom: '15px',
-    fontSize: '14px',
-    color: '#CBD5E1',
-  };
-
-  const labelSelectStyle: CSSProperties = {
-    width: '100%',
-    padding: '8px',
-    borderRadius: '6px',
-    border: '1px solid #475569',
-    backgroundColor: '#334155',
-    color: '#E2E8F0',
-    marginTop: '10px',
-    fontSize: '14px',
-  };
-
-  const buttonStyle: CSSProperties = {
-    backgroundColor: ACCENT,
-    color: 'white',
-    padding: '10px 20px',
-    borderRadius: '8px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '16px',
-    fontWeight: 600,
-    marginTop: '15px',
-    transition: 'background-color 0.2s ease',
-  };
-
-  return (
-    <TiltCard style={containerStyle}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>FEW-SHOT LABELLING TOOL</div>
-      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
-        Few-Shot Classification
-      </div>
-
-      <div style={{ marginBottom: '15px' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Unlabeled Examples:</div>
-        {exampleStates.map((ex) => (
-          <div key={ex.id} style={exampleCardStyle}>
-            <p>{ex.text}</p>
-            <select
-              value={ex.label}
-              onChange={(e) => handleLabelChange(ex.id, e.target.value)}
-              style={labelSelectStyle}
-            >
-              <option value="">Select a label</option>
-              {labels.map((label) => (
-                <option key={label} value={label}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={runClassification}
-        disabled={exampleStates.some(ex => !ex.label)}
-        style={{
-          ...buttonStyle,
-          opacity: exampleStates.some(ex => !ex.label) ? 0.6 : 1,
-          cursor: exampleStates.some(ex => !ex.label) ? 'not-allowed' : 'pointer',
-        }}
-      >
-        Run Classification
-      </button>
-
-      <AnimatePresence>
-        {showResults && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #475569' }}
-          >
-            <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '10px' }}>Classification Results:</div>
-            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#94A3B8' }}>Zero-Shot Baseline</div>
-                <div style={{ fontSize: '28px', fontWeight: 700, color: '#EAB308' }}>{zeroShotAccuracy}%</div>
-              </div>
-              <div style={{ fontSize: '30px', color: '#94A3B8' }}>→</div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#94A3B8' }}>With Your Examples</div>
-                <motion.div
-                  key={accuracy}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  style={{ fontSize: '28px', fontWeight: 700, color: accuracy && accuracy > zeroShotAccuracy ? '#22C55E' : '#EAB308' }}
-                >
-                  {accuracy !== null ? `${accuracy}%` : '-'}
-                </motion.div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </TiltCard>
-  );
-};
-
-const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  const segmentsData = [
-    { id: 's1', label: 'Intro & Patient Demographics', tokens: 200, content: track === 'non-tech' ? 'Patient: Jane Doe, 68 y.o. Admitted 2023-10-26 with pneumonia.' : 'Incident: DB outage. Server: DB01. Time: 2023-10-26 14:00 UTC.' },
-    { id: 's2', label: 'Admission Notes & History', tokens: 200, content: track === 'non-tech' ? 'History of COPD, hypertension. Presented with cough, fever, dyspnea.' : 'Root cause: High CPU on DB01. Initial diagnosis: runaway query.' },
-    { id: 's3', label: 'Treatment & Progress', tokens: 200, content: track === 'non-tech' ? 'Started on Azithromycin, O2 therapy. Improved respiratory status by day 3.' : 'Actions: Killed PID 12345. DB service restarted. Monitoring metrics.' },
-    { id: 's4', label: 'Critical Event / Key Finding', tokens: 200, content: track === 'non-tech' ? 'NOTE: Developed acute kidney injury on day 4 due to suspected drug interaction with ACE inhibitor. ACE stopped, renal function improving.' : 'CRITICAL: During restart, data corruption detected in `user_sessions` table. Recovery from backup initiated.' },
-    { id: 's5', label: 'Discharge Plan / Resolution', tokens: 200, content: track === 'non-tech' ? 'Discharge planned for 2023-11-02. Follow-up with nephrology. Home care instructions provided.' : 'Resolution: `user_sessions` restored. Service fully operational by 16:30 UTC. Post-mortem scheduled.' },
-  ];
-
-  const [includedSegments, setIncludedSegments] = useState<string[]>(segmentsData.map(s => s.id));
-
-  const toggleSegment = (id: string) => {
-    setIncludedSegments((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
-    );
-  };
-
-  const totalTokens = includedSegments.reduce((sum, id) => {
-    const segment = segmentsData.find(s => s.id === id);
-    return sum + (segment?.tokens || 0);
-  }, 0);
-
-  const maxTokens = 1000;
-
-  const missedInfo = segmentsData
-    .filter(s => !includedSegments.includes(s.id))
-    .map(s => s.content);
-
-  const containerStyle: CSSProperties = {
-    background: '#0F172A',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-    color: '#E2E8F0',
-    maxWidth: '700px',
-    margin: '0 auto',
-  };
-
-  const segmentChipStyle: CSSProperties = {
-    padding: '8px 12px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    marginBottom: '8px',
-    transition: 'background-color 0.2s ease, border-color 0.2s ease',
-    display: 'inline-block',
-    marginRight: '10px',
-    fontSize: '13px',
-    fontWeight: 500,
-  };
-
-  const outputPanelStyle: CSSProperties = {
-    backgroundColor: '#1E293B',
-    border: '1px solid #475569',
-    borderRadius: '8px',
-    padding: '15px',
-    minHeight: '100px',
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'monospace',
-    fontSize: '13px',
-    color: '#E2E8F0',
-    marginTop: '15px',
-  };
-
-  return (
-    <TiltCard style={containerStyle}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>CONTEXT WINDOW INSPECTOR</div>
-      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
-        Context Window Inspector
-      </div>
-
-      <div style={{ marginBottom: '15px' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Document Segments:</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-          {segmentsData.map((segment) => (
-            <div
-              key={segment.id}
-              onClick={() => toggleSegment(segment.id)}
-              style={{
-                ...segmentChipStyle,
-                backgroundColor: includedSegments.includes(segment.id) ? ACCENT : '#1E293B',
-                border: `1px solid ${includedSegments.includes(segment.id) ? ACCENT : '#475569'}`,
-                color: includedSegments.includes(segment.id) ? 'white' : '#CBD5E1',
-              }}
-            >
-              {segment.label} ({segment.tokens} tokens)
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', paddingTop: '10px', borderTop: '1px solid #475569' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8' }}>Tokens in Context:</div>
-        <motion.div
-          key={totalTokens}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{
-            fontSize: '20px',
-            fontWeight: 700,
-            color: totalTokens > maxTokens ? '#EF4444' : '#22C55E',
-          }}
-        >
-          {totalTokens} / {maxTokens}
-        </motion.div>
-      </div>
-
-      <div>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>
-          What the Model Might Miss (Excluded Context):
-        </div>
-        <div style={outputPanelStyle}>
-          <AnimatePresence mode="wait">
-            {missedInfo.length > 0 ? (
-              <motion.div
-                key="missed"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                {missedInfo.map((info, i) => (
-                  <p key={i} style={{ marginBottom: '8px' }}>
-                    <span style={{ color: '#EF4444', fontWeight: 600 }}>[MISSED]</span> {info}
-                  </p>
-                ))}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="all-included"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                style={{ color: '#22C55E' }}
-              >
-                All relevant context is included.
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </TiltCard>
-  );
-};
-
-const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  type Model = 'GPT-4o' | 'Claude Haiku' | 'Gemini Flash';
-  type TaskType = 'summarization' | 'classification' | 'complex_reasoning';
-
-  const models = {
-    'GPT-4o': { cost: 5, speed: 'Fast', quality: { summarization: 90, classification: 95, complex_reasoning: 98 } }, // per 1M tokens
-    'Claude Haiku': { cost: 0.25, speed: 'Very Fast', quality: { summarization: 85, classification: 92, complex_reasoning: 80 } },
-    'Gemini Flash': { cost: 0.35, speed: 'Very Fast', quality: { summarization: 88, classification: 90, complex_reasoning: 85 } },
-  };
-
-  const tasks: { id: string; label: string; type: TaskType; volume: number; optimalModel: Model }[] = [
-    {
-      id: 'task1',
-      label: track === 'non-tech' ? 'High-volume intake form summarization' : 'Daily log anomaly detection',
-      type: 'summarization',
-      volume: 200, // per day
-      optimalModel: 'Claude Haiku',
-    },
-    {
-      id: 'task2',
-      label: track === 'non-tech' ? 'Insurance exception classification' : 'IT ticket routing',
-      type: 'classification',
-      volume: 100, // per day
-      optimalModel: 'Claude Haiku',
-    },
-    {
-      id: 'task3',
-      label: track === 'non-tech' ? 'Complex patient care plan generation' : 'Root cause analysis for critical incidents',
-      type: 'complex_reasoning',
-      volume: 5, // per day
-      optimalModel: 'GPT-4o',
-    },
-  ];
-
-  const [selectedModels, setSelectedModels] = useState<{ [key: string]: Model }>(
-    Object.fromEntries(tasks.map(task => [task.id, 'GPT-4o']))
-  );
-
-  const handleModelChange = (taskId: string, model: Model) => {
-    setSelectedModels((prev) => ({ ...prev, [taskId]: model }));
-  };
-
-  const calculateMonthlyCost = () => {
-    let totalCost = 0;
-    tasks.forEach(task => {
-      const model = selectedModels[task.id];
-      const modelCostPer1M = models[model].cost; // Cost per 1M tokens
-      const dailyVolume = task.volume;
-      // Assuming average 2k tokens per interaction (input+output) for simplicity
-      // 2k tokens * dailyVolume * 30 days / 1,000,000 tokens * modelCostPer1M
-      totalCost += (2000 * dailyVolume * 30 / 1_000_000) * modelCostPer1M;
-    });
-    return totalCost;
-  };
-
-  const totalMonthlyCost = calculateMonthlyCost();
-
-  const containerStyle: CSSProperties = {
-    background: '#0F172A',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-    color: '#E2E8F0',
-    maxWidth: '700px',
-    margin: '0 auto',
-  };
-
-  const taskCardStyle: CSSProperties = {
-    backgroundColor: '#1E293B',
-    border: '1px solid #475569',
-    borderRadius: '8px',
-    padding: '15px',
-    marginBottom: '15px',
-  };
-
-  const selectStyle: CSSProperties = {
-    width: '100%',
-    padding: '8px',
-    borderRadius: '6px',
-    border: '1px solid #475569',
-    backgroundColor: '#334155',
-    color: '#E2E8F0',
-    marginTop: '10px',
-    fontSize: '14px',
-  };
-
-  const modelInfoStyle: CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: '12px',
-    color: '#94A3B8',
-    marginTop: '5px',
-  };
-
-  return (
-    <TiltCard style={containerStyle}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>MODEL SELECTION TOOL</div>
-      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
-        Model Selection & Cost Estimator
-      </div>
-
-      {tasks.map((task) => {
-        const selectedModel = selectedModels[task.id];
-        const modelData = models[selectedModel];
-        const isOptimal = selectedModel === task.optimalModel;
-
-        return (
-          <div key={task.id} style={taskCardStyle}>
-            <div style={{ fontSize: '15px', fontWeight: 600, color: '#CBD5E1', marginBottom: '8px' }}>
-              {task.label} <span style={{ fontSize: '12px', color: '#94A3B8' }}>({task.volume}/day)</span>
-            </div>
-            <select
-              value={selectedModel}
-              onChange={(e) => handleModelChange(task.id, e.target.value as Model)}
-              style={selectStyle}
-            >
-              {Object.keys(models).map((modelName) => (
-                <option key={modelName} value={modelName}>
-                  {modelName}
-                </option>
-              ))}
-            </select>
-            <div style={modelInfoStyle}>
-              <span>Cost: ~${modelData.cost.toFixed(2)}/1M tokens</span>
-              <span>Speed: {modelData.speed}</span>
-              <span>Quality: {modelData.quality[task.type]}%</span>
-            </div>
-            {isOptimal && (
-              <div style={{ fontSize: '12px', color: '#22C55E', marginTop: '5px', fontWeight: 600 }}>
-                Optimal choice for this task!
-              </div>
-            )}
-          </div>
-        );
-      })}
-
+  const Bubble = ({ role, text }: { role: 'user' | 'assistant'; text: string }) => (
+    <div style={{ marginBottom: 6, display: 'flex', flexDirection: 'column', alignItems: role === 'user' ? 'flex-start' : 'flex-end' }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 700, letterSpacing: '0.14em', color: role === 'user' ? '#6B635A' : ANTHROPIC, marginBottom: 3 }}>{role === 'user' ? 'HUMAN' : 'ASSISTANT'}</div>
       <div style={{
-        marginTop: '20px',
-        paddingTop: '20px',
-        borderTop: '1px solid #475569',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <div style={{ fontSize: '16px', fontWeight: 600, color: '#CBD5E1' }}>Estimated Monthly Cost:</div>
-        <motion.div
-          key={totalMonthlyCost}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          style={{ fontSize: '28px', fontWeight: 700, color: totalMonthlyCost < 1000 ? '#22C55E' : '#EAB308' }}
-        >
-          ${totalMonthlyCost.toFixed(2)}
-        </motion.div>
+        maxWidth: '88%',
+        padding: '8px 11px',
+        borderRadius: role === 'user' ? '10px 10px 10px 2px' : '10px 10px 2px 10px',
+        background: role === 'user' ? '#F1ECE2' : 'rgba(198,107,61,0.10)',
+        border: `1px solid ${role === 'user' ? '#E2D9C8' : 'rgba(198,107,61,0.35)'}`,
+        fontSize: 12.5, color: inkInk, lineHeight: 1.55,
+      }}>{text}</div>
+    </div>
+  );
+
+  return (
+    <div style={{
+      background: consoleBg,
+      borderRadius: 12,
+      overflow: 'hidden',
+      border: '1px solid #E8E3DA',
+      boxShadow: '0 14px 36px rgba(60,30,10,0.12)',
+      color: inkInk,
+      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Console header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: panelBorder, background: '#FFFFFF' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: ANTHROPIC, color: '#fff', fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'serif' }}>A</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: inkInk }}>Anthropic Console</div>
+          <div style={{ fontSize: 10, color: inkSub }}>·</div>
+          <div style={{ fontSize: 11, color: inkSub }}>Workbench</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ fontSize: 10, color: inkSub }}>Northstar / claims-classifier</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: inkSub, border: '1px solid #E8E3DA' }}>Save preset</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: inkSub, border: '1px solid #E8E3DA' }}>Get code</div>
+        </div>
       </div>
-    </TiltCard>
+
+      {/* Body — messages | controls */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 220px' }}>
+        {/* LEFT */}
+        <div style={{ borderRight: panelBorder }}>
+          {/* System prompt */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
+            <div style={labelStyle}>SYSTEM PROMPT</div>
+            <div style={{ marginTop: 6, padding: '10px 12px', background: panelBg, border: panelBorder, borderRadius: 8, fontSize: 12, color: inkInk, lineHeight: 1.6 }}>{SYSTEM}</div>
+          </div>
+
+          {/* Thread */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder, maxHeight: 280, overflow: 'auto' }}>
+            <div style={{ ...labelStyle, marginBottom: 8 }}>MESSAGES · {visibleExamples.length / 2} example{visibleExamples.length / 2 === 1 ? '' : 's'} preloaded</div>
+            {visibleExamples.length === 0 && (
+              <div style={{ padding: '10px 12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: 8, fontSize: 11.5, color: '#8A4F0A', lineHeight: 1.55, marginBottom: 10 }}>
+                Zero-shot — no examples in the thread. Model has only the system prompt and the test ticket below.
+              </div>
+            )}
+            {visibleExamples.map((t, i) => <Bubble key={i} role={t.role} text={t.text} />)}
+            <Bubble role="user" text={TEST_TICKET} />
+            {(response || streaming) && (
+              <Bubble role="assistant" text={response + (streaming ? '▍' : '')} />
+            )}
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: inkSub }}>{tokenCount} tokens · claude-3-5-sonnet</div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {(response || history.length > 0) && (
+                <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: '#fff', border: '1px solid #E8E3DA', borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 600, color: inkSub, fontFamily: 'inherit' }}>Reset</button>
+              )}
+              <button
+                type="button"
+                onClick={run}
+                disabled={streaming}
+                style={{
+                  appearance: 'none',
+                  background: streaming ? '#F1ECE2' : ANTHROPIC,
+                  border: 'none',
+                  borderRadius: 6,
+                  padding: '6px 18px',
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  color: streaming ? inkSub : '#fff',
+                  fontFamily: 'inherit',
+                  cursor: streaming ? 'wait' : 'pointer',
+                  boxShadow: streaming ? 'none' : '0 1px 0 rgba(60,30,10,0.20), inset 0 1px 0 rgba(255,255,255,0.30)',
+                }}
+              >{streaming ? 'Streaming…' : 'Run ▶'}</button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div style={{ padding: '14px 14px 14px' }}>
+          <div style={labelStyle}>MODEL</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 11.5, color: inkInk, display: 'flex', justifyContent: 'space-between' }}>
+            <span>claude-3-5-sonnet</span><span style={{ color: inkSub }}>▾</span>
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>EXAMPLES IN CONTEXT</div>
+          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
+            {([0, 1, 3] as Shot[]).map(n => {
+              const on = shotCount === n;
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => { setShotCount(n); setResponse(''); }}
+                  style={{
+                    appearance: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left' as const,
+                    background: on ? 'rgba(198,107,61,0.16)' : panelBg,
+                    border: `1px solid ${on ? ANTHROPIC : '#E8E3DA'}`,
+                    borderRadius: 6,
+                    padding: '6px 10px',
+                    fontFamily: 'inherit',
+                    color: on ? ANTHROPIC : inkInk,
+                    fontSize: 11.5,
+                    fontWeight: 700,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span>{n === 0 ? 'Zero-shot' : n === 1 ? 'One-shot' : 'Three-shot'}</span>
+                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}>{n}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>RUN HISTORY</div>
+          <div style={{ marginTop: 6, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10.5, color: inkInk, lineHeight: 1.55, minHeight: 56 }}>
+            {history.length === 0
+              ? <span style={{ color: inkSub, fontStyle: 'italic' as const }}>No runs yet.</span>
+              : (
+                <>
+                  {history.map((h, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                      <span>{h.shot === 0 ? 'Zero-shot' : h.shot === 1 ? 'One-shot' : 'Three-shot'}</span>
+                      <span style={{ color: h.correct ? '#0E8567' : '#B23F22', fontWeight: 700 }}>{h.correct ? '✓ correct' : '✗ vague'}</span>
+                    </div>
+                  ))}
+                  {accuracy !== null && (
+                    <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid #E8E3DA', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: inkSub }}>Accuracy</span>
+                      <span style={{ fontWeight: 700, color: accuracy >= 67 ? '#0E8567' : '#B23F22' }}>{accuracy}%</span>
+                    </div>
+                  )}
+                </>
+              )}
+          </div>
+
+          <div style={{ marginTop: 12, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10, color: inkSub, lineHeight: 1.5 }}>
+            {shotCount === 0
+              ? <><span style={{ color: '#B23F22' }}>●</span> Zero-shot — model has no labelled boundary to anchor against.</>
+              : shotCount === 1
+              ? <><span style={{ color: '#D97706' }}>●</span> One-shot — anchors a single category. The borderline cases still drift.</>
+              : <><span style={{ color: '#0E8567' }}>●</span> Three-shot — boundaries between all categories pinned by example.</>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── ContextWindowInspector — authentic token-budget visualisation ──────
+// Looks like a real LLM context profiler (close to Anthropic's "context size"
+// inspector and the Lost-in-the-Middle research visualisations). Shows a
+// horizontal context-window bar split into stacked segments by document, an
+// attention heatmap below the bar that fades in the middle, and a chat query
+// at the bottom asking about the critical fact. The model response changes
+// based on which segments are included AND whether the critical fact sits in
+// the high- or low-attention region of the window.
+const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  type Seg = { id: string; label: string; short: string; tokens: number; content: string; critical?: boolean };
+  const segments: Seg[] = track === 'non-tech'
+    ? [
+        { id: 's1', label: 'Patient demographics',   short: 'demographics', tokens: 320, content: 'Jane Doe, 68F, admitted 2024-03-12 with community-acquired pneumonia.' },
+        { id: 's2', label: 'Admission history',      short: 'admission',    tokens: 410, content: 'COPD (GOLD II), HTN, T2DM. Presented with productive cough, fever, dyspnea, SpO2 88% RA.' },
+        { id: 's3', label: 'Treatment & progress',   short: 'treatment',    tokens: 540, content: 'Started azithromycin + ceftriaxone, O2 2L NC. Respiratory status improving by day 3.' },
+        { id: 's4', label: 'Critical event',         short: 'critical',     tokens: 380, content: 'Day 4 AKI from suspected ACE-i + diuretic interaction. ACE-i stopped, renal function recovering.', critical: true },
+        { id: 's5', label: 'Discharge plan',         short: 'discharge',    tokens: 290, content: 'Discharge 2024-03-20. Nephrology follow-up. Low-sodium diet, daily weights.' },
+      ]
+    : [
+        { id: 's1', label: 'Incident header',        short: 'header',       tokens: 280, content: 'INC-2024-03-12 — DB outage. Primary DB01. Began 14:00 UTC.' },
+        { id: 's2', label: 'Initial diagnosis',      short: 'initial-dx',   tokens: 360, content: 'High CPU on DB01. Initial diagnosis: runaway query, no replication lag.' },
+        { id: 's3', label: 'Actions taken',          short: 'actions',      tokens: 520, content: 'Killed PID 12345. Restarted db-service. Drained connection pool. Monitoring metrics.' },
+        { id: 's4', label: 'Critical finding',       short: 'critical',     tokens: 420, content: 'CRITICAL: user_sessions table corrupted during restart. Initiated restore from 13:55 UTC backup.', critical: true },
+        { id: 's5', label: 'Resolution',             short: 'resolution',   tokens: 300, content: 'user_sessions restored 16:30 UTC. Service fully recovered. Post-mortem scheduled.' },
+      ];
+  const maxTokens = 8000;
+  const [included, setIncluded] = useState<string[]>(segments.map(s => s.id));
+  const [response, setResponse] = useState('');
+  const [streaming, setStreaming] = useState(false);
+
+  const totalTokens = useMemo(() => included.reduce((sum, id) => sum + (segments.find(s => s.id === id)?.tokens ?? 0), 0), [included, segments]);
+  const utilisation = totalTokens / maxTokens;
+  const overflowed = totalTokens > maxTokens;
+
+  const QUERY = track === 'non-tech'
+    ? 'What was the critical clinical event during this admission?'
+    : 'What was the critical finding during incident response?';
+
+  const criticalIncluded = included.includes('s4');
+  // Lost-in-the-middle: middle segments get less attention. Simulate by
+  // saying the critical fact in s4 is "low-attention" when s3 is also in
+  // context (s3 buries s4 mid-thread). When s3 is dropped or s4 is the
+  // last item before the query, attention surfaces it.
+  const criticalAttenuated = criticalIncluded && included.includes('s3') && included.includes('s2') && included.length >= 4;
+  const STREAM = useMemo(() => {
+    if (!criticalIncluded) return track === 'non-tech'
+      ? 'Based on the records provided, the patient was admitted with pneumonia and treated with antibiotics. Her respiratory status improved. I do not see a specific critical clinical event documented in the context.'
+      : 'Based on the incident records provided, the primary issue was high CPU on DB01 caused by a runaway query. The team killed the offending PID and restarted the service. I do not see a specific critical finding in the context.';
+    if (criticalAttenuated) return track === 'non-tech'
+      ? 'Several notable events occurred during this admission, including treatment with azithromycin and respiratory recovery by day 3. The records mention day-4 renal function changes but the specific cause is not clearly stated.'
+      : 'The incident involved a database CPU spike, query termination, and service restart. The records reference user_sessions activity but the specific finding is not clearly stated.';
+    return track === 'non-tech'
+      ? 'On day 4 the patient developed acute kidney injury, suspected to be from an ACE-inhibitor and diuretic interaction. ACE-i was discontinued; renal function began recovering.'
+      : 'During incident response, the user_sessions table was found to be corrupted following the database restart. A restore from the 13:55 UTC backup was initiated.';
+  }, [criticalIncluded, criticalAttenuated, track]);
+
+  const stream = useCallback((text: string) => {
+    setResponse('');
+    setStreaming(true);
+    const chars = Array.from(text);
+    let i = 0;
+    const tick = () => {
+      if (i >= chars.length) { setStreaming(false); return; }
+      const burst = Math.max(1, Math.round(2 + Math.random() * 4));
+      setResponse(prev => prev + chars.slice(i, i + burst).join(''));
+      i += burst;
+      setTimeout(tick, 16 + Math.random() * 12);
+    };
+    setTimeout(tick, 60);
+  }, []);
+
+  const run = () => stream(STREAM);
+  const toggle = (id: string) => { setIncluded(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]); setResponse(''); };
+
+  const COLORS: Record<string, string> = { s1: '#3B82F6', s2: '#06B6D4', s3: '#A855F7', s4: '#F59E0B', s5: '#10B981' };
+
+  return (
+    <div style={{
+      background: '#0B0B0F', borderRadius: 12, overflow: 'hidden', border: '1px solid #1F1F26',
+      boxShadow: '0 14px 36px rgba(0,0,0,0.45)', color: '#E5E5E5',
+      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: '1px solid #1F1F26', background: '#08080B' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #2563EB, #06B6D4)', color: '#fff', fontSize: 10, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>≡</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#F5F5F5' }}>Context Inspector</div>
+          <div style={{ fontSize: 10, color: '#737373' }}>· lost-in-the-middle demo</div>
+        </div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: overflowed ? '#EF4444' : '#A3A3A3' }}>{totalTokens.toLocaleString()} / {maxTokens.toLocaleString()} tokens · {Math.round(utilisation * 100)}%</div>
+      </div>
+
+      {/* Window bar with stacked segments + attention heatmap */}
+      <div style={{ padding: '14px 16px 6px' }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 6 }}>CONTEXT WINDOW</div>
+        <div style={{ position: 'relative', height: 28, background: '#13131A', borderRadius: 6, border: '1px solid #1F1F26', overflow: 'hidden', display: 'flex' }}>
+          {segments.map(seg => {
+            const on = included.includes(seg.id);
+            if (!on) return null;
+            const pct = (seg.tokens / maxTokens) * 100;
+            return (
+              <div key={seg.id} style={{
+                width: `${pct}%`,
+                background: COLORS[seg.id],
+                borderRight: '1px solid rgba(0,0,0,0.30)',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.92)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em', textShadow: '0 1px 0 rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>{seg.short}</span>
+              </div>
+            );
+          })}
+          <div style={{ flex: 1, background: 'repeating-linear-gradient(45deg, #13131A 0px, #13131A 6px, #0F0F14 6px, #0F0F14 12px)' }} />
+        </div>
+
+        {/* Attention heatmap below the window bar — illustrates lost-in-the-middle */}
+        <div style={{ marginTop: 6, height: 6, background: 'linear-gradient(90deg, rgba(16,163,127,0.7) 0%, rgba(16,163,127,0.5) 18%, rgba(245,158,11,0.35) 50%, rgba(16,163,127,0.5) 82%, rgba(16,163,127,0.7) 100%)', borderRadius: 3 }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3, fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: '#525252', letterSpacing: '0.1em' }}>
+          <span>HIGH ATTENTION</span><span>LOW (LOST-IN-THE-MIDDLE)</span><span>HIGH ATTENTION</span>
+        </div>
+      </div>
+
+      {/* Body: segments | chat */}
+      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 0, borderTop: '1px solid #1F1F26' }}>
+        {/* Segments rail */}
+        <div style={{ borderRight: '1px solid #1F1F26', padding: '12px 14px', maxHeight: 280, overflow: 'auto' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 8 }}>DOCUMENT SEGMENTS</div>
+          {segments.map(seg => {
+            const on = included.includes(seg.id);
+            return (
+              <button
+                key={seg.id}
+                type="button"
+                onClick={() => toggle(seg.id)}
+                style={{
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  textAlign: 'left' as const,
+                  display: 'block',
+                  width: '100%',
+                  marginBottom: 5,
+                  padding: '7px 9px',
+                  background: on ? `${COLORS[seg.id]}1F` : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${on ? COLORS[seg.id] : '#262626'}`,
+                  borderRadius: 6,
+                  color: on ? '#F5F5F5' : '#737373',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>
+                    {seg.critical && <span style={{ color: '#F59E0B', marginRight: 4 }}>★</span>}
+                    {seg.label}
+                  </span>
+                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: on ? COLORS[seg.id] : '#525252' }}>{seg.tokens}</span>
+                </div>
+                <div style={{ fontSize: 10, color: on ? '#A3A3A3' : '#525252', lineHeight: 1.5 }}>{seg.content}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Chat */}
+        <div style={{ padding: '12px 16px 14px', display: 'flex', flexDirection: 'column' as const }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 6 }}>USER</div>
+          <div style={{ padding: '9px 12px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 8, fontSize: 12, color: '#E5E5E5', lineHeight: 1.6, marginBottom: 10 }}>{QUERY}</div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em' }}>ASSISTANT</div>
+            {streaming && (
+              <div style={{ display: 'flex', gap: 3 }}>
+                {[0, 1, 2].map(i => (
+                  <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} style={{ width: 4, height: 4, borderRadius: '50%', background: '#06B6D4' }} />
+                ))}
+              </div>
+            )}
+          </div>
+          <div style={{ flex: 1, padding: response || streaming ? '9px 12px' : 0, background: response || streaming ? '#13131A' : 'transparent', border: response || streaming ? '1px solid #1F1F26' : 'none', borderRadius: 8, fontSize: 12, color: '#D4D4D4', lineHeight: 1.65, minHeight: 70 }}>
+            {response ? <>{response}{streaming && <span style={{ display: 'inline-block', width: 6, height: 12, background: '#06B6D4', marginLeft: 2, verticalAlign: 'middle' }} />}</> : !streaming && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11 }}>Toggle segments above and press Run to see what the model surfaces.</span>}
+          </div>
+
+          {/* Status note */}
+          <div style={{ marginTop: 10, padding: '7px 10px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 6, fontSize: 10, color: '#A3A3A3', lineHeight: 1.55 }}>
+            {!criticalIncluded
+              ? <><span style={{ color: '#EF4444' }}>●</span> Critical segment is excluded — model cannot see the fact.</>
+              : criticalAttenuated
+              ? <><span style={{ color: '#F59E0B' }}>●</span> Critical fact present but buried mid-context. Model may underweight it (lost-in-the-middle).</>
+              : <><span style={{ color: '#10B981' }}>●</span> Critical fact in high-attention region. Model should surface it cleanly.</>}
+          </div>
+
+          <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              type="button"
+              onClick={run}
+              disabled={streaming || included.length === 0}
+              style={{
+                appearance: 'none',
+                background: streaming || included.length === 0 ? '#1F1F26' : '#06B6D4',
+                border: 'none',
+                borderRadius: 6,
+                padding: '6px 18px',
+                fontSize: 11.5,
+                fontWeight: 700,
+                color: streaming || included.length === 0 ? '#737373' : '#FFFFFF',
+                cursor: streaming || included.length === 0 ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >{streaming ? 'Streaming…' : 'Run ▶'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── ModelSelectorTool — authentic OpenRouter model-comparison rebuild ──
+// Looks and behaves like OpenRouter's model-comparison view: a dark table of
+// frontier models with provider logo, context window, input/output price per
+// 1M tokens, latency, and capability badges. On the right, the learner routes
+// three workloads (each with its own volume) to a model. The live cost panel
+// recomputes monthly spend; "optimal" pills surface when the learner picks
+// the right tier for the workload tier.
+const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
+  type ModelId = 'gpt-4o' | 'gpt-4o-mini' | 'claude-3-5-sonnet' | 'claude-3-5-haiku' | 'gemini-1.5-flash';
+  const MODELS: Record<ModelId, {
+    name: string; provider: string; logo: string; logoBg: string;
+    contextK: number; inPrice: number; outPrice: number;
+    latencyMs: number; tier: 'frontier' | 'fast'; badges: string[];
+  }> = {
+    'gpt-4o':              { name: 'GPT-4o',              provider: 'OpenAI',    logo: '◯', logoBg: '#10A37F', contextK: 128, inPrice: 2.50,  outPrice: 10.00, latencyMs: 460, tier: 'frontier', badges: ['vision', 'function-calling'] },
+    'gpt-4o-mini':         { name: 'GPT-4o-mini',         provider: 'OpenAI',    logo: '◯', logoBg: '#10A37F', contextK: 128, inPrice: 0.15,  outPrice: 0.60,  latencyMs: 290, tier: 'fast',     badges: ['vision'] },
+    'claude-3-5-sonnet':   { name: 'Claude 3.5 Sonnet',   provider: 'Anthropic', logo: 'A', logoBg: '#C66B3D', contextK: 200, inPrice: 3.00,  outPrice: 15.00, latencyMs: 540, tier: 'frontier', badges: ['vision', 'tool-use'] },
+    'claude-3-5-haiku':    { name: 'Claude 3.5 Haiku',    provider: 'Anthropic', logo: 'A', logoBg: '#C66B3D', contextK: 200, inPrice: 0.80,  outPrice: 4.00,  latencyMs: 320, tier: 'fast',     badges: ['tool-use'] },
+    'gemini-1.5-flash':    { name: 'Gemini 1.5 Flash',    provider: 'Google',    logo: 'G', logoBg: '#4285F4', contextK: 1000, inPrice: 0.075, outPrice: 0.30,  latencyMs: 240, tier: 'fast',     badges: ['vision', '1M-context'] },
+  };
+
+  type Workload = { id: string; label: string; volumePerDay: number; tokensPerCall: number; needsFrontier: boolean };
+  const WORKLOADS: Workload[] = track === 'non-tech'
+    ? [
+        { id: 'w1', label: 'Intake form summarisation',           volumePerDay: 200, tokensPerCall: 2000, needsFrontier: false },
+        { id: 'w2', label: 'Exception classification',            volumePerDay: 100, tokensPerCall: 1500, needsFrontier: false },
+        { id: 'w3', label: 'Complex care-plan synthesis',         volumePerDay: 5,   tokensPerCall: 6000, needsFrontier: true  },
+      ]
+    : [
+        { id: 'w1', label: 'Log anomaly summarisation',           volumePerDay: 500, tokensPerCall: 1500, needsFrontier: false },
+        { id: 'w2', label: 'Ticket routing classifier',           volumePerDay: 200, tokensPerCall: 1200, needsFrontier: false },
+        { id: 'w3', label: 'Root-cause analysis for SEV-1s',      volumePerDay: 8,   tokensPerCall: 8000, needsFrontier: true  },
+      ];
+
+  const [routing, setRouting] = useState<Record<string, ModelId>>({
+    w1: 'gpt-4o', w2: 'gpt-4o', w3: 'gpt-4o',
+  });
+
+  const monthlyCost = useMemo(() => {
+    let total = 0;
+    for (const w of WORKLOADS) {
+      const m = MODELS[routing[w.id]];
+      const tokens = w.tokensPerCall * w.volumePerDay * 30;
+      // assume 70% input / 30% output split
+      const cost = (tokens * 0.7 / 1_000_000) * m.inPrice + (tokens * 0.3 / 1_000_000) * m.outPrice;
+      total += cost;
+    }
+    return total;
+  }, [routing, WORKLOADS]);
+
+  const isOptimal = (w: Workload) => {
+    const m = MODELS[routing[w.id]];
+    return w.needsFrontier ? m.tier === 'frontier' : m.tier === 'fast';
+  };
+
+  // ─── OpenRouter-style UI ─────────────────────────────────────────────
+  const orBg = '#0A0A0F';
+  const tableBg = '#11111A';
+  const rowBorder = '1px solid #1F1F29';
+  const accent = '#7C3AED';
+  const inkPrimary = '#F4F4F5';
+  const inkMuted = '#A1A1AA';
+
+  const labelMono: CSSProperties = { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: inkMuted, textTransform: 'uppercase' };
+
+  return (
+    <div style={{
+      background: orBg, borderRadius: 12, overflow: 'hidden', border: '1px solid #1F1F29',
+      boxShadow: '0 14px 36px rgba(0,0,0,0.45)', color: inkPrimary,
+      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: rowBorder, background: '#08080C' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#A78BFA' }} />
+            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#A78BFA', opacity: 0.65 }} />
+            <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#A78BFA', opacity: 0.35 }} />
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: inkPrimary }}>OpenRouter</div>
+          <div style={{ fontSize: 10, color: inkMuted }}>· Model Comparison</div>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: inkMuted, border: rowBorder }}>Filter: all</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: inkMuted, border: rowBorder }}>Sort: cost ↑</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 280px', gap: 0 }}>
+        {/* LEFT: model table */}
+        <div style={{ borderRight: rowBorder }}>
+          <div style={{ padding: '10px 14px', display: 'grid', gridTemplateColumns: 'minmax(160px,2fr) 80px 70px 70px 90px', gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.14em', borderBottom: rowBorder, background: '#0C0C12' }}>
+            <span>MODEL</span><span style={{ textAlign: 'right' }}>CONTEXT</span><span style={{ textAlign: 'right' }}>$ IN /M</span><span style={{ textAlign: 'right' }}>$ OUT /M</span><span style={{ textAlign: 'right' }}>LATENCY</span>
+          </div>
+          {(Object.keys(MODELS) as ModelId[]).map(id => {
+            const m = MODELS[id];
+            const isUsed = Object.values(routing).includes(id);
+            return (
+              <div key={id} style={{
+                padding: '10px 14px',
+                display: 'grid', gridTemplateColumns: 'minmax(160px,2fr) 80px 70px 70px 90px', gap: 8,
+                alignItems: 'center',
+                borderBottom: rowBorder,
+                background: isUsed ? `${accent}0F` : tableBg,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 5, background: m.logoBg, color: '#fff', fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: m.logo === 'A' ? 'serif' : 'inherit' }}>{m.logo}</div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: inkPrimary, lineHeight: 1.2 }}>{m.name}</div>
+                    <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
+                      <span style={{ fontSize: 9, color: inkMuted }}>{m.provider}</span>
+                      {m.tier === 'frontier' && <span style={{ fontSize: 8, fontWeight: 700, color: '#FCD34D', background: 'rgba(252,211,77,0.12)', padding: '0 5px', borderRadius: 3, letterSpacing: '0.04em' }}>FRONTIER</span>}
+                      {m.tier === 'fast' && <span style={{ fontSize: 8, fontWeight: 700, color: '#67E8F9', background: 'rgba(103,232,249,0.12)', padding: '0 5px', borderRadius: 3, letterSpacing: '0.04em' }}>FAST</span>}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: inkPrimary }}>{m.contextK >= 1000 ? `${m.contextK / 1000}M` : `${m.contextK}K`}</div>
+                <div style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: m.inPrice < 0.5 ? '#10B981' : m.inPrice < 2 ? '#FBBF24' : '#FCA5A5' }}>${m.inPrice.toFixed(2)}</div>
+                <div style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: m.outPrice < 2 ? '#10B981' : m.outPrice < 8 ? '#FBBF24' : '#FCA5A5' }}>${m.outPrice.toFixed(2)}</div>
+                <div style={{ textAlign: 'right', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: inkMuted }}>{m.latencyMs} ms</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* RIGHT: workload routing */}
+        <div style={{ padding: '12px 14px 14px' }}>
+          <div style={{ ...labelMono, marginBottom: 8 }}>ROUTE WORKLOADS</div>
+          {WORKLOADS.map(w => {
+            const optimal = isOptimal(w);
+            return (
+              <div key={w.id} style={{ marginBottom: 10, padding: '8px 10px', background: tableBg, border: `1px solid ${optimal ? '#10B981' : '#262633'}`, borderRadius: 7 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: inkPrimary, lineHeight: 1.3 }}>{w.label}</div>
+                  {optimal && <span style={{ fontSize: 8, fontWeight: 700, color: '#10B981', background: 'rgba(16,185,129,0.15)', padding: '1px 5px', borderRadius: 3, letterSpacing: '0.04em' }}>OPTIMAL</span>}
+                </div>
+                <div style={{ fontSize: 9, color: inkMuted, marginBottom: 6 }}>{w.volumePerDay}/day · ~{w.tokensPerCall.toLocaleString()} tok/call · {w.needsFrontier ? 'needs frontier' : 'fast-tier sufficient'}</div>
+                <select
+                  value={routing[w.id]}
+                  onChange={e => setRouting(prev => ({ ...prev, [w.id]: e.target.value as ModelId }))}
+                  style={{
+                    width: '100%',
+                    padding: '5px 8px',
+                    borderRadius: 5,
+                    background: '#0A0A12',
+                    border: `1px solid ${optimal ? '#10B981' : '#262633'}`,
+                    color: inkPrimary,
+                    fontSize: 11,
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                  }}
+                >
+                  {(Object.keys(MODELS) as ModelId[]).map(id => (
+                    <option key={id} value={id}>{MODELS[id].name}</option>
+                  ))}
+                </select>
+              </div>
+            );
+          })}
+
+          {/* Total */}
+          <div style={{ marginTop: 12, padding: '10px 12px', background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(168,85,247,0.08))', border: `1px solid ${accent}66`, borderRadius: 7 }}>
+            <div style={{ ...labelMono, color: '#C4B5FD' }}>EST. MONTHLY SPEND</div>
+            <motion.div
+              key={monthlyCost.toFixed(2)}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 800, color: inkPrimary, marginTop: 3 }}
+            >${monthlyCost.toFixed(2)}</motion.div>
+            <div style={{ fontSize: 9, color: inkMuted, marginTop: 2 }}>at 30-day continuous usage</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -980,169 +1159,196 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
     },
   };
 
-  const currentPrompt = prompts[`v${version}` as keyof typeof prompts].text;
   const currentOutput = prompts[`v${version}` as keyof typeof prompts].output;
   const currentVerdict = prompts[`v${version}` as keyof typeof prompts].verdict;
 
-  const getDiff = (prev: string, current: string) => {
-    const prevLines = prev.split('\n');
-    const currentLines = current.split('\n');
-    const diff: { type: 'added' | 'removed' | 'unchanged'; text: string }[] = [];
-
-    // Simple line-by-line diff for illustration
-    const maxLength = Math.max(prevLines.length, currentLines.length);
-    for (let i = 0; i < maxLength; i++) {
-      const prevLine = prevLines[i];
-      const currentLine = currentLines[i];
-
-      if (prevLine === currentLine) {
-        diff.push({ type: 'unchanged', text: currentLine });
+  // Line-level diff between adjacent versions, like a real git diff. We split
+  // each version into lines, find the longest-common-subsequence by walking
+  // both arrays, and emit add/remove/unchanged hunks. Simpler than Myers but
+  // produces clean visuals for short prompt diffs.
+  type DiffLine = { type: 'add' | 'del' | 'eq'; text: string };
+  const buildDiff = (a: string, b: string): DiffLine[] => {
+    const aL = a.split('\n');
+    const bL = b.split('\n');
+    const out: DiffLine[] = [];
+    let i = 0, j = 0;
+    while (i < aL.length || j < bL.length) {
+      if (i < aL.length && j < bL.length && aL[i] === bL[j]) {
+        out.push({ type: 'eq', text: aL[i] }); i++; j++;
+      } else if (j < bL.length && (i >= aL.length || !aL.includes(bL[j]))) {
+        out.push({ type: 'add', text: bL[j] }); j++;
+      } else if (i < aL.length && (j >= bL.length || !bL.includes(aL[i]))) {
+        out.push({ type: 'del', text: aL[i] }); i++;
       } else {
-        if (prevLine !== undefined && !currentLines.includes(prevLine)) {
-          diff.push({ type: 'removed', text: prevLine });
-        }
-        if (currentLine !== undefined && !prevLines.includes(currentLine)) {
-          diff.push({ type: 'added', text: currentLine });
-        } else if (currentLine !== undefined && prevLines.includes(currentLine) && prevLine !== currentLine) {
-          // If line changed but exists in both, treat as changed (simplified)
-          diff.push({ type: 'unchanged', text: currentLine });
-        }
+        // both still have matchable content elsewhere — emit the next pair as
+        // a delete+add to keep order
+        if (i < aL.length) { out.push({ type: 'del', text: aL[i] }); i++; }
+        if (j < bL.length) { out.push({ type: 'add', text: bL[j] }); j++; }
       }
     }
-    return diff.filter(d => d.text !== undefined);
+    return out;
   };
 
-  const diffOutput = version > 1 ? getDiff(prompts[`v${version - 1}` as keyof typeof prompts].text, currentPrompt) : [{ type: 'unchanged', text: currentPrompt }];
+  const compareTo = Math.max(1, version - 1);
+  const aText = prompts[`v${compareTo}` as keyof typeof prompts].text;
+  const bText = prompts[`v${version}` as keyof typeof prompts].text;
+  const diff: DiffLine[] = version === 1 ? bText.split('\n').map(line => ({ type: 'eq' as const, text: line })) : buildDiff(aText, bText);
+  const adds = diff.filter(d => d.type === 'add').length;
+  const dels = diff.filter(d => d.type === 'del').length;
 
-  const containerStyle: CSSProperties = {
-    background: '#0F172A',
-    borderRadius: '12px',
-    padding: '20px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-    color: '#E2E8F0',
-    maxWidth: '700px',
-    margin: '0 auto',
-  };
+  // ─── VS Code git-diff UI ─────────────────────────────────────────────
+  const vsBg = '#1E1E1E';
+  const vsSideBg = '#252526';
+  const vsTabBar = '#2D2D30';
+  const vsActiveTab = '#1E1E1E';
+  const vsBorder = '#1B1B1B';
+  const vsGutter = '#858585';
+  const vsAddBg = 'rgba(155,185,85,0.16)';
+  const vsAddText = '#B5CEA8';
+  const vsDelBg = 'rgba(244,135,113,0.14)';
+  const vsDelText = '#F48771';
+  const vsKey = '#569CD6';
+  const vsString = '#CE9178';
+  const vsText = '#D4D4D4';
 
-  const promptBoxStyle: CSSProperties = {
-    backgroundColor: '#1E293B',
-    border: '1px solid #475569',
-    borderRadius: '8px',
-    padding: '15px',
-    minHeight: '150px',
-    whiteSpace: 'pre-wrap',
-    fontFamily: 'monospace',
-    fontSize: '13px',
-    color: '#E2E8F0',
-    marginBottom: '15px',
-  };
-
-  const outputBoxStyle: CSSProperties = {
-    ...promptBoxStyle,
-    minHeight: '100px',
-    backgroundColor: '#1E293B',
-  };
-
-  const buttonStyle: CSSProperties = {
-    backgroundColor: ACCENT,
-    color: 'white',
-    padding: '8px 15px',
-    borderRadius: '6px',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 600,
-    margin: '0 5px',
-    transition: 'background-color 0.2s ease',
+  // Lightweight prompt syntax tinting: SYSTEM:, User:, Schema: get a token colour
+  const tintLine = (text: string, baseColor: string) => {
+    const sysPrefix = /^(SYSTEM:|USER:|User:|Example:|Schema:|System:)/;
+    const m = text.match(sysPrefix);
+    if (m) {
+      const rest = text.slice(m[0].length);
+      return <><span style={{ color: vsKey, fontWeight: 700 }}>{m[0]}</span><span style={{ color: baseColor }}>{rest}</span></>;
+    }
+    // tint quoted strings
+    const stringRegex = /"[^"]*"|'[^']*'/g;
+    const parts: React.ReactNode[] = [];
+    let last = 0;
+    let mm: RegExpExecArray | null;
+    while ((mm = stringRegex.exec(text)) !== null) {
+      if (mm.index > last) parts.push(<span key={`t${last}`} style={{ color: baseColor }}>{text.slice(last, mm.index)}</span>);
+      parts.push(<span key={`s${mm.index}`} style={{ color: vsString }}>{mm[0]}</span>);
+      last = mm.index + mm[0].length;
+    }
+    if (last < text.length) parts.push(<span key={`e${last}`} style={{ color: baseColor }}>{text.slice(last)}</span>);
+    return parts.length > 0 ? parts : <span style={{ color: baseColor }}>{text || ' '}</span>;
   };
 
   return (
-    <TiltCard style={containerStyle}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: '#64748B', marginBottom: '8px', textTransform: 'uppercase' as const }}>REFINEMENT LOOP SIMULATOR</div>
-      <div style={{ marginBottom: '20px', fontSize: '18px', fontWeight: 700, color: ACCENT }}>
-        Prompt Refinement Loop
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-        <button
-          onClick={() => setVersion(1)}
-          style={{ ...buttonStyle, backgroundColor: version === 1 ? ACCENT : '#334155' }}
-        >
-          Version 1
-        </button>
-        <button
-          onClick={() => setVersion(2)}
-          style={{ ...buttonStyle, backgroundColor: version === 2 ? ACCENT : '#334155' }}
-        >
-          Version 2
-        </button>
-        <button
-          onClick={() => setVersion(3)}
-          style={{ ...buttonStyle, backgroundColor: version === 3 ? ACCENT : '#334155' }}
-        >
-          Version 3
-        </button>
-      </div>
-
-      <div style={{ marginBottom: '15px' }}>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Current Prompt (v{version}):</div>
-        <div style={promptBoxStyle}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={version}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              {diffOutput.map((line, i) => (
-                <span key={i} style={{
-                  color: line.type === 'added' ? '#22C55E' : (line.type === 'removed' ? '#EF4444' : '#E2E8F0'),
-                  textDecoration: line.type === 'removed' ? 'line-through' : 'none',
-                  display: 'block',
-                }}>
-                  {line.text}
-                </span>
-              ))}
-            </motion.div>
-          </AnimatePresence>
+    <div style={{
+      background: vsBg, borderRadius: 8, overflow: 'hidden', border: `1px solid ${vsBorder}`,
+      boxShadow: '0 14px 36px rgba(0,0,0,0.45)', color: vsText,
+      fontFamily: "Inter, -apple-system, system-ui, sans-serif",
+    }}>
+      {/* Title bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 12px', background: '#3C3C3C', fontSize: 11, color: '#CCCCCC' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ color: '#FF5F57', fontSize: 11 }}>●</span>
+          <span style={{ color: '#FEBC2E', fontSize: 11 }}>●</span>
+          <span style={{ color: '#28C840', fontSize: 11 }}>●</span>
+          <span style={{ marginLeft: 8, fontSize: 11 }}>prompts — northstar-claims-classifier</span>
         </div>
+        <div style={{ fontSize: 10, color: '#858585' }}>Visual Studio Code</div>
       </div>
 
-      <div>
-        <div style={{ fontSize: '14px', color: '#94A3B8', marginBottom: '8px' }}>Model Output:</div>
-        <div style={outputBoxStyle}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`output-${version}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+      {/* Tab strip */}
+      <div style={{ display: 'flex', background: vsTabBar, borderBottom: `1px solid ${vsBorder}` }}>
+        {([1, 2, 3] as const).map(v => {
+          const isActive = v === version;
+          return (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setVersion(v)}
+              style={{
+                appearance: 'none',
+                cursor: 'pointer',
+                background: isActive ? vsActiveTab : 'transparent',
+                border: 'none',
+                borderRight: `1px solid ${vsBorder}`,
+                borderTop: isActive ? `1px solid ${vsKey}` : 'none',
+                padding: '7px 14px 6px',
+                fontSize: 11.5,
+                color: isActive ? '#FFFFFF' : '#969696',
+                fontFamily: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
             >
+              <span style={{ color: '#519ABA', fontSize: 11 }}>◇</span>
+              <span>v{v}.prompt</span>
+              <span style={{ marginLeft: 6, opacity: 0.5, fontSize: 11 }}>×</span>
+            </button>
+          );
+        })}
+        <div style={{ flex: 1, background: vsTabBar }} />
+      </div>
+
+      {/* Breadcrumb */}
+      <div style={{ padding: '4px 14px', fontSize: 10.5, color: '#858585', background: vsBg, borderBottom: `1px solid ${vsBorder}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <span>prompts</span><span style={{ opacity: 0.5 }}>›</span>
+        <span>v{compareTo}.prompt</span><span style={{ opacity: 0.5 }}>↔</span>
+        <span style={{ color: '#D4D4D4' }}>v{version}.prompt</span>
+        <span style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
+          <span style={{ color: vsAddText, marginRight: 8 }}>+{adds}</span>
+          <span style={{ color: vsDelText }}>−{dels}</span>
+        </span>
+      </div>
+
+      {/* Diff editor */}
+      <div style={{ background: vsBg, padding: '6px 0 8px', maxHeight: 280, overflow: 'auto', fontFamily: "'JetBrains Mono', 'Menlo', 'Consolas', monospace", fontSize: 12, lineHeight: 1.5 }}>
+        <AnimatePresence mode="wait">
+          <motion.div key={version} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            {diff.map((d, i) => {
+              const sign = d.type === 'add' ? '+' : d.type === 'del' ? '−' : ' ';
+              const rowBg = d.type === 'add' ? vsAddBg : d.type === 'del' ? vsDelBg : 'transparent';
+              const signColor = d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsGutter;
+              return (
+                <div key={i} style={{ display: 'flex', background: rowBg, paddingLeft: 8 }}>
+                  <span style={{ width: 24, color: vsGutter, fontSize: 10.5, textAlign: 'right', userSelect: 'none', flexShrink: 0 }}>{i + 1}</span>
+                  <span style={{ width: 16, color: signColor, textAlign: 'center', fontWeight: 700, fontSize: 12, userSelect: 'none', flexShrink: 0 }}>{sign}</span>
+                  <span style={{ paddingLeft: 6, paddingRight: 10, whiteSpace: 'pre-wrap' as const, wordBreak: 'break-word', textDecoration: d.type === 'del' ? 'line-through' : 'none' }}>
+                    {tintLine(d.text || ' ', d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsText)}
+                  </span>
+                </div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Output panel */}
+      <div style={{ borderTop: `1px solid ${vsBorder}`, background: vsSideBg }}>
+        <div style={{ padding: '7px 14px', fontSize: 9.5, fontFamily: "'JetBrains Mono', monospace", color: '#858585', letterSpacing: '0.14em', borderBottom: `1px solid ${vsBorder}`, display: 'flex', justifyContent: 'space-between' }}>
+          <span>OUTPUT — model response (v{version})</span>
+          <span style={{ color: '#858585' }}>gpt-4o · temperature 0.2</span>
+        </div>
+        <div style={{ padding: '10px 14px', fontFamily: "'JetBrains Mono', 'Menlo', monospace", fontSize: 11.5, color: vsText, lineHeight: 1.65, whiteSpace: 'pre-wrap' as const, maxHeight: 160, overflow: 'auto' }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={`out-${version}`} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
               {currentOutput}
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* What the diff bought you — verdict lives outside the model output */}
-      <div style={{ marginTop: '12px', background: `${ACCENT}14`, border: `1px solid ${ACCENT}40`, borderRadius: '8px', padding: '10px 14px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', color: ACCENT, marginBottom: '4px' }}>WHAT THIS VERSION BUYS YOU</div>
+      {/* Verdict ribbon */}
+      <div style={{ padding: '8px 14px', background: `${ACCENT}1A`, borderTop: `1px solid ${ACCENT}50` }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: '#A4C8FF', marginBottom: 3 }}>WHAT v{version} BUYS YOU</div>
         <AnimatePresence mode="wait">
-          <motion.div
-            key={`verdict-${version}`}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.2 }}
-            style={{ fontSize: '12px', color: '#E2E8F0', lineHeight: 1.55 }}
-          >
-            {currentVerdict}
-          </motion.div>
+          <motion.div key={`vd-${version}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} style={{ fontSize: 11.5, color: '#D4D4D4', lineHeight: 1.55, fontFamily: 'inherit' }}>{currentVerdict}</motion.div>
         </AnimatePresence>
       </div>
-    </TiltCard>
+
+      {/* Status bar */}
+      <div style={{ background: '#007ACC', color: '#FFFFFF', padding: '3px 14px', fontSize: 10.5, fontFamily: "'JetBrains Mono', monospace", display: 'flex', alignItems: 'center', gap: 14 }}>
+        <span>⎇ main</span>
+        <span>↥ {adds}  ↧ {dels}</span>
+        <span style={{ marginLeft: 'auto' }}>Markdown</span>
+        <span>UTF-8</span>
+        <span>Ln {diff.length}, Col 1</span>
+      </div>
+    </div>
   );
 };
 
