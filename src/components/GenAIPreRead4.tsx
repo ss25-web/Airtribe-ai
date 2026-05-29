@@ -205,226 +205,696 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 
 
 // ── M4 Interactive Tools ─────────────────────────────────────────────────────
+// All five tools render as authentic n8n editor mockups: window chrome with
+// traffic lights, dotted canvas grid, real node cards (colour-bar top, icon
+// block, label + TYPE chip), and SVG bezier connectors with arrowheads. The
+// node TYPE palette matches n8n's actual taxonomy (trigger / data / transform
+// / AI / output / error).
 
-// Section 01: Workflow step labeler — user tags which step is AI vs. surrounding engineering
+const NODE_TYPES = {
+  trigger:   { label: 'Trigger',     color: '#0F766E' },
+  data:      { label: 'Data',        color: '#2563EB' },
+  transform: { label: 'Transform',   color: '#7C3AED' },
+  ai:        { label: 'AI Node',     color: '#F59E0B' },
+  output:    { label: 'Output',      color: '#16A34A' },
+  error:     { label: 'Error Path',  color: '#DC2626' },
+} as const;
+type NodeTypeKey = keyof typeof NODE_TYPES;
+
+// Shared n8n editor window chrome — used by every PR4 tool.
+const N8nFrame = ({ filename, status = 'ACTIVE', children }: { filename: string; status?: string; children: React.ReactNode }) => (
+  <div style={{ background: '#0F1117', borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+    <div style={{ padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', display: 'flex', alignItems: 'center', gap: '10px', background: '#141920' }}>
+      <div style={{ display: 'flex', gap: '5px' }}>
+        {(['#FF5F57', '#FFBD2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />)}
+      </div>
+      <div style={{ flex: 1, textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>
+        n8n — {filename}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+        <div style={{ width: 6, height: 6, borderRadius: '50%', background: status === 'ACTIVE' ? '#22C55E' : '#F59E0B' }} />
+        <span style={{ fontSize: 9, color: status === 'ACTIVE' ? '#22C55E' : '#F59E0B', fontFamily: "'JetBrains Mono', monospace" }}>{status}</span>
+      </div>
+    </div>
+    {children}
+  </div>
+);
+
+// Shared n8n node card. Width/height match what's used inside the canvas grid.
+const N8N_NW = 168, N8N_NH = 62;
+const N8nNodeCard = ({ x, y, label, typeKey, icon, selected, ghost, w = N8N_NW, h = N8N_NH, onClick, status }: {
+  x: number; y: number; label: string; typeKey: NodeTypeKey | null;
+  icon: string; selected?: boolean; ghost?: boolean; w?: number; h?: number;
+  onClick?: () => void; status?: 'ok' | 'fail' | 'pending';
+}) => {
+  const type = typeKey ? NODE_TYPES[typeKey] : { label: '—', color: '#374151' };
+  const isGhost = !typeKey || ghost;
+  return (
+    <div onClick={onClick} style={{
+      position: 'absolute' as const, left: x, top: y, width: w, height: h,
+      background: isGhost ? 'rgba(255,255,255,0.04)' : (selected ? '#1C2333' : '#181F2E'),
+      border: `1.5px ${isGhost ? 'dashed' : 'solid'} ${selected ? type.color : isGhost ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)'}`,
+      borderRadius: 8, cursor: onClick ? 'pointer' : 'default', overflow: 'hidden',
+      boxShadow: selected ? `0 0 0 2px ${type.color}25, 0 8px 28px rgba(0,0,0,0.35)` : '0 2px 8px rgba(0,0,0,0.2)',
+      transition: 'all 0.2s',
+    }}>
+      <div style={{ height: 3, background: isGhost ? 'rgba(255,255,255,0.12)' : type.color }} />
+      <div style={{ padding: '7px 9px', display: 'flex', alignItems: 'center', gap: 8, height: h - 3 }}>
+        <div style={{
+          width: 30, height: 30, borderRadius: 6,
+          background: isGhost ? 'rgba(255,255,255,0.06)' : `${type.color}1A`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0,
+          color: isGhost ? 'rgba(255,255,255,0.35)' : type.color,
+        }}>{icon}</div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: isGhost ? 'rgba(226,232,240,0.55)' : '#E2E8F0', lineHeight: 1.2, marginBottom: 3, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+          <div style={{ fontSize: 8, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: isGhost ? 'rgba(255,255,255,0.35)' : type.color, letterSpacing: '0.08em' }}>{type.label.toUpperCase()}</div>
+        </div>
+        {status === 'ok' && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />}
+        {status === 'fail' && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#DC2626', flexShrink: 0 }} />}
+        {status === 'pending' && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F59E0B', flexShrink: 0 }} />}
+      </div>
+    </div>
+  );
+};
+
+const n8nBezier = (x1: number, y1: number, x2: number, y2: number, side: 'side' | 'down' = 'side') => {
+  if (side === 'down') {
+    const my = (y1 + y2) / 2;
+    return `M ${x1} ${y1} C ${x1} ${my} ${x2} ${my} ${x2} ${y2}`;
+  }
+  const cx = (x1 + x2) / 2;
+  return `M ${x1} ${y1} C ${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+};
+
+const N8nCanvas = ({ width, height, children }: { width: number; height: number; children: React.ReactNode }) => (
+  <div style={{
+    overflowX: 'auto' as const, padding: '24px 20px 20px',
+    backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)',
+    backgroundSize: '22px 22px', backgroundColor: '#0F1117',
+  }}>
+    <div style={{ position: 'relative' as const, width, height }}>{children}</div>
+  </div>
+);
+
+// Section 01: Workflow step labeler — rendered as a real n8n canvas where the
+// learner clicks each ghost-node, picks its TYPE from the palette, and the
+// node materialises with its type bar + icon. Mis-tags flash red.
 const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
-  const steps = track === 'tech' ? [
-    { id: 'a', label: 'Email arrives → parse sender, subject, body', correctType: 'trigger', hint: 'This is what starts the workflow. It reads the raw event.' },
-    { id: 'b', label: 'Extract policy_code from subject (or mark as MISSING)', correctType: 'transform', hint: 'Pure data shaping — conditional logic on a field. No AI involved.' },
-    { id: 'c', label: 'Format exception description into a structured prompt', correctType: 'transform', hint: 'A Set node assembles the text the AI will receive. Still engineering.' },
-    { id: 'd', label: 'OpenAI classifies exception into one of 8 categories + confidence score', correctType: 'ai', hint: 'Language work — one AI call. Note: all surrounding steps are not AI.' },
-    { id: 'e', label: 'Write classification + confidence to Google Sheets row', correctType: 'output', hint: 'A Sheets node writes structured data. Engineering, not AI.' },
+  type WStep = { id: string; x: number; label: string; icon: string; correctType: NodeTypeKey; hint: string };
+  const steps: WStep[] = track === 'tech' ? [
+    { id: 'a', x: 10,  label: 'Gmail Trigger',     icon: '✉', correctType: 'trigger',   hint: 'Email arriving in the monitored inbox is what starts the workflow.' },
+    { id: 'b', x: 195, label: 'Extract policy_code', icon: '⚙', correctType: 'transform', hint: 'Pure data shaping — conditional logic on a field. No AI yet.' },
+    { id: 'c', x: 380, label: 'Format prompt',     icon: '⚙', correctType: 'transform', hint: 'A Set node assembles the prompt text. Still engineering, not AI.' },
+    { id: 'd', x: 565, label: 'OpenAI Classify',   icon: '◈', correctType: 'ai',        hint: 'The one AI call — language work converting prompt to category + confidence.' },
+    { id: 'e', x: 750, label: 'Append to Sheet',   icon: '⊞', correctType: 'output',    hint: 'A Sheets write node — engineering, not AI.' },
   ] : [
-    { id: 'a', label: 'Schedule fires at 7am every Monday', correctType: 'trigger', hint: 'A Cron trigger — starts the workflow on a time condition.' },
-    { id: 'b', label: 'Fetch all exception rows from this week\'s sheet', correctType: 'data', hint: 'A Google Sheets read node — retrieves structured data from an external system.' },
-    { id: 'c', label: 'Format rows into a single summary_input text block', correctType: 'transform', hint: 'A Set node assembles the data. All engineering — no AI yet.' },
-    { id: 'd', label: 'Claude reads summary_input and drafts the brief', correctType: 'ai', hint: 'The one AI call. Everything before and after this is data engineering.' },
-    { id: 'e', label: 'Send brief as email to director@northstar.com', correctType: 'output', hint: 'A Gmail send node. Engineering — delivers the AI output.' },
+    { id: 'a', x: 10,  label: 'Schedule Trigger',  icon: '◷', correctType: 'trigger',   hint: 'Cron trigger fires at 7am every Monday — starts the workflow on time.' },
+    { id: 'b', x: 195, label: 'Read Sheet',        icon: '⊞', correctType: 'data',      hint: 'A Sheets read node pulling exception rows. External-system data fetch.' },
+    { id: 'c', x: 380, label: 'Format prompt',     icon: '⚙', correctType: 'transform', hint: 'A Set node assembling the rows into the Claude prompt — engineering.' },
+    { id: 'd', x: 565, label: 'Claude Brief',      icon: '◈', correctType: 'ai',        hint: 'The single AI call — drafts the weekly brief from the assembled prompt.' },
+    { id: 'e', x: 750, label: 'Gmail Send',        icon: '✉', correctType: 'output',    hint: 'A Gmail send node — delivers the brief. Engineering, not AI.' },
   ];
-  const types = [
-    { key: 'trigger', label: 'Trigger', color: '#0F766E' },
-    { key: 'data', label: 'Data', color: '#2563EB' },
-    { key: 'transform', label: 'Transform', color: '#7C3AED' },
-    { key: 'ai', label: 'AI Node', color: '#F59E0B' },
-    { key: 'output', label: 'Output', color: '#16A34A' },
-  ];
-  const [tags, setTags] = useState<Record<string, string>>({});
+
+  const [tags, setTags] = useState<Record<string, NodeTypeKey>>({});
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [wrongFlash, setWrongFlash] = useState<string | null>(null);
   const allTagged = steps.every(s => tags[s.id]);
   const score = steps.filter(s => tags[s.id] === s.correctType).length;
   const aiCount = steps.filter(s => s.correctType === 'ai').length;
+
+  const tryTag = (id: string, type: NodeTypeKey) => {
+    const step = steps.find(s => s.id === id);
+    if (!step) return;
+    if (step.correctType !== type) {
+      setWrongFlash(id);
+      setTimeout(() => setWrongFlash(null), 600);
+      return;
+    }
+    setTags(prev => ({ ...prev, [id]: type }));
+    setSelectedId(null);
+  };
+
+  const reset = () => { setTags({}); setSelectedId(null); };
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '6px' }}>WORKFLOW STEP LABELER</div>
-      <div style={{ fontSize: '13px', color: '#C9D1D9', fontWeight: 600, marginBottom: '4px', fontFamily: 'sans-serif' }}>Tag each step: what kind of node does this work?</div>
-      <div style={{ fontSize: '11px', color: '#6B7280', marginBottom: '14px' }}>Hint: only {aiCount} of {steps.length} steps need an AI node.</div>
-      <div style={{ display: 'grid', gap: '8px', marginBottom: '14px' }}>
-        {steps.map((s, i) => {
-          const tagged = tags[s.id];
-          const correct = tagged === s.correctType;
-          const typeInfo = types.find(t => t.key === tagged);
+    <N8nFrame filename={track === 'tech' ? 'workflow-anatomy.json' : 'monday-brief-anatomy.json'} status={allTagged ? 'ACTIVE' : 'EDITING'}>
+      <N8nCanvas width={920} height={110}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 920, height: 110, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id="wa-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+          </defs>
+          {steps.slice(0, -1).map((s, i) => {
+            const next = steps[i + 1];
+            return (
+              <path key={s.id}
+                d={n8nBezier(s.x + N8N_NW, 30 + N8N_NH / 2, next.x, 30 + N8N_NH / 2)}
+                stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#wa-arrow)"
+              />
+            );
+          })}
+        </svg>
+        {steps.map(s => {
+          const taggedType = tags[s.id] ?? null;
+          const isWrong = wrongFlash === s.id;
+          const isSelected = selectedId === s.id;
           return (
-            <div key={s.id} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${tagged ? (correct ? '#16A34A' : '#DC2626') : '#374151'}`, borderRadius: '8px', padding: '10px 12px' }}>
-              <div style={{ fontSize: '11px', color: '#C9D1D9', marginBottom: '8px', fontFamily: 'sans-serif' }}><span style={{ color: '#6B7280', marginRight: '6px' }}>{i + 1}.</span>{s.label}</div>
-              <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' as const }}>
-                {types.map(t => (
-                  <div key={t.key} onClick={() => !tagged && setTags(prev => ({ ...prev, [s.id]: t.key }))} style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, cursor: tagged ? 'default' : 'pointer', border: `1.5px solid ${tagged === t.key ? t.color : '#374151'}`, background: tagged === t.key ? `${t.color}15` : 'transparent', color: tagged === t.key ? t.color : '#6B7280' }}>{t.label}</div>
-                ))}
-              </div>
-              {tagged && <div style={{ marginTop: '7px', fontSize: '10px', color: correct ? '#6EE7B7' : '#FCA5A5', lineHeight: 1.5 }}>{correct ? '✓' : `✗ This is a ${s.correctType} node.`} {s.hint}</div>}
+            <div key={s.id} style={{ animation: isWrong ? 'wa-shake 0.4s' : undefined }}>
+              <N8nNodeCard
+                x={s.x} y={30}
+                label={s.label}
+                typeKey={isWrong ? 'error' : taggedType}
+                icon={s.icon}
+                selected={isSelected}
+                ghost={!taggedType}
+                onClick={() => !taggedType && setSelectedId(prev => prev === s.id ? null : s.id)}
+                status={taggedType ? 'ok' : undefined}
+              />
             </div>
           );
         })}
-      </div>
-      {allTagged && <div style={{ padding: '10px 14px', borderRadius: '7px', background: score === steps.length ? 'rgba(22,163,74,0.1)' : 'rgba(245,158,11,0.08)', border: `1px solid ${score === steps.length ? '#16A34A' : '#F59E0B'}40`, fontSize: '13px', fontWeight: 700, color: score === steps.length ? '#6EE7B7' : '#F59E0B' }}>{score}/{steps.length} correct. {score === steps.length ? `${steps.length - aiCount} surrounding nodes are engineering — only the AI node is AI.` : 'Review the corrected tags above.'}</div>}
-    </div>
-  );
-};
+      </N8nCanvas>
 
-// Section 02: Node categorizer — user sorts nodes into the right category bucket
-const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
-  const nodeItems = track === 'tech' ? [
-    { id: 'email', label: 'Gmail Trigger', correctCat: 'trigger' }, { id: 'http', label: 'HTTP Request', correctCat: 'data' },
-    { id: 'set', label: 'Set Node', correctCat: 'transform' }, { id: 'openai', label: 'OpenAI Node', correctCat: 'ai' },
-    { id: 'sheets', label: 'Google Sheets', correctCat: 'data' }, { id: 'code', label: 'Code Node', correctCat: 'transform' },
-    { id: 'webhook', label: 'Webhook Trigger', correctCat: 'trigger' }, { id: 'claude', label: 'Anthropic Node', correctCat: 'ai' },
-  ] : [
-    { id: 'sched', label: 'Schedule Trigger', correctCat: 'trigger' }, { id: 'sheets', label: 'Google Sheets', correctCat: 'data' },
-    { id: 'set', label: 'Set Node', correctCat: 'transform' }, { id: 'claude', label: 'Anthropic Node', correctCat: 'ai' },
-    { id: 'form', label: 'Google Forms', correctCat: 'trigger' }, { id: 'if', label: 'IF Node', correctCat: 'transform' },
-    { id: 'airtable', label: 'Airtable', correctCat: 'data' }, { id: 'openai', label: 'OpenAI Node', correctCat: 'ai' },
-  ];
-  const cats = [
-    { key: 'trigger', label: 'Trigger', color: '#0F766E', note: 'Starts the workflow' },
-    { key: 'data', label: 'Data', color: '#2563EB', note: 'Reads/writes external data' },
-    { key: 'transform', label: 'Transform', color: '#7C3AED', note: 'Shapes data between nodes' },
-    { key: 'ai', label: 'AI Node', color: '#F59E0B', note: 'Language work only' },
-  ];
-  const [selected, setSelected] = useState<string | null>(null);
-  const [placements, setPlacements] = useState<Record<string, string>>({});
-  const allPlaced = nodeItems.every(n => placements[n.id]);
-  const score = nodeItems.filter(n => placements[n.id] === n.correctCat).length;
-  return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>NODE CATEGORIZER</div>
-      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Click a node, then click the bucket it belongs in.</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Correctly sort all 8 nodes.</div>
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const, marginBottom: '16px' }}>
-        {nodeItems.map(n => {
-          const placed = placements[n.id];
-          const cat = cats.find(c => c.key === placed);
-          const correct = placed && placed === n.correctCat;
-          return (
-            <div key={n.id} onClick={() => !placed && setSelected(n.id === selected ? null : n.id)} style={{ padding: '7px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: placed ? 'default' : 'pointer', border: `2px solid ${n.id === selected ? '#0F766E' : placed ? (correct ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, background: placed ? (correct ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)') : n.id === selected ? 'rgba(15,118,110,0.06)' : '#fff', color: placed ? (correct ? '#166534' : '#991B1B') : n.id === selected ? '#0F766E' : '#292524', transition: 'all 0.15s' }}>{cat ? `${cat.label}: ` : ''}{n.label}</div>
-          );
-        })}
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-        {cats.map(cat => (
-          <div key={cat.key} onClick={() => { if (selected && !placements[selected]) { setPlacements(prev => ({ ...prev, [selected]: cat.key })); setSelected(null); } }} style={{ padding: '10px 14px', borderRadius: '8px', border: `2px dashed ${selected ? cat.color : cat.color + '60'}`, background: selected ? `${cat.color}08` : 'transparent', cursor: selected ? 'pointer' : 'default', transition: 'all 0.15s' }}>
-            <div style={{ fontSize: '10px', fontWeight: 700, color: cat.color, marginBottom: '2px' }}>{cat.label}</div>
-            <div style={{ fontSize: '9px', color: '#78716C' }}>{cat.note}</div>
+      {/* Type palette (active when a node is selected) */}
+      <div style={{ padding: '10px 16px', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>
+            NODE PALETTE {selectedId ? `· tagging ${steps.find(s => s.id === selectedId)?.label}` : '· click an empty node above'}
           </div>
-        ))}
-      </div>
-      {allPlaced && <div style={{ padding: '10px 14px', borderRadius: '7px', background: score === nodeItems.length ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${score === nodeItems.length ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === nodeItems.length ? '#166534' : '#92400E' }}>{score}/{nodeItems.length} correct. {score < nodeItems.length ? 'Incorrect items are shown in red — click to retry.' : 'Perfect — you can read an n8n canvas node by node.'}</div>}
-    </div>
-  );
-};
-
-// Section 03: Credential Risk Assessor — user rates 3 scenarios, sees consequences
-const CredentialCard = ({ track }: { track: GenAITrack }) => {
-  const scenarios = [
-    {
-      id: 'api', setup: `${track === 'tech' ? 'Aarav' : 'Rhea'} stores the OpenAI API key in the n8n team credential vault, scoped to the automation project only.`,
-      correctRisk: 'low', explain: 'Team vault + scoped key = correct. If the key is compromised, it only affects this project. Anyone on the team can rotate it without breaking the workflow.',
-    },
-    {
-      id: 'oauth', setup: `${track === 'tech' ? 'Aarav' : 'Rhea'} authenticates the Google Sheets node using her personal @northstar.com Google account via OAuth.`,
-      correctRisk: 'high', explain: 'Personal OAuth is the single most common production failure mode. When she resets her password, enables new 2FA, or leaves the company, the token is invalidated and the workflow silently breaks at 7am Monday.',
-    },
-    {
-      id: 'svc', setup: `${track === 'tech' ? 'Aarav' : 'Rhea'} creates a Google service account (team-automation@northstar.iam) and uses it for all Google integrations.`,
-      correctRisk: 'low', explain: 'Service account = team-owned, not tied to any individual. Survives password changes, 2FA updates, and offboarding. This is the correct credential pattern for automation.',
-    },
-  ];
-  const risks = [{ key: 'low', label: 'Low Risk', color: '#16A34A' }, { key: 'medium', label: 'Medium Risk', color: '#F59E0B' }, { key: 'high', label: 'High Risk', color: '#DC2626' }];
-  const [picks, setPicks] = useState<Record<string, string>>({});
-  const allPicked = scenarios.every(s => picks[s.id]);
-  const score = scenarios.filter(s => picks[s.id] === s.correctRisk).length;
-  return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '6px' }}>CREDENTIAL RISK ASSESSOR</div>
-      <div style={{ fontSize: '13px', color: '#C9D1D9', fontWeight: 600, marginBottom: '14px', fontFamily: 'sans-serif' }}>Rate the risk of each credential setup. What breaks if something goes wrong?</div>
-      <div style={{ display: 'grid', gap: '12px' }}>
-        {scenarios.map(s => {
-          const picked = picks[s.id];
-          const correct = picked === s.correctRisk;
-          return (
-            <div key={s.id} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${picked ? (correct ? '#16A34A' : '#DC2626') : '#374151'}`, borderRadius: '8px', padding: '12px 14px' }}>
-              <div style={{ fontSize: '12px', color: '#C9D1D9', lineHeight: 1.6, marginBottom: '10px', fontFamily: 'sans-serif' }}>{s.setup}</div>
-              {!picked && <div style={{ display: 'flex', gap: '8px' }}>
-                {risks.map(r => <div key={r.key} onClick={() => setPicks(prev => ({ ...prev, [s.id]: r.key }))} style={{ flex: 1, padding: '7px', borderRadius: '6px', textAlign: 'center' as const, cursor: 'pointer', border: `1.5px solid ${r.color}50`, fontSize: '11px', fontWeight: 700, color: r.color, background: `${r.color}08` }}>{r.label}</div>)}
-              </div>}
-              {picked && <div style={{ fontSize: '11px', color: correct ? '#6EE7B7' : '#FCA5A5', lineHeight: 1.6 }}>{correct ? '✓ Correct.' : `✗ This is ${s.correctRisk} risk.`} {s.explain}</div>}
-            </div>
-          );
-        })}
-      </div>
-      {allPicked && <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '7px', background: score === 3 ? 'rgba(22,163,74,0.1)' : 'rgba(245,158,11,0.08)', border: `1px solid ${score === 3 ? '#16A34A' : '#F59E0B'}40`, fontSize: '13px', fontWeight: 700, color: score === 3 ? '#6EE7B7' : '#F59E0B' }}>{score}/3 correct. {score < 3 ? 'Personal OAuth is the most commonly underrated risk.' : 'Good — you can spot credential risk before it breaks production at 2am.'}</div>}
-    </div>
-  );
-};
-
-// Section 04: Failure Router — node fails, user picks the response, sees consequences
-const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
-  const failures = track === 'tech' ? [
-    {
-      id: 'ai', node: 'OpenAI Classify', fail: 'API returns 429 Too Many Requests (rate limit)',
-      opts: [
-        { key: 'retry', label: 'Retry once, then continue', result: 'Second call also rate-limited. Item written with classification = null. Silent data corruption in tracker.', wrong: true },
-        { key: 'skip', label: 'Skip item, continue workflow', result: 'Item silently dropped. Tracker has no record. Analyst never knows this exception wasn\'t classified.', wrong: true },
-        { key: 'halt', label: 'Halt + alert Slack + dead-letter', result: 'Workflow stops. Slack fires. Item written to dead-letter queue for manual review. Nothing lost, nothing silent.', wrong: false },
-        { key: 'ignore', label: 'Log warning, continue anyway', result: 'Log entry created but workflow proceeds with empty classification. Dashboard shows 0 errors, but tracker has corrupt data.', wrong: true },
-      ],
-    },
-    {
-      id: 'validate', node: 'Validate Output', fail: 'AI returned 8 characters — way below expected length',
-      opts: [
-        { key: 'send', label: 'Forward output anyway — node succeeded', result: 'An 8-character classification goes to the tracker. Analyst opens the record and sees garbage. Pipeline appeared to succeed.', wrong: true },
-        { key: 'retry', label: 'Retry the AI node with the same input', result: 'Second call may produce the same truncated output. Root cause (malformed input) is unchanged.', wrong: true },
-        { key: 'route', label: 'Route to error path — Slack alert + dead-letter', result: 'Analyst gets Slack: "Validate Output failed — output too short." Item queued for manual triage. Nothing forwarded to tracker.', wrong: false },
-        { key: 'skip', label: 'Skip this item, process the next', result: 'Item silently disappears from pipeline. No alert, no record, no way to know it was dropped.', wrong: true },
-      ],
-    },
-  ] : [
-    {
-      id: 'sheets', node: 'Google Sheets Read', fail: 'OAuth token expired (Rhea reset her password yesterday)',
-      opts: [
-        { key: 'retry', label: 'Retry once automatically', result: 'Token is still invalid. Second attempt fails. Workflow halts with no alert. Director receives nothing at 7am — no explanation.', wrong: true },
-        { key: 'skip', label: 'Skip the data step, run AI on empty input', result: 'Claude receives an empty input and produces a blank or confused summary. This goes to the director.', wrong: true },
-        { key: 'halt', label: 'Halt + send Slack to Rhea: "Sheets auth failed"', result: 'Workflow stops. Rhea gets Slack at 7:05am. She re-authenticates. Director receives a 20-minute delayed but correct brief.', wrong: false },
-        { key: 'log', label: 'Log the error, continue with cached data from last week', result: 'Director receives last week\'s brief dated today. She makes decisions on stale data. No one knows.', wrong: true },
-      ],
-    },
-    {
-      id: 'validate', node: 'Validate Output', fail: 'AI returned only 40 characters — far below the 100-char minimum',
-      opts: [
-        { key: 'send', label: 'Send it — the AI node returned successfully', result: 'Director receives a 40-character email: "No exceptions this week." In a week with 3 SLA breaches. She takes no action.', wrong: true },
-        { key: 'retry', label: 'Retry the AI node', result: 'Same sparse input may produce the same thin output. Root cause not addressed.', wrong: true },
-        { key: 'route', label: 'Route to error path — alert Rhea before sending', result: 'Rhea gets: "Summary validation failed — 40 chars, missing \'exceptions\'." She reviews the input data and finds the sheet was blank (holiday week). She sends a manual note to director.', wrong: false },
-        { key: 'skip', label: 'Skip sending — no brief is better than a bad brief', result: 'True, but director doesn\'t know why. She\'ll assume Rhea forgot. A brief failure notification is better than silence.', wrong: true },
-      ],
-    },
-  ];
-  const [step, setStep] = useState(0);
-  const [picks, setPicks] = useState<Record<string, string>>({});
-  const current = failures[step];
-  const picked = picks[current?.id];
-  const pickedOpt = current?.opts.find(o => o.key === picked);
-  return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C' }}>FAILURE ROUTER — scenario {step + 1} of {failures.length}</div>
-        {step < failures.length - 1 && picked && <div onClick={() => setStep(s => s + 1)} style={{ fontSize: '11px', fontWeight: 700, color: '#0F766E', cursor: 'pointer' }}>Next scenario →</div>}
-      </div>
-      {current && <>
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, color: '#292524', marginBottom: '4px' }}>Node: <span style={{ color: '#0F766E' }}>{current.node}</span></div>
-          <div style={{ fontSize: '13px', color: '#292524', background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.30)', borderRadius: '7px', padding: '10px 12px', fontWeight: 500 }}>&#9888; Failure: {current.fail}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>
+            {Object.keys(tags).length}/{steps.length} tagged · only {aiCount} of {steps.length} is AI
+          </div>
         </div>
-        <div style={{ fontSize: '12px', color: '#78716C', marginBottom: '10px' }}>How do you respond?</div>
-        <div style={{ display: 'grid', gap: '7px' }}>
-          {current.opts.map(opt => (
-            <div key={opt.key} onClick={() => !picked && setPicks(prev => ({ ...prev, [current.id]: opt.key }))} style={{ padding: '10px 12px', borderRadius: '7px', cursor: picked ? 'default' : 'pointer', border: `1.5px solid ${picked === opt.key ? (opt.wrong ? '#DC2626' : '#16A34A') : picked && !opt.wrong ? '#16A34A' : '#E7E5E4'}`, background: picked === opt.key ? (opt.wrong ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)') : picked && !opt.wrong ? 'rgba(16,185,129,0.12)' : '#fff', fontSize: '12px', color: '#292524' }}>
-              {opt.label}
-              {picked && picked === opt.key && <div style={{ marginTop: '6px', fontSize: '11px', color: opt.wrong ? '#DC2626' : '#166534', lineHeight: 1.5 }}>{opt.wrong ? '✗' : '✓'} {opt.result}</div>}
-              {picked && picked !== opt.key && !opt.wrong && <div style={{ marginTop: '6px', fontSize: '11px', color: '#166534', lineHeight: 1.5 }}>✓ This was the right choice: {opt.result}</div>}
-            </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+          {(Object.entries(NODE_TYPES) as [NodeTypeKey, typeof NODE_TYPES[NodeTypeKey]][]).filter(([k]) => k !== 'error').map(([key, info]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => selectedId && tryTag(selectedId, key)}
+              disabled={!selectedId}
+              style={{
+                appearance: 'none',
+                cursor: selectedId ? 'pointer' : 'not-allowed',
+                padding: '6px 12px',
+                background: selectedId ? `${info.color}1A` : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${selectedId ? `${info.color}66` : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: 5,
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: selectedId ? info.color : 'rgba(255,255,255,0.3)',
+                fontFamily: 'inherit',
+                letterSpacing: '0.04em',
+              }}
+            >{info.label}</button>
           ))}
         </div>
-      </>}
-      {step === failures.length - 1 && picked && <div style={{ marginTop: '12px', padding: '10px 14px', borderRadius: '7px', background: 'rgba(16,185,129,0.10)', border: '1px solid #BBF7D0', fontSize: '12px', color: '#166534' }}>Rule: alert + dead-letter beats retry, skip, and silence for every failure mode. Nothing should disappear without a trace.</div>}
-    </div>
+      </div>
+
+      {/* Status / verdict */}
+      {(selectedId && tags[selectedId]) || allTagged ? null : null}
+      {allTagged ? (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', background: score === steps.length ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 11.5, color: score === steps.length ? '#86EFAC' : '#FBBF24', lineHeight: 1.55 }}>
+            <span style={{ fontWeight: 700 }}>{score}/{steps.length} tagged correctly.</span> {score === steps.length ? `${steps.length - aiCount} of these ${steps.length} steps are engineering. Only the AI node is AI.` : 'A wrong type flashed red and was reverted.'}
+          </div>
+          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>RESET</button>
+        </div>
+      ) : (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 16px', background: '#0A0D14', fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: "'JetBrains Mono', monospace" }}>
+          Hint: {selectedId ? steps.find(s => s.id === selectedId)?.hint : 'Click any empty node in the canvas to tag its type.'}
+        </div>
+      )}
+
+      <style>{`@keyframes wa-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }`}</style>
+    </N8nFrame>
+  );
+};
+
+// Section 02: Node categoriser — rendered as the real n8n node palette
+// (left rail of integrations) plus four bucket lanes on the canvas. The
+// learner clicks a palette node then clicks a lane; correct matches dock
+// the node into the lane in n8n-card style, wrong attempts flash and stay
+// in the palette.
+const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
+  type Item = { id: string; label: string; icon: string; correctCat: NodeTypeKey };
+  const nodeItems: Item[] = track === 'tech' ? [
+    { id: 'gmailtr',  label: 'Gmail Trigger',     icon: '✉', correctCat: 'trigger' },
+    { id: 'http',     label: 'HTTP Request',      icon: '⇄', correctCat: 'data' },
+    { id: 'setn',     label: 'Set Node',          icon: '⚙', correctCat: 'transform' },
+    { id: 'openai',   label: 'OpenAI Node',       icon: '◯', correctCat: 'ai' },
+    { id: 'sheets',   label: 'Google Sheets',     icon: '⊞', correctCat: 'data' },
+    { id: 'code',     label: 'Code Node',         icon: '{}', correctCat: 'transform' },
+    { id: 'webhook',  label: 'Webhook Trigger',   icon: '⚡', correctCat: 'trigger' },
+    { id: 'claude',   label: 'Anthropic Node',    icon: 'A',  correctCat: 'ai' },
+  ] : [
+    { id: 'sched',    label: 'Schedule Trigger',  icon: '◷', correctCat: 'trigger' },
+    { id: 'sheets',   label: 'Google Sheets',     icon: '⊞', correctCat: 'data' },
+    { id: 'setn',     label: 'Set Node',          icon: '⚙', correctCat: 'transform' },
+    { id: 'claude',   label: 'Anthropic Node',    icon: 'A',  correctCat: 'ai' },
+    { id: 'form',     label: 'Google Forms',      icon: '✎', correctCat: 'trigger' },
+    { id: 'ifn',      label: 'IF Node',           icon: '◆', correctCat: 'transform' },
+    { id: 'airtable', label: 'Airtable',          icon: '▦', correctCat: 'data' },
+    { id: 'openai',   label: 'OpenAI Node',       icon: '◯', correctCat: 'ai' },
+  ];
+  const CATS: NodeTypeKey[] = ['trigger', 'data', 'transform', 'ai'];
+
+  const [selected, setSelected] = useState<string | null>(null);
+  const [placements, setPlacements] = useState<Record<string, NodeTypeKey>>({});
+  const [wrong, setWrong] = useState<string | null>(null);
+
+  const place = (id: string, cat: NodeTypeKey) => {
+    const item = nodeItems.find(n => n.id === id);
+    if (!item) return;
+    if (item.correctCat !== cat) {
+      setWrong(id);
+      setTimeout(() => setWrong(null), 600);
+      return;
+    }
+    setPlacements(prev => ({ ...prev, [id]: cat }));
+    setSelected(null);
+  };
+
+  const reset = () => { setSelected(null); setPlacements({}); };
+  const unplaced = nodeItems.filter(n => !placements[n.id]);
+  const allPlaced = unplaced.length === 0;
+
+  return (
+    <N8nFrame filename="node-categories.json" status={allPlaced ? 'ACTIVE' : 'EDITING'}>
+      <div style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 0 }}>
+        {/* Left palette */}
+        <div style={{ background: '#0A0D14', borderRight: '1px solid rgba(255,255,255,0.06)', padding: '12px 12px', maxHeight: 360, overflow: 'auto' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', marginBottom: 10 }}>NODE PALETTE</div>
+          {unplaced.length === 0 ? (
+            <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' as const, padding: 8 }}>All nodes placed.</div>
+          ) : unplaced.map(n => {
+            const isSel = selected === n.id;
+            const isWrong = wrong === n.id;
+            return (
+              <button
+                key={n.id}
+                type="button"
+                onClick={() => setSelected(prev => prev === n.id ? null : n.id)}
+                style={{
+                  appearance: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                  marginBottom: 6,
+                  padding: '7px 9px',
+                  background: isSel ? 'rgba(124,58,237,0.15)' : '#141B27',
+                  border: `1.5px solid ${isWrong ? '#DC2626' : isSel ? '#A78BFA' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 7,
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  fontFamily: 'inherit',
+                  textAlign: 'left' as const,
+                  animation: isWrong ? 'nt-shake 0.4s' : undefined,
+                }}
+              >
+                <div style={{ width: 24, height: 24, borderRadius: 5, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'rgba(255,255,255,0.75)', flexShrink: 0 }}>{n.icon}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#E2E8F0', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{n.label}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Canvas with 4 lanes */}
+        <div style={{
+          padding: '16px 18px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px)',
+          backgroundSize: '22px 22px', backgroundColor: '#0F1117',
+          minHeight: 360,
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            {CATS.map(cat => {
+              const info = NODE_TYPES[cat];
+              const items = nodeItems.filter(n => placements[n.id] === cat);
+              const isActive = selected !== null;
+              return (
+                <div
+                  key={cat}
+                  onClick={() => selected && place(selected, cat)}
+                  style={{
+                    background: isActive ? `${info.color}10` : 'rgba(255,255,255,0.02)',
+                    border: `1.5px dashed ${isActive ? info.color : `${info.color}55`}`,
+                    borderRadius: 9,
+                    padding: 10,
+                    minHeight: 152,
+                    cursor: isActive ? 'pointer' : 'default',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: info.color }} />
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: info.color, letterSpacing: '0.12em' }}>{info.label.toUpperCase()}</span>
+                  </div>
+                  <div style={{ display: 'grid', gap: 5 }}>
+                    {items.length === 0 && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' as const, padding: '4px 2px' }}>(drop nodes here)</div>}
+                    {items.map(n => (
+                      <div key={n.id} style={{ background: '#181F2E', border: `1px solid ${info.color}55`, borderRadius: 6, padding: '6px 8px', display: 'flex', alignItems: 'center', gap: 7 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: 5, background: `${info.color}1F`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: info.color, flexShrink: 0 }}>{n.icon}</div>
+                        <div style={{ fontSize: 10.5, fontWeight: 700, color: '#E2E8F0' }}>{n.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Status bar */}
+      {allPlaced ? (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', background: 'rgba(22,163,74,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 11.5, color: '#86EFAC' }}><span style={{ fontWeight: 700 }}>All 8 nodes placed.</span> Every n8n node belongs in exactly one of these four lanes.</span>
+          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>RESET</button>
+        </div>
+      ) : (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 16px', background: '#0A0D14', fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: "'JetBrains Mono', monospace" }}>
+          {selected ? `Picked ${nodeItems.find(n => n.id === selected)?.label} — click a lane to drop it.` : 'Click a node in the palette, then click the lane it belongs in.'}
+        </div>
+      )}
+
+      <style>{`@keyframes nt-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }`}</style>
+    </N8nFrame>
+  );
+};
+
+// Section 03: Credential vault — rendered as n8n's actual Credentials page
+// (Settings → Credentials). Each row shows provider logo, credential name,
+// scope, who owns it, last rotated. The learner picks risk per row.
+const CredentialCard = ({ track }: { track: GenAITrack }) => {
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+  type Cred = {
+    id: string; name: string; provider: string; logo: string; logoBg: string;
+    scope: string; owner: string; rotated: string; type: 'api' | 'oauth' | 'service';
+    correctRisk: 'low' | 'medium' | 'high';
+    explain: string;
+  };
+  const creds: Cred[] = [
+    {
+      id: 'api', name: 'openai-classifier-key', provider: 'OpenAI', logo: '◯', logoBg: '#10A37F',
+      scope: 'project:exception-classifier', owner: 'team-ai (team vault)', rotated: '14 d ago', type: 'api',
+      correctRisk: 'low',
+      explain: 'Team vault + project-scoped key. Compromise only affects this workflow; anyone on the team can rotate without breaking it.',
+    },
+    {
+      id: 'oauth', name: `personal-oauth-${protagonist.toLowerCase()}`, provider: 'Google', logo: 'G', logoBg: '#4285F4',
+      scope: 'sheets.read, sheets.write', owner: `${protagonist.toLowerCase()}@northstar.com`, rotated: 'Never rotated', type: 'oauth',
+      correctRisk: 'high',
+      explain: `Personal OAuth on ${protagonist}'s account is a single point of failure. Password reset, 2FA change, or offboarding silently invalidates the token at 7am Monday.`,
+    },
+    {
+      id: 'svc', name: 'team-automation', provider: 'Google IAM', logo: 'G', logoBg: '#4285F4',
+      scope: 'sheets.* gmail.send', owner: 'team-automation@northstar.iam', rotated: '6 d ago', type: 'service',
+      correctRisk: 'low',
+      explain: 'Service account — team-owned, not tied to any individual. Survives password changes, 2FA updates, and offboarding. The right pattern for automation.',
+    },
+  ];
+
+  const RISKS = [
+    { key: 'low' as const,    label: 'LOW',    color: '#16A34A' },
+    { key: 'medium' as const, label: 'MEDIUM', color: '#F59E0B' },
+    { key: 'high' as const,   label: 'HIGH',   color: '#DC2626' },
+  ];
+  const [picks, setPicks] = useState<Record<string, 'low' | 'medium' | 'high'>>({});
+  const allPicked = creds.every(c => picks[c.id]);
+  const score = creds.filter(c => picks[c.id] === c.correctRisk).length;
+
+  return (
+    <N8nFrame filename="credentials" status={allPicked ? 'ACTIVE' : 'AUDITING'}>
+      <div style={{ padding: '12px 16px', background: '#0F1117', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.16em' }}>SETTINGS · CREDENTIALS</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#E2E8F0', marginTop: 4 }}>{creds.length} credentials configured</div>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ padding: '5px 10px', borderRadius: 5, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, color: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace" }}>Filter: all</div>
+            <div style={{ padding: '5px 10px', borderRadius: 5, background: '#FF6D5A', fontSize: 10, color: '#fff', fontWeight: 700 }}>+ New credential</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header row */}
+      <div style={{ padding: '8px 16px', background: '#0A0D14', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: '2.4fr 1.6fr 2fr 1fr 1.4fr', gap: 10, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>
+        <span>NAME</span><span>OWNER</span><span>SCOPE</span><span>ROTATED</span><span style={{ textAlign: 'right' }}>RISK</span>
+      </div>
+
+      {/* Rows */}
+      {creds.map(c => {
+        const picked = picks[c.id];
+        const correct = picked === c.correctRisk;
+        const rowBg = picked ? (correct ? 'rgba(22,163,74,0.05)' : 'rgba(220,38,38,0.05)') : '#0F1117';
+        return (
+          <div key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: rowBg }}>
+            <div style={{ padding: '10px 16px', display: 'grid', gridTemplateColumns: '2.4fr 1.6fr 2fr 1fr 1.4fr', gap: 10, alignItems: 'center' }}>
+              {/* name + logo */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 26, height: 26, borderRadius: 5, background: c.logoBg, color: '#fff', fontWeight: 900, fontSize: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{c.logo}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E2E8F0', fontFamily: "'JetBrains Mono', monospace" }}>{c.name}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{c.provider} · {c.type === 'api' ? 'API Key' : c.type === 'oauth' ? 'OAuth 2.0' : 'Service Account'}</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>{c.owner}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace" }}>{c.scope}</div>
+              <div style={{ fontSize: 11, color: c.rotated.startsWith('Never') ? '#FCA5A5' : 'rgba(255,255,255,0.6)', fontFamily: "'JetBrains Mono', monospace" }}>{c.rotated}</div>
+              <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
+                {RISKS.map(r => {
+                  const isOn = picked === r.key;
+                  return (
+                    <button
+                      key={r.key}
+                      type="button"
+                      onClick={() => setPicks(prev => ({ ...prev, [c.id]: r.key }))}
+                      disabled={!!picked}
+                      style={{
+                        appearance: 'none',
+                        cursor: picked ? 'default' : 'pointer',
+                        padding: '4px 9px',
+                        borderRadius: 4,
+                        background: isOn ? `${r.color}24` : 'transparent',
+                        border: `1px solid ${isOn ? r.color : `${r.color}40`}`,
+                        fontSize: 9, fontWeight: 800,
+                        color: isOn ? r.color : `${r.color}AA`,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        letterSpacing: '0.06em',
+                      }}
+                    >{r.label}</button>
+                  );
+                })}
+              </div>
+            </div>
+            {picked && (
+              <div style={{ padding: '0 16px 10px', display: 'grid', gridTemplateColumns: '1fr', gap: 6 }}>
+                <div style={{ background: correct ? 'rgba(22,163,74,0.10)' : 'rgba(220,38,38,0.10)', border: `1px solid ${correct ? '#16A34A55' : '#DC262655'}`, borderRadius: 6, padding: '7px 10px', fontSize: 11, color: correct ? '#86EFAC' : '#FCA5A5', lineHeight: 1.55 }}>
+                  <span style={{ fontWeight: 700 }}>{correct ? '✓ Correct' : `✗ Actually ${c.correctRisk.toUpperCase()} risk`}</span> · {c.explain}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {allPicked && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', background: score === 3 ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)' }}>
+          <span style={{ fontSize: 11.5, color: score === 3 ? '#86EFAC' : '#FBBF24' }}>
+            <span style={{ fontWeight: 700 }}>{score}/3 correct.</span> {score < 3 ? 'Personal OAuth is the most commonly underrated risk in production workflows.' : 'You can spot credential risk before it breaks production at 2am.'}
+          </span>
+        </div>
+      )}
+    </N8nFrame>
+  );
+};
+
+// Section 04: Failure Router — rendered as the actual n8n canvas where one
+// node has gone red, and the learner picks the error route by clicking one
+// of four candidate downstream nodes. The chosen branch animates into
+// existence with a red bezier; wrong choices fade in muted.
+const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
+  type Choice = { id: string; label: string; icon: string; verdict: 'silent-fail' | 'silent-fail-bad' | 'correct-route' | 'silent-fail'; result: string };
+  type Failure = { id: string; nodeLabel: string; nodeIcon: string; failTitle: string; failDetail: string; choices: Choice[] };
+
+  const failures: Failure[] = track === 'tech' ? [
+    {
+      id: 'ai',
+      nodeLabel: 'OpenAI Classify', nodeIcon: '◈',
+      failTitle: '429 Too Many Requests',
+      failDetail: 'Rate limit on the classifier API. The item that triggered the workflow is now in limbo.',
+      choices: [
+        { id: 'retry-silent', label: 'Retry → continue silently',     icon: '↻',  verdict: 'silent-fail', result: 'Second call also rate-limited. Item written with classification = null. Silent data corruption in the tracker.' },
+        { id: 'skip',         label: 'Skip item, next iteration',      icon: '↷',  verdict: 'silent-fail', result: 'Item silently dropped. Tracker has no record of it. Analyst never learns the exception was not classified.' },
+        { id: 'dead-letter',  label: 'Alert Slack + dead-letter queue', icon: '⚠', verdict: 'correct-route', result: 'Workflow halts on this item. Slack pings. Dead-letter row captures input + error. Nothing lost, nothing silent.' },
+        { id: 'log-only',     label: 'Log warning, keep going',         icon: '☰', verdict: 'silent-fail', result: 'Log entry created but workflow proceeds with empty classification. Dashboard shows 0 errors. Tracker shows garbage.' },
+      ],
+    },
+    {
+      id: 'validate',
+      nodeLabel: 'Validate Output', nodeIcon: '✓',
+      failTitle: 'Output too short (8 chars)',
+      failDetail: 'AI returned a category 8 characters long. Schema check failed.',
+      choices: [
+        { id: 'forward',      label: 'Forward anyway — node returned',  icon: '→',  verdict: 'silent-fail', result: 'An 8-character classification reaches the tracker. Analyst opens the record and sees garbage. Pipeline appeared to succeed.' },
+        { id: 'retry-same',   label: 'Retry AI with same input',         icon: '↻', verdict: 'silent-fail', result: 'Same malformed prompt produces the same truncated output. Root cause unchanged; you just doubled the cost.' },
+        { id: 'route',        label: 'Route → Slack + dead-letter',      icon: '⚠', verdict: 'correct-route', result: 'Slack: "Validate Output failed — output too short." Item queued for human triage. Nothing forwarded.' },
+        { id: 'skip-next',    label: 'Skip item, process next',          icon: '↷', verdict: 'silent-fail', result: 'Item silently disappears. No alert, no record, no way to know it was dropped.' },
+      ],
+    },
+  ] : [
+    {
+      id: 'sheets',
+      nodeLabel: 'Google Sheets Read', nodeIcon: '⊞',
+      failTitle: 'OAuth token expired',
+      failDetail: 'Rhea reset her password yesterday. The token tied to her personal account is invalid.',
+      choices: [
+        { id: 'retry',        label: 'Retry once automatically',          icon: '↻', verdict: 'silent-fail', result: 'Token is still invalid. Second attempt fails. Workflow halts with no alert. Director receives nothing at 7am.' },
+        { id: 'skip-empty',   label: 'Skip data step, run AI on empty',   icon: '↷', verdict: 'silent-fail', result: 'Claude receives empty input, produces a confused summary. The director acts on a brief that has no basis in data.' },
+        { id: 'alert-rhea',   label: 'Halt + Slack Rhea: "auth failed"',  icon: '⚠', verdict: 'correct-route', result: 'Workflow stops. Rhea gets Slack at 7:05am, re-authenticates. Director receives the correct brief 20 minutes late.' },
+        { id: 'stale',        label: 'Use cached data from last week',    icon: '☰', verdict: 'silent-fail', result: 'Director receives last week\'s brief dated today. She makes decisions on stale data. No one knows.' },
+      ],
+    },
+    {
+      id: 'validate',
+      nodeLabel: 'Validate Output', nodeIcon: '✓',
+      failTitle: 'Brief too short (40 chars)',
+      failDetail: 'Brief from Claude was 40 chars — far below the 100-char minimum and missing the keyword "exception".',
+      choices: [
+        { id: 'send',         label: 'Send it — AI node returned ok',     icon: '→', verdict: 'silent-fail', result: 'Director receives a 40-character email: "No exceptions this week." In a week with 3 SLA breaches. She takes no action.' },
+        { id: 'retry-ai',     label: 'Retry the AI node',                  icon: '↻', verdict: 'silent-fail', result: 'Same sparse input produces the same thin output. Root cause (the input data) is not addressed.' },
+        { id: 'alert-rhea',   label: 'Halt + alert Rhea first',           icon: '⚠', verdict: 'correct-route', result: 'Rhea gets: "Summary validation failed — 40 chars, missing \'exceptions\'." She finds the sheet was blank (holiday week) and sends a manual note.' },
+        { id: 'silent-skip',  label: 'Skip sending — no brief at all',    icon: '↷', verdict: 'silent-fail', result: 'No brief, no explanation. Director assumes Rhea forgot. A "failed" notification beats silence.' },
+      ],
+    },
+  ];
+
+  const [step, setStep] = useState(0);
+  const [picks, setPicks] = useState<Record<string, string>>({});
+  const [allDone, setAllDone] = useState(false);
+  const current = failures[step];
+  const picked = picks[current?.id];
+  const pickedChoice = current?.choices.find(c => c.id === picked);
+
+  const advance = () => {
+    if (step < failures.length - 1) setStep(s => s + 1);
+    else setAllDone(true);
+  };
+  const reset = () => { setStep(0); setPicks({}); setAllDone(false); };
+
+  // Node geometry for the canvas
+  const failX = 200, failY = 22;
+  const okPathX = 460, okPathY = 22;
+  const upstreamX = 30;
+
+  // Choice nodes laid out under the failing node
+  const choiceLayout = [
+    { dx: -40,  dy: 130 },
+    { dx: 145,  dy: 130 },
+    { dx: 330,  dy: 130 },
+    { dx: 515,  dy: 130 },
+  ];
+
+  return (
+    <N8nFrame filename={track === 'tech' ? 'failure-routing.json' : 'monday-brief-failure.json'} status={picked ? (pickedChoice?.verdict === 'correct-route' ? 'ACTIVE' : 'FAILING') : 'ERROR'}>
+      {/* Scenario header */}
+      <div style={{ padding: '10px 16px', background: 'rgba(220,38,38,0.10)', borderBottom: '1px solid rgba(220,38,38,0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#DC2626', color: '#fff', fontSize: 12, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>!</div>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#FCA5A5', letterSpacing: '0.14em' }}>EXECUTION {step + 1} OF {failures.length} · {current.failTitle.toUpperCase()}</div>
+            <div style={{ fontSize: 11.5, color: '#FECACA', marginTop: 2 }}>{current.failDetail}</div>
+          </div>
+        </div>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#FCA5A5' }}>step {step + 1}/{failures.length}</div>
+      </div>
+
+      <N8nCanvas width={760} height={250}>
+        <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 760, height: 250, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
+          <defs>
+            <marker id={`ep-arrow-${step}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(255,255,255,0.25)" />
+            </marker>
+            <marker id={`ep-arrow-err-${step}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#DC2626" />
+            </marker>
+          </defs>
+          {/* upstream → failing node */}
+          <path d={n8nBezier(upstreamX + N8N_NW, failY + N8N_NH / 2, failX, failY + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd={`url(#ep-arrow-${step})`} />
+          {/* failing node → happy path next (greyed when failing) */}
+          <path d={n8nBezier(failX + N8N_NW, failY + N8N_NH / 2, okPathX, okPathY + N8N_NH / 2)} stroke="rgba(255,255,255,0.10)" strokeWidth={1.5} fill="none" strokeDasharray="4 5" />
+          {/* failing node → chosen error path */}
+          {pickedChoice && (() => {
+            const idx = current.choices.findIndex(c => c.id === picked);
+            const layout = choiceLayout[idx];
+            const cx = failX + N8N_NW / 2;
+            const cy = failY + N8N_NH;
+            const tx = failX + layout.dx + N8N_NW / 2;
+            const ty = layout.dy;
+            return <path d={n8nBezier(cx, cy, tx, ty, 'down')} stroke={pickedChoice.verdict === 'correct-route' ? '#16A34A' : '#DC2626'} strokeWidth={2} fill="none" markerEnd={pickedChoice.verdict === 'correct-route' ? undefined : `url(#ep-arrow-err-${step})`} />;
+          })()}
+        </svg>
+
+        {/* Upstream node */}
+        <N8nNodeCard x={upstreamX} y={failY} label={track === 'tech' ? 'Format prompt' : 'Read Sheet'} typeKey={track === 'tech' ? 'transform' : 'data'} icon="⚙" />
+        {/* Failing node */}
+        <div style={{ animation: 'ep-pulse 1.4s ease-in-out infinite' }}>
+          <N8nNodeCard x={failX} y={failY} label={current.nodeLabel} typeKey={'error'} icon={current.nodeIcon} status="fail" />
+        </div>
+        {/* Happy path */}
+        <N8nNodeCard x={okPathX} y={okPathY} label={track === 'tech' ? 'Append to Sheet' : 'Gmail Send'} typeKey={'output'} icon={track === 'tech' ? '⊞' : '✉'} ghost />
+
+        {/* Choice nodes — render all four; chosen wrong fades muted, correct lights green */}
+        {current.choices.map((c, i) => {
+          const layout = choiceLayout[i];
+          const isPicked = picked === c.id;
+          const isAnswered = !!picked;
+          const isCorrect = c.verdict === 'correct-route';
+          const ghost = !isPicked && (!isAnswered || !isCorrect);
+          return (
+            <div key={c.id} style={{ opacity: isAnswered && !isPicked && !isCorrect ? 0.35 : 1, transition: 'opacity 0.3s' }}>
+              <N8nNodeCard
+                x={failX + layout.dx}
+                y={layout.dy}
+                label={c.label}
+                typeKey={isPicked ? (isCorrect ? 'output' : 'error') : (isAnswered && isCorrect ? 'output' : null)}
+                icon={c.icon}
+                ghost={ghost}
+                onClick={isAnswered ? undefined : () => setPicks(prev => ({ ...prev, [current.id]: c.id }))}
+                status={isPicked ? (isCorrect ? 'ok' : 'fail') : (isAnswered && isCorrect ? 'ok' : undefined)}
+              />
+            </div>
+          );
+        })}
+      </N8nCanvas>
+
+      {/* Verdict panel */}
+      {pickedChoice && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', background: pickedChoice.verdict === 'correct-route' ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.08)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: pickedChoice.verdict === 'correct-route' ? '#86EFAC' : '#FCA5A5', fontWeight: 700, letterSpacing: '0.14em' }}>
+              {pickedChoice.verdict === 'correct-route' ? '✓ FAILURE CAUGHT' : '✗ SILENT FAILURE'}
+            </div>
+            {!allDone && (
+              <button type="button" onClick={advance} style={{ appearance: 'none', cursor: 'pointer', background: pickedChoice.verdict === 'correct-route' ? '#0F766E' : 'rgba(255,255,255,0.06)', border: `1px solid ${pickedChoice.verdict === 'correct-route' ? '#10B981' : 'rgba(255,255,255,0.12)'}`, borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: '#fff', fontFamily: "'JetBrains Mono', monospace" }}>
+                {step < failures.length - 1 ? 'NEXT SCENARIO →' : 'FINISH'}
+              </button>
+            )}
+          </div>
+          <div style={{ fontSize: 11.5, color: pickedChoice.verdict === 'correct-route' ? '#A7F3D0' : '#FECACA', lineHeight: 1.55 }}>{pickedChoice.result}</div>
+        </div>
+      )}
+
+      {/* All-done summary */}
+      {allDone && (
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', background: 'rgba(15,118,110,0.10)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 11.5, color: '#A7F3D0', lineHeight: 1.55 }}><span style={{ fontWeight: 700 }}>Rule:</span> alert + dead-letter beats retry, skip, and silence for every failure mode. Nothing should disappear without a trace.</div>
+          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', fontFamily: "'JetBrains Mono', monospace" }}>RESET</button>
+        </div>
+      )}
+
+      <style>{`@keyframes ep-pulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.02); filter: brightness(1.2); } }`}</style>
+    </N8nFrame>
   );
 };
 
