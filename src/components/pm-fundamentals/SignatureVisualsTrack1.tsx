@@ -473,96 +473,217 @@ export function ResearchFishingNets() {
   );
 }
 
-// ─── M04 · T1 · THE PRIORITISATION FUNNEL ────────────────────────────────────
-// 47 inputs pour in at the top. They filter through labelled layers and narrow
-// to 2 sprint items at the bottom. Teaches: prioritisation is filtration.
+// ─── M04 · T1 · THE PRIORITISATION FILTER STAGES ─────────────────────────────
+// Five-column board showing actual EdSpark backlog items transforming as they
+// pass through each prioritisation filter. Stage 1: 12 raw sticky-note inputs
+// (Slack messages, support tickets, sales asks). Stage 2: 5 Whys clusters them
+// into 6 root-cause sticky groups. Stage 3: RICE adds a score badge to each.
+// Stage 4: MoSCoW lanes M/S/C/W. Stage 5: only 2 items make it out as actual
+// Jira tickets ready for sprint planning. Teaches: prioritisation is a sequence
+// of transformations, not a vote — the visible shape of each item changes as
+// it survives each cut.
 
-const FUNNEL_LAYERS = [
-  { label: '5 Whys → Root Problem', color: '#EF4444', kept: 28 },
-  { label: 'Data validation', color: '#F97316', kept: 14 },
-  { label: 'RICE scoring', color: '#F59E0B', kept: 7 },
-  { label: 'MoSCoW: Must Have?', color: '#6366F1', kept: 3 },
-  { label: 'Sprint capacity', color: '#22C55E', kept: 2 },
+const RAW_INPUTS = [
+  { id: 'i1',  from: 'Sales · Marcus',     text: 'CRM sync — losing 3 deals',           col: '#3A86FF' },
+  { id: 'i2',  from: 'Support · 12 tix',   text: 'Search returns wrong recordings',     col: '#F97316' },
+  { id: 'i3',  from: 'Churn · Kiran',      text: 'Onboarding flow week-2 drop',         col: '#EF4444' },
+  { id: 'i4',  from: 'Marketing · Divya',  text: 'Referral feature for growth',         col: '#8B5CF6' },
+  { id: 'i5',  from: 'Sales · Marcus',     text: 'Salesforce integration',              col: '#3A86FF' },
+  { id: 'i6',  from: 'Support · Sarah',    text: 'Auth times out',                      col: '#F97316' },
+  { id: 'i7',  from: 'CS · Sonal',         text: 'Tier-1 admin dashboard',              col: '#0EA5E9' },
+  { id: 'i8',  from: 'Design · Maya',      text: 'Empty/error states',                  col: '#C85A40' },
+  { id: 'i9',  from: 'Rohan · CEO',        text: 'Q3 board update slide',               col: '#E67E22' },
+  { id: 'i10', from: 'Support · 8 tix',    text: 'CSV export from reports',             col: '#F97316' },
+  { id: 'i11', from: 'Eng · Kiran',        text: 'Mobile parity gap',                   col: '#3A86FF' },
+  { id: 'i12', from: 'Sales · Apex',       text: 'White-label demo build',              col: '#3A86FF' },
+];
+
+const WHY_CLUSTERS = [
+  { id: 'w1', label: 'Workflow lock-in',    items: 'CRM, Salesforce, white-label',          count: 9, col: '#3A86FF' },
+  { id: 'w2', label: 'First-week drop',     items: 'Onboarding, auth, empty states',        count: 11, col: '#EF4444' },
+  { id: 'w3', label: 'Trust signals',       items: 'Search quality, error UX',              count: 7, col: '#F59E0B' },
+  { id: 'w4', label: 'Distribution loops',  items: 'Referral, sharing',                     count: 5, col: '#8B5CF6' },
+  { id: 'w5', label: 'Reporting/exec',      items: 'CSV, board slide, admin dash',          count: 8, col: '#0EA5E9' },
+  { id: 'w6', label: 'Mobile/platform',     items: 'Mobile parity',                         count: 7, col: '#475569' },
+];
+
+const RICE_ITEMS = [
+  { id: 'r1', label: 'First-week drop',     R: 8, I: 3, C: 0.9, E: 5,  score: 4.3, col: '#EF4444' },
+  { id: 'r2', label: 'Workflow lock-in',    R: 6, I: 3, C: 0.7, E: 8,  score: 1.6, col: '#3A86FF' },
+  { id: 'r3', label: 'Trust signals',       R: 7, I: 2, C: 0.8, E: 3,  score: 3.7, col: '#F59E0B' },
+  { id: 'r4', label: 'Reporting/exec',      R: 4, I: 2, C: 0.6, E: 4,  score: 1.2, col: '#0EA5E9' },
+  { id: 'r5', label: 'Distribution loops',  R: 9, I: 2, C: 0.4, E: 6,  score: 1.2, col: '#8B5CF6' },
+  { id: 'r6', label: 'Mobile/platform',     R: 5, I: 1, C: 0.5, E: 7,  score: 0.4, col: '#475569' },
+];
+
+const MOSCOW_BUCKETS = [
+  { id: 'M', label: 'MUST',   items: [{ name: 'First-week drop', col: '#EF4444' }] },
+  { id: 'S', label: 'SHOULD', items: [{ name: 'Trust signals', col: '#F59E0B' }, { name: 'Workflow lock-in', col: '#3A86FF' }] },
+  { id: 'C', label: 'COULD',  items: [{ name: 'Reporting/exec', col: '#0EA5E9' }] },
+  { id: 'W', label: "WON'T",  items: [{ name: 'Distribution loops', col: '#8B5CF6' }, { name: 'Mobile/platform', col: '#475569' }] },
+];
+
+const SPRINT_TICKETS = [
+  { key: 'EDS-1402', title: 'Onboarding week-2 drop — fix auth-on-tab-switch', points: 5, col: '#EF4444', priority: 'P0', owner: 'Kiran' },
+  { key: 'EDS-1418', title: 'Empty/error states for retention dashboard',      points: 3, col: '#F59E0B', priority: 'P1', owner: 'Maya' },
 ];
 
 export function PrioritisationFunnelViz() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [visible, setVisible] = useState(0);
+  const [stage, setStage] = useState(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    setVisible(0);
-    [0,1,2,3,4,5].forEach(i => setTimeout(() => setVisible(i + 1), 400 + i * 600));
+    setStage(0);
+    const ts = [1,2,3,4,5,6].map((s, i) => setTimeout(() => setStage(s), 350 + i * 700));
+    return () => ts.forEach(clearTimeout);
   }, [inView, tick]);
+
+  const stageNames = ['', 'RAW', '5 WHYS', 'RICE', 'MoSCoW', 'SPRINT'];
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.08)' }}>
-        <svg viewBox="0 0 600 480" style={{ width: '100%', display: 'block', background: 'linear-gradient(170deg, #F8F5F0 0%, #EDE8DF 100%)' }}>
-          <defs><filter id="funnel-shadow"><feDropShadow dx="0" dy="3" stdDeviation="5" floodColor="rgba(0,0,0,0.12)"/></filter></defs>
+      <div style={{ borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 20px 48px rgba(0,0,0,0.10)', background: '#F7F4EC' }}>
 
-          {/* Input chaos at top */}
-          {visible >= 1 && (
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <text x="300" y="30" textAnchor="middle" style={{ fontSize: '11px', fill: '#EF4444', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.1em' }}>47 INPUTS — SLACK, EMAIL, SALES, SUPPORT</text>
-              {/* Scattered input chips */}
-              {[60,110,160,210,260,310,360,410,460,510,540,80,140,200,260,320,380,440,500].map((x, i) => (
-                <motion.rect key={i} x={x} y={42 + (i % 3) * 14} width={36 + (i % 4) * 8} height="10" rx="5"
-                  fill={['#EF4444','#F97316','#F59E0B','#6366F1','#8B5CF6'][i % 5]}
-                  opacity="0.7"
-                  initial={{ opacity: 0, y: -10 }} animate={{ opacity: 0.7, y: 0 }}
-                  transition={{ delay: i * 0.04 }} />
-              ))}
-            </motion.g>
-          )}
+        {/* Top status bar */}
+        <div style={{ background: '#1E1B2E', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E' }} />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#FFF', fontWeight: 700, letterSpacing: '0.06em' }}>EdSpark · Sprint 15 planning</div>
+          <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.14em' }}>5 FILTERS · 12 INPUTS → 2 SPRINT ITEMS</div>
+        </div>
 
-          {/* Funnel shape */}
-          {FUNNEL_LAYERS.map((layer, i) => {
-            const topWidth = 560 - i * 80;
-            const botWidth = 560 - (i + 1) * 80;
-            const topX = (600 - topWidth) / 2;
-            const botX = (600 - botWidth) / 2;
-            const y = 90 + i * 66;
-            const show = visible >= i + 2;
+        {/* Caption */}
+        <div style={{ padding: '14px 20px 6px', fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.22em', textAlign: 'center' as const }}>
+          PRIORITISATION IS A SEQUENCE OF TRANSFORMATIONS · NOT A VOTE
+        </div>
+
+        {/* Five-column grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', padding: '16px 20px 20px' }}>
+          {[1,2,3,4,5].map(s => {
+            const visible = stage >= s;
             return (
-              <AnimatePresence key={i}>
-                {show && (
-                  <motion.g initial={{ opacity: 0, scaleY: 0 }} animate={{ opacity: 1, scaleY: 1 }}
-                    transition={{ duration: 0.4 }} style={{ transformOrigin: `300px ${y}px` }}>
-                    <polygon points={`${topX},${y} ${topX + topWidth},${y} ${botX + botWidth},${y + 60} ${botX},${y + 60}`}
-                      fill={layer.color} opacity="0.15" stroke={layer.color} strokeWidth="1.5" filter="url(#funnel-shadow)" />
-                    {/* Layer label */}
-                    <text x="300" y={y + 22} textAnchor="middle" style={{ fontSize: '10px', fill: layer.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: '0.1em' }}>
-                      {layer.label}
-                    </text>
-                    {/* Items remaining */}
-                    <text x="300" y={y + 42} textAnchor="middle" style={{ fontSize: '11px', fill: layer.color, fontFamily: 'monospace', fontWeight: 900 }}>
-                      {layer.kept} items remain
-                    </text>
-                  </motion.g>
+              <motion.div key={s} initial={{ opacity: 0, y: 12 }} animate={{ opacity: visible ? 1 : 0.15, y: visible ? 0 : 12 }} transition={{ duration: 0.45 }}
+                style={{ background: 'var(--ed-card)', borderRadius: '10px', border: '1px solid var(--ed-rule)', padding: '10px 10px 12px', minHeight: '420px', display: 'flex', flexDirection: 'column' as const }}>
+
+                {/* Column header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--ed-rule)' }}>
+                  <div style={{ width: '20px', height: '20px', borderRadius: '4px', background: visible ? '#1E1B2E' : '#E5E7EB', color: visible ? '#FFF' : '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 900 }}>{s}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: visible ? 'var(--ed-ink)' : 'var(--ed-ink3)', letterSpacing: '0.14em' }}>{stageNames[s]}</div>
+                  <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: 'var(--ed-ink3)' }}>
+                    {s === 1 ? '12' : s === 2 ? '6' : s === 3 ? '6' : s === 4 ? '6' : '2'}
+                  </div>
+                </div>
+
+                {/* STAGE 1 · raw sticky notes */}
+                {s === 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+                    {RAW_INPUTS.map((it, i) => (
+                      <motion.div key={it.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: visible ? 1 : 0, x: visible ? 0 : -6 }} transition={{ delay: 0.04 * i, duration: 0.3 }}
+                        style={{ padding: '5px 7px', borderRadius: '4px', background: '#FFFBEA', borderLeft: `3px solid ${it.col}`, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                        <div style={{ fontSize: '7.5px', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.05em' }}>{it.from}</div>
+                        <div style={{ fontSize: '8.5px', color: '#1F2937', fontWeight: 600, lineHeight: 1.3 }}>{it.text}</div>
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
-              </AnimatePresence>
+
+                {/* STAGE 2 · 5 Whys clusters */}
+                {s === 2 && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                    {WHY_CLUSTERS.map((cl, i) => (
+                      <motion.div key={cl.id} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.92 }} transition={{ delay: 0.08 * i, duration: 0.3 }}
+                        style={{ padding: '7px 8px', borderRadius: '5px', background: `${cl.col}10`, border: `1px solid ${cl.col}45` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                          <div style={{ fontSize: '9px', color: cl.col, fontWeight: 800, fontFamily: 'system-ui' }}>{cl.label}</div>
+                          <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: cl.col, fontWeight: 700 }}>{cl.count}×</div>
+                        </div>
+                        <div style={{ fontSize: '7.5px', color: 'var(--ed-ink3)', fontStyle: 'italic' }}>{cl.items}</div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* STAGE 3 · RICE scores */}
+                {s === 3 && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                    {RICE_ITEMS.sort((a, b) => b.score - a.score).map((it, i) => (
+                      <motion.div key={it.id} initial={{ opacity: 0, x: -6 }} animate={{ opacity: visible ? 1 : 0, x: visible ? 0 : -6 }} transition={{ delay: 0.06 * i, duration: 0.3 }}
+                        style={{ padding: '7px 8px', borderRadius: '5px', background: '#FFFFFF', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${it.col}` }}>
+                        <div style={{ fontSize: '8.5px', color: '#1F2937', fontWeight: 700, marginBottom: '3px' }}>{it.label}</div>
+                        <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' as const, marginBottom: '3px' }}>
+                          {[{ k: 'R', v: it.R }, { k: 'I', v: it.I }, { k: 'C', v: it.C }, { k: 'E', v: it.E }].map(part => (
+                            <div key={part.k} style={{ padding: '1px 4px', borderRadius: '2px', background: '#F3F4F6', fontSize: '7px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink2)' }}>{part.k} {part.v}</div>
+                          ))}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ fontSize: '7px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>score</div>
+                          <div style={{ fontSize: '12px', fontWeight: 900, color: it.col, fontFamily: "'JetBrains Mono', monospace" }}>{it.score.toFixed(1)}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* STAGE 4 · MoSCoW lanes */}
+                {s === 4 && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+                    {MOSCOW_BUCKETS.map((b, i) => (
+                      <motion.div key={b.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : 6 }} transition={{ delay: 0.08 * i, duration: 0.3 }}
+                        style={{ padding: '7px 8px', borderRadius: '5px', background: b.id === 'M' ? 'rgba(239,68,68,0.08)' : b.id === 'W' ? 'rgba(0,0,0,0.04)' : '#FFFFFF', border: `1px solid ${b.id === 'M' ? '#EF4444' : 'var(--ed-rule)'}` }}>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8.5px', fontWeight: 900, color: b.id === 'M' ? '#DC2626' : 'var(--ed-ink2)', letterSpacing: '0.14em', marginBottom: '4px' }}>{b.label}</div>
+                        {b.items.map((item, j) => (
+                          <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '3px 0' }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: item.col }} />
+                            <div style={{ fontSize: '8.5px', color: 'var(--ed-ink2)', textDecoration: b.id === 'W' ? 'line-through' : 'none', opacity: b.id === 'W' ? 0.5 : 1 }}>{item.name}</div>
+                          </div>
+                        ))}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* STAGE 5 · Jira tickets */}
+                {s === 5 && (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                    {SPRINT_TICKETS.map((t, i) => (
+                      <motion.div key={t.key} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.94 }} transition={{ delay: 0.2 + i * 0.15, duration: 0.4, type: 'spring', stiffness: 280, damping: 22 }}
+                        style={{ padding: '10px 11px', borderRadius: '6px', background: '#FFFFFF', border: `1px solid ${t.col}`, borderLeft: `4px solid ${t.col}`, boxShadow: `0 4px 14px ${t.col}22` }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
+                          <div style={{ padding: '1px 5px', borderRadius: '2px', background: '#FEF3C7', fontSize: '8px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: '#92400E' }}>{t.key}</div>
+                          <div style={{ padding: '1px 5px', borderRadius: '2px', background: `${t.col}18`, fontSize: '7.5px', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: t.col }}>{t.priority}</div>
+                          <div style={{ marginLeft: 'auto', fontSize: '8px', color: 'var(--ed-ink3)', fontFamily: "'JetBrains Mono', monospace" }}>{t.points}pt</div>
+                        </div>
+                        <div style={{ fontSize: '9.5px', color: 'var(--ed-ink)', fontWeight: 700, lineHeight: 1.4, marginBottom: '5px' }}>{t.title}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: t.col }} />
+                          <div style={{ fontSize: '8px', color: 'var(--ed-ink3)' }}>{t.owner}</div>
+                        </div>
+                      </motion.div>
+                    ))}
+                    <div style={{ marginTop: 'auto', padding: '8px', textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '8.5px', color: '#22C55E', fontWeight: 800, letterSpacing: '0.12em', background: 'rgba(34,197,94,0.07)', borderRadius: '5px' }}>
+                      ✓ SPRINT 15 LOCKED
+                    </div>
+                  </div>
+                )}
+              </motion.div>
             );
           })}
+        </div>
 
-          {/* Output at bottom */}
-          {visible >= 7 && (
-            <motion.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-              style={{ transformOrigin: '300px 440px' }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}>
-              <rect x="220" y="420" width="160" height="44" rx="12" fill="#22C55E" filter="url(#funnel-shadow)" />
-              <rect x="220" y="420" width="160" height="6" rx="3" fill="rgba(255,255,255,0.3)" />
-              <text x="300" y="438" textAnchor="middle" style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.7)', fontFamily: 'JetBrains Mono, monospace', fontWeight: 800, letterSpacing: '0.14em' }}>THIS SPRINT</text>
-              <text x="300" y="454" textAnchor="middle" style={{ fontSize: '13px', fill: '#fff', fontFamily: 'monospace', fontWeight: 900 }}>2 FEATURES</text>
-            </motion.g>
-          )}
-        </svg>
+        {/* Bottom strap */}
+        {stage >= 6 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
+            style={{ background: '#1E1B2E', padding: '12px 20px', textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#22C55E', letterSpacing: '0.22em', fontWeight: 800 }}>
+            12 INPUTS · 5 FILTERS · 2 SHIPPED · EVERY CUT JUSTIFIED
+          </motion.div>
+        )}
       </div>
-      <InsightBox color="#6366F1" label="Prioritisation = ">
-        {' '}filtration. 47 things came in. 2 shipped. Every layer removed things that didn&apos;t survive scrutiny. The funnel is the system — without it, everything feels equally urgent.
+      <InsightBox color="#6366F1" label="Prioritisation = a sequence of transformations, not a vote. ">
+        {' '}12 raw asks come in (Slack, support, sales, CS, exec). 5 Whys clusters them into 6 root causes. RICE adds a score. MoSCoW lanes them. Only the items with a defensible answer to every filter make it to Jira. The cuts are visible — anyone can see why a request didn&apos;t survive.
       </InsightBox>
-      <ReplayBtn onReplay={() => { setVisible(0); setTick(t => t + 1); }} />
+      <ReplayBtn onReplay={() => { setStage(0); setTick(t => t + 1); }} />
     </div>
   );
 }
