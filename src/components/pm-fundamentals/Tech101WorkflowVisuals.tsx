@@ -299,115 +299,170 @@ export function FeatureRequestXRay() {
   );
 }
 
-// ─── 2. RESPONSE TIME CONTROL ROOM ───────────────────────────────────────────
+// ─── 2. RESPONSE TIME · THREE TIMINGS SIDE BY SIDE ───────────────────────────
+// The same EdSpark retention report rendered three times at 300ms / 3s / 30s.
+// Each column shows: how the product must look, what the user feels, and what
+// UX patterns become possible / impossible at that timing. The visual is the
+// lesson — timing is not an engineering detail; it changes the experience
+// design surface entirely.
 
-const SPEEDS = [
-  { id: '300ms', label: '300ms', badge: 'Instant Trust', color: C.green,
-    screenState: 'loaded', statusMsg: 'Report loaded', userMsg: 'User sees data immediately. No anxiety. Product feels responsive.',
-    uiDesc: 'Table renders completely' },
-  { id: '3s',   label: '3s',    badge: 'Needs Feedback', color: C.amber,
-    screenState: 'loading', statusMsg: 'Loading… 3s ETA', userMsg: 'Spinner with progress and ETA. User waits but feels informed.',
-    uiDesc: 'Progress bar + ETA label required' },
-  { id: '30s',  label: '30s',   badge: 'Must Go Async', color: C.red,
-    screenState: 'queued', statusMsg: 'Queued — notify me', userMsg: 'User cannot wait 30 seconds. Product must queue job and notify via email or in-app.',
-    uiDesc: 'Job queued — notification path required' },
+const TIMING_COLS = [
+  {
+    id: '300ms', label: '300ms', badge: 'Instant trust', col: C.green, dark: '#15803D',
+    userIcon: '😊', userFeel: 'Reads the data immediately',
+    uxNote: 'Table renders complete',
+    possible: ['Inline editing', 'Hover tooltips', 'Real-time filters', 'Optimistic UI'],
+    impossible: [],
+  },
+  {
+    id: '3s', label: '3s', badge: 'Needs feedback', col: C.amber, dark: '#9A3412',
+    userIcon: '😐', userFeel: 'Waits, watches the spinner',
+    uxNote: 'Skeleton + ETA mandatory',
+    possible: ['Skeleton states', 'Progress + ETA', 'Cancel button'],
+    impossible: ['Inline editing', 'Real-time filters'],
+  },
+  {
+    id: '30s', label: '30s', badge: 'Must go async', col: C.red, dark: '#7F1D1D',
+    userIcon: '😞', userFeel: 'Closes the tab',
+    uxNote: 'Background job + email/notify',
+    possible: ['Background queue', 'Email notification', 'In-app banner when done'],
+    impossible: ['Inline UX entirely', 'Synchronous flow'],
+  },
 ];
 
-export function ResponseTimeControlRoom() {
-  const [idx, setIdx] = useState(0);
-  const s = SPEEDS[idx];
-
+function ReportMockup({ timing, col, dark }: { timing: string; col: string; dark: string }) {
   return (
-    <Shell caption="The same report at three response speeds requires three different product designs. Timing is not an engineering detail — it changes what UX is even possible.">
-      {/* Speed selector */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-        {SPEEDS.map((sp, i) => (
-          <Chip key={sp.id} label={sp.label} accent={sp.color} active={idx === i} onClick={() => setIdx(i)} />
+    <div style={{ background: '#0F172A', borderRadius: '8px', overflow: 'hidden', border: `1.5px solid ${col}35` }}>
+      {/* Mac chrome */}
+      <div style={{ padding: '6px 10px', background: '#1E293B', display: 'flex', alignItems: 'center', gap: '4px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        {['#EF4444', '#F59E0B', '#10B981'].map((c, i) => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />)}
+        <div style={{ flex: 1, marginLeft: '6px', height: '10px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)' }} />
+        <div style={{ width: 5, height: 5, borderRadius: '50%', background: col, boxShadow: `0 0 4px ${col}` }} />
+      </div>
+
+      {/* Screen */}
+      <div style={{ padding: '12px 12px 14px', minHeight: '170px' }}>
+        {/* Column headers (always visible) */}
+        <div style={{ display: 'flex', gap: '5px', marginBottom: '7px' }}>
+          {['Team', 'Sessions', '%', 'Score'].map((h, i) => (
+            <div key={i} style={{ flex: i === 0 ? 2 : 1, padding: '3px 5px', background: 'rgba(255,255,255,0.04)', borderRadius: '2px', fontSize: '7.5px', color: '#64748B', fontFamily: "'JetBrains Mono',monospace" }}>{h}</div>
+          ))}
+        </div>
+
+        {timing === '300ms' && (
+          <>
+            {[
+              { t: 'Enterprise', s: '142', p: '58%', sc: '8.2' },
+              { t: 'Mid-market', s: '98',  p: '41%', sc: '6.4' },
+              { t: 'SMB',        s: '67',  p: '32%', sc: '5.1' },
+            ].map((row, r) => (
+              <div key={r} style={{ display: 'flex', gap: '5px', marginBottom: '4px' }}>
+                <div style={{ flex: 2, padding: '4px 5px', background: 'rgba(255,255,255,0.07)', borderRadius: '2px', fontSize: '9px', color: '#E2E8F0' }}>{row.t}</div>
+                <div style={{ flex: 1, padding: '4px 5px', background: 'rgba(255,255,255,0.07)', borderRadius: '2px', fontSize: '9px', color: '#E2E8F0', fontFamily: "'JetBrains Mono',monospace" }}>{row.s}</div>
+                <div style={{ flex: 1, padding: '4px 5px', background: 'rgba(255,255,255,0.07)', borderRadius: '2px', fontSize: '9px', color: col, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>{row.p}</div>
+                <div style={{ flex: 1, padding: '4px 5px', background: 'rgba(255,255,255,0.07)', borderRadius: '2px', fontSize: '9px', color: '#E2E8F0', fontFamily: "'JetBrains Mono',monospace" }}>{row.sc}</div>
+              </div>
+            ))}
+            <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '7.5px', color: col, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.1em', fontWeight: 700 }}>
+              <div style={{ width: 4, height: 4, borderRadius: '50%', background: col }} /> READY · 287ms
+            </div>
+          </>
+        )}
+
+        {timing === '3s' && (
+          <>
+            {[0, 1, 2].map(r => (
+              <div key={r} style={{ display: 'flex', gap: '5px', marginBottom: '4px' }}>
+                {[2, 1, 1, 1].map((f, c) => (
+                  <div key={c} style={{ flex: f, height: '18px', borderRadius: '2px', overflow: 'hidden', position: 'relative' as const, background: 'rgba(255,255,255,0.04)' }}>
+                    <motion.div animate={{ x: ['-100%', '200%'] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'linear', delay: c * 0.15 }}
+                      style={{ position: 'absolute' as const, inset: 0, width: '60%', background: `linear-gradient(90deg, transparent, ${col}40, transparent)` }} />
+                  </div>
+                ))}
+              </div>
+            ))}
+            <div style={{ marginTop: '8px', padding: '6px 8px', borderRadius: '4px', background: `${col}15`, border: `1px solid ${col}30`, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ fontSize: '10px', color: col }}>⟳</motion.div>
+              <div style={{ fontSize: '8.5px', color: col, fontWeight: 700, fontFamily: "'JetBrains Mono',monospace" }}>Loading… ~3s ETA</div>
+            </div>
+            <div style={{ marginTop: '5px', height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+              <motion.div animate={{ width: ['0%', '60%'] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ height: '100%', background: col }} />
+            </div>
+          </>
+        )}
+
+        {timing === '30s' && (
+          <div style={{ padding: '14px 8px', textAlign: 'center' as const }}>
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>📬</div>
+            <div style={{ fontSize: '10px', color: col, fontWeight: 800, marginBottom: '4px' }}>Your report is being generated</div>
+            <div style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: '10px' }}>~30s compute time. We&apos;ll email you when it&apos;s ready.</div>
+            <div style={{ padding: '5px 10px', borderRadius: '4px', background: `${col}20`, border: `1px solid ${col}40`, display: 'inline-block', fontSize: '8.5px', color: col, fontWeight: 700, fontFamily: "'JetBrains Mono',monospace" }}>
+              ✓ Queued · job-A47F
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function ResponseTimeControlRoom() {
+  return (
+    <Shell caption="The same EdSpark retention report rendered at three response speeds. Each speed locks in a different product design — timing isn't an engineering detail. It changes what UX is even possible.">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
+        {TIMING_COLS.map(col => (
+          <div key={col.id} style={{ background: 'var(--ed-card)', borderRadius: '12px', border: `1.5px solid ${col.col}45`, padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+            {/* Header pill row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <div style={{ padding: '4px 10px', borderRadius: '14px', background: col.col, color: '#FFF', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', fontWeight: 900, letterSpacing: '0.08em' }}>{col.label}</div>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', fontWeight: 800, color: col.dark, letterSpacing: '0.12em' }}>{col.badge.toUpperCase()}</div>
+            </div>
+
+            {/* User reaction */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', background: `${col.col}10`, marginBottom: '10px' }}>
+              <div style={{ fontSize: '22px' }}>{col.userIcon}</div>
+              <div style={{ fontSize: '11px', color: col.dark, fontWeight: 600, lineHeight: 1.4 }}>{col.userFeel}</div>
+            </div>
+
+            {/* Mockup */}
+            <ReportMockup timing={col.id} col={col.col} dark={col.dark} />
+
+            {/* UX note */}
+            <div style={{ marginTop: '10px', padding: '7px 10px', borderRadius: '6px', background: `${col.col}10`, borderLeft: `3px solid ${col.col}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: col.dark, letterSpacing: '0.14em', marginBottom: '2px' }}>UX REQUIRED</div>
+              <div style={{ fontSize: '11px', color: 'var(--ed-ink)', fontWeight: 600 }}>{col.uxNote}</div>
+            </div>
+
+            {/* Possible / impossible patterns */}
+            <div style={{ marginTop: '10px' }}>
+              <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '7.5px', color: '#15803D', letterSpacing: '0.14em', fontWeight: 800, marginBottom: '3px' }}>POSSIBLE</div>
+              {col.possible.map((p, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '9.5px', color: 'var(--ed-ink2)', marginBottom: '2px' }}>
+                  <div style={{ color: '#15803D', fontWeight: 700 }}>✓</div>
+                  {p}
+                </div>
+              ))}
+              {col.impossible.length > 0 && (
+                <>
+                  <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '7.5px', color: '#DC2626', letterSpacing: '0.14em', fontWeight: 800, marginTop: '6px', marginBottom: '3px' }}>IMPOSSIBLE</div>
+                  {col.impossible.map((p, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '9.5px', color: 'var(--ed-ink3)', marginBottom: '2px', textDecoration: 'line-through' }}>
+                      <div style={{ color: '#DC2626', fontWeight: 700 }}>✗</div>
+                      {p}
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Monitor */}
-      <div style={{
-        transform: 'perspective(1100px) rotateX(2.5deg)',
-        borderRadius: '16px', overflow: 'hidden', background: '#0f172a',
-        boxShadow: `0 22px 44px rgba(0,0,0,0.3), 0 7px 0 rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08)`,
-        border: `1.5px solid ${s.color}35`, transition: 'border-color 0.3s',
-      }}>
-        {/* Top bar */}
-        <div style={{ padding: '8px 14px', background: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          {['#EF4444','#F59E0B','#10B981'].map((c, i) => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />)}
-          <div style={{ flex: 1, marginLeft: '8px', height: '13px', borderRadius: '3px', background: 'rgba(255,255,255,0.06)' }} />
-          <motion.div animate={{ background: s.color }} transition={{ duration: 0.3 }}
-            style={{ width: 8, height: 8, borderRadius: '50%', boxShadow: `0 0 8px ${s.color}` }} />
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '9px', color: s.color, fontWeight: 700 }}>{s.badge}</div>
-        </div>
-
-        {/* Screen content */}
-        <div style={{ padding: '20px' }}>
-          {/* Mock headers */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-            {['Team','Sessions','Completion','Score'].map((h, i) => (
-              <div key={i} style={{ flex: i === 0 ? 2 : 1, padding: '5px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', fontSize: '9px', color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>{h}</div>
-            ))}
-          </div>
-
-          <AnimatePresence mode="wait">
-            {s.screenState === 'loaded' && (
-              <motion.div key="loaded" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {[0, 1, 2].map(r => (
-                  <div key={r} style={{ display: 'flex', gap: '8px', marginBottom: '5px' }}>
-                    {[0, 1, 2, 3].map(c => (
-                      <div key={c} style={{ flex: c === 0 ? 2 : 1, height: '24px', background: 'rgba(255,255,255,0.07)', borderRadius: '4px', display: 'flex', alignItems: 'center', padding: '0 8px' }}>
-                        <div style={{ width: `${50 + r * 12 + c * 8}%`, height: '6px', background: 'rgba(255,255,255,0.15)', borderRadius: '2px' }} />
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </motion.div>
-            )}
-            {s.screenState === 'loading' && (
-              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {[0, 1, 2].map(r => (
-                  <div key={r} style={{ display: 'flex', gap: '8px', marginBottom: '5px' }}>
-                    {[0, 1, 2, 3].map(c => (
-                      <div key={c} style={{ flex: c === 0 ? 2 : 1, height: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '4px', overflow: 'hidden', position: 'relative' as const }}>
-                        <motion.div animate={{ x: ['-100%','200%'] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
-                          style={{ position: 'absolute' as const, inset: 0, width: '60%', background: `linear-gradient(90deg, transparent, ${C.amber}25, transparent)` }} />
-                      </div>
-                    ))}
-                  </div>
-                ))}
-                <div style={{ marginTop: '10px', padding: '8px 12px', borderRadius: '6px', background: `${C.amber}15`, border: `1px solid ${C.amber}30`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ fontSize: '14px' }}>⟳</motion.div>
-                  <div style={{ fontSize: '10px', color: C.amber, fontWeight: 700 }}>Loading… estimated 3 seconds</div>
-                </div>
-              </motion.div>
-            )}
-            {s.screenState === 'queued' && (
-              <motion.div key="queued" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div style={{ padding: '20px', textAlign: 'center' as const }}>
-                  <div style={{ fontSize: '28px', marginBottom: '10px' }}>📬</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: C.red, marginBottom: '6px' }}>Your report is being generated</div>
-                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>This report takes ~30 seconds to compute.<br/>We&apos;ll email it to you when it&apos;s ready.</div>
-                  <div style={{ marginTop: '12px', padding: '6px 14px', borderRadius: '8px', background: `${C.red}20`, border: `1px solid ${C.red}40`, display: 'inline-block', fontSize: '10px', color: C.red, fontWeight: 700 }}>
-                    ✓ Queued — notification on completion
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+      {/* Bottom principle */}
+      <div style={{ padding: '12px 16px', borderRadius: '10px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', textAlign: 'center' as const, fontFamily: "'JetBrains Mono',monospace", fontSize: '10px', color: '#4F46E5', letterSpacing: '0.2em', fontWeight: 800 }}>
+        SAME REPORT · THREE TIMINGS · THREE PRODUCTS
       </div>
-
-      {/* Teaching label */}
-      <AnimatePresence mode="wait">
-        <motion.div key={s.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
-          style={{ marginTop: '14px', padding: '12px 16px', borderRadius: '12px', background: `${s.color}0d`, border: `1.5px solid ${s.color}25`, borderLeft: `4px solid ${s.color}` }}>
-          <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '8px', fontWeight: 800, color: s.color, marginBottom: '4px', letterSpacing: '0.1em' }}>{s.uiDesc.toUpperCase()}</div>
-          <div style={{ fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>{s.userMsg}</div>
-        </motion.div>
-      </AnimatePresence>
-      <ClickHint text="Click a response time to see how the product design must change" />
     </Shell>
   );
 }
