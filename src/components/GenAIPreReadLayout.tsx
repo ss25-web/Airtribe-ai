@@ -21,7 +21,7 @@
  *   }
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
@@ -285,8 +285,10 @@ export default function GenAIPreReadLayout({
   const moduleId      = `genai-pr-${moduleNum}`;
   const storedSections = useLearnerStore(s => s.completedSections[moduleId] ?? EMPTY_SECTIONS);
 
-  // Hydrate completedSections from store on mount (fixes progress retention across sessions)
-  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set(storedSections));
+  // Derive completedSections directly from the store so badges/ticks reflect
+  // live progress after Zustand persist hydration. Initializing via useState
+  // snapshotted the empty pre-hydration value and never re-synced.
+  const completedSections = useMemo(() => new Set(storedSections), [storedSections]);
   const [activeSection,     setActiveSection]     = useState<string | null>(null);
   const prevXpRef = useRef(0);
 
@@ -298,17 +300,20 @@ export default function GenAIPreReadLayout({
 
   // Section scroll tracking
   useEffect(() => {
+    // threshold:0 + middle-zone rootMargin so any pixel of a section that
+    // enters the centre 40% of the viewport counts as viewed. Previous
+    // threshold:0.25 never fired on tall sections (>~4× viewport height)
+    // because max possible intersection ratio fell below 25%.
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         const sid = entry.target.getAttribute('data-section');
         if (!sid) return;
         if (entry.isIntersecting) {
           setActiveSection(sid);
-          setCompletedSections(prev => new Set([...prev, sid]));
           store.markSectionViewed(sid);
         }
       });
-    }, { threshold: 0.25, rootMargin: '0px 0px -25% 0px' });
+    }, { threshold: 0, rootMargin: '-30% 0px -30% 0px' });
 
     const t = setTimeout(() => {
       document.querySelectorAll('[data-section]').forEach(el => observer.observe(el));
