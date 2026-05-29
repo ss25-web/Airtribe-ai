@@ -17,7 +17,7 @@ const ACCENT     = '#0284C7';
 const ACCENT_RGB = '2,132,199';
 const MODULE_NUM = '06';
 const MODULE_LABEL = 'Effective Communication';
-const MODULE_CONTEXT = `Module 06 of Airtribe PM Fundamentals — Scale Track. Follows Aarav Menon, Senior PM at CloudBridge (B2B workflow SaaS), leading a high-stakes launch of an AI Workflow Assistant. Covers communication as leverage, stakeholder calibration in ambiguous environments, PRD writing with AI at senior level, exec QBRs, B2B sales enablement and roadmap negotiation, and building a communication operating system.`;
+const MODULE_CONTEXT = `Module 06 of Airtribe PM Fundamentals — Scale Track. Follows Priya Sharma, Senior PM at EdSpark (B2B SaaS for sales coaching), leading the high-stakes Team Workspace launch into enterprise accounts. Covers communication as leverage, stakeholder calibration in ambiguous environments, PRD writing with AI at senior level, exec QBRs, B2B sales enablement and roadmap negotiation, and building a communication operating system.`;
 
 const PARTS = [
   { num: '01', id: 'm6-comm-job',     label: 'Communication as Leverage' },
@@ -52,7 +52,7 @@ const StakeholderTensionMap = () => {
             {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
-            CloudBridge · AI Workflow Assistant Launch · Stakeholder Map
+            EdSpark · Team Workspace Launch · Stakeholder Map
           </div>
         </div>
         <div style={{ background: '#0A1628', padding: '20px' }}>
@@ -99,12 +99,12 @@ const StakeholderTensionMap = () => {
 // ─────────────────────────────────────────
 const qbrItems = [
   { id: 'q1', text: 'Sprint velocity: 42 story points avg this quarter', category: 'appendix', reason: 'Velocity is an execution metric, not a business metric. It belongs in working notes, not the exec room.' },
-  { id: 'q2', text: 'AI Workflow Assistant adoption: 34% of active accounts', category: 'performance', reason: 'This is a direct outcome metric — exactly what leadership needs to see.' },
+  { id: 'q2', text: 'Team Workspace adoption: 34% of active accounts', category: 'performance', reason: 'This is a direct outcome metric — exactly what leadership needs to see.' },
   { id: 'q3', text: 'Enterprise churn reduced from 8% to 5.2% this quarter', category: 'performance', reason: 'A business result with direct board-level relevance. Lead with this.' },
   { id: 'q4', text: '14 new feature updates shipped across 3 product areas', category: 'appendix', reason: 'Activity, not outcome. Leadership does not need a feature diary.' },
   { id: 'q5', text: 'SSO integration delay — 2 enterprise deals at risk', category: 'risk', reason: 'A risk with direct revenue impact. Must be surfaced, not buried.' },
   { id: 'q6', text: 'Figma handoff process improved with new design token system', category: 'appendix', reason: 'A process improvement. Useful internally, not exec-level.' },
-  { id: 'q7', text: 'Q3 priority: AI assistant expansion to custom workflows', category: 'priority', reason: 'Forward-looking direction. Leadership needs this to allocate resources.' },
+  { id: 'q7', text: 'Q3 priority: Team Workspace expansion into enterprise accounts', category: 'priority', reason: 'Forward-looking direction. Leadership needs this to allocate resources.' },
   { id: 'q8', text: 'Need engineering headcount approval for analytics module', category: 'ask', reason: 'A clear leadership ask. This is exactly what a QBR should surface.' },
 ];
 const qbrBuckets = [
@@ -143,7 +143,7 @@ const QBRCommandDeck = () => {
             {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
-            QBR Command Deck · CloudBridge Q2 Review
+            QBR Command Deck · EdSpark Q2 Review
           </div>
         </div>
         <div style={{ background: '#060F1A', padding: '20px' }}>
@@ -215,12 +215,12 @@ const customerQuestions = [
   },
   {
     id: 'rq2',
-    question: 'Can you add custom workflow triggers just for our account?',
+    question: 'Can you add custom coaching templates just for our account?',
     buckets: ['Committed Q3', 'Planned — no date', 'Exploring', 'Not prioritised'],
     correctBucket: 2,
     responses: [
       { text: 'Yes, we can build that for you specifically.', type: 'overcommit', feedback: 'Never promise custom builds in a call. This creates contractual and engineering obligations you don\'t have authority to make.' },
-      { text: 'Custom workflow triggers are something we\'re actively looking at for enterprise accounts. We\'re not ready to commit — but I\'d like to understand your specific need better so we can feed it into our planning.', type: 'precise', feedback: 'This is strategic: it\'s honest, it builds trust, and it opens a discovery conversation that could directly influence roadmap.' },
+      { text: 'Custom coaching templates are something we\'re actively looking at for enterprise accounts. We\'re not ready to commit — but I\'d like to understand your specific need better so we can feed it into our planning.', type: 'precise', feedback: 'This is strategic: it\'s honest, it builds trust, and it opens a discovery conversation that could directly influence roadmap.' },
       { text: 'That\'s not on our roadmap.', type: 'too-vague', feedback: 'Technically safe but commercially damaging. A flat no without exploration leaves revenue on the table.' },
     ],
     correctResponse: 1,
@@ -260,7 +260,7 @@ const RoadmapNegotiationRoom = () => {
             {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
           </div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
-            Roadmap Negotiation Room · CloudBridge Enterprise Call
+            Roadmap Negotiation Room · EdSpark Enterprise Call
           </div>
         </div>
         <div style={{ background: '#060F1A', padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '24px' }}>
@@ -363,11 +363,11 @@ export default function Track2CommunicationPM({
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' as const, marginBottom: '40px' }}>
               {([
-                { mentor: 'priya' as const, accent: ACCENT,    name: 'Aarav', role: 'Senior PM · CloudBridge', desc: 'Leading the AI Workflow Assistant launch across product, GTM, and enterprise accounts.' },
-                { mentor: 'kiran' as const, accent: '#7843EE', name: 'Leena', role: 'VP Product',              desc: 'Sets the strategic bar. Expects outcome-led updates, not activity reports.' },
-                { mentor: 'rohan' as const, accent: '#E67E22', name: 'Farah', role: 'Sales Director',          desc: 'Wants broader promises. Represents commercial pressure at its sharpest.' },
-                { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Neeraj', role: 'Principal Engineer',     desc: 'Wants narrower scope. Committed to a date he will not miss.' },
-                { mentor: 'asha'  as const, accent: '#0097A7', name: 'Sana', role: 'Strategy / RevOps',        desc: 'Brings the cross-functional view Aarav keeps missing.' },
+                { mentor: 'priya' as const, accent: ACCENT,    name: 'Priya', role: 'Senior PM · EdSpark', desc: 'Leading the Team Workspace launch across product, GTM, and enterprise accounts.' },
+                { mentor: 'rohan' as const, accent: '#E67E22', name: 'Rohan', role: 'CEO · EdSpark',              desc: 'Sets the strategic bar. Expects outcome-led updates, not activity reports.' },
+                { mentor: 'rohan' as const, accent: '#E67E22', name: 'Rohit', role: 'Sales Director',          desc: 'Wants broader promises. Represents commercial pressure at its sharpest.' },
+                { mentor: 'dev'   as const, accent: '#3A86FF', name: 'Dev', role: 'Principal Engineer',     desc: 'Wants narrower scope. Committed to a date he will not miss.' },
+                { mentor: 'asha'  as const, accent: '#0097A7', name: 'Asha', role: 'PM Mentor',                desc: 'Brings the cross-functional view Priya keeps missing.' },
               ]).map(c => (
                 <CharacterChip name={c.name} role={c.role} accent={c.accent}>
                   <MentorFace mentor={c.mentor} size={52} />
@@ -428,18 +428,10 @@ export default function Track2CommunicationPM({
         </div>
       </div>
 
-      {/* ── Scenario-shift callout · acknowledged break with EdSpark continuity ── */}
-      <div style={{ maxWidth: '780px', margin: '0 auto 32px', padding: '18px 22px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.06)`, border: `1px solid rgba(${ACCENT_RGB},0.2)`, borderLeft: `4px solid ${ACCENT}` }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, color: ACCENT, letterSpacing: '0.16em', marginBottom: '8px', textTransform: 'uppercase' as const }}>A note before we start</div>
-        <div style={{ fontSize: '13.5px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>
-          For this module we step out of the EdSpark universe. The senior-PM communication patterns you&rsquo;re about to learn show up most cleanly in a high-stakes AI launch &mdash; so we follow <strong style={{ color: 'var(--ed-ink)' }}>Aarav Menon</strong>, a Senior PM at <strong style={{ color: 'var(--ed-ink)' }}>CloudBridge</strong> (B2B workflow SaaS), shipping their AI Workflow Assistant. Same Scale-Track principles, fresh scenario. Priya picks back up in M07.
-        </div>
-      </div>
-
       {/* ── PART 1 · COMMUNICATION AS LEVERAGE ── */}
       <ChapterSection id="m6-comm-job" num="01" accentRgb={ACCENT_RGB} first>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Six weeks before launch, Aarav notices something wrong that has nothing to do with the product. Sales is telling one story to prospects. Leadership is hearing another from the board update. Engineering is solving a slightly different problem than what got signed off. And enterprise customers are expecting capabilities that are still exploratory. The product is fine. The communication is broken.
+          Six weeks before launch, Priya notices something wrong that has nothing to do with the product. Sales is telling one story to prospects. Leadership is hearing another from the board update. Engineering is solving a slightly different problem than what got signed off. And enterprise customers are expecting capabilities that are still exploratory. The product is fine. The communication is broken.
         </SituationCard>
 
         <QBRPyramidViz />
@@ -460,9 +452,9 @@ export default function Track2CommunicationPM({
         </div>
 
         <ConversationScene
-          mentor="asha" name="Sana" role="Strategy · CloudBridge" accent="#0097A7"
+          mentor="asha" name="Asha" role="PM Mentor · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'priya', text: "Farah from Sales is promising features I haven't committed. Neeraj is scoping for a different problem than what leadership approved. How does this happen?" },
+            { speaker: 'priya', text: "Rohit from Sales is promising features I haven't committed. Dev is scoping for a different problem than what leadership approved. How does this happen?" },
             { speaker: 'other', text: "It happens when your communication system has too many gaps and too few shared artifacts. Everyone fills the gaps with their own context." },
             { speaker: 'priya', text: "So I need to be in more rooms." },
             { speaker: 'other', text: "No. You need fewer gaps. The senior PM move is to build a system that communicates even when you're not there." },
@@ -492,7 +484,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 2 · STAKEHOLDER CALIBRATION ── */}
       <ChapterSection id="m6-stakeholders" num="02" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Aarav has a launch alignment meeting in three days. Sales wants broader promises. Engineering wants narrower scope. Leadership wants urgency. CS wants predictability. All four are reasonable. All four conflict. His mistake last quarter was trying to find the message that satisfied all four simultaneously. It satisfied none.
+          Priya has a launch alignment meeting in three days. Sales wants broader promises. Engineering wants narrower scope. Leadership wants urgency. CS wants predictability. All four are reasonable. All four conflict. His mistake last quarter was trying to find the message that satisfied all four simultaneously. It satisfied none.
         </SituationCard>
 
         {h2(<>Stakeholder calibration, not compromise</>)}
@@ -502,9 +494,9 @@ export default function Track2CommunicationPM({
         <StakeholderCalibrationRoom />
 
         <ConversationScene
-          mentor="asha" name="Sana" role="Strategy · CloudBridge" accent="#0097A7"
+          mentor="asha" name="Asha" role="PM Mentor · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'priya', text: "If I give Farah and Neeraj different messages, won't they compare notes and think I'm saying different things to different people?" },
+            { speaker: 'priya', text: "If I give Rohit and Dev different messages, won't they compare notes and think I'm saying different things to different people?" },
             { speaker: 'other', text: "Yes, if the messages contradict each other. No, if they're anchored to the same truth but framed for different decisions." },
             { speaker: 'priya', text: "So the truth stays consistent, but the framing changes." },
             { speaker: 'other', text: "Exactly. The scope is what it is. What changes is which part of that scope matters most to each stakeholder — and how you show them you understand their constraint." },
@@ -545,7 +537,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 3 · PRD WRITING WITH AI FOR SENIOR PMS ── */}
       <ChapterSection id="m6-prd" num="03" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Aarav is working with messy inputs: market feedback from three enterprise accounts, a set of customer escalations from CS, notes from twelve sales calls, technical constraints from Neeraj, and three competing design options from Anika. A junior PM would use AI to summarise. Aarav uses AI to find contradictions.
+          Priya is working with messy inputs: market feedback from three enterprise accounts, a set of customer escalations from CS, notes from twelve sales calls, technical constraints from Dev, and three competing design options from Maya. A junior PM would use AI to summarise. Priya uses AI to find contradictions.
         </SituationCard>
 
         {h2(<>AI as a strategic drafting partner, not a writing assistant</>)}
@@ -575,7 +567,7 @@ export default function Track2CommunicationPM({
         ])}
 
         <ConversationScene
-          mentor="kiran" name="Leena" role="VP Product · CloudBridge" accent="#7843EE"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'priya', text: "I used AI to draft the PRD. It looks clean." },
             { speaker: 'other', text: "Does it have a decision log? Does it say what we rejected and why?" },
@@ -611,7 +603,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 4 · STORYTELLING & EXEC QBRS ── */}
       <ChapterSection id="m6-storytelling" num="04" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Aarav&apos;s first quarterly review with the leadership team runs 40 minutes over. He covered everything: feature velocity, NPS trend, churn reduction, adoption numbers, 14 feature updates, customer escalations, one engineering dependency, and one key risk. Leena&apos;s feedback was three words: <strong>&ldquo;Too much product.&rdquo;</strong>
+          Priya&apos;s first quarterly review with the leadership team runs 40 minutes over. She covered everything: feature velocity, NPS trend, churn reduction, adoption numbers, 14 feature updates, customer escalations, one engineering dependency, and one key risk. Rohan&apos;s feedback was three words: <strong>&ldquo;Too much product.&rdquo;</strong>
         </SituationCard>
 
         {h2(<>Exec storytelling is not presentation design</>)}
@@ -632,7 +624,7 @@ export default function Track2CommunicationPM({
         <ExecReviewTheater />
 
         <ConversationScene
-          mentor="kiran" name="Leena" role="VP Product · CloudBridge" accent="#7843EE"
+          mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'priya', text: "I removed the 14 feature updates and led with churn reduction and the SSO risk. Is that right?" },
             { speaker: 'other', text: "Almost. The churn number is the outcome. But I still need to know what decision you need from me — you buried the ask in slide 9." },
@@ -664,7 +656,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 5 · B2B SALES & ROADMAP COMMS ── */}
       <ChapterSection id="m6-b2b" num="05" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          A key enterprise account is at risk. Farah from sales asks Aarav to join the call. The customer asks three things: is SSO improving? When is analytics export coming? Can we get custom workflow triggers? Aarav knows each answer — but the question is not what the truth is. The question is how to say it in a way that is honest, useful, and strategically safe.
+          A key enterprise account is at risk. Rohit from sales asks Priya to join the call. The customer asks three things: is SSO improving? When is analytics export coming? Can we get custom coaching templates? Priya knows each answer — but the question is not what the truth is. The question is how to say it in a way that is honest, useful, and strategically safe.
         </SituationCard>
 
         {h2(<>B2B PM communication is different from internal communication</>)}
@@ -707,7 +699,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 6 · ROADMAP UNDER PRESSURE ── */}
       <ChapterSection id="m6-conflict" num="06" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          After the customer call, Farah escalates. <strong>&ldquo;We are going to lose this account if we don&apos;t commit SSO by Q3. I need you to put it on the roadmap.&rdquo;</strong> This is the moment most PMs either overcommit to end the pressure, or issue a blanket refusal that damages the relationship. Neither is the move.
+          After the customer call, Rohit escalates. <strong>&ldquo;We are going to lose this account if we don&apos;t commit SSO by Q3. I need you to put it on the roadmap.&rdquo;</strong> This is the moment most PMs either overcommit to end the pressure, or issue a blanket refusal that damages the relationship. Neither is the move.
         </SituationCard>
 
         {h2(<>Holding the line without losing the relationship</>)}
@@ -715,7 +707,7 @@ export default function Track2CommunicationPM({
         {para(<>Roadmap pressure from sales is not a product problem — it is a communication problem. When a sales team feels they have to escalate to get a roadmap answer, it means the PM&apos;s proactive communication has not given them enough to work with. The fix is not better pushback. It is a better system.</>)}
 
         <ConversationScene
-          mentor="rohan" name="Farah" role="Sales Director · CloudBridge" accent="#E67E22"
+          mentor="rohan" name="Rohit" role="Sales Director · EdSpark" accent="#E67E22"
           lines={[
             { speaker: 'other', text: "I need SSO committed for Q3. This is a deal-breaker for the account." },
             { speaker: 'priya', text: "I understand the commercial risk. Here's what I can tell you: SSO is planned and a priority. I can't commit Q3 yet because we have one unresolved dependency. I'll have a clearer answer in three weeks. Can you buy that time?" },
@@ -729,7 +721,7 @@ export default function Track2CommunicationPM({
           '2. Clarify what is actually true — committed, planned, exploring, or not prioritised',
           '3. Give a timeline for when you will have more certainty — not a date for the feature',
           '4. Offer what you CAN give — partial commitment, a signal, a check-in, a named DRI',
-          '5. Separate the relationship from the decision — Farah is not the enemy; the ambiguity is',
+          '5. Separate the relationship from the decision — Rohit is not the enemy; the ambiguity is',
         ])}
 
         {pullQuote("A roadmap is a communication tool, not a contract. But if you treat it carelessly, customers and GTM teams will treat it like one.")}
@@ -755,7 +747,7 @@ export default function Track2CommunicationPM({
       {/* ── PART 7 · YOUR COMMUNICATION OPERATING SYSTEM ── */}
       <ChapterSection id="m6-executive" num="07" accentRgb={ACCENT_RGB}>
         <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB}>
-          Three months after the AI Workflow Assistant launch, Aarav looks back at what actually worked. Not the features. Not the QBR slides. What worked was a set of rituals and artifacts that reduced the number of times anyone had to ask him what was happening.
+          Three months after the Team Workspace launch, Priya looks back at what actually worked. Not the features. Not the QBR slides. What worked was a set of rituals and artifacts that reduced the number of times anyone had to ask her what was happening.
         </SituationCard>
 
         {h2(<>Build a system, not a habit</>)}
@@ -777,7 +769,7 @@ export default function Track2CommunicationPM({
         </div>
 
         <ConversationScene
-          mentor="asha" name="Sana" role="Strategy · CloudBridge" accent="#0097A7"
+          mentor="asha" name="Asha" role="PM Mentor · EdSpark" accent="#0097A7"
           lines={[
             { speaker: 'priya', text: "I'm writing a weekly update now. But I feel like nobody reads it." },
             { speaker: 'other', text: "Do they ask you the same questions that are in the update?" },
