@@ -50,24 +50,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The AI node rate-limits after 10 requests — add a wait node between batches',
-        'B. The SplitInBatches node is set to "once" mode — it only passes the first batch downstream before stopping',
-        'C. The Merge node is misconfigured — it collects only the first batch and discards the rest',
-        'D. The n8n execution limit caps at 10 batch iterations by default',
+        'A. The OpenAI node rate-limits after 10 calls — insert a Wait node between batches',
+        'B. SplitInBatches is in "once" mode — only the first batch flows downstream',
+        'C. The Merge node is misconfigured and is silently discarding all but the first batch',
+        'D. The n8n execution engine caps batch iterations at 10 by default for safety',
       ],
       'non-tech': [
-        'A. The Google Sheets API rate-limits on the first write and silently drops the rest',
-        'B. The loop node is set to append mode but the sheet column mapping overrides the previous row each time',
-        'C. The workflow is writing all 50 rows but to a different sheet tab',
-        'D. The loop runs once for the first item — the node connecting into the loop is not set to iterate',
+        'A. Google Sheets API rate-limited the first write and silently dropped the rest',
+        'B. Loop is in append mode but the column mapping rewrites the same row each time',
+        'C. The workflow is writing all 50 rows but to a different sheet tab on the same file',
+        'D. The loop runs once because the previous node is not configured to iterate the array',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 3 },
     explanation: {
-      tech: "SplitInBatches has two execution modes. In 'once' mode it outputs the first batch and stops — the loop only continues when connected back to itself with the 'has items' output. The feedback edge to the batch node is required for multi-batch processing.",
-      'non-tech': "The loop node only iterates if it receives an array and is set to process each item. A node that receives an array but has no iteration configured processes the first item and ends. Check the node's item-processing mode before assuming data volume is the problem.",
+      tech: "SplitInBatches in 'once' mode emits the first batch and stops — multi-batch processing requires the feedback edge from the 'has items' output back into the batch node.",
+      'non-tech': "A loop that isn't iterating processes the first item and ends. Inspect the upstream node's item-processing mode before assuming the data is the problem.",
     },
-    keyInsight: "A loop that runs once is not a loop — it is a node with extra steps. Verify the iteration feedback edge and the node's processing mode before testing at scale.",
+    keyInsight: "A loop that runs once is not a loop — verify the iteration feedback edge and the node's processing mode before testing at scale.",
   },
   {
     conceptId: 'genai-m5-transforms',
@@ -77,24 +77,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. Write two separate workflows — one per API — and merge downstream',
-        'B. Add a Set node after each source that maps to the canonical schema before the merge point',
-        'C. Use a Function node with a try/catch to handle both formats dynamically',
-        'D. Add field aliases in the classifier prompt so it accepts both formats',
+        'A. Run two separate workflows — one per API — and merge their results downstream',
+        'B. Add a Set node after each source that maps to the canonical schema pre-merge',
+        'C. Use a Function node with a try/catch that handles either format at runtime',
+        'D. Add field aliases inside the classifier prompt so it accepts either shape',
       ],
       'non-tech': [
-        'A. The merge node is matching on the wrong key — it defaults to the first field, not the intended identifier',
-        'B. The Google Sheets field name and the webhook field name are different strings — the merge node has no match to join on',
-        'C. Google Sheets returns all fields as strings — the webhook returns numbers, so the types do not match',
-        'D. The merge node requires both sources to have identical schema — this design is not supported',
+        'A. The merge node is joining on the wrong key — it defaults to the first field by name',
+        "B. Google Sheets' 'Policy Number' and the webhook's 'policyNum' are different strings",
+        'C. Google Sheets returns strings and the webhook returns numbers — the types collide',
+        'D. The merge node requires both sources to have identical schemas — unsupported here',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Normalizing to a canonical schema at the earliest point — right after each source — keeps all downstream nodes identical and testable. One normalization Set node per source is cleaner and safer than dynamic handling downstream.",
-      'non-tech': "The merge node joins on matching field names. 'Policy Number' ≠ 'policyNum'. Rename one before the merge step — a Set node renames the field to match the other source. Field name mismatches are the most common merge failure.",
+      tech: "Normalising to a canonical schema right after each source keeps every downstream node identical and testable. One Set node per source is safer than dynamic handling downstream.",
+      'non-tech': "Merge joins on matching field names. 'Policy Number' ≠ 'policyNum' — rename one with a Set node before the merge step. Field-name mismatches are the most common merge failure.",
     },
-    keyInsight: "Normalize data to a canonical schema at the source, not at the consumer. Every node downstream becomes simpler when the shape is consistent from the start.",
+    keyInsight: "Normalise to a canonical schema at the source, not at the consumer. Every node downstream becomes simpler when the shape is consistent.",
   },
   {
     conceptId: 'genai-m5-routing',
@@ -104,24 +104,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. Lower the auto-process threshold to 0.75 to reduce the human review queue',
-        'B. Audit the actual confidence score distribution — if 60% of claims cluster between 0.5–0.85, the threshold is set wrong or the classifier needs retraining',
-        'C. Add a fourth route for claims between 0.75–0.85 to reduce decision fatigue',
-        'D. Switch from a confidence threshold to a fixed classification label',
+        'A. Lower the auto-process threshold to 0.75 to drain the human review queue faster',
+        'B. Audit the actual confidence distribution before re-tuning any threshold values',
+        'C. Add a fourth route for the 0.75–0.85 band to spread reviewer load more evenly',
+        'D. Drop confidence-band routing and switch to a fixed classification label per case',
       ],
       'non-tech': [
-        'A. Ask Team C to forward the misrouted renewals to Team A and monitor for recurrence',
-        'B. Check the If/Switch node conditions — print the exact values being evaluated and compare to the conditions written',
-        'C. Re-run the workflow on last week\'s data to reproduce the error',
-        'D. Add a logging node after the routing step to capture which route each renewal takes',
+        'A. Ask Team C to forward the misrouted renewals to Team A and watch for repeats',
+        'B. Print the exact field values the router is reading and compare them to the conditions',
+        "C. Re-run the workflow on last week's data to attempt to reproduce the misroute",
+        'D. Add a logging node after the router to capture which path each renewal takes',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 1 },
     explanation: {
-      tech: "Before adjusting thresholds, audit the distribution. If most claims genuinely cluster in the mid-range, the problem is classifier calibration — not threshold tuning. Adjusting thresholds without understanding the distribution is guessing.",
-      'non-tech': "Routing bugs are almost always a mismatch between the value being evaluated and the condition written. Print the actual runtime value before diagnosing further. The condition may be checking the wrong field, or the value format may not match what you expect.",
+      tech: "If 60% of claims cluster in the mid-range, the problem is classifier calibration — not threshold position. Adjusting thresholds without auditing the distribution is guessing.",
+      'non-tech': "Routing bugs are almost always a mismatch between the value the router reads and the condition written. Print the runtime value before changing any logic.",
     },
-    keyInsight: "Before tuning a routing condition, audit what values are actually arriving at the router. Most routing bugs are data shape or field name errors — not logic errors.",
+    keyInsight: "Before tuning a routing condition, audit what values are actually arriving at the router. Most routing bugs are data shape or field-name errors, not logic errors.",
   },
   {
     conceptId: 'genai-m5-hitl',
@@ -131,24 +131,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The Slack node does not support interactive components — use a webhook-based approval flow instead',
-        'B. The Wait node is configured to resume on webhook call, but the Slack message was sent as plain text — the interactive button payload that calls the webhook was not added to the Slack message node',
-        'C. The timeout is set too short — increase it to 30 minutes',
-        'D. The approver needs to be added to the n8n workspace to interact with workflows',
+        'A. Slack nodes do not support interactive components — switch to a webhook approval flow',
+        'B. Slack message went out as plain text — the interactive button payload was never added',
+        'C. The Wait node timeout is set too short — extend it from 5 to 30 minutes',
+        'D. The approver needs an n8n workspace seat before they can interact with workflows',
       ],
       'non-tech': [
-        'A. Email reply text is not parsed by n8n — the workflow needs an email trigger watching for a specific subject line or a structured response link',
-        'B. The manager replied to the wrong email thread',
-        'C. n8n does not support email-based approval flows — use Slack or a web form instead',
-        'D. The Wait node expired before the manager replied — re-trigger the workflow',
+        'A. Free-text email replies cannot resume a Wait node — needs a structured link or form',
+        'B. The manager replied to the wrong email thread and the reply never reached the workflow',
+        'C. n8n does not support email-based approval flows — switch to Slack or a web form',
+        'D. The Wait node expired before the manager replied — re-trigger the workflow now',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 0 },
     explanation: {
-      tech: "The Wait node resumes when it receives a webhook callback. The Slack message must include an interactive block (button) whose action URL points to the Wait node's webhook endpoint. Sending plain text to Slack and expecting it to trigger the Wait node is a missing connection.",
-      'non-tech': "n8n's Wait node resumes on a webhook call — it cannot parse free-text email replies. Email-based approvals require either a structured link in the email body (the approver clicks it, which calls the webhook) or a form-based flow. Free-text reply parsing is not supported natively.",
+      tech: "The Wait node resumes on a webhook callback. The Slack message must carry an interactive block whose action URL points at the Wait node's webhook. Plain-text Slack cannot trigger resume.",
+      'non-tech': "n8n's Wait node resumes on a webhook call — it cannot parse free-text email replies. Use a structured link (button → webhook) or a form-based flow.",
     },
-    keyInsight: "Human-in-the-loop means the human interacts with a structured mechanism — a link, a button, a form. Free-text replies cannot resume a Wait node. Design the approval interface before designing the workflow.",
+    keyInsight: "Human-in-the-loop means a structured handshake — a link, a button, a form. Free-text replies cannot resume a Wait node. Design the interface first.",
   },
   {
     conceptId: 'genai-m5-agents',
@@ -158,24 +158,24 @@ const QUIZZES = [
     },
     options: {
       tech: [
-        'A. The model context window is smaller than 10 exchanges — reduce the buffer size',
-        'B. Window Buffer Memory stores the last N messages — message 11 pushes message 1 out of the buffer. The agent has no long-term memory of exchanges beyond the window',
-        'C. The agent node needs to be restarted after 10 exchanges to clear the buffer',
-        'D. The memory node is not connected correctly — it is storing tokens, not messages',
+        'A. The model context window is smaller than ten exchanges — reduce the buffer size',
+        'B. Window Buffer is a sliding window — message 11 evicts message 1 by design',
+        'C. The agent node needs to be restarted after every ten exchanges to clear the buffer',
+        'D. The memory node is mis-wired — it is storing raw tokens instead of full messages',
       ],
       'non-tech': [
-        'A. The chatbot is using a shared session ID — all users are writing to the same conversation memory',
-        'B. The Window Buffer Memory is too large and is mixing context from different conversations',
+        'A. A shared, hardcoded session ID — every user is writing to the same memory store',
+        'B. Window Buffer Memory is too large and mixes context across separate conversations',
         'C. The model is hallucinating cross-user data — switch to a more accurate model',
-        'D. The chatbot needs a login system before memory can work correctly',
+        'D. The chatbot needs a login system before per-user memory can possibly work',
       ],
     },
     correctIndex: { tech: 1, 'non-tech': 0 },
     explanation: {
-      tech: "Window Buffer Memory is a sliding window — the oldest message drops when the window is full. This is by design. For tasks requiring recall beyond the window, use a summary memory or a vector-store-backed memory that persists key facts separately from the conversation buffer.",
-      'non-tech': "Session IDs are how n8n's memory nodes separate conversations. If every user hits the same fixed session ID, they all share one memory store — each message appends to everyone's context. The session ID must be unique per user conversation, not hardcoded to a static value.",
+      tech: "Window Buffer Memory is intentionally a sliding window. For recall beyond the window, use summary memory or a vector-store-backed memory that persists key facts separately.",
+      'non-tech': "n8n separates conversations by session ID. If every user hits the same hardcoded session ID, they all share one memory store. Session ID must be unique per user conversation.",
     },
-    keyInsight: "Memory without session isolation is shared state. Always trace the session ID through the workflow — a static session ID means all users share the same memory.",
+    keyInsight: "Memory without session isolation is shared state. Trace the session ID through the workflow — a static session ID means all users share the same memory.",
   },
 ];
 
@@ -503,7 +503,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.2em', color: ACCENT, marginBottom: '10px', textTransform: 'uppercase' as const }}>GenAI Launchpad · Pre-Read 05</div>
           <h1 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 700, lineHeight: 1.12, letterSpacing: '-0.025em', color: 'var(--ed-ink)', marginBottom: '10px', fontFamily: "'Lora', Georgia, serif" }}>Advanced n8n: Loops, Transforms & AI Agents</h1>
           <p style={{ fontSize: '15px', color: 'var(--ed-ink3)', fontStyle: 'italic', fontFamily: "'Lora', Georgia, serif", marginBottom: '28px' }}>&ldquo;A workflow that runs once on one item is a proof of concept. One that runs reliably on thousands is a system.&rdquo;</p>
-          <GenAIHeroCharacterStrip track={track} mentors={['rohan', 'anika', 'kabir']} />
+          <GenAIHeroCharacterStrip track={track} mentors={['anika', 'rohan', 'leela', 'kabir']} />
           <div style={{ background: 'var(--ed-card)', borderRadius: '8px', padding: '16px 20px', border: '1px solid var(--ed-rule)', borderLeft: `3px solid ${ACCENT}` }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', fontWeight: 700, color: ACCENT, letterSpacing: '0.14em', marginBottom: '10px', textTransform: 'uppercase' as const }}>Learning Objectives</div>
             {[
