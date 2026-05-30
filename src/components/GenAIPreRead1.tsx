@@ -133,194 +133,423 @@ const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
 
+// TokenProbCard rebuilt as the OpenAI Playground Completion view with the
+// Show probabilities toggle ON. The completion at the top renders each
+// generated token with a transparent purple highlight whose intensity
+// matches that token's probability — exactly how the real Playground
+// shows logprobs. Hovering a token reveals its top-3 next-token candidates
+// in a popover (probability distribution as a bar chart).
 const TokenProbCard = ({ track }: { track: GenAITrack }) => {
-  const tokens = track === 'tech'
+  type Token = { word: string; chosenP: number; alts: { label: string; p: number }[] };
+  const promptText = track === 'tech'
+    ? 'The next AI completion will be'
+    : 'The escalation procedure for this case is';
+  const tokens: Token[] = track === 'tech'
     ? [
-        { word: 'The', probs: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
-        { word: 'model', probs: [{ label: 'model', p: 0.68 }, { label: 'system', p: 0.18 }, { label: 'API', p: 0.09 }] },
-        { word: 'generates', probs: [{ label: 'generates', p: 0.55 }, { label: 'predicts', p: 0.28 }, { label: 'returns', p: 0.12 }] },
-        { word: 'plausible', probs: [{ label: 'plausible', p: 0.41 }, { label: 'likely', p: 0.33 }, { label: 'probable', p: 0.19 }] },
+        { word: 'The',       chosenP: 0.72, alts: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
+        { word: ' model',    chosenP: 0.68, alts: [{ label: ' model', p: 0.68 }, { label: ' system', p: 0.18 }, { label: ' API', p: 0.09 }] },
+        { word: ' generates', chosenP: 0.55, alts: [{ label: ' generates', p: 0.55 }, { label: ' predicts', p: 0.28 }, { label: ' returns', p: 0.12 }] },
+        { word: ' plausible', chosenP: 0.41, alts: [{ label: ' plausible', p: 0.41 }, { label: ' likely', p: 0.33 }, { label: ' probable', p: 0.19 }] },
+        { word: ' text.',     chosenP: 0.58, alts: [{ label: ' text.', p: 0.58 }, { label: ' output.', p: 0.24 }, { label: ' content.', p: 0.13 }] },
       ]
     : [
-        { word: 'The', probs: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
-        { word: 'procedure', probs: [{ label: 'procedure', p: 0.61 }, { label: 'process', p: 0.23 }, { label: 'protocol', p: 0.11 }] },
-        { word: 'for', probs: [{ label: 'for', p: 0.79 }, { label: 'when', p: 0.12 }, { label: 'in', p: 0.07 }] },
-        { word: 'compliance', probs: [{ label: 'compliance', p: 0.48 }, { label: 'regulatory', p: 0.31 }, { label: 'internal', p: 0.17 }] },
+        { word: 'The',         chosenP: 0.72, alts: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
+        { word: ' procedure',  chosenP: 0.61, alts: [{ label: ' procedure', p: 0.61 }, { label: ' process', p: 0.23 }, { label: ' protocol', p: 0.11 }] },
+        { word: ' for',        chosenP: 0.79, alts: [{ label: ' for', p: 0.79 }, { label: ' when', p: 0.12 }, { label: ' in', p: 0.07 }] },
+        { word: ' compliance', chosenP: 0.48, alts: [{ label: ' compliance', p: 0.48 }, { label: ' regulatory', p: 0.31 }, { label: ' internal', p: 0.17 }] },
+        { word: ' issues.',    chosenP: 0.54, alts: [{ label: ' issues.', p: 0.54 }, { label: ' matters.', p: 0.26 }, { label: ' concerns.', p: 0.15 }] },
       ];
+
+  const [hover, setHover] = useState<number | null>(null);
+
+  const playgroundBg = '#0F0F0F';
+  const panelBg = '#171717';
+  const panelBorder = '1px solid #262626';
+  const labelStyle: React.CSSProperties = { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: '#737373', textTransform: 'uppercase' as const };
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.15em', color: '#8B949E', marginBottom: '14px' }}>TOKEN PROBABILITY DISTRIBUTION — NEXT-TOKEN SELECTION</div>
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, marginBottom: '16px' }}>
-        {tokens.map((t, i) => (
-          <div key={i} style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '6px', padding: '4px 10px', fontSize: '13px', color: '#C9D1D9', fontWeight: 600 }}>{t.word}</div>
-        ))}
-        <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px', fontSize: '13px', color: '#484F58' }}>…</div>
+    <div style={{
+      background: playgroundBg, borderRadius: 12, overflow: 'hidden',
+      border: '1px solid #1F1F1F', boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: '#E5E5E5', fontFamily: "Inter, -apple-system, system-ui, sans-serif",
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderBottom: panelBorder, background: '#0A0A0A' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #10A37F, #0E8567)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 10, fontWeight: 900 }}>◯</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#E5E5E5' }}>Playground</div>
+          <div style={{ fontSize: 10, color: '#525252' }}>·</div>
+          <div style={{ fontSize: 11, color: '#A3A3A3' }}>Completion</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(16,163,127,0.12)', border: '1px solid rgba(16,163,127,0.40)', fontSize: 10, color: '#10A37F', fontFamily: "'JetBrains Mono', monospace" }}>show probabilities · ON</div>
+          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: '#A3A3A3', border: '1px solid #262626' }}>View code</div>
+        </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-        {tokens.map((t, i) => (
-          <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '8px', padding: '10px 12px' }}>
-            <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.1em', marginBottom: '8px' }}>AFTER &ldquo;{t.word}&rdquo;</div>
-            {t.probs.map((p, j) => (
-              <div key={j} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-                <div style={{ width: '70px', fontSize: '11px', color: j === 0 ? '#C9D1D9' : '#484F58' }}>{p.label}</div>
-                <div style={{ flex: 1, height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${p.p * 100}%`, background: j === 0 ? '#7C3AED' : 'rgba(124,58,237,0.3)', borderRadius: '3px' }} />
+
+      {/* Body */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: 0 }}>
+        {/* LEFT: completion */}
+        <div style={{ borderRight: panelBorder }}>
+          <div style={{ padding: '14px 16px 10px', borderBottom: panelBorder }}>
+            <div style={labelStyle}>PROMPT</div>
+            <div style={{ marginTop: 6, padding: '10px 12px', background: panelBg, border: panelBorder, borderRadius: 7, fontSize: 13, color: '#E5E5E5', fontFamily: "'JetBrains Mono', monospace" }}>
+              {promptText}<span style={{ color: '#525252' }}>▎</span>
+            </div>
+          </div>
+
+          {/* Completion area with logprobs highlighting */}
+          <div style={{ padding: '14px 16px 14px', minHeight: 110, position: 'relative' as const }}>
+            <div style={labelStyle}>COMPLETION · top-prob highlighting</div>
+            <div style={{ marginTop: 6, padding: '12px 14px', background: panelBg, border: panelBorder, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 14, lineHeight: 2, position: 'relative' as const, minHeight: 56 }}>
+              {/* Prompt prefix in light gray */}
+              <span style={{ color: '#525252' }}>{promptText}</span>
+              {/* Generated tokens with intensity-based highlighting */}
+              {tokens.map((t, i) => {
+                const isHover = hover === i;
+                return (
+                  <span
+                    key={i}
+                    onMouseEnter={() => setHover(i)}
+                    onMouseLeave={() => setHover(null)}
+                    style={{
+                      background: `rgba(124,58,237,${0.18 + (1 - t.chosenP) * 0.40})`,
+                      borderRadius: 3,
+                      padding: '1px 1px',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                      boxShadow: isHover ? '0 0 0 1.5px rgba(167,139,250,0.65)' : 'none',
+                      color: '#F5F5F5',
+                    }}
+                  >{t.word}</span>
+                );
+              })}
+              <span style={{ color: '#525252' }}>▎</span>
+
+              {/* Popover for hovered token */}
+              {hover !== null && (
+                <div style={{
+                  position: 'absolute' as const,
+                  top: 0, right: 14,
+                  width: 240,
+                  background: '#0A0A0A',
+                  border: '1px solid #3F3F46',
+                  borderRadius: 7,
+                  padding: '10px 12px',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+                  zIndex: 5,
+                  fontFamily: 'inherit',
+                }}>
+                  <div style={{ ...labelStyle, marginBottom: 8 }}>TOP-3 NEXT TOKENS</div>
+                  {tokens[hover].alts.map((a, j) => (
+                    <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                      <div style={{ minWidth: 86, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: j === 0 ? '#A78BFA' : '#A3A3A3' }}>{a.label || '∅'}</div>
+                      <div style={{ flex: 1, height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 2.5 }}>
+                        <div style={{ height: '100%', width: `${a.p * 100}%`, background: j === 0 ? '#7C3AED' : 'rgba(124,58,237,0.35)', borderRadius: 2.5 }} />
+                      </div>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: j === 0 ? '#A78BFA' : '#737373', minWidth: 32, textAlign: 'right' as const }}>{Math.round(a.p * 100)}%</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid #262626', fontSize: 9.5, color: '#737373', lineHeight: 1.5 }}>
+                    Model chose <strong style={{ color: '#A78BFA' }}>{tokens[hover].alts[0].label.trim()}</strong> at {Math.round(tokens[hover].chosenP * 100)}% — picked, sampled, moved on.
+                  </div>
                 </div>
-                <div style={{ fontSize: '10px', color: j === 0 ? '#7C3AED' : '#484F58', minWidth: '32px', textAlign: 'right' as const }}>{Math.round(p.p * 100)}%</div>
+              )}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, color: '#737373', lineHeight: 1.6 }}>
+              Highlight intensity ∝ <span style={{ color: '#E5E5E5' }}>1 − probability</span> · hover any token to see its candidates · the model picks the top, repeats, no reasoning.
+            </div>
+          </div>
+
+          {/* Bottom token stream */}
+          <div style={{ padding: '10px 16px', borderTop: panelBorder, background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const }}>
+              {tokens.map((t, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#A78BFA' }}>{t.word.replace(' ', '·')}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>{Math.round(t.chosenP * 100)}</span>
+                </div>
+              ))}
+            </div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>greedy · top_k=1</span>
+          </div>
+        </div>
+
+        {/* RIGHT: controls */}
+        <div style={{ padding: '14px 14px 14px' }}>
+          <div style={labelStyle}>MODEL</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 11.5, color: '#E5E5E5', display: 'flex', justifyContent: 'space-between' }}>
+            <span>gpt-4o</span><span style={{ color: '#525252' }}>▾</span>
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>TEMPERATURE</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: '#E5E5E5', textAlign: 'center' as const }}>0.00</div>
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>TOP_P</div>
+          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: '#E5E5E5', textAlign: 'center' as const }}>1.00</div>
+          </div>
+
+          <div style={{ marginTop: 14, ...labelStyle }}>LEGEND</div>
+          <div style={{ marginTop: 6, display: 'grid', gap: 4 }}>
+            {[
+              { intensity: 0.85, label: 'low confidence' },
+              { intensity: 0.55, label: 'medium' },
+              { intensity: 0.20, label: 'high confidence' },
+            ].map(l => (
+              <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 16, height: 12, background: `rgba(124,58,237,${l.intensity})`, borderRadius: 3 }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3' }}>{l.label}</span>
               </div>
             ))}
           </div>
-        ))}
+
+          <div style={{ marginTop: 14, padding: '8px 10px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.30)', borderRadius: 6, fontSize: 10, color: '#C4B5FD', lineHeight: 1.55 }}>
+            <strong>Generation ≠ retrieval.</strong> Every token is a probabilistic pick from the model's weights — no lookup happened.
+          </div>
+        </div>
       </div>
-      <div style={{ marginTop: '12px', fontSize: '10px', color: '#484F58', lineHeight: 1.5 }}>The model picks the highest-probability token each step — then repeats. No retrieval. No reasoning. Pattern completion from training.</div>
     </div>
   );
 };
 
-// Interactive zone classifier. Learner picks a zone for each task; correct
-// placements turn green and slot into the zone column, wrong placements
-// flash red and stay in the tray for a retry.
+// CapabilityZoneCard rebuilt as a Linear-style kanban board. Real Linear
+// chrome: dark sidebar with team / view list, top bar with the project
+// title and STATUS / BAG breadcrumb, three columns (Reliable / Extended
+// / Unreliable) with status pills, draggable task cards with Linear's
+// monospace ticket IDs (TASK-1..6) and priority dots. Wrong drops shake
+// red; correct drops land in the column.
 type ZoneKey = 'reliable' | 'extended' | 'unreliable';
 const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
-  const ZONES: { key: ZoneKey; label: string; color: string; bg: string; border: string; sub: string }[] = [
-    { key: 'reliable',   label: 'Reliable',   color: '#16A34A', bg: 'rgba(22,163,74,0.10)',  border: 'rgba(22,163,74,0.35)',  sub: 'Text in, text out.' },
-    { key: 'extended',   label: 'Extended',   color: '#D97706', bg: 'rgba(217,119,6,0.10)',  border: 'rgba(217,119,6,0.35)',  sub: 'Reliable after retrieval.' },
-    { key: 'unreliable', label: 'Unreliable', color: '#DC2626', bg: 'rgba(220,38,38,0.10)',  border: 'rgba(220,38,38,0.35)',  sub: 'Wrong even with help.' },
+  const ZONES: { key: ZoneKey; label: string; color: string; bg: string; pill: string; sub: string }[] = [
+    { key: 'reliable',   label: 'Reliable',   color: '#10B981', bg: 'rgba(16,185,129,0.06)',  pill: 'IN PROGRESS', sub: 'Text in, text out.' },
+    { key: 'extended',   label: 'Extended',   color: '#F59E0B', bg: 'rgba(245,158,11,0.06)',  pill: 'BLOCKED',     sub: 'Reliable with retrieval.' },
+    { key: 'unreliable', label: 'Unreliable', color: '#EF4444', bg: 'rgba(239,68,68,0.06)',   pill: 'CANCELLED',   sub: 'Wrong even with help.' },
   ];
 
-  type Task = { id: string; label: string; zone: ZoneKey; why: string };
+  type Task = { id: string; ticket: string; label: string; zone: ZoneKey; why: string; priority: 'urgent' | 'high' | 'med' | 'low' };
   const TASKS: Task[] = track === 'tech'
     ? [
-        { id: 't1', label: 'Summarise a case note',                  zone: 'reliable',   why: 'Pure language work — input and output are text.' },
-        { id: 't2', label: 'Classify a support ticket',              zone: 'reliable',   why: 'Reading text and applying a label is a language task.' },
-        { id: 't3', label: 'Look up current coverage rate for a plan', zone: 'extended', why: 'Needs a query to the plan database first — model handles the language.' },
-        { id: 't4', label: 'Answer a policy question with citations', zone: 'extended',   why: 'Reliable once relevant policy text is retrieved into the prompt (RAG).' },
-        { id: 't5', label: 'Compute an exact claim adjustment amount', zone: 'unreliable', why: 'Precise arithmetic on real financial data — even with retrieval the model drifts.' },
-        { id: 't6', label: 'Decide whether to approve a high-stakes claim', zone: 'unreliable', why: 'Legally binding determination — completion fluency ≠ correctness.' },
+        { id: 't1', ticket: 'AI-101', label: 'Summarise a case note',                   zone: 'reliable',   priority: 'med',    why: 'Pure language work — input and output are text.' },
+        { id: 't2', ticket: 'AI-102', label: 'Classify a support ticket',               zone: 'reliable',   priority: 'med',    why: 'Reading text and applying a label is a language task.' },
+        { id: 't3', ticket: 'AI-103', label: 'Look up current coverage rate for a plan', zone: 'extended',  priority: 'high',   why: 'Needs a DB query first; model handles the language.' },
+        { id: 't4', ticket: 'AI-104', label: 'Answer a policy question with citations', zone: 'extended',   priority: 'high',   why: 'Reliable once relevant policy text is retrieved (RAG).' },
+        { id: 't5', ticket: 'AI-105', label: 'Compute exact claim adjustment amounts', zone: 'unreliable', priority: 'urgent', why: 'Precise arithmetic — even with retrieval the model drifts.' },
+        { id: 't6', ticket: 'AI-106', label: 'Approve a high-stakes claim',            zone: 'unreliable', priority: 'urgent', why: 'Legally binding determination — fluency ≠ correctness.' },
       ]
     : [
-        { id: 't1', label: 'Draft a reply to a provider complaint',   zone: 'reliable',   why: 'Drafting from a complaint description is language work.' },
-        { id: 't2', label: 'Classify an escalation by category',      zone: 'reliable',   why: 'Reading the text and picking a label is a language task.' },
-        { id: 't3', label: 'Answer a policy question from the handbook', zone: 'extended', why: 'Reliable when the right handbook section is retrieved into the prompt.' },
-        { id: 't4', label: 'Look up current premium for a plan',      zone: 'extended',   why: 'Needs a lookup from the plan database before the model can respond.' },
-        { id: 't5', label: 'Check whether an SLA window is met live', zone: 'unreliable', why: 'Needs real timestamps and a clock — even with tools the silent-failure risk is too high.' },
-        { id: 't6', label: 'Make a binding compliance determination', zone: 'unreliable', why: 'Cannot be safely automated by a completion model regardless of context.' },
+        { id: 't1', ticket: 'OPS-101', label: 'Draft a provider complaint reply',         zone: 'reliable',   priority: 'med',    why: 'Drafting from a complaint description is language work.' },
+        { id: 't2', ticket: 'OPS-102', label: 'Classify an escalation by category',       zone: 'reliable',   priority: 'med',    why: 'Reading the text and picking a label is a language task.' },
+        { id: 't3', ticket: 'OPS-103', label: 'Answer a handbook policy question',        zone: 'extended',   priority: 'high',   why: 'Reliable when the right section is retrieved into the prompt.' },
+        { id: 't4', ticket: 'OPS-104', label: 'Look up current premium for a plan',       zone: 'extended',   priority: 'high',   why: 'Needs a plan-DB lookup before the model can respond.' },
+        { id: 't5', ticket: 'OPS-105', label: 'Check whether an SLA window is met live',  zone: 'unreliable', priority: 'urgent', why: 'Needs real timestamps; silent-failure risk too high.' },
+        { id: 't6', ticket: 'OPS-106', label: 'Make a binding compliance determination',  zone: 'unreliable', priority: 'urgent', why: 'Cannot be safely automated by a completion model.' },
       ];
 
   const [placed, setPlaced] = useState<Record<string, ZoneKey>>({});
+  const [picked, setPicked] = useState<string | null>(null);
   const [wrong, setWrong] = useState<string | null>(null);
 
   const tray = TASKS.filter(t => !placed[t.id]);
   const correctCount = Object.entries(placed).filter(([id, z]) => TASKS.find(t => t.id === id)?.zone === z).length;
   const sorted = Object.keys(placed).length === TASKS.length;
 
-  const tryPlace = (taskId: string, zone: ZoneKey) => {
-    const task = TASKS.find(t => t.id === taskId);
+  const tryDrop = (zone: ZoneKey) => {
+    if (!picked) return;
+    const task = TASKS.find(t => t.id === picked);
     if (!task) return;
     if (task.zone !== zone) {
-      setWrong(taskId);
+      setWrong(picked);
       setTimeout(() => setWrong(null), 600);
       return;
     }
-    setPlaced(prev => ({ ...prev, [taskId]: zone }));
+    setPlaced(prev => ({ ...prev, [picked]: zone }));
+    setPicked(null);
+  };
+  const reset = () => { setPlaced({}); setPicked(null); setWrong(null); };
+
+  const projectName = track === 'tech' ? 'claims-ai/triage' : 'ops-ai/exception-triage';
+
+  // Linear colours
+  const linearBg = '#08090A';
+  const linearPanel = '#101113';
+  const linearPanelLight = '#181A1D';
+  const linearBorder = '#222428';
+  const inkPrimary = '#E1E3E6';
+  const inkSecondary = '#888C94';
+  const inkMuted = '#5D6168';
+  const linearAccent = '#5E6AD2';
+
+  const priorityIcon = (p: Task['priority']) => {
+    const color = p === 'urgent' ? '#EF4444' : p === 'high' ? '#F59E0B' : p === 'med' ? '#888C94' : '#5D6168';
+    const bars = p === 'urgent' ? 4 : p === 'high' ? 3 : p === 'med' ? 2 : 1;
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'flex-end', gap: 1.5, height: 11 }}>
+        {[1, 2, 3, 4].map(b => (
+          <div key={b} style={{ width: 2.5, height: 3 + b * 1.5, background: b <= bars ? color : '#2A2D33', borderRadius: 1 }} />
+        ))}
+      </div>
+    );
   };
 
-  const reset = () => { setPlaced({}); setWrong(null); };
-
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: 12, padding: '20px 24px', fontFamily: 'inherit' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>CAPABILITY ZONE MAP — SORT EACH TASK</div>
-        <div style={{ fontSize: 10, color: '#78716C', fontFamily: "'JetBrains Mono', monospace" }}>{correctCount}/{TASKS.length} placed</div>
+    <div style={{
+      background: linearBg,
+      borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${linearBorder}`,
+      boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: inkPrimary,
+      fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Title bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', background: linearPanel, borderBottom: `1px solid ${linearBorder}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: linearAccent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11 }}>L</div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: inkPrimary }}>Linear</span>
+          <span style={{ color: inkMuted, fontSize: 11 }}>/</span>
+          <span style={{ fontSize: 11.5, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>{projectName}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ padding: '3px 9px', borderRadius: 4, background: linearPanelLight, border: `1px solid ${linearBorder}`, fontSize: 10, color: inkSecondary }}>Filter</div>
+          <div style={{ padding: '3px 9px', borderRadius: 4, background: linearPanelLight, border: `1px solid ${linearBorder}`, fontSize: 10, color: inkSecondary }}>Group by status</div>
+        </div>
       </div>
 
-      {/* Zone columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 14 }}>
-        {ZONES.map(z => {
+      {/* View tabs */}
+      <div style={{ padding: '6px 14px', background: linearBg, borderBottom: `1px solid ${linearBorder}`, display: 'flex', gap: 4 }}>
+        {['Active', 'Backlog', 'All issues'].map((v, i) => (
+          <div key={v} style={{
+            padding: '4px 10px', borderRadius: 5, fontSize: 11,
+            fontWeight: 600,
+            color: i === 0 ? inkPrimary : inkMuted,
+            background: i === 0 ? linearPanelLight : 'transparent',
+          }}>{v}</div>
+        ))}
+        <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: inkMuted, alignSelf: 'center' as const }}>{TASKS.length - tray.length}/{TASKS.length} sorted</div>
+      </div>
+
+      {/* Three columns */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderBottom: `1px solid ${linearBorder}` }}>
+        {ZONES.map((z, i) => {
           const occupants = TASKS.filter(t => placed[t.id] === z.key);
+          const isDropTarget = picked !== null;
           return (
-            <div key={z.key} style={{ background: z.bg, border: `1px solid ${z.border}`, borderRadius: 8, padding: 12, minHeight: 130 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: z.color }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: z.color }}>{z.label}</span>
-              </div>
-              <div style={{ fontSize: 9.5, color: '#78716C', marginBottom: 10 }}>{z.sub}</div>
-              {occupants.map(t => (
-                <div key={t.id} style={{ background: 'var(--ed-card)', border: `1px solid ${z.border}`, borderRadius: 6, padding: '6px 8px', marginBottom: 6 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#44403C' }}>{t.label}</div>
-                  <div style={{ fontSize: 9.5, color: z.color, marginTop: 3, lineHeight: 1.45 }}>{t.why}</div>
+            <div
+              key={z.key}
+              onClick={() => isDropTarget && tryDrop(z.key)}
+              style={{
+                background: isDropTarget ? z.bg : linearBg,
+                borderRight: i < 2 ? `1px solid ${linearBorder}` : 'none',
+                padding: '10px 12px',
+                minHeight: 180,
+                cursor: isDropTarget ? 'pointer' : 'default',
+                transition: 'background 0.15s',
+              }}
+            >
+              {/* Column header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', border: `2px solid ${z.color}`, background: 'transparent' }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: inkPrimary }}>{z.label}</span>
+                  <span style={{ fontSize: 10, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{occupants.length}</span>
                 </div>
-              ))}
-              {occupants.length === 0 && (
-                <div style={{ fontSize: 10, color: '#A8A29E', fontStyle: 'italic' as const }}>(empty)</div>
-              )}
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 700, color: z.color, letterSpacing: '0.08em' }}>{z.pill}</span>
+              </div>
+              <div style={{ fontSize: 9.5, color: inkMuted, marginBottom: 10 }}>{z.sub}</div>
+
+              {/* Cards */}
+              <div style={{ display: 'grid', gap: 5 }}>
+                {occupants.map(t => (
+                  <div key={t.id} style={{
+                    padding: '7px 9px',
+                    background: linearPanelLight,
+                    border: `1px solid ${z.color}40`,
+                    borderRadius: 6,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                      {priorityIcon(t.priority)}
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{t.ticket}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: 9, color: z.color }}>✓</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: inkPrimary, fontWeight: 600, marginBottom: 3 }}>{t.label}</div>
+                    <div style={{ fontSize: 9.5, color: z.color, lineHeight: 1.45 }}>{t.why}</div>
+                  </div>
+                ))}
+                {occupants.length === 0 && (
+                  <div style={{ fontSize: 10, color: '#3A3D43', fontStyle: 'italic' as const, padding: '8px 0' }}>No issues</div>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Tray */}
+      {/* Backlog tray */}
       {!sorted && (
-        <div style={{ background: 'var(--ed-card)', border: '1px solid #E7E5E4', borderRadius: 8, padding: 12 }}>
-          <div style={{ fontSize: 9.5, color: '#78716C', letterSpacing: '0.12em', marginBottom: 8, fontFamily: "'JetBrains Mono', monospace" }}>TASKS TO SORT — PICK A ZONE FOR EACH</div>
-          {tray.map(t => (
-            <div key={t.id} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.04)',
-              background: wrong === t.id ? 'rgba(220,38,38,0.08)' : 'transparent',
-              transition: 'background 0.2s',
-            }}>
-              <span style={{ fontSize: 12, color: '#44403C' }}>{t.label}</span>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {ZONES.map(z => (
-                  <button
-                    key={z.key}
-                    type="button"
-                    onClick={() => tryPlace(t.id, z.key)}
-                    style={{
-                      appearance: 'none',
-                      cursor: 'pointer',
-                      background: 'transparent',
-                      border: `1px solid ${z.border}`,
-                      borderRadius: 5,
-                      padding: '4px 8px',
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: z.color,
-                      fontFamily: 'inherit',
-                    }}
-                  >{z.label}</button>
-                ))}
-              </div>
+        <div style={{ padding: '10px 12px', background: linearPanel }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', border: `2px solid #888C94`, background: 'transparent' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: inkPrimary }}>Backlog</span>
+              <span style={{ fontSize: 10, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{tray.length}</span>
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* All sorted */}
-      {sorted && (
-        <div style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.35)', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: 9.5, fontWeight: 700, color: '#16A34A', letterSpacing: '0.12em', fontFamily: "'JetBrains Mono', monospace" }}>ALL TASKS SORTED</div>
-            <div style={{ fontSize: 11, color: '#44403C', marginTop: 2 }}>Reliable zone = language tasks. Everything else needs more than a model call.</div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{picked ? 'click a column to assign' : 'click a card to pick it up'}</span>
           </div>
-          <button
-            type="button"
-            onClick={reset}
-            style={{ appearance: 'none', cursor: 'pointer', background: 'var(--ed-card)', border: '1px solid #E7E5E4', borderRadius: 6, padding: '6px 10px', fontSize: 10, fontWeight: 700, color: '#44403C', fontFamily: 'inherit' }}
-          >Reset</button>
+          <div style={{ display: 'grid', gap: 4 }}>
+            {tray.map(t => {
+              const isPicked = picked === t.id;
+              const isWrong = wrong === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setPicked(prev => prev === t.id ? null : t.id)}
+                  style={{
+                    appearance: 'none', cursor: 'pointer',
+                    background: isPicked ? 'rgba(94,106,210,0.15)' : linearPanelLight,
+                    border: `1px solid ${isWrong ? '#EF4444' : isPicked ? linearAccent : linearBorder}`,
+                    borderRadius: 6,
+                    padding: '7px 10px',
+                    textAlign: 'left' as const,
+                    fontFamily: 'inherit',
+                    animation: isWrong ? 'cz-shake 0.4s' : undefined,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {priorityIcon(t.priority)}
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted }}>{t.ticket}</span>
+                    <span style={{ fontSize: 11, color: inkPrimary, flex: 1 }}>{t.label}</span>
+                    {isPicked && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: linearAccent, letterSpacing: '0.10em' }}>PICKED ↑</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      <div style={{ marginTop: 12, fontSize: 10.5, color: '#78716C', lineHeight: 1.55 }}>
-        <strong style={{ color: '#44403C' }}>Key question:</strong> Does the correct answer require a fact from a live system not in the prompt? → Extended or Unreliable.
+      {/* Status bar */}
+      <div style={{ padding: '6px 14px', background: linearPanel, borderTop: `1px solid ${linearBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: sorted ? '#10B981' : inkMuted }}>
+          {sorted ? `✓ ALL ${TASKS.length} ISSUES TRIAGED · ${correctCount}/${TASKS.length} correct` : `${correctCount}/${TASKS.length} triaged`}
+        </span>
+        {Object.keys(placed).length > 0 && (
+          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: `1px solid ${linearBorder}`, borderRadius: 5, padding: '3px 10px', fontSize: 10, fontWeight: 700, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESET</button>
+        )}
       </div>
+
+      <style>{`@keyframes cz-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }`}</style>
     </div>
   );
 };
 
-// Tab-switchable brief comparison. Learner toggles between Vague and Specified
-// briefs to watch the output drift from generic filler to structured analysis.
+// PromptCompareCard rebuilt as two real ChatGPT windows side-by-side.
+// Same model badge (GPT-4o), same temperature, same user — only the
+// system+user message changes. Left column shows the vague brief and
+// generic-filler reply; right column shows the specified brief and
+// structured analysis. Toggle pill highlights the active column.
 const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
   const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
   const vague = track === 'tech' ? 'Summarise this case note.' : 'What should I do about this case?';
@@ -333,62 +562,112 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
   const specificOutput = track === 'tech'
     ? 'Category: Disputed claim — pharmacy benefit. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High.'
     : 'Category: Overdue exception request — provider credentialing. Recommended next step: Assign to credentialing team with 24h SLA flag; case has been pending 11 days past standard window.';
+  const taskInput = track === 'tech'
+    ? 'Patient: Sarah Donovan, 42F · Plan B Tier 2 · Treating physician Dr. Patel requested override for compounded pharmacy benefit; system rejected …'
+    : 'Provider: Dr. Mehta, Northstar West clinic. Credentialing exception submitted 11 days ago. Status: awaiting CMS verification. SLA: 14 days …';
 
-  const TABS = [
-    { id: 'vague',    label: `Vague brief — ${protagonist}'s first attempt`,    prompt: vague,    output: vagueOutput,    accent: '#DC2626', verdict: 'Model filled the missing spec with generic filler.' },
-    { id: 'specific', label: `Specified brief — ${protagonist} after coaching`, prompt: specific, output: specificOutput, accent: '#16A34A', verdict: 'Format, role, length, audience all named — model has nothing left to invent.' },
-  ] as const;
-  type TabId = typeof TABS[number]['id'];
-  const [tab, setTab] = useState<TabId>('vague');
-  const active = TABS.find(t => t.id === tab)!;
+  const [focused, setFocused] = useState<'vague' | 'specific' | null>(null);
 
-  return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E9ECEF', borderRadius: 12, padding: '16px 18px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 12 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#6B7280', fontFamily: "'JetBrains Mono', monospace" }}>BRIEF COMPARE — TOGGLE TO COMPARE OUTPUTS</div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {TABS.map(t => {
-            const isActive = t.id === tab;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTab(t.id)}
-                style={{
-                  appearance: 'none',
-                  cursor: 'pointer',
-                  background: isActive ? `${t.accent}18` : 'var(--ed-card)',
-                  border: `1px solid ${isActive ? t.accent : '#E9ECEF'}`,
-                  borderRadius: 6,
-                  padding: '5px 10px',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: isActive ? t.accent : '#6B7280',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: '0.06em',
-                }}
-              >{t.id === 'vague' ? 'VAGUE' : 'SPECIFIED'}</button>
-            );
-          })}
+  const cgptBg = '#212121';
+  const cgptSurface = '#2F2F2F';
+  const cgptInk = '#ECECEC';
+  const cgptSub = '#A0A0A0';
+  const cgptMuted = '#666666';
+  const cgptAccent = '#10A37F';
+  const border = '#3F3F3F';
+
+  const Window = ({ kind }: { kind: 'vague' | 'specific' }) => {
+    const isVague = kind === 'vague';
+    const isFocus = focused === kind;
+    const accent = isVague ? '#EF4444' : '#10A37F';
+    const verdict = isVague
+      ? 'Model filled every missing dimension with generic filler.'
+      : 'Format, role, length, audience all named — model has nothing left to invent.';
+    return (
+      <div
+        onMouseEnter={() => setFocused(kind)}
+        onMouseLeave={() => setFocused(null)}
+        style={{
+          background: cgptBg,
+          borderRight: isVague ? `1px solid ${border}` : 'none',
+          display: 'flex', flexDirection: 'column' as const,
+          minWidth: 0,
+        }}
+      >
+        {/* ChatGPT window header */}
+        <div style={{ padding: '8px 14px', borderBottom: `1px solid ${border}`, background: '#181818', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 18, height: 18, borderRadius: 4, background: cgptAccent, color: '#fff', fontWeight: 900, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>◯</div>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: cgptInk }}>ChatGPT</span>
+            <span style={{ color: cgptMuted, fontSize: 10 }}>·</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: cgptSub }}>{isVague ? `${protagonist} — first try` : `${protagonist} — after coaching`}</span>
+          </div>
+          <div style={{ padding: '2px 7px', borderRadius: 4, background: `${accent}1A`, border: `1px solid ${accent}50`, fontSize: 9.5, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{isVague ? 'VAGUE' : 'SPECIFIED'}</div>
+        </div>
+
+        {/* Chat thread */}
+        <div style={{ padding: '14px 14px', flex: 1, minHeight: 0 }}>
+          {/* System message banner (specific only) */}
+          {!isVague && (
+            <div style={{ padding: '8px 11px', background: 'rgba(16,163,127,0.07)', border: `1px dashed rgba(16,163,127,0.40)`, borderRadius: 7, marginBottom: 10 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptAccent, letterSpacing: '0.10em', marginBottom: 3 }}>SYSTEM · custom instructions</div>
+              <div style={{ fontSize: 11, color: cgptInk, lineHeight: 1.55, fontFamily: "'JetBrains Mono', monospace" }}>{specific.split('. ')[0]}.</div>
+            </div>
+          )}
+
+          {/* User bubble */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#444', color: '#fff', fontWeight: 800, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{protagonist[0]}</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em' }}>{protagonist.toUpperCase()}</span>
+            </div>
+            <div style={{ maxWidth: '90%', padding: '9px 12px', background: cgptSurface, borderRadius: '12px 12px 4px 12px', fontSize: 12, color: cgptInk, lineHeight: 1.55, fontStyle: isVague ? 'italic' as const : 'normal' as const }}>
+              {isVague ? vague : specific}
+              <div style={{ marginTop: 6, padding: '6px 9px', background: '#1A1A1A', borderRadius: 6, fontSize: 10.5, color: cgptSub, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.5 }}>{taskInput}</div>
+            </div>
+          </div>
+
+          {/* Assistant bubble */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: cgptAccent, color: '#fff', fontWeight: 900, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>◯</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em' }}>CHATGPT</span>
+              <span style={{ fontSize: 9, color: cgptMuted, fontFamily: "'JetBrains Mono', monospace" }}>· gpt-4o</span>
+            </div>
+            <div style={{ maxWidth: '90%', padding: '9px 12px', background: 'transparent', border: `1px solid ${isFocus ? accent : border}`, borderRadius: '12px 12px 12px 4px', fontSize: 12, color: cgptInk, lineHeight: 1.6 }}>
+              {isVague ? vagueOutput : specificOutput}
+            </div>
+          </div>
+        </div>
+
+        {/* Verdict footer */}
+        <div style={{ padding: '8px 14px', borderTop: `1px solid ${border}`, background: '#181818' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: accent, letterSpacing: '0.10em', marginBottom: 3, fontWeight: 700 }}>{isVague ? '✗ WHY THIS DRIFTS' : '✓ WHY THIS LANDS'}</div>
+          <div style={{ fontSize: 10.5, color: cgptSub, lineHeight: 1.55 }}>{verdict}</div>
         </div>
       </div>
+    );
+  };
 
-      <div style={{ fontSize: 10, color: active.accent, fontWeight: 700, letterSpacing: '0.06em', fontFamily: "'JetBrains Mono', monospace", marginBottom: 10 }}>
-        {active.label.toUpperCase()}
+  return (
+    <div style={{
+      background: cgptBg, borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${border}`, boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: cgptInk, fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Top bar */}
+      <div style={{ padding: '8px 14px', background: '#0E0E0E', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {(['#FF5F57', '#FEBC2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
+        </div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: cgptMuted, letterSpacing: '0.10em' }}>SAME MODEL · SAME USER · SAME INPUT · DIFFERENT BRIEF</span>
+        <div style={{ width: 30 }} />
       </div>
 
-      <div style={{ background: 'var(--ed-card)', border: `1px solid ${active.accent}33`, borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 4, fontFamily: "'JetBrains Mono', monospace" }}>PROMPT</div>
-        <div style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.65, fontStyle: 'italic' as const }}>&ldquo;{active.prompt}&rdquo;</div>
-      </div>
-
-      <div style={{ background: 'var(--ed-card)', border: '1px solid #E9ECEF', borderRadius: 6, padding: '10px 12px', marginBottom: 10 }}>
-        <div style={{ fontSize: 9, color: '#6B7280', marginBottom: 4, fontFamily: "'JetBrains Mono', monospace" }}>MODEL OUTPUT</div>
-        <div style={{ fontSize: 11.5, color: '#374151', lineHeight: 1.65 }}>{active.output}</div>
-      </div>
-
-      <div style={{ fontSize: 10.5, color: active.accent, lineHeight: 1.55 }}>
-        <strong>{tab === 'vague' ? 'Why this drifts:' : 'Why this lands:'}</strong> {active.verdict}
+      {/* Side-by-side windows */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+        <Window kind="vague" />
+        <Window kind="specific" />
       </div>
     </div>
   );
@@ -396,38 +675,44 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
 
 // Tab-switchable context packet. Toggle to see the same prompt run on a
 // complete vs broken payload — and what the model actually returned in each.
+// ContextPacketCard rebuilt as a real Postman / Insomnia request inspector.
+// HTTP method + URL bar at the top, environment selector with COMPLETE/BROKEN
+// switching, a 200 OK status row with response time, then the request body
+// (JSON) on the left and the response body (model output) on the right.
+// Fields in the request body render with proper syntax tinting and missing
+// values get the red null/blank flag treatment that any API debugger uses.
 const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
-  const goodFields = track === 'tech'
+  type Field = { key: string; value: string; ok: boolean; type?: 'string' | 'number' | 'null' };
+  const goodFields: Field[] = track === 'tech'
     ? [
-        { label: 'patient_id', value: 'PT-88412', ok: true },
-        { label: 'claim_amount', value: '$2,840.00', ok: true },
-        { label: 'case_note', value: '847 chars — complete', ok: true },
-        { label: 'intake_form', value: 'structured JSON', ok: true },
-        { label: 'policy_tier', value: 'Tier 2 — PPO', ok: true },
+        { key: 'patient_id',   value: '"PT-88412"',        ok: true,  type: 'string' },
+        { key: 'claim_amount', value: '2840.00',           ok: true,  type: 'number' },
+        { key: 'case_note',    value: '"847 chars — complete"', ok: true, type: 'string' },
+        { key: 'intake_form',  value: '{ … structured }',  ok: true,  type: 'string' },
+        { key: 'policy_tier',  value: '"Tier 2 — PPO"',    ok: true,  type: 'string' },
       ]
     : [
-        { label: 'case_id', value: 'ESC-2024-7712', ok: true },
-        { label: 'category', value: 'Provider credentialing', ok: true },
-        { label: 'submitted_date', value: '2024-03-01', ok: true },
-        { label: 'case_notes', value: '1,204 chars — complete', ok: true },
-        { label: 'attachments', value: '2 PDFs loaded', ok: true },
+        { key: 'case_id',        value: '"ESC-2024-7712"',         ok: true, type: 'string' },
+        { key: 'category',       value: '"Provider credentialing"', ok: true, type: 'string' },
+        { key: 'submitted_date', value: '"2024-03-01"',             ok: true, type: 'string' },
+        { key: 'case_notes',     value: '"1204 chars — complete"',  ok: true, type: 'string' },
+        { key: 'attachments',    value: '["PDF-1.pdf", "PDF-2.pdf"]', ok: true, type: 'string' },
       ];
-  const badFields = track === 'tech'
+  const badFields: Field[] = track === 'tech'
     ? [
-        { label: 'patient_id', value: 'PT-88412', ok: true },
-        { label: 'claim_amount', value: 'null', ok: false },
-        { label: 'case_note', value: 'truncated at 256 chars…', ok: false },
-        { label: 'intake_form', value: 'flattened string blob', ok: false },
-        { label: 'policy_tier', value: 'null', ok: false },
+        { key: 'patient_id',   value: '"PT-88412"',              ok: true,  type: 'string' },
+        { key: 'claim_amount', value: 'null',                    ok: false, type: 'null' },
+        { key: 'case_note',    value: '"truncated at 256 chars…"', ok: false, type: 'string' },
+        { key: 'intake_form',  value: '"flattened string blob"', ok: false, type: 'string' },
+        { key: 'policy_tier',  value: 'null',                    ok: false, type: 'null' },
       ]
     : [
-        { label: 'case_id', value: 'ESC-2024-4405', ok: true },
-        { label: 'category', value: '(blank)', ok: false },
-        { label: 'submitted_date', value: '2022-11-14', ok: true },
-        { label: 'case_notes', value: '(blank — pre-migration)', ok: false },
-        { label: 'attachments', value: '2 × "unavailable"', ok: false },
+        { key: 'case_id',        value: '"ESC-2024-4405"',  ok: true,  type: 'string' },
+        { key: 'category',       value: '""',               ok: false, type: 'string' },
+        { key: 'submitted_date', value: '"2022-11-14"',     ok: true,  type: 'string' },
+        { key: 'case_notes',     value: 'null',             ok: false, type: 'null' },
+        { key: 'attachments',    value: '["unavailable", "unavailable"]', ok: false, type: 'string' },
       ];
-
   const goodOutput = track === 'tech'
     ? 'Category: Disputed pharmacy benefit claim. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High. Risk: $2,840 exposure on PT-88412 if SLA breached.'
     : 'Category: Provider credentialing exception, submitted 2024-03-01 (case 7712). Recommended next step: Route to credentialing team; attached docs cover physician licensure and OON contract — sufficient for review without follow-up.';
@@ -435,63 +720,124 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
     ? 'A patient case was reviewed and requires further triage. The claim is being processed per standard procedure. Please escalate as needed.'
     : 'Based on the available information, this case requires standard review. We recommend following the appropriate escalation process based on category and urgency.';
 
-  const TABS = [
-    { id: 'good', label: '✓ COMPLETE PACKET', fields: goodFields, output: goodOutput, color: '#16A34A', verdict: 'Every field filled — model writes from facts, not pattern-filler.' },
-    { id: 'bad',  label: '✗ BROKEN PACKET',  fields: badFields,  output: badOutput,  color: '#DC2626', verdict: 'Missing fields silently — model generates plausible filler. No error thrown.' },
-  ] as const;
-  type TabId = typeof TABS[number]['id'];
-  const [tab, setTab] = useState<TabId>('good');
-  const active = TABS.find(t => t.id === tab)!;
+  const [env, setEnv] = useState<'good' | 'bad'>('good');
+  const active = env === 'good'
+    ? { fields: goodFields, output: goodOutput, accent: '#16A34A', label: 'PROD · complete packet',  pill: '200 OK', warning: 0 }
+    : { fields: badFields,  output: badOutput,  accent: '#EF4444', label: 'PROD · broken packet',   pill: '200 OK', warning: badFields.filter(f => !f.ok).length };
+  const url = track === 'tech'
+    ? 'POST  https://api.northstar.health/v1/claims/{id}/triage'
+    : 'POST  https://api.northstar.health/v1/exceptions/triage';
+
+  const inkPrimary = '#E5E7EB';
+  const inkSub = '#9CA3AF';
+  const inkMuted = '#5F6671';
+  const panelBg = '#1E1E1E';
+  const panelLight = '#252526';
+  const border = '#2D2D30';
+  const postman = '#FF6C37';
 
   return (
-    <div style={{ background: '#0D1117', borderRadius: 12, padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8B949E' }}>CONTEXT PACKET AUDIT — SAME PROMPT, DIFFERENT INPUTS</div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {TABS.map(t => {
-            const isActive = t.id === tab;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => setTab(t.id)}
-                style={{
-                  appearance: 'none',
-                  cursor: 'pointer',
-                  background: isActive ? `${t.color}28` : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${isActive ? t.color : 'rgba(255,255,255,0.08)'}`,
-                  borderRadius: 5,
-                  padding: '4px 8px',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: isActive ? t.color : '#7C7F84',
-                  fontFamily: 'inherit',
-                  letterSpacing: '0.06em',
-                }}
-              >{t.id === 'good' ? 'COMPLETE' : 'BROKEN'}</button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: active.color, marginBottom: 10 }}>{active.label}</div>
-          {active.fields.map((f, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <span style={{ fontSize: 10, color: '#8B949E' }}>{f.label}</span>
-              <span style={{ fontSize: 10, color: f.ok ? '#16A34A' : '#DC2626', fontWeight: f.ok ? 400 : 600 }}>{f.value}</span>
-            </div>
+    <div style={{
+      background: panelBg, borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${border}`, boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: inkPrimary, fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Title bar */}
+      <div style={{ padding: '8px 14px', background: '#191919', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: 18, height: 18, borderRadius: 4, background: postman, color: '#fff', fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>P</div>
+        <span style={{ fontSize: 12, fontWeight: 700, color: inkPrimary }}>Postman</span>
+        <span style={{ color: inkMuted, fontSize: 11 }}>·</span>
+        <span style={{ fontSize: 11, color: inkSub }}>northstar / triage-request</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>ENVIRONMENT</span>
+          {(['good', 'bad'] as const).map(e => (
+            <button
+              key={e}
+              type="button"
+              onClick={() => setEnv(e)}
+              style={{
+                appearance: 'none', cursor: 'pointer',
+                background: env === e ? (e === 'good' ? 'rgba(22,163,74,0.18)' : 'rgba(239,68,68,0.18)') : 'transparent',
+                border: `1px solid ${env === e ? (e === 'good' ? '#22C55E' : '#EF4444') : border}`,
+                borderRadius: 5, padding: '3px 10px',
+                fontSize: 10, fontWeight: 700,
+                color: env === e ? (e === 'good' ? '#86EFAC' : '#FCA5A5') : inkMuted,
+                fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em',
+              }}
+            >{e === 'good' ? 'COMPLETE' : 'BROKEN'}</button>
           ))}
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '12px 14px' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#8B949E', marginBottom: 10, letterSpacing: '0.08em' }}>MODEL OUTPUT</div>
-          <div style={{ fontSize: 10.5, color: '#C9D1D9', lineHeight: 1.65, fontFamily: "'Lora', Georgia, serif" }}>{active.output}</div>
+      </div>
+
+      {/* URL bar with HTTP method */}
+      <div style={{ padding: '10px 14px', background: '#1F1F1F', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ padding: '5px 12px', background: postman, color: '#fff', borderRadius: 5, fontWeight: 800, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}>POST</div>
+        <div style={{ flex: 1, padding: '5px 11px', background: '#262626', border: `1px solid ${border}`, borderRadius: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: inkPrimary }}>{url.split('  ')[1]}</div>
+        <button type="button" style={{ appearance: 'none', cursor: 'default', padding: '5px 14px', background: '#0E84F5', border: 'none', borderRadius: 5, fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: 'inherit' }}>Send</button>
+      </div>
+
+      {/* Status row */}
+      <div style={{ padding: '6px 14px', background: '#181818', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', gap: 14, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
+        <span style={{ color: '#22C55E', fontWeight: 700 }}>● {active.pill}</span>
+        <span style={{ color: inkSub }}>Time <span style={{ color: inkPrimary }}>340 ms</span></span>
+        <span style={{ color: inkSub }}>Size <span style={{ color: inkPrimary }}>{env === 'good' ? '1.4 KB' : '0.8 KB'}</span></span>
+        {active.warning > 0 && <span style={{ color: '#FBBF24', marginLeft: 'auto', fontWeight: 700 }}>⚠ {active.warning} fields null / truncated</span>}
+      </div>
+
+      {/* Body + response */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+        {/* Request body */}
+        <div style={{ borderRight: `1px solid ${border}` }}>
+          <div style={{ padding: '7px 14px', background: panelLight, borderBottom: `1px solid ${border}`, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>REQUEST BODY · JSON</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{active.fields.length} keys</span>
+          </div>
+          <div style={{ padding: '10px 0', background: '#1A1A1A', fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, lineHeight: 1.65 }}>
+            <div style={{ display: 'flex', paddingLeft: 8 }}>
+              <span style={{ width: 24, color: inkMuted, textAlign: 'right', paddingRight: 10 }}>1</span>
+              <span style={{ color: inkPrimary }}>{'{'}</span>
+            </div>
+            {active.fields.map((f, i) => (
+              <div key={f.key} style={{ display: 'flex', paddingLeft: 8, background: !f.ok ? 'rgba(239,68,68,0.06)' : 'transparent' }}>
+                <span style={{ width: 24, color: inkMuted, textAlign: 'right', paddingRight: 10 }}>{i + 2}</span>
+                <span style={{ paddingLeft: 14 }}>
+                  <span style={{ color: '#9CDCFE' }}>"{f.key}"</span>
+                  <span style={{ color: inkPrimary }}>: </span>
+                  <span style={{ color: f.type === 'null' ? '#EF4444' : f.type === 'number' ? '#B5CEA8' : '#CE9178' }}>{f.value}</span>
+                  {i < active.fields.length - 1 && <span style={{ color: inkPrimary }}>,</span>}
+                  {!f.ok && <span style={{ marginLeft: 10, color: '#EF4444', fontSize: 9.5 }}>// missing</span>}
+                </span>
+              </div>
+            ))}
+            <div style={{ display: 'flex', paddingLeft: 8 }}>
+              <span style={{ width: 24, color: inkMuted, textAlign: 'right', paddingRight: 10 }}>{active.fields.length + 2}</span>
+              <span style={{ color: inkPrimary }}>{'}'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Response */}
+        <div>
+          <div style={{ padding: '7px 14px', background: panelLight, borderBottom: `1px solid ${border}`, display: 'flex', justifyContent: 'space-between' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>RESPONSE · model output</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#22C55E' }}>200 OK</span>
+          </div>
+          <div style={{ padding: '12px 14px', background: '#1A1A1A', fontSize: 11.5, color: inkPrimary, lineHeight: 1.65, minHeight: 120 }}>
+            {active.output}
+          </div>
         </div>
       </div>
 
-      <div style={{ marginTop: 12, fontSize: 10.5, color: active.color, lineHeight: 1.55 }}>
-        <strong>{tab === 'good' ? 'Why this works:' : 'Why this drifts silently:'}</strong> {active.verdict}
+      {/* Verdict bar */}
+      <div style={{ padding: '8px 14px', background: env === 'good' ? 'rgba(34,197,94,0.10)' : 'rgba(239,68,68,0.10)', borderTop: `1px solid ${active.accent}40` }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: active.accent, letterSpacing: '0.10em', fontWeight: 700, marginBottom: 3 }}>
+          {env === 'good' ? '✓ MODEL WROTE FROM FACTS' : '✗ MODEL DRIFTED INTO PLAUSIBLE FILLER'}
+        </div>
+        <div style={{ fontSize: 10.5, color: inkSub, lineHeight: 1.55 }}>
+          {env === 'good'
+            ? 'Every required field present and well-typed — model has hard facts to write from.'
+            : `${active.warning} fields silently null or truncated · model can\'t see the gap and fills it with generic prose. Status code is still 200 — nothing alerts.`}
+        </div>
       </div>
     </div>
   );
@@ -627,119 +973,167 @@ const UseCaseReadinessCard = ({ track }: { track: GenAITrack }) => {
     setRevealed({ language: false, bounded: false, verify: false, recover: false, observe: false });
   };
 
+  const verdictPriority = picked.verdict === 'Build first' ? 'urgent' : picked.verdict === 'Wait — needs review step' ? 'high' : 'low';
+
+  // Linear colours
+  const linearBg = '#08090A';
+  const linearPanel = '#101113';
+  const linearPanelLight = '#181A1D';
+  const linearBorder = '#222428';
+  const inkPrimary = '#E1E3E6';
+  const inkSecondary = '#888C94';
+  const inkMuted = '#5D6168';
+  const linearAccent = '#5E6AD2';
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: 12, padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8B949E', marginBottom: 14 }}>FIRST USE-CASE READINESS SCORER — PICK ONE, WALK THE CRITERIA</div>
-
-      {/* Candidate chooser */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
-        {CANDIDATES.map(c => {
-          const active = c.id === pickedId;
-          return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => switchCandidate(c.id)}
-              style={{
-                appearance: 'none',
-                cursor: 'pointer',
-                textAlign: 'left' as const,
-                background: active ? `rgba(${ACCENT_RGB},0.18)` : 'rgba(255,255,255,0.03)',
-                border: active ? `1.5px solid ${ACCENT}` : '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 8,
-                padding: '10px 12px',
-                color: '#C9D1D9',
-                fontFamily: 'inherit',
-              }}
-            >
-              <div style={{ fontSize: 9, color: active ? ACCENT : '#7C7F84', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4 }}>
-                OPTION {c.id === 'auto' ? '01' : c.id === 'review' ? '02' : '03'}
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#F0F6FC', lineHeight: 1.3, marginBottom: 6 }}>{c.label}</div>
-              <div style={{ fontSize: 9.5, color: '#8B949E', lineHeight: 1.45 }}>{c.blurb}</div>
-            </button>
-          );
-        })}
+    <div style={{
+      background: linearBg, borderRadius: 12, overflow: 'hidden',
+      border: `1px solid ${linearBorder}`, boxShadow: '0 14px 36px rgba(0,0,0,0.45)',
+      color: inkPrimary, fontFamily: 'Inter, -apple-system, system-ui, sans-serif',
+    }}>
+      {/* Title bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', background: linearPanel, borderBottom: `1px solid ${linearBorder}` }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 18, height: 18, borderRadius: 4, background: linearAccent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11 }}>L</div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: inkPrimary }}>Linear</span>
+          <span style={{ color: inkMuted, fontSize: 11 }}>/</span>
+          <span style={{ fontSize: 11.5, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>ai-platform/first-build-triage</span>
+        </div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted, letterSpacing: '0.10em' }}>BUILD-FIRST DECISION</span>
       </div>
 
-      {/* Criteria rows */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontSize: 9.5, color: '#8B949E', letterSpacing: '0.1em' }}>FIVE READINESS CRITERIA · CLICK TO REVEAL</span>
-          <span style={{ fontSize: 9, color: '#7C7F84' }}>{revealedCount}/{CRITERIA.length} revealed</span>
-        </div>
-        {CRITERIA.map(c => {
-          const isRevealed = revealed[c.key];
-          const row = picked.rows[c.key];
-          return (
-            <button
-              key={c.key}
-              type="button"
-              onClick={() => setRevealed(prev => ({ ...prev, [c.key]: true }))}
-              disabled={isRevealed}
-              style={{
-                appearance: 'none',
-                cursor: isRevealed ? 'default' : 'pointer',
-                textAlign: 'left' as const,
-                display: 'block',
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-                padding: '10px 0',
-                fontFamily: 'inherit',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                  background: isRevealed ? (row.pass ? 'rgba(22,163,74,0.18)' : 'rgba(220,38,38,0.18)') : 'rgba(255,255,255,0.06)',
-                  border: `1px solid ${isRevealed ? (row.pass ? '#16A34A' : '#DC2626') : 'rgba(255,255,255,0.16)'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: isRevealed ? (row.pass ? '#16A34A' : '#DC2626') : '#484F58',
-                  fontSize: 10, fontWeight: 800,
-                }}>{isRevealed ? (row.pass ? '✓' : '✗') : '?'}</div>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#F0F6FC' }}>{c.label}</div>
-                  <div style={{ fontSize: 9.5, color: '#8B949E', marginTop: 1 }}>{c.sub}</div>
-                  {isRevealed && (
-                    <div style={{ fontSize: 10, color: row.pass ? '#86EFAC' : '#FCA5A5', marginTop: 5, lineHeight: 1.5 }}>
-                      &rarr; {row.note}
-                    </div>
-                  )}
+      {/* Candidate row — like Linear's "Cycle" issue list */}
+      <div style={{ padding: '10px 14px', background: linearBg, borderBottom: `1px solid ${linearBorder}` }}>
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.12em', marginBottom: 8 }}>CANDIDATES · 3 issues</div>
+        <div style={{ display: 'grid', gap: 5 }}>
+          {CANDIDATES.map((c, i) => {
+            const isActive = c.id === pickedId;
+            const priorityColor = c.verdict === 'Build first' ? '#10B981' : c.verdict === 'Wait — needs review step' ? '#F59E0B' : '#EF4444';
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => switchCandidate(c.id)}
+                style={{
+                  appearance: 'none', cursor: 'pointer',
+                  display: 'block', width: '100%',
+                  padding: '7px 10px',
+                  background: isActive ? 'rgba(94,106,210,0.10)' : linearPanelLight,
+                  border: `1px solid ${isActive ? linearAccent : linearBorder}`,
+                  borderRadius: 6,
+                  textAlign: 'left' as const,
+                  fontFamily: 'inherit',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {/* Linear-style status circle */}
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid ${priorityColor}`, background: 'transparent', flexShrink: 0 }} />
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted }}>AI-1{i + 1}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 11.5, color: inkPrimary, fontWeight: 600, marginBottom: 2 }}>{c.label}</div>
+                    <div style={{ fontSize: 10, color: inkMuted, lineHeight: 1.45 }}>{c.blurb}</div>
+                  </div>
+                  {isActive && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: linearAccent, fontWeight: 800, letterSpacing: '0.10em' }}>FOCUSED</span>}
                 </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Body: criteria checklist + issue detail */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: 0 }}>
+        {/* Criteria checklist */}
+        <div style={{ borderRight: `1px solid ${linearBorder}`, padding: '12px 14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.12em' }}>READINESS CRITERIA · {revealedCount}/{CRITERIA.length} REVEALED</span>
+          </div>
+
+          {CRITERIA.map(c => {
+            const isRevealed = revealed[c.key];
+            const row = picked.rows[c.key];
+            return (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setRevealed(prev => ({ ...prev, [c.key]: true }))}
+                disabled={isRevealed}
+                style={{
+                  appearance: 'none', cursor: isRevealed ? 'default' : 'pointer',
+                  display: 'block', width: '100%',
+                  padding: '8px 0',
+                  background: 'transparent',
+                  border: 'none', borderBottom: `1px solid ${linearBorder}`,
+                  textAlign: 'left' as const,
+                  fontFamily: 'inherit',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  {/* Linear-style checkbox */}
+                  <div style={{
+                    width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                    border: `1.5px solid ${isRevealed ? (row.pass ? '#10B981' : '#EF4444') : '#3A3D43'}`,
+                    background: isRevealed ? (row.pass ? '#10B981' : 'transparent') : 'transparent',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: isRevealed && row.pass ? '#fff' : '#EF4444', fontSize: 10, fontWeight: 800,
+                    marginTop: 1,
+                  }}>{isRevealed ? (row.pass ? '✓' : '✗') : ''}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
+                      <span style={{ fontSize: 11.5, fontWeight: 700, color: inkPrimary, textDecoration: isRevealed && row.pass ? 'line-through' : 'none' }}>{c.label}</span>
+                      {isRevealed && <span style={{ padding: '1px 6px', borderRadius: 3, background: row.pass ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: row.pass ? '#10B981' : '#EF4444', fontWeight: 800, letterSpacing: '0.06em' }}>{row.pass ? 'PASS' : 'FAIL'}</span>}
+                    </div>
+                    <div style={{ fontSize: 10.5, color: inkMuted, lineHeight: 1.5 }}>{c.sub}</div>
+                    {isRevealed && (
+                      <div style={{ marginTop: 5, fontSize: 10.5, color: row.pass ? '#86EFAC' : '#FCA5A5', lineHeight: 1.55 }}>{row.note}</div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Right rail — issue properties */}
+        <div style={{ padding: '12px 14px', background: linearPanel, display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.12em', marginBottom: 5 }}>PROPERTIES</div>
+            {[
+              { k: 'Status',   v: allRevealed ? picked.verdict : 'Triage', c: allRevealed ? picked.verdictColor : '#888C94' },
+              { k: 'Priority', v: verdictPriority === 'urgent' ? 'Urgent' : verdictPriority === 'high' ? 'High' : 'Low', c: verdictPriority === 'urgent' ? '#EF4444' : verdictPriority === 'high' ? '#F59E0B' : '#888C94' },
+              { k: 'Cycle',    v: 'AI Q1 sprint', c: inkPrimary },
+              { k: 'Label',    v: picked.id === 'auto' ? 'risky' : picked.id === 'review' ? 'ready' : 'complex', c: picked.id === 'auto' ? '#EF4444' : picked.id === 'review' ? '#10B981' : '#F59E0B' },
+            ].map(p => (
+              <div key={p.k} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0' }}>
+                <span style={{ fontSize: 10.5, color: inkMuted }}>{p.k}</span>
+                <span style={{ fontSize: 10.5, color: p.c, fontWeight: 700 }}>{p.v}</span>
               </div>
-            </button>
-          );
-        })}
-      </div>
+            ))}
+          </div>
 
-      {/* Verdict ribbon */}
-      <div style={{
-        background: allRevealed ? `${picked.verdictColor}22` : 'rgba(255,255,255,0.03)',
-        border: `1px solid ${allRevealed ? picked.verdictColor : 'rgba(255,255,255,0.08)'}`,
-        borderRadius: 8,
-        padding: '10px 14px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: 12,
-      }}>
-        <div>
-          <div style={{ fontSize: 9, letterSpacing: '0.15em', color: allRevealed ? picked.verdictColor : '#7C7F84', fontWeight: 700, marginBottom: 2 }}>
-            VERDICT {allRevealed ? '' : '— REVEAL ALL CRITERIA'}
+          {/* Pass count */}
+          <div style={{ padding: '8px 10px', background: linearBg, border: `1px solid ${linearBorder}`, borderRadius: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>SCORE</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 3 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800, color: allRevealed ? picked.verdictColor : inkPrimary }}>{passCount}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: inkMuted }}>/ {CRITERIA.length}</span>
+            </div>
+            <div style={{ fontSize: 9.5, color: inkMuted, marginTop: 3 }}>criteria pass</div>
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: allRevealed ? '#F0F6FC' : '#7C7F84' }}>
-            {allRevealed ? picked.verdict : 'Walk every row before deciding.'}
-          </div>
-        </div>
-        <div style={{ fontSize: 11, color: '#8B949E', fontFamily: "'JetBrains Mono', monospace" }}>
-          {passCount}/{CRITERIA.length} pass
+
+          {/* Verdict callout */}
+          {allRevealed && (
+            <div style={{ padding: '9px 11px', background: `${picked.verdictColor}1A`, border: `1px solid ${picked.verdictColor}55`, borderRadius: 6 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: picked.verdictColor, letterSpacing: '0.10em', fontWeight: 700, marginBottom: 3 }}>VERDICT</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: inkPrimary, lineHeight: 1.4 }}>{picked.verdict}</div>
+            </div>
+          )}
         </div>
       </div>
 
-      <div style={{ marginTop: 10, fontSize: 10, color: '#484F58', lineHeight: 1.5 }}>
-        Three concrete candidates, five lenses, one bar. The first build maximises observability, not headline impact.
+      {/* Footer */}
+      <div style={{ padding: '7px 14px', background: linearPanel, borderTop: `1px solid ${linearBorder}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted, letterSpacing: '0.06em' }}>
+        Three concrete candidates · five lenses · one bar. The first build maximises observability, not headline impact.
       </div>
     </div>
   );
