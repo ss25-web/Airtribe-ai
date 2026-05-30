@@ -259,14 +259,26 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
       }
   , [track]);
 
+  // Ref guard prevents two stream() calls racing into the same response
+  // state when the Run button is double-tapped or React state hasn't yet
+  // flipped the disabled flag. Without this, both tick chains write
+  // interleaved bursts to setResponse(prev + ...) and the output looks
+  // like scrambled gibberish.
+  const streamingRef = useRef(false);
   const stream = useCallback((text: string) => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
     setResponse('');
     setRunning(true);
     setResponseKey(k => k + 1);
     const chars = Array.from(text);
     let i = 0;
     const tick = () => {
-      if (i >= chars.length) { setRunning(false); return; }
+      if (i >= chars.length) {
+        streamingRef.current = false;
+        setRunning(false);
+        return;
+      }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
       const next = chars.slice(i, i + burst).join('');
       setResponse(prev => prev + next);
@@ -518,13 +530,21 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
     return Math.max(1, Math.round(all.split(/\s+/).filter(Boolean).length * 1.35));
   }, [visibleExamples, response, SYSTEM, TEST_TICKET]);
 
+  // Ref guard against re-entrant streams that interleave gibberish.
+  const streamingRef = useRef(false);
   const stream = useCallback((text: string) => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
     setResponse('');
     setStreaming(true);
     const chars = Array.from(text);
     let i = 0;
     const tick = () => {
-      if (i >= chars.length) { setStreaming(false); return; }
+      if (i >= chars.length) {
+        streamingRef.current = false;
+        setStreaming(false);
+        return;
+      }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
       setResponse(prev => prev + chars.slice(i, i + burst).join(''));
       i += burst;
@@ -775,13 +795,21 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
       : 'During incident response, the user_sessions table was found to be corrupted following the database restart. A restore from the 13:55 UTC backup was initiated.';
   }, [criticalIncluded, criticalAttenuated, track]);
 
+  // Ref guard against re-entrant streams that interleave gibberish.
+  const streamingRef = useRef(false);
   const stream = useCallback((text: string) => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
     setResponse('');
     setStreaming(true);
     const chars = Array.from(text);
     let i = 0;
     const tick = () => {
-      if (i >= chars.length) { setStreaming(false); return; }
+      if (i >= chars.length) {
+        streamingRef.current = false;
+        setStreaming(false);
+        return;
+      }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
       setResponse(prev => prev + chars.slice(i, i + burst).join(''));
       i += burst;
