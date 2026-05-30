@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
@@ -12,6 +12,7 @@ import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
+import { ClaudeDesktopFrame, CDLabel, CD } from './claudeDesktopChrome';
 
 const ACCENT = '#0891B2';
 const ACCENT_RGB = '8,145,178';
@@ -207,244 +208,645 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // ── M3 Interactive Tools ─────────────────────────────────────────────────────
 
 // Section 01: Source Coverage Checker — user selects sources, pipeline evaluates coverage
+// SourcePipelineCard rebuilt as Claude Projects · Knowledge — the real
+// UI for attaching source documents to a Claude project. File list with
+// status pills, PDF/MD/SHEET file-type icons, learner adds the required
+// docs (checkbox column), then "Index for Claude" runs the simulated
+// embedding flow and grades source coverage.
+type Source = { id: string; label: string; required: boolean; kind: 'pdf' | 'md' | 'sheet' | 'doc'; size: string; note: string };
 const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
-  const sources = track === 'tech'
+  const sources: Source[] = track === 'tech'
     ? [
-        { id: 'primary', label: 'Primary Policy Document (v3)', required: true, note: 'Core terms — but doesn\'t include 2022 amendment' },
-        { id: 'amendment', label: 'Policy Amendment (Feb 2022)', required: true, note: 'Contains clause 4.2c — the override rule. Not in v3.' },
-        { id: 'precedents', label: 'Case Precedents Archive', required: true, note: 'Shows 3 prior approvals of same type — supports decision' },
-        { id: 'guidelines', label: 'Internal Claims Guidelines', required: false, note: 'Useful context but not decision-critical for this type' },
-        { id: 'faq', label: 'Benefits FAQ (public)', required: false, note: 'Member-facing language — not authoritative for triage' },
+        { id: 'primary',    label: 'plan-schedule-v3.pdf',         kind: 'pdf',   size: '212 KB', required: true,  note: 'Core terms — but does not include the 2022 amendment.' },
+        { id: 'amendment',  label: 'amendment-2022-02.pdf',         kind: 'pdf',   size: '64 KB',  required: true,  note: 'Contains clause 4.2c — the override rule. Not in v3.' },
+        { id: 'precedents', label: 'case-precedents.md',            kind: 'md',    size: '38 KB',  required: true,  note: 'Three prior approvals of the same type — supports the decision.' },
+        { id: 'guidelines', label: 'internal-claims-guidelines.md', kind: 'md',    size: '17 KB',  required: false, note: 'Useful context but not decision-critical for this query type.' },
+        { id: 'faq',        label: 'benefits-faq-public.md',        kind: 'md',    size: '11 KB',  required: false, note: 'Member-facing language — not authoritative for triage.' },
       ]
     : [
-        { id: 'ticket', label: 'Current Exception Ticket', required: true, note: 'The trigger — but context-free without history' },
-        { id: 'thread', label: 'Prior Week Context Thread', required: true, note: 'Contains the context the AI missed in your Tuesday review' },
-        { id: 'policy', label: 'Relevant Policy Clause', required: true, note: 'The rule governing this exception type — must be in scope' },
-        { id: 'flags', label: 'Open Escalation Flags', required: true, note: 'Other open items on this account that change the recommendation' },
-        { id: 'history', label: 'Account History (12 months)', required: false, note: 'Useful for patterns but not needed for weekly summary' },
+        { id: 'ticket',  label: 'current-exception.pdf',         kind: 'pdf',   size: '8 KB',   required: true,  note: 'The trigger — but context-free without prior history.' },
+        { id: 'thread',  label: 'prior-week-thread.md',          kind: 'md',    size: '23 KB',  required: true,  note: 'Contains the context the AI missed in Tuesday\'s review.' },
+        { id: 'policy',  label: 'sla-policy-v2.pdf',             kind: 'pdf',   size: '46 KB',  required: true,  note: 'The rule governing this exception type — must be in scope.' },
+        { id: 'flags',   label: 'open-escalation-flags.sheet',    kind: 'sheet', size: '4 KB',   required: true,  note: 'Other open items on this account that change the recommendation.' },
+        { id: 'history', label: 'account-history-12m.sheet',     kind: 'sheet', size: '88 KB',  required: false, note: 'Useful for trend analysis but not needed for the weekly summary.' },
       ];
+
   const [selected, setSelected] = useState<Set<string>>(new Set([track === 'tech' ? 'primary' : 'ticket']));
+  const [indexing, setIndexing] = useState<'idle' | 'running' | 'done'>('idle');
   const [revealed, setRevealed] = useState(false);
   const requiredIds = sources.filter(s => s.required).map(s => s.id);
   const coveredRequired = requiredIds.filter(id => selected.has(id)).length;
-  const toggle = (id: string) => { if (revealed) return; setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; }); };
+  const isComplete = coveredRequired === requiredIds.length;
+
+  const toggle = (id: string) => {
+    if (indexing !== 'idle' || revealed) return;
+    setSelected(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+
+  const runIndex = () => {
+    setIndexing('running');
+    setTimeout(() => { setIndexing('done'); setRevealed(true); }, 1300);
+  };
+
+  const reset = () => { setSelected(new Set([track === 'tech' ? 'primary' : 'ticket'])); setIndexing('idle'); setRevealed(false); };
+
+  const projectName = track === 'tech' ? 'Claims policy assistant' : 'Exception review assistant';
+  const totalSelectedSize = sources.filter(s => selected.has(s.id)).reduce((sum, s) => sum + parseInt(s.size), 0);
+
+  const kindIcon = (k: Source['kind']) => k === 'pdf' ? { icon: 'PDF', color: '#F87171' } : k === 'sheet' ? { icon: 'CSV', color: '#34D399' } : { icon: 'MD',  color: CD.tool };
+
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>SOURCE COVERAGE CHECKER</div>
-      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Which sources should your pipeline read for this query type? Check all that apply.</div>
-      <div style={{ display: 'grid', gap: '7px', marginBottom: '14px' }}>
+    <ClaudeDesktopFrame chatTitle={`Project · ${projectName}`} view="KNOWLEDGE" mcpServers={0}>
+      {/* Sub-header */}
+      <div style={{ padding: '10px 14px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <CDLabel>PROJECT KNOWLEDGE · attach docs Claude will read every chat</CDLabel>
+          <div style={{ fontSize: 11, color: CD.inkSecondary, marginTop: 4 }}>Claude will retrieve from these documents when relevant. Choose what belongs in scope for this query type.</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CD.inkMuted }}>{selected.size}/{sources.length} attached · {totalSelectedSize} KB</span>
+        </div>
+      </div>
+
+      {/* File list */}
+      <div style={{ background: CD.bg }}>
         {sources.map(s => {
-          const isSelected = selected.has(s.id);
-          const isMissing = revealed && s.required && !isSelected;
-          const isCorrect = revealed && s.required && isSelected;
-          const isExtra = revealed && !s.required && isSelected;
+          const isOn = selected.has(s.id);
+          const isMissing = revealed && s.required && !isOn;
+          const isRight = revealed && s.required && isOn;
+          const isExtra = revealed && !s.required && isOn;
+          const ki = kindIcon(s.kind);
           return (
-            <div key={s.id} onClick={() => toggle(s.id)} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1.5px solid ${isMissing ? '#DC2626' : isCorrect ? '#16A34A' : isExtra ? '#F59E0B' : isSelected ? '#0891B2' : '#E7E5E4'}`, background: isMissing ? 'rgba(239,68,68,0.12)' : isCorrect ? 'rgba(16,185,129,0.12)' : isExtra ? 'rgba(245,158,11,0.12)' : isSelected ? 'rgba(8,145,178,0.06)' : '#fff', cursor: revealed ? 'default' : 'pointer', transition: 'all 0.15s' }}>
-              <div style={{ width: '18px', height: '18px', borderRadius: '4px', border: `2px solid ${isSelected ? '#0891B2' : '#D1D5DB'}`, background: isSelected ? '#0891B2' : '#fff', flexShrink: 0, marginTop: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '11px' }}>{isSelected ? '✓' : ''}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: '#292524' }}>{s.label}</div>
-                {revealed && <div style={{ fontSize: '11px', marginTop: '3px', color: isMissing ? '#DC2626' : isCorrect ? '#16A34A' : '#92400E' }}>{isMissing ? '✗ Required — missing from your pipeline' : isCorrect ? '✓ Required — good' : isExtra ? '→ Optional — useful but not critical' : ''} &nbsp;{s.note}</div>}
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => toggle(s.id)}
+              disabled={revealed || indexing !== 'idle'}
+              style={{
+                appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                display: 'block', width: '100%',
+                padding: '10px 14px', borderBottom: `1px solid ${CD.border}`,
+                background: isMissing ? 'rgba(248,113,113,0.07)' : isRight ? 'rgba(16,185,129,0.07)' : isExtra ? 'rgba(252,211,77,0.07)' : 'transparent',
+                textAlign: 'left' as const, fontFamily: 'inherit',
+              }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '24px 36px 1fr 70px 90px', gap: 10, alignItems: 'center' }}>
+                {/* Checkbox */}
+                <div style={{
+                  width: 16, height: 16, borderRadius: 3,
+                  border: `1.5px solid ${isOn ? CD.accent : '#3A3A3A'}`,
+                  background: isOn ? CD.accent : 'transparent',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 10, fontWeight: 800,
+                }}>{isOn ? '✓' : ''}</div>
+
+                {/* File type chip */}
+                <div style={{ width: 32, height: 28, borderRadius: 4, background: `${ki.color}1A`, border: `1px solid ${ki.color}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: ki.color }}>{ki.icon}</div>
+
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: CD.inkPrimary, fontFamily: "'JetBrains Mono', monospace" }}>{s.label}</div>
+                  {revealed && <div style={{ fontSize: 10.5, color: isMissing ? '#FCA5A5' : isRight ? '#86EFAC' : '#FCD34D', marginTop: 3, lineHeight: 1.5 }}>{isMissing ? '✗ Required — missing from project' : isRight ? '✓ Required source' : '→ Optional · noisy'}<span style={{ color: CD.inkMuted, marginLeft: 8 }}>{s.note}</span></div>}
+                </div>
+
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CD.inkMuted }}>{s.size}</span>
+
+                {s.required ? (
+                  <span style={{ padding: '2px 7px', borderRadius: 3, background: 'rgba(198,107,61,0.12)', border: `1px solid ${CD.accent}40`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: CD.accent, letterSpacing: '0.06em', justifySelf: 'end' as const }}>REQUIRED</span>
+                ) : (
+                  <span style={{ padding: '2px 7px', borderRadius: 3, background: 'rgba(255,255,255,0.04)', border: `1px solid ${CD.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.06em', justifySelf: 'end' as const }}>OPTIONAL</span>
+                )}
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
-      {!revealed
-        ? <div onClick={() => setRevealed(true)} style={{ padding: '9px 20px', background: '#0891B2', color: '#fff', borderRadius: '7px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', textAlign: 'center' as const }}>Evaluate My Pipeline</div>
-        : <div style={{ padding: '12px 16px', borderRadius: '8px', background: coveredRequired === requiredIds.length ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${coveredRequired === requiredIds.length ? '#BBF7D0' : '#FECACA'}`, fontSize: '13px', fontWeight: 600, color: coveredRequired === requiredIds.length ? '#166534' : '#991B1B' }}>
-            {coveredRequired}/{requiredIds.length} required sources covered. {coveredRequired < requiredIds.length ? `Your pipeline will produce fluent but incomplete output — missing ${requiredIds.length - coveredRequired} key source(s).` : 'Good triangulation. Your pipeline has the inputs it needs.'}
-          </div>}
-    </div>
+
+      {/* Action bar */}
+      <div style={{ padding: '10px 14px', background: CD.panelAlt, borderTop: `1px solid ${CD.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {indexing === 'running' ? (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11, color: CD.tool, fontFamily: "'JetBrains Mono', monospace" }}>
+            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: '50%', background: CD.tool }} />
+            embedding & indexing {selected.size} documents…
+          </div>
+        ) : revealed ? (
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: isComplete ? CD.accent : '#FCA5A5', fontWeight: 700 }}>
+            {isComplete ? `✓ ${coveredRequired}/${requiredIds.length} REQUIRED SOURCES INDEXED` : `✗ ${coveredRequired}/${requiredIds.length} required · ${requiredIds.length - coveredRequired} missing — Claude will fill the gap with training-data filler`}
+          </span>
+        ) : (
+          <span style={{ fontSize: 10.5, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>Click checkboxes to attach docs · then run the index</span>
+        )}
+        <div style={{ display: 'flex', gap: 6 }}>
+          {revealed ? (
+            <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RECONFIGURE</button>
+          ) : (
+            <button type="button" onClick={runIndex} disabled={indexing !== 'idle' || selected.size === 0} style={{ appearance: 'none', cursor: indexing === 'idle' && selected.size > 0 ? 'pointer' : 'not-allowed', background: indexing === 'idle' && selected.size > 0 ? CD.accent : 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 5, padding: '5px 14px', fontSize: 10.5, fontWeight: 700, color: indexing === 'idle' && selected.size > 0 ? '#fff' : CD.inkMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>▶ INDEX FOR CLAUDE</button>
+          )}
+        </div>
+      </div>
+    </ClaudeDesktopFrame>
   );
 };
 
-// Section 02: Summary Classifier — user reads AI summaries and classifies each
+// CompressionCompareCard rebuilt as a Claude Desktop reviewing-summaries
+// flow: the chat shows Claude returning a candidate summary; the human
+// (Aarav / Rhea) classifies it as Generic Compression or Decision-Grade.
+// Each turn cycles to the next summary. Score panel on the right rail
+// tracks progress.
 const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
-  const summaries = track === 'tech' ? [
-    { text: 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.', answer: 'generic', explain: 'Correct — this describes what happened with no action, urgency, or decision frame. An analyst reads it and still has to decide everything themselves.' },
-    { text: 'Category: Disputed pharmacy benefit. Action: Escalate to pharmacy review — physician override requested, 48h SLA. Urgency: High. Key factor: amendment clause 4.2c absent from pipeline.', answer: 'decision', explain: 'Correct — every sentence serves a decision: category, action, deadline, blocking factor. Nothing for the reader to re-derive.' },
-    { text: 'Claim #A2241 has been processed. The relevant policy documents were reviewed and a summary was generated. Several factors were identified that may affect the outcome of the claim.', answer: 'generic', explain: 'Correct — "may affect" and "several factors" are content-free. This tells an analyst nothing actionable. Pure compression, zero decision grade.' },
+  type Summary = { text: string; answer: 'generic' | 'decision'; explain: string };
+  const summaries: Summary[] = track === 'tech' ? [
+    { text: 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.', answer: 'generic', explain: 'No action, no urgency, no decision frame — an analyst reads this and still has to decide everything.' },
+    { text: 'Category: Disputed pharmacy benefit. Action: Escalate to pharmacy review — physician override requested, 48h SLA. Urgency: High. Key factor: amendment clause 4.2c absent from pipeline.', answer: 'decision', explain: 'Every sentence serves a decision: category, action, deadline, blocking factor. Nothing for the reader to re-derive.' },
+    { text: 'Claim #A2241 has been processed. The relevant policy documents were reviewed and a summary was generated. Several factors were identified that may affect the outcome of the claim.', answer: 'generic', explain: '"May affect" and "several factors" are content-free — pure compression, zero decision grade.' },
   ] : [
-    { text: 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.', answer: 'generic', explain: 'Correct — "several items" and "continuing to monitor" tell the director nothing they can act on. This is a status update, not a brief.' },
-    { text: 'Director attention needed: 2 of 23 exceptions exceed SLA (#4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed.', answer: 'decision', explain: 'Correct — two exceptions named, action stated, deadline given, the rest explicitly cleared. The director reads one sentence and knows what to do.' },
-    { text: 'The exception review for the week has been completed. Analysts have reviewed the items and made notes where applicable. Some items may require director-level attention.', answer: 'generic', explain: 'Correct — "may require" and "where applicable" are evasions. The director has to read the whole thing to find nothing. No decision possible from this.' },
+    { text: 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.', answer: 'generic', explain: '"Several items" and "continuing to monitor" tell the director nothing actionable — status update, not a brief.' },
+    { text: 'Director attention needed: 2 of 23 exceptions exceed SLA (#4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed.', answer: 'decision', explain: 'Two exceptions named, action stated, deadline given, the rest explicitly cleared. The director reads one line and knows what to do.' },
+    { text: 'The exception review for the week has been completed. Analysts have reviewed the items and made notes where applicable. Some items may require director-level attention.', answer: 'generic', explain: '"May require" and "where applicable" are evasions — the director reads it and finds nothing to act on.' },
   ];
   const [idx, setIdx] = useState(0);
-  const [choice, setChoice] = useState<string | null>(null);
+  const [choice, setChoice] = useState<'generic' | 'decision' | null>(null);
   const [score, setScore] = useState(0);
+  const [history, setHistory] = useState<('right' | 'wrong')[]>([]);
   const [done, setDone] = useState(false);
   const current = summaries[idx];
-  const handlePick = (pick: string) => {
+
+  const pick = (p: 'generic' | 'decision') => {
     if (choice) return;
-    setChoice(pick);
-    if (pick === current.answer) setScore(s => s + 1);
+    setChoice(p);
+    const right = p === current.answer;
+    if (right) setScore(s => s + 1);
+    setHistory(h => [...h, right ? 'right' : 'wrong']);
   };
-  const handleNext = () => {
+  const next = () => {
     if (idx < summaries.length - 1) { setIdx(i => i + 1); setChoice(null); }
     else setDone(true);
   };
-  if (done) return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '24px', textAlign: 'center' as const }}>
-      <div style={{ fontSize: '32px', fontWeight: 700, color: score === 3 ? '#16A34A' : '#F59E0B', marginBottom: '8px' }}>{score}/3</div>
-      <div style={{ fontSize: '14px', color: '#C9D1D9', marginBottom: '16px' }}>{score === 3 ? 'Perfect — you can diagnose summary quality cold.' : 'The pattern: decision-grade summaries state the action, the actor, the deadline, and the urgency. No inferring required.'}</div>
-      <div onClick={() => { setIdx(0); setChoice(null); setScore(0); setDone(false); }} style={{ padding: '8px 20px', background: '#0891B2', color: '#fff', borderRadius: '6px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'inline-block' }}>Retry</div>
-    </div>
-  );
+  const reset = () => { setIdx(0); setChoice(null); setScore(0); setHistory([]); setDone(false); };
+
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E' }}>SUMMARY CLASSIFIER — {idx + 1} of {summaries.length}</div>
-        <div style={{ fontSize: '10px', color: '#6B7280' }}>Score: {score}/{idx + (choice ? 1 : 0)}</div>
-      </div>
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '14px 16px', fontSize: '13px', color: '#C9D1D9', lineHeight: 1.7, marginBottom: '16px', fontFamily: 'sans-serif' }}>{current.text}</div>
-      <div style={{ fontSize: '11px', color: '#8B949E', marginBottom: '10px' }}>Is this generic compression or decision-grade?</div>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-        {(['generic', 'decision'] as const).map(opt => (
-          <div key={opt} onClick={() => handlePick(opt)} style={{ flex: 1, padding: '10px', borderRadius: '7px', textAlign: 'center' as const, cursor: choice ? 'default' : 'pointer', fontWeight: 700, fontSize: '12px', border: `2px solid ${choice === opt ? (opt === current.answer ? '#16A34A' : '#DC2626') : choice && opt === current.answer ? '#16A34A' : '#374151'}`, background: choice === opt ? (opt === current.answer ? 'rgba(22,163,74,0.12)' : 'rgba(220,38,38,0.12)') : choice && opt === current.answer ? 'rgba(22,163,74,0.08)' : 'rgba(255,255,255,0.03)', color: choice ? (opt === current.answer ? '#16A34A' : choice === opt ? '#DC2626' : '#6B7280') : '#C9D1D9' }}>
-            {opt === 'generic' ? 'Generic Compression' : 'Decision-Grade'}
+    <ClaudeDesktopFrame chatTitle={`Reviewing summary ${idx + 1}/${summaries.length}`} view="SUMMARY REVIEW">
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 220px', gap: 0 }}>
+        {/* Chat */}
+        <div style={{ padding: '14px 16px', minHeight: 280, background: CD.bg, borderRight: `1px solid ${CD.border}` }}>
+          {/* User prompt */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#3B3B3B', color: '#fff', fontWeight: 800, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{protagonist[0]}</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{protagonist.toUpperCase()}</span>
+            </div>
+            <div style={{ maxWidth: '90%', padding: '9px 12px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: '12px 12px 4px 12px', fontSize: 11.5, color: CD.inkPrimary }}>
+              Summarise the {track === 'tech' ? 'claim ' + idx : 'exception batch ' + idx} for the {track === 'tech' ? 'triage queue' : 'director brief'}.
+            </div>
           </div>
-        ))}
+
+          {/* Claude's draft */}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-start', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: CD.accent, color: '#fff', fontWeight: 900, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'serif' }}>A</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>CLAUDE · draft</span>
+            </div>
+            <div style={{ maxWidth: '94%', padding: '11px 13px', background: 'transparent', border: `1px solid ${CD.border}`, borderRadius: '12px 12px 12px 4px', fontSize: 12, color: CD.inkPrimary, lineHeight: 1.65 }}>{current.text}</div>
+          </div>
+
+          {/* Classification buttons */}
+          {!choice ? (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button type="button" onClick={() => pick('generic')} style={{ appearance: 'none', cursor: 'pointer', flex: 1, padding: '8px 12px', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.40)', borderRadius: 7, fontSize: 11, fontWeight: 700, color: '#FCA5A5', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>GENERIC COMPRESSION</button>
+              <button type="button" onClick={() => pick('decision')} style={{ appearance: 'none', cursor: 'pointer', flex: 1, padding: '8px 12px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.40)', borderRadius: 7, fontSize: 11, fontWeight: 700, color: '#86EFAC', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>DECISION-GRADE</button>
+            </div>
+          ) : (
+            <>
+              <div style={{ padding: '9px 12px', background: choice === current.answer ? 'rgba(16,185,129,0.10)' : 'rgba(248,113,113,0.10)', border: `1px solid ${choice === current.answer ? '#10B981' : '#F87171'}40`, borderRadius: 7, fontSize: 11, color: choice === current.answer ? '#86EFAC' : '#FCA5A5', lineHeight: 1.55, marginBottom: 10 }}>
+                {choice === current.answer ? '✓ ' : `✗ Actually ${current.answer.toUpperCase()} · `}{current.explain}
+              </div>
+              {!done && (
+                <button type="button" onClick={next} style={{ appearance: 'none', cursor: 'pointer', background: CD.accent, border: 'none', borderRadius: 5, padding: '6px 14px', fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>
+                  {idx < summaries.length - 1 ? '▶ NEXT SUMMARY' : '▶ FINISH'}
+                </button>
+              )}
+              {done && (
+                <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '6px 14px', fontSize: 11, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESTART</button>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Right rail */}
+        <div style={{ padding: '14px 14px', background: CD.panelAlt }}>
+          <CDLabel>SCORE</CDLabel>
+          <div style={{ marginTop: 6, padding: '10px 12px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 7 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 800, color: done && score === summaries.length ? CD.accent : CD.inkPrimary }}>{score}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: CD.inkMuted }}>/ {summaries.length}</span>
+            </div>
+            <div style={{ fontSize: 10, color: CD.inkMuted, marginTop: 3 }}>classified correctly</div>
+          </div>
+
+          <div style={{ marginTop: 14 }}><CDLabel>HISTORY</CDLabel></div>
+          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+            {summaries.map((_, i) => {
+              const h = history[i];
+              return (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, width: 16 }}>{i + 1}.</span>
+                  {h === undefined ? (
+                    <span style={{ fontSize: 10, color: CD.inkMuted }}>{i === idx ? 'current' : 'pending'}</span>
+                  ) : (
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: h === 'right' ? CD.accent : '#F87171', fontWeight: 700 }}>{h === 'right' ? '✓ correct' : '✗ wrong'}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {done && (
+            <div style={{ marginTop: 12, padding: '8px 10px', background: `${CD.accent}1A`, border: `1px solid ${CD.accent}50`, borderRadius: 6, fontSize: 10.5, color: '#FBD3B0', lineHeight: 1.5 }}>
+              Decision-grade summaries name the action, the actor, the deadline, and the urgency. No inference required.
+            </div>
+          )}
+        </div>
       </div>
-      {choice && <><div style={{ fontSize: '11px', color: choice === current.answer ? '#6EE7B7' : '#FCA5A5', lineHeight: 1.6, marginBottom: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '10px 12px' }}>{current.explain}</div>
-      <div onClick={handleNext} style={{ padding: '8px 20px', background: '#0891B2', color: '#fff', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', display: 'inline-block' }}>Next →</div></>}
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
-// Section 03: 5W1H Query Builder — user fills in each dimension, sees live prompt update
+// FiveW1HCard rebuilt as a Claude Projects custom-instructions composer.
+// Left pane is the structured 5W1H form; right pane is the live preview
+// of the system prompt Claude will receive — exactly how Claude renders
+// custom instructions in the right rail of the project view.
 const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
-  const dims = track === 'tech' ? [
-    { key: 'WHO', q: 'Who is affected?', opts: ['Select…', 'Tier 2 claimant only', 'Claimant + treating physician', 'Claimant + physician + pharmacy manager'], correct: 2 },
-    { key: 'WHAT', q: 'What claim scenario exactly?', opts: ['Select…', 'Any pharmacy claim', 'Physician override request, clause 4.2c', 'Billing dispute'], correct: 1 },
-    { key: 'WHEN', q: 'When does the policy apply?', opts: ['Select…', 'All claims after 2020', 'Claims after Jan 2022, Plan B only', 'Claims flagged by system'], correct: 1 },
-    { key: 'WHY', q: 'Why is this being researched?', opts: ['Select…', 'Routine summary', '48h SLA escalation decision — irreversible if missed', 'Model accuracy check'], correct: 1 },
-    { key: 'HOW', q: 'How will the output be used?', opts: ['Select…', 'Stored in archive', 'Case worker decides: approve / escalate / request info', 'Director review'], correct: 1 },
+  type Dim = { key: 'WHO' | 'WHAT' | 'WHEN' | 'WHY' | 'HOW'; q: string; opts: string[]; correct: number };
+  const dims: Dim[] = track === 'tech' ? [
+    { key: 'WHO',  q: 'Who is affected?',           opts: ['(empty)', 'Tier 2 claimant only',          'Claimant + treating physician',                    'Claimant + physician + pharmacy manager'],          correct: 2 },
+    { key: 'WHAT', q: 'What claim scenario?',       opts: ['(empty)', 'Any pharmacy claim',            'Physician override request, clause 4.2c',         'Billing dispute'],                                  correct: 1 },
+    { key: 'WHEN', q: 'When does the policy apply?', opts: ['(empty)', 'All claims after 2020',         'Claims after Jan 2022, Plan B only',              'Claims flagged by system'],                          correct: 1 },
+    { key: 'WHY',  q: 'Why is this being researched?', opts: ['(empty)', 'Routine summary',              '48h SLA escalation decision — irreversible',     'Model accuracy check'],                              correct: 1 },
+    { key: 'HOW',  q: 'How will the output be used?', opts: ['(empty)', 'Stored in archive',              'Case worker: approve / escalate / request info', 'Director review'],                                  correct: 1 },
   ] : [
-    { key: 'WHO', q: 'Who reads this brief?', opts: ['Select…', 'All analysts', 'Regional Director — pre-meeting scan, 5 min', 'Anyone on the team'], correct: 1 },
-    { key: 'WHAT', q: 'What question are they asking?', opts: ['Select…', 'What happened this week?', 'Is there anything I need to act on before Friday?', 'How many exceptions were there?'], correct: 1 },
-    { key: 'WHEN', q: 'When do they decide?', opts: ['Select…', 'Whenever convenient', 'Thursday AM before weekly ops call', 'End of month'], correct: 1 },
-    { key: 'WHY', q: 'Why is this week different?', opts: ['Select…', 'Routine weekly summary', '2 accounts breached SLA — board visibility risk', 'New exceptions added'], correct: 1 },
-    { key: 'HOW', q: 'How will they act on it?', opts: ['Select…', 'File for reference', 'Approve escalation or delegate — one decision', 'Forward to all managers'], correct: 1 },
+    { key: 'WHO',  q: 'Who reads this brief?',         opts: ['(empty)', 'All analysts',                  'Regional Director — pre-meeting scan, 5 min',     'Anyone on the team'],                                correct: 1 },
+    { key: 'WHAT', q: 'What question are they asking?', opts: ['(empty)', 'What happened this week?',       'Is there anything I need to act on before Friday?', 'How many exceptions were there?'],                  correct: 1 },
+    { key: 'WHEN', q: 'When do they decide?',           opts: ['(empty)', 'Whenever convenient',            'Thursday AM before weekly ops call',              'End of month'],                                      correct: 1 },
+    { key: 'WHY',  q: 'Why is this week different?',    opts: ['(empty)', 'Routine weekly summary',         '2 accounts breached SLA — board visibility risk', 'New exceptions added'],                              correct: 1 },
+    { key: 'HOW',  q: 'How will they act on it?',       opts: ['(empty)', 'File for reference',             'Approve escalation or delegate — one decision',   'Forward to all managers'],                          correct: 1 },
   ];
+
   const [vals, setVals] = useState<Record<string, number>>(Object.fromEntries(dims.map(d => [d.key, 0])));
   const filled = dims.filter(d => vals[d.key] > 0).length;
   const allCorrect = dims.every(d => vals[d.key] === d.correct);
-  const promptParts = dims.map(d => vals[d.key] > 0 ? `[${d.key}: ${d.opts[vals[d.key]]}]` : `[${d.key}: ???]`);
+
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>5W1H QUERY BUILDER</div>
-      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '14px' }}>Fill in each dimension. Watch the research prompt build below.</div>
-      <div style={{ display: 'grid', gap: '8px', marginBottom: '16px' }}>
-        {dims.map(d => (
-          <div key={d.key} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: '10px', alignItems: 'center' }}>
-            <div style={{ background: vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4', color: vals[d.key] > 0 ? '#fff' : '#78716C', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, borderRadius: '4px', padding: '4px 6px', textAlign: 'center' as const, transition: 'background 0.2s' }}>{d.key}</div>
-            <select value={vals[d.key]} onChange={e => setVals(prev => ({ ...prev, [d.key]: Number(e.target.value) }))} style={{ padding: '7px 10px', borderRadius: '6px', border: `1.5px solid ${vals[d.key] === d.correct ? '#0891B2' : vals[d.key] > 0 ? '#F59E0B' : '#E7E5E4'}`, fontSize: '12px', color: '#292524', background: 'var(--ed-card)', outline: 'none', cursor: 'pointer' }}>
-              {d.opts.map((opt, i) => <option key={i} value={i}>{opt}</option>)}
-            </select>
+    <ClaudeDesktopFrame chatTitle="Project · Custom instructions" view="5W1H BRIEF COMPOSER">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+        {/* LEFT: form */}
+        <div style={{ padding: '14px 16px', borderRight: `1px solid ${CD.border}`, background: CD.bg }}>
+          <CDLabel>RESEARCH BRIEF · 5W1H</CDLabel>
+          <div style={{ marginTop: 8, display: 'grid', gap: 8 }}>
+            {dims.map(d => {
+              const v = vals[d.key];
+              const isFilled = v > 0;
+              const isCorrect = v === d.correct;
+              const accent = isCorrect ? CD.accent : isFilled ? '#FCD34D' : CD.inkMuted;
+              return (
+                <div key={d.key} style={{ display: 'grid', gridTemplateColumns: '40px 1fr', gap: 8, alignItems: 'flex-start' }}>
+                  <div style={{ padding: '4px 0', background: 'transparent', color: accent, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 800, textAlign: 'center' as const, borderRight: `2px solid ${accent}40` }}>{d.key}</div>
+                  <div>
+                    <label style={{ fontSize: 10, color: CD.inkMuted, marginBottom: 3, display: 'block', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{d.q}</label>
+                    <select
+                      value={v}
+                      onChange={e => setVals(prev => ({ ...prev, [d.key]: Number(e.target.value) }))}
+                      style={{
+                        width: '100%',
+                        padding: '6px 9px',
+                        background: CD.panel,
+                        border: `1px solid ${accent}50`,
+                        borderRadius: 5,
+                        color: CD.inkPrimary,
+                        fontSize: 11,
+                        fontFamily: 'inherit',
+                        outline: 'none',
+                      }}
+                    >
+                      {d.opts.map((opt, i) => <option key={i} value={i} style={{ background: CD.panel }}>{opt}</option>)}
+                    </select>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ))}
+
+          <div style={{ marginTop: 14, padding: '8px 10px', background: allCorrect ? 'rgba(16,185,129,0.10)' : filled === 0 ? CD.panel : 'rgba(252,211,77,0.10)', border: `1px solid ${allCorrect ? '#10B98155' : filled === 0 ? CD.border : '#FCD34D55'}`, borderRadius: 6, fontSize: 10.5, color: allCorrect ? '#86EFAC' : filled === 0 ? CD.inkSecondary : '#FCD34D', lineHeight: 1.55 }}>
+            {allCorrect
+              ? `✓ 5/5 dimensions specified — Claude has enough scope to produce a decision-grade output.`
+              : filled === 0
+              ? 'Pick the most precise option for each dimension. Unfilled rows leave gaps for Claude to fill with generic prose.'
+              : `${filled}/${dims.length} filled · ${dims.length - filled} still vague — those become "???" in the system prompt.`}
+          </div>
+        </div>
+
+        {/* RIGHT: system prompt preview */}
+        <div style={{ padding: '14px 16px', background: CD.panelAlt }}>
+          <CDLabel>SYSTEM PROMPT · what Claude will read</CDLabel>
+          <div style={{ marginTop: 8, padding: '11px 13px', background: '#0E0E0E', border: `1px solid ${CD.border}`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: CD.inkSecondary, lineHeight: 1.7, minHeight: 200 }}>
+            <span style={{ color: '#569CD6' }}>You are</span> a research assistant for the {track === 'tech' ? 'claims triage' : 'ops exception'} team.
+            <br /><br />
+            <span style={{ color: '#569CD6' }}>Research scope:</span>
+            <br />
+            {dims.map((d, i) => {
+              const v = vals[d.key];
+              const isFilled = v > 0;
+              return (
+                <div key={d.key} style={{ display: 'block', marginLeft: 6 }}>
+                  <span style={{ color: isFilled ? '#A78BFA' : '#525252' }}>• {d.key}:</span>{' '}
+                  <span style={{ color: isFilled ? (v === d.correct ? '#86EFAC' : '#FCD34D') : '#F87171' }}>
+                    {isFilled ? d.opts[v] : '???'}
+                  </span>
+                </div>
+              );
+            })}
+            <br />
+            <span style={{ color: '#569CD6' }}>Return:</span> a brief that lets the reader make their decision in one pass.
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <CDLabel>EXPECTED OUTPUT QUALITY</CDLabel>
+            <div style={{ marginTop: 6, padding: '8px 10px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 6 }}>
+              {[
+                { label: 'Specificity',   pct: Math.round((filled / dims.length) * 100), color: CD.tool },
+                { label: 'Right answers', pct: Math.round((dims.filter(d => vals[d.key] === d.correct).length / dims.length) * 100), color: CD.accent },
+              ].map(m => (
+                <div key={m.label} style={{ marginBottom: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: 10, color: CD.inkSecondary }}>{m.label}</span>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: m.color, fontWeight: 700 }}>{m.pct}%</span>
+                  </div>
+                  <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 2 }}>
+                    <div style={{ height: '100%', width: `${m.pct}%`, background: m.color, borderRadius: 2, transition: 'width 0.3s' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      <div style={{ background: '#0D1117', borderRadius: '8px', padding: '12px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#C9D1D9', lineHeight: 1.7, marginBottom: '10px' }}>
-        <div style={{ color: '#8B949E', marginBottom: '6px' }}>RESULTING RESEARCH PROMPT:</div>
-        {promptParts.map((p, i) => <span key={i} style={{ color: p.includes('???') ? '#DC2626' : '#6EE7B7' }}>{p}{i < promptParts.length - 1 ? ' · ' : ''}</span>)}
-      </div>
-      <div style={{ fontSize: '12px', padding: '8px 12px', borderRadius: '6px', background: allCorrect ? 'rgba(16,185,129,0.12)' : filled === 0 ? '#F5F5F4' : 'rgba(245,158,11,0.12)', color: allCorrect ? '#166534' : filled === 0 ? '#78716C' : '#92400E', border: `1px solid ${allCorrect ? '#BBF7D0' : filled === 0 ? '#E7E5E4' : '#FDE68A'}` }}>
-        {allCorrect ? '✓ Complete 5W1H — the prompt has enough specificity to produce decision-grade output.' : filled < dims.length ? `${filled}/${dims.length} dimensions filled. Unfilled dimensions (???) produce vague, generic output.` : 'Some dimensions could be more specific — the most precise choices produce the most actionable output.'}
-      </div>
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
-// Section 04: COVE Auditor — user audits specific claims in an AI output
+// COVECard rebuilt as a Claude Desktop fact-check / citation auditor.
+// Claude returns a draft with inline citation markers; the learner clicks
+// each highlighted claim to tag the COVE dimension it primarily exercises.
+// Wrong tags expose the failure mode (hallucinated stat, unsourced rate,
+// etc.) in red; correct tags light up the citation badge green.
 const COVECard = ({ track }: { track: GenAITrack }) => {
-  const claims = track === 'tech' ? [
-    { id: 'a', text: 'Coverage rate for Tier 2 pharmacy benefits is 78%.', verdict: 'V', verdictLabel: 'Verifiable', explain: 'This figure appears verbatim in the plan schedule document in your pipeline. Trace: plan_schedule.pdf, row 14, column "Tier 2 pharmacy cover rate".' },
-    { id: 'b', text: 'The industry average override approval rate is 82%.', verdict: 'O', verdictLabel: 'Not Original (model-generated)', explain: 'This number is not in any document in your pipeline. It came from the model\'s training data — a hallucinated benchmark. Fails Originality check.' },
-    { id: 'c', text: 'Claim #A2241 requires escalation under clause 4.2c, February 2022 amendment.', verdict: 'C', verdictLabel: 'Correct', explain: 'Factually accurate — the amendment document confirms §4.2c applies to Tier 2 CA plans. Clause reference is exact and traceable.' },
-    { id: 'd', text: 'Recommended action: escalate to pharmacy review, 48h SLA.', verdict: 'E', verdictLabel: 'Effective', explain: 'This directly serves the case worker\'s decision. States the action, the queue, and the deadline. Nothing left to infer.' },
+  type Verdict = 'C' | 'O' | 'V' | 'E';
+  type Claim = { id: string; text: string; verdict: Verdict; explain: string };
+  const claims: Claim[] = track === 'tech' ? [
+    { id: 'a', text: 'Coverage rate for Tier 2 pharmacy benefits is 78%.',                       verdict: 'V', explain: 'Verbatim in plan_schedule.pdf row 14, "Tier 2 pharmacy cover rate". Source is exact and traceable.' },
+    { id: 'b', text: 'The industry average override approval rate is 82%.',                       verdict: 'O', explain: 'Not in any document in your pipeline — model pulled it from training data. Hallucinated benchmark.' },
+    { id: 'c', text: 'Claim #A2241 requires escalation under clause 4.2c, Feb 2022 amendment.', verdict: 'C', explain: 'Factually accurate — the amendment confirms §4.2c applies to Tier 2 CA plans. Clause reference is exact.' },
+    { id: 'd', text: 'Recommended action: escalate to pharmacy review, 48h SLA.',                verdict: 'E', explain: 'Directly serves the case worker\'s decision. Action, queue, deadline — nothing left to infer.' },
   ] : [
-    { id: 'a', text: '23 exceptions were processed this week.', verdict: 'C', verdictLabel: 'Correct', explain: 'Verifiable against exception tracker export (row count, current week filter). Factually accurate.' },
-    { id: 'b', text: 'Resolution time improved 18% compared to last month.', verdict: 'O', verdictLabel: 'Not Original (model-generated)', explain: 'This figure does not appear in the data export you provided. The model generated it from training patterns — a hallucinated trend. Fails Originality check.' },
-    { id: 'c', text: 'Accounts #4412 and #7089 are 6 and 8 days over SLA respectively.', verdict: 'V', verdictLabel: 'Verifiable', explain: 'Traceable to exception tracker sheet, rows 14 and 23, column "Days Open" vs SLA column. Source is explicit.' },
-    { id: 'd', text: '2 accounts need your decision before Friday — rest is resolved.', verdict: 'E', verdictLabel: 'Effective', explain: 'Directly answers what the director is asking. Filters to action items only. Clears everything else explicitly.' },
+    { id: 'a', text: '23 exceptions were processed this week.',                                  verdict: 'C', explain: 'Verifiable against exception tracker export (row count, current week filter). Factually accurate.' },
+    { id: 'b', text: 'Resolution time improved 18% compared to last month.',                     verdict: 'O', explain: 'This figure does not appear in any document you indexed — model generated it from training patterns.' },
+    { id: 'c', text: 'Accounts #4412 and #7089 are 6 and 8 days over SLA respectively.',         verdict: 'V', explain: 'Traceable to exception_tracker.sheet rows 14 + 23, column "Days Open" vs SLA column. Source explicit.' },
+    { id: 'd', text: '2 accounts need your decision before Friday — rest is resolved.',          verdict: 'E', explain: 'Directly answers what the director is asking. Filters to action items, clears everything else.' },
   ];
-  // COVE dimensions — each claim primarily exercises ONE of these four lenses,
-  // whether it passes or fails. Naming the dimensions consistently (not as
-  // pass/fail verbs) keeps the picker readable.
-  const opts = [
-    { key: 'C', label: 'Correctness',     color: '#0891B2' },
-    { key: 'O', label: 'Originality',     color: '#7C3AED' },
-    { key: 'V', label: 'Verifiability',   color: '#2563EB' },
-    { key: 'E', label: 'Effectiveness',   color: '#0F766E' },
+
+  const OPTS: { key: Verdict; label: string; color: string }[] = [
+    { key: 'C', label: 'Correctness',    color: '#22D3EE' },
+    { key: 'O', label: 'Originality',    color: '#A78BFA' },
+    { key: 'V', label: 'Verifiability',  color: '#60A5FA' },
+    { key: 'E', label: 'Effectiveness',  color: '#10B981' },
   ];
-  const [picks, setPicks] = useState<Record<string, string>>({});
+
+  const [picks, setPicks] = useState<Record<string, Verdict>>({});
+  const [activeClaim, setActiveClaim] = useState<string | null>(null);
   const allPicked = claims.every(c => picks[c.id]);
   const score = claims.filter(c => picks[c.id] === c.verdict).length;
+  const reset = () => { setPicks({}); setActiveClaim(null); };
+
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>COVE AUDITOR — EVALUATE EACH CLAIM</div>
-      <div style={{ fontSize: '13px', color: '#292524', fontWeight: 600, marginBottom: '4px' }}>Read each claim. Tag it with the COVE dimension it primarily tests.</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>C = Correctness (factually right) · O = Originality (drawn from sources, not model) · V = Verifiability (traceable to a source line) · E = Effectiveness (serves a decision)</div>
-      <div style={{ display: 'grid', gap: '10px' }}>
-        {claims.map(c => {
-          const picked = picks[c.id];
-          const isRight = picked === c.verdict;
-          return (
-            <div key={c.id} style={{ background: 'var(--ed-card)', border: `1.5px solid ${picked ? (isRight ? '#16A34A' : '#DC2626') : '#E7E5E4'}`, borderRadius: '8px', padding: '12px 14px' }}>
-              <div style={{ fontSize: '12px', color: '#292524', lineHeight: 1.6, marginBottom: '10px', fontStyle: 'italic' }}>&ldquo;{c.text}&rdquo;</div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
-                {opts.map(opt => (
-                  <div key={opt.key} onClick={() => !picked && setPicks(prev => ({ ...prev, [c.id]: opt.key }))} style={{ padding: '5px 12px', borderRadius: '5px', fontSize: '11px', fontWeight: 700, cursor: picked ? 'default' : 'pointer', background: picked === opt.key ? `${opt.color}15` : '#F5F5F4', border: `1.5px solid ${picked === opt.key ? opt.color : picked && opt.key === c.verdict ? opt.color : '#E7E5E4'}`, color: picked === opt.key ? opt.color : picked && opt.key === c.verdict ? opt.color : '#78716C' }}>{opt.key} — {opt.label}</div>
-                ))}
-              </div>
-              {picked && <div style={{ marginTop: '8px', fontSize: '11px', color: isRight ? '#166534' : '#991B1B', lineHeight: 1.5 }}>{isRight ? '✓' : '✗'} {c.explain}</div>}
+    <ClaudeDesktopFrame chatTitle="Fact-check Claude's draft" view="COVE AUDIT">
+      <div style={{ padding: '14px 16px', background: CD.bg }}>
+        <CDLabel>CLAUDE'S DRAFT · click each highlighted claim to audit it</CDLabel>
+
+        {/* Draft as a single paragraph with inline citation badges */}
+        <div style={{ marginTop: 8, padding: '14px 16px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 8, fontSize: 12.5, color: CD.inkPrimary, lineHeight: 2 }}>
+          {claims.map((c, i) => {
+            const picked = picks[c.id];
+            const isRight = picked === c.verdict;
+            const isActive = activeClaim === c.id;
+            const ringColor = picked ? (isRight ? '#10B981' : '#F87171') : isActive ? CD.tool : '#FCD34D';
+            return (
+              <React.Fragment key={c.id}>
+                <span
+                  onClick={() => setActiveClaim(c.id)}
+                  style={{
+                    background: picked ? (isRight ? 'rgba(16,185,129,0.10)' : 'rgba(248,113,113,0.10)') : isActive ? 'rgba(167,139,250,0.10)' : 'rgba(252,211,77,0.08)',
+                    borderBottom: `2px solid ${ringColor}`,
+                    cursor: picked ? 'default' : 'pointer',
+                    padding: '0 3px',
+                    borderRadius: 3,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {c.text}
+                  <sup style={{
+                    marginLeft: 3, padding: '0 5px', borderRadius: 3,
+                    background: ringColor, color: '#fff', fontWeight: 900, fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
+                  }}>[{i + 1}]</sup>
+                </span>
+                {i < claims.length - 1 && ' '}
+              </React.Fragment>
+            );
+          })}
+        </div>
+
+        {/* Audit panel for the active claim */}
+        {activeClaim && (
+          <div style={{ marginTop: 12, padding: '12px 14px', background: CD.panelAlt, border: `1px solid ${CD.border}`, borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <CDLabel>AUDITING CLAIM [{claims.findIndex(c => c.id === activeClaim) + 1}]</CDLabel>
+              {picks[activeClaim] && (
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: picks[activeClaim] === claims.find(c => c.id === activeClaim)?.verdict ? CD.accent : '#F87171', fontWeight: 800, letterSpacing: '0.06em' }}>
+                  {picks[activeClaim] === claims.find(c => c.id === activeClaim)?.verdict ? '✓ CORRECTLY TAGGED' : `✗ ACTUALLY ${claims.find(c => c.id === activeClaim)?.verdict}`}
+                </span>
+              )}
             </div>
-          );
-        })}
+            <div style={{ fontSize: 11.5, color: CD.inkSecondary, fontStyle: 'italic' as const, marginBottom: 10, lineHeight: 1.55 }}>"{claims.find(c => c.id === activeClaim)?.text}"</div>
+            <div style={{ display: 'flex', gap: 5, marginBottom: 10 }}>
+              {OPTS.map(o => {
+                const isPicked = picks[activeClaim] === o.key;
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => !picks[activeClaim] && setPicks(prev => ({ ...prev, [activeClaim]: o.key }))}
+                    disabled={!!picks[activeClaim]}
+                    style={{
+                      appearance: 'none', cursor: picks[activeClaim] ? 'default' : 'pointer',
+                      flex: 1, padding: '6px 9px',
+                      background: isPicked ? `${o.color}24` : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${isPicked ? o.color : `${o.color}40`}`,
+                      borderRadius: 5,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: 10, fontWeight: 800,
+                      color: isPicked ? o.color : CD.inkMuted,
+                      letterSpacing: '0.04em',
+                    }}
+                  >{o.key} · {o.label}</button>
+                );
+              })}
+            </div>
+            {picks[activeClaim] && (
+              <div style={{ padding: '8px 10px', background: 'rgba(167,139,250,0.06)', border: `1px solid ${CD.tool}40`, borderRadius: 6, fontSize: 11, color: CD.inkSecondary, lineHeight: 1.55 }}>
+                {claims.find(c => c.id === activeClaim)?.explain}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Legend / footer */}
+        <div style={{ marginTop: 12, padding: '8px 10px', background: CD.panelAlt, border: `1px solid ${CD.border}`, borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 10, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>
+            C = Correctness · O = Originality · V = Verifiability · E = Effectiveness
+          </span>
+          {allPicked ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 800, color: score === claims.length ? CD.accent : '#FCD34D' }}>{score}/{claims.length} CORRECT</span>
+              <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '4px 11px', fontSize: 10, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESET</button>
+            </div>
+          ) : (
+            <span style={{ fontSize: 10, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{Object.keys(picks).length}/{claims.length} audited</span>
+          )}
+        </div>
       </div>
-      {allPicked && <div style={{ marginTop: '14px', padding: '10px 14px', borderRadius: '8px', background: score === 4 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${score === 4 ? '#BBF7D0' : '#FDE68A'}`, fontSize: '13px', fontWeight: 700, color: score === 4 ? '#166534' : '#92400E' }}>{score}/4 correct — {score === 4 ? 'Perfect COVE audit.' : 'Review the incorrect tags above. Each COVE dimension has a distinct failure mode.'}</div>}
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
-// Section 05: Audience Selector — user picks audience, sees brief transform live
+// AudienceDraftCard rebuilt as Claude Desktop with an audience tab strip.
+// One synthesis at top (the source-of-truth Claude is working from), then
+// three rewrite tabs across the audience — the same facts, three briefs.
+// Clicking a tab streams a new Claude reply tuned to that reader; verdict
+// below explains the lens shift.
 const AudienceDraftCard = ({ track }: { track: GenAITrack }) => {
   const synthesis = track === 'tech'
     ? 'Claim #A2241: pharmacy override request by Dr. Mehta. §4.2c (Feb 2022 amendment) permits Tier 2 CA override. 48h SLA. 3 precedent approvals in Q4. Amendment not in current policy index.'
     : 'Week of Mar 10: 23 exceptions, 2 SLA breaches (#4412: 6d, #7089: 8d), 19 within tolerance, 2 pending close EOW. #4412 is third breach in 6 weeks.';
-  const audiences = track === 'tech' ? [
-    { label: 'Case Worker', color: '#0891B2', key: 'action', brief: 'Escalate Claim #A2241 to pharmacy review. Form: PH-7. Deadline: Thursday 5pm. Note §4.2c in submission — amendment clause, not in standard index.', why: 'Action + form + deadline. Nothing else. The case worker executes — they don\'t need context or patterns.' },
-    { label: 'Compliance Officer', color: '#7C3AED', key: 'audit', brief: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241. Amendment currently unindexed — gap in standard policy lookup.', why: 'Clause, provision, audit trail, gap. The compliance lens is: is this defensible, is it documented?' },
-    { label: 'Product Manager', color: '#2563EB', key: 'pattern', brief: 'Override flow triggered 4× in Q4. Root cause: clause 4.2c (Feb 2022 amendment) not in policy index. Case workers are escalating manually each time. Fix: index the amendment. Estimated 12 affected cases/month.', why: 'Pattern + root cause + fix. Same synthesis, different question: "where does the system break and what do we build?"' },
+
+  type Audience = { id: string; label: string; subtitle: string; color: string; brief: string; why: string };
+  const audiences: Audience[] = track === 'tech' ? [
+    { id: 'worker',     label: 'Case Worker',        subtitle: 'executes the call',     color: '#22D3EE', brief: 'Escalate Claim #A2241 to pharmacy review. Form: PH-7. Deadline: Thursday 5pm. Note §4.2c in submission — amendment clause, not in standard index.', why: 'Action + form + deadline, nothing else. The case worker executes — they don\'t need context or patterns.' },
+    { id: 'compliance', label: 'Compliance Officer', subtitle: 'audits the decision',   color: '#A78BFA', brief: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241. Amendment currently unindexed — gap in standard policy lookup.', why: 'Clause, provision, audit trail, gap. The compliance lens is: is this defensible? is it documented?' },
+    { id: 'pm',         label: 'Product Manager',    subtitle: 'fixes the system',      color: '#60A5FA', brief: 'Override flow triggered 4× in Q4. Root cause: clause 4.2c (Feb 2022 amendment) not in policy index. Case workers escalating manually each time. Fix: index the amendment. Estimated 12 affected cases/month.', why: 'Pattern + root cause + fix. Same synthesis, different question: "where does the system break and what do we build?"' },
   ] : [
-    { label: 'Team Analyst', color: '#0891B2', key: 'action', brief: '#4412 (6d over SLA) and #7089 (8d): both need case notes before Thursday noon. Check escalation history for each. #4412 is a repeat breach — flag for supervisor review.', why: 'Specific accounts, specific tasks, specific deadline. The analyst executes — they need exact next steps.' },
-    { label: 'Regional Director', color: '#7C3AED', key: 'decision', brief: 'Action needed before Friday: #4412 and #7089 exceed SLA — board visibility risk if unresolved. Recommend you flag to ops lead today. Other 21 exceptions within tolerance — no action needed from you.', why: 'One decision. Clear risk. Explicit "no action needed" for everything else. Director doesn\'t need account details.' },
-    { label: 'Operations Lead', color: '#0F766E', key: 'systemic', brief: 'SLA breach rate: 2/23 (8.7%) vs 3.2% baseline. #4412: third breach in 6 weeks — systemic flag. Recommend root-cause review for that account before next reporting cycle.', why: 'Trend + baseline + systemic flag. Ops lens is: "is this a one-off or a process problem?"' },
+    { id: 'analyst',  label: 'Team Analyst',     subtitle: 'works the queue',     color: '#22D3EE', brief: '#4412 (6d over SLA) and #7089 (8d): both need case notes before Thursday noon. Check escalation history for each. #4412 is a repeat breach — flag for supervisor review.', why: 'Specific accounts, specific tasks, specific deadline. The analyst executes — they need exact next steps.' },
+    { id: 'director', label: 'Regional Director', subtitle: 'decides before the call', color: '#A78BFA', brief: 'Action needed before Friday: #4412 and #7089 exceed SLA — board visibility risk if unresolved. Recommend you flag to ops lead today. Other 21 exceptions within tolerance — no action needed from you.', why: 'One decision. Clear risk. Explicit "no action needed" for everything else. Director doesn\'t need account details.' },
+    { id: 'oplead',   label: 'Operations Lead',   subtitle: 'spots the systemic issue', color: '#10B981', brief: 'SLA breach rate: 2/23 (8.7%) vs 3.2% baseline. #4412: third breach in 6 weeks — systemic flag. Recommend root-cause review for that account before next reporting cycle.', why: 'Trend + baseline + systemic flag. Ops lens is: "is this a one-off or a process problem?"' },
   ];
-  const [selected, setSelected] = useState<string | null>(null);
-  const chosen = audiences.find(a => a.key === selected);
+
+  const [activeId, setActiveId] = useState<string>(audiences[0].id);
+  const [streamKey, setStreamKey] = useState(0);
+  const chosen = audiences.find(a => a.id === activeId)!;
+
+  const switchAudience = (id: string) => {
+    setActiveId(id);
+    setStreamKey(k => k + 1);
+  };
+
+  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '14px' }}>AUDIENCE-FIRST DRAFTING — ONE SYNTHESIS, THREE BRIEFS</div>
-      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px' }}>
-        <div style={{ fontSize: '9px', color: '#7C3AED', letterSpacing: '0.08em', marginBottom: '4px' }}>SYNTHESIS</div>
-        <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6, fontFamily: 'sans-serif' }}>{synthesis}</div>
-      </div>
-      <div style={{ fontSize: '11px', color: '#8B949E', marginBottom: '10px' }}>Select an audience — see how the same synthesis becomes a completely different brief:</div>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        {audiences.map(a => (
-          <div key={a.key} onClick={() => setSelected(a.key)} style={{ flex: 1, padding: '10px 8px', borderRadius: '7px', textAlign: 'center' as const, cursor: 'pointer', border: `2px solid ${selected === a.key ? a.color : '#374151'}`, background: selected === a.key ? `${a.color}15` : 'rgba(255,255,255,0.03)', fontSize: '11px', fontWeight: 700, color: selected === a.key ? a.color : '#9CA3AF', transition: 'all 0.15s' }}>{a.label}</div>
-        ))}
-      </div>
-      {chosen && (
-        <><div style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${chosen.color}40`, borderRadius: '8px', padding: '12px 14px', marginBottom: '10px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: chosen.color, letterSpacing: '0.08em', marginBottom: '6px' }}>BRIEF FOR {chosen.label.toUpperCase()}</div>
-          <div style={{ fontSize: '12px', color: '#C9D1D9', lineHeight: 1.7, fontFamily: 'sans-serif' }}>{chosen.brief}</div>
+    <ClaudeDesktopFrame chatTitle="Same synthesis · different reader" view="AUDIENCE REWRITE">
+      <div style={{ padding: '14px 16px', background: CD.bg }}>
+        {/* Synthesis card at top */}
+        <div style={{ marginBottom: 14, padding: '11px 13px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            <span style={{ width: 4, height: 14, background: CD.accent, borderRadius: 2 }} />
+            <CDLabel>SOURCE SYNTHESIS · facts Claude is working from</CDLabel>
+          </div>
+          <div style={{ fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{synthesis}</div>
         </div>
-        <div style={{ fontSize: '11px', color: '#8B949E', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '10px 12px', lineHeight: 1.6 }}><span style={{ color: chosen.color, fontWeight: 700 }}>Why it&apos;s different:</span> {chosen.why}</div>
-        </>
-      )}
-    </div>
+
+        {/* User prompt — tab strip rendered as a prompt */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#3B3B3B', color: '#fff', fontWeight: 800, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{protagonist[0]}</div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{protagonist.toUpperCase()}</span>
+          </div>
+          <div style={{ maxWidth: '90%', padding: '9px 12px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: '12px 12px 4px 12px', fontSize: 11.5, color: CD.inkPrimary, lineHeight: 1.55 }}>
+            Rewrite the synthesis above for a <strong style={{ color: chosen.color }}>{chosen.label}</strong>.
+          </div>
+        </div>
+
+        {/* Audience tab strip */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12, borderBottom: `1px solid ${CD.border}`, paddingBottom: 8 }}>
+          {audiences.map(a => {
+            const isActive = activeId === a.id;
+            return (
+              <button
+                key={a.id}
+                type="button"
+                onClick={() => switchAudience(a.id)}
+                style={{
+                  appearance: 'none', cursor: 'pointer',
+                  flex: 1,
+                  padding: '8px 10px',
+                  background: isActive ? `${a.color}1A` : 'transparent',
+                  border: `1px solid ${isActive ? a.color : CD.border}`,
+                  borderRadius: 7,
+                  textAlign: 'left' as const,
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: a.color }} />
+                  <span style={{ fontSize: 11.5, fontWeight: 700, color: isActive ? a.color : CD.inkPrimary }}>{a.label}</span>
+                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.04em' }}>{a.subtitle}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Claude reply for chosen audience */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-start', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <div style={{ width: 18, height: 18, borderRadius: '50%', background: CD.accent, color: '#fff', fontWeight: 900, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'serif' }}>A</div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>CLAUDE</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: chosen.color, letterSpacing: '0.06em' }}>· tone={chosen.label.toLowerCase().replace(' ', '-')}</span>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={streamKey}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                maxWidth: '94%',
+                padding: '11px 13px',
+                background: 'transparent',
+                border: `1px solid ${chosen.color}55`,
+                borderRadius: '12px 12px 12px 4px',
+                fontSize: 12,
+                color: CD.inkPrimary,
+                lineHeight: 1.65,
+              }}
+            >{chosen.brief}</motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Verdict */}
+        <div style={{ padding: '8px 10px', background: `${chosen.color}12`, border: `1px solid ${chosen.color}40`, borderRadius: 6 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: chosen.color, letterSpacing: '0.10em', fontWeight: 700, marginBottom: 3 }}>WHY THE REWRITE LANDS</div>
+          <div style={{ fontSize: 10.5, color: CD.inkSecondary, lineHeight: 1.55 }}>{chosen.why}</div>
+        </div>
+      </div>
+    </ClaudeDesktopFrame>
   );
 };
 
