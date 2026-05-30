@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
@@ -14,6 +14,7 @@ import {
   TiltCard, TrackHeroCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
+import { ClaudeDesktopFrame, CDLabel, CD } from './claudeDesktopChrome';
 
 const ACCENT = '#B45309';
 const ACCENT_RGB = '180,83,9';
@@ -163,331 +164,633 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 
 // ── Interactive Tool Mockups ─────────────────────────────────────────────────
 
+// MCP vs API rebuilt as an actual Claude Desktop chat window. Same user
+// message asked twice \u2014 once with MCP servers OFF (Claude says it
+// can't help), once with the MCP server toggled ON (a tool_use block
+// fires, the result returns, the assistant responds with grounded facts).
 const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
   const [mcpEnabled, setMcpEnabled] = useState(false);
+  const [step, setStep] = useState(0);
 
-  const withoutMcp = track === 'tech'
-    ? { prompt: 'Route CLM-8847 to the least-loaded adjuster.', response: "I don't have access to adjuster workload data. I can categorize the claim by type, but I cannot determine which adjuster has the lightest current caseload without a live data connection." }
-    : { prompt: 'Is Hartwell Group\u2019s renewal in our CRM system?', response: "I don\u2019t have access to your CRM. Based on the information you\u2019ve provided, Hartwell Group appears to be a renewal account, but I cannot confirm whether they are currently in the system." };
+  const prompt = track === 'tech'
+    ? 'Route CLM-8847 to the least-loaded adjuster in the claims team.'
+    : 'Is Hartwell Group in our CRM, and when is their renewal due?';
+  const noMcpReply = track === 'tech'
+    ? "I don't have access to live adjuster workload data \u2014 I can't tell which one has the lightest caseload right now. To answer this I'd need a connection to your HR or workforce-management system."
+    : "I don't have access to your CRM. Based only on what you've shared, I can't confirm whether Hartwell Group is in the system or when their renewal is.";
 
-  const withMcp = track === 'tech'
-    ? {
-        toolCall: 'get_adjuster_load(department="claims")',
-        toolResult: '[{id:"ADJ-04", cases_open:3, capacity:"high"}, {id:"ADJ-07", cases_open:8, capacity:"low"}, {id:"ADJ-12", cases_open:5, capacity:"med"}]',
-        response: 'Routing CLM-8847 to ADJ-04. They have 3 open cases and high available capacity — the lowest current load in the claims team.',
-      }
-    : {
-        toolCall: 'lookup_crm_account(account_name="Hartwell Group")',
-        toolResult: '{found: true, account_id: "ACC-2204", status: "active", renewal_date: "2026-05-12", owner: "Leila Ramos"}',
-        response: 'Yes — Hartwell Group is in the CRM. Account ACC-2204, active, renewal due 12 May 2026, owned by Leila Ramos.',
-      };
+  const tool = track === 'tech'
+    ? { server: 'northstar-claims', name: 'get_adjuster_load', args: 'department="claims"', result: '[\n  {"id":"ADJ-04","cases_open":3,"capacity":"high"},\n  {"id":"ADJ-07","cases_open":8,"capacity":"low"},\n  {"id":"ADJ-12","cases_open":5,"capacity":"med"}\n]' }
+    : { server: 'northstar-crm',    name: 'lookup_crm_account', args: 'account_name="Hartwell Group"', result: '{\n  "found": true,\n  "account_id": "ACC-2204",\n  "status": "active",\n  "renewal_date": "2026-05-12",\n  "owner": "Leila Ramos"\n}' };
+  const mcpReply = track === 'tech'
+    ? 'Route to **ADJ-04**. They have 3 open cases and the highest available capacity — the lowest current load in the claims team.'
+    : 'Yes — **Hartwell Group** is in the CRM. Account ACC-2204, status active, renewal due **12 May 2026**, owned by Leila Ramos.';
+
+  const playMcp = () => {
+    setMcpEnabled(true);
+    setStep(0);
+    [400, 900, 1500].forEach((delay, i) => setTimeout(() => setStep(i + 1), delay));
+  };
+  const playOff = () => { setMcpEnabled(false); setStep(0); };
+
+  const Bubble = ({ role, children }: { role: 'user' | 'assistant'; children: React.ReactNode }) => (
+    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <div style={{ width: 18, height: 18, borderRadius: '50%', background: role === 'user' ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: role === 'user' ? 'inherit' : 'serif' }}>{role === 'user' ? (track === 'tech' ? 'A' : 'R') : 'A'}</div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{role === 'user' ? (track === 'tech' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+      </div>
+      <div style={{ maxWidth: '90%', padding: '9px 12px', background: role === 'user' ? CD.panel : 'transparent', border: role === 'user' ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{children}</div>
+    </div>
+  );
 
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>AI WITHOUT MCP vs. AI WITH MCP</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>The same question. Before and after adding a tool.</div>
-
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 14px', marginBottom: '12px' }}>
-        <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '6px' }}>USER PROMPT</div>
-        <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>&ldquo;{withoutMcp.prompt}&rdquo;</div>
+    <ClaudeDesktopFrame chatTitle={`Asking ${tool.name.replace(/_/g, ' ')}`} view={mcpEnabled ? 'WITH MCP' : 'NO MCP'} mcpServers={mcpEnabled ? 1 : 0}>
+      {/* Server-config sub-bar */}
+      <div style={{ padding: '8px 14px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <CDLabel>SETTINGS · MCP SERVERS</CDLabel>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: mcpEnabled ? CD.tool : CD.inkMuted }}>
+            {mcpEnabled ? `connected: ${tool.server}` : 'no servers configured'}
+          </span>
+          <button
+            type="button"
+            onClick={mcpEnabled ? playOff : playMcp}
+            style={{
+              appearance: 'none', cursor: 'pointer',
+              background: mcpEnabled ? 'rgba(167,139,250,0.18)' : 'rgba(255,255,255,0.06)',
+              border: `1px solid ${mcpEnabled ? CD.tool : CD.border}`,
+              borderRadius: 5,
+              padding: '4px 11px',
+              fontSize: 10, fontWeight: 700,
+              color: mcpEnabled ? CD.tool : CD.inkSecondary,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: '0.04em',
+            }}
+          >{mcpEnabled ? '○ DISCONNECT' : '+ ADD MCP SERVER'}</button>
+        </div>
       </div>
 
-      <AnimatePresence mode="wait">
+      {/* Chat thread */}
+      <div style={{ padding: '14px 16px', background: CD.bg, minHeight: 240 }}>
+        <Bubble role="user">{prompt}</Bubble>
+
         {!mcpEnabled ? (
-          <motion.div key="without" initial={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <div style={{ background: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: '8px', padding: '12px 14px', marginBottom: '14px' }}>
-              <div style={{ fontSize: '9px', color: '#FCA5A5', marginBottom: '6px' }}>AI RESPONSE — NO TOOLS</div>
-              <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6, fontStyle: 'italic' }}>{withoutMcp.response}</div>
-            </div>
-          </motion.div>
+          <Bubble role="assistant"><span style={{ fontStyle: 'italic' as const, color: CD.inkSecondary }}>{noMcpReply}</span></Bubble>
         ) : (
-          <motion.div key="with" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <div style={{ background: 'rgba(180,83,9,0.08)', border: '1px solid rgba(180,83,9,0.3)', borderRadius: '8px', padding: '12px 14px', marginBottom: '6px' }}>
-              <div style={{ fontSize: '9px', color: '#FCD34D', marginBottom: '6px' }}>TOOL CALL</div>
-              <div style={{ fontSize: '10px', color: '#B45309' }}>{withMcp.toolCall}</div>
-            </div>
-            <div style={{ background: 'rgba(5,150,105,0.07)', border: '1px solid rgba(5,150,105,0.2)', borderRadius: '8px', padding: '12px 14px', marginBottom: '6px' }}>
-              <div style={{ fontSize: '9px', color: '#6EE7B7', marginBottom: '6px' }}>TOOL RESPONSE</div>
-              <div style={{ fontSize: '9px', color: '#A7F3D0', lineHeight: 1.7 }}>{withMcp.toolResult}</div>
-            </div>
-            <div style={{ background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.2)', borderRadius: '8px', padding: '12px 14px', marginBottom: '14px' }}>
-              <div style={{ fontSize: '9px', color: '#93C5FD', marginBottom: '6px' }}>AI RESPONSE — WITH TOOL</div>
-              <div style={{ fontSize: '11px', color: '#C9D1D9', lineHeight: 1.6 }}>{withMcp.response}</div>
-            </div>
-          </motion.div>
+          <>
+            {step >= 1 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: CD.tool }}>⚒</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.tool, letterSpacing: '0.10em' }}>TOOL_USE · {tool.server}</span>
+                </div>
+                <div style={{ padding: '8px 11px', background: 'rgba(167,139,250,0.06)', border: `1px solid ${CD.tool}30`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>
+                  <span style={{ color: CD.tool }}>{tool.name}</span><span style={{ color: CD.inkSecondary }}>(</span>
+                  <span style={{ color: '#FBBF24' }}>{tool.args}</span>
+                  <span style={{ color: CD.inkSecondary }}>)</span>
+                </div>
+              </div>
+            )}
+            {step >= 2 && (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: CD.accent }}>↩</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.accent, letterSpacing: '0.10em' }}>TOOL_RESULT</span>
+                </div>
+                <div style={{ padding: '8px 11px', background: 'rgba(198,107,61,0.06)', border: `1px solid ${CD.accent}30`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: CD.inkSecondary, lineHeight: 1.55, whiteSpace: 'pre-wrap' as const }}>{tool.result}</div>
+              </div>
+            )}
+            {step >= 3 && (
+              <Bubble role="assistant">{mcpReply.split('**').map((s, i) => i % 2 === 0 ? s : <strong key={i} style={{ color: CD.accent }}>{s}</strong>)}</Bubble>
+            )}
+            {step < 3 && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 12, fontSize: 10, color: CD.inkMuted }}>
+                <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: '50%', background: CD.accent }} />
+                {step === 0 ? 'invoking tool…' : step === 1 ? 'waiting for tool result…' : 'composing reply…'}
+              </div>
+            )}
+          </>
         )}
-      </AnimatePresence>
-
-      <div
-        onClick={() => setMcpEnabled(v => !v)}
-        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '6px', background: mcpEnabled ? '#B45309' : 'rgba(255,255,255,0.06)', border: `1px solid ${mcpEnabled ? '#B45309' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: '10px', fontWeight: 700, color: mcpEnabled ? '#fff' : '#9CA3AF' }}
-      >
-        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: mcpEnabled ? '#FCD34D' : '#374151' }} />
-        {mcpEnabled ? 'MCP Enabled' : 'Add MCP Tool'}
       </div>
-    </div>
+
+      {/* Input row */}
+      <div style={{ padding: '10px 14px', background: CD.panelAlt, borderTop: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ flex: 1, padding: '7px 10px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 8, fontSize: 11, color: CD.inkMuted }}>Reply to Claude…</div>
+        <div style={{ width: 28, height: 28, borderRadius: 6, background: CD.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#fff' }}>↑</div>
+      </div>
+    </ClaudeDesktopFrame>
   );
 };
 
+// Tool schema builder rebuilt as a real MCP server editor — VS Code-style
+// dark editor on the left where the learner edits name + description +
+// schema, with quality checks (when-to-call / when-not-to-call / length)
+// surfacing inline. Right pane is a Claude Desktop preview showing how
+// Claude renders the tool in its tools tray: the icon + name and the
+// description rendered as the agent will read it.
 const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
   const [toolName, setToolName] = useState(track === 'tech' ? 'get_adjuster_load' : 'lookup_crm_account');
   const [desc, setDesc] = useState('');
   const [paramName, setParamName] = useState(track === 'tech' ? 'department' : 'account_name');
   const [paramType, setParamType] = useState('string');
-  const [showSchema, setShowSchema] = useState(false);
 
-  const hasWhen = desc.toLowerCase().includes('when') || desc.toLowerCase().includes('use this');
-  const hasWhenNot = desc.toLowerCase().includes('not') || desc.toLowerCase().includes('do not') || desc.toLowerCase().includes("don't");
+  const hasWhen = /when|use this/i.test(desc);
+  const hasWhenNot = /\bnot\b|do not|don't|never/i.test(desc);
   const descScore = (hasWhen ? 1 : 0) + (hasWhenNot ? 1 : 0) + (desc.length > 30 ? 1 : 0);
 
-  const schema = {
-    name: toolName || 'my_tool',
-    description: desc || '(write a description above)',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        [paramName || 'param']: { type: paramType, description: `The ${paramName || 'param'} to look up` },
-      },
-      required: [paramName || 'param'],
-    },
-  };
+  const placeholder = track === 'tech'
+    ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status."
+    : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions.";
 
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>MCP TOOL SCHEMA BUILDER</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '16px' }}>Build a tool definition. Watch the schema generate in real time.</div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
-        <div>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C', marginBottom: '4px', textTransform: 'uppercase' as const }}>Tool Name</div>
-          <input value={toolName} onChange={e => setToolName(e.target.value)} style={{ width: '100%', padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none', boxSizing: 'border-box' as const }} placeholder="e.g. get_adjuster_load" />
-        </div>
-        <div>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C', marginBottom: '4px', textTransform: 'uppercase' as const }}>Parameter</div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            <input value={paramName} onChange={e => setParamName(e.target.value)} style={{ flex: 1, padding: '7px 10px', fontSize: '11px', fontFamily: "'JetBrains Mono', monospace", border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none' }} placeholder="param_name" />
-            <select value={paramType} onChange={e => setParamType(e.target.value)} style={{ padding: '7px 8px', fontSize: '10px', border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none' }}>
-              <option>string</option><option>number</option><option>boolean</option>
-            </select>
+    <ClaudeDesktopFrame chatTitle={`Edit MCP server · ${track === 'tech' ? 'northstar-claims' : 'northstar-crm'}`} view="SERVER CONFIG" mcpServers={descScore === 3 ? 1 : 0}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
+        {/* LEFT: VS Code-style schema editor */}
+        <div style={{ borderRight: `1px solid ${CD.border}`, background: '#0E0E0E' }}>
+          <div style={{ padding: '6px 14px', background: '#191919', borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CD.accent }}>◇</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: CD.inkSecondary }}>tools/{toolName || 'my_tool'}.ts</span>
           </div>
-        </div>
-      </div>
 
-      <div style={{ marginBottom: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <div style={{ fontSize: '9px', fontWeight: 700, color: '#78716C', textTransform: 'uppercase' as const }}>Description</div>
-          <div style={{ fontSize: '9px', color: descScore === 3 ? '#16A34A' : descScore >= 1 ? '#D97706' : '#DC2626' }}>
-            {descScore === 3 ? '✓ Strong' : descScore >= 1 ? '⚠ Partial' : '✗ Too vague'}
-          </div>
-        </div>
-        <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} style={{ width: '100%', padding: '8px 10px', fontSize: '11px', border: '1px solid #E7E5E4', borderRadius: '6px', background: 'var(--ed-card)', color: '#292524', outline: 'none', resize: 'none', lineHeight: 1.6, boxSizing: 'border-box' as const }} placeholder={track === 'tech' ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status." : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions."} />
-        <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
-          {[{ label: 'has when-to-call', pass: hasWhen }, { label: 'has when-NOT-to-call', pass: hasWhenNot }, { label: 'sufficient length', pass: desc.length > 30 }].map(c => (
-            <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: c.pass ? '#16A34A' : '#9CA3AF' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: c.pass ? '#16A34A' : '#E5E7EB' }} />{c.label}
+          <div style={{ padding: '12px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: '#D4D4D4', lineHeight: 1.7 }}>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>1</span>
+              <span><span style={{ color: '#569CD6' }}>export const</span> tool = {'{'}</span>
             </div>
-          ))}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>2</span>
+              <span style={{ paddingLeft: 6 }}><span style={{ color: '#9CDCFE' }}>name</span>: <span style={{ color: '#CE9178' }}>"</span></span>
+              <input value={toolName} onChange={e => setToolName(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#CE9178', fontFamily: 'inherit', fontSize: 11.5, outline: 'none', width: 220 }} />
+              <span style={{ color: '#CE9178' }}>"</span><span style={{ color: '#D4D4D4' }}>,</span>
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>3</span>
+              <span style={{ paddingLeft: 6 }}><span style={{ color: '#9CDCFE' }}>description</span>: <span style={{ color: '#CE9178' }}>`</span></span>
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>4</span>
+              <textarea
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                placeholder={placeholder}
+                rows={3}
+                style={{
+                  flex: 1, marginLeft: 12,
+                  background: 'rgba(206,145,120,0.08)',
+                  border: `1px solid ${CD.border}`,
+                  borderRadius: 4,
+                  padding: '6px 8px',
+                  color: '#CE9178',
+                  fontFamily: 'inherit', fontSize: 11,
+                  resize: 'none' as const, outline: 'none',
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>5</span>
+              <span style={{ paddingLeft: 6 }}><span style={{ color: '#CE9178' }}>`</span><span style={{ color: '#D4D4D4' }}>,</span></span>
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>6</span>
+              <span style={{ paddingLeft: 6 }}><span style={{ color: '#9CDCFE' }}>inputSchema</span>: {'{'}</span>
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>7</span>
+              <span style={{ paddingLeft: 18 }}><span style={{ color: '#9CDCFE' }}>type</span>: <span style={{ color: '#CE9178' }}>"object"</span>,</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>8</span>
+              <span style={{ paddingLeft: 18 }}><span style={{ color: '#9CDCFE' }}>required</span>: [<span style={{ color: '#CE9178' }}>"</span></span>
+              <input value={paramName} onChange={e => setParamName(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#CE9178', fontFamily: 'inherit', fontSize: 11.5, outline: 'none', width: 130 }} />
+              <span style={{ color: '#CE9178' }}>"</span><span style={{ color: '#D4D4D4' }}>],</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>9</span>
+              <span style={{ paddingLeft: 18 }}><span style={{ color: '#9CDCFE' }}>properties</span>: {'{ '}<span style={{ color: '#9CDCFE' }}>"{paramName}"</span>: {'{ '}<span style={{ color: '#9CDCFE' }}>type</span>: <span style={{ color: '#CE9178' }}>"</span></span>
+              <select value={paramType} onChange={e => setParamType(e.target.value)} style={{ background: 'transparent', border: 'none', color: '#CE9178', fontFamily: 'inherit', fontSize: 11.5, outline: 'none' }}>
+                <option style={{ background: '#1E1E1E' }}>string</option>
+                <option style={{ background: '#1E1E1E' }}>number</option>
+                <option style={{ background: '#1E1E1E' }}>boolean</option>
+              </select>
+              <span style={{ color: '#CE9178' }}>"</span> {'} }'}
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>10</span>
+              <span style={{ paddingLeft: 6 }}>{'},'}</span>
+            </div>
+            <div style={{ display: 'flex' }}>
+              <span style={{ width: 22, color: CD.inkMuted, textAlign: 'right', paddingRight: 10 }}>11</span>
+              <span>{'}'}</span>
+            </div>
+          </div>
+
+          {/* Quality checks */}
+          <div style={{ padding: '8px 14px 12px', borderTop: `1px solid ${CD.border}`, background: CD.panelAlt }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <CDLabel>DESCRIPTION QUALITY</CDLabel>
+              <span style={{ fontSize: 10, fontWeight: 800, color: descScore === 3 ? CD.accent : descScore >= 1 ? '#FCD34D' : CD.tool, fontFamily: "'JetBrains Mono', monospace" }}>
+                {descScore === 3 ? '✓ STRONG' : descScore >= 1 ? '⚠ PARTIAL' : '✗ TOO VAGUE'}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: 14 }}>
+              {[
+                { label: 'when-to-call clause', pass: hasWhen },
+                { label: 'when-NOT-to-call clause', pass: hasWhenNot },
+                { label: '≥ 30 chars', pass: desc.length > 30 },
+              ].map(c => (
+                <div key={c.label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9.5, fontFamily: "'JetBrains Mono', monospace", color: c.pass ? CD.accent : CD.inkMuted }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: c.pass ? CD.accent : CD.borderLight }} />
+                  {c.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Claude Desktop tool-tray preview */}
+        <div style={{ background: CD.bg, padding: '12px 14px' }}>
+          <CDLabel>TOOLS TRAY · how Claude sees it</CDLabel>
+          <div style={{ marginTop: 8, padding: '10px 12px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(167,139,250,0.15)', border: `1px solid ${CD.tool}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CD.tool, fontSize: 11 }}>⚒</div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: CD.inkPrimary, fontFamily: "'JetBrains Mono', monospace" }}>{toolName || 'my_tool'}</div>
+                <div style={{ fontSize: 9, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{track === 'tech' ? 'northstar-claims' : 'northstar-crm'}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: desc ? CD.inkPrimary : CD.inkMuted, lineHeight: 1.6, fontStyle: desc ? 'normal' as const : 'italic' as const }}>
+              {desc || '(no description — Claude will see only the tool name and guess when to call it.)'}
+            </div>
+            <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px solid ${CD.border}` }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em', marginBottom: 4 }}>REQUIRED INPUT</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: CD.inkSecondary }}>
+                <span style={{ color: CD.tool }}>{paramName}</span><span style={{ color: CD.inkMuted }}>:</span> <span style={{ color: '#FBBF24' }}>{paramType}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Likely behaviour */}
+          <div style={{ marginTop: 10, padding: '8px 10px', background: descScore === 3 ? 'rgba(198,107,61,0.10)' : 'rgba(167,139,250,0.07)', border: `1px solid ${descScore === 3 ? CD.accent : CD.tool}40`, borderRadius: 7 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: descScore === 3 ? CD.accent : CD.tool, letterSpacing: '0.10em', marginBottom: 4 }}>LIKELY BEHAVIOUR</div>
+            <div style={{ fontSize: 10.5, color: CD.inkSecondary, lineHeight: 1.55 }}>
+              {descScore === 3
+                ? 'Claude will call this only when the user asks about the specific scope you named — and skip it otherwise.'
+                : descScore >= 1
+                ? 'Partially scoped — Claude may over- or under-call this on borderline queries.'
+                : "No decision boundary — Claude will guess based on the tool name and may call it on every turn."}
+            </div>
+          </div>
         </div>
       </div>
-
-      <div onClick={() => setShowSchema(v => !v)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '6px', background: '#B45309', cursor: 'pointer', fontSize: '10px', fontWeight: 700, color: '#fff', marginBottom: showSchema ? '12px' : 0 }}>
-        {showSchema ? 'Hide' : 'Generate'} Schema
-      </div>
-
-      {showSchema && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#0D1117', borderRadius: '8px', padding: '12px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#A78BFA', lineHeight: 1.8 }}>
-          <pre style={{ margin: 0, color: '#C9D1D9', whiteSpace: 'pre-wrap' as const }}>{JSON.stringify(schema, null, 2)}</pre>
-        </motion.div>
-      )}
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
+// MCP flow stepper rebuilt as Claude Desktop's developer trace pane. The
+// learner steps through a full MCP request — USER message, the model's
+// reasoning, the actual tool_use block, the tool_result, the final
+// reasoning, and the assistant's reply. Each step renders the right
+// content type with the right colour (user bubble / reasoning panel /
+// tool_use code / tool_result JSON / reasoning / assistant reply).
 const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
-  const steps = track === 'tech' ? [
-    { type: 'USER', label: 'User Message', color: '#6B7280', text: '"Route claim CLM-8847 to the best available adjuster in the claims team."' },
-    { type: 'REASON', label: 'AI Reasoning', color: '#B45309', text: 'I need to know current adjuster workloads before I can route. I should call get_adjuster_load() for the claims department.' },
-    { type: 'TOOL CALL', label: 'Tool Call', color: '#F59E0B', text: 'get_adjuster_load(department="claims")' },
-    { type: 'TOOL RESPONSE', label: 'Tool Response', color: '#059669', text: '[{id:"ADJ-04",cases_open:3,capacity:"high"},{id:"ADJ-07",cases_open:8,capacity:"low"},{id:"ADJ-12",cases_open:5,capacity:"med"}]' },
-    { type: 'REASON', label: 'AI Reasoning', color: '#B45309', text: 'ADJ-04 has the fewest open cases (3) and highest capacity. That\'s the correct route.' },
-    { type: 'ANSWER', label: 'Final Answer', color: '#2563EB', text: 'Routing CLM-8847 to ADJ-04. They have 3 open cases and high available capacity — lowest current load in the claims team.' },
+  type StepType = 'USER' | 'REASON' | 'TOOL_USE' | 'TOOL_RESULT' | 'REASON_2' | 'ANSWER';
+  type Step = { type: StepType; label: string; text: string };
+  const steps: Step[] = track === 'tech' ? [
+    { type: 'USER',        label: 'User message',     text: 'Route claim CLM-8847 to the best available adjuster in the claims team.' },
+    { type: 'REASON',      label: 'Model reasoning',  text: 'I need to know current adjuster workloads before I can route. I should call get_adjuster_load() for the claims department.' },
+    { type: 'TOOL_USE',    label: 'Tool call',        text: 'get_adjuster_load(department="claims")' },
+    { type: 'TOOL_RESULT', label: 'Tool result',      text: '[\n  {"id":"ADJ-04","cases_open":3,"capacity":"high"},\n  {"id":"ADJ-07","cases_open":8,"capacity":"low"},\n  {"id":"ADJ-12","cases_open":5,"capacity":"med"}\n]' },
+    { type: 'REASON_2',    label: 'Model reasoning',  text: "ADJ-04 has the fewest open cases (3) and the highest capacity. That's the correct route." },
+    { type: 'ANSWER',      label: 'Assistant reply',  text: 'Routing CLM-8847 to ADJ-04. They have 3 open cases and high available capacity — lowest current load in the claims team.' },
   ] : [
-    { type: 'USER', label: 'User Message', color: '#6B7280', text: '"Is Hartwell Group in our CRM and when is their renewal?"' },
-    { type: 'REASON', label: 'AI Reasoning', color: '#B45309', text: 'The user is asking about a specific account by name. I should call lookup_crm_account() for Hartwell Group.' },
-    { type: 'TOOL CALL', label: 'Tool Call', color: '#F59E0B', text: 'lookup_crm_account(account_name="Hartwell Group")' },
-    { type: 'TOOL RESPONSE', label: 'Tool Response', color: '#059669', text: '{found:true,account_id:"ACC-2204",status:"active",renewal_date:"2026-05-12",owner:"Leila Ramos"}' },
-    { type: 'REASON', label: 'AI Reasoning', color: '#B45309', text: 'Account found, active, renewal in May. I have everything I need to answer the question directly.' },
-    { type: 'ANSWER', label: 'Final Answer', color: '#2563EB', text: 'Yes — Hartwell Group is in the CRM. Account ACC-2204, active, renewal due 12 May 2026, owned by Leila Ramos.' },
+    { type: 'USER',        label: 'User message',     text: 'Is Hartwell Group in our CRM and when is their renewal?' },
+    { type: 'REASON',      label: 'Model reasoning',  text: 'The user is asking about a specific account by name. I should call lookup_crm_account() for Hartwell Group.' },
+    { type: 'TOOL_USE',    label: 'Tool call',        text: 'lookup_crm_account(account_name="Hartwell Group")' },
+    { type: 'TOOL_RESULT', label: 'Tool result',      text: '{\n  "found": true,\n  "account_id": "ACC-2204",\n  "status": "active",\n  "renewal_date": "2026-05-12",\n  "owner": "Leila Ramos"\n}' },
+    { type: 'REASON_2',    label: 'Model reasoning',  text: 'Account found, active, renewal in May. I have everything I need to answer the question directly.' },
+    { type: 'ANSWER',      label: 'Assistant reply',  text: 'Yes — Hartwell Group is in the CRM. Account ACC-2204, active, renewal due 12 May 2026, owned by Leila Ramos.' },
   ];
 
   const [current, setCurrent] = useState(0);
   const done = current >= steps.length;
 
-  return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>MCP FLOW STEPPER</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Step through a live MCP request. See every stage of the reasoning loop.</div>
+  const palette = (t: StepType) => {
+    switch (t) {
+      case 'USER':        return { icon: '👤', label: 'USER',        color: CD.inkSecondary, bg: CD.panel };
+      case 'REASON':
+      case 'REASON_2':    return { icon: '🧠', label: 'REASONING',   color: '#A78BFA',       bg: 'rgba(167,139,250,0.08)' };
+      case 'TOOL_USE':    return { icon: '⚒',  label: 'TOOL_USE',    color: CD.tool,         bg: 'rgba(167,139,250,0.10)' };
+      case 'TOOL_RESULT': return { icon: '↩',  label: 'TOOL_RESULT', color: CD.accent,       bg: 'rgba(198,107,61,0.08)'  };
+      case 'ANSWER':      return { icon: 'A',  label: 'ASSISTANT',   color: CD.accent,       bg: 'transparent' };
+    }
+  };
 
-      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px', marginBottom: '16px' }}>
-        {steps.slice(0, Math.max(1, current)).map((step, i) => (
-          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.25 }}
-            style={{ padding: '10px 12px', borderRadius: '7px', background: 'rgba(255,255,255,0.03)', border: `1px solid ${step.color}33` }}>
-            <div style={{ fontSize: '8px', fontWeight: 700, color: step.color, letterSpacing: '0.12em', marginBottom: '5px' }}>{step.type}</div>
-            <div style={{ fontSize: '10px', color: '#C9D1D9', lineHeight: 1.6 }}>{step.text}</div>
-          </motion.div>
-        ))}
-        {!done && (
-          <div style={{ padding: '10px 12px', borderRadius: '7px', background: 'rgba(255,255,255,0.015)', border: '1px dashed rgba(255,255,255,0.08)' }}>
-            <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.12em' }}>{steps[current]?.type ?? 'DONE'}</div>
+  return (
+    <ClaudeDesktopFrame chatTitle="Developer · live trace" view={done ? 'COMPLETE' : `STEP ${current + 1}/${steps.length}`} mcpServers={1}>
+      <div style={{ padding: '14px 16px', background: CD.bg, minHeight: 280 }}>
+        {steps.slice(0, Math.max(1, current)).map((s, i) => {
+          const p = palette(s.type);
+          if (s.type === 'TOOL_USE') {
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: CD.tool }}>{p.icon}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.tool, letterSpacing: '0.10em' }}>{p.label}</span>
+                </div>
+                <div style={{ padding: '8px 11px', background: p.bg, border: `1px solid ${CD.tool}30`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>
+                  <span style={{ color: CD.tool }}>{s.text.split('(')[0]}</span><span style={{ color: CD.inkSecondary }}>(</span>
+                  <span style={{ color: '#FBBF24' }}>{s.text.split('(')[1]?.replace(')', '')}</span>
+                  <span style={{ color: CD.inkSecondary }}>)</span>
+                </div>
+              </motion.div>
+            );
+          }
+          if (s.type === 'TOOL_RESULT') {
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: CD.accent }}>{p.icon}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.accent, letterSpacing: '0.10em' }}>{p.label}</span>
+                </div>
+                <div style={{ padding: '8px 11px', background: p.bg, border: `1px solid ${CD.accent}30`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: CD.inkSecondary, lineHeight: 1.55, whiteSpace: 'pre-wrap' as const }}>{s.text}</div>
+              </motion.div>
+            );
+          }
+          if (s.type === 'REASON' || s.type === 'REASON_2') {
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                  <span style={{ fontSize: 11 }}>{p.icon}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: p.color, letterSpacing: '0.10em' }}>{p.label}</span>
+                </div>
+                <div style={{ padding: '8px 11px', background: p.bg, border: `1px solid ${p.color}30`, borderRadius: 7, fontSize: 11, color: CD.inkPrimary, lineHeight: 1.6, fontStyle: 'italic' as const }}>{s.text}</div>
+              </motion.div>
+            );
+          }
+          // USER or ANSWER bubble
+          const isUser = s.type === 'USER';
+          return (
+            <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: isUser ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: isUser ? 'inherit' : 'serif' }}>{isUser ? (track === 'tech' ? 'A' : 'R') : 'A'}</div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{isUser ? (track === 'tech' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+              </div>
+              <div style={{ maxWidth: '90%', padding: '9px 12px', background: isUser ? CD.panel : 'transparent', border: isUser ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{s.text}</div>
+            </motion.div>
+          );
+        })}
+
+        {!done && current > 0 && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 10px', background: 'rgba(255,255,255,0.04)', borderRadius: 12, fontSize: 10, color: CD.inkMuted, marginTop: 4 }}>
+            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity }} style={{ width: 5, height: 5, borderRadius: '50%', background: CD.accent }} />
+            next: {steps[current].label.toLowerCase()}
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
-        {!done
-          ? <div onClick={() => setCurrent(v => v + 1)} style={{ padding: '7px 16px', background: '#B45309', borderRadius: '6px', fontSize: '10px', fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
-              {current === 0 ? 'Start Flow' : 'Next Step'} →
-            </div>
-          : <>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#6EE7B7' }}>✓ Complete — {steps.length} steps</div>
-              <div onClick={() => setCurrent(0)} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', fontSize: '10px', color: '#9CA3AF', cursor: 'pointer' }}>Reset</div>
-            </>
-        }
-        {!done && current > 0 && <div style={{ fontSize: '9px', color: '#6B7280', alignSelf: 'center' }}>{current} / {steps.length}</div>}
+      {/* Step controls */}
+      <div style={{ padding: '10px 14px', background: CD.panelAlt, borderTop: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CD.inkMuted }}>{done ? `${steps.length}/${steps.length} steps · trace complete` : `${current}/${steps.length} steps replayed`}</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {done ? (
+            <button type="button" onClick={() => setCurrent(0)} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ REPLAY</button>
+          ) : (
+            <button type="button" onClick={() => setCurrent(v => v + 1)} style={{ appearance: 'none', cursor: 'pointer', background: CD.accent, border: 'none', borderRadius: 5, padding: '5px 14px', fontSize: 10.5, fontWeight: 700, color: '#fff', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>{current === 0 ? '▶ PLAY TRACE' : '▶ NEXT STEP'}</button>
+          )}
+        </div>
       </div>
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
+// Permission audit rebuilt as Claude Desktop's Tool Permissions settings
+// page. A real settings list — each tool row shows the action verb +
+// type chip (READ / WRITE / SEND / DELETE) + a permission radio
+// selector (Always allow / Ask each time / Never allow). The learner
+// picks per row, hits AUDIT, and wrong picks reveal the risk inline.
 const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
-  const tools = track === 'tech' ? [
-    { name: 'get_adjuster_load()', action: 'Reads adjuster caseload from HR API', type: 'READ', answer: 'safe', risk: 'No data modified. Safe to call without approval.' },
-    { name: 'update_claim_status()', action: 'Writes new status to claims database', type: 'WRITE', answer: 'review', risk: 'Modifies production records. Needs human-in-the-loop.' },
-    { name: 'send_adjuster_email()', action: 'Sends email from adjuster account', type: 'SEND', answer: 'review', risk: 'External-facing action. Must require explicit confirmation.' },
-    { name: 'get_policy_clause()', action: 'Reads policy text from document store', type: 'READ', answer: 'safe', risk: 'Read-only on non-sensitive documents. Safe.' },
-    { name: 'delete_claim_record()', action: 'Permanently deletes a claim row', type: 'DELETE', answer: 'block', risk: 'Irreversible. Should never be callable by AI directly.' },
+  type Rating = 'safe' | 'review' | 'block';
+  type ToolType = 'READ' | 'WRITE' | 'SEND' | 'DELETE';
+  type ToolRow = { name: string; action: string; type: ToolType; answer: Rating; risk: string };
+
+  const tools: ToolRow[] = track === 'tech' ? [
+    { name: 'get_adjuster_load',    action: 'Reads adjuster caseload from HR API',     type: 'READ',   answer: 'safe',   risk: 'Read-only on non-sensitive data — safe to allow always.' },
+    { name: 'update_claim_status',  action: 'Writes new status to claims database',    type: 'WRITE',  answer: 'review', risk: 'Modifies production records — must require user confirmation.' },
+    { name: 'send_adjuster_email',  action: 'Sends email from adjuster account',       type: 'SEND',   answer: 'review', risk: 'External-facing action — must require explicit confirmation each time.' },
+    { name: 'get_policy_clause',    action: 'Reads policy text from document store',   type: 'READ',   answer: 'safe',   risk: 'Read-only on non-sensitive documents — safe.' },
+    { name: 'delete_claim_record',  action: 'Permanently deletes a claim row',         type: 'DELETE', answer: 'block',  risk: 'Irreversible — must never be callable by the agent.' },
   ] : [
-    { name: 'lookup_crm_account()', action: 'Reads account data from Salesforce', type: 'READ', answer: 'safe', risk: 'Read-only. Safe to call without approval.' },
-    { name: 'update_renewal_date()', action: 'Updates renewal date in Salesforce', type: 'WRITE', answer: 'review', risk: 'Modifies CRM records. Needs human approval node.' },
-    { name: 'send_renewal_email()', action: 'Sends renewal email to account holder', type: 'SEND', answer: 'review', risk: 'External email to customer. Must confirm before sending.' },
-    { name: 'get_exception_list()', action: 'Reads open exceptions from worksheet', type: 'READ', answer: 'safe', risk: 'Read-only lookup. Safe.' },
-    { name: 'archive_account()', action: 'Marks account as closed in Salesforce', type: 'DELETE', answer: 'block', risk: 'Hard to reverse. Must never fire without multi-step approval.' },
+    { name: 'lookup_crm_account',   action: 'Reads account data from Salesforce',       type: 'READ',   answer: 'safe',   risk: 'Read-only — safe to allow always.' },
+    { name: 'update_renewal_date',  action: 'Updates renewal date in Salesforce',       type: 'WRITE',  answer: 'review', risk: 'Modifies CRM records — needs human approval per call.' },
+    { name: 'send_renewal_email',   action: 'Sends renewal email to account holder',    type: 'SEND',   answer: 'review', risk: 'External email to a customer — must confirm before sending.' },
+    { name: 'get_exception_list',   action: 'Reads open exceptions from worksheet',     type: 'READ',   answer: 'safe',   risk: 'Read-only lookup — safe.' },
+    { name: 'archive_account',      action: 'Marks account as closed in Salesforce',    type: 'DELETE', answer: 'block',  risk: 'Hard to reverse — must never fire without multi-step approval.' },
   ];
 
-  type Rating = 'safe' | 'review' | 'block';
   const [picks, setPicks] = useState<Record<number, Rating>>({});
   const [revealed, setRevealed] = useState(false);
   const allPicked = tools.every((_, i) => picks[i]);
   const score = revealed ? tools.filter((t, i) => picks[i] === t.answer).length : 0;
 
-  const ratingColors: Record<Rating, { bg: string; border: string; label: string }> = {
-    safe:   { bg: 'rgba(22,163,74,0.12)',  border: '#16A34A', label: 'SAFE' },
-    review: { bg: 'rgba(245,158,11,0.12)', border: '#D97706', label: 'REVIEW' },
-    block:  { bg: 'rgba(220,38,38,0.1)',   border: '#DC2626', label: 'BLOCK' },
+  const RATINGS: { id: Rating; label: string; color: string }[] = [
+    { id: 'safe',   label: 'Always allow',  color: '#16A34A' },
+    { id: 'review', label: 'Ask each time', color: '#F59E0B' },
+    { id: 'block',  label: 'Never allow',   color: '#DC2626' },
+  ];
+  const TYPE_COLORS: Record<ToolType, { fg: string; bg: string }> = {
+    READ:   { fg: '#67E8F9', bg: 'rgba(103,232,249,0.10)' },
+    WRITE:  { fg: '#FCD34D', bg: 'rgba(252,211,77,0.10)'  },
+    SEND:   { fg: '#A78BFA', bg: 'rgba(167,139,250,0.10)' },
+    DELETE: { fg: '#F87171', bg: 'rgba(248,113,113,0.10)' },
   };
 
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>MCP PERMISSION AUDIT</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Classify each tool: SAFE (call without approval), REVIEW (human gate), or BLOCK (never callable by AI)?</div>
-      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px', marginBottom: '14px' }}>
-        {tools.map((tool, i) => {
+    <ClaudeDesktopFrame chatTitle="Settings · Tool permissions" view="PERMISSIONS" mcpServers={1}>
+      <div style={{ padding: '12px 16px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <CDLabel>SETTINGS · TOOL PERMISSIONS</CDLabel>
+            <div style={{ fontSize: 11, color: CD.inkSecondary, marginTop: 4, lineHeight: 1.5 }}>Choose how Claude should treat each tool exposed by your MCP servers.</div>
+          </div>
+          <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+            <div style={{ padding: '3px 8px', borderRadius: 4, background: 'rgba(167,139,250,0.10)', border: `1px solid ${CD.tool}40`, fontSize: 10, color: CD.tool, fontFamily: "'JetBrains Mono', monospace" }}>{tools.length} tools</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ background: CD.bg }}>
+        {tools.map((t, i) => {
           const pick = picks[i];
-          const isRight = revealed && pick === tool.answer;
-          const isWrong = revealed && pick && pick !== tool.answer;
+          const isRight = revealed && pick === t.answer;
+          const isWrong = revealed && pick && pick !== t.answer;
+          const tc = TYPE_COLORS[t.type];
           return (
-            <div key={i} style={{ padding: '10px 12px', background: isRight ? 'rgba(22,163,74,0.05)' : isWrong ? 'rgba(220,38,38,0.04)' : '#fff', border: `1px solid ${isRight ? 'rgba(22,163,74,0.25)' : isWrong ? 'rgba(220,38,38,0.2)' : '#E7E5E4'}`, borderRadius: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+            <div key={i} style={{ padding: '10px 16px', borderBottom: `1px solid ${CD.border}`, background: isRight ? 'rgba(16,185,129,0.06)' : isWrong ? 'rgba(248,113,113,0.05)' : 'transparent' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.8fr auto', gap: 12, alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: '#B45309', marginBottom: '2px' }}>{tool.name}</div>
-                  <div style={{ fontSize: '10px', color: '#57534E', lineHeight: 1.4 }}>{tool.action}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+                    <div style={{ width: 18, height: 18, borderRadius: 4, background: 'rgba(167,139,250,0.12)', border: `1px solid ${CD.tool}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CD.tool, fontSize: 11 }}>⚒</div>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: CD.inkPrimary, fontWeight: 700 }}>{t.name}</span>
+                  </div>
+                  <div style={{ fontSize: 10.5, color: CD.inkSecondary }}>{t.action}</div>
                 </div>
-                <div style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '8px', fontWeight: 700, background: tool.type === 'READ' ? 'rgba(37,99,235,0.1)' : tool.type === 'WRITE' ? 'rgba(245,158,11,0.1)' : tool.type === 'SEND' ? 'rgba(124,58,237,0.1)' : 'rgba(220,38,38,0.1)', color: tool.type === 'READ' ? '#2563EB' : tool.type === 'WRITE' ? '#D97706' : tool.type === 'SEND' ? '#7C3AED' : '#DC2626', flexShrink: 0, fontFamily: "'JetBrains Mono', monospace" }}>{tool.type}</div>
+                <div style={{ padding: '3px 8px', borderRadius: 4, background: tc.bg, border: `1px solid ${tc.fg}50`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: tc.fg, letterSpacing: '0.10em', justifySelf: 'start' as const }}>{t.type}</div>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  {RATINGS.map(r => {
+                    const on = pick === r.id;
+                    const correct = revealed && on && r.id === t.answer;
+                    const wrong = revealed && on && r.id !== t.answer;
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => !revealed && setPicks(p => ({ ...p, [i]: r.id }))}
+                        disabled={revealed}
+                        style={{
+                          appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                          padding: '4px 10px',
+                          background: on ? (correct ? 'rgba(16,185,129,0.18)' : wrong ? 'rgba(248,113,113,0.18)' : `${r.color}22`) : 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${on ? r.color : `${r.color}30`}`,
+                          borderRadius: 5,
+                          fontSize: 10, fontWeight: 700, color: on ? r.color : CD.inkMuted,
+                          fontFamily: 'inherit',
+                        }}
+                      >{r.label}</button>
+                    );
+                  })}
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {(['safe', 'review', 'block'] as Rating[]).map(opt => {
-                  const rc = ratingColors[opt];
-                  const selected = pick === opt;
-                  return (
-                    <div key={opt} onClick={() => !revealed && setPicks(p => ({ ...p, [i]: opt }))}
-                      style={{ padding: '4px 12px', borderRadius: '5px', fontSize: '9px', fontWeight: 700, cursor: revealed ? 'default' : 'pointer', background: selected ? rc.bg : '#F5F5F4', border: `1px solid ${selected ? rc.border : '#E7E5E4'}`, color: selected ? rc.border : '#9CA3AF', fontFamily: "'JetBrains Mono', monospace" }}>
-                      {rc.label}
-                    </div>
-                  );
-                })}
-                {revealed && <div style={{ marginLeft: 'auto', fontSize: '9px', color: isRight ? '#16A34A' : '#DC2626', fontStyle: 'italic', alignSelf: 'center' }}>{isRight ? '✓ ' : '✗ '}{isRight ? '' : `→ ${tool.answer.toUpperCase()} · `}{tool.risk}</div>}
-              </div>
+              {revealed && (
+                <div style={{ marginTop: 7, fontSize: 10, color: isRight ? '#A7F3D0' : '#FECACA', fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.55 }}>
+                  {isRight ? '✓ ' : `✗ → ${t.answer.toUpperCase()} · `}{t.risk}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#B45309' : 'rgba(180,83,9,0.15)', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#9CA3AF', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Audit</div>}
-        {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 5 ? '#16A34A' : '#F59E0B' }}>{score}/5 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Reset</div>}
+
+      <div style={{ padding: '12px 16px', background: CD.panelAlt, borderTop: `1px solid ${CD.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: revealed ? (score === tools.length ? CD.accent : '#FCD34D') : CD.inkMuted, fontWeight: 700 }}>
+          {revealed ? `${score}/${tools.length} CORRECT` : `${Object.keys(picks).length}/${tools.length} configured`}
+        </span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {revealed ? (
+            <button type="button" onClick={() => { setPicks({}); setRevealed(false); }} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>RESET</button>
+          ) : (
+            <button type="button" onClick={() => allPicked && setRevealed(true)} disabled={!allPicked} style={{ appearance: 'none', cursor: allPicked ? 'pointer' : 'not-allowed', background: allPicked ? CD.accent : 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 5, padding: '5px 14px', fontSize: 10.5, fontWeight: 700, color: allPicked ? '#fff' : CD.inkMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>AUDIT POLICY</button>
+          )}
+        </div>
       </div>
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
+// Log reader rebuilt as Claude Desktop's Developer log tail viewer —
+// `tail -f ~/Library/Logs/Claude/mcp.log` style. Live log entries with
+// timestamp, tool name, status code, latency, and call count. Rows
+// styled like terminal output (monospace, colour-coded status codes,
+// latency in yellow when above threshold). The learner clicks the
+// rows that look anomalous and the audit pass calls out exactly why.
 const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
-  const logs = track === 'tech' ? [
-    { time: '14:02:11', tool: 'get_adjuster_load',   status: 200, ms: 82,  calls: 4,  flag: false },
-    { time: '14:02:19', tool: 'get_policy_clause',   status: 200, ms: 61,  calls: 340, flag: true, anomaly: 'Called 340× in 60 min — 8× above baseline. Likely a prompt loop.' },
-    { time: '14:03:02', tool: 'update_claim_status', status: 403, ms: 12,  calls: 7,  flag: true, anomaly: '403 Forbidden — token may lack write scope or has expired.' },
-    { time: '14:03:44', tool: 'get_adjuster_load',   status: 200, ms: 1840, calls: 3, flag: true, anomaly: 'Latency spike: 1840ms vs 82ms normal — HR API may be under load.' },
-    { time: '14:04:10', tool: 'send_adjuster_email', status: 200, ms: 210,  calls: 2, flag: false },
+  type Log = { time: string; tool: string; status: number; ms: number; calls: number; flag: boolean; anomaly?: string };
+  const logs: Log[] = track === 'tech' ? [
+    { time: '14:02:11', tool: 'get_adjuster_load',   status: 200, ms: 82,   calls: 4,   flag: false },
+    { time: '14:02:19', tool: 'get_policy_clause',   status: 200, ms: 61,   calls: 340, flag: true, anomaly: 'Called 340× in 60 min — 8× above baseline. Likely an agent prompt loop.' },
+    { time: '14:03:02', tool: 'update_claim_status', status: 403, ms: 12,   calls: 7,   flag: true, anomaly: '403 Forbidden — token may lack write scope or has expired.' },
+    { time: '14:03:44', tool: 'get_adjuster_load',   status: 200, ms: 1840, calls: 3,   flag: true, anomaly: 'Latency spike — 1840ms vs 82ms baseline. HR API may be under load.' },
+    { time: '14:04:10', tool: 'send_adjuster_email', status: 200, ms: 210,  calls: 2,   flag: false },
   ] : [
-    { time: '14:02:11', tool: 'lookup_crm_account',  status: 200, ms: 94,   calls: 5,  flag: false },
-    { time: '14:02:19', tool: 'get_renewal_status',  status: 200, ms: 77,   calls: 88, flag: true, anomaly: 'Called 88× in 30 min — probable loop in agent prompt.' },
-    { time: '14:03:02', tool: 'update_renewal_date', status: 403, ms: 11,   calls: 4,  flag: true, anomaly: '403 Forbidden — Salesforce credential may have expired or been revoked.' },
-    { time: '14:03:44', tool: 'lookup_crm_account',  status: 200, ms: 2200, calls: 6,  flag: true, anomaly: 'Latency 2200ms vs 94ms baseline — Salesforce rate throttle possible.' },
-    { time: '14:04:10', tool: 'send_renewal_email',  status: 200, ms: 188,  calls: 3,  flag: false },
+    { time: '14:02:11', tool: 'lookup_crm_account',  status: 200, ms: 94,   calls: 5,   flag: false },
+    { time: '14:02:19', tool: 'get_renewal_status',  status: 200, ms: 77,   calls: 88,  flag: true, anomaly: 'Called 88× in 30 min — probable loop in the agent prompt.' },
+    { time: '14:03:02', tool: 'update_renewal_date', status: 403, ms: 11,   calls: 4,   flag: true, anomaly: '403 Forbidden — Salesforce credential may have expired or been revoked.' },
+    { time: '14:03:44', tool: 'lookup_crm_account',  status: 200, ms: 2200, calls: 6,   flag: true, anomaly: 'Latency 2200ms vs 94ms baseline — Salesforce rate-throttle possible.' },
+    { time: '14:04:10', tool: 'send_renewal_email',  status: 200, ms: 188,  calls: 3,   flag: false },
   ];
 
   const [flagged, setFlagged] = useState<Set<number>>(new Set());
   const [revealed, setRevealed] = useState(false);
-  const correctFlags = new Set(logs.map((l, i) => l.flag ? i : -1).filter(i => i >= 0));
-  const score = revealed ? [...flagged].filter(i => logs[i]?.flag).length - [...flagged].filter(i => !logs[i]?.flag).length : 0;
+  const correctCount = logs.filter(l => l.flag).length;
+  const foundCount = revealed ? logs.filter((l, i) => l.flag && flagged.has(i)).length : 0;
+  const falsePositives = revealed ? logs.filter((l, i) => !l.flag && flagged.has(i)).length : 0;
+
+  const toggle = (i: number) => setFlagged(s => { const n = new Set(s); if (n.has(i)) n.delete(i); else n.add(i); return n; });
 
   return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>MCP PRODUCTION LOG READER</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Flag the entries that need investigation. Click a row to mark it.</div>
+    <ClaudeDesktopFrame chatTitle="Developer · MCP log tail" view="LOG VIEWER">
+      {/* Command bar — looks like the terminal command that started the tail */}
+      <div style={{ padding: '8px 14px', background: '#080808', borderBottom: `1px solid ${CD.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: CD.inkSecondary }}>
+        <span style={{ color: CD.accent }}>$</span> tail -f ~/Library/Logs/Claude/mcp.log<span style={{ color: CD.tool }}> | grep tool_use</span>
+      </div>
 
-      <div style={{ marginBottom: '14px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr 50px 60px 50px', gap: '8px', padding: '5px 10px', fontSize: '8px', color: '#6B7280', letterSpacing: '0.1em', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
-          <span>TIME</span><span>TOOL</span><span>STATUS</span><span>LATENCY</span><span>CALLS</span>
-        </div>
+      {/* Column header */}
+      <div style={{ padding: '5px 14px', background: '#0E0E0E', borderBottom: `1px solid ${CD.border}`, display: 'grid', gridTemplateColumns: '76px 1.5fr 60px 60px 56px 70px', gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>
+        <span>TIME</span><span>TOOL</span><span>STATUS</span><span>LATENCY</span><span>CALLS</span><span style={{ textAlign: 'right' as const }}>FLAG</span>
+      </div>
+
+      {/* Log rows */}
+      <div style={{ background: CD.bg, fontFamily: "'JetBrains Mono', monospace" }}>
         {logs.map((log, i) => {
           const isFlagged = flagged.has(i);
-          const isCorrect = revealed && log.flag && isFlagged;
+          const isRight = revealed && log.flag && isFlagged;
           const isMissed = revealed && log.flag && !isFlagged;
           const isFalsePos = revealed && !log.flag && isFlagged;
           return (
-            <div key={i} onClick={() => !revealed && setFlagged(s => { const n = new Set(s); n.has(i) ? n.delete(i) : n.add(i); return n; })}
-              style={{ display: 'grid', gridTemplateColumns: '80px 1fr 50px 60px 50px', gap: '8px', padding: '8px 10px', borderRadius: '6px', cursor: revealed ? 'default' : 'pointer', background: isCorrect ? 'rgba(22,163,74,0.08)' : isMissed ? 'rgba(220,38,38,0.06)' : isFalsePos ? 'rgba(220,38,38,0.06)' : isFlagged ? 'rgba(245,158,11,0.07)' : 'rgba(255,255,255,0.02)', border: `1px solid ${isCorrect ? 'rgba(22,163,74,0.2)' : isMissed ? 'rgba(220,38,38,0.2)' : isFalsePos ? 'rgba(220,38,38,0.2)' : isFlagged ? 'rgba(245,158,11,0.25)' : 'transparent'}`, marginBottom: '3px' }}>
-              <span style={{ fontSize: '9px', color: '#6B7280' }}>{log.time}</span>
-              <div>
-                <span style={{ fontSize: '10px', color: isFlagged ? '#FCD34D' : '#C9D1D9' }}>{log.tool}</span>
-                {revealed && log.anomaly && <div style={{ fontSize: '8px', color: isCorrect ? '#6EE7B7' : '#FCA5A5', marginTop: '2px', lineHeight: 1.4 }}>{log.anomaly}</div>}
-                {revealed && isFalsePos && <div style={{ fontSize: '8px', color: '#FCA5A5', marginTop: '2px' }}>No anomaly — this is within normal range.</div>}
+            <button
+              key={i}
+              type="button"
+              onClick={() => !revealed && toggle(i)}
+              disabled={revealed}
+              style={{
+                appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                width: '100%',
+                padding: '6px 14px',
+                display: 'block',
+                background: isRight ? 'rgba(16,185,129,0.07)' : isMissed ? 'rgba(248,113,113,0.07)' : isFalsePos ? 'rgba(252,211,77,0.07)' : isFlagged ? 'rgba(167,139,250,0.06)' : 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${CD.border}`,
+                textAlign: 'left' as const,
+                fontFamily: 'inherit',
+              }}
+            >
+              <div style={{ display: 'grid', gridTemplateColumns: '76px 1.5fr 60px 60px 56px 70px', gap: 8, alignItems: 'center', fontSize: 11 }}>
+                <span style={{ color: CD.inkMuted }}>{log.time}</span>
+                <span style={{ color: log.tool.startsWith('update') || log.tool.startsWith('archive') || log.tool.startsWith('delete') ? CD.tool : log.tool.startsWith('send') ? '#FCD34D' : CD.inkPrimary }}>{log.tool}</span>
+                <span style={{ color: log.status >= 400 ? '#F87171' : '#86EFAC', fontWeight: 700 }}>{log.status}</span>
+                <span style={{ color: log.ms > 1000 ? '#FCD34D' : CD.inkSecondary, fontWeight: log.ms > 1000 ? 700 : 400 }}>{log.ms}ms</span>
+                <span style={{ color: log.calls > 50 ? '#F87171' : CD.inkSecondary, fontWeight: log.calls > 50 ? 700 : 400 }}>{log.calls}×</span>
+                <span style={{ textAlign: 'right' as const, fontSize: 11 }}>{isFlagged ? (isRight ? <span style={{ color: '#86EFAC' }}>✓ ⚑</span> : isFalsePos ? <span style={{ color: '#FCD34D' }}>⚠ ⚑</span> : <span style={{ color: CD.tool }}>⚑</span>) : isMissed ? <span style={{ color: '#F87171' }}>✗ missed</span> : <span style={{ color: CD.inkMuted }}>·</span>}</span>
               </div>
-              <span style={{ fontSize: '9px', color: log.status === 200 ? '#6EE7B7' : '#FCA5A5', fontWeight: 700 }}>{log.status}</span>
-              <span style={{ fontSize: '9px', color: log.ms > 1000 ? '#FCD34D' : '#8B949E' }}>{log.ms}ms</span>
-              <span style={{ fontSize: '9px', color: log.calls > 50 ? '#FCA5A5' : '#8B949E', fontWeight: log.calls > 50 ? 700 : 400 }}>{log.calls}×</span>
-            </div>
+              {revealed && log.anomaly && isFlagged && (
+                <div style={{ marginTop: 4, fontSize: 10, color: '#86EFAC', lineHeight: 1.55 }}>↳ {log.anomaly}</div>
+              )}
+              {revealed && log.anomaly && !isFlagged && (
+                <div style={{ marginTop: 4, fontSize: 10, color: '#FCA5A5', lineHeight: 1.55 }}>↳ missed: {log.anomaly}</div>
+              )}
+              {revealed && isFalsePos && (
+                <div style={{ marginTop: 4, fontSize: 10, color: '#FCD34D', lineHeight: 1.55 }}>↳ false positive — within normal range.</div>
+              )}
+            </button>
           );
         })}
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        {!revealed && <div onClick={() => flagged.size > 0 && setRevealed(true)} style={{ padding: '7px 16px', background: flagged.size > 0 ? '#B45309' : 'rgba(180,83,9,0.2)', borderRadius: '6px', fontSize: '10px', color: flagged.size > 0 ? '#fff' : '#9CA3AF', cursor: flagged.size > 0 ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Analyse Logs</div>}
-        {revealed && <div style={{ fontSize: '11px', fontWeight: 700, color: score >= 2 ? '#6EE7B7' : '#F59E0B' }}>{[...correctFlags].filter(i => flagged.has(i)).length}/{correctFlags.size} anomalies found</div>}
-        {revealed && <div onClick={() => { setFlagged(new Set()); setRevealed(false); }} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', fontSize: '10px', color: '#9CA3AF', cursor: 'pointer' }}>Reset</div>}
-        {!revealed && flagged.size === 0 && <span style={{ fontSize: '9px', color: '#6B7280' }}>Click rows to flag anomalies</span>}
+      {/* Action bar */}
+      <div style={{ padding: '10px 14px', background: CD.panelAlt, borderTop: `1px solid ${CD.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: CD.inkMuted }}>
+          {revealed
+            ? <><span style={{ color: '#86EFAC', fontWeight: 700 }}>{foundCount}/{correctCount} anomalies found</span>{falsePositives > 0 && <span style={{ color: '#FCD34D' }}> · {falsePositives} false positive{falsePositives === 1 ? '' : 's'}</span>}</>
+            : `${flagged.size} flagged`}
+        </span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {revealed ? (
+            <button type="button" onClick={() => { setFlagged(new Set()); setRevealed(false); }} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 12px', fontSize: 10, fontWeight: 700, color: CD.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESET</button>
+          ) : (
+            <button type="button" onClick={() => flagged.size > 0 && setRevealed(true)} disabled={flagged.size === 0} style={{ appearance: 'none', cursor: flagged.size > 0 ? 'pointer' : 'not-allowed', background: flagged.size > 0 ? CD.accent : 'rgba(255,255,255,0.06)', border: 'none', borderRadius: 5, padding: '5px 14px', fontSize: 10.5, fontWeight: 700, color: flagged.size > 0 ? '#fff' : CD.inkMuted, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>▶ AUDIT LOGS</button>
+          )}
+        </div>
       </div>
-    </div>
+    </ClaudeDesktopFrame>
   );
 };
 
