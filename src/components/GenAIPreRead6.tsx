@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLearnerStore } from '@/lib/learnerStore';
 import GenAIPreReadLayout from './GenAIPreReadLayout';
@@ -12,6 +12,7 @@ import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
+import { LangSmithFrame, LangSmithLabel, LS } from './langsmithChrome';
 
 const ACCENT = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -204,237 +205,721 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 }
 
 
+// Chain vs Agent classifier rebuilt as the LangGraph Studio canvas.
+// Top half shows the actual chain topology (linear node chain) vs the
+// agent topology (Reasoner with a self-loop and tools fan-out). Bottom
+// half is the task list — the learner classifies each task, the
+// matching topology highlights, wrong picks flash red.
 const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
-  const tasks = track === 'tech' ? [
-    { label: 'Classify claim CLM-4412 using these exact 3 steps: fetch → classify → write.', answer: 'chain', hint: 'Fixed steps, no branching needed.' },
-    { label: 'Answer "What coverage does this claim have?" — may need policy DB, plan schedules, or amendments.', answer: 'agent', hint: 'Dynamic decisions on which tools to call.' },
-    { label: 'Every Monday: pull all claims, classify, send summary email.', answer: 'chain', hint: 'Predictable, same path every run.' },
-    { label: 'Investigate why claim CLM-4415 was denied — could be policy, data error, or system issue.', answer: 'agent', hint: 'Unknown path; needs reasoning about what to check next.' },
+  type Task = { id: string; label: string; answer: 'chain' | 'agent'; hint: string };
+  const tasks: Task[] = track === 'tech' ? [
+    { id: 't1', label: 'Classify claim CLM-4412: fetch → classify → write.',                          answer: 'chain', hint: 'Fixed 3-step sequence — no branching.' },
+    { id: 't2', label: '"What coverage does this claim have?" — may need policy / plan / amendments.', answer: 'agent', hint: 'Dynamic — agent decides which tools to call.' },
+    { id: 't3', label: 'Every Monday: pull claims, classify, email summary.',                          answer: 'chain', hint: 'Predictable cron — same path every run.' },
+    { id: 't4', label: 'Investigate why CLM-4415 was denied — policy? data? system?',                  answer: 'agent', hint: 'Unknown path; needs reasoning about what to check.' },
   ] : [
-    { label: 'Every Friday: pull exceptions, summarise, email ops lead.', answer: 'chain', hint: 'Same 3 steps every run — no decisions needed.' },
-    { label: 'Resolve exception #4412 — may need SLA, escalation history, and contact logs.', answer: 'agent', hint: 'Must decide what to look up based on what it finds.' },
-    { label: 'Format exception list from Sheet A and send to Sheet B.', answer: 'chain', hint: 'Deterministic transform — no branching.' },
-    { label: 'Respond to "Is this exception a priority?" for any given account.', answer: 'agent', hint: 'Needs to fetch data, reason, then answer.' },
+    { id: 't1', label: 'Every Friday: pull exceptions, summarise, email ops lead.',                    answer: 'chain', hint: 'Same 3 steps every run — no decisions needed.' },
+    { id: 't2', label: 'Resolve exception #4412 — may need SLA, history, contact logs.',               answer: 'agent', hint: 'Agent must decide what to look up next.' },
+    { id: 't3', label: 'Reformat exception list from Sheet A and send to Sheet B.',                    answer: 'chain', hint: 'Deterministic transform — no branching.' },
+    { id: 't4', label: '"Is this exception a priority?" for any given account.',                        answer: 'agent', hint: 'Fetch data, reason over it, then answer.' },
   ];
 
-  const [picks, setPicks] = useState<Record<number, string>>({});
+  const [picks, setPicks] = useState<Record<string, 'chain' | 'agent'>>({});
   const [revealed, setRevealed] = useState(false);
-  const allPicked = tasks.every((_, i) => picks[i]);
-  const score = revealed ? tasks.filter((t, i) => picks[i] === t.answer).length : 0;
+  const [hover, setHover] = useState<'chain' | 'agent' | null>(null);
+  const allPicked = tasks.every(t => picks[t.id]);
+  const score = revealed ? tasks.filter(t => picks[t.id] === t.answer).length : 0;
+  const reset = () => { setPicks({}); setRevealed(false); };
+  const highlight = hover ?? (allPicked ? null : null);
+
+  // Graph dimensions
+  const W = 360, H = 200;
 
   return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '6px' }}>CHAIN vs AGENT CLASSIFIER</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '14px' }}>Is each task better handled by a fixed Chain or a reasoning Agent?</div>
-      <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
-        {tasks.map((task, i) => {
-          const pick = picks[i];
-          const isRight = revealed && pick === task.answer;
-          const isWrong = revealed && pick && pick !== task.answer;
-          return (
-            <div key={i} style={{ padding: '12px 14px', background: isRight ? 'rgba(22,163,74,0.05)' : isWrong ? 'rgba(220,38,38,0.04)' : '#fff', border: `1px solid ${isRight ? 'rgba(22,163,74,0.25)' : isWrong ? 'rgba(220,38,38,0.2)' : '#E7E5E4'}`, borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#292524', marginBottom: '8px', lineHeight: 1.5 }}>{task.label}</div>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {(['chain', 'agent'] as const).map(opt => (
-                  <div key={opt} onClick={() => !revealed && setPicks(p => ({ ...p, [i]: opt }))}
-                    style={{ padding: '5px 16px', borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: revealed ? 'default' : 'pointer', textTransform: 'uppercase' as const, background: pick === opt ? (revealed ? (opt === task.answer ? '#16A34A' : '#DC2626') : opt === 'chain' ? '#0891B2' : '#7C3AED') : '#F5F5F4', color: pick === opt ? '#fff' : '#78716C', border: `1px solid ${pick === opt ? 'transparent' : '#E7E5E4'}` }}>{opt}</div>
-                ))}
-                {revealed && <div style={{ marginLeft: 'auto', fontSize: '9px', color: isRight ? '#16A34A' : '#DC2626', fontStyle: 'italic' }}>{isRight ? '✓ ' : `✗ → ${task.answer} · `}{task.hint}</div>}
-              </div>
+    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} view="LANGGRAPH STUDIO" status={revealed ? (score === tasks.length ? 'success' : 'error') : 'pending'}>
+      {/* Two side-by-side graph topologies */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderBottom: `1px solid ${LS.border}` }}>
+        {/* Chain topology */}
+        <div
+          onMouseEnter={() => setHover('chain')}
+          onMouseLeave={() => setHover(null)}
+          style={{ padding: 14, borderRight: `1px solid ${LS.border}`, background: highlight === 'chain' ? 'rgba(34,211,238,0.05)' : LS.bg, transition: 'background 0.2s' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: LS.accentAlt }} />
+              <span style={{ fontSize: 11, fontWeight: 800, color: LS.inkPrimary }}>Chain Topology</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted, padding: '1px 5px', background: 'rgba(34,211,238,0.10)', borderRadius: 3 }}>DAG</span>
             </div>
-          );
-        })}
-      </div>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        {!revealed && <div onClick={() => allPicked && setRevealed(true)} style={{ padding: '7px 16px', background: allPicked ? '#7C3AED' : '#EDE9FE', borderRadius: '6px', fontSize: '11px', color: allPicked ? '#fff' : '#9CA3AF', cursor: allPicked ? 'pointer' : 'not-allowed', fontWeight: 700 }}>Reveal Answers</div>}
-        {revealed && <div style={{ fontSize: '12px', fontWeight: 700, color: score === 4 ? '#16A34A' : '#F59E0B' }}>{score}/4 correct</div>}
-        {revealed && <div onClick={() => { setPicks({}); setRevealed(false); }} style={{ padding: '7px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', fontSize: '10px', color: '#78716C', cursor: 'pointer' }}>Try Again</div>}
-      </div>
-    </div>
-  );
-};
-
-const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
-  const toolName = track === 'tech' ? 'get_claim_data' : 'get_exception_data';
-  const versions = track === 'tech' ? [
-    { label: 'Version A', desc: 'Gets claim data.', verdict: 'bad', reason: 'Too vague — agent calls this for everything, causing unnecessary lookups.' },
-    { label: 'Version B', desc: `Use ${toolName}() when the user asks about a specific claim by ID. Do NOT call for general policy questions or when claim data is already in context.`, verdict: 'good', reason: 'Precise when + when-not-to. Agent calls only when appropriate.' },
-    { label: 'Version C', desc: 'Retrieves claim information. Can be used for claim details, policy information, status updates, and general inquiries.', verdict: 'bad', reason: 'Too broad — agent over-calls this for policy questions and general queries.' },
-  ] : [
-    { label: 'Version A', desc: 'Fetches exception data.', verdict: 'bad', reason: 'Too vague — agent calls for any question, causing unnecessary tool calls.' },
-    { label: 'Version B', desc: 'Fetches data, history, and contacts for exceptions. Also useful for general account questions, trends, and email drafts.', verdict: 'bad', reason: 'Over-scoped — agent uses this even when account data is already in context.' },
-    { label: 'Version C', desc: `Use ${toolName}() when the user asks about a specific exception or account. Do NOT call for general trend reports or when exception data is already loaded.`, verdict: 'good', reason: 'Clear scope with when/when-not. Prevents under- and over-calling.' },
-  ];
-
-  const [pick, setPick] = useState<number | null>(null);
-  const [revealed, setRevealed] = useState(false);
-  const correctIdx = versions.findIndex(v => v.verdict === 'good');
-
-  return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>TOOL DESCRIPTION GRADER</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Which description gives the agent the clearest decision rule for <span style={{ color: '#A78BFA' }}>{toolName}()</span>?</div>
-      <div style={{ display: 'grid', gap: '10px', marginBottom: '14px' }}>
-        {versions.map((v, i) => {
-          const isPick = pick === i;
-          const isRight = revealed && i === correctIdx;
-          const isWrong = revealed && isPick && i !== correctIdx;
-          return (
-            <div key={i} onClick={() => !revealed && setPick(i)}
-              style={{ padding: '12px 14px', background: isPick && !revealed ? 'rgba(124,58,237,0.1)' : isRight ? 'rgba(5,150,105,0.1)' : isWrong ? 'rgba(220,38,38,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${isPick && !revealed ? '#7C3AED' : isRight ? '#059669' : isWrong ? '#DC2626' : 'rgba(255,255,255,0.08)'}`, borderRadius: '8px', cursor: revealed ? 'default' : 'pointer' }}>
-              <div style={{ fontSize: '9px', color: '#8B949E', marginBottom: '4px' }}>{v.label}</div>
-              <div style={{ fontSize: '10px', color: '#C9D1D9', lineHeight: 1.6, marginBottom: revealed ? '8px' : 0 }}>&ldquo;{v.desc}&rdquo;</div>
-              {revealed && <div style={{ fontSize: '9px', color: isRight ? '#6EE7B7' : '#FCA5A5', lineHeight: 1.5 }}>{isRight ? '✓ Best — ' : '✗ Problem: '}{v.reason}</div>}
-            </div>
-          );
-        })}
-      </div>
-      <div style={{ display: 'flex', gap: '8px' }}>
-        {!revealed && <div onClick={() => pick !== null && setRevealed(true)} style={{ padding: '7px 16px', background: pick !== null ? '#7C3AED' : '#2D1B69', borderRadius: '6px', fontSize: '10px', color: pick !== null ? '#fff' : '#6B7280', fontWeight: 700, cursor: pick !== null ? 'pointer' : 'not-allowed' }}>Grade It</div>}
-        {revealed && <div onClick={() => { setPick(null); setRevealed(false); }} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', fontSize: '10px', color: '#9CA3AF', cursor: 'pointer' }}>Reset</div>}
-      </div>
-    </div>
-  );
-};
-
-const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
-  const steps = track === 'tech' ? [
-    { type: 'REASON', text: 'User asked about claim CLM-4412. I need to fetch claim data first.', color: '#7C3AED' },
-    { type: 'ACT', text: 'get_claim_data(claim_id="CLM-4412")', color: '#F59E0B' },
-    { type: 'OBS', text: '{category: "pharmacy", policy_code: "4.2c", status: "disputed", amount: 1840}', color: '#059669' },
-    { type: 'REASON', text: 'Policy code 4.2c is in the amendment — I should verify the clause before classifying.', color: '#7C3AED' },
-    { type: 'ACT', text: 'query_policy_db(query="clause 4.2c pharmacy override", policy_type="amendment")', color: '#F59E0B' },
-    { type: 'OBS', text: '{clause: "4.2c", permits: "Tier 2 CA override", effective: "2022-02-01"}', color: '#059669' },
-    { type: 'REASON', text: 'Claim qualifies under §4.2c. Confidence: high. Ready to write classification.', color: '#7C3AED' },
-  ] : [
-    { type: 'REASON', text: 'User asked for highest-priority exception for Northstar West. Need to fetch exception data first.', color: '#7C3AED' },
-    { type: 'ACT', text: 'get_exception_data(account_id="northstar-west")', color: '#F59E0B' },
-    { type: 'OBS', text: '[{id:4412, days_open:6, sla:5}, {id:4419, days_open:2}, {id:4433, days_open:1}]', color: '#059669' },
-    { type: 'REASON', text: 'Exception 4412 is past SLA. Should check escalation history before recommending.', color: '#7C3AED' },
-    { type: 'ACT', text: 'get_exception_data(account_id="northstar-west", exception_id=4412, include_history=true)', color: '#F59E0B' },
-    { type: 'OBS', text: '{escalations: [], last_contact: "2026-03-08", notes: "awaiting docs from insured"}', color: '#059669' },
-    { type: 'REASON', text: 'No prior escalations, last contact 5 days ago. Standard first escalation is appropriate.', color: '#7C3AED' },
-  ];
-
-  const [current, setCurrent] = useState(0);
-  const [predictions, setPredictions] = useState<Record<number, string>>({});
-  const [showType, setShowType] = useState(false);
-  const isDone = current >= steps.length;
-  const nextStep = steps[current];
-
-  const predict = (type: string) => { setPredictions(p => ({ ...p, [current]: type })); setShowType(true); };
-  const advance = () => { setShowType(false); setCurrent(c => c + 1); };
-  const restart = () => { setCurrent(0); setPredictions({}); setShowType(false); };
-  const correctPredictions = Object.entries(predictions).filter(([i, v]) => v === steps[+i]?.type).length;
-
-  return (
-    <div style={{ background: '#0D1117', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8B949E', marginBottom: '4px' }}>ReAct STEP EXPLORER</div>
-      <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '16px' }}>Predict whether each step is REASON, ACT, or OBS before it&apos;s revealed.</div>
-      <div style={{ display: 'grid', gap: '5px', marginBottom: '14px' }}>
-        {steps.slice(0, current).map((s, i) => (
-          <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', opacity: 0.6 }}>
-            <div style={{ minWidth: '48px', padding: '2px 5px', background: `${s.color}15`, border: `1px solid ${s.color}30`, borderRadius: '3px', fontSize: '8px', fontWeight: 700, color: s.color, textAlign: 'center' as const, flexShrink: 0 }}>{s.type}</div>
-            <div style={{ fontSize: '9px', color: '#6B7280', lineHeight: 1.5, flex: 1 }}>{s.text}</div>
-            {predictions[i] && <div style={{ fontSize: '8px', color: predictions[i] === s.type ? '#6EE7B7' : '#FCA5A5', flexShrink: 0 }}>{predictions[i] === s.type ? '✓' : '✗'}</div>}
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>fixed path</span>
           </div>
-        ))}
+          <svg width={W} height={H} style={{ display: 'block' }}>
+            <defs>
+              <marker id="ch-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={LS.accentAlt} opacity="0.7" />
+              </marker>
+            </defs>
+            {/* Nodes */}
+            {[
+              { x: 14, y: 80, label: 'fetch',    color: LS.accentAlt },
+              { x: 140, y: 80, label: 'classify', color: LS.reason },
+              { x: 266, y: 80, label: 'write',    color: LS.obs },
+            ].map((n, i, arr) => (
+              <g key={n.label}>
+                {i < arr.length - 1 && (
+                  <line x1={n.x + 80} y1={n.y + 20} x2={arr[i + 1].x} y2={arr[i + 1].y + 20}
+                    stroke={LS.accentAlt} strokeWidth={1.4} markerEnd="url(#ch-arr)" opacity="0.7" />
+                )}
+                <rect x={n.x} y={n.y} width={80} height={40} rx={6} fill={LS.panel} stroke={n.color} strokeWidth={1.5} />
+                <text x={n.x + 40} y={n.y + 25} textAnchor="middle" fill={n.color} fontSize="11" fontFamily="'JetBrains Mono', monospace" fontWeight="700">{n.label}</text>
+              </g>
+            ))}
+            {/* START / END markers */}
+            <circle cx={4} cy={100} r={4} fill={LS.accent} />
+            <text x={4} y={120} textAnchor="middle" fill={LS.inkMuted} fontSize="8" fontFamily="'JetBrains Mono', monospace">START</text>
+            <circle cx={356} cy={100} r={4} fill={LS.err} />
+            <text x={356} y={120} textAnchor="middle" fill={LS.inkMuted} fontSize="8" fontFamily="'JetBrains Mono', monospace">END</text>
+          </svg>
+          <div style={{ marginTop: 8, fontSize: 10, color: LS.inkSecondary, lineHeight: 1.55 }}>
+            Same path every execution. Cheaper, faster, observable. The graph itself encodes the decision.
+          </div>
+        </div>
+
+        {/* Agent topology */}
+        <div
+          onMouseEnter={() => setHover('agent')}
+          onMouseLeave={() => setHover(null)}
+          style={{ padding: 14, background: highlight === 'agent' ? 'rgba(167,139,250,0.05)' : LS.bg, transition: 'background 0.2s' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: LS.reason }} />
+              <span style={{ fontSize: 11, fontWeight: 800, color: LS.inkPrimary }}>Agent Topology</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted, padding: '1px 5px', background: 'rgba(167,139,250,0.10)', borderRadius: 3 }}>STATEFUL</span>
+            </div>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>dynamic</span>
+          </div>
+          <svg width={W} height={H} style={{ display: 'block' }}>
+            <defs>
+              <marker id="ag-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill={LS.reason} opacity="0.8" />
+              </marker>
+            </defs>
+            {/* Reasoner node center */}
+            <rect x={140} y={70} width={80} height={50} rx={8} fill={LS.panel} stroke={LS.reason} strokeWidth={1.8} />
+            <text x={180} y={92} textAnchor="middle" fill={LS.reason} fontSize="11" fontFamily="'JetBrains Mono', monospace" fontWeight="700">reasoner</text>
+            <text x={180} y={107} textAnchor="middle" fill={LS.inkMuted} fontSize="8" fontFamily="'JetBrains Mono', monospace">claude-3-5-sonnet</text>
+
+            {/* Self-loop */}
+            <path d="M 220 80 C 280 60 280 120 220 100" stroke={LS.reason} strokeWidth={1.4} fill="none" markerEnd="url(#ag-arr)" opacity="0.85" strokeDasharray="3 3" />
+            <text x={272} y={88} fill={LS.reason} fontSize="9" fontFamily="'JetBrains Mono', monospace" opacity="0.85">N×</text>
+
+            {/* Tools cluster on left */}
+            {[
+              { x: 6,  y: 12,  label: 'get_claim',  color: LS.act },
+              { x: 6,  y: 70,  label: 'policy_db',  color: LS.act },
+              { x: 6,  y: 128, label: 'amendment',  color: LS.act },
+            ].map(n => (
+              <g key={n.label}>
+                <line x1={68} y1={n.y + 18} x2={140} y2={95} stroke={LS.act} strokeWidth={1} opacity="0.4" strokeDasharray="2 3" />
+                <rect x={n.x} y={n.y} width={62} height={36} rx={5} fill={LS.panel} stroke={n.color} strokeWidth={1.2} />
+                <text x={n.x + 31} y={n.y + 16} textAnchor="middle" fill={n.color} fontSize="9" fontFamily="'JetBrains Mono', monospace" fontWeight="700">{n.label}</text>
+                <text x={n.x + 31} y={n.y + 28} textAnchor="middle" fill={LS.inkMuted} fontSize="7" fontFamily="'JetBrains Mono', monospace">tool</text>
+              </g>
+            ))}
+
+            {/* END */}
+            <line x1={220} y1={95} x2={330} y2={95} stroke={LS.reason} strokeWidth={1.2} opacity="0.6" markerEnd="url(#ag-arr)" />
+            <circle cx={344} cy={95} r={5} fill={LS.err} />
+            <text x={344} y={115} textAnchor="middle" fill={LS.inkMuted} fontSize="8" fontFamily="'JetBrains Mono', monospace">END</text>
+          </svg>
+          <div style={{ marginTop: 8, fontSize: 10, color: LS.inkSecondary, lineHeight: 1.55 }}>
+            Self-loop + tool fan-out. Agent decides what to call and when to stop. Higher latency, higher cost.
+          </div>
+        </div>
       </div>
-      {!isDone && (
-        <div style={{ padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.15)', borderRadius: '8px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '9px', color: '#6B7280', marginBottom: '8px' }}>Step {current + 1} of {steps.length} — what type is this?</div>
-          {!showType ? (
-            <>
-              <div style={{ fontSize: '10px', color: '#484F58', marginBottom: '10px', fontStyle: 'italic' }}>(hidden until you predict)</div>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                {(['REASON', 'ACT', 'OBS'] as const).map(t => (
-                  <div key={t} onClick={() => predict(t)} style={{ flex: 1, padding: '6px 0', textAlign: 'center' as const, borderRadius: '5px', fontSize: '10px', fontWeight: 700, cursor: 'pointer', background: t === 'REASON' ? 'rgba(124,58,237,0.15)' : t === 'ACT' ? 'rgba(245,158,11,0.15)' : 'rgba(5,150,105,0.15)', color: t === 'REASON' ? '#A78BFA' : t === 'ACT' ? '#FCD34D' : '#6EE7B7', border: `1px solid ${t === 'REASON' ? 'rgba(124,58,237,0.3)' : t === 'ACT' ? 'rgba(245,158,11,0.3)' : 'rgba(5,150,105,0.3)'}` }}>{t}</div>
-                ))}
+
+      {/* Task list */}
+      <div style={{ padding: '12px 14px', background: LS.panelAlt }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <LangSmithLabel>WORKLOADS · ROUTE TO TOPOLOGY</LangSmithLabel>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{Object.keys(picks).length}/{tasks.length} routed</span>
+        </div>
+        <div style={{ display: 'grid', gap: 7 }}>
+          {tasks.map(t => {
+            const pick = picks[t.id];
+            const isRight = revealed && pick === t.answer;
+            const isWrong = revealed && pick && pick !== t.answer;
+            return (
+              <div key={t.id} style={{
+                background: isRight ? 'rgba(16,185,129,0.07)' : isWrong ? 'rgba(248,113,113,0.06)' : LS.panel,
+                border: `1px solid ${isRight ? 'rgba(16,185,129,0.35)' : isWrong ? 'rgba(248,113,113,0.30)' : LS.border}`,
+                borderRadius: 7,
+                padding: '8px 11px',
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                gap: 10,
+                alignItems: 'center',
+              }}>
+                <div>
+                  <div style={{ fontSize: 11.5, color: LS.inkPrimary, lineHeight: 1.45 }}>{t.label}</div>
+                  {revealed && (
+                    <div style={{ fontSize: 9.5, color: isRight ? LS.accent : LS.err, marginTop: 4, fontFamily: "'JetBrains Mono', monospace" }}>
+                      {isRight ? '✓ ' : `✗ → ${t.answer} · `}{t.hint}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  {(['chain', 'agent'] as const).map(opt => {
+                    const isPicked = pick === opt;
+                    const optColor = opt === 'chain' ? LS.accentAlt : LS.reason;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => !revealed && setPicks(p => ({ ...p, [t.id]: opt }))}
+                        disabled={revealed}
+                        style={{
+                          appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                          padding: '4px 12px',
+                          background: isPicked ? (revealed ? (opt === t.answer ? LS.accent : LS.err) : optColor) : 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${isPicked ? 'transparent' : optColor + '40'}`,
+                          borderRadius: 5,
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 10,
+                          fontWeight: 800,
+                          color: isPicked ? '#fff' : optColor,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase' as const,
+                        }}
+                      >{opt}</button>
+                    );
+                  })}
+                </div>
               </div>
-            </>
+            );
+          })}
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          {!revealed ? (
+            <button type="button" onClick={() => allPicked && setRevealed(true)} disabled={!allPicked} style={{
+              appearance: 'none', cursor: allPicked ? 'pointer' : 'not-allowed',
+              background: allPicked ? LS.accent : 'rgba(255,255,255,0.06)',
+              border: 'none', borderRadius: 5, padding: '6px 14px',
+              fontSize: 11, fontWeight: 700,
+              color: allPicked ? LS.bg : LS.inkMuted,
+              fontFamily: 'inherit',
+            }}>EVALUATE</button>
           ) : (
             <>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', marginBottom: '10px' }}>
-                <div style={{ minWidth: '48px', padding: '2px 5px', background: `${nextStep.color}20`, border: `1px solid ${nextStep.color}40`, borderRadius: '3px', fontSize: '8px', fontWeight: 700, color: nextStep.color, textAlign: 'center' as const }}>{nextStep.type}</div>
-                <div style={{ fontSize: '10px', color: '#C9D1D9', lineHeight: 1.5, flex: 1 }}>{nextStep.text}</div>
-              </div>
-              <div style={{ fontSize: '9px', marginBottom: '10px', color: predictions[current] === nextStep.type ? '#6EE7B7' : '#FCA5A5' }}>
-                Your prediction: {predictions[current]} — {predictions[current] === nextStep.type ? '✓ correct!' : `✗ it was ${nextStep.type}`}
-              </div>
-              <div onClick={advance} style={{ padding: '6px 14px', background: '#7C3AED', borderRadius: '5px', fontSize: '10px', color: '#fff', cursor: 'pointer', fontWeight: 700, display: 'inline-block' }}>{current < steps.length - 1 ? 'Next Step →' : 'Finish'}</div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: score === tasks.length ? LS.accent : '#FCD34D', alignSelf: 'center' as const, fontFamily: "'JetBrains Mono', monospace" }}>{score}/{tasks.length} CORRECT</span>
+              <button type="button" onClick={reset} style={{
+                appearance: 'none', cursor: 'pointer',
+                background: 'rgba(255,255,255,0.06)', border: `1px solid ${LS.border}`,
+                borderRadius: 5, padding: '5px 11px',
+                fontSize: 10, fontWeight: 700,
+                color: LS.inkSecondary, fontFamily: "'JetBrains Mono', monospace",
+              }}>RESET</button>
             </>
           )}
         </div>
-      )}
-      {isDone && (
-        <div style={{ padding: '12px 14px', background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)', borderRadius: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, color: '#6EE7B7', marginBottom: '4px' }}>{correctPredictions}/{steps.length} correct · ReAct trace complete</div>
-          <div style={{ fontSize: '9px', color: '#9CA3AF' }}>REASON = agent thinking. ACT = tool call. OBS = tool result. The cycle repeats until the agent has enough to answer.</div>
-          <div onClick={restart} style={{ marginTop: '8px', padding: '5px 12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '5px', fontSize: '9px', color: '#9CA3AF', cursor: 'pointer', display: 'inline-block' }}>↺ Restart</div>
-        </div>
-      )}
-    </div>
+      </div>
+    </LangSmithFrame>
   );
 };
 
+// Tool description grader rebuilt as the LangSmith Prompt Hub / Tool
+// editor. The current tool schema is shown on the left as a JSON pane
+// with line numbers and syntax tinting. The learner switches between
+// three description versions (tabs), then runs an eval that simulates
+// 4 user queries against the description and reports correct-call %.
+const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
+  const toolName = track === 'tech' ? 'get_claim_data' : 'get_exception_data';
+  type Eval = { query: string; shouldCall: boolean; whyA: string; whyB: string; whyC: string };
+  type Version = { id: string; label: string; desc: string; verdict: 'good' | 'over' | 'vague'; pct: number; reason: string };
+  const versions: Version[] = track === 'tech' ? [
+    { id: 'A', label: 'V1 · vague',  desc: 'Gets claim data.',                                                                                                                                                       verdict: 'vague', pct: 38, reason: 'Too vague — agent calls this for everything, causing unnecessary lookups.' },
+    { id: 'B', label: 'V2 · scoped', desc: `Use ${toolName}() when the user asks about a specific claim by ID. Do NOT call for general policy questions or when claim data is already in context.`, verdict: 'good',  pct: 92, reason: 'Precise when + when-not-to. Agent calls only when appropriate.' },
+    { id: 'C', label: 'V3 · over',   desc: 'Retrieves claim information. Can be used for claim details, policy info, status updates, and general inquiries.',                                       verdict: 'over',  pct: 51, reason: 'Too broad — agent over-calls this for policy questions and general queries.' },
+  ] : [
+    { id: 'A', label: 'V1 · vague',  desc: 'Fetches exception data.',                                                                                                                                                 verdict: 'vague', pct: 41, reason: 'Too vague — agent calls for any question, causing unnecessary tool calls.' },
+    { id: 'B', label: 'V2 · over',   desc: 'Fetches data, history, and contacts for exceptions. Also useful for general account questions, trends, and email drafts.',                              verdict: 'over',  pct: 47, reason: 'Over-scoped — agent uses this even when account data is already in context.' },
+    { id: 'C', label: 'V3 · scoped', desc: `Use ${toolName}() when the user asks about a specific exception or account. Do NOT call for general trend reports or when exception data is already loaded.`, verdict: 'good',  pct: 94, reason: 'Clear scope with when/when-not. Prevents under- and over-calling.' },
+  ];
+
+  // Eval queries — same set across versions, the description determines whether the agent calls correctly
+  const evalSet = track === 'tech'
+    ? [
+        { query: 'What’s the status of CLM-4412?', shouldCall: true },
+        { query: 'How does the appeal process work in general?', shouldCall: false },
+        { query: 'Show me the breakdown for CLM-8810', shouldCall: true },
+        { query: 'Summarise the conversation so far', shouldCall: false },
+      ]
+    : [
+        { query: 'Status on exception #4412?', shouldCall: true },
+        { query: 'What’s the average exception age across all teams?', shouldCall: false },
+        { query: 'Fetch details on Hartwell Group’s open exceptions', shouldCall: true },
+        { query: 'Summarise the discussion so far', shouldCall: false },
+      ];
+
+  const [active, setActive] = useState<string>(versions[0].id);
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState<Record<string, boolean[]>>({});
+
+  const activeV = versions.find(v => v.id === active)!;
+
+  const runEval = useCallback(() => {
+    setRunning(true);
+    setTimeout(() => {
+      // Each version produces a different correctness pattern that lines up
+      // with its pct so visuals match intuition.
+      const pat: Record<string, boolean[]> = {
+        good:  [true, true, true, true],
+        over:  [true, false, true, false],
+        vague: [true, false, false, false],
+      };
+      // randomise a bit so non-good versions get one bonus right
+      const base = pat[activeV.verdict].slice();
+      if (activeV.verdict !== 'good') base[Math.floor(Math.random() * 4)] = true;
+      setResults(r => ({ ...r, [active]: base }));
+      setRunning(false);
+    }, 600);
+  }, [active, activeV.verdict]);
+
+  const currentResults = results[active];
+
+  return (
+    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run={`tool/${toolName}`} view="PROMPT HUB · TOOL" status={currentResults ? (activeV.verdict === 'good' ? 'success' : 'error') : 'pending'}>
+      {/* Tab bar for versions */}
+      <div style={{ display: 'flex', background: '#080B14', borderBottom: `1px solid ${LS.border}` }}>
+        {versions.map(v => {
+          const isActive = v.id === active;
+          return (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => setActive(v.id)}
+              style={{
+                appearance: 'none', cursor: 'pointer',
+                background: isActive ? LS.bg : 'transparent',
+                border: 'none',
+                borderRight: `1px solid ${LS.border}`,
+                borderTop: isActive ? `2px solid ${v.verdict === 'good' ? LS.accent : LS.err}` : '2px solid transparent',
+                padding: '8px 16px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 10.5,
+                fontWeight: 700,
+                color: isActive ? LS.inkPrimary : LS.inkMuted,
+                letterSpacing: '0.04em',
+              }}
+            >{v.label}</button>
+          );
+        })}
+        <div style={{ flex: 1, background: 'transparent' }} />
+      </div>
+
+      {/* Body — schema editor + eval panel */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 0 }}>
+        {/* Schema editor */}
+        <div style={{ borderRight: `1px solid ${LS.border}`, background: LS.bg }}>
+          <div style={{ padding: '8px 14px', borderBottom: `1px solid ${LS.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <LangSmithLabel>TOOL SCHEMA · {toolName}()</LangSmithLabel>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>JSON</span>
+          </div>
+          <div style={{ padding: '10px 0', fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, lineHeight: 1.65, color: '#D4D4D4' }}>
+            {[
+              { n: 1, t: <>{'{'}</> },
+              { n: 2, t: <><span style={{ color: '#9CDCFE' }}>  "name"</span>: <span style={{ color: '#CE9178' }}>"{toolName}"</span>,</> },
+              { n: 3, t: <><span style={{ color: '#9CDCFE' }}>  "description"</span>:</> },
+              { n: 4, t: <><span style={{ color: '#CE9178' }}>    "{activeV.desc}"</span>,</> },
+              { n: 5, t: <><span style={{ color: '#9CDCFE' }}>  "parameters"</span>: {'{'}</> },
+              { n: 6, t: <><span style={{ color: '#9CDCFE' }}>    "type"</span>: <span style={{ color: '#CE9178' }}>"object"</span>,</> },
+              { n: 7, t: <><span style={{ color: '#9CDCFE' }}>    "properties"</span>: {'{'}</> },
+              { n: 8, t: <><span style={{ color: '#9CDCFE' }}>      "{track === 'tech' ? 'claim_id' : 'exception_id'}"</span>: {'{'} <span style={{ color: '#9CDCFE' }}>"type"</span>: <span style={{ color: '#CE9178' }}>"string"</span> {'}'}</> },
+              { n: 9, t: <>    {'}'}</> },
+              { n: 10, t: <>  {'}'}</> },
+              { n: 11, t: <>{'}'}</> },
+            ].map(row => (
+              <div key={row.n} style={{ display: 'flex' }}>
+                <span style={{ width: 30, color: LS.inkMuted, textAlign: 'right', userSelect: 'none', flexShrink: 0, paddingRight: 10 }}>{row.n}</span>
+                <span style={{ flex: 1, paddingLeft: 6, whiteSpace: 'pre' as const }}>{row.t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Eval panel */}
+        <div style={{ padding: '12px 14px', background: LS.panelAlt, display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <LangSmithLabel>EVAL · 4 queries</LangSmithLabel>
+            <button
+              type="button"
+              onClick={runEval}
+              disabled={running}
+              style={{
+                appearance: 'none', cursor: running ? 'wait' : 'pointer',
+                background: running ? 'rgba(255,255,255,0.06)' : LS.accent,
+                border: 'none', borderRadius: 5,
+                padding: '4px 10px',
+                fontSize: 10, fontWeight: 700,
+                color: running ? LS.inkMuted : LS.bg,
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: '0.04em',
+              }}
+            >{running ? 'RUNNING…' : '▶ RUN EVAL'}</button>
+          </div>
+
+          <div style={{ display: 'grid', gap: 6 }}>
+            {evalSet.map((q, i) => {
+              const r = currentResults?.[i];
+              return (
+                <div key={i} style={{ padding: '7px 9px', background: LS.panel, border: `1px solid ${r === undefined ? LS.border : r ? 'rgba(16,185,129,0.40)' : 'rgba(248,113,113,0.40)'}`, borderRadius: 6 }}>
+                  <div style={{ fontSize: 10, color: LS.inkPrimary, marginBottom: 3, lineHeight: 1.4 }}>"{q.query}"</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: q.shouldCall ? LS.act : LS.inkMuted, letterSpacing: '0.08em' }}>
+                      EXPECT {q.shouldCall ? 'CALL' : 'SKIP'}
+                    </span>
+                    {r !== undefined && (
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: r ? LS.accent : LS.err, fontWeight: 700 }}>
+                        {r ? '✓ MATCH' : '✗ WRONG'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {currentResults && (
+            <div style={{ padding: '8px 10px', background: activeV.verdict === 'good' ? 'rgba(16,185,129,0.10)' : 'rgba(248,113,113,0.08)', border: `1px solid ${activeV.verdict === 'good' ? 'rgba(16,185,129,0.35)' : 'rgba(248,113,113,0.30)'}`, borderRadius: 6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkSecondary, letterSpacing: '0.10em' }}>SCORE</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 800, color: activeV.verdict === 'good' ? LS.accent : LS.err }}>{currentResults.filter(Boolean).length}/{currentResults.length}</span>
+              </div>
+              <div style={{ fontSize: 10, color: activeV.verdict === 'good' ? '#A7F3D0' : '#FECACA', lineHeight: 1.5 }}>{activeV.reason}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </LangSmithFrame>
+  );
+};
+
+// ReAct step explorer rebuilt as the LangSmith trace view. A run tree
+// on the left lists each ReAct span (Reason / Act / Observation) with
+// latency and token cost; the right pane shows the span detail (input
+// / output JSON). The "predict the next span type" interaction lives
+// inside the next-pending entry of the run tree.
+const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
+  type SpanType = 'REASON' | 'ACT' | 'OBS';
+  type Span = { type: SpanType; name: string; text: string; latency: number; tokens?: number };
+  const steps: Span[] = track === 'tech' ? [
+    { type: 'REASON', name: 'reasoner.think',         text: 'User asked about claim CLM-4412. I should fetch claim data first.',                          latency: 412, tokens: 184 },
+    { type: 'ACT',    name: 'tool.get_claim_data',    text: 'get_claim_data(claim_id="CLM-4412")',                                                       latency: 68 },
+    { type: 'OBS',    name: 'tool.result',            text: '{ category: "pharmacy", policy_code: "4.2c", status: "disputed", amount: 1840 }',           latency: 6 },
+    { type: 'REASON', name: 'reasoner.think',         text: '§4.2c is in the amendment. Verify the clause before classifying.',                          latency: 388, tokens: 162 },
+    { type: 'ACT',    name: 'tool.query_policy_db',   text: 'query_policy_db(query="clause 4.2c pharmacy override", policy_type="amendment")',           latency: 94 },
+    { type: 'OBS',    name: 'tool.result',            text: '{ clause: "4.2c", permits: "Tier 2 CA override", effective: "2022-02-01" }',                latency: 5 },
+    { type: 'REASON', name: 'reasoner.final',         text: 'Claim qualifies under §4.2c. Confidence high. Ready to write classification.',              latency: 290, tokens: 134 },
+  ] : [
+    { type: 'REASON', name: 'reasoner.think',         text: 'User wants highest-priority exception for Northstar West. Fetch the data first.',           latency: 388, tokens: 176 },
+    { type: 'ACT',    name: 'tool.get_exception_data', text: 'get_exception_data(account_id="northstar-west")',                                          latency: 72 },
+    { type: 'OBS',    name: 'tool.result',            text: '[{id:4412, days_open:6, sla:5}, {id:4419, days_open:2}, {id:4433, days_open:1}]',           latency: 4 },
+    { type: 'REASON', name: 'reasoner.think',         text: '#4412 is past SLA. Check escalation history before recommending.',                          latency: 412, tokens: 152 },
+    { type: 'ACT',    name: 'tool.get_exception_data', text: 'get_exception_data(account_id="northstar-west", exception_id=4412, include_history=true)', latency: 88 },
+    { type: 'OBS',    name: 'tool.result',            text: '{ escalations: [], last_contact: "2026-03-08", notes: "awaiting docs from insured" }',     latency: 5 },
+    { type: 'REASON', name: 'reasoner.final',         text: 'No prior escalations, last contact 5 days ago. Standard first escalation is appropriate.', latency: 296, tokens: 124 },
+  ];
+
+  const [current, setCurrent] = useState(0);
+  const [predictions, setPredictions] = useState<Record<number, SpanType>>({});
+  const [showType, setShowType] = useState(false);
+  const [selectedSpan, setSelectedSpan] = useState<number | null>(null);
+  const isDone = current >= steps.length;
+  const nextStep = steps[current];
+
+  const predict = (type: SpanType) => { setPredictions(p => ({ ...p, [current]: type })); setShowType(true); };
+  const advance = () => { setShowType(false); setSelectedSpan(current); setCurrent(c => c + 1); };
+  const restart = () => { setCurrent(0); setPredictions({}); setShowType(false); setSelectedSpan(null); };
+  const correctPredictions = Object.entries(predictions).filter(([i, v]) => v === steps[+i]?.type).length;
+  const detail = selectedSpan !== null ? steps[selectedSpan] : null;
+
+  const totalLatency = steps.slice(0, current).reduce((s, x) => s + x.latency, 0);
+  const totalTokens  = steps.slice(0, current).reduce((s, x) => s + (x.tokens ?? 0), 0);
+
+  const colorFor = (t: SpanType) => t === 'REASON' ? LS.reason : t === 'ACT' ? LS.act : LS.obs;
+  const iconFor  = (t: SpanType) => t === 'REASON' ? '🧠' : t === 'ACT' ? '⚡' : '◉';
+
+  return (
+    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run={`run-${track === 'tech' ? '7821' : '4412'}`} view="TRACE VIEW" status={isDone ? 'success' : 'pending'}>
+      {/* Run summary bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 14px', borderBottom: `1px solid ${LS.border}`, background: LS.panel, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
+        <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>spans </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>{current}/{steps.length}</span></span>
+        <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>latency </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>{totalLatency}ms</span></span>
+        <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>tokens </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>{totalTokens}</span></span>
+        <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>cost </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>${(totalTokens / 1_000_000 * 3).toFixed(4)}</span></span>
+        <span style={{ marginLeft: 'auto', color: predictions ? (correctPredictions === Object.keys(predictions).length ? LS.accent : '#FCD34D') : LS.inkMuted }}>predicted {correctPredictions}/{Object.keys(predictions).length}</span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 0 }}>
+        {/* Run tree */}
+        <div style={{ borderRight: `1px solid ${LS.border}`, padding: '10px 12px', maxHeight: 380, overflow: 'auto' }}>
+          <LangSmithLabel>RUN TREE</LangSmithLabel>
+          <div style={{ marginTop: 8 }}>
+            {/* Root run */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '5px 0', borderBottom: `1px solid ${LS.border}`, marginBottom: 4 }}>
+              <div style={{ width: 16, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: LS.inkMuted, textAlign: 'center' }}>▾</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: LS.inkPrimary }}>agent.run</div>
+                <div style={{ fontSize: 8.5, color: LS.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>claude-3-5-sonnet · ReAct</div>
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{totalLatency}ms</span>
+            </div>
+
+            {/* Child spans */}
+            {steps.slice(0, current).map((s, i) => {
+              const isSelected = selectedSpan === i;
+              const matched = predictions[i] === s.type;
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setSelectedSpan(i)}
+                  style={{
+                    appearance: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    width: '100%',
+                    padding: '5px 6px 5px 24px',
+                    background: isSelected ? 'rgba(167,139,250,0.10)' : 'transparent',
+                    border: `1px solid ${isSelected ? LS.borderLight : 'transparent'}`,
+                    borderRadius: 5,
+                    marginBottom: 2,
+                    fontFamily: 'inherit',
+                    textAlign: 'left' as const,
+                    position: 'relative' as const,
+                  }}
+                >
+                  <div style={{ position: 'absolute' as const, left: 8, top: 0, bottom: i === steps.length - 1 ? 'auto' : 0, width: 1, height: i === steps.length - 1 ? '50%' : '100%', background: 'rgba(255,255,255,0.10)' }} />
+                  <div style={{ position: 'absolute' as const, left: 8, top: '50%', width: 9, height: 1, background: 'rgba(255,255,255,0.18)' }} />
+                  <div style={{ width: 18, height: 18, borderRadius: 4, background: `${colorFor(s.type)}1A`, color: colorFor(s.type), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", flexShrink: 0 }}>{s.type[0]}</div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 600, color: LS.inkPrimary, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted, display: 'flex', gap: 6 }}>
+                      <span>{s.latency}ms</span>
+                      {s.tokens && <span>{s.tokens}t</span>}
+                      {predictions[i] !== undefined && <span style={{ color: matched ? LS.accent : LS.err, fontWeight: 700 }}>{matched ? '✓' : '✗'}</span>}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+
+            {/* Pending span — prediction widget */}
+            {!isDone && (
+              <div style={{ marginTop: 4, padding: '8px 10px', background: 'rgba(252,211,77,0.06)', border: '1px dashed rgba(252,211,77,0.35)', borderRadius: 5, marginLeft: 24 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#FCD34D', letterSpacing: '0.10em', marginBottom: 6 }}>SPAN {current + 1} · PREDICT TYPE</div>
+                {!showType ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
+                    {(['REASON', 'ACT', 'OBS'] as const).map(t => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => predict(t)}
+                        style={{
+                          appearance: 'none', cursor: 'pointer',
+                          padding: '5px 0',
+                          background: 'rgba(255,255,255,0.03)',
+                          border: `1px solid ${colorFor(t)}55`,
+                          borderRadius: 4,
+                          fontSize: 9.5, fontWeight: 700,
+                          color: colorFor(t),
+                          fontFamily: "'JetBrains Mono', monospace",
+                          letterSpacing: '0.04em',
+                        }}
+                      >{t}</button>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 9.5, color: predictions[current] === nextStep.type ? LS.accent : LS.err, marginBottom: 6, fontFamily: "'JetBrains Mono', monospace" }}>
+                      {predictions[current] === nextStep.type ? `✓ ${predictions[current]}` : `✗ was ${nextStep.type}`}
+                    </div>
+                    <button type="button" onClick={advance} style={{ appearance: 'none', cursor: 'pointer', width: '100%', background: LS.reason, border: 'none', borderRadius: 4, padding: '5px 0', fontSize: 9.5, fontWeight: 700, color: '#fff', fontFamily: 'inherit' }}>
+                      {current < steps.length - 1 ? '▸ ADVANCE TO NEXT SPAN' : '▸ FINISH RUN'}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {isDone && (
+              <button type="button" onClick={restart} style={{ appearance: 'none', cursor: 'pointer', marginTop: 8, padding: '5px 12px', background: 'rgba(255,255,255,0.06)', border: `1px solid ${LS.border}`, borderRadius: 5, fontSize: 9.5, fontWeight: 700, color: LS.inkSecondary, fontFamily: "'JetBrains Mono', monospace", marginLeft: 24 }}>↺ RESTART RUN</button>
+            )}
+          </div>
+        </div>
+
+        {/* Span detail panel */}
+        <div style={{ padding: '12px 14px', background: LS.panelAlt }}>
+          <LangSmithLabel>SPAN DETAIL</LangSmithLabel>
+          {detail ? (
+            <div style={{ marginTop: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ padding: '2px 8px', background: `${colorFor(detail.type)}1F`, border: `1px solid ${colorFor(detail.type)}60`, borderRadius: 4, fontSize: 9, fontWeight: 800, color: colorFor(detail.type), fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{detail.type}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: LS.inkPrimary, fontFamily: "'JetBrains Mono', monospace" }}>{detail.name}</span>
+                <span style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{detail.latency}ms{detail.tokens ? ` · ${detail.tokens}t` : ''}</span>
+              </div>
+              <div style={{ padding: '10px 12px', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: detail.type === 'REASON' ? '#D4D4D4' : detail.type === 'ACT' ? '#FCD34D' : '#67E8F9', lineHeight: 1.65, whiteSpace: 'pre-wrap' as const }}>
+                {detail.text}
+              </div>
+              <div style={{ marginTop: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted, lineHeight: 1.5 }}>
+                {detail.type === 'REASON' ? 'Model produces internal reasoning. Drives the next ACT.' : detail.type === 'ACT' ? 'Tool call dispatched. Latency = network + remote execution.' : 'Tool returned. Result enters context window for the next REASON.'}
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 10, fontSize: 11, color: LS.inkMuted, fontStyle: 'italic' as const }}>Click a span in the run tree to inspect its input / output.</div>
+          )}
+        </div>
+      </div>
+    </LangSmithFrame>
+  );
+};
+
+// Grounding rebuilt as the LangSmith Run Comparison view — two columns
+// side-by-side showing the same query, the same model, identical
+// sampling, but the GROUNDED column has a retrieved-documents pane that
+// the model used. Hallucination risk and source citations differ.
 const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
-  const [grounded, setGrounded] = useState(false);
   const query = track === 'tech' ? 'Does Plan B Tier 2 cover physician overrides for CA-based claims?' : 'What is the SLA for Northstar West escalations?';
   const groundedAnswer = track === 'tech'
-    ? 'Yes — §4.2c (amendment, Feb 2022) permits Tier 2 physician overrides for CA-based plans. This applies to Plan B. (Source: policy amendment §4.2c)'
-    : 'SLA for Northstar West escalations is 5 business days (Northstar SLA policy v2). A breach triggers manager-level escalation per §2 of the exception guide.';
+    ? 'Yes — §4.2c (amendment, Feb 2022) permits Tier 2 physician overrides for CA-based plans. Applies to Plan B (Plan Schedule pp. 14-16). Document citations: amendment-2022.pdf §4.2c; plan-schedule.pdf row 14.'
+    : 'SLA for Northstar West escalations is 5 business days (Northstar SLA policy v2, §2.1). Breaches trigger manager-level escalation per §2.3 of the exception guide. Sources: sla-policy-v2.pdf §2.1, §2.3.';
   const ungroundedAnswer = track === 'tech'
     ? 'Yes, Plan B generally covers physician overrides. Most Tier 2 plans in California include this, typically within 30 days. Check with your plan administrator for exact terms.'
     : 'SLA for escalations is typically 3–7 business days depending on the account. For priority accounts it may be shorter. Refer to your internal policy documentation.';
 
-  return (
-    <div style={{ background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '12px', padding: '20px 24px' }}>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', letterSpacing: '0.14em', color: '#78716C', marginBottom: '4px' }}>RAG — GROUNDING TOGGLE</div>
-      <div style={{ fontSize: '11px', color: '#78716C', marginBottom: '16px' }}>See how the response changes when document grounding is on vs off.</div>
-      <div style={{ padding: '10px 14px', background: 'var(--ed-cream)', border: '1px solid #E7E5E4', borderRadius: '6px', marginBottom: '14px', fontSize: '11px', color: '#44403C', lineHeight: 1.5 }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: '#78716C', display: 'block', marginBottom: '4px' }}>USER QUERY</span>
-        {query}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
-        <div style={{ fontSize: '11px', fontWeight: 700, color: '#44403C' }}>Grounding:</div>
-        <div onClick={() => setGrounded(g => !g)} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '6px 14px', borderRadius: '6px', background: grounded ? 'rgba(5,150,105,0.08)' : 'rgba(220,38,38,0.06)', border: `1px solid ${grounded ? 'rgba(5,150,105,0.3)' : 'rgba(220,38,38,0.2)'}` }}>
-          <div style={{ width: '32px', height: '18px', borderRadius: '9px', background: grounded ? '#059669' : '#E5E7EB', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
-            <div style={{ position: 'absolute', top: '2px', left: grounded ? '16px' : '2px', width: '14px', height: '14px', borderRadius: '50%', background: 'var(--ed-card)', transition: 'left 0.2s' }} />
+  const docs = track === 'tech'
+    ? [
+        { name: 'amendment-2022.pdf', span: '§4.2c, l.124-148', score: 0.94 },
+        { name: 'plan-schedule.pdf',  span: 'row 14, "Plan B"',  score: 0.87 },
+        { name: 'CA-overrides.md',    span: '## Tier 2',          score: 0.71 },
+      ]
+    : [
+        { name: 'sla-policy-v2.pdf',   span: '§2.1, "Escalation SLA"',   score: 0.93 },
+        { name: 'exception-guide.pdf', span: '§2.3, "Breach handling"',  score: 0.81 },
+        { name: 'northstar-faq.pdf',   span: '## Escalations',           score: 0.68 },
+      ];
+
+  const Run = ({ grounded }: { grounded: boolean }) => {
+    const accent = grounded ? LS.accent : LS.err;
+    return (
+      <div style={{ borderRight: grounded ? 'none' : `1px solid ${LS.border}` }}>
+        {/* Header */}
+        <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: accent }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, fontWeight: 800, color: LS.inkPrimary, letterSpacing: '0.08em' }}>RUN {grounded ? '#0b41' : '#0b40'}</span>
+            <span style={{ padding: '1px 6px', borderRadius: 3, background: `${accent}1F`, fontSize: 9, fontWeight: 700, color: accent, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{grounded ? 'GROUNDED' : 'NO RAG'}</span>
           </div>
-          <span style={{ fontSize: '10px', fontWeight: 700, color: grounded ? '#059669' : '#DC2626' }}>{grounded ? 'ON — documents injected' : 'OFF — no context'}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>claude-3-5-sonnet · temp 0.20</span>
+        </div>
+
+        {/* Retrieved docs (only for grounded) */}
+        {grounded && (
+          <div style={{ padding: '10px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}` }}>
+            <LangSmithLabel>RETRIEVED CONTEXT · {docs.length} docs</LangSmithLabel>
+            <div style={{ marginTop: 6, display: 'grid', gap: 4 }}>
+              {docs.map(d => (
+                <div key={d.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 4 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 10.5, color: LS.inkPrimary, fontFamily: "'JetBrains Mono', monospace", whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{d.name}</div>
+                    <div style={{ fontSize: 9, color: LS.inkMuted }}>{d.span}</div>
+                  </div>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: d.score > 0.85 ? LS.accent : '#FCD34D', fontFamily: "'JetBrains Mono', monospace" }}>{d.score.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Output */}
+        <div style={{ padding: '10px 14px' }}>
+          <LangSmithLabel>OUTPUT</LangSmithLabel>
+          <div style={{ marginTop: 6, padding: '10px 12px', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 6, fontSize: 11.5, color: LS.inkPrimary, lineHeight: 1.65 }}>
+            {grounded ? groundedAnswer : ungroundedAnswer}
+          </div>
+        </div>
+
+        {/* Score row */}
+        <div style={{ padding: '8px 14px 12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+          <div style={{ padding: '6px 8px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 5 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted, letterSpacing: '0.10em' }}>HALLUCINATION</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 800, color: grounded ? LS.accent : LS.err }}>{grounded ? '0.02' : '0.71'}</div>
+          </div>
+          <div style={{ padding: '6px 8px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 5 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted, letterSpacing: '0.10em' }}>CITATIONS</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 800, color: grounded ? LS.accent : LS.err }}>{grounded ? '3' : '0'}</div>
+          </div>
+          <div style={{ padding: '6px 8px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 5 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted, letterSpacing: '0.10em' }}>FAITHFULNESS</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 800, color: grounded ? LS.accent : '#FCD34D' }}>{grounded ? '0.98' : '0.43'}</div>
+          </div>
+        </div>
+
+        {/* Verdict */}
+        <div style={{ padding: '6px 14px 12px' }}>
+          <div style={{ padding: '7px 10px', background: grounded ? 'rgba(16,185,129,0.10)' : 'rgba(248,113,113,0.10)', border: `1px solid ${accent}40`, borderRadius: 5, fontSize: 10, color: grounded ? '#A7F3D0' : '#FECACA', lineHeight: 1.55 }}>
+            {grounded
+              ? '✓ Specific, cited, verifiable — every claim traces to a retrieved chunk.'
+              : '⚠ Plausible but not grounded — model generated from training-data patterns. High hallucination risk.'}
+          </div>
         </div>
       </div>
-      <div style={{ padding: '12px 14px', background: grounded ? 'rgba(5,150,105,0.05)' : 'rgba(220,38,38,0.04)', border: `1px solid ${grounded ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.15)'}`, borderRadius: '8px', marginBottom: '10px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', color: grounded ? '#059669' : '#DC2626', marginBottom: '6px' }}>AI RESPONSE {grounded ? '(grounded)' : '(ungrounded)'}</div>
-        <div style={{ fontSize: '11px', color: '#44403C', lineHeight: 1.6 }}>{grounded ? groundedAnswer : ungroundedAnswer}</div>
+    );
+  };
+
+  return (
+    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run="compare 0b40 ↔ 0b41" view="RUN COMPARISON">
+      {/* Shared query at top */}
+      <div style={{ padding: '10px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}` }}>
+        <LangSmithLabel>USER INPUT (shared across runs)</LangSmithLabel>
+        <div style={{ marginTop: 6, padding: '8px 12px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 6, fontSize: 11.5, color: LS.inkPrimary, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.55 }}>{query}</div>
       </div>
-      <div style={{ fontSize: '9px', color: grounded ? '#059669' : '#DC2626', fontWeight: 600 }}>
-        {grounded ? '✓ Specific, cited, verifiable — hallucination risk near zero' : '⚠ Plausible-sounding but not grounded in your documents — hallucination risk'}
+
+      {/* Side-by-side run comparison */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+        <Run grounded={false} />
+        <Run grounded={true} />
       </div>
-    </div>
+    </LangSmithFrame>
   );
 };
 
+// Anomaly detective rebuilt as the LangSmith Monitoring dashboard —
+// summary tiles (Runs, Cost, p95 latency, Tool calls), a 24-bar trend
+// chart with one obvious spike, and the runs table below with an
+// anomaly badge. Clicking the spike or the flagged run reveals a root
+// cause picker.
 const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
-  const rows = track === 'tech' ? [
-    { id: 'run-001', in: 1240, out: 380, tools: 2, cost: '$0.018', anomaly: false },
-    { id: 'run-002', in: 8920, out: 2100, tools: 11, cost: '$0.134', anomaly: true },
-    { id: 'run-003', in: 1180, out: 340, tools: 2, cost: '$0.017', anomaly: false },
-    { id: 'run-004', in: 1310, out: 410, tools: 3, cost: '$0.020', anomaly: false },
+  type Row = { id: string; ts: string; in: number; out: number; tools: number; cost: number; anomaly: boolean };
+  const rows: Row[] = track === 'tech' ? [
+    { id: 'run-001', ts: '14:02', in: 1240, out: 380,  tools: 2,  cost: 0.018, anomaly: false },
+    { id: 'run-002', ts: '14:08', in: 8920, out: 2100, tools: 11, cost: 0.134, anomaly: true  },
+    { id: 'run-003', ts: '14:14', in: 1180, out: 340,  tools: 2,  cost: 0.017, anomaly: false },
+    { id: 'run-004', ts: '14:21', in: 1310, out: 410,  tools: 3,  cost: 0.020, anomaly: false },
   ] : [
-    { id: 'run-001', in: 980, out: 290, tools: 1, cost: '$0.013', anomaly: false },
-    { id: 'run-002', in: 1100, out: 320, tools: 1, cost: '$0.015', anomaly: false },
-    { id: 'run-003', in: 6840, out: 1900, tools: 7, cost: '$0.103', anomaly: true },
-    { id: 'run-004', in: 990, out: 300, tools: 1, cost: '$0.014', anomaly: false },
+    { id: 'run-001', ts: '09:01', in: 980,  out: 290,  tools: 1, cost: 0.013, anomaly: false },
+    { id: 'run-002', ts: '09:07', in: 1100, out: 320,  tools: 1, cost: 0.015, anomaly: false },
+    { id: 'run-003', ts: '09:14', in: 6840, out: 1900, tools: 7, cost: 0.103, anomaly: true  },
+    { id: 'run-004', ts: '09:22', in: 990,  out: 300,  tools: 1, cost: 0.014, anomaly: false },
   ];
   const causes = track === 'tech' ? [
     { label: 'Agent entered a tool-calling loop — called get_claim_data 9 times before stopping', correct: true },
-    { label: 'Larger claim document ingested — document size drove up input tokens', correct: false },
-    { label: 'Model switched to GPT-4 for this run, which has higher token costs', correct: false },
+    { label: 'Larger claim document ingested — document size drove up input tokens',               correct: false },
+    { label: 'Model switched to GPT-4 for this run, which has higher token costs',                  correct: false },
   ] : [
-    { label: 'Exception batch included 50 items instead of the usual 5', correct: false },
-    { label: 'Agent looped on get_exception_data — called 6 times before timing out', correct: true },
-    { label: 'System prompt was accidentally duplicated in this run', correct: false },
+    { label: 'Exception batch included 50 items instead of the usual 5',                            correct: false },
+    { label: 'Agent looped on get_exception_data — called 6 times before timing out',              correct: true },
+    { label: 'System prompt was accidentally duplicated in this run',                               correct: false },
   ];
 
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
@@ -442,61 +927,172 @@ const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
   const [revealed, setRevealed] = useState(false);
   const anomaly = rows.find(r => r.anomaly)!;
   const correctCause = causes.findIndex(c => c.correct);
+  const totalCost = rows.reduce((s, r) => s + r.cost, 0);
+  const avgTools = rows.reduce((s, r) => s + r.tools, 0) / rows.length;
+  const p95Tokens = Math.max(...rows.map(r => r.in));
+  const reset = () => { setSelectedRow(null); setSelectedCause(null); setRevealed(false); };
+
+  // Trend bars — 24 bars with the anomaly spike at the correct timestamp
+  const trend = Array.from({ length: 24 }, (_, i) => {
+    const baseline = 14 + Math.round(Math.sin(i / 3) * 5 + Math.random() * 4);
+    const isSpike = i === 12;
+    return { i, h: isSpike ? 58 : baseline, isSpike };
+  });
+
+  const Tile = ({ label, value, color }: { label: string; value: string; color?: string }) => (
+    <div style={{ padding: '8px 10px', background: LS.panel, border: `1px solid ${LS.border}`, borderRadius: 7 }}>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted, letterSpacing: '0.10em' }}>{label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 800, color: color ?? LS.inkPrimary, marginTop: 2 }}>{value}</div>
+    </div>
+  );
 
   return (
-    <div style={{ background: '#172B4D', borderRadius: '12px', padding: '20px 24px', fontFamily: "'JetBrains Mono', monospace" }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-        <div style={{ fontSize: '10px', letterSpacing: '0.14em', color: '#8993A4' }}>ANOMALY DETECTIVE — TOKEN LOG</div>
-        <div style={{ fontSize: '9px', color: '#F59E0B', background: 'rgba(245,158,11,0.1)', padding: '2px 8px', borderRadius: '4px' }}>Find the anomaly</div>
+    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} view="MONITORING · LAST 1H" status={revealed ? 'error' : 'pending'}>
+      {/* Summary tiles */}
+      <div style={{ padding: '12px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}`, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+        <Tile label="RUNS"           value={String(rows.length)} />
+        <Tile label="COST · 1H"      value={`$${totalCost.toFixed(3)}`} color={totalCost > 0.10 ? '#FCD34D' : LS.accent} />
+        <Tile label="p95 IN-TOKENS"  value={p95Tokens.toLocaleString()} color={p95Tokens > 5000 ? LS.err : LS.accent} />
+        <Tile label="AVG TOOL CALLS" value={avgTools.toFixed(1)}        color={avgTools > 3 ? LS.err : LS.accent} />
       </div>
-      <div style={{ fontSize: '9px', color: '#5E7094', marginBottom: '14px' }}>Step 1: Click the anomalous run. Step 2: Pick the most likely cause.</div>
-      <div style={{ overflowX: 'auto' as const, marginBottom: '14px' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '10px' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #253858' }}>
-              {['run_id', 'in_tokens', 'out_tokens', 'tool_calls', 'cost'].map(h => (
-                <th key={h} style={{ padding: '4px 8px', textAlign: 'left' as const, color: '#8993A4', fontWeight: 600, fontSize: '9px', letterSpacing: '0.06em' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(r => (
-              <tr key={r.id} onClick={() => !revealed && setSelectedRow(r.id)}
-                style={{ borderBottom: '1px solid #1E3A5F', background: selectedRow === r.id ? (revealed ? (r.anomaly ? 'rgba(245,158,11,0.12)' : 'rgba(220,38,38,0.08)') : 'rgba(255,255,255,0.06)') : 'transparent', cursor: revealed ? 'default' : 'pointer', transition: 'background 0.15s' }}>
-                <td style={{ padding: '6px 8px', color: revealed && r.anomaly ? '#F59E0B' : '#C1C7D0', fontWeight: r.anomaly && revealed ? 700 : 400 }}>{r.id}{revealed && r.anomaly ? ' ⚑' : ''}</td>
-                <td style={{ padding: '6px 8px', color: revealed && r.anomaly ? '#F59E0B' : '#C1C7D0' }}>{r.in.toLocaleString()}</td>
-                <td style={{ padding: '6px 8px', color: revealed && r.anomaly ? '#F59E0B' : '#C1C7D0' }}>{r.out.toLocaleString()}</td>
-                <td style={{ padding: '6px 8px', color: revealed && r.anomaly ? '#DC2626' : '#C1C7D0', fontWeight: r.anomaly && revealed ? 700 : 400 }}>{r.tools}</td>
-                <td style={{ padding: '6px 8px', color: revealed && r.anomaly ? '#F59E0B' : '#C1C7D0', fontWeight: r.anomaly && revealed ? 700 : 400 }}>{r.cost}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Trend chart */}
+      <div style={{ padding: '12px 14px', background: LS.bg, borderBottom: `1px solid ${LS.border}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <LangSmithLabel>INPUT-TOKEN VOLUME · trailing 1H</LangSmithLabel>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.err }}>1 anomaly detected</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 64, padding: '4px 0', borderBottom: `1px dashed ${LS.border}` }}>
+          {trend.map(b => (
+            <div
+              key={b.i}
+              onClick={() => b.isSpike && !revealed && setSelectedRow(anomaly.id)}
+              style={{
+                flex: 1,
+                height: `${b.h}px`,
+                background: b.isSpike ? (selectedRow === anomaly.id ? LS.err : '#FCD34D') : LS.accentAlt,
+                opacity: b.isSpike ? 1 : 0.45,
+                borderRadius: '2px 2px 0 0',
+                cursor: b.isSpike && !revealed ? 'pointer' : 'default',
+                transition: 'background 0.15s',
+              }}
+              title={b.isSpike ? 'Anomaly — click to inspect' : ''}
+            />
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: LS.inkMuted }}>
+          <span>-60m</span><span>-30m</span><span>now</span>
+        </div>
       </div>
+
+      {/* Runs table */}
+      <div style={{ background: LS.bg, padding: '8px 14px 12px' }}>
+        <div style={{ padding: '6px 8px', display: 'grid', gridTemplateColumns: '1.4fr 0.6fr 1fr 1fr 1fr 1fr 0.6fr', gap: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted, letterSpacing: '0.10em', borderBottom: `1px solid ${LS.border}` }}>
+          <span>RUN_ID</span><span>TIME</span><span>IN TOK</span><span>OUT TOK</span><span>TOOL CALLS</span><span>COST</span><span>STATUS</span>
+        </div>
+        {rows.map(r => {
+          const isSelected = selectedRow === r.id;
+          const isFlagged = revealed && r.anomaly;
+          return (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => !revealed && setSelectedRow(r.id)}
+              style={{
+                appearance: 'none', cursor: revealed ? 'default' : 'pointer',
+                width: '100%',
+                padding: '6px 8px',
+                display: 'grid', gridTemplateColumns: '1.4fr 0.6fr 1fr 1fr 1fr 1fr 0.6fr', gap: 8,
+                background: isSelected ? (isFlagged ? 'rgba(248,113,113,0.10)' : 'rgba(255,255,255,0.04)') : 'transparent',
+                border: 'none',
+                borderBottom: `1px solid ${LS.border}`,
+                color: r.anomaly && revealed ? LS.err : LS.inkPrimary,
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5,
+                textAlign: 'left' as const,
+              }}
+            >
+              <span style={{ color: isFlagged ? LS.err : LS.accentAlt }}>{r.id}{isFlagged ? ' ⚑' : ''}</span>
+              <span style={{ color: LS.inkMuted }}>{r.ts}</span>
+              <span>{r.in.toLocaleString()}</span>
+              <span>{r.out.toLocaleString()}</span>
+              <span style={{ color: r.tools > 3 ? LS.err : LS.inkPrimary, fontWeight: r.tools > 3 ? 700 : 400 }}>{r.tools}</span>
+              <span>${r.cost.toFixed(3)}</span>
+              <span style={{ color: r.anomaly ? LS.err : LS.accent, fontWeight: 700, fontSize: 9 }}>{r.anomaly ? 'ANOMALY' : 'OK'}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Cause picker */}
       {selectedRow && !revealed && (
-        <div style={{ marginBottom: '14px' }}>
-          <div style={{ fontSize: '9px', color: '#8993A4', marginBottom: '8px' }}>
-            {selectedRow === anomaly.id ? 'Good find — now pick the most likely cause:' : `${selectedRow} looks normal. Look for the outlier — check tool_calls and cost.`}
-          </div>
-          {selectedRow === anomaly.id && (
-            <div style={{ display: 'grid', gap: '6px' }}>
-              {causes.map((c, i) => (
-                <div key={i} onClick={() => setSelectedCause(i)}
-                  style={{ padding: '8px 12px', background: selectedCause === i ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${selectedCause === i ? '#F59E0B' : 'rgba(255,255,255,0.1)'}`, borderRadius: '6px', fontSize: '10px', color: selectedCause === i ? '#FCD34D' : '#8993A4', cursor: 'pointer' }}>{c.label}</div>
-              ))}
-              <div onClick={() => selectedCause !== null && setRevealed(true)} style={{ padding: '7px 16px', background: selectedCause !== null ? '#F59E0B' : '#253858', borderRadius: '6px', fontSize: '10px', color: selectedCause !== null ? '#172B4D' : '#5E7094', fontWeight: 700, cursor: selectedCause !== null ? 'pointer' : 'not-allowed', display: 'inline-block', marginTop: '4px' }}>Investigate →</div>
+        <div style={{ padding: '12px 14px', background: LS.panelAlt, borderTop: `1px solid ${LS.border}` }}>
+          <LangSmithLabel>ROOT CAUSE INVESTIGATION</LangSmithLabel>
+          {selectedRow !== anomaly.id ? (
+            <div style={{ marginTop: 6, fontSize: 11, color: LS.inkMuted, lineHeight: 1.5 }}>
+              <span style={{ color: LS.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>{selectedRow}</span> looks normal — input tokens and tool calls are within baseline. Click the spike or the ⚑ row.
             </div>
+          ) : (
+            <>
+              <div style={{ marginTop: 6, fontSize: 11, color: LS.inkSecondary, lineHeight: 1.5, marginBottom: 8 }}>
+                Pick the most likely root cause for <span style={{ color: LS.err, fontFamily: "'JetBrains Mono', monospace" }}>{anomaly.id}</span>:
+              </div>
+              <div style={{ display: 'grid', gap: 5 }}>
+                {causes.map((c, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setSelectedCause(i)}
+                    style={{
+                      appearance: 'none', cursor: 'pointer',
+                      padding: '7px 10px',
+                      background: selectedCause === i ? 'rgba(252,211,77,0.12)' : LS.panel,
+                      border: `1px solid ${selectedCause === i ? '#FCD34D' : LS.border}`,
+                      borderRadius: 5,
+                      fontFamily: 'inherit',
+                      fontSize: 11, color: LS.inkPrimary,
+                      textAlign: 'left' as const, lineHeight: 1.5,
+                    }}
+                  >{c.label}</button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => selectedCause !== null && setRevealed(true)}
+                disabled={selectedCause === null}
+                style={{
+                  appearance: 'none', cursor: selectedCause === null ? 'not-allowed' : 'pointer',
+                  marginTop: 8,
+                  padding: '6px 14px',
+                  background: selectedCause === null ? 'rgba(255,255,255,0.06)' : LS.accent,
+                  border: 'none', borderRadius: 5,
+                  fontSize: 11, fontWeight: 700,
+                  color: selectedCause === null ? LS.inkMuted : LS.bg,
+                  fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em',
+                }}
+              >▶ INVESTIGATE</button>
+            </>
           )}
         </div>
       )}
+
+      {/* Resolution */}
       {revealed && (
-        <div style={{ padding: '10px 12px', background: selectedCause === correctCause ? 'rgba(22,163,74,0.1)' : 'rgba(245,158,11,0.08)', border: `1px solid ${selectedCause === correctCause ? 'rgba(22,163,74,0.3)' : 'rgba(245,158,11,0.2)'}`, borderRadius: '6px', marginBottom: '10px' }}>
-          <div style={{ fontSize: '10px', fontWeight: 700, color: selectedCause === correctCause ? '#6EE7B7' : '#FCD34D', marginBottom: '4px' }}>{selectedCause === correctCause ? '✓ Correct!' : `✗ Not quite — root cause: ${causes[correctCause].label}`}</div>
-          <div style={{ fontSize: '9px', color: '#8993A4', lineHeight: 1.5 }}>{anomaly.id} had {anomaly.tools} tool calls vs avg 1–2. High tool_calls + high input tokens = classic agent loop signature. Fix: add max_iterations guard on the agent node.</div>
-          <div onClick={() => { setSelectedRow(null); setSelectedCause(null); setRevealed(false); }} style={{ marginTop: '8px', fontSize: '9px', color: '#5E7094', cursor: 'pointer', display: 'inline-block' }}>↺ Reset</div>
+        <div style={{ padding: '12px 14px', background: selectedCause === correctCause ? 'rgba(16,185,129,0.10)' : 'rgba(252,211,77,0.10)', borderTop: `1px solid ${LS.border}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 800, color: selectedCause === correctCause ? LS.accent : '#FCD34D', letterSpacing: '0.10em' }}>
+              {selectedCause === correctCause ? '✓ ROOT CAUSE CONFIRMED' : '✗ NOT QUITE — actual root cause:'}
+            </div>
+            <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: `1px solid ${LS.border}`, borderRadius: 5, padding: '4px 10px', fontSize: 9.5, fontWeight: 700, color: LS.inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESET</button>
+          </div>
+          {selectedCause !== correctCause && (
+            <div style={{ fontSize: 11, color: LS.inkPrimary, lineHeight: 1.5, marginBottom: 6 }}>{causes[correctCause].label}</div>
+          )}
+          <div style={{ fontSize: 10.5, color: LS.inkSecondary, lineHeight: 1.6 }}>
+            <span style={{ color: LS.err, fontFamily: "'JetBrains Mono', monospace" }}>{anomaly.id}</span> ran {anomaly.tools} tool calls vs baseline 1–2. High tool_calls + high input tokens is the classic agent-loop signature. <span style={{ color: LS.inkPrimary, fontWeight: 700 }}>Fix:</span> add max_iterations guard on the agent node.
+          </div>
         </div>
       )}
-    </div>
+    </LangSmithFrame>
   );
 };
 
