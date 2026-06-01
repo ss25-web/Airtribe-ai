@@ -41,10 +41,11 @@ export function AbandonmentTimeline() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [elapsed, setElapsed] = useState(-1);
   const [tick, setTick] = useState(0);
+  const [manual, setManual] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || manual) return;
     setElapsed(-1);
     const t = setTimeout(() => {
       setElapsed(0);
@@ -56,9 +57,10 @@ export function AbandonmentTimeline() {
       }, 80);
     }, 500);
     return () => { clearTimeout(t); if (timerRef.current) clearInterval(timerRef.current); };
-  }, [inView, tick]);
+  }, [inView, tick, manual]);
 
-  const replay = () => { if (timerRef.current) clearInterval(timerRef.current); setElapsed(-1); setTick(t => t + 1); };
+  const replay = () => { if (timerRef.current) clearInterval(timerRef.current); setManual(false); setElapsed(-1); setTick(t => t + 1); };
+  const onScrub = (val: number) => { if (timerRef.current) clearInterval(timerRef.current); setManual(true); setElapsed(val); };
   const pct = Math.min((elapsed / 45) * 100, 100);
   const activeBeat = TIMELINE_BEATS.reduce((acc, b) => b.t <= elapsed ? b : acc, TIMELINE_BEATS[0]);
   const zone = elapsed < 12 ? 'safe' : elapsed < 25 ? 'danger' : 'lost';
@@ -102,6 +104,20 @@ export function AbandonmentTimeline() {
           </div>
           <div style={{ position: 'absolute', top: '-18px', left: '55.5%', transform: 'translateX(-50%)' }}>
             <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#EF4444', fontWeight: 800 }}>25s</div>
+          </div>
+        </div>
+
+        {/* Scrubber — learner controls the clock */}
+        <div style={{ marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <input
+            type="range" min={0} max={45} step={0.5}
+            value={Math.max(0, elapsed)}
+            onChange={e => onScrub(parseFloat(e.target.value))}
+            style={{ flex: 1, accentColor: zoneColor, cursor: 'pointer' }}
+            aria-label="Scrub the 45-second timeline"
+          />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', minWidth: 86, textAlign: 'right' as const }}>
+            {manual ? 'SCRUBBING · paused' : 'AUTO · drag to scrub'}
           </div>
         </div>
 

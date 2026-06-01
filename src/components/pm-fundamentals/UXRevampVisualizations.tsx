@@ -78,100 +78,161 @@ const COPY_OPTIONS = [
   },
 ];
 
+// ─── MicrocopyLab — REAL copy-writing sandbox ─────────────────────────────
+// The learner WRITES the button copy themselves in a real textarea, plus an
+// optional sub-text line. A deterministic linter scores their text on 4 PM
+// signals — verb (present-continuous), task-specific noun (their content,
+// not the system's), progress indicator, time/duration. The signals feed a
+// real abandonment-prediction formula derived from the four canonical copy
+// tiers (78% → 62% → 41% → 12%). Goal: write copy that drops predicted
+// abandonment under 20%. Compare against the 4 preset tiers via "load preset".
 export function MicrocopyLab() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [active, setActive] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
 
-  useEffect(() => {
-    if (!inView) return;
-    let i = 0;
-    const order = ['blank', 'generic', 'task', 'full'];
-    const advance = () => {
-      setActive(order[i % order.length]);
-      i++;
-    };
-    advance();
-    const iv = setInterval(advance, 3000);
-    return () => clearInterval(iv);
-  }, [inView, tick]);
+  const [buttonText, setButtonText] = useState('Submit');
+  const [subText, setSubText]       = useState('');
 
-  const replay = () => { setActive(null); setTick(t => t + 1); };
-  const sel = COPY_OPTIONS.find(o => o.id === active);
+  // Real linter — 4 PM signals
+  const verbRe   = /\b(analyz|extract|process|generat|sync|load|render|comput|fetch|upload|transcrib|index)(e|ing)?\b/i;
+  const nounRe   = /\b(recording|coaching moment|session|file|video|moment|insight|transcript|conversation)s?\b/i;
+  const progRe   = /\b(\d{1,3}\s*%|progress|complete|done|of\s*\d|step\s*\d)/i;
+  const timeRe   = /(\b\d+\s*(sec|second|min|minute|s\b|m\b))|(\b~?\d+\s*s\b)|(remaining|left|eta)/i;
+  const combined = `${buttonText}\n${subText}`;
+  const hasVerb  = verbRe.test(combined);
+  const hasNoun  = nounRe.test(combined);
+  const hasProg  = progRe.test(combined);
+  const hasTime  = timeRe.test(combined);
+  const score    = (hasVerb?1:0)+(hasNoun?1:0)+(hasProg?1:0)+(hasTime?1:0);
+  // Predicted abandonment = 78% baseline, each signal halves the gap to 12%
+  const predictedAbandon = (() => {
+    const tiers = [78, 62, 41, 22, 12];
+    return tiers[score];
+  })();
+  const waitSec = (() => {
+    const tiers = [8, 14, 22, 33, 45];
+    return tiers[score];
+  })();
+  const tierColor = score === 0 ? '#EF4444' : score === 1 ? '#F59E0B' : score === 2 ? '#F97316' : score === 3 ? '#10B981' : '#22C55E';
+
+  const loadPreset = (preset: string) => {
+    const opt = COPY_OPTIONS.find(o => o.id === preset)!;
+    setButtonText(opt.buttonText);
+    setSubText(opt.subText ?? '');
+  };
+  const replay = () => { setButtonText('Submit'); setSubText(''); };
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
       <LawBadge law="MICROCOPY IS A PM DECISION" color="#6366F1" dark="#3730A3" />
-      <VizLabel>Same button. Same upload. Four copy choices. Radically different outcomes.</VizLabel>
+      <VizLabel>Write the loading-state copy yourself. The linter scores it. The model predicts abandonment.</VizLabel>
 
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
-        {/* 4 option selector */}
+      <div style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        {/* Preset chips */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderBottom: '1px solid var(--ed-rule)' }}>
           {COPY_OPTIONS.map((o, i) => (
-            <button key={o.id} onClick={() => setActive(o.id)}
+            <button key={o.id} onClick={() => loadPreset(o.id)}
               style={{
-                padding: '12px 8px', border: 'none', cursor: 'pointer',
-                background: active === o.id ? o.color : 'var(--ed-card)',
+                padding: '10px 8px', border: 'none', cursor: 'pointer',
+                background: buttonText === o.buttonText ? o.color : 'var(--ed-card)',
                 borderRight: i < 3 ? '1px solid var(--ed-rule)' : 'none',
-                transition: 'background 0.3s',
+                color: buttonText === o.buttonText ? '#fff' : 'var(--ed-ink2)',
+                fontFamily: 'inherit',
               }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.14em', color: active === o.id ? 'rgba(255,255,255,0.75)' : 'var(--ed-ink3)', marginBottom: '5px' }}>
-                OPTION {i + 1}
-              </div>
-              <div style={{ fontFamily: 'monospace', fontSize: '20px', fontWeight: 900, color: active === o.id ? '#fff' : o.color, lineHeight: 1 }}>{100 - o.abandon}%</div>
-              <div style={{ fontSize: '9px', color: active === o.id ? 'rgba(255,255,255,0.65)' : 'var(--ed-ink3)', marginTop: '3px' }}>completed</div>
-              {active === o.id && <motion.div layoutId="tab-line" style={{ width: '24px', height: '3px', borderRadius: '2px', background: 'rgba(255,255,255,0.6)', margin: '6px auto 0' }} />}
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.14em', color: buttonText === o.buttonText ? 'rgba(255,255,255,0.75)' : 'var(--ed-ink3)', marginBottom: 4 }}>PRESET {i + 1}</div>
+              <div style={{ fontSize: 10.5, lineHeight: 1.3, color: 'inherit' }}>{o.label.replace(/\(.*?\)/, '').trim()}</div>
             </button>
           ))}
         </div>
 
-        {/* Content */}
-        <AnimatePresence mode="wait">
-          {sel && (
-            <motion.div key={sel.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', alignItems: 'stretch' }}>
-                {/* Button mockup */}
-                <div style={{ padding: '32px 24px', borderRight: '1px solid var(--ed-rule)', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '12px', background: 'linear-gradient(160deg, #F8F6F1 0%, #EFECE6 100%)' }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '4px' }}>{sel.label.toUpperCase()}</div>
-                  <div style={{ width: '200px', padding: '12px 18px', borderRadius: '10px', background: '#1F2937', textAlign: 'center' as const, boxShadow: '0 4px 0 #111827, 0 6px 16px rgba(0,0,0,0.25)' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginBottom: sel.subText ? '6px' : '0' }}>{sel.buttonText}</div>
-                    {sel.subText && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.55)', fontFamily: 'monospace' }}>{sel.subText}</div>}
-                  </div>
-                  {/* Stats */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', width: '100%', marginTop: '8px' }}>
-                    <div style={{ padding: '10px', borderRadius: '10px', background: `${sel.color}12`, border: `1.5px solid ${sel.color}35`, textAlign: 'center' as const }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '24px', fontWeight: 900, color: sel.color, lineHeight: 1 }}>{sel.abandon}%</div>
-                      <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', marginTop: '3px' }}>abandoned</div>
-                    </div>
-                    <div style={{ padding: '10px', borderRadius: '10px', background: `${sel.color}12`, border: `1.5px solid ${sel.color}35`, textAlign: 'center' as const }}>
-                      <div style={{ fontFamily: 'monospace', fontSize: '24px', fontWeight: 900, color: sel.color, lineHeight: 1 }}>{sel.waitSec}s</div>
-                      <div style={{ fontSize: '9px', color: 'var(--ed-ink3)', marginTop: '3px' }}>avg wait</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Story */}
-                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
-                  <div>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: '8px' }}>WHAT USERS EXPERIENCED</div>
-                    <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75, fontStyle: 'italic' }}>&ldquo;{sel.experience}&rdquo;</div>
-                  </div>
-                  <div style={{ padding: '14px 16px', borderRadius: '14px', background: `${sel.color}10`, border: `1.5px solid ${sel.color}30`, borderLeft: `4px solid ${sel.color}` }}>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '7px' }}>THE PM&apos;S DECISION HERE</div>
-                    <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontWeight: 600, lineHeight: 1.65 }}>{sel.pmNote}</div>
-                  </div>
-                </div>
+        {/* Editor + preview */}
+        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr' }}>
+          {/* Button preview */}
+          <div style={{ padding: '32px 22px', borderRight: '1px solid var(--ed-rule)', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 12, background: 'linear-gradient(160deg, #F8F6F1 0%, #EFECE6 100%)' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, color: tierColor, letterSpacing: '0.14em', marginBottom: 4 }}>YOUR COPY · LIVE</div>
+            <div style={{ width: 210, padding: '12px 18px', borderRadius: 10, background: '#1F2937', textAlign: 'center' as const, boxShadow: '0 4px 0 #111827, 0 6px 16px rgba(0,0,0,0.25)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: subText ? 6 : 0, minHeight: 16 }}>{buttonText || <span style={{ opacity: 0.4 }}>(empty)</span>}</div>
+              {subText && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.55)', fontFamily: 'monospace' }}>{subText}</div>}
+            </div>
+            {/* Predicted stats */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%', marginTop: 8 }}>
+              <div style={{ padding: 10, borderRadius: 10, background: `${tierColor}12`, border: `1.5px solid ${tierColor}35`, textAlign: 'center' as const }}>
+                <div style={{ fontFamily: 'monospace', fontSize: 24, fontWeight: 900, color: tierColor, lineHeight: 1 }}>{predictedAbandon}%</div>
+                <div style={{ fontSize: 9, color: 'var(--ed-ink3)', marginTop: 3 }}>predicted abandon</div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div style={{ padding: 10, borderRadius: 10, background: `${tierColor}12`, border: `1.5px solid ${tierColor}35`, textAlign: 'center' as const }}>
+                <div style={{ fontFamily: 'monospace', fontSize: 24, fontWeight: 900, color: tierColor, lineHeight: 1 }}>{waitSec}s</div>
+                <div style={{ fontSize: 9, color: 'var(--ed-ink3)', marginTop: 3 }}>median wait</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Editor + linter */}
+          <div style={{ padding: 22 }}>
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: 5 }}>BUTTON COPY · editable</div>
+              <input
+                value={buttonText}
+                onChange={e => setButtonText(e.target.value)}
+                spellCheck={false}
+                placeholder='e.g. "Extracting coaching moments…"'
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '8px 12px',
+                  background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: 8,
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: 'var(--ed-ink)', outline: 'none',
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: 5 }}>SUB-TEXT · optional</div>
+              <input
+                value={subText}
+                onChange={e => setSubText(e.target.value)}
+                spellCheck={false}
+                placeholder='e.g. "~38 seconds · 60% complete"'
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '8px 12px',
+                  background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', borderRadius: 8,
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--ed-ink)', outline: 'none',
+                }}
+              />
+            </div>
+
+            {/* Linter */}
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: 6 }}>LINTER · {score}/4 signals</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5, marginBottom: 12 }}>
+              {([
+                ['Action verb',     hasVerb, '"analyzing", "extracting", "processing"'],
+                ['Specific noun',   hasNoun, '"your recording", "coaching moments"'],
+                ['Progress signal', hasProg, '"60% complete" / "step 2 of 3"'],
+                ['Time expectation',hasTime, '"~38 seconds" / "remaining"'],
+              ] as const).map(([label, on, hint]) => (
+                <span key={label} title={hint} style={{
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700,
+                  padding: '3px 8px', borderRadius: 4,
+                  background: on ? 'rgba(34,197,94,0.10)' : 'rgba(239,68,68,0.06)',
+                  color: on ? '#15803D' : '#B23F22',
+                  border: `1px solid ${on ? 'rgba(34,197,94,0.30)' : 'rgba(239,68,68,0.24)'}`,
+                }}>{on ? '✓' : '✗'} {label}</span>
+              ))}
+            </div>
+
+            {/* Verdict */}
+            <div style={{ padding: '11px 14px', borderRadius: 10, background: `${tierColor}10`, border: `1.5px solid ${tierColor}30`, borderLeft: `4px solid ${tierColor}`, fontSize: 13, color: 'var(--ed-ink)', lineHeight: 1.6 }}>
+              {score === 4 ? <><strong style={{ color: tierColor }}>Ship it.</strong> Verb · noun · progress · time. 12% abandon — at parity with EdSpark&apos;s shipped copy.</> :
+               score === 3 ? <><strong style={{ color: tierColor }}>Close.</strong> One more signal — add {!hasTime ? 'a time estimate' : !hasProg ? 'a progress indicator' : !hasNoun ? 'a specific noun' : 'an action verb'} for the remaining drop.</> :
+               score === 2 ? <><strong style={{ color: tierColor }}>Halfway.</strong> Users know <i>something</i> is happening — not <i>what</i> or <i>how long</i>.</> :
+               score === 1 ? <><strong style={{ color: tierColor }}>Weak.</strong> Generic processing copy. Better than nothing — but not by much.</> :
+               <><strong style={{ color: tierColor }}>Silent.</strong> &ldquo;{buttonText || '(empty)'}&rdquo; tells the user nothing. 78% bail.</>}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+      <div style={{ marginTop: 12, padding: '12px 18px', borderRadius: 12, background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', fontSize: 13, color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
         <strong style={{ color: '#6366F1' }}>PM ownership:</strong> the spec must name the copy for every state — not just the success state. &ldquo;The button should say something useful&rdquo; is not a spec. &ldquo;Loading: &lsquo;Extracting coaching moments…&rsquo; + % complete&rdquo; is.
       </div>
-      <ReplayBtn onReplay={replay} />
+      {inView && <ReplayBtn onReplay={replay} />}
     </div>
   );
 }
@@ -219,119 +280,186 @@ const STATES_SPEC = [
   },
 ];
 
+// ─── StateSpecBuilder — REAL per-state spec-writing sandbox ──────────────
+// One textarea per state (loading · empty · error · success · edge). A
+// deterministic linter scores each spec on 3 signals: visible UI (what the
+// user sees), next-action (the CTA / recovery path), and triggering signal
+// (timing / quantity / data condition). Each state's tab shows pass / partial /
+// fail at a glance. Goal: 5 tabs × 3 signals = 15/15. The completeness
+// principle "every screen has 5 states" emerges from the score, not narration.
+type StateSig = { hasVisible: boolean; hasAction: boolean; hasTrigger: boolean };
+const STATE_LINTERS: Record<string, (text: string) => StateSig> = {
+  loading: (t) => ({
+    hasVisible: /progress|spinner|bar|extracting|analyz|processing|"/i.test(t),
+    hasAction:  /\bcancel\b|remain|background|notify|email|wait/i.test(t),
+    hasTrigger: /\bupload\b|file|started|invoked|on submit|after/i.test(t),
+  }),
+  empty: (t) => ({
+    hasVisible: /headline|illustration|placeholder|empty|"/i.test(t),
+    hasAction:  /cta|upload|get started|create|button|click|tap/i.test(t),
+    hasTrigger: /first[-\s]?time|new user|no \w+ yet|0\s*(items?|recordings?)|never/i.test(t),
+  }),
+  error: (t) => ({
+    hasVisible: /headline|message|copy|"|error|fail/i.test(t),
+    hasAction:  /retry|reconnect|contact|settings|recover|saved|preserved/i.test(t),
+    hasTrigger: /(\d{3}|expired|disconnect|timeout|fail(ed|ure)?|when|if)/i.test(t),
+  }),
+  success: (t) => ({
+    hasVisible: /headline|"|summary|illustration|found|moments?|insights?/i.test(t),
+    hasAction:  /view|next|cta|button|→|continue|see|review/i.test(t),
+    hasTrigger: /complete|finished|processed|done|after \w+ finish/i.test(t),
+  }),
+  edge: (t) => ({
+    hasVisible: /warning|alert|banner|"|validation/i.test(t),
+    hasAction:  /email|background|alternative|option|skip|defer|notify/i.test(t),
+    hasTrigger: /\d+\s*(gb|mb|files?|items?|minutes?|hours?)|limit|exceeds?|over|large/i.test(t),
+  }),
+};
+
 export function StateSpecBuilder() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [active, setActive] = useState(0);
-  const [completed, setCompleted] = useState<Set<number>>(new Set());
-  const [showAnswer, setShowAnswer] = useState(false);
+  const [specs, setSpecs] = useState<string[]>(['', '', '', '', '']);
   const [tick, setTick] = useState(0);
 
-  useEffect(() => {
-    if (!inView) return;
-    setActive(0); setCompleted(new Set()); setShowAnswer(false);
-  }, [inView, tick]);
+  useEffect(() => { if (inView) { setActive(0); } }, [inView, tick]);
+  const replay = () => { setSpecs(['', '', '', '', '']); setActive(0); setTick(t => t + 1); };
 
-  const handleReveal = () => {
-    setShowAnswer(true);
-    setCompleted(prev => new Set([...prev, active]));
-  };
-
-  const replay = () => { setActive(0); setCompleted(new Set()); setShowAnswer(false); setTick(t => t + 1); };
   const s = STATES_SPEC[active];
-  const allDone = completed.size === STATES_SPEC.length;
+  const myText = specs[active];
+
+  const sigs = STATE_LINTERS[s.id](myText);
+  const stateScore = (sigs.hasVisible?1:0) + (sigs.hasAction?1:0) + (sigs.hasTrigger?1:0);
+  const stateDone = stateScore === 3;
+  const completeStates = specs.reduce((n, txt, i) => {
+    const lin = STATE_LINTERS[STATES_SPEC[i].id](txt);
+    return n + ((lin.hasVisible && lin.hasAction && lin.hasTrigger) ? 1 : 0);
+  }, 0);
+  const totalScore = specs.reduce((n, txt, i) => {
+    const lin = STATE_LINTERS[STATES_SPEC[i].id](txt);
+    return n + (lin.hasVisible?1:0) + (lin.hasAction?1:0) + (lin.hasTrigger?1:0);
+  }, 0);
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
       <LawBadge law="SPEC COMPLETENESS" color="#0EA5E9" dark="#0369A1" />
-      <VizLabel>Every screen has 5 states. A spec that covers only success is 20% complete.</VizLabel>
+      <VizLabel>Every screen has 5 states. Write the spec for each. The linter scores each on 3 signals.</VizLabel>
 
-      <div style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
-        {/* State tabs */}
+      <div style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--ed-rule)', boxShadow: '0 16px 40px rgba(0,0,0,0.08)' }}>
+        {/* Tabs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', borderBottom: '1px solid var(--ed-rule)' }}>
           {STATES_SPEC.map((st, i) => {
-            const done = completed.has(i);
             const isAct = active === i;
+            const lin = STATE_LINTERS[st.id](specs[i]);
+            const tabScore = (lin.hasVisible?1:0) + (lin.hasAction?1:0) + (lin.hasTrigger?1:0);
+            const done = tabScore === 3;
             return (
-              <button key={st.id} onClick={() => { setActive(i); setShowAnswer(done); }}
+              <button key={st.id} onClick={() => setActive(i)}
                 style={{
                   padding: '12px 6px', border: 'none', cursor: 'pointer',
                   background: isAct ? `linear-gradient(135deg, ${st.color} 0%, ${st.dark} 100%)` : done ? `${st.color}10` : 'var(--ed-card)',
                   borderRight: i < 4 ? '1px solid var(--ed-rule)' : 'none', transition: 'background 0.3s',
+                  fontFamily: 'inherit',
                 }}>
-                <div style={{ fontSize: '18px', marginBottom: '4px' }}>{done ? '✓' : st.icon}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, letterSpacing: '0.1em', color: isAct ? '#fff' : done ? st.color : 'var(--ed-ink3)' }}>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{done ? '✓' : st.icon}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, letterSpacing: '0.1em', color: isAct ? '#fff' : done ? st.color : 'var(--ed-ink3)' }}>
                   {st.label.toUpperCase()}
                 </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: isAct ? 'rgba(255,255,255,0.6)' : 'var(--ed-ink3)', marginTop: 2 }}>{tabScore}/3</div>
               </button>
             );
           })}
         </div>
 
         {/* Active state */}
-        <div style={{ padding: '28px 24px', background: 'var(--ed-card)' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: s.color, letterSpacing: '0.14em', marginBottom: '12px' }}>
+        <div style={{ padding: '24px 22px', background: 'var(--ed-card)' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: s.color, letterSpacing: '0.14em', marginBottom: 10 }}>
             {s.icon} {s.label.toUpperCase()} STATE — EDSPARK UPLOAD FLOW
           </div>
-          <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--ed-ink)', marginBottom: '20px', lineHeight: 1.45 }}>{s.question}</div>
+          <div style={{ fontSize: 14.5, fontWeight: 700, color: 'var(--ed-ink)', marginBottom: 14, lineHeight: 1.45 }}>{s.question}</div>
 
-          {!showAnswer ? (
-            <div style={{ padding: '20px', borderRadius: '14px', background: 'rgba(239,68,68,0.06)', border: '1.5px solid rgba(239,68,68,0.2)', marginBottom: '16px' }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.14em', marginBottom: '8px' }}>❌ WHAT ENGINEERS BUILD WITHOUT THIS SPEC</div>
-              <div style={{ fontSize: '13px', color: 'var(--ed-ink)', fontStyle: 'italic', lineHeight: 1.65 }}>&ldquo;{s.bad}&rdquo;</div>
-            </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
-              <div style={{ padding: '18px', borderRadius: '14px', background: 'rgba(239,68,68,0.06)', border: '1.5px solid rgba(239,68,68,0.2)' }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: '#EF4444', letterSpacing: '0.14em', marginBottom: '8px' }}>❌ WITHOUT THE SPEC</div>
-                <div style={{ fontSize: '12px', color: 'var(--ed-ink)', fontStyle: 'italic', lineHeight: 1.65 }}>{s.bad}</div>
-              </div>
-              <div style={{ padding: '18px', borderRadius: '14px', background: `${s.color}0D`, border: `1.5px solid ${s.color}35` }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: s.color, letterSpacing: '0.14em', marginBottom: '8px' }}>✓ WHAT THE SPEC MUST SAY</div>
-                <div style={{ fontSize: '12px', color: 'var(--ed-ink)', lineHeight: 1.65 }}>{s.good}</div>
-              </div>
-            </div>
-          )}
-
-          {showAnswer && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              style={{ padding: '12px 16px', borderRadius: '10px', background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '12px', color: 'var(--ed-ink2)', lineHeight: 1.65, marginBottom: '16px' }}>
-              <strong style={{ color: '#EF4444' }}>Consequence of missing this:</strong> {s.consequence}
-            </motion.div>
-          )}
-
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {!showAnswer ? (
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={handleReveal}
-                style={{ padding: '10px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 800, background: `linear-gradient(160deg, ${s.color} 0%, ${s.dark} 100%)`, color: '#fff', border: 'none', boxShadow: `0 5px 0 ${s.dark}, 0 8px 20px ${s.color}40` }}>
-                What should the spec say? →
-              </motion.button>
-            ) : (
-              active < STATES_SPEC.length - 1 && (
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={() => { setActive(active + 1); setShowAnswer(completed.has(active + 1)); }}
-                  style={{ padding: '10px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 800, background: `linear-gradient(160deg, ${STATES_SPEC[active + 1].color} 0%, ${STATES_SPEC[active + 1].dark} 100%)`, color: '#fff', border: 'none', boxShadow: `0 5px 0 ${STATES_SPEC[active + 1].dark}` }}>
-                  Next state: {STATES_SPEC[active + 1].label} →
-                </motion.button>
-              )
-            )}
-            <div style={{ display: 'flex', gap: '5px' }}>
-              {STATES_SPEC.map((_, i) => (
-                <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: completed.has(i) ? STATES_SPEC[i].color : 'var(--ed-rule)', transition: 'background 0.3s' }} />
-              ))}
-            </div>
+          {/* Editor */}
+          <div style={{ marginBottom: 12 }}>
+            <textarea
+              value={myText}
+              onChange={e => setSpecs(prev => prev.map((t, i) => i === active ? e.target.value : t))}
+              spellCheck={false}
+              placeholder={`Write your spec for the ${s.label.toLowerCase()} state…`}
+              style={{
+                width: '100%', boxSizing: 'border-box', minHeight: 110, resize: 'vertical' as const,
+                padding: '12px 14px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)',
+                borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5,
+                color: 'var(--ed-ink)', lineHeight: 1.7, outline: 'none',
+              }}
+            />
           </div>
 
-          {allDone && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              style={{ marginTop: '16px', padding: '14px 18px', borderRadius: '14px', background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.3)', fontSize: '13px', fontWeight: 700, color: '#22C55E', lineHeight: 1.6 }}>
-              ✓ Spec complete. 5 states specced — not just success. This is what PM ownership of UX looks like.
+          {/* Linter strip */}
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 14 }}>
+            {([
+              ['Visible UI',     sigs.hasVisible, 'what the user sees · headline / copy / illustration'],
+              ['Next action',    sigs.hasAction,  'CTA · recovery path · cancel · retry'],
+              ['Trigger named',  sigs.hasTrigger, 'when this state fires · timing / quantity / condition'],
+            ] as const).map(([label, on, hint]) => (
+              <span key={label} title={hint} style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700,
+                padding: '3px 9px', borderRadius: 4,
+                background: on ? `${s.color}15` : 'rgba(239,68,68,0.06)',
+                color: on ? s.dark : '#B23F22',
+                border: `1px solid ${on ? `${s.color}50` : 'rgba(239,68,68,0.25)'}`,
+              }}>{on ? '✓' : '✗'} {label}</span>
+            ))}
+          </div>
+
+          {/* Per-state verdict + reveal canonical */}
+          <details style={{ marginBottom: 14, background: 'rgba(0,0,0,0.02)', border: '1px solid var(--ed-rule)', borderRadius: 10, padding: '8px 12px' }}>
+            <summary style={{ cursor: 'pointer', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--ed-ink3)', letterSpacing: '0.14em', fontWeight: 700 }}>show canonical spec (peek if stuck)</summary>
+            <div style={{ marginTop: 8, fontSize: 12, color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
+              <span style={{ color: s.color, fontWeight: 700 }}>Canonical: </span>{s.good}
+            </div>
+          </details>
+
+          {/* State-level callout */}
+          <div style={{ padding: '11px 14px', borderRadius: 10, background: stateDone ? `${s.color}10` : 'rgba(239,68,68,0.07)', border: `1px solid ${stateDone ? `${s.color}40` : 'rgba(239,68,68,0.2)'}`, fontSize: 12, color: 'var(--ed-ink2)', lineHeight: 1.6 }}>
+            {stateDone ? (
+              <><strong style={{ color: s.color }}>✓ Spec ships.</strong> Engineer has no decisions to ad-lib for this state.</>
+            ) : (
+              <><strong style={{ color: '#B23F22' }}>If shipped as-is:</strong> {s.consequence}</>
+            )}
+          </div>
+
+          {/* Footer nav */}
+          <div style={{ marginTop: 14, display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {STATES_SPEC.map((st, i) => {
+                const lin = STATE_LINTERS[st.id](specs[i]);
+                const tabDone = lin.hasVisible && lin.hasAction && lin.hasTrigger;
+                return (
+                  <div key={st.id} style={{ width: 9, height: 9, borderRadius: '50%', background: tabDone ? st.color : 'var(--ed-rule)' }} />
+                );
+              })}
+            </div>
+            {active < STATES_SPEC.length - 1 ? (
+              <button onClick={() => setActive(active + 1)} style={{ appearance: 'none', cursor: 'pointer', padding: '8px 18px', borderRadius: 10, background: `linear-gradient(160deg, ${STATES_SPEC[active + 1].color} 0%, ${STATES_SPEC[active + 1].dark} 100%)`, color: '#fff', border: 'none', fontWeight: 800, fontSize: 12, fontFamily: 'inherit' }}>
+                Next: {STATES_SPEC[active + 1].label} →
+              </button>
+            ) : (
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--ed-ink3)' }}>{completeStates}/5 states ship-ready · {totalScore}/15 signals</div>
+            )}
+          </div>
+
+          {completeStates === 5 && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              style={{ marginTop: 14, padding: '14px 18px', borderRadius: 14, background: 'rgba(34,197,94,0.08)', border: '1.5px solid rgba(34,197,94,0.3)', fontSize: 13, fontWeight: 700, color: '#15803D', lineHeight: 1.6 }}>
+              ✓ Spec complete · 5 states · 15/15 signals. This is what PM ownership of UX looks like.
             </motion.div>
           )}
         </div>
       </div>
 
-      <div style={{ marginTop: '12px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#0EA5E9' }}>The checklist:</strong> for every screen — Loading, Empty, Error, Success, Edge. If you cannot answer all five, the spec is incomplete and engineers will make decisions you should have made.
+      <div style={{ marginTop: 12, padding: '12px 18px', borderRadius: 12, background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.2)', fontSize: 13, color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#0EA5E9' }}>The checklist:</strong> for every screen — Loading, Empty, Error, Success, Edge. If you cannot write all five, the spec is incomplete and engineers will make decisions you should have made.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>
@@ -378,93 +506,169 @@ const DEBUG_LOOP = [
   },
 ];
 
+// ─── UXDebugLoopViz — REAL diagnostic-loop sandbox ───────────────────────
+// The learner runs Priya's UX debug loop on a NEW problem: post-fix, 42% of
+// users still leave. At each step (Observe → Hypothesize → Test → Measure)
+// the learner makes a real choice between 3 candidates. Only one matches
+// the loop discipline: ground in observation, narrow the hypothesis, ship
+// the smallest test, measure the right thing. Picking the wrong candidate
+// is the pedagogy — the loop fails when PMs leap to redesign at step 2,
+// or measure vanity metrics at step 4. Each step's verdict is real.
+type StepChoice = { id: string; label: string; verdict: 'correct' | 'leap' | 'vanity'; rationale: string };
+const STEP_CHOICES: { step: number; question: string; choices: StepChoice[] }[] = [
+  {
+    step: 0,
+    question: 'You shipped the loading-state fix. 42% still leave. What do you do first?',
+    choices: [
+      { id: 'o-redesign', label: 'Propose a full onboarding redesign',                                                              verdict: 'leap',    rationale: 'Skipping observation — you don\'t know what those 42% are experiencing yet. This is exactly the redesign-instead-of-diagnose trap.' },
+      { id: 'o-watch',    label: 'Watch 10 new session recordings of users in the 42% bucket',                                       verdict: 'correct', rationale: 'Observe before hypothesise. The 42% have their own story — you have to see it before you guess.' },
+      { id: 'o-survey',   label: 'Send an NPS survey to every user who didn\'t complete',                                             verdict: 'vanity',  rationale: 'NPS averages the loud minority and the silent majority into a number that hides the cause. Sessions show behaviour.' },
+    ],
+  },
+  {
+    step: 1,
+    question: 'Observation: many in the 42% bucket pause at the upload screen for 30s+ before clicking. What\'s the testable hypothesis?',
+    choices: [
+      { id: 'h-broad',  label: '"Upload UX is bad — needs full redesign."',                                                          verdict: 'leap',    rationale: 'Untestable. No specific cause, no specific fix, no specific metric. This is a brief, not a hypothesis.' },
+      { id: 'h-precise',label: '"If we add file-format hints on the upload zone, drop-off at upload falls from 42% to <30%."',       verdict: 'correct', rationale: 'Cause (uncertainty about format) · fix (hints) · metric (upload drop-off) · threshold (<30%). Testable.' },
+      { id: 'h-feel',   label: '"The upload screen needs to feel more welcoming."',                                                  verdict: 'vanity',  rationale: '"Feel" isn\'t measurable. You can\'t run this test or know if it worked.' },
+    ],
+  },
+  {
+    step: 2,
+    question: 'Maya has bandwidth for ONE thing this sprint. Which is the smallest test?',
+    choices: [
+      { id: 't-mvp',     label: 'Add one line of supported-format hint text under the upload zone',                                  verdict: 'correct', rationale: 'Smallest possible spec change. Tests the hypothesis without a redesign. Ship today, measure tomorrow.' },
+      { id: 't-overhaul',label: 'Redesign the upload zone with drag-and-drop animations, progress, and tooltips',                    verdict: 'leap',    rationale: 'Tests four things at once. If it works, you don\'t know which change moved the metric.' },
+      { id: 't-onboard', label: 'Add a full onboarding tour explaining every step',                                                  verdict: 'vanity',  rationale: 'Adds friction at the moment of action. Tour completion will look good but upload conversion may drop.' },
+    ],
+  },
+  {
+    step: 3,
+    question: 'A week later. What\'s the most honest measurement?',
+    choices: [
+      { id: 'm-vanity',  label: 'NPS rose from 32 to 38 — ship and move on.',                                                        verdict: 'vanity',  rationale: 'NPS doesn\'t tell you whether THIS change worked. You measured a vibe, not the hypothesis.' },
+      { id: 'm-honest',  label: 'Upload drop-off: 42% → 26%. Hypothesis confirmed. New gap is now adjudication — re-Observe.',         verdict: 'correct', rationale: 'You measured the specific metric named in step 2, and the remaining gap opens the next Observe step. Loop continues.' },
+      { id: 'm-conclude',label: 'Completion is now 71%. Done — close the project.',                                                  verdict: 'leap',    rationale: 'Stopping early. The remaining 29% are the next diagnostic, not a finish line.' },
+    ],
+  },
+];
+type Picked = (string | null)[];
+
 export function UXDebugLoopViz() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-60px' });
-  const [active, setActive] = useState(-1);
+  const [active, setActive] = useState(0);
+  const [picks, setPicks] = useState<Picked>([null, null, null, null]);
   const [tick, setTick] = useState(0);
+  useEffect(() => { if (inView) setActive(0); }, [inView, tick]);
+  const replay = () => { setPicks([null, null, null, null]); setActive(0); setTick(t => t + 1); };
 
-  useEffect(() => {
-    if (!inView) return;
-    setActive(-1);
-    const t = setTimeout(() => {
-      setActive(0);
-      const iv = setInterval(() => setActive(a => (a + 1) % DEBUG_LOOP.length), 4000);
-      return () => clearInterval(iv);
-    }, 500);
-    return () => clearTimeout(t);
-  }, [inView, tick]);
+  const step = DEBUG_LOOP[active];
+  const choices = STEP_CHOICES[active];
+  const myPick = picks[active];
+  const myChoice = myPick ? choices.choices.find(c => c.id === myPick) : null;
+  const stepDone = myPick && myChoice?.verdict === 'correct';
+  const correctCount = picks.filter((p, i) => p && STEP_CHOICES[i].choices.find(c => c.id === p)?.verdict === 'correct').length;
 
-  const replay = () => { setActive(-1); setTick(t => t + 1); };
-  const sel = active >= 0 ? DEBUG_LOOP[active] : null;
+  const pick = (id: string) => setPicks(prev => prev.map((p, i) => i === active ? id : p));
 
   return (
     <div ref={ref} style={{ margin: '36px 0' }}>
       <LawBadge law="THE UX DEBUG LOOP" color="#22C55E" dark="#15803D" />
-      <VizLabel>Observe → Hypothesize → Test → Measure. UX problems are diagnosed, not redesigned.</VizLabel>
+      <VizLabel>Post-fix, 42% still leave. Run the loop yourself — Observe → Hypothesize → Test → Measure.</VizLabel>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: 20, alignItems: 'start' }}>
         {/* Step nav */}
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
           {DEBUG_LOOP.map((s, i) => {
             const isAct = active === i;
-            const isPast = active > i;
+            const myP = picks[i];
+            const myC = myP ? STEP_CHOICES[i].choices.find(c => c.id === myP) : null;
+            const done = myC?.verdict === 'correct';
+            const wrong = myC && myC.verdict !== 'correct';
             return (
               <div key={s.step} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center' }}>
-                <motion.button onClick={() => setActive(i)}
-                  animate={{ background: isAct ? s.color : isPast ? `${s.color}18` : 'var(--ed-card)', borderColor: isAct ? s.color : isPast ? `${s.color}40` : 'var(--ed-rule)' }}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: '14px', border: '1.5px solid var(--ed-rule)', cursor: 'pointer', textAlign: 'left' as const, boxShadow: isAct ? `0 4px 0 ${s.dark}, 0 8px 20px ${s.color}40` : 'none', transition: 'box-shadow 0.3s' }}>
-                  <div style={{ fontSize: '20px', marginBottom: '4px' }}>{isPast ? '✓' : s.icon}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: isAct ? '#fff' : isPast ? s.color : 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
+                <button onClick={() => setActive(i)} style={{
+                  width: '100%', padding: '12px 14px', borderRadius: 14,
+                  background: isAct ? s.color : done ? `${s.color}18` : wrong ? 'rgba(239,68,68,0.08)' : 'var(--ed-card)',
+                  border: `1.5px solid ${isAct ? s.color : done ? `${s.color}40` : wrong ? 'rgba(239,68,68,0.3)' : 'var(--ed-rule)'}`,
+                  cursor: 'pointer', textAlign: 'left' as const,
+                  boxShadow: isAct ? `0 4px 0 ${s.dark}, 0 8px 20px ${s.color}40` : 'none',
+                  fontFamily: 'inherit',
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{done ? '✓' : wrong ? '✗' : s.icon}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: isAct ? '#fff' : done ? s.color : wrong ? '#B23F22' : 'var(--ed-ink3)', letterSpacing: '0.1em' }}>
                     {s.step}. {s.label.toUpperCase()}
                   </div>
-                </motion.button>
+                </button>
                 {i < DEBUG_LOOP.length - 1 && (
-                  <div style={{ width: '2px', height: '10px', background: active > i ? s.color : 'var(--ed-rule)', transition: 'background 0.5s', margin: '2px 0' }} />
+                  <div style={{ width: 2, height: 10, background: done ? s.color : 'var(--ed-rule)', margin: '2px 0' }} />
                 )}
               </div>
             );
           })}
-          <div style={{ marginTop: '6px', padding: '8px 12px', borderRadius: '10px', background: 'rgba(99,102,241,0.07)', border: '1px dashed rgba(99,102,241,0.3)', textAlign: 'center' as const }}>
-            <div style={{ fontSize: '10px', color: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>↺ loops every sprint</div>
+          <div style={{ marginTop: 6, padding: '8px 12px', borderRadius: 10, background: 'rgba(99,102,241,0.07)', border: '1px dashed rgba(99,102,241,0.3)', textAlign: 'center' as const }}>
+            <div style={{ fontSize: 10, color: '#6366F1', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>↺ loops every sprint</div>
           </div>
         </div>
 
         {/* Story card */}
-        <AnimatePresence mode="wait">
-          {sel && (
-            <motion.div key={sel.step} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.32 }}
-              style={{ borderRadius: '20px', overflow: 'hidden', boxShadow: `0 16px 40px ${sel.color}20` }}>
-              <div style={{ padding: '18px 22px', background: `linear-gradient(135deg, ${sel.color} 0%, ${sel.dark} 100%)` }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.18em', marginBottom: '6px' }}>
-                  STEP {sel.step} OF 4 — {sel.label.toUpperCase()}
+        <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: `0 16px 40px ${step.color}20` }}>
+          <div style={{ padding: '18px 22px', background: `linear-gradient(135deg, ${step.color} 0%, ${step.dark} 100%)` }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.18em', marginBottom: 6 }}>
+              STEP {step.step} OF 4 — {step.label.toUpperCase()}
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>{choices.question}</div>
+          </div>
+          <div style={{ background: 'var(--ed-card)', padding: '18px 22px' }}>
+            {/* Choices */}
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 14 }}>
+              {choices.choices.map(c => {
+                const isPicked = myPick === c.id;
+                const colour = c.verdict === 'correct' ? '#22C55E' : c.verdict === 'leap' ? '#EF4444' : '#F59E0B';
+                return (
+                  <button key={c.id} onClick={() => pick(c.id)} disabled={!!myPick && !isPicked} style={{
+                    appearance: 'none', cursor: !!myPick && !isPicked ? 'default' : 'pointer',
+                    textAlign: 'left' as const, padding: '11px 14px', borderRadius: 10,
+                    background: isPicked ? `${colour}12` : !!myPick ? 'rgba(0,0,0,0.02)' : 'var(--ed-card)',
+                    border: `1.5px solid ${isPicked ? colour : 'var(--ed-rule)'}`,
+                    fontSize: 13, color: isPicked ? 'var(--ed-ink)' : !!myPick && !isPicked ? 'var(--ed-ink3)' : 'var(--ed-ink2)',
+                    lineHeight: 1.55, fontFamily: 'inherit',
+                  }}>
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Verdict */}
+            {myChoice && (
+              <div style={{ padding: '12px 14px', borderRadius: 10, background: myChoice.verdict === 'correct' ? `${step.color}10` : 'rgba(239,68,68,0.07)', border: `1.5px solid ${myChoice.verdict === 'correct' ? `${step.color}40` : 'rgba(239,68,68,0.25)'}`, borderLeft: `4px solid ${myChoice.verdict === 'correct' ? step.color : '#EF4444'}` }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, fontWeight: 800, color: myChoice.verdict === 'correct' ? step.color : '#B23F22', letterSpacing: '0.14em', marginBottom: 6 }}>
+                  {myChoice.verdict === 'correct' ? '✓ ON-LOOP' : myChoice.verdict === 'leap' ? '✗ LEAP — SKIPPED A STEP' : '⚠ VANITY METRIC / SOFT GOAL'}
                 </div>
-                <div style={{ fontSize: '15px', fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: '4px' }}>{sel.question}</div>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.1em' }}>TOOL: {sel.tool}</div>
+                <div style={{ fontSize: 12.5, color: 'var(--ed-ink)', lineHeight: 1.6 }}>{myChoice.rationale}</div>
               </div>
-              <div style={{ background: 'var(--ed-card)', padding: '20px 22px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-                <div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: 'var(--ed-ink3)', letterSpacing: '0.14em', marginBottom: '8px' }}>WHAT PRIYA DID</div>
-                  <div style={{ fontSize: '13px', color: 'var(--ed-ink)', lineHeight: 1.75 }}>{sel.action}</div>
-                </div>
-                <div style={{ padding: '14px 16px', borderRadius: '12px', background: `${sel.color}10`, border: `1.5px solid ${sel.color}30`, borderLeft: `4px solid ${sel.color}` }}>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: sel.color, letterSpacing: '0.14em', marginBottom: '6px' }}>WHAT THIS UNLOCKED</div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--ed-ink)', lineHeight: 1.6 }}>{sel.unlock}</div>
-                </div>
-                {/* Progress dots */}
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {DEBUG_LOOP.map((s, i) => (
-                    <motion.div key={i} animate={{ width: active === i ? '26px' : '7px', background: active === i ? s.color : 'var(--ed-rule)' }} transition={{ duration: 0.3 }} style={{ height: '7px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => setActive(i)} />
-                  ))}
-                </div>
+            )}
+            {/* Footer */}
+            <div style={{ marginTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: 'var(--ed-ink3)' }}>{correctCount}/4 steps on-loop</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {active > 0 && <button onClick={() => setActive(active - 1)} style={{ appearance: 'none', cursor: 'pointer', padding: '6px 14px', borderRadius: 8, background: 'transparent', border: '1px solid var(--ed-rule)', fontSize: 11, color: 'var(--ed-ink3)', fontFamily: 'inherit' }}>← prev</button>}
+                {active < DEBUG_LOOP.length - 1 && (
+                  <button onClick={() => setActive(active + 1)} disabled={!stepDone}
+                    style={{ appearance: 'none', cursor: stepDone ? 'pointer' : 'not-allowed', padding: '6px 16px', borderRadius: 8, background: stepDone ? `linear-gradient(160deg, ${DEBUG_LOOP[active + 1].color} 0%, ${DEBUG_LOOP[active + 1].dark} 100%)` : 'var(--ed-rule)', color: stepDone ? '#fff' : 'var(--ed-ink3)', border: 'none', fontSize: 12, fontWeight: 800, fontFamily: 'inherit' }}>
+                    Next: {DEBUG_LOOP[active + 1].label} →
+                  </button>
+                )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div style={{ marginTop: '16px', padding: '12px 18px', borderRadius: '12px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
-        <strong style={{ color: '#22C55E' }}>The loop never stops:</strong> the 42% who still leave after the fix are the next Observe step. Every metric result opens the next diagnostic question. PMs who stop at &ldquo;we shipped the fix&rdquo; miss the loop entirely.
+      <div style={{ marginTop: 16, padding: '12px 18px', borderRadius: 12, background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', fontSize: 13, color: 'var(--ed-ink2)', lineHeight: 1.7 }}>
+        <strong style={{ color: '#22C55E' }}>The loop never stops:</strong> the 26% who still leave after the upload-hint fix are the next Observe step. PMs who stop at &ldquo;we shipped the fix&rdquo; miss the loop entirely.
       </div>
       <ReplayBtn onReplay={replay} />
     </div>

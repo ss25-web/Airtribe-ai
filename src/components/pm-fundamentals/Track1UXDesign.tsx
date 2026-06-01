@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from '../QuizEngine';
 import {
@@ -33,127 +33,180 @@ Follows Priya Sharma, APM at EdSpark (B2B SaaS for sales coaching). Covers: diag
 
 
 
-// ─────────────────────────────────────────
-// LOCAL: METRICS DASHBOARD MOCKUP
-// ─────────────────────────────────────────
-const MetricsDashboardMockup = () => (
-  <TiltCard style={{ margin: '32px 0' }}>
-    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2A3A5C', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)' }}>
-      {/* Header bar */}
-      <div style={{ background: '#0F1B30', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-            <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
-          ))}
-        </div>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.08em' }}>
-          EdSpark Analytics &middot; Onboarding Funnel &middot; Last 14 days
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <motion.span
-            animate={{ opacity: [1, 0.3, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#28C840', display: 'inline-block' }}
-          />
-          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)' }}>LIVE</span>
-        </div>
-      </div>
-      {/* Metrics */}
-      <div style={{ background: '#1B2A47', padding: '28px 24px', display: 'flex', gap: '20px', flexWrap: 'wrap' as const }}>
-        {/* Completion Rate card */}
-        <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(224,122,95,0.3)' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
-            Onboarding Completion
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>30%</span>
-            <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontSize: '18px', color: '#E07A5F' }}>↓</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#E07A5F' }}>−30pts from target</span>
-            </div>
-          </div>
-          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ width: '30%', height: '100%', background: '#E07A5F', borderRadius: '2px' }} />
-          </div>
-          <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)' }}>
-            ▲ 2pts vs last week &mdash; still 30pts below target
-          </div>
-        </div>
-        {/* Target card */}
-        <div style={{ flex: '1', minWidth: '180px', background: '#142138', borderRadius: '10px', padding: '20px', border: '1px solid rgba(40,200,64,0.25)', position: 'relative' as const }}>
-          <div style={{ position: 'absolute' as const, top: '12px', right: '12px', fontFamily: 'monospace', fontSize: '8px', color: '#28C840', background: 'rgba(40,200,64,0.1)', padding: '2px 7px', borderRadius: '3px', letterSpacing: '0.1em' }}>TARGET</div>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '12px' }}>
-            Completion Goal
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', marginBottom: '8px' }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '44px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>60%</span>
-          </div>
-          <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden', position: 'relative' as const }}>
-            <div style={{ width: '60%', height: '100%', background: '#28C840', borderRadius: '2px' }} />
-            <div style={{ position: 'absolute' as const, left: '30%', top: '-3px', width: '2px', height: '10px', background: '#E07A5F' }} />
-          </div>
-          <div style={{ marginTop: '8px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', borderTop: '1px dashed rgba(40,200,64,0.2)', paddingTop: '8px' }}>
-            Q1 OKR &middot; Set 3 weeks ago
-          </div>
-        </div>
-        {/* Gap callout */}
-        <div style={{ flex: '1', minWidth: '180px', background: 'rgba(224,122,95,0.06)', borderRadius: '10px', padding: '20px', border: '1px dashed rgba(224,122,95,0.35)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '10px' }}>Gap</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '36px', fontWeight: 700, color: '#E07A5F', lineHeight: 1, marginBottom: '8px' }}>−30pts</div>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.8)', lineHeight: 1.6 }}>
-            Two weeks post-launch.<br />Something specific is wrong.
-          </div>
-        </div>
-      </div>
-      <div style={{ background: '#0F1B30', padding: '8px 16px', borderTop: '1px solid #1A2A44' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em' }}>
-          ⚠ Drop-off detected at Step 2 · Same cohort · Same pattern · 14 days running
-        </span>
-      </div>
-    </div>
-  </TiltCard>
-);
+// (Dead-code MetricsDashboardMockup removed — never rendered)
 
 // ─────────────────────────────────────────
 // LOCAL: SESSION RECORDING MOCKUP
 // ─────────────────────────────────────────
+// ─── SessionRecordingMockup — REAL session-replay sandbox ─────────────────
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// IS the user inside the EdSpark onboarding step. They click the silent
+// "Analyze" button themselves. Their real clicks are timestamped and pushed
+// into the event log live. A real rage-click detector fires when 3+ clicks
+// fall inside a 2s sliding window. In BEFORE mode no feedback is shown —
+// they feel the silence; the "Close tab" button is the only escape. In
+// AFTER mode the same button shows a progress bar + time estimate and the
+// process completes in ~6s. After running both, the learner can compare
+// the two sessions side-by-side (their actual clicks, rage events, time-
+// to-give-up). The pedagogical point — silence breeds rage clicks — is
+// emergent from the learner's own behaviour, not narrated.
 const SessionRecordingMockup = () => {
-  const [phase, setPhase] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const phases = [
-    { label: 'File uploaded', time: '0s', desc: 'Recording uploaded — processing begins', color: '#28C840' },
-    { label: 'Click: Analyze', time: '3s', desc: 'User clicks "Analyze Recording" button', color: '#3A86FF' },
-    { label: 'Processing… silence', time: '5s', desc: 'Server processes. Nothing visible to user.', color: '#6E7681' },
-    { label: '2nd click', time: '8s', desc: 'User clicks again — no response yet', color: '#FF8B00' },
-    { label: 'Rage click ×3', time: '10s', desc: 'Three rapid clicks. Cursor highlighted red.', color: '#E07A5F' },
-    { label: 'User left', time: '12s', desc: 'Tab closed. Session ended.', color: '#E07A5F' },
-  ];
-
-  const advance = () => {
-    setPhase(p => {
-      if (p < phases.length - 1) return p + 1;
-      setIsPlaying(false);
-      return p;
-    });
+  type Mode = 'before' | 'after';
+  type Evt = { t: number; kind: 'click' | 'rage' | 'process-start' | 'process-done' | 'gave-up' | 'completed' };
+  type SessionSnapshot = {
+    mode: Mode; events: Evt[]; durationMs: number;
+    clicks: number; rageBursts: number; completed: boolean; gaveUp: boolean;
   };
 
-  const play = () => {
-    if (isPlaying) return;
-    setIsPlaying(true);
-    setPhase(0);
+  const PROCESS_MS_BEFORE = 30000; // matches the real "30 seconds remaining" — feels too long on purpose
+  const PROCESS_MS_AFTER  = 6000;  // realistic active wait when there's a progress bar
+  const RAGE_WINDOW_MS    = 2000;
+  const RAGE_THRESHOLD    = 3;
+
+  const [mode, setMode] = useState<Mode>('before');
+  const [running, setRunning] = useState(false);
+  const [tNow, setTNow] = useState(0);
+  const [events, setEvents] = useState<Evt[]>([]);
+  const [progressPct, setProgressPct] = useState(0);
+  const [ended, setEnded] = useState<null | 'gave-up' | 'completed'>(null);
+  const [snapshots, setSnapshots] = useState<Partial<Record<Mode, SessionSnapshot>>>({});
+
+  const startRef    = useRef<number | null>(null);
+  const tickRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const processRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const processStartedRef = useRef(false);
+
+  const reset = (toMode: Mode = mode) => {
+    if (tickRef.current)    clearInterval(tickRef.current);
+    if (processRef.current) clearTimeout(processRef.current);
+    startRef.current = null;
+    processStartedRef.current = false;
+    setRunning(false);
+    setTNow(0);
+    setEvents([]);
+    setProgressPct(0);
+    setEnded(null);
+    setMode(toMode);
   };
 
-  useEffect(() => {
-    if (isPlaying) {
-      timerRef.current = setTimeout(advance, 1400);
+  const start = () => {
+    reset(mode);
+    startRef.current = performance.now();
+    setRunning(true);
+    tickRef.current = setInterval(() => {
+      if (startRef.current == null) return;
+      setTNow(performance.now() - startRef.current);
+    }, 90);
+  };
+
+  // ─── Real rage-click detector (sliding window) ────────────────────────
+  const detectRage = (clickEvents: Evt[]): number => {
+    let bursts = 0; let i = 0;
+    while (i < clickEvents.length) {
+      const windowEnd = clickEvents[i].t + RAGE_WINDOW_MS;
+      let j = i;
+      while (j < clickEvents.length && clickEvents[j].t <= windowEnd) j++;
+      const count = j - i;
+      if (count >= RAGE_THRESHOLD) { bursts++; i = j; }
+      else i++;
     }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, phase]);
+    return bursts;
+  };
 
-  const currentPhase = phases[phase];
+  const clickAnalyze = () => {
+    if (!running || ended) return;
+    const t = performance.now() - (startRef.current ?? performance.now());
+    setEvents(prev => {
+      const next = [...prev, { t, kind: 'click' as const }];
+      const clicks = next.filter(e => e.kind === 'click');
+      const prevRage = detectRage(prev.filter(e => e.kind === 'click'));
+      const nextRage = detectRage(clicks);
+      if (nextRage > prevRage) next.push({ t, kind: 'rage' as const });
+      return next;
+    });
+
+    if (mode === 'before') {
+      // Silent — nothing visible happens. Process starts on first click only.
+      if (!processStartedRef.current) {
+        processStartedRef.current = true;
+        setEvents(prev => [...prev, { t, kind: 'process-start' as const }]);
+        processRef.current = setTimeout(() => {
+          const doneT = performance.now() - (startRef.current ?? performance.now());
+          setEvents(prev => [...prev, { t: doneT, kind: 'process-done' as const }, { t: doneT, kind: 'completed' as const }]);
+          setEnded('completed');
+          setRunning(false);
+          if (tickRef.current) clearInterval(tickRef.current);
+        }, PROCESS_MS_BEFORE);
+      }
+    } else {
+      // After: visible feedback starts on first click.
+      if (!processStartedRef.current) {
+        processStartedRef.current = true;
+        const procStart = t;
+        setEvents(prev => [...prev, { t: procStart, kind: 'process-start' as const }]);
+        const fillInterval = setInterval(() => {
+          if (startRef.current == null) { clearInterval(fillInterval); return; }
+          const elapsed = (performance.now() - startRef.current) - procStart;
+          const pct = Math.min(100, (elapsed / PROCESS_MS_AFTER) * 100);
+          setProgressPct(pct);
+          if (pct >= 100) {
+            clearInterval(fillInterval);
+            const doneT = performance.now() - (startRef.current ?? performance.now());
+            setEvents(prev => [...prev, { t: doneT, kind: 'process-done' as const }, { t: doneT, kind: 'completed' as const }]);
+            setEnded('completed');
+            setRunning(false);
+            if (tickRef.current) clearInterval(tickRef.current);
+          }
+        }, 80);
+      }
+    }
+  };
+
+  const closeTab = () => {
+    if (!running || ended) return;
+    const t = tNow;
+    setEvents(prev => [...prev, { t, kind: 'gave-up' as const }]);
+    setEnded('gave-up');
+    setRunning(false);
+    if (tickRef.current)    clearInterval(tickRef.current);
+    if (processRef.current) clearTimeout(processRef.current);
+  };
+
+  // Save snapshot when a session ends so we can compare both modes.
+  useEffect(() => {
+    if (ended) {
+      const clicks = events.filter(e => e.kind === 'click').length;
+      const rageBursts = events.filter(e => e.kind === 'rage').length;
+      setSnapshots(prev => ({
+        ...prev,
+        [mode]: {
+          mode, events: events.slice(),
+          durationMs: tNow,
+          clicks, rageBursts,
+          completed: ended === 'completed',
+          gaveUp: ended === 'gave-up',
+        },
+      }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ended]);
+
+  useEffect(() => () => {
+    if (tickRef.current) clearInterval(tickRef.current);
+    if (processRef.current) clearTimeout(processRef.current);
+  }, []);
+
+  const fmtT = (ms: number) => `${(ms / 1000).toFixed(1)}s`;
+  const elapsedClicks = events.filter(e => e.kind === 'click').length;
+  const elapsedRages  = events.filter(e => e.kind === 'rage').length;
+
+  const TIMELINE_MAX_MS = mode === 'before' ? 35000 : 8000;
+  const colourForEvent = (k: Evt['kind']) => k === 'rage' ? '#E07A5F'
+    : k === 'gave-up' ? '#EF4444'
+    : k === 'completed' ? '#28C840'
+    : k === 'process-start' ? '#3A86FF'
+    : k === 'process-done' ? '#28C840'
+    : 'rgba(255,255,255,0.7)';
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
@@ -170,196 +223,249 @@ const SessionRecordingMockup = () => {
                 <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
               ))}
             </div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
-              ▶ Playing session #4821
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.08em' }}>
+              ● recording · live session
             </div>
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Mode toggle */}
+            <div style={{ marginLeft: '12px', display: 'inline-flex', background: '#0E0E20', border: '1px solid #2A2A4E', borderRadius: '5px', overflow: 'hidden' }}>
+              {(['before', 'after'] as Mode[]).map(m => {
+                const isActive = mode === m;
+                return (
+                  <button key={m} onClick={() => reset(m)} style={{
+                    appearance: 'none', cursor: 'pointer',
+                    background: isActive ? (m === 'before' ? 'rgba(224,122,95,0.18)' : 'rgba(40,200,64,0.16)') : 'transparent',
+                    color: isActive ? (m === 'before' ? '#E07A5F' : '#28C840') : 'rgba(255,255,255,0.45)',
+                    border: 'none', padding: '4px 12px',
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: '9.5px', fontWeight: 700, letterSpacing: '0.12em',
+                  }}>{m.toUpperCase()}</button>
+                );
+              })}
+            </div>
+            <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: running ? '#E07A5F' : 'rgba(255,255,255,0.4)' }}>{fmtT(tNow)}</span>
               <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>EdSpark · Onboarding · Step 2</span>
             </div>
           </div>
 
-          {/* Browser mockup */}
+          {/* Browser mockup — the learner uses this */}
           <div style={{ padding: '16px' }}>
             <div style={{
               background: '#FFFFFF', borderRadius: '8px', overflow: 'hidden',
-              minHeight: '220px', position: 'relative' as const,
+              minHeight: '230px', position: 'relative' as const,
             }}>
-              {/* URL bar */}
+              {/* URL bar with Close-tab affordance */}
               <div style={{ background: '#F1F3F4', padding: '7px 12px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #E0E0E0' }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#dadada' }} />
                 <div style={{ background: 'var(--ed-card)', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#444', fontFamily: 'monospace', flex: 1, border: '1px solid #e0e0e0' }}>
                   app.edspark.io/onboarding/step-2
                 </div>
+                <button
+                  onClick={closeTab}
+                  disabled={!running || !!ended}
+                  title="Close tab — give up on this flow"
+                  style={{
+                    appearance: 'none', cursor: running && !ended ? 'pointer' : 'not-allowed',
+                    background: 'transparent', border: '1px solid #E0E0E0', borderRadius: 4,
+                    padding: '2px 9px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+                    color: running && !ended ? '#666' : '#CCC', fontWeight: 700,
+                  }}
+                >✕ close tab</button>
               </div>
               {/* Content */}
-              <div style={{ padding: '24px 28px', minHeight: '175px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-                <div style={{ textAlign: 'center' as const }}>
-                  <div style={{ fontSize: '18px', fontWeight: 700, color: '#1C1814', marginBottom: '8px' }}>Step 2: Analyze your recording</div>
-                  <div style={{ fontSize: '13px', color: '#8A8580', marginBottom: '20px' }}>Upload complete. Click below to start AI analysis.</div>
+              <div style={{ padding: '24px 28px', minHeight: '185px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+                {!running && !ended && (
+                  <div style={{ textAlign: 'center' as const, color: '#666' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1C1814', marginBottom: 6 }}>Step 2: Analyze your recording</div>
+                    <div style={{ fontSize: 12, color: '#8A8580', marginBottom: 14 }}>This is a real sandbox. Press <b>Start session</b>, then click <i>Analyze Recording</i> like a real user would.</div>
+                    <button onClick={start} style={{ appearance: 'none', background: ACCENT, color: '#fff', border: 'none', padding: '8px 22px', borderRadius: 7, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>▶ Start session</button>
+                  </div>
+                )}
 
-                  {/* Analyze button */}
-                  <motion.div
-                    animate={phase === 1 ? { scale: [1, 0.97, 1], background: ['#E07A5F', '#c85f45', '#E07A5F'] } : {}}
-                    transition={{ duration: 0.3 }}
-                    style={{
-                      display: 'inline-block',
-                      background: '#E07A5F', color: '#fff', fontWeight: 700,
-                      padding: '12px 32px', borderRadius: '8px', fontSize: '14px',
-                      cursor: 'pointer', userSelect: 'none' as const,
-                      boxShadow: phase === 1 ? '0 0 0 3px rgba(224,122,95,0.4)' : '0 2px 8px rgba(224,122,95,0.3)',
-                      transition: 'box-shadow 0.2s',
-                    }}
-                  >
-                    Analyze Recording
-                  </motion.div>
-                </div>
+                {running && (
+                  <>
+                    <div style={{ textAlign: 'center' as const }}>
+                      <div style={{ fontSize: '17px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Step 2: Analyze your recording</div>
+                      <div style={{ fontSize: '12px', color: '#8A8580', marginBottom: '14px' }}>Upload complete. Click below to start AI analysis.</div>
+                      {/* The button — same in both modes, behaviour differs */}
+                      <button onClick={clickAnalyze} style={{
+                        appearance: 'none', background: '#E07A5F', color: '#fff', fontWeight: 700,
+                        padding: '11px 30px', borderRadius: 8, fontSize: 14, border: 'none',
+                        cursor: 'pointer', boxShadow: '0 2px 8px rgba(224,122,95,0.30)', fontFamily: 'inherit',
+                      }}>Analyze Recording</button>
+                    </div>
 
-                {/* Processing phase — silence */}
-                <AnimatePresence>
-                  {phase >= 2 && phase < 5 && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      style={{ textAlign: 'center' as const }}
-                    >
-                      <div style={{ fontSize: '12px', color: '#ccc', fontFamily: 'monospace' }}>
-                        {/* Nothing. White space. That's the point. */}
+                    {/* AFTER mode: progress bar + time estimate */}
+                    {mode === 'after' && processStartedRef.current && (
+                      <div style={{ width: 240, textAlign: 'center' as const }}>
+                        <div style={{ fontSize: 12, color: '#1C1814', marginBottom: 4, fontWeight: 600 }}>Analyzing your recording…</div>
+                        <div style={{ height: 5, background: '#EEE', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${progressPct}%`, background: 'linear-gradient(90deg, #E07A5F, #F4A261)', transition: 'width 80ms linear' }} />
+                        </div>
+                        <div style={{ marginTop: 4, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#8A8580' }}>
+                          {progressPct < 100 ? `~${Math.max(1, Math.round((PROCESS_MS_AFTER * (1 - progressPct / 100)) / 1000))}s remaining` : '✓ Done'}
+                        </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    )}
 
-                {/* Rage click indicators */}
-                <AnimatePresence>
-                  {phase >= 3 && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      style={{ display: 'flex', gap: '6px', alignItems: 'center' }}
-                    >
-                      {[0, 1, 2].map(i => (
-                        <motion.div
-                          key={i}
-                          initial={{ scale: 0 }}
-                          animate={{ scale: phase >= (3 + i) ? 1 : 0 }}
-                          transition={{ delay: i * 0.1, type: 'spring', stiffness: 400 }}
-                          style={{
-                            width: '10px', height: '10px', borderRadius: '50%',
-                            background: phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF',
-                            border: `2px solid ${phase >= 5 ? '#E07A5F' : phase >= 4 ? '#FF8B00' : '#3A86FF'}`,
-                          }}
-                        />
-                      ))}
-                      {phase >= 4 && (
-                        <span style={{ fontFamily: 'monospace', fontSize: '10px', color: phase >= 5 ? '#E07A5F' : '#FF8B00', marginLeft: '4px', fontWeight: 700 }}>
-                          {phase >= 5 ? '⚡ rage click' : 'clicking again…'}
-                        </span>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    {/* BEFORE mode: deliberate emptiness. No spinner. */}
+                    {mode === 'before' && processStartedRef.current && (
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6, marginTop: 6 }}>
+                        <span style={{ color: 'transparent' }}>·</span>
+                      </div>
+                    )}
 
-                {/* Session ended */}
-                <AnimatePresence>
-                  {phase >= 5 && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      style={{
-                        background: 'rgba(224,122,95,0.1)', border: '1px solid rgba(224,122,95,0.3)',
-                        borderRadius: '6px', padding: '8px 16px',
-                        fontSize: '12px', color: '#E07A5F', fontFamily: 'monospace', fontWeight: 700,
-                      }}
-                    >
-                      ✕ User navigated away
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                    {/* Live rage badge in the UI itself */}
+                    {elapsedRages > 0 && (
+                      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(224,122,95,0.10)', border: '1px solid rgba(224,122,95,0.32)', padding: '4px 10px', borderRadius: 5 }}>
+                        <span style={{ fontSize: 11 }}>⚡</span>
+                        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#E07A5F', fontWeight: 700 }}>rage detected · {elapsedRages} burst{elapsedRages === 1 ? '' : 's'}</span>
+                      </motion.div>
+                    )}
+                  </>
+                )}
+
+                {ended === 'gave-up' && (
+                  <div style={{ textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 13, color: '#E07A5F', fontWeight: 700, marginBottom: 6 }}>✕ You closed the tab.</div>
+                    <div style={{ fontSize: 11, color: '#8A8580', marginBottom: 10 }}>Session ended at {fmtT(tNow)} after {elapsedClicks} click{elapsedClicks === 1 ? '' : 's'}{elapsedRages > 0 ? `, ${elapsedRages} rage burst${elapsedRages === 1 ? '' : 's'}` : ''}.</div>
+                    <button onClick={start} style={{ appearance: 'none', background: 'transparent', color: '#666', border: '1px solid #DDD', borderRadius: 5, padding: '5px 14px', fontSize: 11, fontFamily: 'inherit', cursor: 'pointer' }}>↺ Try again</button>
+                  </div>
+                )}
+
+                {ended === 'completed' && (
+                  <div style={{ textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 13, color: '#28C840', fontWeight: 700, marginBottom: 6 }}>✓ Analysis complete.</div>
+                    <div style={{ fontSize: 11, color: '#8A8580', marginBottom: 10 }}>Finished in {fmtT(tNow)} · {elapsedClicks} click{elapsedClicks === 1 ? '' : 's'}{elapsedRages > 0 ? ` · ${elapsedRages} rage burst${elapsedRages === 1 ? '' : 's'}` : ''}.</div>
+                    <button onClick={start} style={{ appearance: 'none', background: 'transparent', color: '#666', border: '1px solid #DDD', borderRadius: 5, padding: '5px 14px', fontSize: 11, fontFamily: 'inherit', cursor: 'pointer' }}>↺ Replay</button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Timeline */}
-          <div style={{ padding: '12px 16px 8px', borderTop: '1px solid #2A2A4E' }}>
-            <div style={{ position: 'relative' as const, height: '24px', background: '#0E0E20', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
-              {/* Progress fill */}
-              <motion.div
-                animate={{ width: `${(phase / (phases.length - 1)) * 100}%` }}
-                transition={{ duration: 0.4 }}
-                style={{ height: '100%', background: 'rgba(58,134,255,0.3)', position: 'absolute' as const, top: 0, left: 0 }}
-              />
-              {/* Phase markers */}
-              {phases.map((p, i) => (
-                <div
-                  key={i}
-                  style={{
-                    position: 'absolute' as const,
-                    left: `${(i / (phases.length - 1)) * 100}%`,
-                    top: '50%', transform: 'translate(-50%, -50%)',
-                    width: i === 5 ? '3px' : '2px',
-                    height: i === 5 ? '16px' : '12px',
-                    background: i <= phase ? p.color : 'rgba(255,255,255,0.1)',
-                    borderRadius: '1px',
-                    transition: 'background 0.3s',
-                  }}
-                />
+          {/* Live timeline + event log */}
+          <div style={{ padding: '10px 16px 12px', borderTop: '1px solid #2A2A4E' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.14em' }}>LIVE TIMELINE · {fmtT(tNow)} / {fmtT(TIMELINE_MAX_MS)}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.40)' }}>{elapsedClicks} click{elapsedClicks === 1 ? '' : 's'} · {elapsedRages} rage</div>
+            </div>
+            <div style={{ position: 'relative' as const, height: 22, background: '#0E0E20', borderRadius: 4, overflow: 'hidden' }}>
+              {/* Progress line — how far through the imagined window */}
+              <div style={{ position: 'absolute' as const, top: 0, left: 0, height: '100%', width: `${Math.min(100, (tNow / TIMELINE_MAX_MS) * 100)}%`, background: 'rgba(58,134,255,0.15)' }} />
+              {/* Real event markers from learner's behaviour */}
+              {events.map((e, i) => (
+                <div key={i} style={{
+                  position: 'absolute' as const,
+                  left: `${Math.min(100, (e.t / TIMELINE_MAX_MS) * 100)}%`,
+                  top: '50%', transform: 'translate(-50%, -50%)',
+                  width: e.kind === 'rage' ? 3 : 2,
+                  height: e.kind === 'gave-up' || e.kind === 'completed' ? 18 : e.kind === 'rage' ? 16 : 11,
+                  background: colourForEvent(e.kind),
+                  borderRadius: 1,
+                }} title={`${fmtT(e.t)} · ${e.kind}`} />
               ))}
-              {/* 12s marker */}
-              <div style={{ position: 'absolute' as const, right: '0', top: 0, height: '100%', display: 'flex', alignItems: 'center', paddingRight: '8px' }}>
-                <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#E07A5F', fontWeight: 700 }}>12s · User left</span>
-              </div>
+              {/* 12s "drop-off cliff" reference marker — only in BEFORE */}
+              {mode === 'before' && (
+                <div style={{ position: 'absolute' as const, left: `${(12000 / TIMELINE_MAX_MS) * 100}%`, top: 0, height: '100%', width: 1, background: 'rgba(224,122,95,0.35)' }} title="12s — the EdSpark drop-off cliff" />
+              )}
             </div>
-            {/* Current phase label */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <motion.div
-                key={phase}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: currentPhase.color, display: 'inline-block', flexShrink: 0 }} />
-                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: currentPhase.color, fontWeight: 700 }}>{currentPhase.time}</span>
-                <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>{currentPhase.desc}</span>
-              </motion.div>
-              <button
-                onClick={play}
-                disabled={isPlaying}
-                style={{
-                  background: isPlaying ? 'rgba(58,134,255,0.15)' : 'rgba(224,122,95,0.15)',
-                  border: `1px solid ${isPlaying ? 'rgba(58,134,255,0.3)' : 'rgba(224,122,95,0.3)'}`,
-                  borderRadius: '5px', padding: '4px 12px',
-                  fontFamily: 'monospace', fontSize: '9px', fontWeight: 700,
-                  color: isPlaying ? '#3A86FF' : '#E07A5F',
-                  cursor: isPlaying ? 'default' : 'pointer',
-                  letterSpacing: '0.08em',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {isPlaying ? '▶ PLAYING…' : phase === phases.length - 1 ? '↺ REPLAY' : '▶ PLAY'}
-              </button>
+            <div style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, maxHeight: 36, overflow: 'auto' }}>
+              {events.slice(-4).map((e, i) => (
+                <div key={i} style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ color: colourForEvent(e.kind), width: 38 }}>{fmtT(e.t)}</span>
+                  <span style={{ color: colourForEvent(e.kind), fontWeight: 700, width: 110 }}>{e.kind}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    {e.kind === 'click' ? 'user clicked Analyze' :
+                     e.kind === 'rage' ? `${RAGE_THRESHOLD}+ clicks within ${RAGE_WINDOW_MS/1000}s window` :
+                     e.kind === 'process-start' ? 'server began processing' :
+                     e.kind === 'process-done' ? 'server finished' :
+                     e.kind === 'gave-up' ? 'user closed the tab' :
+                     'flow completed'}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        {/* Below mockup stats */}
-        <div style={{ marginTop: '12px', display: 'flex', gap: '20px', fontFamily: 'monospace', fontSize: '11px', color: 'var(--ed-ink3)' }}>
-          <span style={{ color: '#E07A5F', fontWeight: 700 }}>⚡ 3 rage clicks detected</span>
-          <span>·</span>
-          <span>Session ended at 12s</span>
-          <span>·</span>
-          <span>Process completion: 45s</span>
+
+        {/* Comparison panel — built from the learner's own two sessions */}
+        <div style={{ marginTop: 14, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {(['before', 'after'] as Mode[]).map(m => {
+            const s = snapshots[m];
+            const colour = m === 'before' ? '#E07A5F' : '#28C840';
+            return (
+              <div key={m} style={{ padding: '11px 13px', border: `1px solid ${s ? colour : '#2A2A4E'}`, background: s ? `${colour}10` : 'rgba(255,255,255,0.02)', borderRadius: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: '0.14em', color: colour }}>{m.toUpperCase()} · YOUR SESSION</span>
+                  {s ? (
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: s.completed ? '#28C840' : '#EF4444', fontWeight: 700 }}>{s.completed ? '✓ COMPLETED' : '✕ GAVE UP'}</span>
+                  ) : (
+                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>not run yet</span>
+                  )}
+                </div>
+                {s ? (
+                  <div style={{ display: 'flex', gap: 10, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--ed-ink3)' }}>
+                    <span>{fmtT(s.durationMs)}</span><span>·</span>
+                    <span>{s.clicks} click{s.clicks === 1 ? '' : 's'}</span><span>·</span>
+                    <span style={{ color: s.rageBursts > 0 ? '#E07A5F' : 'inherit' }}>{s.rageBursts} rage</span>
+                  </div>
+                ) : (
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.32)' }}>switch to {m === mode ? 'this mode' : `${m.toUpperCase()} mode`} and run a session</div>
+                )}
+              </div>
+            );
+          })}
         </div>
+        {snapshots.before && snapshots.after && (
+          <div style={{ marginTop: 10, padding: '9px 12px', background: 'rgba(40,200,64,0.06)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: 'var(--ed-ink2)', lineHeight: 1.6 }}>
+            <span style={{ color: '#28C840', fontWeight: 700 }}>● </span>
+            You triggered <b>{snapshots.before.rageBursts}</b> rage burst{snapshots.before.rageBursts === 1 ? '' : 's'} in <b>BEFORE</b> and <b>{snapshots.after.rageBursts}</b> in <b>AFTER</b>. The button didn&apos;t change — only the feedback did.
+          </div>
+        )}
       </div>
     </TiltCard>
   );
 };
 
-// ─────────────────────────────────────────
-// LOCAL: DROP-OFF CHART MOCKUP
-// ─────────────────────────────────────────
+// ─── DropOffChartMockup — REAL fix-picker live chart ────────────────────
+// The learner is the PM picking a fix for the 12s drop-off cliff. Five real
+// PM levers — none, progress-bar, progress-bar + ETA, faster backend,
+// email-when-done. Each lever has deterministic impact on the retention
+// curve modelled from real product mechanics:
+//   • none           → baseline 5% finish (32% retention at 12s)
+//   • progress only  → 50% at 12s · 18% finish (cheap, partial win)
+//   • prog + ETA     → 75% at 12s · 38% finish (cheap, best ROI)
+//   • faster backend → process compresses to 15s (expensive, same shape)
+//   • email-when-done→ 95% at 12s but ~60% of "wait elsewhere" never return
+// The chart shows BOTH baseline and chosen-fix curves overlaid. A real
+// cost/benefit panel (engineer-days vs +completion-points) drives the
+// verdict. The pedagogical point — cheap UX fixes beat expensive infra
+// fixes — emerges from the data, not from narration.
+type FixKey = 'none' | 'progress' | 'progressETA' | 'fasterBackend' | 'emailDone';
+const DROP_OFF_FIXES: { key: FixKey; label: string; effortDays: number; mechanic: string;
+  curve: { t: number; pct: number }[]; completion: number;
+}[] = [
+  { key: 'none',          label: 'Ship nothing (baseline)',       effortDays: 0, mechanic: 'Status quo · 30% completion',
+    curve: [{t:0,pct:100},{t:5,pct:90},{t:10,pct:75},{t:12,pct:32},{t:15,pct:22},{t:20,pct:14},{t:30,pct:9},{t:45,pct:5}],
+    completion: 5 },
+  { key: 'progress',      label: 'Progress bar only',              effortDays: 0.5, mechanic: 'Visible activity · holds early',
+    curve: [{t:0,pct:100},{t:5,pct:96},{t:10,pct:88},{t:12,pct:50},{t:15,pct:42},{t:20,pct:32},{t:30,pct:24},{t:45,pct:18}],
+    completion: 18 },
+  { key: 'progressETA',   label: 'Progress bar + time estimate',   effortDays: 1, mechanic: 'Answers both unspoken questions',
+    curve: [{t:0,pct:100},{t:5,pct:98},{t:10,pct:92},{t:12,pct:75},{t:15,pct:68},{t:20,pct:58},{t:30,pct:48},{t:45,pct:38}],
+    completion: 38 },
+  { key: 'fasterBackend', label: 'Optimise backend (3× faster)',   effortDays: 14, mechanic: 'Process completes at 15s · same silence',
+    curve: [{t:0,pct:100},{t:5,pct:90},{t:10,pct:75},{t:12,pct:32},{t:15,pct:28},{t:20,pct:28},{t:30,pct:28},{t:45,pct:28}],
+    completion: 28 },
+  { key: 'emailDone',     label: 'Email user when done',           effortDays: 3, mechanic: 'Removes the wait · 40% never return',
+    curve: [{t:0,pct:100},{t:5,pct:95},{t:10,pct:90},{t:12,pct:88},{t:15,pct:86},{t:20,pct:84},{t:30,pct:82},{t:45,pct:80}],
+    completion: 48 }, // 80% × 60% return rate
+];
+
 const DropOffChartMockup = () => {
   const [animated, setAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [activeFix, setActiveFix] = useState<FixKey>('none');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -370,18 +476,30 @@ const DropOffChartMockup = () => {
     return () => observer.disconnect();
   }, []);
 
-  const dataPoints = [
-    { t: '0s', pct: 100, label: '' },
-    { t: '5s', pct: 90, label: '' },
-    { t: '10s', pct: 75, label: '' },
-    { t: '12s', pct: 32, label: '68% drop-off here', alert: true },
-    { t: '15s', pct: 22, label: '' },
-    { t: '20s', pct: 14, label: '' },
-    { t: '30s', pct: 9, label: '' },
-    { t: '45s', pct: 5, label: 'Process completes', success: true },
-  ];
+  const baseline = DROP_OFF_FIXES[0];
+  const chosen   = DROP_OFF_FIXES.find(f => f.key === activeFix) ?? baseline;
+  const delta    = chosen.completion - baseline.completion;
+  const costPerPt = chosen.effortDays > 0 ? chosen.effortDays / Math.max(0.1, delta) : 0;
+  const verdict =
+    chosen.key === 'none'          ? 'baseline'    :
+    chosen.key === 'progress'      ? 'partial-win' :
+    chosen.key === 'progressETA'   ? 'best-roi'    :
+    chosen.key === 'fasterBackend' ? 'over-invested':
+    'side-effect';
 
   const maxH = 180;
+  const timeAxis = [0, 5, 10, 12, 15, 20, 30, 45];
+
+  // ─── Build SVG polyline points from a curve ─────────────────────────
+  const W = 100; const H = 100; // viewBox-relative units
+  const curveToPath = (pts: { t: number; pct: number }[]) => {
+    const tMin = 0, tMax = 45;
+    return pts.map(p => {
+      const x = ((p.t - tMin) / (tMax - tMin)) * W;
+      const y = ((100 - p.pct) / 100) * H;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(' ');
+  };
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
@@ -390,10 +508,10 @@ const DropOffChartMockup = () => {
           background: '#111827', borderRadius: '12px', padding: '24px',
           border: '1px solid #1F2D42', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', textTransform: 'uppercase' as const, marginBottom: '4px' }}>
-                Kiran · User Retention During Processing
+                Kiran · User Retention vs Fix Choice
               </div>
               <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '15px', fontWeight: 700, color: '#fff' }}>
                 % of users still waiting · by second
@@ -404,8 +522,9 @@ const DropOffChartMockup = () => {
               <div style={{ fontFamily: 'monospace', fontSize: '14px', color: '#3A86FF', fontWeight: 700 }}>n = 1,240</div>
             </div>
           </div>
-          {/* Chart */}
-          <div style={{ position: 'relative' as const, height: `${maxH + 40}px` }}>
+
+          {/* Chart — SVG overlay of baseline + chosen */}
+          <div style={{ position: 'relative' as const, height: `${maxH + 40}px`, paddingLeft: 32 }}>
             {/* Y-axis labels */}
             {[100, 75, 50, 25, 0].map(v => (
               <div key={v} style={{
@@ -414,86 +533,134 @@ const DropOffChartMockup = () => {
                 transform: 'translateY(-50%)', userSelect: 'none' as const,
               }}>{v}%</div>
             ))}
-            {/* Grid lines */}
+            {/* Grid */}
             {[75, 50, 25].map(v => (
               <div key={v} style={{
                 position: 'absolute' as const,
-                left: '32px', right: 0,
+                left: 32, right: 0,
                 top: `${((100 - v) / 100) * maxH}px`,
                 height: '1px', background: 'rgba(255,255,255,0.05)',
               }} />
             ))}
-            {/* Bars */}
-            <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: 0, height: `${maxH}px`, display: 'flex', alignItems: 'flex-end', gap: '6px' }}>
-              {dataPoints.map((pt, i) => {
-                const isDropZone = i >= 2 && i <= 3;
-                const isSuccess = pt.success;
-                const barH = animated ? (pt.pct / 100) * maxH : 0;
-                const barColor = isDropZone
-                  ? `rgba(224,122,95,${0.5 + i * 0.1})`
-                  : isSuccess
-                  ? 'rgba(40,200,64,0.6)'
-                  : pt.pct > 60
-                  ? 'rgba(58,134,255,0.5)'
-                  : 'rgba(224,122,95,0.3)';
-
-                return (
-                  <div key={pt.t} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', position: 'relative' as const }}>
-                    {/* Alert line for 12s */}
-                    {pt.alert && (
-                      <div style={{
-                        position: 'absolute' as const, bottom: 0, width: '2px',
-                        height: `${maxH}px`, background: '#E07A5F', opacity: 0.4,
-                        zIndex: 2,
-                      }} />
-                    )}
-                    {/* Success line for 45s */}
-                    {pt.success && (
-                      <div style={{
-                        position: 'absolute' as const, bottom: 0, width: '2px',
-                        height: `${maxH}px`,
-                        background: 'repeating-linear-gradient(to bottom, #28C840 0px, #28C840 4px, transparent 4px, transparent 8px)',
-                        opacity: 0.5, zIndex: 2,
-                      }} />
-                    )}
-                    <motion.div
-                      animate={{ height: barH }}
-                      initial={{ height: 0 }}
-                      transition={{ duration: 0.6, delay: i * 0.07, ease: 'easeOut' }}
-                      style={{
-                        width: '100%', background: barColor,
-                        borderRadius: '3px 3px 0 0',
-                        position: 'relative' as const, zIndex: 1,
-                      }}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            {/* 12s drop cliff marker */}
+            <div style={{
+              position: 'absolute' as const,
+              left: `${32 + (12 / 45) * (100 - 32 / (maxH / maxH)) }px`,
+              top: 0, height: `${maxH}px`, width: 1,
+              background: 'rgba(224,122,95,0.4)',
+            }} />
+            {/* SVG overlay */}
+            <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ position: 'absolute' as const, left: 32, right: 0, top: 0, width: 'calc(100% - 32px)', height: `${maxH}px`, overflow: 'visible' }}>
+              {/* Baseline (always shown, dim) */}
+              <polyline
+                points={curveToPath(baseline.curve)}
+                fill="none"
+                stroke="rgba(224,122,95,0.5)"
+                strokeWidth={0.6}
+                strokeDasharray="1.5,1.2"
+                vectorEffect="non-scaling-stroke"
+              />
+              {/* Chosen fix curve */}
+              {activeFix !== 'none' && (
+                <>
+                  <polyline
+                    points={curveToPath(chosen.curve)}
+                    fill="none"
+                    stroke="#28C840"
+                    strokeWidth={1.2}
+                    vectorEffect="non-scaling-stroke"
+                    style={{ filter: 'drop-shadow(0 0 6px rgba(40,200,64,0.45))' }}
+                    strokeDashoffset={animated ? 0 : 400}
+                    strokeDasharray={400}
+                  />
+                  {/* End markers */}
+                  {chosen.curve.map(p => (
+                    <circle key={p.t} cx={(p.t / 45) * W} cy={((100 - p.pct) / 100) * H} r={0.9} fill="#28C840" vectorEffect="non-scaling-stroke" />
+                  ))}
+                </>
+              )}
+              {/* Baseline markers */}
+              {baseline.curve.map(p => (
+                <circle key={p.t} cx={(p.t / 45) * W} cy={((100 - p.pct) / 100) * H} r={0.7} fill="rgba(224,122,95,0.65)" vectorEffect="non-scaling-stroke" />
+              ))}
+            </svg>
             {/* X-axis labels */}
-            <div style={{ position: 'absolute' as const, left: '36px', right: 0, top: `${maxH + 8}px`, display: 'flex', gap: '6px' }}>
-              {dataPoints.map((pt) => (
-                <div key={pt.t} style={{ flex: 1, textAlign: 'center' as const }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: '9px', color: pt.alert ? '#E07A5F' : pt.success ? '#28C840' : 'rgba(255,255,255,0.35)', fontWeight: (pt.alert || pt.success) ? 700 : 400 }}>
-                    {pt.t}
-                  </span>
-                </div>
+            <div style={{ position: 'absolute' as const, left: 32, right: 0, top: `${maxH + 8}px`, display: 'flex', justifyContent: 'space-between' }}>
+              {timeAxis.map(t => (
+                <span key={t} style={{ fontFamily: 'monospace', fontSize: '9px', color: t === 12 ? '#E07A5F' : t === 45 ? '#28C840' : 'rgba(255,255,255,0.35)', fontWeight: (t === 12 || t === 45) ? 700 : 400 }}>{t}s</span>
               ))}
             </div>
           </div>
-          {/* Annotations */}
-          <div style={{ marginTop: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' as const }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(224,122,95,0.1)', padding: '7px 12px', borderRadius: '6px', border: '1px solid rgba(224,122,95,0.2)' }}>
-              <div style={{ width: '3px', height: '14px', background: '#E07A5F', borderRadius: '2px' }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#E07A5F', fontWeight: 700 }}>12s &mdash; 68% drop-off here</span>
+
+          {/* Body — fixes + result */}
+          <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 220px', gap: 18 }}>
+            {/* Fix picker */}
+            <div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', marginBottom: 8 }}>PICK YOUR FIX</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                {DROP_OFF_FIXES.map(f => {
+                  const on = f.key === activeFix;
+                  const isOverInvest = f.effortDays >= 7;
+                  return (
+                    <button key={f.key} onClick={() => setActiveFix(f.key)} style={{
+                      appearance: 'none', cursor: 'pointer', textAlign: 'left' as const,
+                      background: on ? 'rgba(40,200,64,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${on ? '#28C840' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius: 6, padding: '8px 10px', fontFamily: 'inherit',
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 6, marginBottom: 4 }}>
+                        <span style={{ fontSize: 11.5, fontWeight: 700, color: on ? '#28C840' : 'rgba(255,255,255,0.85)' }}>{f.label}</span>
+                        <span style={{
+                          fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700,
+                          color: isOverInvest ? '#E07A5F' : f.effortDays <= 1 ? '#28C840' : '#FBBF24',
+                          background: isOverInvest ? 'rgba(224,122,95,0.10)' : f.effortDays <= 1 ? 'rgba(40,200,64,0.10)' : 'rgba(251,191,36,0.10)',
+                          padding: '1px 6px', borderRadius: 3, whiteSpace: 'nowrap' as const,
+                        }}>{f.effortDays === 0 ? '—' : `${f.effortDays}d`}</span>
+                      </div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', lineHeight: 1.45 }}>{f.mechanic}</div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(40,200,64,0.07)', padding: '7px 12px', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.25)' }}>
-              <div style={{ width: '3px', height: '14px', background: '#28C840', borderRadius: '2px' }} />
-              <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#28C840', fontWeight: 700 }}>45s &mdash; process completes</span>
+
+            {/* Result */}
+            <div style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em', marginBottom: 8 }}>RESULT vs BASELINE</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 800, color: delta > 0 ? '#28C840' : 'rgba(255,255,255,0.4)', lineHeight: 1 }}>{chosen.completion}%</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: delta > 0 ? '#28C840' : delta < 0 ? '#E07A5F' : 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+                  {delta > 0 ? `+${delta}` : delta}pts
+                </span>
+              </div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>completion at 45s</div>
+              {chosen.effortDays > 0 && delta > 0 && (
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.6)', marginBottom: 10, lineHeight: 1.5 }}>
+                  {chosen.effortDays}d effort · {costPerPt.toFixed(2)}d per +1pt
+                </div>
+              )}
+              {/* Verdict */}
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 10, lineHeight: 1.55,
+                padding: '6px 8px', borderRadius: 5,
+                background: verdict === 'best-roi' ? 'rgba(40,200,64,0.10)' : verdict === 'partial-win' ? 'rgba(251,191,36,0.08)' : verdict === 'over-invested' ? 'rgba(224,122,95,0.10)' : verdict === 'side-effect' ? 'rgba(251,191,36,0.08)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${verdict === 'best-roi' ? 'rgba(40,200,64,0.35)' : verdict === 'partial-win' ? 'rgba(251,191,36,0.30)' : verdict === 'over-invested' ? 'rgba(224,122,95,0.30)' : verdict === 'side-effect' ? 'rgba(251,191,36,0.30)' : 'rgba(255,255,255,0.10)'}`,
+                color: verdict === 'best-roi' ? '#28C840' : verdict === 'partial-win' ? '#FBBF24' : verdict === 'over-invested' ? '#E07A5F' : verdict === 'side-effect' ? '#FBBF24' : 'rgba(255,255,255,0.6)',
+              }}>
+                {verdict === 'baseline'      && 'Status quo. The 12s cliff stays — 95% never finish.'}
+                {verdict === 'partial-win'   && 'Cheap win. Halves the cliff but no time anchor.'}
+                {verdict === 'best-roi'      && 'Best ROI. 1 day of design beats 14 days of infra.'}
+                {verdict === 'over-invested' && 'Expensive. 14d to gain 23pts — and silence still drives drop-off at the new 15s mark.'}
+                {verdict === 'side-effect'   && 'Removes the wait but ~40% never come back. Real completion ≈ 48%.'}
+              </div>
             </div>
-            <div style={{ marginLeft: 'auto', fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>
-              Only 5% wait the full 45 seconds.
-            </div>
+          </div>
+
+          {/* Legend strip */}
+          <div style={{ marginTop: 12, display: 'flex', gap: 16, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: 'rgba(255,255,255,0.5)' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 18, height: 1.5, background: 'rgba(224,122,95,0.5)', borderTop: '1.5px dashed rgba(224,122,95,0.5)' }} /> baseline</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 18, height: 1.5, background: '#28C840' }} /> chosen fix</span>
+            <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.3)' }}>↓ user wait time →</span>
           </div>
         </div>
       </div>
@@ -501,197 +668,207 @@ const DropOffChartMockup = () => {
   );
 };
 
-// ─────────────────────────────────────────
-// LOCAL: SPEC COMPARISON MOCKUP
-// ─────────────────────────────────────────
-const SpecComparisonMockup = () => (
-  <TiltCard style={{ margin: '32px 0' }}>
-    <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)' }}>
-      {/* Header */}
-      <div style={{ background: '#1C2938', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
-            <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />
-          ))}
-        </div>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.08em' }}>
-          EdSpark Spec &middot; Onboarding · Step 2
-        </span>
-      </div>
-      {/* Two columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-        {/* Before */}
-        <div style={{ padding: '20px 24px', background: '#FAFAFA', borderRight: '1px solid #E8E8E8' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#6E7681', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ background: '#F0F0F0', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS WRITTEN</span>
-            <span style={{ color: '#E07A5F' }}>Original Spec &middot; Step 2</span>
-          </div>
-          <div style={{ background: 'var(--ed-card)', border: '1px solid #E0E0E0', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '13px', color: '#444', lineHeight: 1.9 }}>
-            <span style={{ color: '#6E7681', marginRight: '10px', userSelect: 'none' as const, fontSize: '11px' }}>1</span>
-            <span style={{ fontWeight: 600 }}>Step 2: Analyze recording.</span>
-          </div>
-          <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(224,122,95,0.06)', border: '1px solid rgba(224,122,95,0.2)', borderRadius: '6px' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#E07A5F', fontWeight: 700, letterSpacing: '0.1em', marginBottom: '6px' }}>MISSING STATES</div>
-            {['Loading / processing state', 'Progress indicator', 'Time estimate', 'Error state', 'Success state'].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-                <span style={{ color: '#E07A5F', fontSize: '10px' }}>✕</span>
-                <span style={{ fontSize: '12px', color: '#6E7681', textDecoration: 'line-through' as const }}>{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* After */}
-        <div style={{ padding: '20px 24px', background: '#F8FFF9' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.14em', color: '#0D7A5A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ background: 'rgba(13,122,90,0.1)', padding: '2px 8px', borderRadius: '3px' }}>WHAT WAS NEEDED</span>
-            <span>Complete Spec &middot; Step 2</span>
-          </div>
-          <div style={{ background: 'var(--ed-card)', border: '1px solid rgba(13,122,90,0.2)', borderRadius: '6px', padding: '16px', fontFamily: 'monospace', fontSize: '12px', color: '#333', lineHeight: 2.1 }}>
-            {[
-              { n: '1', text: 'Step 2: Analyze recording.', bold: true },
-              { n: '2', text: '' },
-              { n: '3', text: 'Loading state:', bold: true },
-              { n: '4', text: '  Show: "Analyzing your recording…"' },
-              { n: '5', text: '  Progress bar (indeterminate OK)' },
-              { n: '6', text: '  Time estimate: "~30 seconds"' },
-              { n: '7', text: '' },
-              { n: '8', text: 'Error state:', bold: true },
-              { n: '9', text: '  "Analysis failed. Try again."' },
-              { n: '10', text: '' },
-              { n: '11', text: 'Success state:', bold: true },
-              { n: '12', text: '  Transition to results view.' },
-            ].map(({ n, text, bold }) => (
-              <div key={n} style={{ display: 'flex', gap: '10px' }}>
-                <span style={{ color: 'rgba(13,122,90,0.4)', fontSize: '10px', minWidth: '18px', textAlign: 'right' as const, userSelect: 'none' as const }}>{n}</span>
-                <span style={{ fontWeight: bold ? 700 : 400, color: bold ? '#0D7A5A' : '#555' }}>{text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </TiltCard>
-);
+// ─── SpecComparisonMockup — REAL spec-completeness sandbox ──────────────
+// The learner writes the Step 2 spec themselves in a real <textarea>. A
+// deterministic linter regex-scans for the five state declarations
+// (loading · error · success · empty · edge). Each detected state lights
+// up a check; missing states light up a warning. The phone preview compiles
+// LIVE from what the spec mentions — loading bar appears if "loading" is
+// declared, error path appears if "error" is named, etc. Goal: 5/5 ship-
+// ready. Pedagogically: spec completeness is binary per state, not a vibe.
+const SpecComparisonMockup = () => {
+  const STARTER = 'Step 2: Analyze recording.';
+  const COMPLETE_EXAMPLE = `Step 2: Analyze recording.
 
-// ─────────────────────────────────────────
-// LOCAL: BEFORE / AFTER MOCKUP
-// ─────────────────────────────────────────
-const BeforeAfterMockup = () => {
-  const [progress, setProgress] = useState(0);
-  const [started, setStarted] = useState(false);
+Loading state:
+  Show: "Analyzing your recording…"
+  Progress bar with % complete
+  Time estimate: "~30 seconds"
 
-  useEffect(() => {
-    if (!started) return;
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) { clearInterval(interval); return 100; }
-        return p + 1.2;
-      });
-    }, 80);
-    return () => clearInterval(interval);
-  }, [started]);
+Error state:
+  Headline: "Analysis failed."
+  Body: "Reconnect and tap Retry."
+  Primary action: Retry
 
-  const PhoneFrame = ({ children, label, badge, badgeColor }: { children: React.ReactNode; label: string; badge: string; badgeColor: string }) => (
-    <div style={{ flex: 1, minWidth: '220px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-        <span style={{ fontFamily: 'monospace', fontSize: '12px', fontWeight: 700, color: 'var(--ed-ink)' }}>{label}</span>
-        <span style={{ background: badgeColor, color: '#fff', fontFamily: 'monospace', fontSize: '9px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', letterSpacing: '0.06em' }}>{badge}</span>
-      </div>
-      <div style={{
-        background: '#1A1A2E', borderRadius: '20px', padding: '3px',
-        border: '3px solid #2A2A4E', boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
-        overflow: 'hidden',
-      }}>
-        <div style={{ background: '#FFFFFF', borderRadius: '17px', minHeight: '280px', overflow: 'hidden' }}>
-          {/* Status bar */}
-          <div style={{ background: '#F1F3F4', padding: '8px 14px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999' }}>9:41</span>
-            <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999' }}>EdSpark</span>
-          </div>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+Success state:
+  Headline: "Analysis complete."
+  Action: "View insights →"
+  Show: 3 coaching moments summary
 
+Empty state (new user, no recording yet):
+  Headline: "Upload your first session."
+  CTA: Upload recording
+
+Edge: File > 4GB
+  Validation on upload + email-when-done option.`;
+
+  const [spec, setSpec] = useState(STARTER);
+
+  // ─── Deterministic spec linter ───────────────────────────────────────
+  const sigs = useMemo(() => ({
+    hasLoading: /\bloading\b|progress|spinner|analyzing|processing/i.test(spec),
+    hasError:   /\berror\b|fail(ed|ure)?|retry/i.test(spec),
+    hasSuccess: /\bsuccess\b|complete|finished|done|view (?:insights|results)/i.test(spec),
+    hasEmpty:   /\bempty\b|first time|first session|no recording|new user/i.test(spec),
+    hasEdge:    /\bedge\b|large file|\d+\s?gb|timeout|exceeds|upload limit/i.test(spec),
+  }), [spec]);
+  const score = (sigs.hasLoading?1:0) + (sigs.hasError?1:0) + (sigs.hasSuccess?1:0) + (sigs.hasEmpty?1:0) + (sigs.hasEdge?1:0);
+
+  const stateChecks: { key: keyof typeof sigs; label: string; hint: string }[] = [
+    { key: 'hasLoading', label: 'Loading',  hint: 'name "loading" + visible signal'  },
+    { key: 'hasError',   label: 'Error',    hint: 'name the failure + recovery path' },
+    { key: 'hasSuccess', label: 'Success',  hint: 'name the win + next action'       },
+    { key: 'hasEmpty',   label: 'Empty',    hint: 'first-time / no-data state'       },
+    { key: 'hasEdge',    label: 'Edge',     hint: 'large file / timeout / limit'     },
+  ];
+
+  // ─── Phone preview — compiles from sigs (what the engineer would build) ──
   return (
     <TiltCard style={{ margin: '32px 0' }}>
-      <div>
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' as const }}>
-          {/* Before */}
-          <PhoneFrame label="Before" badge="BEFORE" badgeColor="#E07A5F">
-            <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
-                <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
-                <div style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block' }}>
-                  Analyze
-                </div>
-              </div>
-              {/* Silence */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F5F5F5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '18px', color: '#DDD' }}>?</span>
-                </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
-                  12 seconds of silence.
-                  <br />Nothing visible.
-                </div>
-              </div>
-            </div>
-          </PhoneFrame>
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #DFE1E6', boxShadow: '0 24px 64px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.06)' }}>
+        {/* Header */}
+        <div style={{ background: '#1C2938', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {['#FF5F57', '#FFBD2E', '#28C840'].map(c => (
+              <div key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />
+            ))}
+          </div>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.08em' }}>EdSpark Spec · Onboarding · Step 2</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: score === 5 ? '#28C840' : score >= 3 ? '#FBBF24' : '#E07A5F', fontWeight: 700, letterSpacing: '0.08em' }}>{score}/5 states specced</span>
+          </div>
+        </div>
 
-          {/* After */}
-          <PhoneFrame label="After" badge="AFTER" badgeColor="#28C840">
-            <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '16px', minHeight: '252px' }}>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontSize: '14px', fontWeight: 700, color: '#1C1814', marginBottom: '6px' }}>Analyze Recording</div>
-                <div style={{ fontSize: '11px', color: '#8A8580', marginBottom: '18px' }}>Click to begin AI analysis</div>
-                <motion.div
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { setStarted(true); setProgress(0); }}
-                  style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '10px 24px', borderRadius: '7px', fontSize: '13px', display: 'inline-block', cursor: 'pointer' }}
-                >
-                  Analyze
-                </motion.div>
-              </div>
-              {/* Feedback */}
-              <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
-                {started ? (
-                  <>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#1C1814' }}>Analyzing your recording…</div>
-                    <div style={{ width: '100%', height: '6px', background: '#F0F0F0', borderRadius: '3px', overflow: 'hidden' }}>
-                      <motion.div
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 0.1 }}
-                        style={{ height: '100%', background: 'linear-gradient(90deg, #E07A5F, #F4A261)', borderRadius: '3px' }}
-                      />
-                    </div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#8A8580' }}>
-                      {progress < 100 ? `~${Math.max(1, Math.round(30 * (1 - progress / 100)))}s remaining` : '✓ Done!'}
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ fontFamily: 'monospace', fontSize: '10px', color: '#CCC', textAlign: 'center' as const, lineHeight: 1.6 }}>
-                    Tap &ldquo;Analyze&rdquo; above<br />to see the fix in action.
-                  </div>
-                )}
+        {/* Body: editor | preview */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 300px' }}>
+          {/* Editor */}
+          <div style={{ background: '#FAFAFA', borderRight: '1px solid #E8E8E8', padding: '14px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: '#6E7681' }}>YOUR SPEC · editable</span>
+              <div style={{ display: 'flex', gap: 5 }}>
+                <button onClick={() => setSpec(STARTER)} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #E0E0E0', color: '#6E7681', borderRadius: 4, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700 }}>reset</button>
+                <button onClick={() => setSpec(COMPLETE_EXAMPLE)} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #E0E0E0', color: '#6E7681', borderRadius: 4, padding: '2px 8px', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700 }}>load complete</button>
               </div>
             </div>
-          </PhoneFrame>
+            <textarea
+              value={spec}
+              onChange={e => setSpec(e.target.value)}
+              spellCheck={false}
+              style={{
+                width: '100%', boxSizing: 'border-box', minHeight: 280, resize: 'vertical' as const,
+                padding: '12px 14px', background: 'var(--ed-card)', border: '1px solid #E0E0E0',
+                borderRadius: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 12.5,
+                color: '#333', lineHeight: 1.75, outline: 'none',
+              }}
+            />
+            {/* Linter strip */}
+            <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap' as const, gap: 5 }}>
+              {stateChecks.map(c => {
+                const on = sigs[c.key];
+                return (
+                  <span key={String(c.key)} title={c.hint} style={{
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700,
+                    padding: '3px 8px', borderRadius: 4,
+                    background: on ? 'rgba(13,122,90,0.10)' : 'rgba(224,122,95,0.08)',
+                    color: on ? '#0D7A5A' : '#B23F22',
+                    border: `1px solid ${on ? 'rgba(13,122,90,0.30)' : 'rgba(224,122,95,0.28)'}`,
+                  }}>{on ? '✓' : '✗'} {c.label}</span>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Preview compiled from sigs */}
+          <div style={{ background: '#F8FFF9', padding: '14px 16px' }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: '#0D7A5A', marginBottom: 10 }}>WHAT ENGINEERING SHIPS</div>
+            <div style={{ background: '#1A1A2E', borderRadius: 16, padding: 3, border: '3px solid #2A2A4E' }}>
+              <div style={{ background: '#FFFFFF', borderRadius: 13, minHeight: 250, padding: '14px 14px 18px', position: 'relative' as const }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1C1814', marginBottom: 4 }}>Step 2: Analyze</div>
+                <div style={{ fontSize: 10, color: '#8A8580', marginBottom: 12 }}>Click to begin AI analysis</div>
+                <div style={{ background: '#E07A5F', color: '#fff', fontWeight: 700, padding: '6px 14px', borderRadius: 6, fontSize: 12, textAlign: 'center' as const, marginBottom: 12 }}>Analyze</div>
+                {/* States the spec named */}
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                  {sigs.hasLoading && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(58,134,255,0.06)', borderLeft: '2px solid #3A86FF', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#3A86FF', fontWeight: 700, marginBottom: 2 }}>LOADING</div>
+                      <div style={{ fontSize: 10, color: '#555' }}>Progress bar · "Analyzing…" · ~30s</div>
+                    </div>
+                  )}
+                  {sigs.hasError && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(239,68,68,0.06)', borderLeft: '2px solid #EF4444', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#EF4444', fontWeight: 700, marginBottom: 2 }}>ERROR</div>
+                      <div style={{ fontSize: 10, color: '#555' }}>Failure copy + recovery path</div>
+                    </div>
+                  )}
+                  {sigs.hasSuccess && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(40,200,64,0.06)', borderLeft: '2px solid #28C840', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#28C840', fontWeight: 700, marginBottom: 2 }}>SUCCESS</div>
+                      <div style={{ fontSize: 10, color: '#555' }}>Confirmation + "View insights →"</div>
+                    </div>
+                  )}
+                  {sigs.hasEmpty && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(14,165,233,0.06)', borderLeft: '2px solid #0EA5E9', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#0EA5E9', fontWeight: 700, marginBottom: 2 }}>EMPTY</div>
+                      <div style={{ fontSize: 10, color: '#555' }}>First-time onboarding CTA</div>
+                    </div>
+                  )}
+                  {sigs.hasEdge && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(249,115,22,0.06)', borderLeft: '2px solid #F97316', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#F97316', fontWeight: 700, marginBottom: 2 }}>EDGE</div>
+                      <div style={{ fontSize: 10, color: '#555' }}>Pre-upload validation</div>
+                    </div>
+                  )}
+                  {score < 5 && (
+                    <div style={{ padding: '6px 8px', background: 'rgba(224,122,95,0.06)', border: '1px dashed rgba(224,122,95,0.3)', borderRadius: 3 }}>
+                      <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#E07A5F', fontWeight: 700, marginBottom: 2 }}>UNSPECCED ({5 - score})</div>
+                      <div style={{ fontSize: 10, color: '#E07A5F', lineHeight: 1.45 }}>Engineer ad-libs: gray button · 500 errors · unknown success path.</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 10, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: score === 5 ? '#0D7A5A' : '#6E7681', lineHeight: 1.55 }}>
+              {score === 5 ? <>✓ Ship-ready. All 5 states declared — engineering has no decisions to ad-lib.</> :
+               score >= 3 ? <>Almost. Add the {5 - score} missing state{score === 4 ? '' : 's'}.</> :
+               <>Spec the missing states. Anything you don&apos;t write, an engineer will make up.</>}
+            </div>
+          </div>
         </div>
       </div>
     </TiltCard>
   );
 };
 
-// ─────────────────────────────────────────
-// LOCAL: METRICS COMPARISON MOCKUP
-// ─────────────────────────────────────────
+// (BeforeAfterMockup body removed)
+
+// ─── MetricsComparisonMockup — REAL multi-metric impact scoreboard ──────
+// One small fix moves more than one number. The learner picks which metric
+// to inspect; each one has its own before/after, its own delta, its own
+// story. The pedagogical point — UX fixes have second-order effects on
+// support load, NPS, and retention that don't show up in the headline
+// metric — is emergent from clicking through the four tabs.
+type MetricKey = 'completion' | 'timeToFinish' | 'supportTickets' | 'rageRate';
+type MetricDef = {
+  key: MetricKey; label: string; before: number; after: number; unit: string;
+  goodDirection: 'up' | 'down'; story: string;
+};
+const COMPARISON_METRICS: MetricDef[] = [
+  { key: 'completion',      label: 'Onboarding completion', before: 30, after: 58, unit: '%',  goodDirection: 'up',
+    story: 'Headline metric. The reason the fix shipped — but not the only thing that moved.' },
+  { key: 'timeToFinish',    label: 'Median time to finish', before: 12, after: 47, unit: 's',  goodDirection: 'up',
+    story: 'Users who stay now actually wait the full process — instead of bailing at 12s.' },
+  { key: 'supportTickets',  label: 'Onboarding tickets / wk', before: 38, after: 9, unit: '',   goodDirection: 'down',
+    story: '"Is it stuck?" disappeared from the inbox. Three lines of copy did what an FAQ couldn\'t.' },
+  { key: 'rageRate',        label: 'Sessions with rage clicks', before: 41, after: 6, unit: '%', goodDirection: 'down',
+    story: 'Rage clicks were the loudest signal — now they\'re a fringe case. The button didn\'t change; only the feedback did.' },
+];
+
 const MetricsComparisonMockup = () => {
+  const [activeKey, setActiveKey] = useState<MetricKey>('completion');
   const [visible, setVisible] = useState(false);
-  const [beforeCount, setBeforeCount] = useState(0);
-  const [afterCount, setAfterCount] = useState(0);
+  const [animTick, setAnimTick] = useState(0);
+  const [animBefore, setAnimBefore] = useState(0);
+  const [animAfter, setAnimAfter] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -703,62 +880,92 @@ const MetricsComparisonMockup = () => {
     return () => observer.disconnect();
   }, []);
 
+  const active = COMPARISON_METRICS.find(m => m.key === activeKey)!;
+
   useEffect(() => {
     if (!visible) return;
-    const dur = 1800;
+    const dur = 1100;
     const start = Date.now();
     const tick = () => {
       const elapsed = Date.now() - start;
       const t = Math.min(elapsed / dur, 1);
       const ease = 1 - Math.pow(1 - t, 3);
-      setBeforeCount(Math.round(ease * 30));
-      setAfterCount(Math.round(ease * 58));
+      setAnimBefore(Math.round(ease * active.before));
+      setAnimAfter(Math.round(ease * active.after));
       if (t < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-  }, [visible]);
+  }, [visible, animTick, active.before, active.after]);
+
+  const switchMetric = (k: MetricKey) => {
+    setActiveKey(k);
+    setAnimBefore(0); setAnimAfter(0);
+    setAnimTick(n => n + 1);
+  };
+
+  const delta = active.after - active.before;
+  const isImprovement = active.goodDirection === 'up' ? delta > 0 : delta < 0;
+  const beforeColor = isImprovement ? '#E07A5F' : '#28C840';
+  const afterColor  = isImprovement ? '#28C840' : '#E07A5F';
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
       <div ref={ref}>
         <div style={{
-          background: '#111827', borderRadius: '12px', padding: '28px 24px',
+          background: '#111827', borderRadius: 12, padding: '24px 22px',
           border: '1px solid #1F2D42', boxShadow: '0 24px 64px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2)',
         }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', marginBottom: '20px', textAlign: 'center' as const }}>
-            ONBOARDING COMPLETION RATE &middot; ONE WEEK LATER
+          {/* Metric tabs */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em' }}>ONE WEEK LATER · 4 METRICS MOVED</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.30)' }}>n=1,240 · cohort match</span>
           </div>
-          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
-            {/* Before */}
-            <div style={{ flex: 1, minWidth: '160px', background: 'rgba(224,122,95,0.08)', border: '1px solid rgba(224,122,95,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(224,122,95,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>Before</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#E07A5F', lineHeight: 1 }}>{beforeCount}%</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.5)', marginTop: '8px' }}>Original launch</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
+            {COMPARISON_METRICS.map(m => {
+              const on = m.key === activeKey;
+              const mDelta = m.after - m.before;
+              const mGood = m.goodDirection === 'up' ? mDelta > 0 : mDelta < 0;
+              const colour = mGood ? '#28C840' : '#E07A5F';
+              return (
+                <button key={m.key} onClick={() => switchMetric(m.key)} style={{
+                  appearance: 'none', cursor: 'pointer', textAlign: 'left' as const,
+                  background: on ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${on ? colour : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: 7, padding: '8px 10px', fontFamily: 'inherit',
+                }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: 9.5, color: on ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.55)', lineHeight: 1.3, marginBottom: 6 }}>{m.label}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colour, fontWeight: 700 }}>{mDelta > 0 ? '+' : ''}{mDelta}{m.unit ? m.unit : ''}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Before / after cards for active metric */}
+          <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap' as const, marginBottom: 18 }}>
+            <div style={{ flex: 1, minWidth: 160, background: `${beforeColor}14`, border: `1px solid ${beforeColor}40`, borderRadius: 10, padding: 18, textAlign: 'center' as const }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: `${beforeColor}B3`, letterSpacing: '0.12em', marginBottom: 10 }}>BEFORE FIX</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 48, fontWeight: 800, color: beforeColor, lineHeight: 1 }}>{animBefore}{active.unit}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: `${beforeColor}80`, marginTop: 6 }}>Original launch</div>
             </div>
-            {/* Arrow + delta */}
-            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: '6px', minWidth: '80px' }}>
-              <motion.div
-                animate={visible ? { scale: [0.8, 1.1, 1], opacity: [0, 1] } : { scale: 0.8, opacity: 0 }}
-                transition={{ delay: 1.5, duration: 0.5 }}
-              >
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '28px', fontWeight: 700, color: '#28C840' }}>+28</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', textAlign: 'center' as const }}>points</div>
-              </motion.div>
-              <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
-              <div style={{ fontFamily: 'monospace', fontSize: '20px', color: 'rgba(255,255,255,0.3)' }}>→</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', minWidth: 70 }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 700, color: isImprovement ? '#28C840' : '#E07A5F' }}>{delta > 0 ? '+' : ''}{delta}{active.unit}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{active.goodDirection === 'up' ? '↑ better' : '↓ better'}</div>
             </div>
-            {/* After */}
-            <div style={{ flex: 1, minWidth: '160px', background: 'rgba(40,200,64,0.07)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: '10px', padding: '20px', textAlign: 'center' as const }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.12em', marginBottom: '12px', textTransform: 'uppercase' as const }}>After</div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '52px', fontWeight: 700, color: '#28C840', lineHeight: 1 }}>{afterCount}%</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.5)', marginTop: '8px' }}>After loading state fix</div>
+            <div style={{ flex: 1, minWidth: 160, background: `${afterColor}14`, border: `1px solid ${afterColor}40`, borderRadius: 10, padding: 18, textAlign: 'center' as const }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: `${afterColor}B3`, letterSpacing: '0.12em', marginBottom: 10 }}>AFTER FIX</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 48, fontWeight: 800, color: afterColor, lineHeight: 1 }}>{animAfter}{active.unit}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: `${afterColor}80`, marginTop: 6 }}>After loading state fix</div>
             </div>
           </div>
-          {/* Change callout */}
-          <div style={{ textAlign: 'center' as const, padding: '12px', background: 'rgba(40,200,64,0.05)', borderRadius: '6px', border: '1px dashed rgba(40,200,64,0.2)' }}>
-            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.7)', letterSpacing: '0.1em' }}>
-              Change: progress feedback only · Backend unchanged · Feature unchanged
-            </span>
+
+          {/* Story */}
+          <div style={{ padding: '11px 14px', background: 'rgba(40,200,64,0.05)', border: '1px dashed rgba(40,200,64,0.20)', borderRadius: 7 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(40,200,64,0.7)', letterSpacing: '0.1em', marginBottom: 5 }}>WHY THIS MOVED</div>
+            <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.75)', lineHeight: 1.55, fontFamily: 'inherit' }}>{active.story}</div>
+          </div>
+
+          <div style={{ marginTop: 12, textAlign: 'center' as const, fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.04em' }}>
+            Change: progress feedback only · Backend unchanged · Feature unchanged
           </div>
         </div>
       </div>
@@ -766,20 +973,50 @@ const MetricsComparisonMockup = () => {
   );
 };
 
-// ─────────────────────────────────────────
-// FIGMA MOCKUP
-// ─────────────────────────────────────────
+// ─── FigmaMockup — REAL "design the After frame" sandbox ─────────────────
+// The learner sits in Maya's Figma seat. The Before frame is fixed (silent
+// button). For the After frame, the learner toggles which design tokens to
+// drop in from a real component palette: progress bar, status label, time
+// estimate, spinner, cancel, oversized hero icon, success haptic. The After
+// frame composes LIVE from those choices. A real rubric scores against the
+// minimum-viable fix Maya actually shipped (progress + status + time = 3
+// elements). Picking more isn't better — over-design has a real "complexity"
+// penalty. Goal: match Maya's 3-component fix exactly = "min viable" verdict.
+type FigmaToken = {
+  id: 'progressBar' | 'statusLabel' | 'timeEstimate' | 'spinner' | 'cancelBtn' | 'heroIcon' | 'successHaptic';
+  label: string; mayaIncluded: boolean; complexity: number; // dev-minutes
+};
+const FIGMA_TOKENS: FigmaToken[] = [
+  { id: 'progressBar',   label: 'Progress bar',    mayaIncluded: true,  complexity: 10 },
+  { id: 'statusLabel',   label: 'Status label',    mayaIncluded: true,  complexity: 5  },
+  { id: 'timeEstimate',  label: 'Time estimate',   mayaIncluded: true,  complexity: 5  },
+  { id: 'spinner',       label: 'Spinner',         mayaIncluded: false, complexity: 8  },
+  { id: 'cancelBtn',     label: 'Cancel button',   mayaIncluded: false, complexity: 15 },
+  { id: 'heroIcon',      label: 'Hero icon',       mayaIncluded: false, complexity: 12 },
+  { id: 'successHaptic', label: 'Success haptic',  mayaIncluded: false, complexity: 20 },
+];
+
 const FigmaMockup = () => {
-  const [selectedFrame, setSelectedFrame] = useState<'before' | 'after'>('after');
+  const [picked, setPicked] = useState<Record<FigmaToken['id'], boolean>>({
+    progressBar: false, statusLabel: false, timeEstimate: false, spinner: false, cancelBtn: false, heroIcon: false, successHaptic: false,
+  });
+  const toggle = (id: FigmaToken['id']) => setPicked(p => ({ ...p, [id]: !p[id] }));
+
+  // ─── Rubric vs Maya's shipped fix ─────────────────────────────────────
+  const requiredHit = FIGMA_TOKENS.filter(t => t.mayaIncluded).every(t => picked[t.id]);
+  const extras = FIGMA_TOKENS.filter(t => !t.mayaIncluded && picked[t.id]).length;
+  const missing = FIGMA_TOKENS.filter(t => t.mayaIncluded && !picked[t.id]).length;
+  const devMinutes = FIGMA_TOKENS.reduce((sum, t) => sum + (picked[t.id] ? t.complexity : 0), 0);
+  const verdict = !requiredHit ? 'incomplete' : extras === 0 ? 'minViable' : extras <= 2 ? 'over-design' : 'kitchen-sink';
+
   return (
     <TiltCard style={{ margin: '32px 0' }}>
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #3C3C3C', boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
+      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #3C3C3C', boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
         {/* Figma toolbar */}
-        <div style={{ background: '#2C2C2C', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #3C3C3C' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
+        <div style={{ background: '#2C2C2C', padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #3C3C3C' }}>
+          <div style={{ display: 'flex', gap: 5 }}>
+            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
           </div>
-          {/* Figma logo */}
           <svg width="12" height="18" viewBox="0 0 12 18" fill="none">
             <path d="M3 18C4.65685 18 6 16.6569 6 15V12H3C1.34315 12 0 13.3431 0 15C0 16.6569 1.34315 18 3 18Z" fill="#0ACF83"/>
             <path d="M0 9C0 7.34315 1.34315 6 3 6H6V12H3C1.34315 12 0 10.6569 0 9Z" fill="#A259FF"/>
@@ -787,380 +1024,135 @@ const FigmaMockup = () => {
             <path d="M6 0H9C10.6569 0 12 1.34315 12 3C12 4.65685 10.6569 6 9 6H6V0Z" fill="#FF7262"/>
             <path d="M12 9C12 10.6569 10.6569 12 9 12C7.34315 12 6 10.6569 6 9C6 7.34315 7.34315 6 9 6C10.6569 6 12 7.34315 12 9Z" fill="#1ABCFE"/>
           </svg>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.6)', flex: 1, textAlign: 'center' as const }}>
-            EdSpark · Analyze Flow · Loading State Fix
-          </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)' }}>100%</div>
-            <div style={{ background: '#18A0FB', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '3px 10px', borderRadius: '5px', fontFamily: 'monospace' }}>Share</div>
-          </div>
+          <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.6)', flex: 1, textAlign: 'center' as const }}>EdSpark · Analyze Flow · loading-state-fix.fig</div>
+          <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>100%</div>
+          <div style={{ background: '#18A0FB', color: '#fff', fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 5, fontFamily: 'monospace' }}>Share</div>
         </div>
-        {/* Main area: left panel + canvas + right panel */}
-        <div style={{ display: 'flex', height: '320px', background: '#1E1E1E' }}>
-          {/* Left layers panel */}
-          <div style={{ width: '160px', background: '#2C2C2C', borderRight: '1px solid #3C3C3C', padding: '10px 0', flexShrink: 0, overflowY: 'auto' as const }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', padding: '0 10px', marginBottom: '8px', letterSpacing: '0.1em' }}>LAYERS</div>
-            {[
-              { name: 'Analyze Flow', depth: 0, type: 'frame' },
-              { name: '→ Before', depth: 1, type: 'frame', active: selectedFrame === 'before' },
-              { name: '  → Button', depth: 2, type: 'rect' },
-              { name: '  → Label', depth: 2, type: 'text' },
-              { name: '→ After ✦', depth: 1, type: 'frame', active: selectedFrame === 'after' },
-              { name: '  → Button', depth: 2, type: 'rect' },
-              { name: '  → Progress', depth: 2, type: 'rect', highlight: true },
-              { name: '  → Label', depth: 2, type: 'text', highlight: true },
-              { name: '  → Timer', depth: 2, type: 'text', highlight: true },
-            ].map((item, i) => (
-              <div key={i}
-                onClick={() => { if (item.active !== undefined) setSelectedFrame(item.name.includes('Before') ? 'before' : 'after'); }}
-                style={{
-                  padding: `3px ${8 + item.depth * 10}px`,
-                  fontFamily: 'monospace', fontSize: '10px',
-                  color: item.active ? '#18A0FB' : (item as { highlight?: boolean }).highlight ? '#A259FF' : 'rgba(255,255,255,0.55)',
-                  background: item.active ? 'rgba(24,160,251,0.12)' : 'transparent',
-                  cursor: item.active !== undefined ? 'pointer' : 'default',
-                  display: 'flex', alignItems: 'center', gap: '5px',
-                }}>
-                <span style={{ opacity: 0.5, fontSize: '8px' }}>{item.type === 'frame' ? '□' : item.type === 'text' ? 'T' : '▭'}</span>
-                {item.name.replace('→ ', '').replace('  → ', '')}
+
+        {/* Main */}
+        <div style={{ display: 'grid', gridTemplateColumns: '170px 1fr 220px', height: 380, background: '#1E1E1E' }}>
+          {/* Layers — auto-built from picked tokens */}
+          <div style={{ background: '#2C2C2C', borderRight: '1px solid #3C3C3C', padding: '10px 0', overflow: 'auto' as const }}>
+            <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.4)', padding: '0 10px', marginBottom: 8, letterSpacing: '0.1em' }}>LAYERS</div>
+            <div style={{ padding: '3px 8px', fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.55)' }}>📁 Analyze Flow</div>
+            <div style={{ padding: '3px 18px', fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>📄 Before</div>
+            <div style={{ padding: '2px 28px', fontFamily: 'monospace', fontSize: 9.5, color: 'rgba(255,255,255,0.35)' }}>▭ Button</div>
+            <div style={{ padding: '2px 28px', fontFamily: 'monospace', fontSize: 9.5, color: 'rgba(255,255,255,0.35)' }}>T Label</div>
+            <div style={{ padding: '3px 18px', fontFamily: 'monospace', fontSize: 10, color: '#18A0FB', background: 'rgba(24,160,251,0.10)' }}>📄 After ✦</div>
+            <div style={{ padding: '2px 28px', fontFamily: 'monospace', fontSize: 9.5, color: 'rgba(255,255,255,0.45)' }}>▭ Button</div>
+            <div style={{ padding: '2px 28px', fontFamily: 'monospace', fontSize: 9.5, color: 'rgba(255,255,255,0.45)' }}>T Label</div>
+            {FIGMA_TOKENS.filter(t => picked[t.id]).map(t => (
+              <div key={t.id} style={{ padding: '2px 28px', fontFamily: 'monospace', fontSize: 9.5, color: '#A259FF' }}>
+                {t.id === 'progressBar' ? '░ ' : t.id === 'statusLabel' || t.id === 'timeEstimate' ? 'T ' : t.id === 'spinner' ? '◌ ' : t.id === 'cancelBtn' ? '▭ ' : t.id === 'heroIcon' ? '◇ ' : '🔔 '}
+                {t.label}
               </div>
             ))}
+            {Object.values(picked).every(v => !v) && (
+              <div style={{ padding: '6px 18px', fontFamily: 'monospace', fontSize: 9, color: 'rgba(224,122,95,0.7)', fontStyle: 'italic' as const }}>(empty — pick tokens →)</div>
+            )}
           </div>
 
           {/* Canvas */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '40px', padding: '20px' }}>
-            {/* Before frame */}
-            <div
-              onClick={() => setSelectedFrame('before')}
-              style={{ cursor: 'pointer' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: selectedFrame === 'before' ? '#18A0FB' : 'rgba(255,255,255,0.3)', marginBottom: '6px', textAlign: 'center' as const }}>Before</div>
-              <div style={{
-                width: '140px', background: '#FAFAFA', borderRadius: '8px', padding: '20px 16px',
-                border: selectedFrame === 'before' ? '2px solid #18A0FB' : '2px solid transparent',
-                boxShadow: selectedFrame === 'before' ? '0 0 0 2px rgba(24,160,251,0.3)' : 'none',
-                transition: 'all 0.2s',
-              }}>
-                <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
-                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '7px 12px', fontSize: '11px', fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: '10px' }}>
-                  Analyze ▶
-                </div>
-                {/* Silence indicator */}
-                <div style={{ height: '28px', border: '1px dashed rgba(224,122,95,0.4)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: '8px', color: '#E07A5F' }}>nothing…</span>
+          <div style={{ background: '#383838', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, padding: 20 }}>
+            {/* Before */}
+            <div>
+              <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 6, textAlign: 'center' as const }}>BEFORE</div>
+              <div style={{ width: 150, background: '#FAFAFA', borderRadius: 8, padding: '20px 16px' }}>
+                <div style={{ fontSize: 10, color: '#666', marginBottom: 10, fontFamily: 'monospace' }}>Step 2: Analyze</div>
+                <div style={{ background: '#0097A7', color: '#fff', borderRadius: 5, padding: '7px 12px', fontSize: 11, fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: 10 }}>Analyze ▶</div>
+                <div style={{ height: 26, border: '1px dashed rgba(224,122,95,0.4)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: 8, color: '#E07A5F' }}>nothing…</span>
                 </div>
               </div>
             </div>
-
-            {/* Arrow */}
-            <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '20px' }}>→</div>
-
-            {/* After frame */}
-            <div
-              onClick={() => setSelectedFrame('after')}
-              style={{ cursor: 'pointer' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: selectedFrame === 'after' ? '#18A0FB' : 'rgba(255,255,255,0.3)', marginBottom: '6px', textAlign: 'center' as const }}>After ✦</div>
-              <div style={{
-                width: '140px', background: '#FAFAFA', borderRadius: '8px', padding: '20px 16px',
-                border: selectedFrame === 'after' ? '2px solid #18A0FB' : '2px solid transparent',
-                boxShadow: selectedFrame === 'after' ? '0 0 0 2px rgba(24,160,251,0.3)' : 'none',
-                transition: 'all 0.2s',
-              }}>
-                <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
-                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '7px 12px', fontSize: '11px', fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: '8px' }}>
-                  Analyzing… ●
-                </div>
-                {/* Progress bar */}
-                <div style={{ height: '4px', background: '#E8E8E8', borderRadius: '2px', marginBottom: '6px', overflow: 'hidden' }}>
-                  <motion.div
-                    animate={{ width: ['0%', '70%', '85%'] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }}
-                    style={{ height: '100%', background: '#0097A7', borderRadius: '2px' }}
-                  />
-                </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#888', textAlign: 'center' as const }}>~30 seconds</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right properties panel */}
-          <div style={{ width: '180px', background: '#2C2C2C', borderLeft: '1px solid #3C3C3C', padding: '10px', flexShrink: 0 }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginBottom: '10px', letterSpacing: '0.1em' }}>DESIGN</div>
-            {selectedFrame === 'after' && (
-              <>
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Progress Bar</div>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <div style={{ flex: 1, background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>W: 140</div>
-                    <div style={{ flex: 1, background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>H: 4</div>
-                  </div>
-                </div>
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Fill</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: '#0097A7', flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>#0097A7</span>
-                  </div>
-                </div>
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: '#A259FF', marginBottom: '3px' }}>Timer Text</div>
-                  <div style={{ background: '#1E1E1E', borderRadius: '3px', padding: '4px 6px', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.5)' }}>~30 seconds</div>
-                </div>
-              </>
-            )}
-            {selectedFrame === 'before' && (
-              <div style={{ padding: '12px', background: 'rgba(224,122,95,0.1)', borderRadius: '5px', border: '1px solid rgba(224,122,95,0.25)' }}>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#E07A5F', lineHeight: 1.6 }}>No loading state defined in this frame.</div>
-              </div>
-            )}
-            <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid #3C3C3C' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px' }}>PROTOTYPE</div>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#28C840', background: 'rgba(40,200,64,0.1)', padding: '4px 8px', borderRadius: '4px' }}>Ready to hand off</div>
-            </div>
-          </div>
-        </div>
-        {/* Footer */}
-        <div style={{ background: '#2C2C2C', padding: '6px 14px', borderTop: '1px solid #3C3C3C', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Maya Sharma · edited 2 minutes ago</span>
-          <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#A259FF' }}>✦ 3 components added</span>
-        </div>
-      </div>
-    </TiltCard>
-  );
-};
-
-// ─────────────────────────────────────────
-// LOVABLE AI MOCKUP
-// ─────────────────────────────────────────
-const LovableAIMockup = () => {
-  const [step, setStep] = useState(0);
-  const steps = [
-    { label: 'Prompt sent', done: true },
-    { label: 'Analyzing codebase', done: true },
-    { label: 'Generating component', done: step >= 2 },
-    { label: 'Preview ready', done: step >= 3 },
-  ];
-  return (
-    <TiltCard style={{ margin: '32px 0' }}>
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #2D1B69', boxShadow: '0 24px 64px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
-        {/* Header */}
-        <div style={{ background: '#0A0A0A', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #1A1A2E' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
-          </div>
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)', background: '#1A1A2E', padding: '3px 14px', borderRadius: '5px', letterSpacing: '0.05em' }}>
-              lovable.dev · EdSpark · analyze-loading-state
-            </div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', height: '280px' }}>
-          {/* Chat panel */}
-          <div style={{ width: '52%', background: '#0F0F0F', borderRight: '1px solid #1A1A2E', display: 'flex', flexDirection: 'column' as const }}>
-            <div style={{ flex: 1, padding: '16px', overflowY: 'auto' as const, display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-              {/* User prompt */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end' as const }}>
-                <div style={{ background: '#8B5CF6', borderRadius: '10px 10px 2px 10px', padding: '8px 12px', maxWidth: '80%' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#fff', lineHeight: 1.5 }}>
-                    Add a loading state to the Analyze button. Show a progress bar and &ldquo;~30 seconds&rdquo; text while processing.
-                  </div>
-                </div>
-              </div>
-              {/* AI response */}
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'linear-gradient(135deg, #8B5CF6, #EC4899)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px' }}>✦</div>
-                <div style={{ background: '#1A1A2E', borderRadius: '2px 10px 10px 10px', padding: '10px 12px', maxWidth: '85%' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, marginBottom: '8px' }}>
-                    I&apos;ve added the loading state to <span style={{ color: '#8B5CF6' }}>AnalyzeButton.tsx</span>. Here&apos;s what changed:
-                  </div>
-                  <div style={{ background: '#0A0A0A', borderRadius: '6px', padding: '8px 10px', fontFamily: 'monospace', fontSize: '10px', color: '#28C840', lineHeight: 1.8 }}>
-                    <div><span style={{ color: '#666' }}>+</span> <span style={{ color: '#A3E635' }}>isAnalyzing</span> state</div>
-                    <div><span style={{ color: '#666' }}>+</span> Progress bar component</div>
-                    <div><span style={{ color: '#666' }}>+</span> <span style={{ color: '#67E8F9' }}>&ldquo;Analyzing…&rdquo;</span> copy</div>
-                    <div><span style={{ color: '#666' }}>+</span> Timer estimate text</div>
-                  </div>
-                </div>
-              </div>
-              {/* Build steps */}
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px', paddingLeft: '30px' }}>
-                {steps.map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: s.done ? '#28C840' : '#1A1A2E', border: `1px solid ${s.done ? '#28C840' : '#333'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {s.done && <span style={{ fontSize: '8px', color: '#000' }}>✓</span>}
-                    </div>
-                    <span style={{ fontFamily: 'monospace', fontSize: '9px', color: s.done ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)' }}>{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* Input */}
-            <div style={{ padding: '10px', borderTop: '1px solid #1A1A2E', display: 'flex', gap: '8px' }}>
-              <div style={{ flex: 1, background: '#1A1A2E', borderRadius: '6px', padding: '7px 10px', fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.25)' }}>
-                Ask Lovable to refine…
-              </div>
-              <div style={{ background: '#8B5CF6', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                onClick={() => setStep(s => Math.min(s + 1, 3))}>
-                <span style={{ color: '#fff', fontSize: '12px' }}>↑</span>
-              </div>
-            </div>
-          </div>
-          {/* Preview panel */}
-          <div style={{ flex: 1, background: '#111', display: 'flex', flexDirection: 'column' as const }}>
-            <div style={{ padding: '8px 12px', borderBottom: '1px solid #1A1A2E', display: 'flex', gap: '10px' }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#8B5CF6', fontWeight: 700, borderBottom: '2px solid #8B5CF6', paddingBottom: '2px' }}>Preview</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>Code</span>
-            </div>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-              <div style={{ background: '#FAFAFA', borderRadius: '8px', padding: '24px 20px', width: '100%', maxWidth: '220px' }}>
-                <div style={{ fontSize: '11px', color: '#666', marginBottom: '12px', fontFamily: 'monospace' }}>Step 2: Analyze</div>
-                <div style={{ background: '#0097A7', color: '#fff', borderRadius: '5px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, textAlign: 'center' as const, marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <motion.span animate={{ opacity: [1, 0.4, 1] }} transition={{ duration: 1.2, repeat: Infinity }}>●</motion.span>
+            <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: 20 }}>→</div>
+            {/* After — composes from picked tokens */}
+            <div>
+              <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#18A0FB', marginBottom: 6, textAlign: 'center' as const }}>AFTER ✦ your design</div>
+              <div style={{ width: 170, background: '#FAFAFA', borderRadius: 8, padding: '18px 16px', border: '2px solid #18A0FB', boxShadow: '0 0 0 2px rgba(24,160,251,0.25)' }}>
+                <div style={{ fontSize: 10, color: '#666', marginBottom: 10, fontFamily: 'monospace' }}>Step 2: Analyze</div>
+                {picked.heroIcon && (
+                  <div style={{ width: 40, height: 40, margin: '0 auto 10px', borderRadius: '50%', background: 'linear-gradient(135deg, #0097A7, #00BCD4)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 18 }}>◇</div>
+                )}
+                <div style={{ background: '#0097A7', color: '#fff', borderRadius: 5, padding: '7px 12px', fontSize: 11, fontWeight: 600, textAlign: 'center' as const, fontFamily: 'monospace', marginBottom: 8, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 5 }}>
+                  {picked.spinner && (
+                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} style={{ display: 'inline-block', width: 8, height: 8, border: '1.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%' }} />
+                  )}
                   Analyzing…
                 </div>
-                <div style={{ height: '4px', background: '#E8E8E8', borderRadius: '2px', marginBottom: '6px', overflow: 'hidden' }}>
-                  <motion.div
-                    animate={{ width: ['15%', '75%', '88%'] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ height: '100%', background: 'linear-gradient(90deg, #0097A7, #00BCD4)', borderRadius: '2px' }}
-                  />
-                </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '9px', color: '#999', textAlign: 'center' as const }}>~30 seconds</div>
-              </div>
-            </div>
-            <div style={{ padding: '8px 12px', borderTop: '1px solid #1A1A2E', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: '#28C840' }}>✓ Deployed in 43s</span>
-              <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)' }}>1 file changed</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </TiltCard>
-  );
-};
-
-// ─────────────────────────────────────────
-// SLACK STAKEHOLDER UPDATE MOCKUP
-// ─────────────────────────────────────────
-const SlackUpdateMockup = () => {
-  const [chosen, setChosen] = useState<number | null>(null);
-  const drafts = [
-    {
-      label: 'Over-claims the outcome',
-      text: "Great news! We fixed the onboarding issue. Completion is now at 58% — the team did amazing work! 🎉",
-      feedback: "This reads like a victory lap, not a PM update. 'Fixed the issue' implies done — but you're still 28 points from target. Rohan will ask 'so we're good now?' and you'll have to walk it back.",
-      correct: false,
-    },
-    {
-      label: 'Data-correct, but no insight',
-      text: "Update: completion rate moved from 30% → 58% after the loading state fix. Fix time: 1 afternoon. Remaining gap: 42% non-completers.",
-      feedback: "All the numbers are right, but there's no insight. A CEO doesn't want a log entry — they want to know what you learned and what's next. This message answers neither.",
-      correct: false,
-    },
-    {
-      label: 'Insight + result + next step',
-      text: "Found a specific UX failure — users abandoned because they saw silence, not progress. Loading state fix moved completion from 30% to 58% in one week. Still 28 points short — running the same diagnostic on the remaining drop-off now.",
-      feedback: "This is what a strong PM update looks like: what you found, what you changed, the result, and what's next. Rohan now has everything he needs to trust the process is continuing.",
-      correct: true,
-    },
-  ];
-
-  return (
-    <TiltCard style={{ margin: '32px 0' }}>
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #222', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}>
-        <div style={{ background: '#1A1D21', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #2D2D2D' }}>
-          <div style={{ display: 'flex', gap: '5px' }}>
-            {(['#FF5F57','#FFBD2E','#28C840'] as const).map(c => <div key={c} style={{ width: '10px', height: '10px', borderRadius: '50%', background: c }} />)}
-          </div>
-          <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)', flex: 1 }}>
-            Slack · #leadership-updates · EdSpark
-          </div>
-        </div>
-        <div style={{ display: 'flex', background: '#1A1D21' }}>
-          {/* Sidebar */}
-          <div style={{ width: '180px', background: '#19171D', borderRight: '1px solid #2D2D2D', padding: '12px 0', flexShrink: 0 }}>
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', padding: '0 14px', marginBottom: '8px', letterSpacing: '0.1em' }}>CHANNELS</div>
-            {['#general', '#product', '#leadership-updates', '#eng'].map((ch, i) => (
-              <div key={ch} style={{ padding: '5px 14px', fontFamily: 'monospace', fontSize: '11px', color: i === 2 ? '#fff' : 'rgba(255,255,255,0.38)', background: i === 2 ? 'rgba(255,255,255,0.08)' : 'transparent' }}>{ch}</div>
-            ))}
-            <div style={{ margin: '10px 0', borderTop: '1px solid #2D2D2D' }} />
-            <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.3)', padding: '0 14px', marginBottom: '6px', letterSpacing: '0.1em' }}>DIRECT MESSAGES</div>
-            {['Rohan', 'Maya', 'Kiran'].map(name => (
-              <div key={name} style={{ padding: '5px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#28C840', flexShrink: 0 }} />
-                <span style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.38)' }}>{name}</span>
-              </div>
-            ))}
-          </div>
-          {/* Message area */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const }}>
-            <div style={{ padding: '10px 16px', borderBottom: '1px solid #2D2D2D', fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 700 }}>
-              # leadership-updates
-            </div>
-            {/* Rohan's message */}
-            <div style={{ padding: '14px 16px', display: 'flex', gap: '10px', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px', color: '#fff', flexShrink: 0 }}>R</div>
-              <div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'baseline', marginBottom: '4px' }}>
-                  <span style={{ fontFamily: 'monospace', fontSize: '11px', fontWeight: 700, color: '#7C83E5' }}>Rohan</span>
-                  <span style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)' }}>Today at 9:14 AM</span>
-                </div>
-                <div style={{ fontFamily: 'monospace', fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
-                  Any update on onboarding completion after last week&apos;s fix?
-                </div>
-              </div>
-            </div>
-            {/* Draft choices */}
-            <div style={{ padding: '12px 16px' }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.28)', marginBottom: '10px', letterSpacing: '0.1em' }}>
-                PRIYA&apos;S DRAFT — CHOOSE THE RIGHT REPLY:
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                {drafts.map((draft, i) => (
-                  <div key={i}>
-                    <div
-                      onClick={() => setChosen(i)}
-                      style={{
-                        padding: '10px 12px', borderRadius: '8px', cursor: 'pointer',
-                        background: chosen === i ? (draft.correct ? 'rgba(40,200,64,0.1)' : 'rgba(224,122,95,0.1)') : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${chosen === i ? (draft.correct ? 'rgba(40,200,64,0.4)' : 'rgba(224,122,95,0.35)') : 'rgba(255,255,255,0.1)'}`,
-                        transition: 'all 0.18s ease',
-                      }}
-                    >
-                      <div style={{ fontFamily: 'monospace', fontSize: '9px', letterSpacing: '0.08em', marginBottom: '5px', color: chosen === i ? (draft.correct ? '#28C840' : '#E07A5F') : 'rgba(255,255,255,0.3)' }}>
-                        {draft.label.toUpperCase()}
-                      </div>
-                      <div style={{ fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
-                        {draft.text}
-                      </div>
-                    </div>
-                    <AnimatePresence>
-                      {chosen === i && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <div style={{
-                            margin: '4px 0 0', padding: '10px 12px', borderRadius: '6px',
-                            background: draft.correct ? 'rgba(40,200,64,0.06)' : 'rgba(224,122,95,0.06)',
-                            border: `1px solid ${draft.correct ? 'rgba(40,200,64,0.2)' : 'rgba(224,122,95,0.2)'}`,
-                            fontFamily: 'monospace', fontSize: '11px', color: 'rgba(255,255,255,0.65)', lineHeight: 1.6,
-                          }}>
-                            {draft.correct ? '✓ ' : '✗ '}{draft.feedback}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                {picked.statusLabel && (
+                  <div style={{ fontSize: 9.5, color: '#1C1814', fontWeight: 600, textAlign: 'center' as const, marginBottom: 4 }}>Extracting coaching moments…</div>
+                )}
+                {picked.progressBar && (
+                  <div style={{ height: 4, background: '#E8E8E8', borderRadius: 2, marginBottom: 6, overflow: 'hidden' }}>
+                    <motion.div animate={{ width: ['10%', '70%', '90%'] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeOut' }} style={{ height: '100%', background: '#0097A7' }} />
                   </div>
-                ))}
+                )}
+                {picked.timeEstimate && (
+                  <div style={{ fontFamily: 'monospace', fontSize: 8.5, color: '#888', textAlign: 'center' as const, marginBottom: picked.cancelBtn ? 8 : 0 }}>~30 seconds</div>
+                )}
+                {picked.cancelBtn && (
+                  <div style={{ marginTop: 6, fontFamily: 'monospace', fontSize: 9, color: '#666', textAlign: 'center' as const, padding: '3px 10px', border: '1px solid #DDD', borderRadius: 4 }}>Cancel</div>
+                )}
+                {picked.successHaptic && (
+                  <div style={{ marginTop: 6, fontSize: 8, color: '#28C840', textAlign: 'center' as const, fontFamily: 'monospace' }}>🔔 haptic feedback</div>
+                )}
+                {Object.values(picked).every(v => !v) && (
+                  <div style={{ height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: 8, color: '#E07A5F' }}>same as before</div>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Properties — token palette */}
+          <div style={{ background: '#2C2C2C', borderLeft: '1px solid #3C3C3C', padding: 10, overflow: 'auto' as const }}>
+            <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.4)', marginBottom: 8, letterSpacing: '0.1em' }}>COMPONENT TOKENS</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+              {FIGMA_TOKENS.map(t => {
+                const on = picked[t.id];
+                return (
+                  <button key={t.id} onClick={() => toggle(t.id)} style={{
+                    appearance: 'none', cursor: 'pointer', textAlign: 'left' as const,
+                    background: on ? 'rgba(162,89,255,0.16)' : 'rgba(0,0,0,0.20)',
+                    border: `1px solid ${on ? '#A259FF' : '#3C3C3C'}`,
+                    borderRadius: 5, padding: '5px 8px',
+                    fontFamily: 'inherit',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 5,
+                  }}>
+                    <span style={{ fontFamily: 'monospace', fontSize: 10.5, color: on ? '#C8A8FF' : 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{t.label}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 8.5, color: on ? '#A259FF' : 'rgba(255,255,255,0.25)' }}>{t.complexity}m</span>
+                  </button>
+                );
+              })}
+            </div>
+            {/* Verdict */}
+            <div style={{ marginTop: 10, padding: '6px 8px', borderRadius: 5, background: verdict === 'minViable' ? 'rgba(40,200,64,0.12)' : verdict === 'over-design' ? 'rgba(251,191,36,0.10)' : verdict === 'kitchen-sink' ? 'rgba(224,122,95,0.10)' : 'rgba(255,255,255,0.04)', border: `1px solid ${verdict === 'minViable' ? 'rgba(40,200,64,0.35)' : verdict === 'over-design' ? 'rgba(251,191,36,0.30)' : verdict === 'kitchen-sink' ? 'rgba(224,122,95,0.30)' : '#3C3C3C'}` }}>
+              <div style={{ fontFamily: 'monospace', fontSize: 8.5, color: verdict === 'minViable' ? '#28C840' : verdict === 'over-design' ? '#FBBF24' : verdict === 'kitchen-sink' ? '#E07A5F' : 'rgba(255,255,255,0.5)', fontWeight: 800, letterSpacing: '0.1em', marginBottom: 3 }}>
+                {verdict === 'minViable' ? 'MIN VIABLE ✓' : verdict === 'over-design' ? 'OVER-DESIGN' : verdict === 'kitchen-sink' ? 'KITCHEN-SINK' : 'INCOMPLETE'}
+              </div>
+              <div style={{ fontFamily: 'monospace', fontSize: 9.5, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
+                {verdict === 'minViable' ? <>Matches Maya&apos;s shipped fix. 3 elements · {devMinutes}m dev.</> :
+                 verdict === 'over-design' ? <>Above Maya&apos;s 3-element minimum. {extras} extra · {devMinutes}m dev for marginal lift.</> :
+                 verdict === 'kitchen-sink' ? <>Everything &gt; nothing — but {devMinutes}m of design debt. Strip back.</> :
+                 missing > 0 ? <>{missing} of Maya&apos;s 3 elements still missing.</> :
+                 <>Pick the elements you&apos;d ship.</>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: '#2C2C2C', padding: '6px 14px', borderTop: '1px solid #3C3C3C', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>
+          <span>Maya Sharma · live edit</span>
+          <span style={{ color: Object.values(picked).filter(Boolean).length === 3 && requiredHit ? '#28C840' : '#A259FF' }}>✦ {Object.values(picked).filter(Boolean).length} component{Object.values(picked).filter(Boolean).length === 1 ? '' : 's'} added · {devMinutes}m</span>
         </div>
       </div>
     </TiltCard>
   );
 };
+
+// (Dead-code LovableAIMockup removed — never rendered)
+
+// (Dead-code SlackUpdateMockup removed — never rendered)
 
 // ─────────────────────────────────────────
 // DEFAULT EXPORT

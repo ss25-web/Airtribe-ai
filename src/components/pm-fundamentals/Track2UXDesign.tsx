@@ -297,99 +297,164 @@ const UXDebtCalculator = () => {
 // COMPONENT SPRAWL MOCKUP
 // Shows button variants, then consolidates them
 // ─────────────────────────────────────────
+// ─── ComponentSprawlMockup — REAL consolidation sandbox ─────────────────
+// The learner is the PM in a DS review. They tag each variant: KEEP (this
+// surface needs its own treatment), MERGE (consolidate into the DS), or
+// DROP (dead variant). Live cost math runs against real numbers — each
+// variant kept costs 3h/sprint to maintain × 2-week cadence × 26 sprints.
+// Each merge claws back the cost. Goal: minimize the variant count while
+// preserving any genuinely-needed surfaces. The verdict knows that ALL 5
+// of these are mergeable (no legitimate context-need) — but over-merging
+// surfaces with real differences ships UX regressions.
+type SprawlAction = 'keep' | 'merge' | 'drop';
 const ComponentSprawlMockup = () => {
-  const [consolidated, setConsolidated] = useState(false);
-
   const variants = [
-    { label: 'Skill Gap Tracker', bg: '#E07A5F', radius: '9999px', weight: 700, size: '12px', padding: '8px 20px' },
-    { label: 'Session Analysis', bg: '#D96B50', radius: '6px', weight: 600, size: '11px', padding: '7px 16px' },
-    { label: 'Team Dashboard', bg: '#C85A40', radius: '4px', weight: 700, size: '13px', padding: '9px 18px' },
-    { label: 'Onboarding Flow', bg: '#E07A5F', radius: '8px', weight: 500, size: '11px', padding: '7px 14px' },
-    { label: 'Admin Panel', bg: '#BF5040', radius: '3px', weight: 600, size: '12px', padding: '6px 16px' },
+    { id: 'skill',  label: 'Skill Gap Tracker', bg: '#E07A5F', radius: '9999px', weight: 700, size: '12px', padding: '8px 20px', truth: 'merge' as SprawlAction, why: 'No context need — pill shape is a styling whim, not a UX requirement.' },
+    { id: 'sess',   label: 'Session Analysis',  bg: '#D96B50', radius: '6px',    weight: 600, size: '11px', padding: '7px 16px',  truth: 'merge' as SprawlAction, why: 'Identical action, slightly different padding. Standardise.' },
+    { id: 'team',   label: 'Team Dashboard',    bg: '#C85A40', radius: '4px',    weight: 700, size: '13px', padding: '9px 18px',  truth: 'merge' as SprawlAction, why: 'Bigger because the page is dense — solve with a "large" DS size token, not a custom button.' },
+    { id: 'onb',    label: 'Onboarding Flow',   bg: '#E07A5F', radius: '8px',    weight: 500, size: '11px', padding: '7px 14px',  truth: 'merge' as SprawlAction, why: 'Lighter weight from a junior PR that nobody pushed back on.' },
+    { id: 'admin',  label: 'Admin Panel',       bg: '#BF5040', radius: '3px',    weight: 600, size: '12px', padding: '6px 16px',  truth: 'drop'  as SprawlAction, why: 'Page itself is deprecated next quarter — both component and host go away.' },
   ];
+  type Var = typeof variants[number];
+  const [actions, setActions] = useState<Record<string, SprawlAction | null>>(
+    Object.fromEntries(variants.map(v => [v.id, null]))
+  );
 
-  const systemButton = { label: 'Design System', bg: '#E07A5F', radius: '6px', weight: 600, size: '12px', padding: '8px 18px' };
+  const setAct = (id: string, a: SprawlAction) => setActions(prev => ({ ...prev, [id]: prev[id] === a ? null : a }));
+  const reset = () => setActions(Object.fromEntries(variants.map(v => [v.id, null])));
+
+  // Cost math: each variant kept = 3h/sprint × 26 sprints/year × $90/h = $7,020 / year
+  const annualHoursPerVariant = 3 * 26; // 78h/year
+  const hourly = 90;
+  const baselineCost = variants.length * annualHoursPerVariant * hourly;
+  const keptCount  = variants.filter(v => actions[v.id] === 'keep').length;
+  const mergeCount = variants.filter(v => actions[v.id] === 'merge').length;
+  const dropCount  = variants.filter(v => actions[v.id] === 'drop').length;
+  const decidedCount = keptCount + mergeCount + dropCount;
+  const remainingVariants = keptCount + 1; // +1 for the canonical DS button
+  const newCost = remainingVariants * annualHoursPerVariant * hourly;
+  const savings = baselineCost - newCost;
+
+  // Verdict — knows the truth, scores the learner
+  const matchTruth = variants.filter(v => actions[v.id] === v.truth).length;
+  const wrongKeeps = variants.filter(v => actions[v.id] === 'keep' && v.truth !== 'keep').length;
+  const allDecided = decidedCount === variants.length;
+  const verdict =
+    !allDecided      ? 'pending'   :
+    matchTruth === 5 ? 'optimal'   :
+    wrongKeeps >= 2  ? 'underMerged' :
+    'okay';
+
+  const systemButton = { bg: '#E07A5F', radius: '6px', weight: 600, size: '12px', padding: '8px 18px' };
+
+  const ActionPill = ({ v, a, label, color }: { v: Var; a: SprawlAction; label: string; color: string }) => {
+    const on = actions[v.id] === a;
+    return (
+      <button onClick={() => setAct(v.id, a)} style={{
+        appearance: 'none', cursor: 'pointer',
+        padding: '3px 9px', borderRadius: 4,
+        background: on ? `${color}22` : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${on ? color : 'rgba(255,255,255,0.12)'}`,
+        color: on ? color : 'rgba(255,255,255,0.4)',
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
+      }}>{label}</button>
+    );
+  };
 
   return (
     <TiltCard style={{ margin: '32px 0' }}>
-      <div style={{ background: '#0D1117', borderRadius: '12px', padding: '24px', border: '1px solid #21262D', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}>
-        <div style={{ fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', marginBottom: '16px', textAlign: 'center' as const }}>
-          BUTTON COMPONENT AUDIT · EDSPARK CODEBASE
+      <div style={{ background: '#0D1117', borderRadius: 12, padding: 22, border: '1px solid #21262D', boxShadow: '0 24px 64px rgba(0,0,0,0.4)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.14em', marginBottom: 4 }}>BUTTON COMPONENT AUDIT · EDSPARK CODEBASE</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>For each variant, decide: keep, merge into DS, or drop entirely.</div>
+          </div>
+          <button onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.5)', borderRadius: 4, padding: '3px 10px', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.08em' }}>reset</button>
         </div>
-        <AnimatePresence mode="wait">
-          {!consolidated ? (
-            <motion.div key="sprawl" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginBottom: '14px', textAlign: 'center' as const }}>
-                5 different primary button implementations across the platform
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '12px', justifyContent: 'center', marginBottom: '20px' }}>
-                {variants.map((v, i) => (
-                  <div key={i} style={{ textAlign: 'center' as const }}>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.25)', marginBottom: '6px' }}>{v.label}</div>
-                    <div style={{ background: v.bg, color: '#fff', borderRadius: v.radius, padding: v.padding, fontSize: v.size, fontWeight: v.weight, fontFamily: 'monospace', whiteSpace: 'nowrap' as const }}>
-                      Save Changes
-                    </div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.2)', marginTop: '5px' }}>
-                      r:{v.radius} / w:{v.weight}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(224,122,95,0.7)', marginBottom: '10px' }}>
-                  Every new feature adds another variant. Each one costs 2–4h dev time to maintain.
+
+        {/* Variants list */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 16 }}>
+          {variants.map(v => {
+            const a = actions[v.id];
+            const struck = a === 'drop' || a === 'merge';
+            return (
+              <div key={v.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ minWidth: 130 }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: 9, color: 'rgba(255,255,255,0.45)', marginBottom: 4 }}>{v.label}</div>
+                  <div style={{ background: v.bg, color: '#fff', borderRadius: v.radius, padding: v.padding, fontSize: v.size, fontWeight: v.weight, fontFamily: 'monospace', whiteSpace: 'nowrap' as const, display: 'inline-block', opacity: struck ? 0.45 : 1, textDecoration: a === 'drop' ? 'line-through' : 'none', transition: 'opacity 0.2s' }}>Save Changes</div>
                 </div>
-                <div
-                  onClick={() => setConsolidated(true)}
-                  style={{ display: 'inline-block', cursor: 'pointer', padding: '8px 20px', background: `rgba(${ACCENT_RGB},0.12)`, border: `1px solid rgba(${ACCENT_RGB},0.35)`, borderRadius: '6px', fontFamily: 'monospace', fontSize: '11px', color: ACCENT, fontWeight: 700 }}
-                >
-                  Consolidate with Design System →
+                <div style={{ flex: 1, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>r:{v.radius} · w:{v.weight} · p:{v.padding}</div>
+                <div style={{ display: 'flex', gap: 5 }}>
+                  <ActionPill v={v} a="keep"  label="KEEP"  color="#3A86FF" />
+                  <ActionPill v={v} a="merge" label="MERGE" color="#28C840" />
+                  <ActionPill v={v} a="drop"  label="DROP"  color="#E07A5F" />
                 </div>
               </div>
-            </motion.div>
-          ) : (
-            <motion.div key="consolidated" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-              <div style={{ fontFamily: 'monospace', fontSize: '10px', color: 'rgba(40,200,64,0.7)', marginBottom: '14px', textAlign: 'center' as const }}>
-                1 canonical component · shipped to all 5 surfaces
+            );
+          })}
+        </div>
+
+        {/* Canonical DS button preview */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 12px', background: 'rgba(40,200,64,0.06)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: 7, marginBottom: 16 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, color: '#28C840', letterSpacing: '0.12em' }}>DS v1.0 · Button.primary</div>
+          <div style={{ background: systemButton.bg, color: '#fff', borderRadius: systemButton.radius, padding: systemButton.padding, fontSize: systemButton.size, fontWeight: systemButton.weight, fontFamily: 'monospace' }}>Save Changes</div>
+          <div style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(40,200,64,0.7)' }}>← all <i>MERGE</i>d variants standardise on this</div>
+        </div>
+
+        {/* Cost panel + verdict */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ padding: '11px 14px', background: 'rgba(40,200,64,0.06)', border: '1px solid rgba(40,200,64,0.25)', borderRadius: 7 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(40,200,64,0.7)', letterSpacing: '0.12em', marginBottom: 6 }}>ANNUAL MAINT. COST</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 3 }}>
+              <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>baseline</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>${baselineCost.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+              <span style={{ fontFamily: 'monospace', fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>your decision</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, fontWeight: 800, color: savings > 0 ? '#28C840' : 'rgba(255,255,255,0.5)' }}>${newCost.toLocaleString()}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderTop: '1px solid rgba(40,200,64,0.20)', paddingTop: 5 }}>
+              <span style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(40,200,64,0.7)' }}>savings</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: savings > 0 ? '#34D399' : 'rgba(255,255,255,0.4)' }}>{savings > 0 ? `−$${savings.toLocaleString()}` : '—'}</span>
+            </div>
+          </div>
+          <div style={{ padding: '11px 14px', background: verdict === 'optimal' ? 'rgba(40,200,64,0.06)' : verdict === 'underMerged' ? 'rgba(251,191,36,0.06)' : verdict === 'okay' ? 'rgba(58,134,255,0.06)' : 'rgba(255,255,255,0.03)', border: `1px solid ${verdict === 'optimal' ? 'rgba(40,200,64,0.25)' : verdict === 'underMerged' ? 'rgba(251,191,36,0.25)' : verdict === 'okay' ? 'rgba(58,134,255,0.25)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 7 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', marginBottom: 6,
+              color: verdict === 'optimal' ? '#28C840' : verdict === 'underMerged' ? '#FBBF24' : verdict === 'okay' ? '#3A86FF' : 'rgba(255,255,255,0.4)' }}>
+              {verdict === 'pending' ? 'AWAITING DECISIONS' : verdict === 'optimal' ? '✓ OPTIMAL' : verdict === 'underMerged' ? '⚠ UNDER-MERGED' : 'OK · BUT…'}
+            </div>
+            <div style={{ fontFamily: 'monospace', fontSize: 10.5, color: 'rgba(255,255,255,0.65)', lineHeight: 1.55 }}>
+              {verdict === 'pending'      ? `${decidedCount}/5 variants decided. Tag each one.` :
+               verdict === 'optimal'      ? 'All 5 variants are mergeable (or droppable). Your decisions match the DS-review ground truth.' :
+               verdict === 'underMerged'  ? `${wrongKeeps} variant${wrongKeeps === 1 ? '' : 's'} kept that should merge — every "keep" costs $7,020/yr.` :
+               `${matchTruth}/5 match the ground-truth call. Review the variants you tagged differently.`}
+            </div>
+            {decidedCount > 0 && (
+              <div style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>
+                {keptCount}K · {mergeCount}M · {dropCount}D
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '0', flexWrap: 'wrap' as const, marginBottom: '20px', position: 'relative' }}>
-                {variants.map((_, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ x: (i - 2) * 60, opacity: 0.4 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: i * 0.06, duration: 0.3 }}
-                    style={{ position: i === 0 ? 'relative' : 'absolute', opacity: i === 0 ? 1 : 0 }}
-                  />
-                ))}
-                <div style={{ textAlign: 'center' as const }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px' }}>Button.primary (DS v1.0)</div>
-                  <div style={{ background: systemButton.bg, color: '#fff', borderRadius: systemButton.radius, padding: systemButton.padding, fontSize: systemButton.size, fontWeight: systemButton.weight, fontFamily: 'monospace' }}>
-                    Save Changes
-                  </div>
+            )}
+          </div>
+        </div>
+
+        {/* Show ground-truth rationale on full decision */}
+        {allDecided && (
+          <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.10)', borderRadius: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', marginBottom: 5 }}>GROUND TRUTH</div>
+            {variants.map(v => {
+              const a = actions[v.id];
+              const right = a === v.truth;
+              return (
+                <div key={v.id} style={{ display: 'flex', gap: 8, marginBottom: 3 }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: right ? '#28C840' : '#E07A5F', minWidth: 12 }}>{right ? '✓' : '✗'}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.5)', minWidth: 130 }}>{v.label}</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)', minWidth: 50 }}>truth: {v.truth.toUpperCase()}</span>
+                  <span style={{ fontFamily: 'monospace', fontSize: 10, color: 'rgba(255,255,255,0.45)', flex: 1, lineHeight: 1.45 }}>{v.why}</span>
                 </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-                {[
-                  { label: 'Files removed', value: '4', color: '#28C840' },
-                  { label: 'Maintenance cost', value: '−80%', color: '#28C840' },
-                  { label: 'Design reviews', value: '1 source', color: '#3A86FF' },
-                ].map(s => (
-                  <div key={s.label} style={{ textAlign: 'center' as const, padding: '10px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px' }}>
-                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '18px', fontWeight: 700, color: s.color }}>{s.value}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: '8px', color: 'rgba(255,255,255,0.35)', marginTop: '2px' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div
-                onClick={() => setConsolidated(false)}
-                style={{ textAlign: 'center' as const, cursor: 'pointer', fontFamily: 'monospace', fontSize: '9px', color: 'rgba(255,255,255,0.25)', textDecoration: 'underline' }}
-              >
-                ← see the sprawl again
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              );
+            })}
+          </div>
+        )}
       </div>
     </TiltCard>
   );
