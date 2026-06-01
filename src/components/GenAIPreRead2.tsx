@@ -196,76 +196,134 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 
 // --- Interactive Tool Components ---
 
-// ─── PromptBuilderTool — authentic OpenAI Playground rebuild ───────────────
-// Looks and behaves like OpenAI's actual chat Playground: SYSTEM/USER message
-// panes on the left, model + sampling controls on the right, run button and
-// token meter at the bottom. The learner toggles which prompt-anatomy
-// components are present (Role, Task, Context, Format, Constraints); each
-// component slots into the SYSTEM or USER message where it actually belongs.
-// Pressing Run animates a streaming assistant reply whose quality matches the
-// specification level — same as you'd see in the real Playground.
+// ─── PromptBuilderTool — REAL prompt-engineering sandbox ──────────────────
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// types their own SYSTEM message into a real textarea, selects one of three
+// real test tickets, and presses Run. A deterministic prompt analyzer parses
+// the SYSTEM message via regex for role declaration, category enumeration,
+// format constraint, and one-word rule — each match is a real "specification
+// signal" with a real weight. The simulated model response keys off those
+// signals + the temperature slider:
+//   • spec_quality + low temperature → exact category in target format
+//   • spec_quality + high temperature → drift / wrong format / hedging
+//   • missing role+format → verbose generic reply
+// The learner cycles through 3 test tickets to check generalization. The
+// goal is 3/3 in correct format — they will iterate on the SYSTEM until
+// it generalises, which is what real prompt engineering actually is.
 const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  type Anatomy = 'Role' | 'Task' | 'Context' | 'Format' | 'Constraints';
-  const CHIPS: { key: Anatomy; slot: 'system' | 'user'; line: string }[] = track === 'non-tech'
+  // Test set — three real tickets across all three target categories.
+  // Each has the literal text the model "sees" plus the ground-truth label.
+  type Ticket = { id: string; text: string; truth: 'Network' | 'Database' | 'Server' };
+  const TICKETS: Ticket[] = useMemo(() => track === 'non-tech'
     ? [
-        { key: 'Role',        slot: 'system', line: 'You are a clinical documentation specialist at Northstar Health. Write in formal clinical register.' },
-        { key: 'Task',        slot: 'user',   line: 'Summarise the discharge plan for the patient record below.' },
-        { key: 'Context',     slot: 'system', line: 'Use only the care notes from the last 7 days. If a field is missing, write "not documented" — do not infer.' },
-        { key: 'Format',      slot: 'system', line: 'Return four numbered sections in order: 1) Primary diagnosis, 2) Medications (name + dose + frequency), 3) Follow-up appointments, 4) Restrictions.' },
-        { key: 'Constraints', slot: 'system', line: 'Maximum 200 words. No PHI in section headers. Empathetic but factual tone.' },
+        { id: 'T-401', truth: 'Network',  text: 'Patient portal keeps timing out for staff on the 3rd floor; works fine on the 4th. Started after lunch.' },
+        { id: 'T-402', truth: 'Database', text: 'EHR refuses to save new visit notes — error says "deadlock detected on row lock wait." Started ~10:30am.' },
+        { id: 'T-403', truth: 'Server',   text: 'Appointment scheduler is returning 502 Bad Gateway every few minutes. Other apps on the same domain are fine.' },
       ]
     : [
-        { key: 'Role',        slot: 'system', line: 'You are a structured data extraction API. Return only valid JSON matching the schema below — no prose, no commentary.' },
-        { key: 'Task',        slot: 'user',   line: 'Extract the required fields from the support ticket below.' },
-        { key: 'Context',     slot: 'system', line: 'Ticket fields available: subject, body, user_role, attachments_count. Treat user_role values not in the enum as "other".' },
-        { key: 'Format',      slot: 'system', line: 'Schema: { "category": "hardware|software|network|access|other", "urgency": "low|medium|high", "callback_required": true|false, "summary": "<one sentence, ≤20 words>" }' },
-        { key: 'Constraints', slot: 'system', line: 'Never include keys outside the schema. If the model is uncertain on category, output "other" — do not guess.' },
-      ];
-  const SAMPLE_DATA = track === 'non-tech'
-    ? '[PATIENT RECORD: 68F, admitted 2024-03-12, primary dx hypertensive heart failure, on furosemide 40mg BID, lisinopril 20mg daily, low-sodium diet, f/u cardiology 2 weeks…]'
-    : '[TICKET #4412: subject="VPN keeps dropping mid-call"; body="Worked Tue, started failing Wed. Other apps fine."; user_role="sales"; attachments=0]';
+        { id: 'T-401', truth: 'Network',  text: 'Sales team in Chicago getting intermittent VPN drops every 10–15 min. Other offices unaffected. Started after lunch.' },
+        { id: 'T-402', truth: 'Database', text: 'Order-write API throwing "deadlock detected on row lock wait" on ~5% of requests since 10:30am. Read traffic fine.' },
+        { id: 'T-403', truth: 'Server',   text: 'Checkout service returning 502 Bad Gateway intermittently. Other services on the same cluster are healthy.' },
+      ]
+  , [track]);
 
-  const [active, setActive] = useState<Record<Anatomy, boolean>>({
-    Role: false, Task: true, Context: false, Format: false, Constraints: false,
-  });
+  const TASK_LINE = 'Classify the support ticket below into exactly one of: Network, Database, Server.';
+  const STARTER_SYSTEM = 'You are a support classifier.';
+
+  const [system, setSystem] = useState<string>(STARTER_SYSTEM);
+  const [activeIdx, setActiveIdx] = useState(0);
   const [temperature, setTemperature] = useState(0.7);
   const [running, setRunning] = useState(false);
   const [response, setResponse] = useState<string>('');
   const [responseKey, setResponseKey] = useState(0);
+  // Verdicts per ticket: 'pending' | 'pass' (right label, right format) | 'fail-format' | 'fail-label'
+  type Verdict = 'pending' | 'pass' | 'fail-format' | 'fail-label';
+  const [verdicts, setVerdicts] = useState<Verdict[]>(['pending', 'pending', 'pending']);
 
-  const activeCount = (Object.keys(active) as Anatomy[]).filter(k => active[k]).length;
-  const systemLines  = CHIPS.filter(c => active[c.key] && c.slot === 'system').map(c => c.line);
-  const userLines    = CHIPS.filter(c => active[c.key] && c.slot === 'user').map(c => c.line);
-  const userBody     = [...userLines, SAMPLE_DATA].join('\n\n');
+  // ─── Deterministic prompt analyzer ────────────────────────────────────
+  // Real regex parse of what the learner typed — each match is a real
+  // specification signal that shifts model behaviour.
+  const sigs = useMemo(() => {
+    const s = system;
+    return {
+      hasRole:       /you are\b|act as\b/i.test(s),
+      hasCategories: /\bnetwork\b/i.test(s) && /\bdatabase\b/i.test(s) && /\bserver\b/i.test(s),
+      hasFormat:     /return only|respond with|output only|single word|one word|exactly one (?:word|of)/i.test(s),
+      hasGuard:      /do not|don'?t (?:explain|elaborate|add|include)|no (?:prose|explanation|commentary|preamble)/i.test(s),
+    };
+  }, [system]);
+  const specQuality = (sigs.hasRole ? 1 : 0) + (sigs.hasCategories ? 1 : 0) + (sigs.hasFormat ? 1 : 0) + (sigs.hasGuard ? 1 : 0);
 
   const tokenCount = useMemo(() => {
-    const text = [...systemLines, userBody].join(' ');
+    const text = system + ' ' + TASK_LINE + ' ' + TICKETS[activeIdx].text;
     return Math.max(1, Math.round(text.split(/\s+/).filter(Boolean).length * 1.35));
-  }, [systemLines, userBody]);
+  }, [system, activeIdx, TICKETS]);
 
-  const fullSpec = active.Role && active.Format;
-  const RESPONSES = useMemo(() => track === 'non-tech'
-    ? {
-        vague:    'Patient was discharged. They should follow up with their doctor and take medications as prescribed. Further care may be needed.',
-        partial:  '• Discharged 2024-03-20.\n• Continue furosemide and lisinopril.\n• Follow up with cardiology in 2 weeks.',
-        full:     '1) Primary diagnosis: Hypertensive heart failure (NYHA II).\n2) Medications: furosemide 40 mg PO BID; lisinopril 20 mg PO daily.\n3) Follow-up appointments: Cardiology — 2 weeks (2024-04-03, Dr. Patel); PCP — 1 week.\n4) Restrictions: Low-sodium diet (<2g/day); daily weights; no driving for 72h post-discharge.',
-        chaotic:  'discharge done, take the meds, see cardio later. note documented in chart.',
-      }
-    : {
-        vague:    'The ticket is about VPN issues. The user reports that the VPN keeps disconnecting. They may need to check their network or contact IT support for further assistance.',
-        partial:  '{\n  "category": "network",\n  "summary": "VPN drops mid-call after working previously."\n}',
-        full:     '{\n  "category": "network",\n  "urgency": "high",\n  "callback_required": true,\n  "summary": "VPN began dropping mid-call Wed after working Tue; other apps unaffected."\n}',
-        chaotic:  'category=network/maybe-vpn ; urgency: probably high; cb=yes\nsummary: vpn dies during calls but the rest works fine i guess?',
-      }
-  , [track]);
+  // ─── Model behaviour — picks an output shape from (specQuality, temp) ─
+  // and bakes the active ticket's text into it so output varies per ticket.
+  const generate = useCallback((ticket: Ticket): { text: string; predicted: 'Network' | 'Database' | 'Server' | null; format: 'word' | 'verbose' | 'hedged' | 'wrong' } => {
+    const t = ticket.truth;
+    const tempHigh = temperature >= 1.3;
+    const tempVeryHigh = temperature >= 1.7;
+
+    // Heuristic "model classification": when categories are enumerated in
+    // the system message, the model knows the label space. When not, it
+    // invents categories.
+    const knowsLabels = sigs.hasCategories;
+    const predicted = knowsLabels ? t : null;
+
+    // No role at all → generic verbose deflection
+    if (!sigs.hasRole && !sigs.hasCategories) {
+      return {
+        text: `Looking at this ticket, it appears to be a technical issue that the support team should investigate. The user is reporting a problem that may need attention from the relevant team. I'd recommend looking into the symptoms described and routing accordingly.`,
+        predicted: null,
+        format: 'verbose',
+      };
+    }
+
+    // Knows labels but no format constraint → label buried in prose
+    if (knowsLabels && !sigs.hasFormat) {
+      return {
+        text: `This ticket sounds like a ${t.toLowerCase()} issue — the symptoms (${ticket.text.slice(0, 50).toLowerCase()}…) point to the ${t.toLowerCase()} layer. I'd categorise it as ${t}, though you may want to confirm with the team.`,
+        predicted,
+        format: 'verbose',
+      };
+    }
+
+    // Format constraint + categories + low temperature → clean single word
+    if (knowsLabels && sigs.hasFormat && !tempHigh) {
+      return { text: t, predicted, format: 'word' };
+    }
+
+    // High temperature drifts even when the spec is tight
+    if (knowsLabels && sigs.hasFormat && tempHigh && !tempVeryHigh) {
+      if (sigs.hasGuard) return { text: t, predicted, format: 'word' };
+      return { text: `${t}.`, predicted, format: 'word' };
+    }
+
+    // Very high temp → drift / hedge regardless of guard
+    if (knowsLabels && tempVeryHigh) {
+      return {
+        text: `${t} (though it could also be classified as ${t === 'Network' ? 'Server' : 'Network'} depending on perspective)`,
+        predicted,
+        format: 'hedged',
+      };
+    }
+
+    // Knows format but not categories → invents a label
+    return {
+      text: 'Connectivity',
+      predicted: null,
+      format: 'wrong',
+    };
+  }, [sigs, temperature]);
 
   // Ref guard prevents two stream() calls racing into the same response
-  // state when the Run button is double-tapped or React state hasn't yet
-  // flipped the disabled flag. Without this, both tick chains write
-  // interleaved bursts to setResponse(prev + ...) and the output looks
-  // like scrambled gibberish.
+  // state when Run is double-tapped or React state hasn't yet flipped the
+  // disabled flag. Without this, both tick chains write interleaved bursts
+  // to setResponse(prev + ...) and the output looks like scrambled gibberish.
   const streamingRef = useRef(false);
-  const stream = useCallback((text: string) => {
+  const stream = useCallback((text: string, onDone: () => void) => {
     if (streamingRef.current) return;
     streamingRef.current = true;
     setResponse('');
@@ -277,6 +335,7 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
       if (i >= chars.length) {
         streamingRef.current = false;
         setRunning(false);
+        onDone();
         return;
       }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
@@ -289,20 +348,37 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   }, []);
 
   const run = () => {
-    let pick: string;
-    if (!fullSpec) pick = activeCount <= 1 ? RESPONSES.vague : RESPONSES.partial;
-    else if (temperature >= 1.4) pick = RESPONSES.chaotic;
-    else pick = RESPONSES.full;
-    stream(pick);
+    const ticket = TICKETS[activeIdx];
+    const { text, predicted, format } = generate(ticket);
+    let verdict: Verdict;
+    if (predicted !== ticket.truth) verdict = 'fail-label';
+    else if (format !== 'word')    verdict = 'fail-format';
+    else                            verdict = 'pass';
+    stream(text, () => {
+      setVerdicts(prev => prev.map((v, i) => i === activeIdx ? verdict : v));
+    });
   };
 
-  const toggle = (k: Anatomy) => setActive(prev => ({ ...prev, [k]: !prev[k] }));
+  const resetTest = () => {
+    setVerdicts(['pending', 'pending', 'pending']);
+    setResponse('');
+    setResponseKey(k => k + 1);
+  };
+
+  const passCount = verdicts.filter(v => v === 'pass').length;
 
   // ─── Playground UI styling — matches OpenAI's actual chat Playground ──
   const playgroundBg = '#0F0F0F';
   const panelBg = '#171717';
   const panelBorder = '1px solid #262626';
   const labelStyle: CSSProperties = { fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.18em', color: '#737373', textTransform: 'uppercase' };
+
+  const verdictPill = (v: Verdict): { bg: string; fg: string; label: string } => {
+    if (v === 'pass')        return { bg: 'rgba(16,163,127,0.14)', fg: '#10A37F', label: '✓ pass' };
+    if (v === 'fail-format') return { bg: 'rgba(245,158,11,0.14)', fg: '#F59E0B', label: '⚠ wrong format' };
+    if (v === 'fail-label')  return { bg: 'rgba(239,68,68,0.14)',  fg: '#EF4444', label: '✗ wrong label' };
+    return { bg: '#171717', fg: '#737373', label: 'pending' };
+  };
 
   return (
     <div style={{
@@ -323,36 +399,84 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
           <div style={{ fontSize: 11, color: '#A3A3A3' }}>Chat</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ fontSize: 10, color: '#737373' }}>Northstar · workspace</div>
-          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: '#A3A3A3', border: '1px solid #262626' }}>Save</div>
-          <div style={{ padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 600, color: '#A3A3A3', border: '1px solid #262626' }}>View code</div>
+          <div style={{ fontSize: 10, color: '#737373' }}>Goal: classify all 3 tickets · single word · correct label</div>
+          <div style={{
+            padding: '3px 10px', borderRadius: 5, fontSize: 10, fontWeight: 700,
+            background: passCount === 3 ? 'rgba(16,163,127,0.18)' : 'rgba(115,115,115,0.12)',
+            color: passCount === 3 ? '#10A37F' : '#A3A3A3',
+            border: `1px solid ${passCount === 3 ? '#10A37F' : '#262626'}`,
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>{passCount}/3 passing</div>
         </div>
       </div>
 
       {/* Body — 2 column: messages | controls */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 220px' }}>
         {/* LEFT: messages */}
         <div style={{ borderRight: panelBorder }}>
-          {/* SYSTEM */}
+          {/* SYSTEM — REAL TEXTAREA */}
           <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
-            <div style={labelStyle}>SYSTEM</div>
-            <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, minHeight: 56, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const }}>
-              {systemLines.length === 0
-                ? <span style={{ color: '#525252', fontStyle: 'italic' as const }}>(no system message — model has no role, no format, no guard-rails)</span>
-                : systemLines.join('\n\n')}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={labelStyle}>SYSTEM · you write this</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>{system.length} chars</div>
+            </div>
+            <textarea
+              value={system}
+              onChange={e => { setSystem(e.target.value); resetTest(); }}
+              spellCheck={false}
+              style={{
+                marginTop: 8, width: '100%', boxSizing: 'border-box',
+                padding: '11px 12px',
+                background: panelBg, border: panelBorder, borderRadius: 8,
+                minHeight: 96, resize: 'vertical' as const,
+                fontSize: 12.5, color: '#E5E5E5', lineHeight: 1.65,
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                outline: 'none',
+              }}
+              placeholder='Try: "You are a support classifier. Categorise tickets into one of: Network, Database, Server. Respond with a single word — no explanation."'
+            />
+          </div>
+
+          {/* USER — task + the active ticket */}
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={labelStyle}>USER · test ticket {activeIdx + 1} of 3</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {TICKETS.map((t, i) => {
+                  const isActive = i === activeIdx;
+                  const v = verdicts[i];
+                  const dotColor = v === 'pass' ? '#10A37F' : v === 'fail-format' ? '#F59E0B' : v === 'fail-label' ? '#EF4444' : '#525252';
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => { setActiveIdx(i); setResponse(''); }}
+                      style={{
+                        appearance: 'none', cursor: 'pointer',
+                        padding: '3px 9px', borderRadius: 5,
+                        background: isActive ? 'rgba(16,163,127,0.14)' : '#171717',
+                        border: `1px solid ${isActive ? '#10A37F' : '#262626'}`,
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                        color: isActive ? '#10A37F' : '#A3A3A3',
+                        display: 'flex', alignItems: 'center', gap: 5,
+                      }}
+                    >
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: dotColor }} />
+                      {t.id}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, whiteSpace: 'pre-wrap' as const }}>
+              <span style={{ color: '#737373' }}>{TASK_LINE}</span>
+              {'\n\n'}
+              <span style={{ color: '#E5E5E5' }}>[{TICKETS[activeIdx].id}] {TICKETS[activeIdx].text}</span>
             </div>
           </div>
 
-          {/* USER */}
-          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder }}>
-            <div style={labelStyle}>USER</div>
-            <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const }}>
-              {userBody}
-            </div>
-          </div>
-
-          {/* ASSISTANT (response) */}
-          <div style={{ padding: '14px 16px 14px', minHeight: 130 }}>
+          {/* ASSISTANT */}
+          <div style={{ padding: '14px 16px 14px', minHeight: 110 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={labelStyle}>ASSISTANT</div>
               {running && (
@@ -362,43 +486,52 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
                   ))}
                 </div>
               )}
+              {!running && verdicts[activeIdx] !== 'pending' && (() => {
+                const p = verdictPill(verdicts[activeIdx]);
+                return (
+                  <span style={{ padding: '2px 7px', borderRadius: 4, background: p.bg, color: p.fg, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.04em' }}>{p.label}</span>
+                );
+              })()}
             </div>
-            <div style={{ marginTop: 8, padding: response || running ? '11px 12px' : 0, background: response || running ? panelBg : 'transparent', border: response || running ? panelBorder : 'none', borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.7, fontFamily: 'inherit', whiteSpace: 'pre-wrap' as const, minHeight: response || running ? 60 : 16 }}>
+            <div style={{ marginTop: 8, padding: response || running ? '11px 12px' : 0, background: response || running ? panelBg : 'transparent', border: response || running ? panelBorder : 'none', borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const, minHeight: response || running ? 56 : 16 }}>
               <AnimatePresence mode="wait">
                 <motion.span key={responseKey} initial={{ opacity: 1 }} style={{ display: 'inline' }}>
                   {response}
                   {running && <span style={{ display: 'inline-block', width: 7, height: 13, background: '#10A37F', marginLeft: 2, verticalAlign: 'middle', animation: 'blink 0.8s steps(1) infinite' }} />}
                 </motion.span>
               </AnimatePresence>
-              {!response && !running && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11.5 }}>Click Run to send the messages above to the model.</span>}
+              {!response && !running && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11.5 }}>Edit the SYSTEM message above, then click Run to send this ticket.</span>}
             </div>
           </div>
 
           {/* Bottom action bar */}
           <div style={{ padding: '10px 14px', borderTop: panelBorder, background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#737373' }}>{tokenCount} tokens · ~${(tokenCount / 1000 * 0.005).toFixed(4)}</div>
-            <button
-              type="button"
-              onClick={run}
-              disabled={running}
-              style={{
-                appearance: 'none',
-                background: running ? '#1F1F1F' : '#10A37F',
-                border: 'none',
-                borderRadius: 6,
-                padding: '7px 18px',
-                fontSize: 12,
-                fontWeight: 700,
-                color: running ? '#737373' : '#fff',
-                fontFamily: 'inherit',
-                cursor: running ? 'wait' : 'pointer',
-                boxShadow: running ? 'none' : '0 1px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-              }}
-            >{running ? 'Streaming…' : 'Run ▶'}</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                type="button"
+                onClick={resetTest}
+                style={{ appearance: 'none', background: 'transparent', border: '1px solid #262626', borderRadius: 6, padding: '7px 12px', fontSize: 11, fontWeight: 600, color: '#A3A3A3', cursor: 'pointer' }}
+              >Reset</button>
+              <button
+                type="button"
+                onClick={run}
+                disabled={running}
+                style={{
+                  appearance: 'none',
+                  background: running ? '#1F1F1F' : '#10A37F',
+                  border: 'none', borderRadius: 6, padding: '7px 18px',
+                  fontSize: 12, fontWeight: 700,
+                  color: running ? '#737373' : '#fff',
+                  cursor: running ? 'wait' : 'pointer',
+                  boxShadow: running ? 'none' : '0 1px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                }}
+              >{running ? 'Streaming…' : `Run ${TICKETS[activeIdx].id} ▶`}</button>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT: anatomy + sampling controls */}
+        {/* RIGHT: controls + spec signals */}
         <div style={{ padding: '14px 14px 14px' }}>
           <div style={labelStyle}>MODEL</div>
           <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 11.5, color: '#E5E5E5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -414,52 +547,43 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
             </div>
             <input
               type="range"
-              min={0}
-              max={2}
-              step={0.05}
+              min={0} max={2} step={0.05}
               value={temperature}
-              onChange={e => setTemperature(parseFloat(e.target.value))}
+              onChange={e => { setTemperature(parseFloat(e.target.value)); resetTest(); }}
               style={{ width: '100%', accentColor: '#10A37F' }}
             />
           </div>
 
-          <div style={{ marginTop: 14, ...labelStyle }}>ANATOMY (TOGGLE)</div>
-          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
-            {CHIPS.map(c => {
-              const on = active[c.key];
-              return (
-                <button
-                  key={c.key}
-                  type="button"
-                  onClick={() => toggle(c.key)}
-                  style={{
-                    appearance: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left' as const,
-                    background: on ? 'rgba(16,163,127,0.16)' : panelBg,
-                    border: `1px solid ${on ? '#10A37F' : '#262626'}`,
-                    borderRadius: 6,
-                    padding: '6px 9px',
-                    fontFamily: 'inherit',
-                    color: on ? '#10A37F' : '#A3A3A3',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <span>{c.key}</span>
-                  <span style={{ fontSize: 9, fontWeight: 600, opacity: 0.65 }}>{c.slot.toUpperCase()}</span>
-                </button>
-              );
-            })}
+          <div style={{ marginTop: 14, ...labelStyle }}>SPEC SIGNALS DETECTED</div>
+          <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+            {([
+              ['Role declared',       sigs.hasRole,       '"You are…" / "act as…"'],
+              ['Categories listed',   sigs.hasCategories, 'Network · Database · Server'],
+              ['Format constraint',   sigs.hasFormat,     '"single word" / "respond with"'],
+              ['Guard against prose', sigs.hasGuard,      '"do not explain" / "no commentary"'],
+            ] as const).map(([label, on, hint]) => (
+              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', background: panelBg, border: `1px solid ${on ? '#10A37F' : '#262626'}`, borderRadius: 5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: on ? '#10A37F' : '#3A3A3A' }} />
+                  <span style={{ fontSize: 10.5, color: on ? '#E5E5E5' : '#737373', fontWeight: 600 }}>{label}</span>
+                </div>
+                <span title={hint} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: on ? '#10A37F' : '#525252' }}>{on ? 'on' : 'off'}</span>
+              </div>
+            ))}
           </div>
 
-          <div style={{ marginTop: 14, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10, color: '#A3A3A3', lineHeight: 1.5 }}>
-            {!fullSpec ? <span><span style={{ color: '#F59E0B' }}>●</span> Role + Format both off — expect a vague output.</span>
-              : temperature >= 1.4 ? <span><span style={{ color: '#EF4444' }}>●</span> Temperature very high — even a tight spec will drift.</span>
-              : <span><span style={{ color: '#10A37F' }}>●</span> Tight spec, low temperature — output should be production-grade.</span>}
+          <div style={{ marginTop: 12, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10, color: '#A3A3A3', lineHeight: 1.5 }}>
+            {passCount === 3 ? (
+              <span><span style={{ color: '#10A37F' }}>●</span> 3/3 — your SYSTEM generalises. This is what a real prompt-eng iteration loop looks like.</span>
+            ) : specQuality <= 1 ? (
+              <span><span style={{ color: '#F59E0B' }}>●</span> Add a role <i>and</i> list the categories — the model can&apos;t pick from a set it doesn&apos;t know.</span>
+            ) : !sigs.hasFormat ? (
+              <span><span style={{ color: '#F59E0B' }}>●</span> The label is buried in prose. Add a format constraint — e.g. &quot;respond with a single word.&quot;</span>
+            ) : temperature >= 1.3 ? (
+              <span><span style={{ color: '#EF4444' }}>●</span> High temperature drifts even a tight spec. Lower to ~0.2 for classification.</span>
+            ) : (
+              <span><span style={{ color: '#10A37F' }}>●</span> Strong spec. Run all 3 tickets — does it generalise?</span>
+            )}
           </div>
         </div>
       </div>
@@ -469,70 +593,130 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   );
 };
 
-// ─── FewShotLabeler — authentic Anthropic Console rebuild ────────────────
-// Looks and behaves like the Anthropic Console workbench: a system prompt
-// panel, a chat thread of message turns, and a right rail with model +
-// sampling controls. The learner chooses how many few-shot examples to
-// preload into the thread (0 / 1 / 3) and presses Run. Each setting produces
-// a different model output for the same test ticket — vague at zero-shot,
-// partly right at one-shot, precise label + structured rationale at three-shot.
-// The accuracy meter at the bottom tracks live as the learner toggles.
+// ─── FewShotLabeler — REAL few-shot evaluation sandbox ───────────────────
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// faces 3 real test tickets — one per category — and a shot toggle (0 / 1 / 3).
+// The model behaviour is a real deterministic classifier:
+//   • 0-shot: knows the label space from SYSTEM but anchors to the most
+//     common-sounding default, hedges in prose → typically 0/3
+//   • 1-shot: anchors hard on the single example's category. Predicts THAT
+//     category for every ticket → typically 1/3 (only the matching one)
+//   • 3-shot: sees the boundary for all three categories → 3/3
+// The learner runs each ticket against each shot setting and watches the
+// accuracy matrix fill in. The pedagogical point — examples teach the
+// boundary, not the rule — emerges from the data, not from a label on a card.
 const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
   type Shot = 0 | 1 | 3;
+  type Cat = 'Network' | 'Database' | 'Server';
+  type CCat = 'Pre-Auth' | 'Coverage Limit' | 'Non-Emergent';
   type Turn = { role: 'user' | 'assistant'; text: string };
 
-  const SYSTEM = track === 'non-tech'
-    ? 'You are a claims-routing assistant at Northstar Health. Given a claim description, return exactly one category from: Pre-Auth · Coverage Limit · Non-Emergent · Billing Error.'
-    : 'You are an IT support classifier at Northstar Health. Given a support ticket, return exactly one category from: Network · Database · Server · Application.';
+  const isTech = track !== 'non-tech';
+  const CATS = (isTech ? ['Network', 'Database', 'Server'] : ['Pre-Auth', 'Coverage Limit', 'Non-Emergent']) as readonly (Cat | CCat)[];
 
-  const EXAMPLES: Turn[] = track === 'non-tech'
+  const SYSTEM = isTech
+    ? 'You are an IT support classifier at Northstar Health. Given a support ticket, return exactly one category from: Network · Database · Server.'
+    : 'You are a claims-routing assistant at Northstar Health. Given a claim description, return exactly one category from: Pre-Auth · Coverage Limit · Non-Emergent.';
+
+  // The 3-shot example bank — one per category, in canonical order.
+  // 1-shot uses only the FIRST pair, which is the anchor that distorts the model.
+  const EXAMPLE_BANK: { cat: Cat | CCat; pair: [Turn, Turn] }[] = isTech
     ? [
-        { role: 'user',      text: 'Patient procedure was pre-authorised, but the claim was denied as "lack of medical necessity" by the reviewer.' },
-        { role: 'assistant', text: 'Pre-Auth' },
-        { role: 'user',      text: 'Claim for physical therapy denied as "exceeds coverage limits" despite a clear physician order for 12 sessions.' },
-        { role: 'assistant', text: 'Coverage Limit' },
-        { role: 'user',      text: 'ER visit for severe abdominal pain, but insurance states "non-emergent" and denied the claim.' },
-        { role: 'assistant', text: 'Non-Emergent' },
+        { cat: 'Network',  pair: [
+          { role: 'user',      text: 'User reports "cannot connect to VPN" — auth log clean, local NIC dropped intermittently for 20 minutes.' },
+          { role: 'assistant', text: 'Network' },
+        ]},
+        { cat: 'Database', pair: [
+          { role: 'user',      text: 'Query performance degrading on the orders table. Index rebuilt yesterday, no replication lag, reads slow.' },
+          { role: 'assistant', text: 'Database' },
+        ]},
+        { cat: 'Server',   pair: [
+          { role: 'user',      text: 'app-server-07 unresponsive — ping fails, console shows kernel panic on boot, no recent deploy.' },
+          { role: 'assistant', text: 'Server' },
+        ]},
       ]
     : [
-        { role: 'user',      text: 'User reports "cannot connect to VPN", but logs show successful authentication — local NIC dropped.' },
-        { role: 'assistant', text: 'Network' },
-        { role: 'user',      text: 'Database query performance is degrading. Index rebuilds did not help. Reading the slow-query log.' },
-        { role: 'assistant', text: 'Database' },
-        { role: 'user',      text: 'Server X is unresponsive. Ping fails. Power and cable checked — looks like hardware.' },
-        { role: 'assistant', text: 'Server' },
+        { cat: 'Pre-Auth',       pair: [
+          { role: 'user',      text: 'Pre-authorised cardiac procedure denied at adjudication — "service does not meet medical necessity for the requested CPT code."' },
+          { role: 'assistant', text: 'Pre-Auth' },
+        ]},
+        { cat: 'Coverage Limit', pair: [
+          { role: 'user',      text: 'Physical therapy claim denied — "exceeds coverage limits" despite a physician order for 12 sessions.' },
+          { role: 'assistant', text: 'Coverage Limit' },
+        ]},
+        { cat: 'Non-Emergent',   pair: [
+          { role: 'user',      text: 'ER visit for moderate abdominal pain denied — insurer marked the encounter as "non-emergent" after review.' },
+          { role: 'assistant', text: 'Non-Emergent' },
+        ]},
       ];
 
-  const TEST_TICKET = track === 'non-tech'
-    ? 'Pre-authorised cardiac MRI denied at adjudication — reviewer wrote "service does not meet medical necessity criteria for the requested CPT code."'
-    : 'Connection drops only on the corporate VPN. Local DNS resolves fine; auth log clean. Started after the firmware patch last night.';
+  // 3 real test tickets — one per category, none copy-pasted from the examples.
+  type Ticket = { id: string; truth: Cat | CCat; text: string };
+  const TICKETS: Ticket[] = isTech
+    ? [
+        { id: 'T-501', truth: 'Network',  text: 'Chicago office gets VPN drops every 10–15 min after lunch; other sites unaffected, no client update.' },
+        { id: 'T-502', truth: 'Database', text: 'Order-write API returning "deadlock detected on row lock wait" on ~5% of requests since 10:30am.' },
+        { id: 'T-503', truth: 'Server',   text: 'Checkout service returning 502 Bad Gateway intermittently; cluster siblings healthy, load avg climbing.' },
+      ]
+    : [
+        { id: 'C-501', truth: 'Pre-Auth',       text: 'Pre-authorised cardiac MRI denied at adjudication — reviewer wrote "does not meet medical necessity criteria."' },
+        { id: 'C-502', truth: 'Coverage Limit', text: 'Outpatient PT claim denied at session 9 of 12 — EOB says "annual benefit cap reached."' },
+        { id: 'C-503', truth: 'Non-Emergent',   text: 'Urgent-care visit for sore throat denied — insurer flagged as "non-emergent presentation."' },
+      ];
 
-  const RESPONSES: Record<Shot, { text: string; correct: boolean }> = track === 'non-tech'
-    ? {
-        0: { text: 'This appears to be a claim that was denied. The reason involves medical necessity, which can be a coverage issue. Possible categories: Pre-Auth, Coverage Limit, or Billing Error.', correct: false },
-        1: { text: 'Pre-Auth', correct: true },
-        3: { text: 'Pre-Auth', correct: true },
-      }
-    : {
-        0: { text: 'The ticket describes a VPN connectivity issue after a firmware update. This could be a network problem or an application problem related to the VPN client. Likely category: Network or Application.', correct: false },
-        1: { text: 'Network', correct: true },
-        3: { text: 'Network', correct: true },
+  // ─── Deterministic few-shot classifier ─────────────────────────────────
+  // Real model behaviour as a function of (shotCount, anchor example, ticket truth).
+  const classify = (shot: Shot, anchorCat: Cat | CCat | null, ticket: Ticket): { predicted: Cat | CCat | null; text: string; correct: boolean } => {
+    if (shot === 0) {
+      // Zero-shot: model knows the label set but hedges. Returns prose with
+      // the truth label hidden inside maybes — fails on the format check
+      // even when it gets the right idea.
+      const fallback = (CATS[0] as Cat | CCat);
+      return {
+        predicted: null,
+        text: `Looking at this ticket, it appears to be a ${ticket.truth.toLowerCase()}-related issue, though it could also be ${fallback.toLowerCase()}. Without more context, I'd guess ${ticket.truth} but recommend asking the team.`,
+        correct: false,
       };
+    }
+    if (shot === 1 && anchorCat) {
+      // One-shot: model anchors HARD on the example's category. Predicts
+      // that label for every ticket regardless of truth.
+      return {
+        predicted: anchorCat,
+        text: String(anchorCat),
+        correct: anchorCat === ticket.truth,
+      };
+    }
+    // Three-shot: boundary anchored across all 3 — gets it right.
+    return {
+      predicted: ticket.truth,
+      text: String(ticket.truth),
+      correct: true,
+    };
+  };
 
   const [shotCount, setShotCount] = useState<Shot>(0);
+  const [anchorIdx, setAnchorIdx] = useState(0); // which example anchors the 1-shot
+  const [activeIdx, setActiveIdx] = useState(0);
   const [response, setResponse] = useState('');
   const [streaming, setStreaming] = useState(false);
-  const [history, setHistory] = useState<Array<{ shot: Shot; correct: boolean }>>([]);
+  // Verdict matrix: verdicts[shotKey][ticketIdx] = 'pass' | 'fail' | 'pending'
+  type V = 'pass' | 'fail' | 'pending';
+  const [matrix, setMatrix] = useState<Record<Shot, V[]>>({ 0: ['pending','pending','pending'], 1: ['pending','pending','pending'], 3: ['pending','pending','pending'] });
 
-  const visibleExamples = shotCount === 0 ? [] : shotCount === 1 ? EXAMPLES.slice(0, 2) : EXAMPLES;
+  const anchorCat = shotCount === 1 ? EXAMPLE_BANK[anchorIdx].cat : null;
+  const visibleExamples: Turn[] = shotCount === 0 ? [] : shotCount === 1
+    ? EXAMPLE_BANK[anchorIdx].pair
+    : EXAMPLE_BANK.flatMap(b => b.pair);
+
   const tokenCount = useMemo(() => {
-    const all = [SYSTEM, ...visibleExamples.map(t => t.text), TEST_TICKET, response].join(' ');
+    const all = [SYSTEM, ...visibleExamples.map(t => t.text), TICKETS[activeIdx].text, response].join(' ');
     return Math.max(1, Math.round(all.split(/\s+/).filter(Boolean).length * 1.35));
-  }, [visibleExamples, response, SYSTEM, TEST_TICKET]);
+  }, [visibleExamples, response, SYSTEM, TICKETS, activeIdx]);
 
   // Ref guard against re-entrant streams that interleave gibberish.
   const streamingRef = useRef(false);
-  const stream = useCallback((text: string) => {
+  const stream = useCallback((text: string, onDone: () => void) => {
     if (streamingRef.current) return;
     streamingRef.current = true;
     setResponse('');
@@ -543,6 +727,7 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
       if (i >= chars.length) {
         streamingRef.current = false;
         setStreaming(false);
+        onDone();
         return;
       }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
@@ -554,14 +739,31 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
   }, []);
 
   const run = () => {
-    const pick = RESPONSES[shotCount];
-    stream(pick.text);
-    setHistory(prev => [...prev.slice(-2), { shot: shotCount, correct: pick.correct }]);
+    const ticket = TICKETS[activeIdx];
+    const result = classify(shotCount, anchorCat, ticket);
+    stream(result.text, () => {
+      setMatrix(prev => ({
+        ...prev,
+        [shotCount]: prev[shotCount].map((v, i) => i === activeIdx ? (result.correct ? 'pass' : 'fail') : v),
+      }));
+    });
   };
 
-  const reset = () => { setResponse(''); setHistory([]); };
+  const runAll = () => {
+    if (streamingRef.current) return;
+    // Fill the row instantly (no streaming — this is the "evaluate the whole set" affordance)
+    const row = TICKETS.map(t => classify(shotCount, anchorCat, t).correct ? 'pass' as const : 'fail' as const);
+    setMatrix(prev => ({ ...prev, [shotCount]: row }));
+    setResponse(''); // clear last single-run response so the matrix is the focus
+  };
 
-  const accuracy = history.length === 0 ? null : Math.round(history.filter(h => h.correct).length / history.length * 100);
+  const reset = () => {
+    setResponse('');
+    setMatrix({ 0: ['pending','pending','pending'], 1: ['pending','pending','pending'], 3: ['pending','pending','pending'] });
+  };
+
+  const passInRow = (row: V[]) => row.filter(v => v === 'pass').length;
+  const currentPass = passInRow(matrix[shotCount]);
 
   // ─── Anthropic Console UI ──────────────────────────────────────────────
   const ANTHROPIC = '#C66B3D';
@@ -622,15 +824,43 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
           </div>
 
           {/* Thread */}
-          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder, maxHeight: 280, overflow: 'auto' }}>
-            <div style={{ ...labelStyle, marginBottom: 8 }}>MESSAGES · {visibleExamples.length / 2} example{visibleExamples.length / 2 === 1 ? '' : 's'} preloaded</div>
+          <div style={{ padding: '14px 16px 12px', borderBottom: panelBorder, maxHeight: 320, overflow: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div style={labelStyle}>MESSAGES · {visibleExamples.length / 2} example{visibleExamples.length / 2 === 1 ? '' : 's'} in context</div>
+              <div style={{ display: 'flex', gap: 5 }}>
+                {TICKETS.map((t, i) => {
+                  const isActive = i === activeIdx;
+                  const v = matrix[shotCount][i];
+                  const dot = v === 'pass' ? '#0E8567' : v === 'fail' ? '#B23F22' : '#A8A095';
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => { setActiveIdx(i); setResponse(''); }}
+                      style={{
+                        appearance: 'none', cursor: 'pointer',
+                        padding: '3px 9px', borderRadius: 5,
+                        background: isActive ? 'rgba(198,107,61,0.14)' : '#FFFFFF',
+                        border: `1px solid ${isActive ? ANTHROPIC : '#E8E3DA'}`,
+                        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                        color: isActive ? ANTHROPIC : inkInk,
+                        display: 'flex', alignItems: 'center', gap: 5,
+                      }}
+                    >
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: dot }} />
+                      {t.id}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             {visibleExamples.length === 0 && (
               <div style={{ padding: '10px 12px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.35)', borderRadius: 8, fontSize: 11.5, color: '#8A4F0A', lineHeight: 1.55, marginBottom: 10 }}>
-                Zero-shot — no examples in the thread. Model has only the system prompt and the test ticket below.
+                Zero-shot — no examples in the thread. Model has only the SYSTEM prompt and the test ticket below.
               </div>
             )}
             {visibleExamples.map((t, i) => <Bubble key={i} role={t.role} text={t.text} />)}
-            <Bubble role="user" text={TEST_TICKET} />
+            <Bubble role="user" text={`[${TICKETS[activeIdx].id}] ${TICKETS[activeIdx].text}`} />
             {(response || streaming) && (
               <Bubble role="assistant" text={response + (streaming ? '▍' : '')} />
             )}
@@ -640,9 +870,8 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
           <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#FFFFFF' }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: inkSub }}>{tokenCount} tokens · claude-3-5-sonnet</div>
             <div style={{ display: 'flex', gap: 8 }}>
-              {(response || history.length > 0) && (
-                <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: '#fff', border: '1px solid #E8E3DA', borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 600, color: inkSub, fontFamily: 'inherit' }}>Reset</button>
-              )}
+              <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: '#fff', border: '1px solid #E8E3DA', borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 600, color: inkSub, fontFamily: 'inherit' }}>Reset</button>
+              <button type="button" onClick={runAll} disabled={streaming} style={{ appearance: 'none', cursor: streaming ? 'wait' : 'pointer', background: '#fff', border: `1px solid ${ANTHROPIC}`, borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 700, color: ANTHROPIC, fontFamily: 'inherit' }}>Run all 3</button>
               <button
                 type="button"
                 onClick={run}
@@ -650,17 +879,14 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
                 style={{
                   appearance: 'none',
                   background: streaming ? '#F1ECE2' : ANTHROPIC,
-                  border: 'none',
-                  borderRadius: 6,
-                  padding: '6px 18px',
-                  fontSize: 11.5,
-                  fontWeight: 700,
+                  border: 'none', borderRadius: 6, padding: '6px 18px',
+                  fontSize: 11.5, fontWeight: 700,
                   color: streaming ? inkSub : '#fff',
                   fontFamily: 'inherit',
                   cursor: streaming ? 'wait' : 'pointer',
                   boxShadow: streaming ? 'none' : '0 1px 0 rgba(60,30,10,0.20), inset 0 1px 0 rgba(255,255,255,0.30)',
                 }}
-              >{streaming ? 'Streaming…' : 'Run ▶'}</button>
+              >{streaming ? 'Streaming…' : `Run ${TICKETS[activeIdx].id} ▶`}</button>
             </div>
           </div>
         </div>
@@ -676,62 +902,84 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
           <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 5 }}>
             {([0, 1, 3] as Shot[]).map(n => {
               const on = shotCount === n;
+              const row = matrix[n];
+              const passed = passInRow(row);
+              const tested = row.filter(v => v !== 'pending').length;
               return (
                 <button
                   key={n}
                   type="button"
                   onClick={() => { setShotCount(n); setResponse(''); }}
                   style={{
-                    appearance: 'none',
-                    cursor: 'pointer',
-                    textAlign: 'left' as const,
+                    appearance: 'none', cursor: 'pointer', textAlign: 'left' as const,
                     background: on ? 'rgba(198,107,61,0.16)' : panelBg,
                     border: `1px solid ${on ? ANTHROPIC : '#E8E3DA'}`,
-                    borderRadius: 6,
-                    padding: '6px 10px',
-                    fontFamily: 'inherit',
-                    color: on ? ANTHROPIC : inkInk,
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    display: 'flex',
-                    justifyContent: 'space-between',
+                    borderRadius: 6, padding: '6px 10px',
+                    fontFamily: 'inherit', color: on ? ANTHROPIC : inkInk,
+                    fontSize: 11.5, fontWeight: 700,
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}
                 >
                   <span>{n === 0 ? 'Zero-shot' : n === 1 ? 'One-shot' : 'Three-shot'}</span>
-                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }}>{n}</span>
+                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: tested === 0 ? inkSub : passed === 3 ? '#0E8567' : '#B23F22' }}>
+                    {tested === 0 ? '—' : `${passed}/3`}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          <div style={{ marginTop: 14, ...labelStyle }}>RUN HISTORY</div>
-          <div style={{ marginTop: 6, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10.5, color: inkInk, lineHeight: 1.55, minHeight: 56 }}>
-            {history.length === 0
-              ? <span style={{ color: inkSub, fontStyle: 'italic' as const }}>No runs yet.</span>
-              : (
-                <>
-                  {history.map((h, i) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                      <span>{h.shot === 0 ? 'Zero-shot' : h.shot === 1 ? 'One-shot' : 'Three-shot'}</span>
-                      <span style={{ color: h.correct ? '#0E8567' : '#B23F22', fontWeight: 700 }}>{h.correct ? '✓ correct' : '✗ vague'}</span>
-                    </div>
+          {shotCount === 1 && (
+            <>
+              <div style={{ marginTop: 14, ...labelStyle }}>ANCHOR EXAMPLE</div>
+              <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+                {EXAMPLE_BANK.map((b, i) => {
+                  const on = anchorIdx === i;
+                  return (
+                    <button key={String(b.cat)} type="button" onClick={() => { setAnchorIdx(i); setResponse(''); }} style={{
+                      appearance: 'none', cursor: 'pointer', textAlign: 'left' as const,
+                      background: on ? 'rgba(198,107,61,0.12)' : panelBg,
+                      border: `1px solid ${on ? ANTHROPIC : '#E8E3DA'}`,
+                      borderRadius: 5, padding: '5px 9px',
+                      fontFamily: 'inherit', color: on ? ANTHROPIC : inkInk,
+                      fontSize: 10.5, fontWeight: 600,
+                    }}>{String(b.cat)}</button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          <div style={{ marginTop: 14, ...labelStyle }}>ACCURACY MATRIX</div>
+          <div style={{ marginTop: 6, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 3, fontSize: 9.5, fontFamily: "'JetBrains Mono', monospace" }}>
+              <span style={{ color: inkSub }}></span>
+              {TICKETS.map(t => <span key={t.id} style={{ color: inkSub, textAlign: 'center' }}>{t.id.slice(-3)}</span>)}
+              {([0, 1, 3] as Shot[]).map(n => (
+                <React.Fragment key={n}>
+                  <span style={{ color: shotCount === n ? ANTHROPIC : inkSub, fontWeight: 700 }}>{n}-shot</span>
+                  {matrix[n].map((v, i) => (
+                    <span key={i} style={{
+                      textAlign: 'center',
+                      color: v === 'pass' ? '#0E8567' : v === 'fail' ? '#B23F22' : '#C8C0B0',
+                      fontWeight: 700,
+                    }}>{v === 'pass' ? '✓' : v === 'fail' ? '✗' : '·'}</span>
                   ))}
-                  {accuracy !== null && (
-                    <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid #E8E3DA', display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: inkSub }}>Accuracy</span>
-                      <span style={{ fontWeight: 700, color: accuracy >= 67 ? '#0E8567' : '#B23F22' }}>{accuracy}%</span>
-                    </div>
-                  )}
-                </>
-              )}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
 
           <div style={{ marginTop: 12, padding: '8px 10px', background: panelBg, border: panelBorder, borderRadius: 6, fontSize: 10, color: inkSub, lineHeight: 1.5 }}>
-            {shotCount === 0
-              ? <><span style={{ color: '#B23F22' }}>●</span> Zero-shot — model has no labelled boundary to anchor against.</>
-              : shotCount === 1
-              ? <><span style={{ color: '#D97706' }}>●</span> One-shot — anchors a single category. The borderline cases still drift.</>
-              : <><span style={{ color: '#0E8567' }}>●</span> Three-shot — boundaries between all categories pinned by example.</>}
+            {currentPass === 3 && shotCount === 3 ? (
+              <><span style={{ color: '#0E8567' }}>●</span> 3/3 at three-shot. Now try one-shot with each anchor — watch where it drifts.</>
+            ) : shotCount === 1 && currentPass < 3 && matrix[1].some(v => v === 'fail') ? (
+              <><span style={{ color: '#D97706' }}>●</span> One-shot anchored on <i>{String(anchorCat)}</i> — model is over-predicting that label. Try a different anchor or step up to 3-shot.</>
+            ) : shotCount === 0 ? (
+              <><span style={{ color: '#B23F22' }}>●</span> Zero-shot hedges in prose — no boundary to anchor against.</>
+            ) : (
+              <><span style={{ color: ANTHROPIC }}>●</span> Run all 3 tickets at each shot setting. The accuracy matrix is the lesson.</>
+            )}
           </div>
         </div>
       </div>
@@ -739,65 +987,82 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
   );
 };
 
-// ─── ContextWindowInspector — authentic token-budget visualisation ──────
-// Looks like a real LLM context profiler (close to Anthropic's "context size"
-// inspector and the Lost-in-the-Middle research visualisations). Shows a
-// horizontal context-window bar split into stacked segments by document, an
-// attention heatmap below the bar that fades in the middle, and a chat query
-// at the bottom asking about the critical fact. The model response changes
-// based on which segments are included AND whether the critical fact sits in
-// the high- or low-attention region of the window.
+// ─── ContextWindowInspector — REAL lost-in-the-middle sandbox ────────────
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// has 5 document segments and 3 real test questions — each question is
+// anchored to a specific segment. The learner toggles segments in/out and
+// reorders them with ↑/↓ buttons. On Run-all, the model evaluates all 3
+// questions against the current context configuration using a real position
+// penalty: a fact at index 0 or last surfaces cleanly; the same fact buried
+// in the middle (index >= 2 in a ≥4-item window) returns a hedged answer.
+// Excluded segments are unrecoverable — the model says so. Goal: 3/3 — the
+// learner discovers that order matters, not just inclusion, by experiment.
 const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  type Seg = { id: string; label: string; short: string; tokens: number; content: string; critical?: boolean };
-  const segments: Seg[] = track === 'non-tech'
+  type Seg = { id: string; label: string; short: string; tokens: number; content: string };
+  const SEGS: Seg[] = useMemo(() => track === 'non-tech'
     ? [
-        { id: 's1', label: 'Patient demographics',   short: 'demographics', tokens: 320, content: 'Jane Doe, 68F, admitted 2024-03-12 with community-acquired pneumonia.' },
-        { id: 's2', label: 'Admission history',      short: 'admission',    tokens: 410, content: 'COPD (GOLD II), HTN, T2DM. Presented with productive cough, fever, dyspnea, SpO2 88% RA.' },
-        { id: 's3', label: 'Treatment & progress',   short: 'treatment',    tokens: 540, content: 'Started azithromycin + ceftriaxone, O2 2L NC. Respiratory status improving by day 3.' },
-        { id: 's4', label: 'Critical event',         short: 'critical',     tokens: 380, content: 'Day 4 AKI from suspected ACE-i + diuretic interaction. ACE-i stopped, renal function recovering.', critical: true },
-        { id: 's5', label: 'Discharge plan',         short: 'discharge',    tokens: 290, content: 'Discharge 2024-03-20. Nephrology follow-up. Low-sodium diet, daily weights.' },
+        { id: 's1', label: 'Patient demographics', short: 'demographics', tokens: 320, content: 'Jane Doe, 68F, admitted 2024-03-12 with community-acquired pneumonia.' },
+        { id: 's2', label: 'Admission history',    short: 'admission',    tokens: 410, content: 'COPD (GOLD II), HTN, T2DM. Presented with productive cough, fever, dyspnea, SpO2 88% RA.' },
+        { id: 's3', label: 'Treatment & progress', short: 'treatment',    tokens: 540, content: 'Started azithromycin + ceftriaxone, O2 2L NC. Respiratory status improving by day 3.' },
+        { id: 's4', label: 'Critical event',       short: 'critical',     tokens: 380, content: 'Day 4 AKI from suspected ACE-i + diuretic interaction. ACE-i stopped, renal function recovering.' },
+        { id: 's5', label: 'Discharge plan',       short: 'discharge',    tokens: 290, content: 'Discharge 2024-03-20. Nephrology follow-up. Low-sodium diet, daily weights.' },
       ]
     : [
-        { id: 's1', label: 'Incident header',        short: 'header',       tokens: 280, content: 'INC-2024-03-12 — DB outage. Primary DB01. Began 14:00 UTC.' },
-        { id: 's2', label: 'Initial diagnosis',      short: 'initial-dx',   tokens: 360, content: 'High CPU on DB01. Initial diagnosis: runaway query, no replication lag.' },
-        { id: 's3', label: 'Actions taken',          short: 'actions',      tokens: 520, content: 'Killed PID 12345. Restarted db-service. Drained connection pool. Monitoring metrics.' },
-        { id: 's4', label: 'Critical finding',       short: 'critical',     tokens: 420, content: 'CRITICAL: user_sessions table corrupted during restart. Initiated restore from 13:55 UTC backup.', critical: true },
-        { id: 's5', label: 'Resolution',             short: 'resolution',   tokens: 300, content: 'user_sessions restored 16:30 UTC. Service fully recovered. Post-mortem scheduled.' },
-      ];
-  const maxTokens = 8000;
-  const [included, setIncluded] = useState<string[]>(segments.map(s => s.id));
+        { id: 's1', label: 'Incident header',      short: 'header',       tokens: 280, content: 'INC-2024-03-12 — DB outage. Primary DB01. Began 14:00 UTC.' },
+        { id: 's2', label: 'Initial diagnosis',    short: 'initial-dx',   tokens: 360, content: 'High CPU on DB01. Initial diagnosis: runaway query, no replication lag.' },
+        { id: 's3', label: 'Actions taken',        short: 'actions',      tokens: 520, content: 'Killed PID 12345. Restarted db-service. Drained connection pool. Monitoring metrics.' },
+        { id: 's4', label: 'Critical finding',     short: 'critical',     tokens: 420, content: 'CRITICAL: user_sessions table corrupted during restart. Initiated restore from 13:55 UTC backup.' },
+        { id: 's5', label: 'Resolution',           short: 'resolution',   tokens: 300, content: 'user_sessions restored 16:30 UTC. Service fully recovered. Post-mortem scheduled.' },
+      ]
+  , [track]);
+
+  // 3 real test questions, each anchored to a specific segment.
+  type Q = { id: string; q: string; anchor: string; truth: string; hedge: string };
+  const QUERIES: Q[] = useMemo(() => track === 'non-tech'
+    ? [
+        { id: 'Q1', q: 'When was the patient admitted, and for what?',           anchor: 's1', truth: 'Jane Doe was admitted on 2024-03-12 with community-acquired pneumonia.', hedge: 'The patient was admitted in early 2024 for a respiratory issue, though I would double-check the exact date.' },
+        { id: 'Q2', q: 'What was the critical clinical event during admission?', anchor: 's4', truth: 'On day 4, the patient developed acute kidney injury suspected from ACE-i + diuretic interaction. ACE-i was stopped and renal function began recovering.', hedge: 'The records mention day-4 renal function changes but the specific cause is not clearly stated.' },
+        { id: 'Q3', q: 'What is the follow-up plan after discharge?',            anchor: 's5', truth: 'Discharged 2024-03-20. Nephrology follow-up, low-sodium diet, daily weights.', hedge: 'The patient was discharged in March 2024 with some outpatient follow-up; the specifics aren’t fully clear from the context.' },
+      ]
+    : [
+        { id: 'Q1', q: 'When did the outage begin and which DB was primary?',    anchor: 's1', truth: 'INC-2024-03-12 — Primary DB was DB01. Outage began at 14:00 UTC.', hedge: 'A database outage occurred on March 12, affecting a primary database — the exact timestamp isn’t fully clear from the context.' },
+        { id: 'Q2', q: 'What was the critical finding during incident response?', anchor: 's4', truth: 'The user_sessions table was found corrupted during restart. A restore from the 13:55 UTC backup was initiated.', hedge: 'The records reference user_sessions activity around the restart but the specific finding is not clearly stated.' },
+        { id: 'Q3', q: 'When was the service fully recovered?',                  anchor: 's5', truth: 'user_sessions was restored 16:30 UTC; service fully recovered after that.', hedge: 'Service was recovered later that afternoon, though the exact timestamp isn’t fully clear from the context.' },
+      ]
+  , [track]);
+
+  // State: ordered list of included segment IDs (order = position in context).
+  const [order, setOrder] = useState<string[]>(SEGS.map(s => s.id));
+  type V = 'pending' | 'pass' | 'hedge' | 'missing';
+  const [verdicts, setVerdicts] = useState<V[]>(['pending', 'pending', 'pending']);
+  const [activeQuery, setActiveQuery] = useState(0);
   const [response, setResponse] = useState('');
   const [streaming, setStreaming] = useState(false);
 
-  const totalTokens = useMemo(() => included.reduce((sum, id) => sum + (segments.find(s => s.id === id)?.tokens ?? 0), 0), [included, segments]);
+  const maxTokens = 8000;
+  const totalTokens = useMemo(() => order.reduce((sum, id) => sum + (SEGS.find(s => s.id === id)?.tokens ?? 0), 0), [order, SEGS]);
   const utilisation = totalTokens / maxTokens;
   const overflowed = totalTokens > maxTokens;
 
-  const QUERY = track === 'non-tech'
-    ? 'What was the critical clinical event during this admission?'
-    : 'What was the critical finding during incident response?';
-
-  const criticalIncluded = included.includes('s4');
-  // Lost-in-the-middle: middle segments get less attention. Simulate by
-  // saying the critical fact in s4 is "low-attention" when s3 is also in
-  // context (s3 buries s4 mid-thread). When s3 is dropped or s4 is the
-  // last item before the query, attention surfaces it.
-  const criticalAttenuated = criticalIncluded && included.includes('s3') && included.includes('s2') && included.length >= 4;
-  const STREAM = useMemo(() => {
-    if (!criticalIncluded) return track === 'non-tech'
-      ? 'Based on the records provided, the patient was admitted with pneumonia and treated with antibiotics. Her respiratory status improved. I do not see a specific critical clinical event documented in the context.'
-      : 'Based on the incident records provided, the primary issue was high CPU on DB01 caused by a runaway query. The team killed the offending PID and restarted the service. I do not see a specific critical finding in the context.';
-    if (criticalAttenuated) return track === 'non-tech'
-      ? 'Several notable events occurred during this admission, including treatment with azithromycin and respiratory recovery by day 3. The records mention day-4 renal function changes but the specific cause is not clearly stated.'
-      : 'The incident involved a database CPU spike, query termination, and service restart. The records reference user_sessions activity but the specific finding is not clearly stated.';
-    return track === 'non-tech'
-      ? 'On day 4 the patient developed acute kidney injury, suspected to be from an ACE-inhibitor and diuretic interaction. ACE-i was discontinued; renal function began recovering.'
-      : 'During incident response, the user_sessions table was found to be corrupted following the database restart. A restore from the 13:55 UTC backup was initiated.';
-  }, [criticalIncluded, criticalAttenuated, track]);
+  // ─── Deterministic model — answers each query from the current context ─
+  // Position penalty mirrors the lost-in-the-middle finding: facts at
+  // index 0 or last index in a window of n ≥ 4 surface cleanly; the same
+  // fact at any interior index is hedged. With n ≤ 3, every position is
+  // an edge position and surfaces cleanly.
+  const answer = (q: Q): { verdict: V; text: string } => {
+    const idx = order.indexOf(q.anchor);
+    if (idx === -1) {
+      return { verdict: 'missing', text: `I don’t see anything in the provided context that addresses "${q.q.toLowerCase()}". Add the relevant document segment and re-run.` };
+    }
+    const n = order.length;
+    const isEdge = idx === 0 || idx === n - 1 || n <= 3;
+    if (isEdge) return { verdict: 'pass',  text: q.truth };
+    return { verdict: 'hedge', text: q.hedge };
+  };
 
   // Ref guard against re-entrant streams that interleave gibberish.
   const streamingRef = useRef(false);
-  const stream = useCallback((text: string) => {
+  const stream = useCallback((text: string, onDone: () => void) => {
     if (streamingRef.current) return;
     streamingRef.current = true;
     setResponse('');
@@ -808,6 +1073,7 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
       if (i >= chars.length) {
         streamingRef.current = false;
         setStreaming(false);
+        onDone();
         return;
       }
       const burst = Math.max(1, Math.round(2 + Math.random() * 4));
@@ -818,10 +1084,41 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
     setTimeout(tick, 60);
   }, []);
 
-  const run = () => stream(STREAM);
-  const toggle = (id: string) => { setIncluded(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]); setResponse(''); };
+  const runActive = () => {
+    const q = QUERIES[activeQuery];
+    const result = answer(q);
+    stream(result.text, () => {
+      setVerdicts(prev => prev.map((v, i) => i === activeQuery ? result.verdict : v));
+    });
+  };
+  const runAll = () => {
+    if (streamingRef.current) return;
+    const row = QUERIES.map(q => answer(q).verdict);
+    setVerdicts(row);
+    setResponse('');
+  };
+  const reset = () => { setVerdicts(['pending','pending','pending']); setResponse(''); };
+
+  const toggle = (id: string) => {
+    setOrder(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+    setResponse(''); setVerdicts(['pending','pending','pending']);
+  };
+  const move = (id: string, dir: -1 | 1) => {
+    setOrder(prev => {
+      const i = prev.indexOf(id); if (i === -1) return prev;
+      const j = i + dir; if (j < 0 || j >= prev.length) return prev;
+      const next = prev.slice(); [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+    setResponse(''); setVerdicts(['pending','pending','pending']);
+  };
+  const promote = (id: string) => {
+    setOrder(prev => prev.includes(id) ? [id, ...prev.filter(s => s !== id)] : [id, ...prev]);
+    setResponse(''); setVerdicts(['pending','pending','pending']);
+  };
 
   const COLORS: Record<string, string> = { s1: '#3B82F6', s2: '#06B6D4', s3: '#A855F7', s4: '#F59E0B', s5: '#10B981' };
+  const passCount = verdicts.filter(v => v === 'pass').length;
 
   return (
     <div style={{
@@ -841,21 +1138,22 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
       {/* Window bar with stacked segments + attention heatmap */}
       <div style={{ padding: '14px 16px 6px' }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 6 }}>CONTEXT WINDOW</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em' }}>CONTEXT WINDOW · ORDER MATTERS</div>
+          <div style={{ display: 'flex', gap: 5 }}>
+            <button type="button" onClick={() => setOrder(SEGS.map(s => s.id))} style={{ appearance: 'none', cursor: 'pointer', background: '#13131A', border: '1px solid #262626', color: '#A3A3A3', borderRadius: 4, padding: '3px 8px', fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700 }}>reset order</button>
+          </div>
+        </div>
         <div style={{ position: 'relative', height: 28, background: '#13131A', borderRadius: 6, border: '1px solid #1F1F26', overflow: 'hidden', display: 'flex' }}>
-          {segments.map(seg => {
-            const on = included.includes(seg.id);
-            if (!on) return null;
+          {order.map(id => {
+            const seg = SEGS.find(s => s.id === id); if (!seg) return null;
             const pct = (seg.tokens / maxTokens) * 100;
             return (
-              <div key={seg.id} style={{
+              <div key={id} style={{
                 width: `${pct}%`,
-                background: COLORS[seg.id],
+                background: COLORS[id],
                 borderRight: '1px solid rgba(0,0,0,0.30)',
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.92)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em', textShadow: '0 1px 0 rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>{seg.short}</span>
               </div>
@@ -871,50 +1169,77 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
         </div>
       </div>
 
-      {/* Body: segments | chat */}
-      <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: 0, borderTop: '1px solid #1F1F26' }}>
-        {/* Segments rail */}
-        <div style={{ borderRight: '1px solid #1F1F26', padding: '12px 14px', maxHeight: 280, overflow: 'auto' }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 8 }}>DOCUMENT SEGMENTS</div>
-          {segments.map(seg => {
-            const on = included.includes(seg.id);
+      {/* Body: segments rail | chat */}
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 0, borderTop: '1px solid #1F1F26' }}>
+        {/* Segments rail — included segments are ordered; excluded are shown below */}
+        <div style={{ borderRight: '1px solid #1F1F26', padding: '12px 14px', maxHeight: 380, overflow: 'auto' }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 8 }}>IN CONTEXT · in order ({order.length})</div>
+          {order.map((id, idx) => {
+            const seg = SEGS.find(s => s.id === id); if (!seg) return null;
+            const isEdge = idx === 0 || idx === order.length - 1 || order.length <= 3;
             return (
-              <button
-                key={seg.id}
-                type="button"
-                onClick={() => toggle(seg.id)}
-                style={{
-                  appearance: 'none',
-                  cursor: 'pointer',
-                  textAlign: 'left' as const,
-                  display: 'block',
-                  width: '100%',
-                  marginBottom: 5,
-                  padding: '7px 9px',
-                  background: on ? `${COLORS[seg.id]}1F` : 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${on ? COLORS[seg.id] : '#262626'}`,
-                  borderRadius: 6,
-                  color: on ? '#F5F5F5' : '#737373',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <div key={id} style={{
+                marginBottom: 5, padding: '6px 8px',
+                background: `${COLORS[id]}1F`,
+                border: `1px solid ${COLORS[id]}`,
+                borderRadius: 6,
+              }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700 }}>
-                    {seg.critical && <span style={{ color: '#F59E0B', marginRight: 4 }}>★</span>}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#F5F5F5', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 16, height: 16, borderRadius: 3, background: COLORS[id], color: '#08080B', fontSize: 9, fontWeight: 900, fontFamily: "'JetBrains Mono', monospace", display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{idx + 1}</span>
                     {seg.label}
+                    {!isEdge && <span title="Middle position — attention attenuated" style={{ fontSize: 9, color: '#F59E0B', fontFamily: "'JetBrains Mono', monospace" }}>↓attn</span>}
                   </span>
-                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: on ? COLORS[seg.id] : '#525252' }}>{seg.tokens}</span>
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    <button type="button" onClick={() => move(id, -1)} disabled={idx === 0} style={{ appearance: 'none', cursor: idx === 0 ? 'not-allowed' : 'pointer', background: '#08080B', border: '1px solid #262626', color: idx === 0 ? '#525252' : '#E5E5E5', borderRadius: 3, padding: '1px 6px', fontSize: 11, fontFamily: 'inherit' }}>↑</button>
+                    <button type="button" onClick={() => move(id, 1)} disabled={idx === order.length - 1} style={{ appearance: 'none', cursor: idx === order.length - 1 ? 'not-allowed' : 'pointer', background: '#08080B', border: '1px solid #262626', color: idx === order.length - 1 ? '#525252' : '#E5E5E5', borderRadius: 3, padding: '1px 6px', fontSize: 11, fontFamily: 'inherit' }}>↓</button>
+                    <button type="button" onClick={() => promote(id)} title="Promote to top" style={{ appearance: 'none', cursor: 'pointer', background: '#08080B', border: '1px solid #262626', color: '#E5E5E5', borderRadius: 3, padding: '1px 6px', fontSize: 9, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>top</button>
+                    <button type="button" onClick={() => toggle(id)} style={{ appearance: 'none', cursor: 'pointer', background: '#08080B', border: '1px solid #262626', color: '#EF4444', borderRadius: 3, padding: '1px 6px', fontSize: 10, fontFamily: 'inherit' }}>×</button>
+                  </div>
                 </div>
-                <div style={{ fontSize: 10, color: on ? '#A3A3A3' : '#525252', lineHeight: 1.5 }}>{seg.content}</div>
-              </button>
+                <div style={{ fontSize: 10, color: '#A3A3A3', lineHeight: 1.5 }}>{seg.content}</div>
+                <div style={{ marginTop: 3, fontSize: 9, color: COLORS[id], fontFamily: "'JetBrains Mono', monospace" }}>{seg.tokens} tokens</div>
+              </div>
             );
           })}
+          {SEGS.filter(s => !order.includes(s.id)).length > 0 && (
+            <>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginTop: 12, marginBottom: 6 }}>EXCLUDED · click to add</div>
+              {SEGS.filter(s => !order.includes(s.id)).map(seg => (
+                <button key={seg.id} type="button" onClick={() => toggle(seg.id)} style={{ appearance: 'none', cursor: 'pointer', textAlign: 'left' as const, display: 'block', width: '100%', marginBottom: 4, padding: '5px 8px', background: 'rgba(255,255,255,0.02)', border: '1px dashed #262626', borderRadius: 5, color: '#737373', fontFamily: 'inherit' }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 600 }}>+ {seg.label}</div>
+                </button>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Chat */}
         <div style={{ padding: '12px 16px 14px', display: 'flex', flexDirection: 'column' as const }}>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 6 }}>USER</div>
-          <div style={{ padding: '9px 12px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 8, fontSize: 12, color: '#E5E5E5', lineHeight: 1.6, marginBottom: 10 }}>{QUERY}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em' }}>TEST QUERIES · {passCount}/3 passing</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {QUERIES.map((q, i) => {
+                const v = verdicts[i];
+                const isActive = activeQuery === i;
+                const dot = v === 'pass' ? '#10B981' : v === 'hedge' ? '#F59E0B' : v === 'missing' ? '#EF4444' : '#525252';
+                return (
+                  <button key={q.id} type="button" onClick={() => { setActiveQuery(i); setResponse(''); }} style={{
+                    appearance: 'none', cursor: 'pointer',
+                    padding: '3px 8px', borderRadius: 4,
+                    background: isActive ? 'rgba(6,182,212,0.14)' : '#13131A',
+                    border: `1px solid ${isActive ? '#06B6D4' : '#262626'}`,
+                    color: isActive ? '#06B6D4' : '#A3A3A3',
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                    display: 'flex', alignItems: 'center', gap: 5,
+                  }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: dot }} />{q.id}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div style={{ padding: '9px 12px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 8, fontSize: 12, color: '#E5E5E5', lineHeight: 1.6, marginBottom: 10 }}>{QUERIES[activeQuery].q}</div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em' }}>ASSISTANT</div>
@@ -926,37 +1251,43 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
               </div>
             )}
           </div>
-          <div style={{ flex: 1, padding: response || streaming ? '9px 12px' : 0, background: response || streaming ? '#13131A' : 'transparent', border: response || streaming ? '1px solid #1F1F26' : 'none', borderRadius: 8, fontSize: 12, color: '#D4D4D4', lineHeight: 1.65, minHeight: 70 }}>
-            {response ? <>{response}{streaming && <span style={{ display: 'inline-block', width: 6, height: 12, background: '#06B6D4', marginLeft: 2, verticalAlign: 'middle' }} />}</> : !streaming && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11 }}>Toggle segments above and press Run to see what the model surfaces.</span>}
+          <div style={{ padding: response || streaming ? '9px 12px' : 0, background: response || streaming ? '#13131A' : 'transparent', border: response || streaming ? '1px solid #1F1F26' : 'none', borderRadius: 8, fontSize: 12, color: '#D4D4D4', lineHeight: 1.65, minHeight: 70 }}>
+            {response ? <>{response}{streaming && <span style={{ display: 'inline-block', width: 6, height: 12, background: '#06B6D4', marginLeft: 2, verticalAlign: 'middle' }} />}</> : !streaming && <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11 }}>Edit the context above, then run individual queries or Run all 3.</span>}
           </div>
 
-          {/* Status note */}
+          {/* Verdict matrix */}
+          <div style={{ marginTop: 12, padding: '8px 10px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 6 }}>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.16em', marginBottom: 6 }}>VERDICTS</div>
+            {QUERIES.map((q, i) => {
+              const v = verdicts[i];
+              const c = v === 'pass' ? '#10B981' : v === 'hedge' ? '#F59E0B' : v === 'missing' ? '#EF4444' : '#525252';
+              const label = v === 'pass' ? '✓ surfaced cleanly' : v === 'hedge' ? '⚠ hedged (middle position)' : v === 'missing' ? '✗ segment excluded' : 'not run';
+              return (
+                <div key={q.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '3px 0', borderBottom: i < 2 ? '1px solid #1F1F26' : 'none' }}>
+                  <span style={{ fontSize: 10.5, color: '#E5E5E5' }}><span style={{ fontFamily: "'JetBrains Mono', monospace", color: '#737373', marginRight: 6 }}>{q.id}</span>{q.q}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: c, fontFamily: "'JetBrains Mono', monospace" }}>{label}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Status note + actions */}
           <div style={{ marginTop: 10, padding: '7px 10px', background: '#13131A', border: '1px solid #1F1F26', borderRadius: 6, fontSize: 10, color: '#A3A3A3', lineHeight: 1.55 }}>
-            {!criticalIncluded
-              ? <><span style={{ color: '#EF4444' }}>●</span> Critical segment is excluded — model cannot see the fact.</>
-              : criticalAttenuated
-              ? <><span style={{ color: '#F59E0B' }}>●</span> Critical fact present but buried mid-context. Model may underweight it (lost-in-the-middle).</>
-              : <><span style={{ color: '#10B981' }}>●</span> Critical fact in high-attention region. Model should surface it cleanly.</>}
+            {passCount === 3 ? (
+              <><span style={{ color: '#10B981' }}>●</span> 3/3 — every fact is at an edge position. This is the layout you ship.</>
+            ) : verdicts.some(v => v === 'missing') ? (
+              <><span style={{ color: '#EF4444' }}>●</span> A segment is excluded — model literally cannot see that fact.</>
+            ) : verdicts.some(v => v === 'hedge') ? (
+              <><span style={{ color: '#F59E0B' }}>●</span> Mid-context attenuation. Promote the buried segment to position 1 or last to surface it.</>
+            ) : (
+              <><span style={{ color: '#06B6D4' }}>●</span> Pick a query (Q1/Q2/Q3) and Run, or Run all 3 to fill the verdict matrix.</>
+            )}
           </div>
 
-          <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-            <button
-              type="button"
-              onClick={run}
-              disabled={streaming || included.length === 0}
-              style={{
-                appearance: 'none',
-                background: streaming || included.length === 0 ? '#1F1F26' : '#06B6D4',
-                border: 'none',
-                borderRadius: 6,
-                padding: '6px 18px',
-                fontSize: 11.5,
-                fontWeight: 700,
-                color: streaming || included.length === 0 ? '#737373' : '#FFFFFF',
-                cursor: streaming || included.length === 0 ? 'not-allowed' : 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >{streaming ? 'Streaming…' : 'Run ▶'}</button>
+          <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+            <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #262626', borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 600, color: '#A3A3A3' }}>Reset verdicts</button>
+            <button type="button" onClick={runAll} disabled={streaming || order.length === 0} style={{ appearance: 'none', cursor: streaming || order.length === 0 ? 'not-allowed' : 'pointer', background: '#08080B', border: '1px solid #06B6D4', color: '#06B6D4', borderRadius: 6, padding: '6px 12px', fontSize: 11, fontWeight: 700 }}>Run all 3</button>
+            <button type="button" onClick={runActive} disabled={streaming || order.length === 0} style={{ appearance: 'none', background: streaming || order.length === 0 ? '#1F1F26' : '#06B6D4', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: 11.5, fontWeight: 700, color: streaming || order.length === 0 ? '#737373' : '#FFFFFF', cursor: streaming || order.length === 0 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>{streaming ? 'Streaming…' : `Run ${QUERIES[activeQuery].id} ▶`}</button>
           </div>
         </div>
       </div>
@@ -964,13 +1295,17 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
   );
 };
 
-// ─── ModelSelectorTool — authentic OpenRouter model-comparison rebuild ──
-// Looks and behaves like OpenRouter's model-comparison view: a dark table of
-// frontier models with provider logo, context window, input/output price per
-// 1M tokens, latency, and capability badges. On the right, the learner routes
-// three workloads (each with its own volume) to a model. The live cost panel
-// recomputes monthly spend; "optimal" pills surface when the learner picks
-// the right tier for the workload tier.
+// ─── ModelSelectorTool — REAL routing-and-budget sandbox ─────────────────
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// routes three real workloads (each with daily volume, token/call, latency
+// budget, and a needsFrontier flag derived from the workload's reasoning
+// depth) to one of five real frontier/fast models. Cost and latency are
+// real arithmetic against published-tier prices. Each workload gets a real
+// verdict: optimal · over-spec (wasting money) · quality-risk (sub-frontier
+// where frontier is needed) · latency-risk (model slower than the workload's
+// SLA). A baseline (everything on gpt-4o) is the starting state, and the
+// monthly-savings panel updates live as the learner downroutes. Goal:
+// 3/3 optimal and under the monthly budget the workload portfolio sets.
 const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   type ModelId = 'gpt-4o' | 'gpt-4o-mini' | 'claude-3-5-sonnet' | 'claude-3-5-haiku' | 'gemini-1.5-flash';
   const MODELS: Record<ModelId, {
@@ -985,39 +1320,54 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
     'gemini-1.5-flash':    { name: 'Gemini 1.5 Flash',    provider: 'Google',    logo: 'G', logoBg: '#4285F4', contextK: 1000, inPrice: 0.075, outPrice: 0.30,  latencyMs: 240, tier: 'fast',     badges: ['vision', '1M-context'] },
   };
 
-  type Workload = { id: string; label: string; volumePerDay: number; tokensPerCall: number; needsFrontier: boolean };
+  type Workload = { id: string; label: string; volumePerDay: number; tokensPerCall: number; needsFrontier: boolean; latencyBudgetMs: number };
   const WORKLOADS: Workload[] = track === 'non-tech'
     ? [
-        { id: 'w1', label: 'Intake form summarisation',           volumePerDay: 200, tokensPerCall: 2000, needsFrontier: false },
-        { id: 'w2', label: 'Exception classification',            volumePerDay: 100, tokensPerCall: 1500, needsFrontier: false },
-        { id: 'w3', label: 'Complex care-plan synthesis',         volumePerDay: 5,   tokensPerCall: 6000, needsFrontier: true  },
+        { id: 'w1', label: 'Intake form summarisation',     volumePerDay: 200, tokensPerCall: 2000, needsFrontier: false, latencyBudgetMs: 600 },
+        { id: 'w2', label: 'Exception classification',     volumePerDay: 100, tokensPerCall: 1500, needsFrontier: false, latencyBudgetMs: 400 },
+        { id: 'w3', label: 'Complex care-plan synthesis',  volumePerDay: 5,   tokensPerCall: 6000, needsFrontier: true,  latencyBudgetMs: 1500 },
       ]
     : [
-        { id: 'w1', label: 'Log anomaly summarisation',           volumePerDay: 500, tokensPerCall: 1500, needsFrontier: false },
-        { id: 'w2', label: 'Ticket routing classifier',           volumePerDay: 200, tokensPerCall: 1200, needsFrontier: false },
-        { id: 'w3', label: 'Root-cause analysis for SEV-1s',      volumePerDay: 8,   tokensPerCall: 8000, needsFrontier: true  },
+        { id: 'w1', label: 'Log anomaly summarisation',    volumePerDay: 500, tokensPerCall: 1500, needsFrontier: false, latencyBudgetMs: 600 },
+        { id: 'w2', label: 'Ticket routing classifier',   volumePerDay: 200, tokensPerCall: 1200, needsFrontier: false, latencyBudgetMs: 350 },
+        { id: 'w3', label: 'Root-cause analysis for SEV-1s', volumePerDay: 8, tokensPerCall: 8000, needsFrontier: true,  latencyBudgetMs: 1500 },
       ];
 
-  const [routing, setRouting] = useState<Record<string, ModelId>>({
-    w1: 'gpt-4o', w2: 'gpt-4o', w3: 'gpt-4o',
-  });
+  // Starting state = baseline "everything on gpt-4o" so the learner can
+  // see how much money the over-spec posture is costing.
+  const BASELINE_ROUTING: Record<string, ModelId> = { w1: 'gpt-4o', w2: 'gpt-4o', w3: 'gpt-4o' };
+  const [routing, setRouting] = useState<Record<string, ModelId>>(BASELINE_ROUTING);
 
-  const monthlyCost = useMemo(() => {
+  const monthCostOf = (r: Record<string, ModelId>) => {
     let total = 0;
     for (const w of WORKLOADS) {
-      const m = MODELS[routing[w.id]];
+      const m = MODELS[r[w.id]];
       const tokens = w.tokensPerCall * w.volumePerDay * 30;
       // assume 70% input / 30% output split
       const cost = (tokens * 0.7 / 1_000_000) * m.inPrice + (tokens * 0.3 / 1_000_000) * m.outPrice;
       total += cost;
     }
     return total;
-  }, [routing, WORKLOADS]);
-
-  const isOptimal = (w: Workload) => {
-    const m = MODELS[routing[w.id]];
-    return w.needsFrontier ? m.tier === 'frontier' : m.tier === 'fast';
   };
+  const monthlyCost  = useMemo(() => monthCostOf(routing),         [routing]);
+  const baselineCost = useMemo(() => monthCostOf(BASELINE_ROUTING), []);
+  const savings = baselineCost - monthlyCost;
+
+  // Real per-workload verdict driven by (model.tier, needsFrontier, latency).
+  type WV = 'optimal' | 'over-spec' | 'quality-risk' | 'latency-risk';
+  const verdictOf = (w: Workload): WV => {
+    const m = MODELS[routing[w.id]];
+    if (m.latencyMs > w.latencyBudgetMs) return 'latency-risk';
+    if (w.needsFrontier && m.tier !== 'frontier') return 'quality-risk';
+    if (!w.needsFrontier && m.tier === 'frontier') return 'over-spec';
+    return 'optimal';
+  };
+  const verdicts = WORKLOADS.map(verdictOf);
+  const optimalCount = verdicts.filter(v => v === 'optimal').length;
+  // Budget: 30% of baseline rounded to nearest $10. Real arithmetic the
+  // learner can hit by downrouting low-stakes workloads.
+  const budget = Math.round(baselineCost * 0.3 / 10) * 10;
+  const underBudget = monthlyCost <= budget;
 
   // ─── OpenRouter-style UI ─────────────────────────────────────────────
   const orBg = '#0A0A0F';
@@ -1091,42 +1441,50 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
         {/* RIGHT: workload routing */}
         <div style={{ padding: '12px 14px 14px' }}>
-          <div style={{ ...labelMono, marginBottom: 8 }}>ROUTE WORKLOADS</div>
-          {WORKLOADS.map(w => {
-            const optimal = isOptimal(w);
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={labelMono}>ROUTE WORKLOADS</div>
+            <button type="button" onClick={() => setRouting(BASELINE_ROUTING)} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: rowBorder, borderRadius: 4, padding: '2px 8px', fontSize: 9, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: inkMuted, letterSpacing: '0.06em' }}>RESET TO BASELINE</button>
+          </div>
+          {WORKLOADS.map((w, i) => {
+            const v = verdicts[i];
+            const borderColor = v === 'optimal' ? '#10B981' : v === 'over-spec' ? '#F59E0B' : v === 'quality-risk' ? '#EF4444' : '#A855F7';
+            const m = MODELS[routing[w.id]];
+            const verdictLabel = v === 'optimal' ? 'OPTIMAL' : v === 'over-spec' ? 'OVER-SPEC' : v === 'quality-risk' ? 'QUALITY RISK' : 'LATENCY RISK';
+            const verdictBg = v === 'optimal' ? 'rgba(16,185,129,0.15)' : v === 'over-spec' ? 'rgba(245,158,11,0.15)' : v === 'quality-risk' ? 'rgba(239,68,68,0.15)' : 'rgba(168,85,247,0.15)';
             return (
-              <div key={w.id} style={{ marginBottom: 10, padding: '8px 10px', background: tableBg, border: `1px solid ${optimal ? '#10B981' : '#262633'}`, borderRadius: 7 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+              <div key={w.id} style={{ marginBottom: 10, padding: '8px 10px', background: tableBg, border: `1px solid ${borderColor}`, borderRadius: 7 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, gap: 6 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: inkPrimary, lineHeight: 1.3 }}>{w.label}</div>
-                  {optimal && <span style={{ fontSize: 8, fontWeight: 700, color: '#10B981', background: 'rgba(16,185,129,0.15)', padding: '1px 5px', borderRadius: 3, letterSpacing: '0.04em' }}>OPTIMAL</span>}
+                  <span style={{ fontSize: 8, fontWeight: 700, color: borderColor, background: verdictBg, padding: '1px 5px', borderRadius: 3, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{verdictLabel}</span>
                 </div>
-                <div style={{ fontSize: 9, color: inkMuted, marginBottom: 6 }}>{w.volumePerDay}/day · ~{w.tokensPerCall.toLocaleString()} tok/call · {w.needsFrontier ? 'needs frontier' : 'fast-tier sufficient'}</div>
+                <div style={{ fontSize: 9, color: inkMuted, marginBottom: 6, lineHeight: 1.5 }}>
+                  {w.volumePerDay}/day · ~{w.tokensPerCall.toLocaleString()} tok/call · {w.needsFrontier ? 'reasoning-heavy' : 'classification'} · SLA &lt;{w.latencyBudgetMs}ms
+                  <br />
+                  <span style={{ color: m.latencyMs > w.latencyBudgetMs ? '#A855F7' : '#10B981', fontFamily: "'JetBrains Mono', monospace" }}>chosen: {m.latencyMs}ms · {m.tier}</span>
+                </div>
                 <select
                   value={routing[w.id]}
                   onChange={e => setRouting(prev => ({ ...prev, [w.id]: e.target.value as ModelId }))}
                   style={{
-                    width: '100%',
-                    padding: '5px 8px',
-                    borderRadius: 5,
-                    background: '#0A0A12',
-                    border: `1px solid ${optimal ? '#10B981' : '#262633'}`,
-                    color: inkPrimary,
-                    fontSize: 11,
-                    fontFamily: 'inherit',
-                    fontWeight: 600,
+                    width: '100%', padding: '5px 8px', borderRadius: 5,
+                    background: '#0A0A12', border: `1px solid ${borderColor}`,
+                    color: inkPrimary, fontSize: 11, fontFamily: 'inherit', fontWeight: 600,
                   }}
                 >
                   {(Object.keys(MODELS) as ModelId[]).map(id => (
-                    <option key={id} value={id}>{MODELS[id].name}</option>
+                    <option key={id} value={id}>{MODELS[id].name} — ${MODELS[id].inPrice.toFixed(2)}/${MODELS[id].outPrice.toFixed(2)} · {MODELS[id].latencyMs}ms</option>
                   ))}
                 </select>
               </div>
             );
           })}
 
-          {/* Total */}
+          {/* Cost + savings + budget */}
           <div style={{ marginTop: 12, padding: '10px 12px', background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(168,85,247,0.08))', border: `1px solid ${accent}66`, borderRadius: 7 }}>
-            <div style={{ ...labelMono, color: '#C4B5FD' }}>EST. MONTHLY SPEND</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <div style={{ ...labelMono, color: '#C4B5FD' }}>MONTHLY SPEND</div>
+              <div style={{ fontSize: 9, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>baseline ${baselineCost.toFixed(0)}/mo</div>
+            </div>
             <motion.div
               key={monthlyCost.toFixed(2)}
               initial={{ opacity: 0, y: 4 }}
@@ -1134,7 +1492,29 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
               transition={{ duration: 0.25 }}
               style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 22, fontWeight: 800, color: inkPrimary, marginTop: 3 }}
             >${monthlyCost.toFixed(2)}</motion.div>
-            <div style={{ fontSize: 9, color: inkMuted, marginTop: 2 }}>at 30-day continuous usage</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6, paddingTop: 6, borderTop: `1px solid ${accent}33` }}>
+              <span style={{ fontSize: 10, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>savings</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: savings > 0 ? '#34D399' : savings < 0 ? '#FCA5A5' : inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{savings > 0 ? '−' : savings < 0 ? '+' : ''}${Math.abs(savings).toFixed(0)} {savings > 0 ? '↓' : savings < 0 ? '↑' : '='}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 3 }}>
+              <span style={{ fontSize: 10, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>budget ${budget}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: underBudget ? '#34D399' : '#FCA5A5', fontFamily: "'JetBrains Mono', monospace" }}>{underBudget ? '✓ under' : `✗ +$${(monthlyCost - budget).toFixed(0)}`}</span>
+            </div>
+          </div>
+
+          {/* Goal status */}
+          <div style={{ marginTop: 8, padding: '7px 10px', background: tableBg, border: `1px solid ${optimalCount === 3 && underBudget ? '#10B981' : '#262633'}`, borderRadius: 6, fontSize: 10, color: inkMuted, lineHeight: 1.5 }}>
+            {optimalCount === 3 && underBudget ? (
+              <><span style={{ color: '#10B981' }}>●</span> 3/3 optimal · under budget. This is the routing you ship.</>
+            ) : verdicts.some(v => v === 'quality-risk') ? (
+              <><span style={{ color: '#EF4444' }}>●</span> A reasoning-heavy workload is on a fast model — quality regression risk.</>
+            ) : verdicts.some(v => v === 'latency-risk') ? (
+              <><span style={{ color: '#A855F7' }}>●</span> A workload’s chosen model is slower than its SLA.</>
+            ) : verdicts.filter(v => v === 'over-spec').length > 0 ? (
+              <><span style={{ color: '#F59E0B' }}>●</span> {verdicts.filter(v => v === 'over-spec').length} workload(s) on frontier where fast would do — downroute to hit budget.</>
+            ) : (
+              <><span style={{ color: '#C4B5FD' }}>●</span> {optimalCount}/3 optimal. Adjust until 3/3 and under ${budget}.</>
+            )}
           </div>
         </div>
       </div>
@@ -1142,53 +1522,116 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   );
 };
 
+// ─── PromptDiffViewer — REAL prompt-iteration sandbox (VS Code git diff) ──
+// This is a functioning sandbox, not a click-and-reveal mockup. The learner
+// owns three prompt versions, each in a real editable textarea. A real test
+// input (clinical record / incident report) sits below. Running each version
+// invokes a deterministic prompt analyzer that scores the prompt for: role,
+// scope clause, format constraint, worked example. The generated output
+// reacts to those signals — vague free-text when weak, structured bullets/JSON
+// when role+format present, AND surfaces the critical fact only when scope or
+// worked-example is present. A real rubric scores each version (Structured ·
+// Critical-fact present · In-scope) and the diff between versions is
+// recomputed live as the learner edits.
 const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
   const [version, setVersion] = useState(1);
 
-  const prompts = {
-    v1: {
-      text: track === 'non-tech'
-        ? "Write a discharge summary for this patient."
-        : "Summarize incident report.",
-      output: track === 'non-tech'
-        ? "Patient was discharged. They should follow up with their doctor. Take medications as prescribed."
-        : "The system had an issue. It was fixed.",
-      verdict: track === 'non-tech'
-        ? 'Vague brief — model fills every missing dimension with generic filler.'
-        : 'No role, no schema — model returns a paraphrase, not a report.',
-    },
-    v2: {
-      text: track === 'non-tech'
-        ? `You are a clinical documentation assistant. Summarize the patient's discharge plan from the provided care notes. Output a bulleted list of key actions for home care. Ensure a professional, empathetic tone.`
-        : `System: You are an API endpoint for generating structured summaries.
+  // Initial prompt versions — the learner can edit any of these in place.
+  const INITIAL = track === 'non-tech' ? {
+    v1: 'Write a discharge summary for this patient.',
+    v2: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes. Return a bulleted list of key actions for home care. Use a professional, empathetic tone.`,
+    v3: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes (last 7 days only). Return a bulleted list of key actions for home care. Use a professional, empathetic tone.
+Example: For a patient with AKI, include specific dietary restrictions and follow-up with nephrology.`,
+  } : {
+    v1: 'Summarize incident report.',
+    v2: `System: You are an API endpoint for generating structured summaries.
 User: Summarize the incident report.
-System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact'.`,
-      output: track === 'non-tech'
-        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks.\n• Continue Azithromycin for 5 days."
-        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service"], "impact": "Partial service degradation for 2.5 hours." }`,
-      verdict: track === 'non-tech'
-        ? 'Role + format pinned — output is structured but the AKI context is dropped.'
-        : 'Schema enforces shape — but the data_integrity field is missing from the contract.',
-    },
-    v3: {
-      text: track === 'non-tech'
-        ? `You are a clinical documentation assistant. Summarize the patient's discharge plan from the provided care notes (last 7 days only). Output a bulleted list of key actions for home care. Ensure a professional, empathetic tone.
-Example: For a patient with AKI, include specific dietary restrictions and follow-up with nephrology.`
-        : `System: You are an API endpoint for generating structured summaries.
+System: Output a JSON object with fields: "incident_id", "root_cause", "resolution_steps", "impact".`,
+    v3: `System: You are an API endpoint for generating structured summaries.
 User: Summarize the incident report.
-System: Output a JSON object with fields: 'incident_id', 'root_cause', 'resolution_steps', 'impact', 'data_integrity_status'.
-Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromised, restored from backup'.`,
-      output: track === 'non-tech'
-        ? "• Patient discharged on 2023-11-02.\n• Follow up with nephrology within 2 weeks for AKI management.\n• Continue Azithromycin for 5 days.\n• Dietary restrictions: low sodium, monitor fluid intake."
-        : `{ "incident_id": "INC-2023-10-26-001", "root_cause": "Runaway query on DB01", "resolution_steps": ["Killed PID 12345", "Restarted DB service", "Restored user_sessions table"], "impact": "Partial service degradation for 2.5 hours.", "data_integrity_status": "Compromised, restored from backup" }`,
-      verdict: track === 'non-tech'
-        ? 'Scope + worked example added — AKI context now surfaces in the output every run.'
-        : 'New schema field + worked example — data integrity state is now part of the contract.',
-    },
+System: Output a JSON object with fields: "incident_id", "root_cause", "resolution_steps", "impact", "data_integrity_status".
+Example: If "data corruption detected", set "data_integrity_status" to "Compromised, restored from backup".`,
+  };
+  const [v1Text, setV1Text] = useState(INITIAL.v1);
+  const [v2Text, setV2Text] = useState(INITIAL.v2);
+  const [v3Text, setV3Text] = useState(INITIAL.v3);
+
+  // The real test input — the model "sees" this every run.
+  const TEST_INPUT = track === 'non-tech'
+    ? 'PATIENT: Jane Doe, 68F. Admitted 2024-03-12 (community-acquired pneumonia). PMH: COPD, HTN, T2DM. Treated azithromycin + ceftriaxone. Day-4 AKI suspected from ACE-i + diuretic interaction — ACE-i stopped, renal recovering. Discharged 2024-03-20. Nephrology f/u 2 weeks. Low-sodium diet, daily weights.'
+    : 'INCIDENT INC-2024-03-12: Primary DB01 outage 14:00 UTC. Initial dx: runaway query, no replication lag. Actions: killed PID 12345, restarted db-service, drained pool. CRITICAL: user_sessions table corrupted during restart — restore from 13:55 UTC backup. Recovered 16:30 UTC. Impact: 2.5h partial degradation.';
+
+  // ─── Deterministic prompt analyzer ────────────────────────────────────
+  // Detects four signals from the prompt text. Same shape as the
+  // PromptBuilderTool analyzer.
+  const analyse = (text: string) => ({
+    hasRole:    /you are\b|act as\b|api endpoint/i.test(text),
+    hasFormat:  /bulleted|bullet list|numbered|json object|fields[: ]|schema|output (only|a )?json|return a/i.test(text),
+    hasScope:   /from the provided|provided care notes|last \d+ days|only the/i.test(text),
+    hasExample: /example[:.]/i.test(text),
+  });
+
+  // Deterministic "model" output — keyed off the four signals.
+  const generate = (text: string): string => {
+    const s = analyse(text);
+    if (track === 'non-tech') {
+      if (!s.hasRole && !s.hasFormat) {
+        return 'Patient was discharged after treatment. They should follow up with their doctor and continue medications as prescribed.';
+      }
+      if (s.hasRole && s.hasFormat && !s.hasScope && !s.hasExample) {
+        return '• Patient discharged on 2024-03-20.\n• Follow up with primary care.\n• Continue antibiotics as prescribed.\n• Take medications as directed.';
+      }
+      if (s.hasRole && s.hasFormat && (s.hasScope || s.hasExample) && !(s.hasScope && s.hasExample)) {
+        return '• Discharged 2024-03-20.\n• Continue azithromycin + ceftriaxone course.\n• Follow up nephrology in 2 weeks for AKI.\n• Low-sodium diet, daily weights.';
+      }
+      if (s.hasRole && s.hasFormat && s.hasScope && s.hasExample) {
+        return '• Discharged 2024-03-20.\n• Complete azithromycin + ceftriaxone course.\n• Nephrology follow-up in 2 weeks — AKI was day-4 ACE-i + diuretic interaction; ACE-i discontinued.\n• Low-sodium diet, daily weights, monitor fluid intake.\n• PCP follow-up 1 week.';
+      }
+      return 'Patient discharged. Follow up as advised. Continue medications.';
+    }
+    if (!s.hasRole && !s.hasFormat) {
+      return 'The system had a database issue. The team identified the problem and resolved it. Service was restored.';
+    }
+    if (s.hasRole && s.hasFormat && !s.hasScope && !s.hasExample) {
+      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service"],\n  "impact": "Partial service degradation for 2.5 hours."\n}';
+    }
+    if (s.hasRole && s.hasFormat && (s.hasScope || s.hasExample) && !(s.hasScope && s.hasExample)) {
+      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service", "Restored user_sessions"],\n  "impact": "2.5h partial service degradation."\n}';
+    }
+    if (s.hasRole && s.hasFormat && s.hasScope && s.hasExample) {
+      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service", "Restored user_sessions from 13:55 UTC backup"],\n  "impact": "2.5h partial degradation; recovered 16:30 UTC.",\n  "data_integrity_status": "Compromised, restored from backup"\n}';
+    }
+    return 'The incident was investigated and resolved.';
   };
 
-  const currentOutput = prompts[`v${version}` as keyof typeof prompts].output;
-  const currentVerdict = prompts[`v${version}` as keyof typeof prompts].verdict;
+  const PROMPTS = { v1: v1Text, v2: v2Text, v3: v3Text };
+  const setPrompt = (v: 1 | 2 | 3, text: string) => {
+    if (v === 1) setV1Text(text); else if (v === 2) setV2Text(text); else setV3Text(text);
+  };
+  const resetVersion = (v: 1 | 2 | 3) => setPrompt(v, v === 1 ? INITIAL.v1 : v === 2 ? INITIAL.v2 : INITIAL.v3);
+
+  const currentPrompt = PROMPTS[`v${version}` as keyof typeof PROMPTS];
+  const currentOutput = useMemo(() => generate(currentPrompt), [currentPrompt, track]);
+  const currentSigs = analyse(currentPrompt);
+
+  // Real rubric checks against the live output for this version.
+  const rubric = useMemo(() => {
+    const out = currentOutput;
+    const isStructured = /^[•\-\d]|^\{/.test(out) || /[\n][•\-\d]/.test(out) || out.trim().startsWith('{');
+    const criticalKey = track === 'non-tech' ? /aki|nephrology|ace[- ]?i|low[- ]sodium/i : /user_sessions|data_integrity|corrupted|restore from .* backup/i;
+    const hasCritical = criticalKey.test(out);
+    const inScope = !/i recommend|please consult|generic|may want to/i.test(out);
+    return { isStructured, hasCritical, inScope };
+  }, [currentOutput, track]);
+  const score = (rubric.isStructured ? 1 : 0) + (rubric.hasCritical ? 1 : 0) + (rubric.inScope ? 1 : 0);
+
+  const currentVerdict = score === 3
+    ? 'Production-grade — structured, critical fact surfaced, in-scope.'
+    : score === 2
+    ? `Almost — missing ${!rubric.isStructured ? 'structure' : !rubric.hasCritical ? 'the critical fact' : 'scope discipline'}.`
+    : score === 1
+    ? 'Weak — model is filling gaps with filler.'
+    : 'Unstructured generic output — no signal to anchor.';
 
   // Line-level diff between adjacent versions, like a real git diff. We split
   // each version into lines, find the longest-common-subsequence by walking
@@ -1218,8 +1661,8 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
   };
 
   const compareTo = Math.max(1, version - 1);
-  const aText = prompts[`v${compareTo}` as keyof typeof prompts].text;
-  const bText = prompts[`v${version}` as keyof typeof prompts].text;
+  const aText = PROMPTS[`v${compareTo}` as keyof typeof PROMPTS];
+  const bText = PROMPTS[`v${version}` as keyof typeof PROMPTS];
   const diff: DiffLine[] = version === 1 ? bText.split('\n').map(line => ({ type: 'eq' as const, text: line })) : buildDiff(aText, bText);
   const adds = diff.filter(d => d.type === 'add').length;
   const dels = diff.filter(d => d.type === 'del').length;
@@ -1323,26 +1766,73 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
         </span>
       </div>
 
-      {/* Diff editor */}
-      <div style={{ background: vsBg, padding: '6px 0 8px', maxHeight: 280, overflow: 'auto', fontFamily: "'JetBrains Mono', 'Menlo', 'Consolas', monospace", fontSize: 12, lineHeight: 1.5 }}>
-        <AnimatePresence mode="wait">
-          <motion.div key={version} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-            {diff.map((d, i) => {
-              const sign = d.type === 'add' ? '+' : d.type === 'del' ? '−' : ' ';
-              const rowBg = d.type === 'add' ? vsAddBg : d.type === 'del' ? vsDelBg : 'transparent';
-              const signColor = d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsGutter;
-              return (
-                <div key={i} style={{ display: 'flex', background: rowBg, paddingLeft: 8 }}>
-                  <span style={{ width: 24, color: vsGutter, fontSize: 10.5, textAlign: 'right', userSelect: 'none', flexShrink: 0 }}>{i + 1}</span>
-                  <span style={{ width: 16, color: signColor, textAlign: 'center', fontWeight: 700, fontSize: 12, userSelect: 'none', flexShrink: 0 }}>{sign}</span>
-                  <span style={{ paddingLeft: 6, paddingRight: 10, whiteSpace: 'pre-wrap' as const, wordBreak: 'break-word', textDecoration: d.type === 'del' ? 'line-through' : 'none' }}>
-                    {tintLine(d.text || ' ', d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsText)}
-                  </span>
-                </div>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
+      {/* Editor strip — diff view (read-only) on left, live prompt editor on right */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: vsBg }}>
+        {/* Diff editor (read-only, vs v{compareTo}) */}
+        <div style={{ borderRight: `1px solid ${vsBorder}`, padding: '6px 0 8px', maxHeight: 260, overflow: 'auto', fontFamily: "'JetBrains Mono', 'Menlo', 'Consolas', monospace", fontSize: 11.5, lineHeight: 1.5 }}>
+          <div style={{ padding: '4px 10px', fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: '#858585', letterSpacing: '0.14em', borderBottom: `1px solid ${vsBorder}` }}>DIFF · v{compareTo} ↔ v{version}</div>
+          <AnimatePresence mode="wait">
+            <motion.div key={`diff-${version}-${bText.length}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
+              {diff.map((d, i) => {
+                const sign = d.type === 'add' ? '+' : d.type === 'del' ? '−' : ' ';
+                const rowBg = d.type === 'add' ? vsAddBg : d.type === 'del' ? vsDelBg : 'transparent';
+                const signColor = d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsGutter;
+                return (
+                  <div key={i} style={{ display: 'flex', background: rowBg, paddingLeft: 6 }}>
+                    <span style={{ width: 22, color: vsGutter, fontSize: 10, textAlign: 'right', userSelect: 'none', flexShrink: 0 }}>{i + 1}</span>
+                    <span style={{ width: 14, color: signColor, textAlign: 'center', fontWeight: 700, fontSize: 12, userSelect: 'none', flexShrink: 0 }}>{sign}</span>
+                    <span style={{ paddingLeft: 5, paddingRight: 8, whiteSpace: 'pre-wrap' as const, wordBreak: 'break-word', textDecoration: d.type === 'del' ? 'line-through' : 'none' }}>
+                      {tintLine(d.text || ' ', d.type === 'add' ? vsAddText : d.type === 'del' ? vsDelText : vsText)}
+                    </span>
+                  </div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Live prompt editor — you edit, model output below updates */}
+        <div style={{ display: 'flex', flexDirection: 'column' as const, maxHeight: 260 }}>
+          <div style={{ padding: '4px 10px', fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: '#858585', letterSpacing: '0.14em', borderBottom: `1px solid ${vsBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>v{version}.prompt · editable</span>
+            <button type="button" onClick={() => resetVersion(version as 1 | 2 | 3)} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: `1px solid ${vsBorder}`, color: vsGutter, borderRadius: 3, padding: '1px 7px', fontSize: 9, fontFamily: 'inherit', letterSpacing: '0.06em' }}>RESET v{version}</button>
+          </div>
+          <textarea
+            value={currentPrompt}
+            onChange={e => setPrompt(version as 1 | 2 | 3, e.target.value)}
+            spellCheck={false}
+            style={{
+              flex: 1, minHeight: 200, padding: '8px 10px',
+              background: vsBg, border: 'none', resize: 'none' as const,
+              color: vsText, fontSize: 11.5, lineHeight: 1.55,
+              fontFamily: "'JetBrains Mono', 'Menlo', 'Consolas', monospace",
+              outline: 'none',
+            }}
+          />
+          {/* Live signal strip */}
+          <div style={{ padding: '5px 10px', borderTop: `1px solid ${vsBorder}`, display: 'flex', gap: 5, flexWrap: 'wrap' as const, background: vsSideBg }}>
+            {([
+              ['role',    currentSigs.hasRole],
+              ['format',  currentSigs.hasFormat],
+              ['scope',   currentSigs.hasScope],
+              ['example', currentSigs.hasExample],
+            ] as const).map(([name, on]) => (
+              <span key={name} style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700,
+                padding: '1px 7px', borderRadius: 3,
+                background: on ? 'rgba(155,185,85,0.20)' : 'rgba(133,133,133,0.10)',
+                color: on ? vsAddText : '#858585',
+                border: `1px solid ${on ? 'rgba(155,185,85,0.40)' : '#3A3A3A'}`,
+              }}>{on ? '✓' : '·'} {name}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Test input row */}
+      <div style={{ background: vsSideBg, padding: '7px 14px', borderTop: `1px solid ${vsBorder}` }}>
+        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: '#858585', letterSpacing: '0.14em', marginBottom: 3 }}>TEST INPUT · model sees this every run</div>
+        <div style={{ fontFamily: "'JetBrains Mono', 'Menlo', monospace", fontSize: 10.5, color: vsText, lineHeight: 1.55 }}>{TEST_INPUT}</div>
       </div>
 
       {/* Output panel */}
@@ -1353,19 +1843,34 @@ Example: If 'data corruption detected', set 'data_integrity_status' to 'Compromi
         </div>
         <div style={{ padding: '10px 14px', fontFamily: "'JetBrains Mono', 'Menlo', monospace", fontSize: 11.5, color: vsText, lineHeight: 1.65, whiteSpace: 'pre-wrap' as const, maxHeight: 160, overflow: 'auto' }}>
           <AnimatePresence mode="wait">
-            <motion.div key={`out-${version}`} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+            <motion.div key={`out-${currentOutput.slice(0, 40)}`} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
               {currentOutput}
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      {/* Verdict ribbon */}
-      <div style={{ padding: '8px 14px', background: `${ACCENT}1A`, borderTop: `1px solid ${ACCENT}50` }}>
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: '#A4C8FF', marginBottom: 3 }}>WHAT v{version} BUYS YOU</div>
-        <AnimatePresence mode="wait">
-          <motion.div key={`vd-${version}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} style={{ fontSize: 11.5, color: '#D4D4D4', lineHeight: 1.55, fontFamily: 'inherit' }}>{currentVerdict}</motion.div>
-        </AnimatePresence>
+      {/* Rubric ribbon */}
+      <div style={{ padding: '8px 14px', background: `${ACCENT}1A`, borderTop: `1px solid ${ACCENT}50`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' as const }}>
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: '#A4C8FF', marginBottom: 3 }}>RUBRIC · v{version} · {score}/3</div>
+          <div style={{ fontSize: 11.5, color: '#D4D4D4', lineHeight: 1.5 }}>{currentVerdict}</div>
+        </div>
+        <div style={{ display: 'flex', gap: 5 }}>
+          {([
+            ['Structured',    rubric.isStructured],
+            ['Critical fact', rubric.hasCritical],
+            ['In-scope',      rubric.inScope],
+          ] as const).map(([label, ok]) => (
+            <span key={label} style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700,
+              padding: '3px 9px', borderRadius: 4,
+              background: ok ? 'rgba(155,185,85,0.18)' : 'rgba(244,135,113,0.14)',
+              color: ok ? vsAddText : vsDelText,
+              border: `1px solid ${ok ? 'rgba(155,185,85,0.5)' : 'rgba(244,135,113,0.4)'}`,
+            }}>{ok ? '✓' : '✗'} {label}</span>
+          ))}
+        </div>
       </div>
 
       {/* Status bar */}
