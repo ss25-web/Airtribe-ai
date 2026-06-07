@@ -45,135 +45,135 @@ const QUIZZES = [
   {
     conceptId: 'genai-m4-mindset',
     question: {
-      tech: "Aarav wants to start building the AI classification node. Rohan asks him to do something first. What?",
-      'non-tech': "Rhea asks where the AI goes in her automation workflow. Kabir doesn't answer. What does he ask instead?",
+      engineer: "Aarav wants to start building the AI classification node. Rohan asks him to do something first. What?",
+      'builder': "Rhea asks where the AI goes in her automation workflow. Kabir doesn't answer. What does he ask instead?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Pick the AI provider — OpenAI vs Anthropic vs Bedrock — and stub the node',
         'B. Document the current manual process node-by-node with input and output contracts',
         'C. Get compliance sign-off on automating the exception-handling decision path',
         'D. Provision n8n credentials and a shared service account before building anything',
       ],
-      'non-tech': [
+      'builder': [
         'A. Which AI model Rhea wants to use as the classifier node in the workflow',
         'B. How many exceptions the team currently processes through the manual path each week',
         'C. What Rhea actually does between 7am Monday and the moment she hits send',
         'D. Whether Rhea already has n8n access set up and the credentials configured',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 2 },
+    correctIndex: { engineer: 1, 'builder': 2 },
     explanation: {
-      tech: "The workflow spec — current process, input schema, output contract, edge cases — is the prerequisite. Building the AI node first produces a fast solution to an undefined problem.",
-      'non-tech': "Kabir maps the manual process before touching n8n — automating a fuzzy process produces a fast, fuzzy automated process. The manual steps are the spec.",
+      engineer: "The workflow spec — current process, input schema, output contract, edge cases — is the prerequisite. Building the AI node first produces a fast solution to an undefined problem.",
+      'builder': "Kabir maps the manual process before touching n8n — automating a fuzzy process produces a fast, fuzzy automated process. The manual steps are the spec.",
     },
     keyInsight: "Automation is about reliable data plumbing first. The AI node is one step in a pipeline, not the pipeline itself.",
   },
   {
     conceptId: 'genai-m4-nodes',
     question: {
-      tech: "Aarav builds: Email Trigger → AI Classify → Slack Notify. The Slack node fails with 'invalid data.' The AI node returns a JSON string, not an object. What is the root cause?",
-      'non-tech': "Rhea's workflow runs but the Google Sheet never updates. The Write node shows green (success) but the sheet is blank. What should she check first?",
+      engineer: "Aarav builds: Email Trigger → AI Classify → Slack Notify. The Slack node fails with 'invalid data.' The AI node returns a JSON string, not an object. What is the root cause?",
+      'builder': "Rhea's workflow runs but the Google Sheet never updates. The Write node shows green (success) but the sheet is blank. What should she check first?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. The Slack API version has changed and the node connector needs a version bump',
         'B. A JSON Parse node is missing between AI Classify and Slack — data shape mismatch',
         'C. The AI node temperature is too high, so it produces malformed JSON some of the time',
         'D. The Email Trigger is passing the wrong fields to the AI node in the body payload',
       ],
-      'non-tech': [
+      'builder': [
         'A. Google Sheets permissions have expired and need to be re-granted to the workflow',
         'B. The Write node is mapped to a column that does not exist on the destination sheet',
         'C. The node before Write is passing empty fields — Write succeeded in writing nothing',
         'D. The workflow needs to be re-activated after adding the Write node to the canvas',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 2 },
+    correctIndex: { engineer: 1, 'builder': 2 },
     explanation: {
-      tech: "n8n boundary failures between an AI node and a downstream node are almost always shape mismatches — string vs object. A Parse or Set node transforms the shape.",
-      'non-tech': "Green nodes confirm execution, not correct output. A Write node that receives empty fields writes empty fields successfully. The bug is upstream.",
+      engineer: "n8n boundary failures between an AI node and a downstream node are almost always shape mismatches — string vs object. A Parse or Set node transforms the shape.",
+      'builder': "Green nodes confirm execution, not correct output. A Write node that receives empty fields writes empty fields successfully. The bug is upstream.",
     },
     keyInsight: "Green nodes confirm execution, not correct output. Shape errors between nodes are the most common silent-failure mode.",
   },
   {
     conceptId: 'genai-m4-connect',
     question: {
-      tech: "Aarav creates an n8n credential for OpenAI using the team's shared API key. Rohan asks him to change it. Why?",
-      'non-tech': "Rhea's assistant sets up the Google Sheets credential using Rhea's personal Google account. Kabir says this is a problem. What is the risk?",
+      engineer: "Aarav creates an n8n credential for OpenAI using the team's shared API key. Rohan asks him to change it. Why?",
+      'builder': "Rhea's assistant sets up the Google Sheets credential using Rhea's personal Google account. Kabir says this is a problem. What is the risk?",
     },
     options: {
-      tech: [
+      engineer: [
         "A. Shared API keys are not technically supported by n8n's credential store",
         'B. Shared key means no per-workflow cost tracking, no audit, no safe rotation',
         'C. OpenAI rate limits apply per key, so the shared key throttles every workflow',
         'D. Rohan prefers per-service accounts as a default standard for API connections',
       ],
-      'non-tech': [
+      'builder': [
         "A. Personal Google accounts technically can't be wired into n8n's Sheets credential",
         "B. If Rhea leaves or rotates her password, the workflow breaks and no one can fix it",
         'C. Personal accounts hit Google Sheets API rate limits faster than service accounts',
         "D. The workflow will only run when Rhea is actively logged into her Google account",
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Shared keys are a cost, security, and rotation problem at once — same budget pool, no per-workflow attribution, rotating the key breaks every workflow simultaneously. Per-workflow service accounts solve all three.",
-      'non-tech': "Personal credentials are a single point of failure. Password rotation, 2FA changes, or the person leaving — and the workflow breaks. Team-owned service credentials are the correct design.",
+      engineer: "Shared keys are a cost, security, and rotation problem at once — same budget pool, no per-workflow attribution, rotating the key breaks every workflow simultaneously. Per-workflow service accounts solve all three.",
+      'builder': "Personal credentials are a single point of failure. Password rotation, 2FA changes, or the person leaving — and the workflow breaks. Team-owned service credentials are the correct design.",
     },
     keyInsight: "Credentials are infrastructure. Personal credentials in production workflows are a single point of failure waiting to happen.",
   },
   {
     conceptId: 'genai-m4-errors',
     question: {
-      tech: "Aarav's workflow runs overnight. In the morning, 14 of 22 exceptions were classified and routed. 8 are missing. The workflow shows no errors. What is the most likely design gap?",
-      'non-tech': "Rhea's Monday report workflow ran, sent the email, but the body was empty. Nobody noticed until her director asked at 10am. What is the process gap?",
+      engineer: "Aarav's workflow runs overnight. In the morning, 14 of 22 exceptions were classified and routed. 8 are missing. The workflow shows no errors. What is the most likely design gap?",
+      'builder': "Rhea's Monday report workflow ran, sent the email, but the body was empty. Nobody noticed until her director asked at 10am. What is the process gap?",
     },
     options: {
-      tech: [
+      engineer: [
         "A. The AI node timed out on 8 items and the workflow continued past them silently",
         'B. The email trigger only captured 14 of 22 exception emails from the source inbox',
         'C. The Slack notify node failed and the 8 items routed to an unread dead-letter queue',
         'D. The n8n instance has an execution-volume cap that throttled the run at 14 items',
       ],
-      'non-tech': [
+      'builder': [
         'A. The Google Sheets connection failed mid-run and the report had no data to summarise',
         'B. The workflow has no output validation — it shipped whatever the AI returned, blank included',
         'C. Claude produced an empty output because the input data this week was malformed somehow',
         "D. The email node sent successfully but the recipient's mail client stripped the body content",
       ],
     },
-    correctIndex: { tech: 0, 'non-tech': 1 },
+    correctIndex: { engineer: 0, 'builder': 1 },
     explanation: {
-      tech: "Silent skips are an error-handling design gap: the node failed, error mode was set to 'continue,' and 8 items dropped with no alert or dead-letter handling. Failure paths must be explicit.",
-      'non-tech': "The workflow sent successfully — an empty output is a correct execution of the wrong design. Output validation before send catches empty/malformed output and either retries or alerts.",
+      engineer: "Silent skips are an error-handling design gap: the node failed, error mode was set to 'continue,' and 8 items dropped with no alert or dead-letter handling. Failure paths must be explicit.",
+      'builder': "The workflow sent successfully — an empty output is a correct execution of the wrong design. Output validation before send catches empty/malformed output and either retries or alerts.",
     },
     keyInsight: "Success means the workflow executed. It does not mean the output was correct. Output validation before handoff is required, not optional.",
   },
   {
     conceptId: 'genai-m4-e2e',
     question: {
-      tech: "Aarav's first end-to-end workflow succeeds on a real exception. He marks it production-ready. Rohan asks one question before signing off. What is it?",
-      'non-tech': "Rhea's Monday report workflow works on test data. She is ready to run it live. Kabir asks her to run one more test. What kind?",
+      engineer: "Aarav's first end-to-end workflow succeeds on a real exception. He marks it production-ready. Rohan asks one question before signing off. What is it?",
+      'builder': "Rhea's Monday report workflow works on test data. She is ready to run it live. Kabir asks her to run one more test. What kind?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. What happens when the AI classification returns a low-confidence result?',
         'B. How long does the workflow take to run on a single exception?',
         'C. Does the Slack notification render correctly on mobile?',
         'D. Is the workflow connected to the right n8n environment?',
       ],
-      'non-tech': [
+      'builder': [
         "A. Run it on last week's real data and compare the output to the manual report she wrote",
         'B. Test it with an empty dataset to confirm it handles the edge case',
         'C. Run it twice to confirm it is idempotent',
         'D. Check that the email address is correct before going live',
       ],
     },
-    correctIndex: { tech: 0, 'non-tech': 0 },
+    correctIndex: { engineer: 0, 'builder': 0 },
     explanation: {
-      tech: "Happy path success is not production readiness. The failure case — low-confidence classification — is the most important path to design. What does the workflow do when the AI isn't sure? That decision must exist before go-live.",
-      'non-tech': "Comparing AI output to a manually produced baseline is the most direct quality check. If the AI-generated Monday report wouldn't have told Rhea what she needed to know last week, it's not production-ready.",
+      engineer: "Happy path success is not production readiness. The failure case — low-confidence classification — is the most important path to design. What does the workflow do when the AI isn't sure? That decision must exist before go-live.",
+      'builder': "Comparing AI output to a manually produced baseline is the most direct quality check. If the AI-generated Monday report wouldn't have told Rhea what she needed to know last week, it's not production-ready.",
     },
     keyInsight: "Test the failure path as rigorously as the success path. Production readiness means you know what the workflow does when it goes wrong.",
   },
@@ -183,13 +183,13 @@ const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
 const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; moduleContext: string }> = {
-  'non-tech': {
-    label: 'Workflow & Operator Track',
+  'builder': {
+    label: 'Builder Track',
     introTitle: 'Workflow Automation with n8n · Operator Lens',
     moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 04 · Workflow Automation with n8n. Follows Rhea, an operations lead at Northstar Health, as she automates her Monday exception summary — and discovers that the AI call is one node in a pipeline, and the rest of the pipeline is what determines whether the output is ever used.`,
   },
-  tech: {
-    label: 'Tech Builder Track',
+  engineer: {
+    label: 'Engineer Track',
     introTitle: 'Workflow Automation with n8n · Builder Lens',
     moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 04 · Workflow Automation with n8n. Follows Aarav, a platform engineer at Northstar Health, as he builds the first automated exception classification workflow — and learns that the AI node is three lines of a thirty-line workflow spec, and the other twenty-seven lines determine everything.`,
   },
@@ -215,7 +215,7 @@ import { NODE_TYPES, type NodeTypeKey, N8N_NW, N8N_NH, N8nFrame, N8nNodeCard, n8
 // node materialises with its type bar + icon. Mis-tags flash red.
 const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
   type WStep = { id: string; x: number; label: string; icon: string; correctType: NodeTypeKey; hint: string };
-  const steps: WStep[] = track === 'tech' ? [
+  const steps: WStep[] = track === 'engineer' ? [
     { id: 'a', x: 10,  label: 'Gmail Trigger',     icon: '✉', correctType: 'trigger',   hint: 'Email arriving in the monitored inbox is what starts the workflow.' },
     { id: 'b', x: 195, label: 'Extract policy_code', icon: '⚙', correctType: 'transform', hint: 'Pure data shaping — conditional logic on a field. No AI yet.' },
     { id: 'c', x: 380, label: 'Format prompt',     icon: '⚙', correctType: 'transform', hint: 'A Set node assembles the prompt text. Still engineering, not AI.' },
@@ -251,7 +251,7 @@ const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
   const reset = () => { setTags({}); setSelectedId(null); };
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'workflow-anatomy.json' : 'monday-brief-anatomy.json'} status={allTagged ? 'ACTIVE' : 'EDITING'}>
+    <N8nFrame filename={track === 'engineer' ? 'workflow-anatomy.json' : 'monday-brief-anatomy.json'} status={allTagged ? 'ACTIVE' : 'EDITING'}>
       <N8nCanvas width={920} height={110}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 920, height: 110, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
           <defs>
@@ -352,7 +352,7 @@ const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
 // in the palette.
 const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
   type Item = { id: string; label: string; icon: string; correctCat: NodeTypeKey };
-  const nodeItems: Item[] = track === 'tech' ? [
+  const nodeItems: Item[] = track === 'engineer' ? [
     { id: 'gmailtr',  label: 'Gmail Trigger',     icon: '✉', correctCat: 'trigger' },
     { id: 'http',     label: 'HTTP Request',      icon: '⇄', correctCat: 'data' },
     { id: 'setn',     label: 'Set Node',          icon: '⚙', correctCat: 'transform' },
@@ -498,7 +498,7 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
 // (Settings → Credentials). Each row shows provider logo, credential name,
 // scope, who owns it, last rotated. The learner picks risk per row.
 const CredentialCard = ({ track }: { track: GenAITrack }) => {
-  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
+  const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
   type Cred = {
     id: string; name: string; provider: string; logo: string; logoBg: string;
     scope: string; owner: string; rotated: string; type: 'api' | 'oauth' | 'service';
@@ -630,7 +630,7 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   type Choice = { id: string; label: string; icon: string; verdict: 'silent-fail' | 'silent-fail-bad' | 'correct-route' | 'silent-fail'; result: string };
   type Failure = { id: string; nodeLabel: string; nodeIcon: string; failTitle: string; failDetail: string; choices: Choice[] };
 
-  const failures: Failure[] = track === 'tech' ? [
+  const failures: Failure[] = track === 'engineer' ? [
     {
       id: 'ai',
       nodeLabel: 'OpenAI Classify', nodeIcon: '◈',
@@ -709,7 +709,7 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   ];
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'failure-routing.json' : 'monday-brief-failure.json'} status={picked ? (pickedChoice?.verdict === 'correct-route' ? 'ACTIVE' : 'FAILING') : 'ERROR'}>
+    <N8nFrame filename={track === 'engineer' ? 'failure-routing.json' : 'monday-brief-failure.json'} status={picked ? (pickedChoice?.verdict === 'correct-route' ? 'ACTIVE' : 'FAILING') : 'ERROR'}>
       {/* Scenario header */}
       <div style={{ padding: '10px 16px', background: 'rgba(220,38,38,0.10)', borderBottom: '1px solid rgba(220,38,38,0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -749,13 +749,13 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
         </svg>
 
         {/* Upstream node */}
-        <N8nNodeCard x={upstreamX} y={failY} label={track === 'tech' ? 'Format prompt' : 'Read Sheet'} typeKey={track === 'tech' ? 'transform' : 'data'} icon="⚙" />
+        <N8nNodeCard x={upstreamX} y={failY} label={track === 'engineer' ? 'Format prompt' : 'Read Sheet'} typeKey={track === 'engineer' ? 'transform' : 'data'} icon="⚙" />
         {/* Failing node */}
         <div style={{ animation: 'ep-pulse 1.4s ease-in-out infinite' }}>
           <N8nNodeCard x={failX} y={failY} label={current.nodeLabel} typeKey={'error'} icon={current.nodeIcon} status="fail" />
         </div>
         {/* Happy path */}
-        <N8nNodeCard x={okPathX} y={okPathY} label={track === 'tech' ? 'Append to Sheet' : 'Gmail Send'} typeKey={'output'} icon={track === 'tech' ? '⊞' : '✉'} ghost />
+        <N8nNodeCard x={okPathX} y={okPathY} label={track === 'engineer' ? 'Append to Sheet' : 'Gmail Send'} typeKey={'output'} icon={track === 'engineer' ? '⊞' : '✉'} ghost />
 
         {/* Choice nodes — render all four; chosen wrong fades muted, correct lights green */}
         {current.choices.map((c, i) => {
@@ -894,10 +894,10 @@ const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
     { from: 'validate', to: 'error', isError: true, fromBottom: true },
   ];
 
-  const nodes = track === 'tech' ? techNodes : nonTechNodes;
-  const conns = track === 'tech' ? techConns : nonTechConns;
+  const nodes = track === 'engineer' ? techNodes : nonTechNodes;
+  const conns = track === 'engineer' ? techConns : nonTechConns;
   const sel = nodes.find(n => n.id === selected);
-  const CW = track === 'tech' ? 926 : 1110;
+  const CW = track === 'engineer' ? 926 : 1110;
 
   const getPath = (conn: M4Conn): string => {
     const f = nodes.find(n => n.id === conn.from);
@@ -923,7 +923,7 @@ const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
           {(['#FF5F57', '#FFBD2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />)}
         </div>
         <div style={{ flex: 1, textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>
-          n8n — {track === 'tech' ? 'exception-classifier.json' : 'monday-brief.json'}
+          n8n — {track === 'engineer' ? 'exception-classifier.json' : 'monday-brief.json'}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} />
@@ -1044,7 +1044,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           </div>
           <div style={{ marginTop: '20px', padding: '16px 20px', borderRadius: '10px', background: `rgba(${ACCENT_RGB},0.08)`, border: `1px solid rgba(${ACCENT_RGB},0.18)` }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
-            <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you build a reliable automated pipeline where the AI node is one piece of a well-engineered system — with proper credentials, error handling, and failure paths that work at 2am without anyone watching?" : "Your lens: how do you turn a manual Monday morning workflow into a reliable automated system — standardising the prompt, the data pull, the output check, and the send, so your director gets the right brief whether or not you're at your desk?"}</div>
+            <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'engineer' ? "Your lens: how do you build a reliable automated pipeline where the AI node is one piece of a well-engineered system — with proper credentials, error handling, and failure paths that work at 2am without anyone watching?" : "Your lens: how do you turn a manual Monday morning workflow into a reliable automated system — standardising the prompt, the data pull, the output check, and the send, so your director gets the right brief whether or not you're at your desk?"}</div>
           </div>
         </div>
       </div>
@@ -1077,46 +1077,46 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
       {/* ── SECTION 01 ── */}
       <ChapterSection id="genai-m4-mindset" num="01" accentRgb={ACCENT_RGB} first>
         {chLabel('Workflow Automation with n8n')}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "In Pre-Read 03, Aarav built a research pipeline with proper source triangulation and COVE evaluation. The outputs are trustworthy. But every research run is still manual — an analyst opens ChatGPT, pastes the prompt, copies the output. No audit trail. No consistency. No record of what ran. This module is about wiring that pipeline into a system."
           : "In Pre-Read 03, Rhea rebuilt her research workflow with proper source selection and audience-parameterised drafting. The outputs are better. But each run is still manual — different prompts each Monday, results scattered in Slack threads, no way to compare last week's brief to this week's. This module is about standardising what she's built."
         )}
         {h2("The workflow mindset: AI is a node. Everything around it is still engineering.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can draw a node diagram for the current manual exception process — and identify exactly where the AI node belongs in it."
           : "\u25b6 After this section, you can write out your Monday morning process step by step and identify which steps are engineering problems before the AI call ever runs."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? <>Aarav has been handed a ticket: &ldquo;Build an automated exception classification system using AI.&rdquo; He opens n8n. His first instinct is to find an AI node and start there. He has no map of the current exception intake process, no schema for the input data, and no definition of what &ldquo;classified&rdquo; means as an output.</>
             : <>Rhea has decided to automate her Monday morning exception summary using n8n. Kabir sits down with her. Her first question is: &ldquo;Where do I put the AI?&rdquo; Kabir does not answer it. He asks her what happens between 7am Monday and the moment she sends the summary.</>}
         </SituationCard>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "The instinct to start with the AI node is almost universal — and almost always wrong. The AI node executes whatever you pass it. The input design determines everything. Before you know what the AI receives, how it's formatted, and what the output contract looks like, you don't have an AI problem. You have a process design problem."
           : "The question 'where does the AI go?' assumes you already know what the workflow does. Kabir's question — what happens step by step between trigger and send — is the actual prerequisite. You cannot automate something you haven't described. Automation of a fuzzy process produces a fast, fuzzy automated process."
         )}
         {pullQuote("Adding AI to a broken process doesn't fix the process. It automates the broken parts faster.")}
-        {keyBox(track === 'tech' ? "Building a workflow spec before touching n8n" : "The automation is in the plumbing, not the AI", [
-          track === 'tech'
+        {keyBox(track === 'engineer' ? "Building a workflow spec before touching n8n" : "The automation is in the plumbing, not the AI", [
+          track === 'engineer'
             ? "Map the current process node by node before designing automation: trigger, data sources, transformation steps, decision points, outputs, destination systems. The AI node belongs to one step in that map."
             : "The Monday summary workflow has five steps: trigger, data pull, AI summarisation, output validation, email send. Three of those five steps have nothing to do with AI quality.",
-          track === 'tech'
+          track === 'engineer'
             ? "Input schema first: what data does the AI node actually receive? Field names, data types, what's missing in edge cases. The 40% case where input is incomplete is not an edge case — it's a requirement."
             : "The hardest parts of workflow automation are the edge cases: empty data, API failures, unexpected input formats. These have nothing to do with how good your AI prompt is.",
-          track === 'tech'
+          track === 'engineer'
             ? "Output contract second: what does a correctly classified exception look like? One of eight categories, confidence score, fallback for low-confidence? Define the contract before the prompt."
             : "Automating a manual process first requires documenting the manual process precisely: what triggers it, what data it uses, what the output looks like, where it goes. You cannot automate something you haven't described.",
-          track === 'tech'
+          track === 'engineer'
             ? "The AI node is 3 lines in a 30-line workflow spec. The other 27 lines are authentication, data transformation, error routing, notification, and logging — all engineering problems with no AI involvement."
             : "AI tools feel like the point. They're not — they're one node. The workflow is the point. A broken workflow with great AI produces great outputs that nobody sees.",
-          track === 'tech'
+          track === 'engineer'
             ? "Automation that 'adds AI' without mapping the surrounding process creates a faster version of the existing confusion, not a reliable system."
             : "The question 'where does the AI go?' is always secondary to 'what does the full workflow do from trigger to verified output?'",
         ], ACCENT)}
         <GenAIConversationScene
-          mentor={track === 'non-tech' ? 'kabir' : 'rohan'}
+          mentor={track === 'builder' ? 'kabir' : 'rohan'}
           track={track}
-          accent={track === 'non-tech' ? '#0F766E' : '#2563EB'}
+          accent={track === 'builder' ? '#0F766E' : '#2563EB'}
           techLines={[
             { speaker: 'protagonist', text: "I've got the ticket — automate exception classification with AI. I've been looking at the n8n OpenAI node. Where should I start?" },
             { speaker: 'mentor', text: "Not with the AI node. Walk me through the current process, step by step, from when an exception comes in to when it lands in the right analyst's queue." },
@@ -1143,14 +1143,14 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <GenAIAvatar
-          name={track === 'non-tech' ? 'Kabir' : 'Rohan'}
-          nameColor={track === 'non-tech' ? '#0F766E' : '#2563EB'}
-          borderColor={track === 'non-tech' ? '#0F766E' : '#2563EB'}
+          name={track === 'builder' ? 'Kabir' : 'Rohan'}
+          nameColor={track === 'builder' ? '#0F766E' : '#2563EB'}
+          borderColor={track === 'builder' ? '#0F766E' : '#2563EB'}
           conceptId="genai-m4-mindset"
-          content={<>{track === 'tech' ? "The first question in workflow automation isn't 'where does AI go?' — it's 'what is the current process, exactly?' Automating a fuzzy process produces a fuzzy automated process. The input design determines everything." : "Automation feels like AI. It's actually plumbing. The AI call is one node. The workflow is everything around it: what triggers it, what data it pulls, what happens when the output is empty, where the result goes. Get the plumbing right first."}</>}
-          expandedContent={track === 'tech' ? "The workflow spec has two parts: the happy path (trigger → data → AI → route → notify) and the failure paths (what happens at each node when it times out, returns unexpected data, or succeeds but produces the wrong output). Both must exist before the first line of n8n config is written." : "Write your manual process as if handing it to someone new: 'Every Monday at 7am, the first thing I do is...' Keep going until the email is sent. Count the distinct steps. Identify the step most likely to fail silently. That step needs error handling before you automate anything."}
-          question={track === 'tech' ? "Aarav wants to start building the AI classification node. Rohan asks him to do something first. What?" : "Rhea asks where the AI goes in her automation workflow. Kabir doesn't answer. What does he ask instead?"}
-          options={track === 'tech' ? [
+          content={<>{track === 'engineer' ? "The first question in workflow automation isn't 'where does AI go?' — it's 'what is the current process, exactly?' Automating a fuzzy process produces a fuzzy automated process. The input design determines everything." : "Automation feels like AI. It's actually plumbing. The AI call is one node. The workflow is everything around it: what triggers it, what data it pulls, what happens when the output is empty, where the result goes. Get the plumbing right first."}</>}
+          expandedContent={track === 'engineer' ? "The workflow spec has two parts: the happy path (trigger → data → AI → route → notify) and the failure paths (what happens at each node when it times out, returns unexpected data, or succeeds but produces the wrong output). Both must exist before the first line of n8n config is written." : "Write your manual process as if handing it to someone new: 'Every Monday at 7am, the first thing I do is...' Keep going until the email is sent. Count the distinct steps. Identify the step most likely to fail silently. That step needs error handling before you automate anything."}
+          question={track === 'engineer' ? "Aarav wants to start building the AI classification node. Rohan asks him to do something first. What?" : "Rhea asks where the AI goes in her automation workflow. Kabir doesn't answer. What does he ask instead?"}
+          options={track === 'engineer' ? [
             { text: "Choose between OpenAI and Anthropic for the AI node", correct: false, feedback: "Model selection is a late-stage decision — it depends on the input/output contract, latency requirements, and cost. You can't choose a model without a workflow spec." },
             { text: "Document the current manual process node by node — input schema and output contract", correct: true, feedback: "Correct. The workflow spec — current process, input schema, output contract, edge cases — is the prerequisite. Building the AI node first produces a fast solution to an undefined problem." },
             { text: "Get sign-off from compliance before automating exception handling", correct: false, feedback: "Compliance review is necessary but downstream. The prerequisite is understanding what the workflow actually does before involving stakeholders." },
@@ -1163,7 +1163,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <TiltCard style={{ margin: '28px 0' }}><WorkflowAnatomy track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech' ? "Take the exception classification workflow you've been asked to build. Draw a node diagram with: trigger node, data input node(s), any transformation nodes needed before the AI call, the AI node with its input/output contract, any transformation nodes after the AI call, and the final output node. Count how many nodes are not the AI node. For each non-AI node, write one sentence describing what it does and what it outputs. This is your workflow spec." : "Write out your Monday morning exception summary process as if handing it to someone new. Start with 'Every Monday at 7am, the first thing I do is...' and keep going until the email is sent. Count the distinct steps. Identify which step is the AI call. Identify which step is most likely to fail silently. That step needs error handling before you automate anything."} />
+        <ApplyItBox prompt={track === 'engineer' ? "Take the exception classification workflow you've been asked to build. Draw a node diagram with: trigger node, data input node(s), any transformation nodes needed before the AI call, the AI node with its input/output contract, any transformation nodes after the AI call, and the final output node. Count how many nodes are not the AI node. For each non-AI node, write one sentence describing what it does and what it outputs. This is your workflow spec." : "Write out your Monday morning exception summary process as if handing it to someone new. Start with 'Every Monday at 7am, the first thing I do is...' and keep going until the email is sent. Count the distinct steps. Identify which step is the AI call. Identify which step is most likely to fail silently. That step needs error handling before you automate anything."} />
         <QuizEngine
           conceptId="genai-m4-mindset"
           conceptName="Workflow Mindset"
@@ -1177,39 +1177,39 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[0].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has his workflow spec. He opens n8n for the first time. His first instinct is to connect the Email Trigger straight to the AI node. Rohan points to the data panel and asks him to look at what the trigger actually outputs." : "Rhea has her process documented. Kabir shows her n8n. She drags in the OpenAI node first. Kabir asks her to move it to the right side of the canvas."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav has his workflow spec. He opens n8n for the first time. His first instinct is to connect the Email Trigger straight to the AI node. Rohan points to the data panel and asks him to look at what the trigger actually outputs." : "Rhea has her process documented. Kabir shows her n8n. She drags in the OpenAI node first. Kabir asks her to move it to the right side of the canvas."} />
       </ChapterSection>
 
       {/* ── SECTION 02 ── */}
       <ChapterSection id="genai-m4-nodes" num="02" accentRgb={ACCENT_RGB}>
         {h2("Triggers, nodes, and the data flow graph: everything is JSON moving between boxes.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can read any n8n node's output schema, identify a data shape mismatch at an edge, and insert the correct transformation node to fix it."
           : "\u25b6 After this section, you can build the left side of a workflow — trigger, data pull, format transform — and verify each handoff before adding the AI node."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? <>Aarav has his workflow spec. He opens n8n for the first time. He sees a canvas. He drags in an Email Trigger. The first thing he does is look for an AI node. Rohan stops him and points to the data panel on the right side of the Email Trigger node.</>
             : <>Rhea has her process documented. She opens n8n. Kabir shows her the canvas and asks her to drag in the first node without telling her which one to use. She drags in an OpenAI node. Kabir asks her to move it to the right side of the canvas.</>}
         </SituationCard>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "The n8n canvas is a picture of data flowing between transformations. Every edge in the graph is a JSON handoff. The AI node receives text — not email objects, not sheet rows, not raw API responses. Every upstream node either produces the right shape for the next node, or you need a transformation node between them."
           : "A workflow is data moving through transformations, not a list of tools connected together. The AI node is always in the middle. Something must prepare the data before it. Something must handle the output after it. Those flanking nodes are as important as the AI node — and they must be built and tested first."
         )}
-        {keyBox(track === 'tech' ? "Designing the data flow before wiring nodes" : "Thinking in flows, not nodes", [
-          track === 'tech'
+        {keyBox(track === 'engineer' ? "Designing the data flow before wiring nodes" : "Thinking in flows, not nodes", [
+          track === 'engineer'
             ? "Every n8n node has an input schema and an output schema. Design both before connecting nodes — a mismatched edge is the most common source of workflow failures."
             : "A workflow is data moving through transformations — not a list of tools connected together. Think about what the data looks like at each step, not which tool does what.",
-          track === 'tech'
+          track === 'engineer'
             ? "The AI node receives text. Raw email objects, sheet rows, and webhook payloads are not text — they need a transformation step before the AI sees them."
             : "The AI node is always in the middle. Something must prepare the data before it, and something must handle the output after it. Those flanking nodes are as important as the AI node.",
-          track === 'tech'
+          track === 'engineer'
             ? "Edge cases in input data (missing fields, unexpected nulls, arrays vs. single values) must be handled by transformation nodes before they reach the AI. The AI does not validate input."
             : "The Schedule Trigger fires at a time — it doesn't know anything about the data. The data must be pulled, cleaned, and formatted by nodes between the trigger and the AI.",
-          track === 'tech'
+          track === 'engineer'
             ? "Draw the full node graph on paper before building it in n8n: trigger → transform → AI → transform → route → output → notify. Label each edge with the data shape it carries."
             : "When a node turns green, it means it ran without error — not that its output is what you expected. Always check the output data, not just the status colour.",
-          track === 'tech'
+          track === 'engineer'
             ? "n8n's data panel (click any node after a test run) shows the exact JSON at every edge. Use it to verify handoffs before wiring the next node."
             : "n8n workflows are readable left to right: trigger is leftmost, final output is rightmost. Every node in between is a transformation or a decision. Build left to right and test each connection before adding the next node.",
         ], '#7C3AED')}
@@ -1249,10 +1249,10 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m4-nodes"
-          content={<>{track === 'tech' ? "Data shape mismatches between nodes are silent failures — the workflow looks connected but the downstream node receives garbage. Design the JSON at every edge before wiring. The data panel shows you exactly what each node outputs." : "The AI node is never your first node. It's always in the middle. Build left to right: trigger → data → format → AI. Test each connection before adding the next node. Green means executed, not correct."}</>}
-          expandedContent={track === 'tech' ? "The most common n8n failure pattern: AI node returns a JSON string ('{ \"category\": \"escalate\" }') and the downstream routing node expects a parsed object. The fix is a JSON Parse node or a Set node that extracts the field. Check the data panel output at every edge — the shape mismatch is always visible there before it causes an error downstream." : "The Set node is your most important non-AI node. It takes whatever the Sheets pull returns (arrays, nested objects, inconsistent field names) and transforms it into a clean, predictable text block. Run it once on real sheet data and inspect the output before connecting the AI node — every formatting problem you catch here prevents a silent failure later."}
-          question={track === 'tech' ? "Aarav builds: Email Trigger → AI Classify → Slack Notify. The Slack node fails with 'invalid data.' The AI node returns a JSON string, not an object. What is the root cause?" : "Rhea's workflow runs but the Google Sheet never updates. The Write node shows green but the sheet is blank. What should she check first?"}
-          options={track === 'tech' ? [
+          content={<>{track === 'engineer' ? "Data shape mismatches between nodes are silent failures — the workflow looks connected but the downstream node receives garbage. Design the JSON at every edge before wiring. The data panel shows you exactly what each node outputs." : "The AI node is never your first node. It's always in the middle. Build left to right: trigger → data → format → AI. Test each connection before adding the next node. Green means executed, not correct."}</>}
+          expandedContent={track === 'engineer' ? "The most common n8n failure pattern: AI node returns a JSON string ('{ \"category\": \"escalate\" }') and the downstream routing node expects a parsed object. The fix is a JSON Parse node or a Set node that extracts the field. Check the data panel output at every edge — the shape mismatch is always visible there before it causes an error downstream." : "The Set node is your most important non-AI node. It takes whatever the Sheets pull returns (arrays, nested objects, inconsistent field names) and transforms it into a clean, predictable text block. Run it once on real sheet data and inspect the output before connecting the AI node — every formatting problem you catch here prevents a silent failure later."}
+          question={track === 'engineer' ? "Aarav builds: Email Trigger → AI Classify → Slack Notify. The Slack node fails with 'invalid data.' The AI node returns a JSON string, not an object. What is the root cause?" : "Rhea's workflow runs but the Google Sheet never updates. The Write node shows green but the sheet is blank. What should she check first?"}
+          options={track === 'engineer' ? [
             { text: "The Slack node API has changed and needs updating", correct: false, feedback: "An API change would produce a different error — an authentication failure or a 404, not 'invalid data.' The error message points to a data shape problem." },
             { text: "A JSON Parse node is missing between AI Classify and Slack Notify — the data shape doesn't match", correct: true, feedback: "Correct. The AI node returned a JSON string. The Slack node expected a parsed object with specific fields. A Parse node between them transforms the shape and resolves the mismatch." },
             { text: "The AI node temperature is too high, causing malformed JSON", correct: false, feedback: "Temperature affects content variation, not JSON formatting. A malformed JSON would produce a parse error, not an 'invalid data' error in the downstream node." },
@@ -1265,7 +1265,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <TiltCard style={{ margin: '28px 0' }}><NodeTypeMapCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech' ? "In n8n, add an Email Trigger node and run a test with one real exception email. Open the data panel and copy the JSON output. Write the exact Set node mapping you'd need to produce a single 'classification_input' field that handles both the 'subject has policy code' and 'subject has no policy code' cases. Verify the Set node output is correct for both cases before connecting the OpenAI node." : "In n8n, add a Schedule Trigger, a Google Sheets node connected to your exception sheet, and a Set node. Run the Sheets node and look at the data panel output. Write down: what fields does each row have? Which fields does your summary prompt actually need? Build the Set node to extract only those fields into a clean text block, and test it returns what you expect before adding the AI node."} />
+        <ApplyItBox prompt={track === 'engineer' ? "In n8n, add an Email Trigger node and run a test with one real exception email. Open the data panel and copy the JSON output. Write the exact Set node mapping you'd need to produce a single 'classification_input' field that handles both the 'subject has policy code' and 'subject has no policy code' cases. Verify the Set node output is correct for both cases before connecting the OpenAI node." : "In n8n, add a Schedule Trigger, a Google Sheets node connected to your exception sheet, and a Set node. Run the Sheets node and look at the data panel output. Write down: what fields does each row have? Which fields does your summary prompt actually need? Build the Set node to extract only those fields into a clean text block, and test it returns what you expect before adding the AI node."} />
         <QuizEngine
           conceptId="genai-m4-nodes"
           conceptName="Triggers & Nodes"
@@ -1279,46 +1279,46 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[1].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav's node graph is right. Rohan looks at the credentials and asks him to explain who owns each one — and what happens to the workflow if the API key is rotated next week." : "Rhea's data flow is right. Her assistant set up the Google Sheets credential using Rhea's personal Google account. Kabir has one question about what happens when Rhea is on leave."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav's node graph is right. Rohan looks at the credentials and asks him to explain who owns each one — and what happens to the workflow if the API key is rotated next week." : "Rhea's data flow is right. Her assistant set up the Google Sheets credential using Rhea's personal Google account. Kabir has one question about what happens when Rhea is on leave."} />
       </ChapterSection>
 
       {/* ── SECTION 03 ── */}
       <ChapterSection id="genai-m4-connect" num="03" accentRgb={ACCENT_RGB}>
         {h2("Credentials, auth, and the trust model: who owns the connection, and what breaks when they leave.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can explain the difference between personal credentials and service accounts, and redesign any workflow that uses personal credentials in a production context."
           : "\u25b6 After this section, you can identify every credential your workflow uses, who owns it, and what happens to the workflow if that person's access changes."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? <>Aarav&apos;s workflow is wired. He used the team&apos;s shared OpenAI API key for the classification node and his own Slack token for the notification. Rohan looks at the credentials list and asks him one question: &ldquo;What happens to this workflow if you rotate the API key next week?&rdquo; Aarav realises he doesn&apos;t have an answer.</>
             : <>Rhea&apos;s workflow is nearly complete. Her assistant set up the Google Sheets credential using Rhea&apos;s personal Google account because it was the fastest path. Kabir asks: &ldquo;What happens to the Monday summary if Rhea is on leave and changes her password?&rdquo; Nobody in the room has an answer.</>}
         </SituationCard>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "Credentials are infrastructure. They are not configuration. A workflow that depends on a personal API key or a personal OAuth token has a single point of failure that has nothing to do with code quality. When that person rotates their key, changes their password, or leaves the team, the workflow breaks — silently, at 2am, before the Monday report runs."
           : "The Google Sheets OAuth token is tied to the Google account that created it. When Rhea changes her password, enables 2FA, or leaves the company, the token is revoked. The workflow fails. Nobody knows until the director notices the missing brief. The fix is not technical — it's an ownership decision that must be made before the workflow goes live."
         )}
-        {keyBox(track === 'tech' ? "The credential design checklist" : "Workflow credentials: ownership and failure modes", [
-          track === 'tech'
+        {keyBox(track === 'engineer' ? "The credential design checklist" : "Workflow credentials: ownership and failure modes", [
+          track === 'engineer'
             ? "Every credential in a production workflow has an owner. The owner question is: if this credential breaks, who is responsible and who can fix it? Personal credentials answer: one person who might be unavailable."
             : "Every credential in a workflow has an owner — the person whose account was used to authenticate. When that person leaves, changes their password, or revokes access, the workflow breaks.",
-          track === 'tech'
+          track === 'engineer'
             ? "Shared API keys are a cost, security, and rotation problem: every workflow uses the same budget pool, you can't audit per-workflow usage, and rotating the key breaks all workflows using it simultaneously."
             : "The fix is a team-owned service account or a shared workspace account — an account that belongs to the team, not a person. Any team member can re-authenticate it if it expires.",
-          track === 'tech'
+          track === 'engineer'
             ? "Service accounts are the correct design for production workflows: one service account per workflow or per service, dedicated budget limits, rotation independent of any individual's credentials."
             : "Before any workflow goes live, audit every credential: Google Sheets OAuth, email send auth, AI API key. For each, ask: if the owner leaves tomorrow, can someone else re-authenticate without their personal login?",
-          track === 'tech'
+          track === 'engineer'
             ? "OAuth tokens (Google Sheets, Gmail, Slack) expire and must be re-authorised. Personal OAuth tokens can only be re-authorised by the person who created them — or by revoking and re-creating with a different account."
             : "OAuth tokens expire on a schedule and must be renewed by the account that created them. If that account is a personal account, renewal requires that person to be available. If it's a service account, any admin can renew it.",
-          track === 'tech'
+          track === 'engineer'
             ? "The compliance rule: any workflow that handles sensitive data (patient records, exception flags, policy decisions) must use auditable credentials — so there's a record of which workflow ran as which identity."
             : "Credentials are not a technical detail — they're an operational risk decision. Personal credentials in a team workflow create a dependency on one person's continued employment and password management.",
         ], '#2563EB')}
         <GenAIConversationScene
-          mentor={track === 'non-tech' ? 'kabir' : 'leela'}
+          mentor={track === 'builder' ? 'kabir' : 'leela'}
           track={track}
-          accent={track === 'non-tech' ? '#0F766E' : '#C2410C'}
+          accent={track === 'builder' ? '#0F766E' : '#C2410C'}
           techLines={[
             { speaker: 'protagonist', text: "The workflow is wired. I used the team's shared OpenAI API key and my own Slack token for notifications." },
             { speaker: 'mentor', text: "Two problems. Walk me through what 'shared API key' means for billing." },
@@ -1348,10 +1348,10 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           nameColor="#C2410C"
           borderColor="#C2410C"
           conceptId="genai-m4-connect"
-          content={<>{track === 'tech' ? "Credentials are infrastructure — they have the same failure modes as servers. Personal credentials create a dependency on one person's continued availability, current password, and active employment. Design for team ownership from day one." : "The question 'who owns this credential?' is not a technical question — it's an operational risk question. Personal credentials in a team workflow are a single point of failure that shows up at the worst possible time."}</>}
-          expandedContent={track === 'tech' ? "The compliance dimension: in regulated environments (health insurance, financial services), every workflow action must be traceable to an identity. Shared API keys make that audit trail meaningless — every action looks like it came from the same identity. Service accounts with workflow-specific credentials give you the audit trail compliance requires." : "Build a credential audit table for every production workflow: credential name, service it accesses, account that owns it, expiry date, who can renew it. If 'who can renew it' is one person, that's a risk item. Fix it before go-live, not after the first failure."}
-          question={track === 'tech' ? "Aarav creates an n8n credential for the OpenAI API using the team's shared API key. Rohan asks him to change it. Why?" : "Rhea's assistant sets up the Google Sheets credential using Rhea's personal Google account. Kabir says this is a problem. What is the risk?"}
-          options={track === 'tech' ? [
+          content={<>{track === 'engineer' ? "Credentials are infrastructure — they have the same failure modes as servers. Personal credentials create a dependency on one person's continued availability, current password, and active employment. Design for team ownership from day one." : "The question 'who owns this credential?' is not a technical question — it's an operational risk question. Personal credentials in a team workflow are a single point of failure that shows up at the worst possible time."}</>}
+          expandedContent={track === 'engineer' ? "The compliance dimension: in regulated environments (health insurance, financial services), every workflow action must be traceable to an identity. Shared API keys make that audit trail meaningless — every action looks like it came from the same identity. Service accounts with workflow-specific credentials give you the audit trail compliance requires." : "Build a credential audit table for every production workflow: credential name, service it accesses, account that owns it, expiry date, who can renew it. If 'who can renew it' is one person, that's a risk item. Fix it before go-live, not after the first failure."}
+          question={track === 'engineer' ? "Aarav creates an n8n credential for the OpenAI API using the team's shared API key. Rohan asks him to change it. Why?" : "Rhea's assistant sets up the Google Sheets credential using Rhea's personal Google account. Kabir says this is a problem. What is the risk?"}
+          options={track === 'engineer' ? [
             { text: "Shared API keys can't be used in n8n credentials", correct: false, feedback: "Shared API keys work technically in n8n — the issue is operational: no per-workflow cost tracking, no rotation capability, and a shared security boundary." },
             { text: "A shared key means any workflow is billed to the same budget with no per-workflow tracking or rotation capability", correct: true, feedback: "Correct. Every workflow using the shared key draws from the same budget, you can't audit per-workflow usage, and rotating the key breaks all workflows simultaneously. Service accounts per workflow solve all three problems." },
             { text: "OpenAI rate limits are per-key, so a shared key will hit limits faster", correct: false, feedback: "Rate limits are a real concern with shared keys, but that's secondary to the billing, audit, and rotation problems. The primary issue is operational ownership." },
@@ -1364,7 +1364,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <TiltCard style={{ margin: '28px 0' }}><CredentialCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech' ? "List every credential your current or planned n8n workflow uses: AI API key, Slack token, Google Sheets OAuth, email send auth. For each, write down: (1) whose account owns it, (2) what happens if that person rotates or revokes it, (3) who can fix it at 2am if it breaks. Identify any credential where the answer to (3) is 'only one person' and redesign those as service accounts or shared team credentials." : "For the Monday summary workflow, list every external service it connects to and the credential type used for each. For each credential, answer: (1) whose personal account is it tied to, (2) what's the token expiry, (3) who can renew it if the owner is unavailable. If any credential is tied to a single person, create a team Google/Slack/email account and migrate the credential before the workflow goes live."} />
+        <ApplyItBox prompt={track === 'engineer' ? "List every credential your current or planned n8n workflow uses: AI API key, Slack token, Google Sheets OAuth, email send auth. For each, write down: (1) whose account owns it, (2) what happens if that person rotates or revokes it, (3) who can fix it at 2am if it breaks. Identify any credential where the answer to (3) is 'only one person' and redesign those as service accounts or shared team credentials." : "For the Monday summary workflow, list every external service it connects to and the credential type used for each. For each credential, answer: (1) whose personal account is it tied to, (2) what's the token expiry, (3) who can renew it if the owner is unavailable. If any credential is tied to a single person, create a team Google/Slack/email account and migrate the credential before the workflow goes live."} />
         <QuizEngine
           conceptId="genai-m4-connect"
           conceptName="Auth & Trust"
@@ -1378,46 +1378,46 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[2].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Credentials are fixed. The workflow runs overnight for the first time. In the morning, 14 of 22 exceptions were classified. 8 are missing. The workflow shows no errors." : "Credentials are fixed. The workflow runs on Monday morning. Rhea's director calls to ask why the email body is empty. The workflow shows all green nodes."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Credentials are fixed. The workflow runs overnight for the first time. In the morning, 14 of 22 exceptions were classified. 8 are missing. The workflow shows no errors." : "Credentials are fixed. The workflow runs on Monday morning. Rhea's director calls to ask why the email body is empty. The workflow shows all green nodes."} />
       </ChapterSection>
 
       {/* ── SECTION 04 ── */}
       <ChapterSection id="genai-m4-errors" num="04" accentRgb={ACCENT_RGB}>
         {h2("Error handling: what the workflow does when a node fails at 2am.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can answer three questions for every node in a workflow: what happens on timeout, what happens on unexpected output format, what happens when the node succeeds but the output is wrong."
           : "\u25b6 After this section, you can add an output validation step before any send node — so the workflow alerts you instead of sending an empty email."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? <>The overnight classification workflow has run. In the morning: 14 of 22 exceptions are classified and routed. 8 are missing. The n8n execution log shows no errors — every node ran green. Rohan looks at the error handling settings and immediately sees the problem.</>
             : <>Rhea&apos;s Monday report workflow ran. It sent the email. But the email body is empty. Her director calls at 10am to ask what happened. The n8n execution log shows all green nodes. Rhea realises the workflow succeeded at a task she didn&apos;t define correctly.</>}
         </SituationCard>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "Green nodes mean the node executed without throwing an error. They do not mean the output was correct or complete. In n8n, nodes have error handling modes: 'stop workflow' (halt on any error), 'continue' (skip the failed item and keep running), and 'retry on fail.' The default for most nodes is 'continue' — which means 8 failed items are silently dropped without any alert."
           : "The workflow sent an email — that's a successful execution. The email body was empty — that's a correct execution of a workflow that never checked whether it had anything to send. Output validation is a distinct step that must be designed explicitly: check the AI output before passing it to the send node, and define what happens when the check fails."
         )}
-        {keyBox(track === 'tech' ? "The three error questions for every node" : "Output validation: the step between AI and send", [
-          track === 'tech'
+        {keyBox(track === 'engineer' ? "The three error questions for every node" : "Output validation: the step between AI and send", [
+          track === 'engineer'
             ? "For every node, answer: (1) what should happen if this node times out? (2) what if it returns an unexpected format? (3) what if it succeeds but the output is wrong? These are different failure modes requiring different responses."
             : "Output validation is a Set node or Code node between the AI output and the send node. It checks: is the output non-empty? Is it above a minimum length? Does it contain the required sections? If not, it routes to an alert or a retry, not to the send.",
-          track === 'tech'
+          track === 'engineer'
             ? "The three error responses: (1) retry with exponential backoff — for transient failures like rate limits or API timeouts; (2) route to error branch — for structural failures like malformed output; (3) alert and halt — for compliance-critical failures where any continuation is risky."
             : "The failure modes for a summary workflow: AI returns empty output (holiday week with no data), AI returns a very short output (data pull was incomplete), AI output is missing required sections (prompt was changed). Each needs a different response: retry, alert, or abort.",
-          track === 'tech'
+          track === 'engineer'
             ? "The dead-letter pattern: items that fail processing go to a dead-letter queue (a separate sheet, a Slack channel, a database table) instead of being silently dropped. The queue is reviewed manually. No item is lost."
             : "The alert-and-abort pattern: if the validation check fails, send an alert to Rhea's Slack saying 'Monday summary validation failed — [reason]' and do not send the email. Better to get an alert than to send an empty brief to the director.",
-          track === 'tech'
+          track === 'engineer'
             ? "n8n error handling settings: in the node settings panel, set 'On Error' to 'Continue Error Output' to route failed items to an error branch instead of silently dropping them."
             : "The validation node is also a data quality checkpoint: if the AI output consistently fails validation, that's a signal that the upstream data or the prompt has changed. The validation failure rate is a workflow health metric.",
-          track === 'tech'
+          track === 'engineer'
             ? "Silent failures in compliance workflows are more dangerous than loud failures. A loud failure triggers a fix. A silent failure produces wrong decisions that nobody knows to question."
             : "Design the failure path first, before the happy path. Ask: what's the worst thing this workflow could do silently? That's the first validation check to add.",
         ], '#C2410C')}
         <GenAIConversationScene
-          mentor={track === 'non-tech' ? 'kabir' : 'rohan'}
+          mentor={track === 'builder' ? 'kabir' : 'rohan'}
           track={track}
-          accent={track === 'non-tech' ? '#0F766E' : '#2563EB'}
+          accent={track === 'builder' ? '#0F766E' : '#2563EB'}
           techLines={[
             { speaker: 'protagonist', text: "The workflow ran overnight. 14 of 22 exceptions were classified. 8 are missing. No errors in the log. I don't understand how items can disappear without an error." },
             { speaker: 'mentor', text: "What's the error handling mode on the AI classification node?" },
@@ -1446,10 +1446,10 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           nameColor="#2563EB"
           borderColor="#2563EB"
           conceptId="genai-m4-errors"
-          content={<>{track === 'tech' ? "Silent failures are more dangerous than loud ones. A loud failure triggers a fix immediately. A silent failure produces wrong decisions that nobody knows to question — and the workflow keeps running with the same flaw until someone notices the downstream impact." : "Output validation is not optional. Every automated workflow that produces output consumed by humans must check that output before sending it. The cost of a validation step is one node. The cost of skipping it is your director making decisions based on empty briefs."}</>}
-          expandedContent={track === 'tech' ? "The three-question framework for every node: (1) timeout — use retry with exponential backoff for API timeouts; (2) unexpected format — route to error branch with the raw output logged; (3) successful but wrong — add output validation checks (minimum length, required fields, confidence score threshold). Design each response before running the first test." : "The validation node pattern: add a Code node before any send step. It checks output_length > 100 and output.includes('exceptions') (or whatever required sections you defined). If the check fails, the Code node throws an error that routes to an alert branch. If it passes, the data flows to the email node. This is a five-minute build that prevents the most expensive silent failure."}
-          question={track === 'tech' ? "Aarav's overnight workflow ran with all green nodes. 8 of 22 exceptions are missing. No errors appear in the execution log. What is the most likely design gap?" : "Rhea's Monday report workflow ran with all green nodes and sent an empty email. What is the process gap?"}
-          options={track === 'tech' ? [
+          content={<>{track === 'engineer' ? "Silent failures are more dangerous than loud ones. A loud failure triggers a fix immediately. A silent failure produces wrong decisions that nobody knows to question — and the workflow keeps running with the same flaw until someone notices the downstream impact." : "Output validation is not optional. Every automated workflow that produces output consumed by humans must check that output before sending it. The cost of a validation step is one node. The cost of skipping it is your director making decisions based on empty briefs."}</>}
+          expandedContent={track === 'engineer' ? "The three-question framework for every node: (1) timeout — use retry with exponential backoff for API timeouts; (2) unexpected format — route to error branch with the raw output logged; (3) successful but wrong — add output validation checks (minimum length, required fields, confidence score threshold). Design each response before running the first test." : "The validation node pattern: add a Code node before any send step. It checks output_length > 100 and output.includes('exceptions') (or whatever required sections you defined). If the check fails, the Code node throws an error that routes to an alert branch. If it passes, the data flows to the email node. This is a five-minute build that prevents the most expensive silent failure."}
+          question={track === 'engineer' ? "Aarav's overnight workflow ran with all green nodes. 8 of 22 exceptions are missing. No errors appear in the execution log. What is the most likely design gap?" : "Rhea's Monday report workflow ran with all green nodes and sent an empty email. What is the process gap?"}
+          options={track === 'engineer' ? [
             { text: "The AI classification node timed out on 8 exceptions and the workflow skipped them silently", correct: true, feedback: "Correct. The default error handling mode is 'Continue' — when a node errors, it skips the item and keeps running. 8 items errored, were dropped, and no alert fired. Changing to 'Continue Error Output' routes failed items to an error branch instead." },
             { text: "The email trigger only captured 14 of 22 exceptions", correct: false, feedback: "If the trigger missed 8 items, those items would never appear in the execution log at all — not even as attempted and skipped. The fact that all nodes show green means 22 items were processed, with 8 failing silently during processing." },
             { text: "The Slack notification failed and the exceptions are in a dead-letter queue", correct: false, feedback: "If exceptions were in a dead-letter queue, they would be visible somewhere. The symptom is that 8 items are completely missing — which points to silent drops, not queuing." },
@@ -1462,7 +1462,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <TiltCard style={{ margin: '28px 0' }}><ErrorPathCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech' ? "For each node in your exception classification workflow, answer three questions: (1) what happens if this node times out — retry, skip, or halt? (2) what happens if it returns an unexpected format — log and continue, or alert and halt? (3) what happens if it succeeds but produces a wrong output — how would you know? Add an error branch to any node where your answer to any question is 'I don't know.' Add a dead-letter queue write step to capture any item that fails processing." : "Add a validation node to your Monday summary workflow. Before the email send, add an IF node that checks: (1) is the AI output more than 100 characters? (2) does it contain the word 'exceptions'? If either check fails, route to a Slack alert that says 'Monday summary validation failed — [output_length] characters, missing expected content.' Test it by temporarily modifying the prompt to return a short output and verify the alert fires."} />
+        <ApplyItBox prompt={track === 'engineer' ? "For each node in your exception classification workflow, answer three questions: (1) what happens if this node times out — retry, skip, or halt? (2) what happens if it returns an unexpected format — log and continue, or alert and halt? (3) what happens if it succeeds but produces a wrong output — how would you know? Add an error branch to any node where your answer to any question is 'I don't know.' Add a dead-letter queue write step to capture any item that fails processing." : "Add a validation node to your Monday summary workflow. Before the email send, add an IF node that checks: (1) is the AI output more than 100 characters? (2) does it contain the word 'exceptions'? If either check fails, route to a Slack alert that says 'Monday summary validation failed — [output_length] characters, missing expected content.' Test it by temporarily modifying the prompt to return a short output and verify the alert fires."} />
         <QuizEngine
           conceptId="genai-m4-errors"
           conceptName="Error Handling"
@@ -1476,46 +1476,46 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[3].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Error handling is in place. Aarav runs the full workflow end-to-end on a real exception. It succeeds. He marks it production-ready. Rohan has one question before signing off — and it's not about the success case." : "Validation is in place. Rhea runs the full workflow on test data. It works. She tells Kabir she's ready to go live. He asks her to run one more test — one she hasn't tried yet."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Error handling is in place. Aarav runs the full workflow end-to-end on a real exception. It succeeds. He marks it production-ready. Rohan has one question before signing off — and it's not about the success case." : "Validation is in place. Rhea runs the full workflow on test data. It works. She tells Kabir she's ready to go live. He asks her to run one more test — one she hasn't tried yet."} />
       </ChapterSection>
 
       {/* ── SECTION 05 ── */}
       <ChapterSection id="genai-m4-e2e" num="05" accentRgb={ACCENT_RGB}>
         {h2("Your first end-to-end workflow: production readiness means testing the failure path, not just the happy path.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can define production readiness for a classification workflow — including the confidence threshold design, the human review queue, and what a 'verified output' means in a compliance context."
           : "\u25b6 After this section, you can run the baseline comparison test — comparing AI output to a manually produced reference — and explain why happy-path success doesn't mean production readiness."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? <>Aarav runs the full end-to-end workflow on a real exception. Trigger fires. Email parsed. Classification runs. Slack notification sent. It works. He marks the workflow production-ready. Rohan asks him one question: &ldquo;What does the workflow do when the AI returns a confidence score below 0.6?&rdquo; Aarav has no answer.</>
             : <>Rhea&apos;s workflow runs successfully on her test dataset. All nodes green. Output looks reasonable. She tells Kabir she&apos;s ready to go live. Kabir asks her to run one more test before she does. Not a technical test — a quality test. He asks her to compare the AI output to last week&apos;s manually written brief.</>}
         </SituationCard>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "Happy path success is not production readiness. The classification workflow succeeds when the AI returns a confident, correctly formatted category for a clean input. Production is full of inputs that aren't clean and AI calls that aren't confident. The failure path — what happens when confidence is low, when the category is ambiguous, when the input is malformed — must be designed before the workflow goes live."
           : "Test data passes because it was designed to pass. The real question is whether the workflow produces the same quality output as the manual process it's replacing. The baseline comparison test — run the workflow on last week's real data and compare the output to the brief that was actually sent — is the only test that answers the production readiness question directly."
         )}
-        {keyBox(track === 'tech' ? "Designing the confidence threshold and human review queue" : "The baseline comparison test", [
-          track === 'tech'
+        {keyBox(track === 'engineer' ? "Designing the confidence threshold and human review queue" : "The baseline comparison test", [
+          track === 'engineer'
             ? "Every AI classification output has a confidence score or an implied confidence level. 'High confidence' without a calibration threshold is meaningless — it must be a number calibrated on labeled examples from your actual data."
             : "The baseline test: run the workflow on the last N weeks of real data. Compare each AI-generated output to the manually written brief for the same week. For each comparison, ask: would this AI brief have told me what I needed to know? Would my director have been able to act on it?",
-          track === 'tech'
+          track === 'engineer'
             ? "The confidence threshold design: items above threshold auto-route; items below threshold go to a human review queue. The threshold must be set based on labeled data — not intuition. An arbitrary threshold produces auto-routed items that are confidently wrong."
             : "The quality bar: the AI brief should be at least as useful as the manual brief for the three most common decision types. If it fails for any of those three, the workflow is not production-ready for that case.",
-          track === 'tech'
+          track === 'engineer'
             ? "The human review queue is a workflow component, not an escape hatch. It has an SLA (how long can an item sit before it must be reviewed?), a capacity design (how many items per day can analysts handle?), and a feedback loop (what happens to low-confidence items that analysts classify? Does that data improve the threshold?)."
             : "The failure cases to test explicitly: a holiday week with no exceptions, a week with an unusually high exception count, a week where all exceptions are the same type. Each of these is a realistic production scenario that test data rarely covers.",
-          track === 'tech'
+          track === 'engineer'
             ? "Verified output in a compliance context: the output of an automated classification must be traceable — which workflow, which model version, which prompt version, which input produced this classification. Logging these at the time of classification is a compliance requirement, not a feature."
             : "Go-live means the workflow runs without human supervision. The production readiness question is: if I don't look at the workflow output for a full week, will my director have received accurate, actionable briefs every Monday? If the answer is 'probably,' the workflow is not production-ready.",
-          track === 'tech'
+          track === 'engineer'
             ? "The go-live checklist: (1) confidence threshold calibrated on labeled data; (2) human review queue designed with SLA; (3) failure paths tested explicitly; (4) credentials owned by team accounts; (5) dead-letter queue in place; (6) compliance logging active."
             : "After go-live: monitor the first four weeks manually. Compare AI output to your manual check each week. Track validation failure rate. If the quality is consistently meeting the bar, reduce manual oversight. If it's not, diagnose before reducing oversight.",
         ], '#0891B2')}
         <GenAIConversationScene
-          mentor={track === 'non-tech' ? 'kabir' : 'rohan'}
+          mentor={track === 'builder' ? 'kabir' : 'rohan'}
           track={track}
-          accent={track === 'non-tech' ? '#0F766E' : '#2563EB'}
+          accent={track === 'builder' ? '#0F766E' : '#2563EB'}
           techLines={[
             { speaker: 'protagonist', text: "The end-to-end test worked. Exception came in, got classified correctly, Slack notification fired. I'm marking it production-ready." },
             { speaker: 'mentor', text: "One question before you do. What does the workflow do when the AI classification returns a confidence score below 0.6?" },
@@ -1541,14 +1541,14 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
         />
         {PMPrincipleBox({ label: '◈ Principle', principle: "Production readiness is not 'the happy path works.' It is: I know what the workflow does in every failure case, I've tested those cases explicitly, and the output meets the quality bar of the manual process it replaces." })}
         <GenAIAvatar
-          name={track === 'non-tech' ? 'Kabir' : 'Rohan'}
-          nameColor={track === 'non-tech' ? '#0F766E' : '#2563EB'}
-          borderColor={track === 'non-tech' ? '#0F766E' : '#2563EB'}
+          name={track === 'builder' ? 'Kabir' : 'Rohan'}
+          nameColor={track === 'builder' ? '#0F766E' : '#2563EB'}
+          borderColor={track === 'builder' ? '#0F766E' : '#2563EB'}
           conceptId="genai-m4-e2e"
-          content={<>{track === 'tech' ? "Happy path success is the beginning of the production readiness test, not the end. The failure path — what the workflow does when confidence is low, input is malformed, or the API is slow — is what matters when the workflow runs at 2am without anyone watching." : "Test data passes because it was designed to pass. The baseline comparison test — run on last week's real data, compared to the brief that was actually sent — is the only test that answers the production readiness question."}</>}
-          expandedContent={track === 'tech' ? "The confidence threshold is the most common production readiness gap in classification workflows. Teams set it arbitrarily (0.8 sounds good) without calibrating on labeled data. If 40% of your production inputs have ambiguous categories, an arbitrary 0.8 threshold produces a human review queue that's 40% of volume — which no analyst team can handle. Calibrate the threshold to a queue volume your team can actually review." : "The four-week monitoring protocol: for the first four weeks after go-live, Rhea reads the AI brief before sending it. She notes anything she would have changed. At week 4, she reviews the change list — if there are recurring patterns, they're prompt improvements. If the list is empty for the last two weeks, full automation is justified."}
-          question={track === 'tech' ? "Aarav's end-to-end workflow succeeds on a real exception. He marks it production-ready. Rohan asks one question before signing off. What is it?" : "Rhea's Monday report workflow works on her test data. She's ready to go live. Kabir asks her to run one more test. What kind?"}
-          options={track === 'tech' ? [
+          content={<>{track === 'engineer' ? "Happy path success is the beginning of the production readiness test, not the end. The failure path — what the workflow does when confidence is low, input is malformed, or the API is slow — is what matters when the workflow runs at 2am without anyone watching." : "Test data passes because it was designed to pass. The baseline comparison test — run on last week's real data, compared to the brief that was actually sent — is the only test that answers the production readiness question."}</>}
+          expandedContent={track === 'engineer' ? "The confidence threshold is the most common production readiness gap in classification workflows. Teams set it arbitrarily (0.8 sounds good) without calibrating on labeled data. If 40% of your production inputs have ambiguous categories, an arbitrary 0.8 threshold produces a human review queue that's 40% of volume — which no analyst team can handle. Calibrate the threshold to a queue volume your team can actually review." : "The four-week monitoring protocol: for the first four weeks after go-live, Rhea reads the AI brief before sending it. She notes anything she would have changed. At week 4, she reviews the change list — if there are recurring patterns, they're prompt improvements. If the list is empty for the last two weeks, full automation is justified."}
+          question={track === 'engineer' ? "Aarav's end-to-end workflow succeeds on a real exception. He marks it production-ready. Rohan asks one question before signing off. What is it?" : "Rhea's Monday report workflow works on her test data. She's ready to go live. Kabir asks her to run one more test. What kind?"}
+          options={track === 'engineer' ? [
             { text: "What happens when the AI classification returns a low-confidence result?", correct: true, feedback: "Correct. Happy path success doesn't test the failure case. Every classification workflow needs a confidence threshold, a human review queue for below-threshold items, and defined SLAs for that queue. Without these, ambiguous items auto-route regardless of model certainty." },
             { text: "How long does the workflow take to run on a single exception?", correct: false, feedback: "Latency is a performance concern, not a production readiness concern. A workflow that takes 5 seconds per exception is production-ready if it handles the failure path correctly. A workflow that takes 0.5 seconds but silently drops low-confidence items is not." },
             { text: "Does the Slack notification render correctly on mobile?", correct: false, feedback: "Notification rendering is a UX detail. It doesn't affect whether exceptions are correctly classified or whether ambiguous items are handled appropriately." },
@@ -1561,7 +1561,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <div style={{ margin: '28px 0' }}><N8nCanvasExplorer track={track} /></div>
-        <ApplyItBox prompt={track === 'tech' ? "Before marking any classification workflow production-ready, complete this checklist: (1) add a confidence field to AI output and set a threshold calibrated on 20+ labeled examples; (2) build a human review queue for below-threshold items with a defined daily SLA; (3) log workflow version, model version, and prompt hash for every classification; (4) test three explicit failure cases: empty input, ambiguous input, and input that belongs to two categories. Document the workflow's behaviour for each. Sign off only when all four are done." : "Pull last week's real exception sheet. Run your workflow on it and save the AI output. Then pull the brief you actually sent last week. Compare them line by line. For each difference, write one sentence: is this a prompt gap (the prompt doesn't ask for this), a data gap (the data wasn't in the sheet), or a quality bar gap (the AI version is acceptable but different)? Count the prompt gaps. Each one is a workflow improvement before go-live."} />
+        <ApplyItBox prompt={track === 'engineer' ? "Before marking any classification workflow production-ready, complete this checklist: (1) add a confidence field to AI output and set a threshold calibrated on 20+ labeled examples; (2) build a human review queue for below-threshold items with a defined daily SLA; (3) log workflow version, model version, and prompt hash for every classification; (4) test three explicit failure cases: empty input, ambiguous input, and input that belongs to two categories. Document the workflow's behaviour for each. Sign off only when all four are done." : "Pull last week's real exception sheet. Run your workflow on it and save the AI output. Then pull the brief you actually sent last week. Compare them line by line. For each difference, write one sentence: is this a prompt gap (the prompt doesn't ask for this), a data gap (the data wasn't in the sheet), or a quality bar gap (the AI version is acceptable but different)? Count the prompt gaps. Each one is a workflow improvement before go-live."} />
         <QuizEngine
           conceptId="genai-m4-e2e"
           conceptName="End-to-End Thinking"
@@ -1575,14 +1575,14 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[4].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "The exception classification workflow is live at 20 records per day. Leadership wants 200. Aarav adds a Loop node. 200 OpenAI calls fire simultaneously — and hit the rate limit." : "The Monday summary workflow is live and working. Her manager asks for a second: a weekly renewal digest covering 80 accounts from a new spreadsheet. Rhea adds a Loop node. First run: one output. The other 79 renewals never processed."} />
+        <NextChapterTeaser text={track === 'engineer' ? "The exception classification workflow is live at 20 records per day. Leadership wants 200. Aarav adds a Loop node. 200 OpenAI calls fire simultaneously — and hit the rate limit." : "The Monday summary workflow is live and working. Her manager asks for a second: a weekly renewal digest covering 80 accounts from a new spreadsheet. Rhea adds a Loop node. First run: one output. The other 79 renewals never processed."} />
       </ChapterSection>
     </>
   );
 }
 
 export default function GenAIPreRead4({ track, onBack, onNext, nextLabel }: Props) {
-  const completionMessage = track === 'tech'
+  const completionMessage = track === 'engineer'
     ? 'You now have the workflow automation toolkit: process-first spec design, JSON edge handoffs, service-account credential hygiene, explicit error paths with dead-letter queues, and failure-path production readiness.'
     : 'You now know how to automate the Monday workflow reliably: trigger design, data transformation, output validation, team-owned credentials, and the baseline comparison test before going live.';
   return (

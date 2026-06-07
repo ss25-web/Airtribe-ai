@@ -46,135 +46,135 @@ const QUIZZES = [
   {
     conceptId: 'genai-m6-architecture',
     question: {
-      tech: "Aarav is asked to build an AI system that checks eligibility for a claim. The eligibility check has 3 fixed steps, always in the same order, with no branching. Should he build an agent or a chain?",
-      'non-tech': "Rhea wants to automate a renewal reminder: pull overdue renewals → format a reminder email → send it. Always the same 3 steps. Should she use an agent or a workflow chain?",
+      engineer: "Aarav is asked to build an AI system that checks eligibility for a claim. The eligibility check has 3 fixed steps, always in the same order, with no branching. Should he build an agent or a chain?",
+      'builder': "Rhea wants to automate a renewal reminder: pull overdue renewals → format a reminder email → send it. Always the same 3 steps. Should she use an agent or a workflow chain?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. An agent — its tool-calling flexibility handles unexpected edge cases for free',
         'B. A chain — fixed sequence, no decisions to make; an agent only adds overhead',
         'C. An agent — agents outperform chains on multi-step tasks across most workloads',
         'D. A chain with an agent fallback whenever any step returns a non-happy-path result',
       ],
-      'non-tech': [
+      'builder': [
         'A. An agent — agents are smarter and tend to handle structured tasks better',
         'B. A workflow chain — fixed steps with no decisions means an agent is the wrong tool',
         'C. An agent — agents can be reused across different tasks with minimal reconfiguration',
         'D. Neither — use a plain scheduled trigger with no AI in the loop at all',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Agents are for tasks where the next action is uncertain. A fixed-sequence task is a chain — an agent only adds latency, token cost, and unpredictability with no benefit.",
-      'non-tech': "An agent decides what to do next based on what it finds. A chain runs a fixed sequence. With no decisions to make, a chain is cheaper, faster, and more predictable.",
+      engineer: "Agents are for tasks where the next action is uncertain. A fixed-sequence task is a chain — an agent only adds latency, token cost, and unpredictability with no benefit.",
+      'builder': "An agent decides what to do next based on what it finds. A chain runs a fixed sequence. With no decisions to make, a chain is cheaper, faster, and more predictable.",
     },
     keyInsight: "Use a chain when the steps are known. Use an agent when the steps depend on what the previous step found. Most automation tasks are chains.",
   },
   {
     conceptId: 'genai-m6-tools',
     question: {
-      tech: "Aarav defines a tool called `search_claims`. The description reads: 'Searches claims.' The agent calls it with every query, even irrelevant ones. What is the most likely cause?",
-      'non-tech': "Rhea's agent has a 'Send Email' tool. It sends an email on almost every turn — including turns where no email is needed. What should be changed?",
+      engineer: "Aarav defines a tool called `search_claims`. The description reads: 'Searches claims.' The agent calls it with every query, even irrelevant ones. What is the most likely cause?",
+      'builder': "Rhea's agent has a 'Send Email' tool. It sends an email on almost every turn — including turns where no email is needed. What should be changed?",
     },
     options: {
-      tech: [
+      engineer: [
         "A. The model is too capable — strong models over-use tools whenever any are available",
         'B. Tool description is too vague — model has no rule for when NOT to call it',
         'C. The tool schema is missing required params, so the model defaults to calling it',
         'D. The agent node is configured to invoke every available tool on every turn',
       ],
-      'non-tech': [
+      'builder': [
         'A. The Send Email tool is too prominent — move it to a separate, gated toolset',
         'B. Tool description needs to spell out exactly when the tool should NOT be called',
         'C. Reduce the total number of tools available so the agent has fewer to over-use',
         'D. Add a human approval gate that fires before every Send Email tool call',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Models use tool descriptions to decide when to call a tool. Add a precise trigger clause and a non-call clause: 'Call this when the user is looking for a specific claim by ID. Do not call for general questions about claims policy.'",
-      'non-tech': "'Send Email' with no constraints tells the model it can send email whenever it seems helpful. Add: 'Only call this when the user explicitly requests an email. Do not call for summaries, lookups, or confirmations.'",
+      engineer: "Models use tool descriptions to decide when to call a tool. Add a precise trigger clause and a non-call clause: 'Call this when the user is looking for a specific claim by ID. Do not call for general questions about claims policy.'",
+      'builder': "'Send Email' with no constraints tells the model it can send email whenever it seems helpful. Add: 'Only call this when the user explicitly requests an email. Do not call for summaries, lookups, or confirmations.'",
     },
     keyInsight: "Tool descriptions are instructions to the model. A good description names both when to call AND when not to call. Vague descriptions cause over-use.",
   },
   {
     conceptId: 'genai-m6-reasoning',
     question: {
-      tech: "Aarav's agent is asked: 'What is the total value of open claims filed this month?' The agent makes one tool call to get all claims, then tries to sum the amounts in its response text. The sum is wrong. What is the design gap?",
-      'non-tech': "Rhea's agent is asked to identify the top 3 renewal-risk accounts. It returns 3 account names without explanation. Rhea can't verify the reasoning. What should be added?",
+      engineer: "Aarav's agent is asked: 'What is the total value of open claims filed this month?' The agent makes one tool call to get all claims, then tries to sum the amounts in its response text. The sum is wrong. What is the design gap?",
+      'builder': "Rhea's agent is asked to identify the top 3 renewal-risk accounts. It returns 3 account names without explanation. Rhea can't verify the reasoning. What should be added?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Use a more capable model — it will handle arithmetic over many values more reliably',
         'B. Add a code/calc tool that sums precisely; agent narrates the deterministic result',
         'C. Give the agent richer context about the claim data format and field semantics',
         'D. Pre-filter the claim list before returning it so the agent has fewer values to sum',
       ],
-      'non-tech': [
+      'builder': [
         'A. Ask the agent to return risk scores per account instead of names alone',
         'B. Require a scratchpad step — agent writes a one-line reason per account first',
         'C. Return 5 accounts instead of 3 so Rhea has more options to evaluate manually',
         'D. Add a human review step where someone confirms the agent ranking each time',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "LLMs are not reliable calculators. Arithmetic should be done by a deterministic tool — code node, formula node, function — and the result handed back to the agent for narration.",
-      'non-tech': "When an agent makes a decision that needs to be auditable, require intermediate reasoning before the final answer. The scratchpad makes the ranking inspectable.",
+      engineer: "LLMs are not reliable calculators. Arithmetic should be done by a deterministic tool — code node, formula node, function — and the result handed back to the agent for narration.",
+      'builder': "When an agent makes a decision that needs to be auditable, require intermediate reasoning before the final answer. The scratchpad makes the ranking inspectable.",
     },
     keyInsight: "Don't ask the model to do math or make invisible decisions. Give it tools for computation and require intermediate reasoning for auditable decisions.",
   },
   {
     conceptId: 'genai-m6-rag',
     question: {
-      tech: "Aarav's RAG agent retrieves the top 3 policy documents by cosine similarity and passes them to the model. The model answers correctly 80% of the time. For the other 20%, the retrieved documents are relevant but the answer is still wrong. What is the most likely cause?",
-      'non-tech': "Rhea's RAG chatbot retrieves 5 policy excerpts and asks the model to answer a user's question. For complex questions, the answer is inconsistent. The retrieved documents are correct. What should she investigate?",
+      engineer: "Aarav's RAG agent retrieves the top 3 policy documents by cosine similarity and passes them to the model. The model answers correctly 80% of the time. For the other 20%, the retrieved documents are relevant but the answer is still wrong. What is the most likely cause?",
+      'builder': "Rhea's RAG chatbot retrieves 5 policy excerpts and asks the model to answer a user's question. For complex questions, the answer is inconsistent. The retrieved documents are correct. What should she investigate?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Similarity threshold is too low — irrelevant docs are being retrieved into context',
         'B. Multi-doc synthesis failure — answer spans 3 docs and the model is not combining them',
         'C. The embedding model needs to be retrained on the in-domain policy corpus',
         'D. Model context window is too small to hold all 3 retrieved documents at once',
       ],
-      'non-tech': [
+      'builder': [
         'A. Similarity threshold is too low — raise it so fewer, better docs are retrieved',
         'B. Prompt does not instruct the model to use only the retrieved docs — training-data leakage',
         'C. Use a larger model for complex questions so reasoning has more room to play out',
         'D. Reduce the number of retrieved documents from 5 to 3 to keep context focused',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Retrieval can be correct while generation is wrong. Multi-doc synthesis is harder than single-doc lookup. Check whether the 20% failures all need cross-doc reasoning — if so, fix presentation, not retrieval.",
-      'non-tech': "Without explicit grounding, models blend retrieved context with training data. Add: 'Answer using only the provided documents. If the answer isn't there, say so.' Grounding makes hallucination visible.",
+      engineer: "Retrieval can be correct while generation is wrong. Multi-doc synthesis is harder than single-doc lookup. Check whether the 20% failures all need cross-doc reasoning — if so, fix presentation, not retrieval.",
+      'builder': "Without explicit grounding, models blend retrieved context with training data. Add: 'Answer using only the provided documents. If the answer isn't there, say so.' Grounding makes hallucination visible.",
     },
     keyInsight: "Retrieval accuracy and generation accuracy are separate problems. Correct retrieval doesn't guarantee correct answers. Audit them independently.",
   },
   {
     conceptId: 'genai-m6-scale',
     question: {
-      tech: "Aarav's agent workflow runs 500 times per day. At month-end, the OpenAI bill is 4× the estimate. He has logging but it only records success/failure. What is missing?",
-      'non-tech': "Rhea's agent system has been running for a month. A team member asks: 'How many times did the agent call the Send Email tool this month?' Rhea can't answer. What logging is missing?",
+      engineer: "Aarav's agent workflow runs 500 times per day. At month-end, the OpenAI bill is 4× the estimate. He has logging but it only records success/failure. What is missing?",
+      'builder': "Rhea's agent system has been running for a month. A team member asks: 'How many times did the agent call the Send Email tool this month?' Rhea can't answer. What logging is missing?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. The agent is making too many tool calls — add a hard tool-call limit per run',
         'B. Per-run token logging: input + output tokens, model, tool calls — for attribution',
         'C. Switch to a cheaper model across the board to bring monthly spend back in budget',
         'D. Add a cost alert that fires when the rolling monthly bill exceeds a threshold',
       ],
-      'non-tech': [
+      'builder': [
         'A. A monthly dashboard showing the total number of emails sent across the workflow',
         'B. Per-run structured logs of every tool call — name, timestamp, inputs, outputs',
         'C. An audit trail showing which team members triggered the agent each session',
         'D. A weekly summary email that recaps everything the agent did last week',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Success/failure tells you the workflow ran. Per-run token logging is what tells you what it cost — and which workflow, user, or tool is driving the bill.",
-      'non-tech': "Knowing the workflow ran isn't the same as knowing what it did. Per-run structured logs of every tool call are the audit trail that answers 'how many emails did it send and about what.'",
+      engineer: "Success/failure tells you the workflow ran. Per-run token logging is what tells you what it cost — and which workflow, user, or tool is driving the bill.",
+      'builder': "Knowing the workflow ran isn't the same as knowing what it did. Per-run structured logs of every tool call are the audit trail that answers 'how many emails did it send and about what.'",
     },
     keyInsight: "Logging execution is not the same as logging behaviour. Agent observability requires per-run records of every tool call, not just whether the workflow succeeded.",
   },
@@ -184,13 +184,13 @@ const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
 const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; moduleContext: string }> = {
-  'non-tech': {
-    label: 'Workflow & Operator Track',
+  'builder': {
+    label: 'Builder Track',
     introTitle: 'AI Agent Workflows · Operator Lens',
     moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 06 · AI Agent Workflows — Building & Scaling. Follows Rhea, operations lead at Northstar Health, as she moves from individual workflow automations to full agent systems — and learns where agents add genuine value vs. where they add complexity without benefit.`,
   },
-  tech: {
-    label: 'Tech Builder Track',
+  engineer: {
+    label: 'Engineer Track',
     introTitle: 'AI Agent Workflows · Builder Lens',
     moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 06 · AI Agent Workflows — Building & Scaling. Follows Aarav, platform engineer at Northstar Health, as he builds production-grade agent systems — tool registries, multi-step reasoning, RAG pipelines, and the observability layer that makes them trustworthy.`,
   },
@@ -212,7 +212,7 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // matching topology highlights, wrong picks flash red.
 const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
   type Task = { id: string; label: string; answer: 'chain' | 'agent'; hint: string };
-  const tasks: Task[] = track === 'tech' ? [
+  const tasks: Task[] = track === 'engineer' ? [
     { id: 't1', label: 'Classify claim CLM-4412: fetch → classify → write.',                          answer: 'chain', hint: 'Fixed 3-step sequence — no branching.' },
     { id: 't2', label: '"What coverage does this claim have?" — may need policy / plan / amendments.', answer: 'agent', hint: 'Dynamic — agent decides which tools to call.' },
     { id: 't3', label: 'Every Monday: pull claims, classify, email summary.',                          answer: 'chain', hint: 'Predictable cron — same path every run.' },
@@ -236,7 +236,7 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
   const W = 360, H = 200;
 
   return (
-    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} view="LANGGRAPH STUDIO" status={revealed ? (score === tasks.length ? 'success' : 'error') : 'pending'}>
+    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} view="LANGGRAPH STUDIO" status={revealed ? (score === tasks.length ? 'success' : 'error') : 'pending'}>
       {/* Two side-by-side graph topologies */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderBottom: `1px solid ${LS.border}` }}>
         {/* Chain topology */}
@@ -434,10 +434,10 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
 // three description versions (tabs), then runs an eval that simulates
 // 4 user queries against the description and reports correct-call %.
 const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
-  const toolName = track === 'tech' ? 'get_claim_data' : 'get_exception_data';
+  const toolName = track === 'engineer' ? 'get_claim_data' : 'get_exception_data';
   type Eval = { query: string; shouldCall: boolean; whyA: string; whyB: string; whyC: string };
   type Version = { id: string; label: string; desc: string; verdict: 'good' | 'over' | 'vague'; pct: number; reason: string };
-  const versions: Version[] = track === 'tech' ? [
+  const versions: Version[] = track === 'engineer' ? [
     { id: 'A', label: 'V1 · vague',  desc: 'Gets claim data.',                                                                                                                                                       verdict: 'vague', pct: 38, reason: 'Too vague — agent calls this for everything, causing unnecessary lookups.' },
     { id: 'B', label: 'V2 · scoped', desc: `Use ${toolName}() when the user asks about a specific claim by ID. Do NOT call for general policy questions or when claim data is already in context.`, verdict: 'good',  pct: 92, reason: 'Precise when + when-not-to. Agent calls only when appropriate.' },
     { id: 'C', label: 'V3 · over',   desc: 'Retrieves claim information. Can be used for claim details, policy info, status updates, and general inquiries.',                                       verdict: 'over',  pct: 51, reason: 'Too broad — agent over-calls this for policy questions and general queries.' },
@@ -448,7 +448,7 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
   ];
 
   // Eval queries — same set across versions, the description determines whether the agent calls correctly
-  const evalSet = track === 'tech'
+  const evalSet = track === 'engineer'
     ? [
         { query: 'What’s the status of CLM-4412?', shouldCall: true },
         { query: 'How does the appeal process work in general?', shouldCall: false },
@@ -489,7 +489,7 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
   const currentResults = results[active];
 
   return (
-    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run={`tool/${toolName}`} view="PROMPT HUB · TOOL" status={currentResults ? (activeV.verdict === 'good' ? 'success' : 'error') : 'pending'}>
+    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run={`tool/${toolName}`} view="PROMPT HUB · TOOL" status={currentResults ? (activeV.verdict === 'good' ? 'success' : 'error') : 'pending'}>
       {/* Tab bar for versions */}
       <div style={{ display: 'flex', background: '#080B14', borderBottom: `1px solid ${LS.border}` }}>
         {versions.map(v => {
@@ -535,7 +535,7 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
               { n: 5, t: <><span style={{ color: '#9CDCFE' }}>  "parameters"</span>: {'{'}</> },
               { n: 6, t: <><span style={{ color: '#9CDCFE' }}>    "type"</span>: <span style={{ color: '#CE9178' }}>"object"</span>,</> },
               { n: 7, t: <><span style={{ color: '#9CDCFE' }}>    "properties"</span>: {'{'}</> },
-              { n: 8, t: <><span style={{ color: '#9CDCFE' }}>      "{track === 'tech' ? 'claim_id' : 'exception_id'}"</span>: {'{'} <span style={{ color: '#9CDCFE' }}>"type"</span>: <span style={{ color: '#CE9178' }}>"string"</span> {'}'}</> },
+              { n: 8, t: <><span style={{ color: '#9CDCFE' }}>      "{track === 'engineer' ? 'claim_id' : 'exception_id'}"</span>: {'{'} <span style={{ color: '#9CDCFE' }}>"type"</span>: <span style={{ color: '#CE9178' }}>"string"</span> {'}'}</> },
               { n: 9, t: <>    {'}'}</> },
               { n: 10, t: <>  {'}'}</> },
               { n: 11, t: <>{'}'}</> },
@@ -613,7 +613,7 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
 const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
   type SpanType = 'REASON' | 'ACT' | 'OBS';
   type Span = { type: SpanType; name: string; text: string; latency: number; tokens?: number };
-  const steps: Span[] = track === 'tech' ? [
+  const steps: Span[] = track === 'engineer' ? [
     { type: 'REASON', name: 'reasoner.think',         text: 'User asked about claim CLM-4412. I should fetch claim data first.',                          latency: 412, tokens: 184 },
     { type: 'ACT',    name: 'tool.get_claim_data',    text: 'get_claim_data(claim_id="CLM-4412")',                                                       latency: 68 },
     { type: 'OBS',    name: 'tool.result',            text: '{ category: "pharmacy", policy_code: "4.2c", status: "disputed", amount: 1840 }',           latency: 6 },
@@ -651,7 +651,7 @@ const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
   const iconFor  = (t: SpanType) => t === 'REASON' ? '🧠' : t === 'ACT' ? '⚡' : '◉';
 
   return (
-    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run={`run-${track === 'tech' ? '7821' : '4412'}`} view="TRACE VIEW" status={isDone ? 'success' : 'pending'}>
+    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run={`run-${track === 'engineer' ? '7821' : '4412'}`} view="TRACE VIEW" status={isDone ? 'success' : 'pending'}>
       {/* Run summary bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 14px', borderBottom: `1px solid ${LS.border}`, background: LS.panel, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
         <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>spans </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>{current}/{steps.length}</span></span>
@@ -789,15 +789,15 @@ const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
 // sampling, but the GROUNDED column has a retrieved-documents pane that
 // the model used. Hallucination risk and source citations differ.
 const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
-  const query = track === 'tech' ? 'Does Plan B Tier 2 cover physician overrides for CA-based claims?' : 'What is the SLA for Northstar West escalations?';
-  const groundedAnswer = track === 'tech'
+  const query = track === 'engineer' ? 'Does Plan B Tier 2 cover physician overrides for CA-based claims?' : 'What is the SLA for Northstar West escalations?';
+  const groundedAnswer = track === 'engineer'
     ? 'Yes — §4.2c (amendment, Feb 2022) permits Tier 2 physician overrides for CA-based plans. Applies to Plan B (Plan Schedule pp. 14-16). Document citations: amendment-2022.pdf §4.2c; plan-schedule.pdf row 14.'
     : 'SLA for Northstar West escalations is 5 business days (Northstar SLA policy v2, §2.1). Breaches trigger manager-level escalation per §2.3 of the exception guide. Sources: sla-policy-v2.pdf §2.1, §2.3.';
-  const ungroundedAnswer = track === 'tech'
+  const ungroundedAnswer = track === 'engineer'
     ? 'Yes, Plan B generally covers physician overrides. Most Tier 2 plans in California include this, typically within 30 days. Check with your plan administrator for exact terms.'
     : 'SLA for escalations is typically 3–7 business days depending on the account. For priority accounts it may be shorter. Refer to your internal policy documentation.';
 
-  const docs = track === 'tech'
+  const docs = track === 'engineer'
     ? [
         { name: 'amendment-2022.pdf', span: '§4.2c, l.124-148', score: 0.94 },
         { name: 'plan-schedule.pdf',  span: 'row 14, "Plan B"',  score: 0.87 },
@@ -878,7 +878,7 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
   };
 
   return (
-    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} run="compare 0b40 ↔ 0b41" view="RUN COMPARISON">
+    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run="compare 0b40 ↔ 0b41" view="RUN COMPARISON">
       {/* Shared query at top */}
       <div style={{ padding: '10px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}` }}>
         <LangSmithLabel>USER INPUT (shared across runs)</LangSmithLabel>
@@ -901,7 +901,7 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
 // cause picker.
 const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
   type Row = { id: string; ts: string; in: number; out: number; tools: number; cost: number; anomaly: boolean };
-  const rows: Row[] = track === 'tech' ? [
+  const rows: Row[] = track === 'engineer' ? [
     { id: 'run-001', ts: '14:02', in: 1240, out: 380,  tools: 2,  cost: 0.018, anomaly: false },
     { id: 'run-002', ts: '14:08', in: 8920, out: 2100, tools: 11, cost: 0.134, anomaly: true  },
     { id: 'run-003', ts: '14:14', in: 1180, out: 340,  tools: 2,  cost: 0.017, anomaly: false },
@@ -912,7 +912,7 @@ const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
     { id: 'run-003', ts: '09:14', in: 6840, out: 1900, tools: 7, cost: 0.103, anomaly: true  },
     { id: 'run-004', ts: '09:22', in: 990,  out: 300,  tools: 1, cost: 0.014, anomaly: false },
   ];
-  const causes = track === 'tech' ? [
+  const causes = track === 'engineer' ? [
     { label: 'Agent entered a tool-calling loop — called get_claim_data 9 times before stopping', correct: true },
     { label: 'Larger claim document ingested — document size drove up input tokens',               correct: false },
     { label: 'Model switched to GPT-4 for this run, which has higher token costs',                  correct: false },
@@ -947,7 +947,7 @@ const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
   );
 
   return (
-    <LangSmithFrame project={track === 'tech' ? 'claims-agent' : 'ops-exception-agent'} view="MONITORING · LAST 1H" status={revealed ? 'error' : 'pending'}>
+    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} view="MONITORING · LAST 1H" status={revealed ? 'error' : 'pending'}>
       {/* Summary tiles */}
       <div style={{ padding: '12px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}`, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
         <Tile label="RUNS"           value={String(rows.length)} />
@@ -1156,12 +1156,12 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 1: Agent Architecture ── */}
       <ChapterSection id="genai-m6-architecture" num="01" accentRgb={ACCENT_RGB} first>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "In Pre-Read 05, Aarav upgraded the claims workflow to process batches of 200+ exceptions, remap inconsistent field names from source systems, route items by confidence score rather than category alone, queue low-confidence items for human review, and isolate conversation context per user session. The automation is production-grade. This pre-read is about a different class of problem: tasks where the steps needed aren't known until the model reads the data — and where a fixed workflow chain can't make that call."
           : "In Pre-Read 05, Rhea's workflows can iterate over 80 spreadsheet rows, handle mismatched field names with a Code node, pause for her approval before any email is sent, and maintain separate memory per conversation session. The automation is solid. This pre-read is about the question her director keeps asking that no fixed workflow can answer — because answering it requires the system to decide what to look up, look it up, read the result, and decide whether to look up something else."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "A new task: build a system that takes an exception report, looks up the relevant policy, determines the correct resolution path, and drafts a response. The steps are unknown until the exception is read. Aarav reaches for an agent. Rohan asks: are you sure an agent is the right call here?"
             : "The director wants a system that can answer ops questions in natural language: 'How many Dental renewals are overdue this week?' 'Which accounts have outstanding escalations?' Rhea has built workflows. She needs to know what she would need to build to answer questions like these."}
         </SituationCard>
@@ -1201,7 +1201,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#7C3AED"
           content={<>The most expensive agent mistake is using an agent for a task that is actually a chain. You pay more per run, the output is less predictable, and debugging is harder — none of which matter if the task needed decisions that a chain can&apos;t make. The question is always: does this task have steps that are unknowable before runtime?</>}
           expandedContent={<>Agents introduce non-determinism by design. Two runs of the same input may take different paths and produce different outputs — because the model is making decisions. If your stakeholders expect identical outputs for identical inputs, an agent is the wrong tool. Use a deterministic chain and add AI at specific steps only.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav needs to: pull a claim, look up the matching policy, and classify the resolution. Always these 3 steps, always in this order. Which architecture?"
             : "Rhea needs to send a renewal reminder to every account overdue by more than 30 days. Same action for every qualifying account. Which architecture?"}
           options={[
@@ -1213,15 +1213,15 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m6-architecture"
         />
         <TiltCard style={{ margin: '28px 0' }}><ChainAgentClassifierCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "List 3 tasks you have automated or are considering. For each, answer: does the sequence of steps change based on intermediate results? Mark each as 'chain' or 'agent'. Build a chain for one of the chain tasks before touching agent architecture."
           : "List 3 automation tasks relevant to your role. For each: does the task need to make decisions mid-run based on what it finds, or does it follow the same steps every time? Mark each chain vs. agent. This is your decision framework."} />
       </ChapterSection>
 
       {/* ── Section 2: Tool Use & Integrations ── */}
       <ChapterSection id="genai-m6-tools" num="02" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The agent has three tools: search_claims, lookup_policy, draft_response. The model calls search_claims on every turn — even when the user asks a policy question. The tool description reads: 'Search claims.' Nothing else."
             : "Rhea's agent has a Send Email tool and a Lookup Policy tool. It sends emails on almost every turn. Users complain it is sending unsolicited summaries. The tool description for Send Email reads: 'Sends an email.'"}
         </SituationCard>
@@ -1261,27 +1261,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#2563EB"
           content={<>Test every tool description in isolation before running the full agent. Give the model a prompt where the tool should NOT be called and verify it isn&apos;t. If the model calls a tool when it shouldn&apos;t, the description is missing a constraint — not the model is broken.</>}
           expandedContent={<>Tool schemas are as important as descriptions. If the schema marks a field as optional but the tool actually requires it, the agent will make calls that fail. Define the schema from the tool&apos;s actual behavior — not from what you hope it will receive. Validate the schema against real outputs before deploying.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "A lookup_policy tool with description 'Looks up policy information' is called by the agent even when the user asks about claim status. What is the fix?"
             : "Rhea's agent has a Create_Report tool described as 'Creates a report.' It generates reports in every conversation. What is the minimum change needed?"}
           options={[
             { text: "Rename the tool to make its purpose clearer", correct: false, feedback: "The name alone doesn't provide decision constraints to the model." },
-            { text: track === 'tech' ? "Add to the description: 'Call this when the user asks about coverage rules, benefit limits, or policy definitions. Do not call for questions about specific claims, status, or processing.'" : "Add to the description: 'Only call when the user explicitly requests a report be generated. Do not call for questions, summaries, or routine responses.'", correct: true, feedback: "Correct. Adding when-to-call and when-not-to-call constraints gives the model a decision boundary." },
+            { text: track === 'engineer' ? "Add to the description: 'Call this when the user asks about coverage rules, benefit limits, or policy definitions. Do not call for questions about specific claims, status, or processing.'" : "Add to the description: 'Only call when the user explicitly requests a report be generated. Do not call for questions, summaries, or routine responses.'", correct: true, feedback: "Correct. Adding when-to-call and when-not-to-call constraints gives the model a decision boundary." },
             { text: "Remove the tool and replace with a more specific one", correct: false, feedback: "The tool may be correct — the description is what needs work." },
             { text: "Add a human approval step before every tool call", correct: false, feedback: "Human approval is an escalation mechanism, not a fix for a vague tool description." },
           ]}
           conceptId="genai-m6-tools"
         />
         <TiltCard style={{ margin: '28px 0' }}><ToolDescriptionGraderCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Take one tool in your agent. Rewrite its description to include: what it does, when to call it, when NOT to call it, and expected input format. Test: give the agent a prompt where the tool should NOT fire. Verify the new description prevents the call."
           : "List the tools in your agent or planned agent. For each, write a one-sentence 'when to call' and a one-sentence 'when NOT to call.' These two sentences are the minimum for a useful tool description."} />
       </ChapterSection>
 
       {/* ── Section 3: Multi-Step Reasoning ── */}
       <ChapterSection id="genai-m6-reasoning" num="03" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The agent is asked: 'What is the total value of unresolved claims for patients enrolled in the Platinum plan this quarter?' It retrieves claims, then states a sum in its response. The sum is wrong by $4,000. There are 340 claims in the result."
             : "The agent is asked: 'Which of our top 10 accounts by premium are most at risk for non-renewal this quarter?' It returns 3 account names. The ops team cannot verify the reasoning. Rhea needs to explain how the agent reached its answer."}
         </SituationCard>
@@ -1321,27 +1321,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           content={<>The scratchpad pattern is not overhead — it is the difference between an agent whose decisions you can defend and one whose decisions you can&apos;t explain. In any context where a wrong decision has consequences — a misclassified claim, a wrongly escalated account — the scratchpad is what lets you trace the error back to its source.</>}
           expandedContent={<>Stopping conditions are often forgotten until an agent runs indefinitely and burns through a token budget. Define them before deployment: maximum tool calls per run (e.g., 10), maximum loop iterations, and a fallback response if the stopping condition fires without a complete answer. Never deploy an agent that has no ceiling on its tool-calling loop.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav's agent is asked to rank claims by risk score. It returns a ranked list. The ranking appears wrong. What is the most reliable diagnostic first step?"
             : "Rhea's agent makes a recommendation to escalate an account. She needs to explain the reasoning to her director. What should she add to the agent's prompt?"}
           options={[
-            { text: track === 'tech' ? "Switch to a more powerful model for better reasoning" : "Ask the agent to provide a confidence score alongside the recommendation", correct: false, feedback: "Model choice and confidence scores don't expose the reasoning chain." },
-            { text: track === 'tech' ? "Add a scratchpad instruction: 'Before ranking, write your reasoning for each claim's risk score'" : "Add to the system prompt: 'Before making a recommendation, write one sentence explaining the specific reason for each account you consider escalating'", correct: true, feedback: "Correct. Visible intermediate reasoning makes the ranking/recommendation auditable and debuggable." },
-            { text: track === 'tech' ? "Log the tool call inputs and outputs to check for data issues" : "Request a written report from the agent after every recommendation", correct: false, feedback: "Logging and reports are useful but don't expose the in-context reasoning." },
-            { text: track === 'tech' ? "Add a verification tool that checks the ranking against a known baseline" : "Have a human reviewer sign off on all recommendations", correct: false, feedback: "Verification and human review are downstream controls, not diagnostic tools." },
+            { text: track === 'engineer' ? "Switch to a more powerful model for better reasoning" : "Ask the agent to provide a confidence score alongside the recommendation", correct: false, feedback: "Model choice and confidence scores don't expose the reasoning chain." },
+            { text: track === 'engineer' ? "Add a scratchpad instruction: 'Before ranking, write your reasoning for each claim's risk score'" : "Add to the system prompt: 'Before making a recommendation, write one sentence explaining the specific reason for each account you consider escalating'", correct: true, feedback: "Correct. Visible intermediate reasoning makes the ranking/recommendation auditable and debuggable." },
+            { text: track === 'engineer' ? "Log the tool call inputs and outputs to check for data issues" : "Request a written report from the agent after every recommendation", correct: false, feedback: "Logging and reports are useful but don't expose the in-context reasoning." },
+            { text: track === 'engineer' ? "Add a verification tool that checks the ranking against a known baseline" : "Have a human reviewer sign off on all recommendations", correct: false, feedback: "Verification and human review are downstream controls, not diagnostic tools." },
           ]}
           conceptId="genai-m6-reasoning"
         />
         <TiltCard style={{ margin: '28px 0' }}><ReActStepExplorerCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Take an agent that makes a ranking or classification decision. Add a scratchpad instruction to its system prompt. Run it on 5 test cases. Read the scratchpad output. Identify one case where the reasoning reveals a gap in the tool's data or the prompt's framing."
           : "Take a recommendation your agent makes. Add a one-sentence-per-item reasoning requirement to the system prompt. Run it on 3 test cases. Could you explain each recommendation to a stakeholder? If not, the prompt needs more specificity."} />
       </ChapterSection>
 
       {/* ── Section 4: RAG in Agent Workflows ── */}
       <ChapterSection id="genai-m6-rag" num="04" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The agent is answering claims questions correctly 80% of the time. For the other 20%, the retrieved policy documents are correct but the answer is still wrong. Aarav checks the retrieval — the right documents are being fetched. The problem is downstream."
             : "Rhea's policy FAQ chatbot answers complex questions inconsistently. The same question asked twice sometimes gets different answers. The retrieval is returning the right documents both times."}
         </SituationCard>
@@ -1381,27 +1381,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#C2410C"
           content={<>In health insurance, a hallucinated policy answer is a compliance event — not just a quality issue. Every RAG system handling policy, coverage, or benefits questions needs an explicit &ldquo;I don&apos;t know&rdquo; path. When retrieval returns nothing above threshold, the agent should say it doesn&apos;t have the information — not generate a plausible-sounding answer from training data.</>}
           expandedContent={<>Test your RAG system with questions you know are NOT in the document corpus. The agent should say it doesn&apos;t have the information. If it instead produces a confident answer, the grounding instruction is either missing or being overridden by the model&apos;s tendency to be helpful. Fix the grounding instruction before deploying.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav's RAG agent retrieves 3 documents with similarity scores of 0.91, 0.88, and 0.72. The 0.72 document contains an irrelevant excerpt from an old policy version. What is the immediate fix?"
             : "Rhea's RAG chatbot confidently answers a question about a benefit that was discontinued last year. The correct policy documents do not mention this benefit. What is the root cause?"}
           options={[
-            { text: track === 'tech' ? "Increase the threshold to 0.85 to exclude the 0.72 document" : "Remove the outdated policy documents from the document corpus", correct: false, feedback: "Partial fix only — threshold tuning and corpus hygiene are maintenance tasks, not the root cause fix." },
-            { text: track === 'tech' ? "The similarity threshold is too low — also add a reranking step to evaluate semantic relevance, not just vector distance" : "The grounding instruction is missing — the model is generating the answer from training data, not from retrieved documents", correct: true, feedback: "Correct. Threshold adjustment helps retrieval; reranking improves precision. For the non-tech case, the model is generating from memory, not from context — the grounding instruction prevents this." },
-            { text: track === 'tech' ? "Use a more recent embedding model with better domain understanding" : "Increase the number of documents retrieved from 3 to 5", correct: false, feedback: "Embedding model choice and retrieval count are not the root cause in these scenarios." },
-            { text: track === 'tech' ? "The top 2 documents are sufficient — remove the third from the context" : "Add a disclaimer to all chatbot answers about policy accuracy", correct: false, feedback: "These are workarounds, not fixes." },
+            { text: track === 'engineer' ? "Increase the threshold to 0.85 to exclude the 0.72 document" : "Remove the outdated policy documents from the document corpus", correct: false, feedback: "Partial fix only — threshold tuning and corpus hygiene are maintenance tasks, not the root cause fix." },
+            { text: track === 'engineer' ? "The similarity threshold is too low — also add a reranking step to evaluate semantic relevance, not just vector distance" : "The grounding instruction is missing — the model is generating the answer from training data, not from retrieved documents", correct: true, feedback: "Correct. Threshold adjustment helps retrieval; reranking improves precision. For the non-tech case, the model is generating from memory, not from context — the grounding instruction prevents this." },
+            { text: track === 'engineer' ? "Use a more recent embedding model with better domain understanding" : "Increase the number of documents retrieved from 3 to 5", correct: false, feedback: "Embedding model choice and retrieval count are not the root cause in these scenarios." },
+            { text: track === 'engineer' ? "The top 2 documents are sufficient — remove the third from the context" : "Add a disclaimer to all chatbot answers about policy accuracy", correct: false, feedback: "These are workarounds, not fixes." },
           ]}
           conceptId="genai-m6-rag"
         />
         <TiltCard style={{ margin: '28px 0' }}><GroundingToggleCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Build a minimal RAG flow: HTTP trigger → embedding lookup → top-3 retrieval → grounded response. Test with: 1) a question answerable from docs, 2) a question NOT in the docs. Verify the second returns 'I don't have that information' — not a hallucinated answer."
           : "Identify one knowledge base your team relies on (policy docs, procedure guides, FAQs). Design a RAG flow for it: what gets chunked, what gets embedded, what threshold for retrieval. Then write the grounding prompt instruction. Start there before building anything."} />
       </ChapterSection>
 
       {/* ── Section 5: Scale & Observability ── */}
       <ChapterSection id="genai-m6-scale" num="05" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The agent system has been running for 30 days. OpenAI bill is 4× the estimate. Aarav has workflow-level success/failure logs but nothing more granular. He cannot identify which workflow, which user, or which tool call is driving the cost."
             : "After a month of running, the director asks: 'How many times did the agent send an escalation email this month, and what triggered each one?' Rhea cannot answer. The workflow logs show success — but not what happened inside each run."}
         </SituationCard>
@@ -1441,19 +1441,19 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#2563EB"
           content={<>The first month of any agent system in production will surprise you. Something will cost more than expected, or behave unexpectedly, or call a tool in a way you didn&apos;t intend. The difference between diagnosing it in an hour vs. a week is whether you have per-run structured logs. Build the logging before you go live — not after the first incident.</>}
           expandedContent={<>Token budgets are not optional in production. An agent in an infinite tool-calling loop can exhaust a monthly token budget in hours. Set a max-tool-calls-per-run limit in the agent node configuration. Set a separate alert when a single run exceeds 2× the average token count. These two controls prevent the most common cost surprises.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav adds per-run logging: model, input tokens, output tokens, tool calls. After a week, he finds one workflow consumes 60% of total tokens. What is the most productive next step?"
             : "Rhea's structured logs show the escalation email tool was called 47 times in one month. 12 of those calls were for the same account. What should she investigate?"}
           options={[
-            { text: track === 'tech' ? "Switch the workflow to a cheaper model immediately" : "Disable the escalation tool for that account", correct: false, feedback: "Acting before diagnosing is premature optimization." },
-            { text: track === 'tech' ? "Examine that workflow's tool calls per run — is it making more tool calls than expected, or using a larger context than necessary?" : "Read the 12 log entries for that account: what triggered each escalation, what data was passed, was each escalation legitimate or a false positive?", correct: true, feedback: "Correct. Structured logs exist to enable exactly this kind of behavioral audit. Read before acting." },
-            { text: track === 'tech' ? "Increase the token budget for that workflow since it's clearly more complex" : "Set a per-account escalation limit to prevent repeat triggers", correct: false, feedback: "Increasing budget or adding limits without understanding the root cause doesn't fix the underlying issue." },
-            { text: track === 'tech' ? "Split the workflow into two smaller workflows to distribute the token load" : "Ask the account manager if the escalations were expected", correct: false, feedback: "Structural changes and manual investigation are premature before reading the available log data." },
+            { text: track === 'engineer' ? "Switch the workflow to a cheaper model immediately" : "Disable the escalation tool for that account", correct: false, feedback: "Acting before diagnosing is premature optimization." },
+            { text: track === 'engineer' ? "Examine that workflow's tool calls per run — is it making more tool calls than expected, or using a larger context than necessary?" : "Read the 12 log entries for that account: what triggered each escalation, what data was passed, was each escalation legitimate or a false positive?", correct: true, feedback: "Correct. Structured logs exist to enable exactly this kind of behavioral audit. Read before acting." },
+            { text: track === 'engineer' ? "Increase the token budget for that workflow since it's clearly more complex" : "Set a per-account escalation limit to prevent repeat triggers", correct: false, feedback: "Increasing budget or adding limits without understanding the root cause doesn't fix the underlying issue." },
+            { text: track === 'engineer' ? "Split the workflow into two smaller workflows to distribute the token load" : "Ask the account manager if the escalations were expected", correct: false, feedback: "Structural changes and manual investigation are premature before reading the available log data." },
           ]}
           conceptId="genai-m6-scale"
         />
         <TiltCard style={{ margin: '28px 0' }}><AnomalyDetectiveCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Add a logging step to your most complex agent workflow. Log: model, input tokens, output tokens, tool calls list. Run it 10 times on varied inputs. Build a simple view of the logs (a Google Sheet is fine). Identify the run with the highest token count — read its tool call list."
           : "Add a tool call log to your most-used agent workflow: tool name, timestamp, trigger condition, output summary. Run for one week. At the end of the week, answer: which tool was called most often, and were all those calls justified?"} />
         <NextChapterTeaser text="Module 07 covers Model Context Protocol (MCP) — the emerging standard for connecting AI models to tools, data sources, and services in a way that is composable, auditable, and model-agnostic." />
@@ -1463,7 +1463,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 }
 
 export default function GenAIPreRead6({ track, onBack, onNext, nextLabel }: Props) {
-  const completionMessage = track === 'tech'
+  const completionMessage = track === 'engineer'
     ? 'You can architect, instrument, and scale agents. Agent architecture, tool design, multi-step reasoning, RAG pipelines, and structured observability. Module 07 introduces MCP.'
     : 'Agents, tools, retrieval, and observability connected. You can now evaluate whether a task needs an agent, design the tools it uses, ground it in retrieved knowledge, and log what it does. Module 07 introduces MCP.';
   return (

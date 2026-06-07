@@ -263,16 +263,16 @@ export function AaravFace({ size = 44 }: { size?: number }) {
 // ─────────────────────────────────────────
 // CONVERSATION SCENE — protagonist ↔ mentor chat bubbles
 // ─────────────────────────────────────────
-type GenAITrack = 'tech' | 'non-tech';
+type GenAITrack = 'engineer' | 'builder';
 type GenAICSLine = { speaker: 'protagonist' | 'mentor'; text: string };
 
 const PROTAGONIST_META: Record<GenAITrack, { name: string; accent: string }> = {
-  tech: { name: 'Aarav', accent: '#2563EB' },
-  'non-tech': { name: 'Rhea', accent: '#7C3AED' },
+  engineer: { name: 'Aarav', accent: '#2563EB' },
+  'builder': { name: 'Rhea', accent: '#7C3AED' },
 };
 
 function ProtagonistFace({ track, size = 38 }: { track: GenAITrack; size?: number }) {
-  return track === 'tech'
+  return track === 'engineer'
     ? <AaravFace size={size} />
     : <RheaFace size={size} />;
 }
@@ -291,11 +291,11 @@ export function GenAIHeroCharacterStrip({
   track: GenAITrack;
   mentors: Array<GenAIMentorId | GenAIHeroMentor>;
 }) {
-  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
-  const protagonistRole = track === 'tech'
+  const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
+  const protagonistRole = track === 'engineer'
     ? 'Platform Engineer · Northstar Health'
     : 'Operations Lead · Northstar Health';
-  const protagonistAccent = track === 'tech' ? '#0F766E' : '#7C3AED';
+  const protagonistAccent = track === 'engineer' ? '#0F766E' : '#7C3AED';
   const cardStyle: React.CSSProperties = {
     width: '108px',
     flexShrink: 0,
@@ -345,7 +345,7 @@ export function GenAIConversationScene({ mentor, track, accent, techLines, nonTe
   techLines: GenAICSLine[];
   nonTechLines: GenAICSLine[];
 }) {
-  const lines = track === 'tech' ? techLines : nonTechLines;
+  const lines = track === 'engineer' ? techLines : nonTechLines;
   const protagonistName = PROTAGONIST_META[track].name;
   const protagonistAccent = PROTAGONIST_META[track].accent;
   const mentorName = MENTOR_META[mentor].name;
@@ -385,7 +385,7 @@ export function GenAIConversationScene({ mentor, track, accent, techLines, nonTe
               {prevDifferent && (
                 <div style={{ fontSize: '10px', fontWeight: 700, color: isProtagonist ? protagonistAccent : accent, marginBottom: '4px', textAlign: isProtagonist ? 'right' : 'left', letterSpacing: '0.04em' }}>
                   {isProtagonist ? protagonistName : mentorName}
-                  <span style={{ fontWeight: 400, opacity: 0.65 }}> · {isProtagonist ? (track === 'tech' ? 'Platform Engineer' : 'Operations Lead') : mentorRole}</span>
+                  <span style={{ fontWeight: 400, opacity: 0.65 }}> · {isProtagonist ? (track === 'engineer' ? 'Platform Engineer' : 'Operations Lead') : mentorRole}</span>
                 </div>
               )}
               <div style={{

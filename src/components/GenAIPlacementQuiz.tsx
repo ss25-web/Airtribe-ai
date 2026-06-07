@@ -101,8 +101,8 @@ const SCENARIO_QS = [
 ];
 
 function assignTrack(backgroundScore: number, scenarioScore: number, techSignals: number): GenAITrack {
-  if (backgroundScore >= 6 && scenarioScore >= 3 && techSignals >= 2) return 'tech';
-  return 'non-tech';
+  if (backgroundScore >= 6 && scenarioScore >= 3 && techSignals >= 2) return 'engineer';
+  return 'builder';
 }
 
 const LEVEL_META: Record<string, { label: string; color: string; bg: string }> = {
@@ -275,20 +275,20 @@ export default function GenAIPlacementQuiz({ onComplete, onBack }: Props) {
 
             {phase === 'result' ? (
               <motion.div key="result" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-                <div style={{ borderRadius: '14px', padding: '32px 28px', marginBottom: '24px', background: track === 'tech' ? 'linear-gradient(135deg, rgba(15,118,110,0.12) 0%, rgba(37,99,235,0.06) 100%)' : 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(79,70,229,0.06) 100%)', border: `1.5px solid ${track === 'tech' ? 'rgba(15,118,110,0.25)' : 'rgba(124,58,237,0.25)'}`, textAlign: 'center' }}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '72px', height: '72px', borderRadius: '50%', background: 'var(--ed-card)', border: `3px solid ${track === 'tech' ? '#0F766E' : '#7C3AED'}`, fontSize: '28px', marginBottom: '20px' }}>
-                    {track === 'tech' ? '🛠️' : '🧭'}
+                <div style={{ borderRadius: '14px', padding: '32px 28px', marginBottom: '24px', background: track === 'engineer' ? 'linear-gradient(135deg, rgba(15,118,110,0.12) 0%, rgba(37,99,235,0.06) 100%)' : 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(79,70,229,0.06) 100%)', border: `1.5px solid ${track === 'engineer' ? 'rgba(15,118,110,0.25)' : 'rgba(124,58,237,0.25)'}`, textAlign: 'center' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '72px', height: '72px', borderRadius: '50%', background: 'var(--ed-card)', border: `3px solid ${track === 'engineer' ? '#0F766E' : '#7C3AED'}`, fontSize: '28px', marginBottom: '20px' }}>
+                    {track === 'engineer' ? '🛠️' : '🧭'}
                   </div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: track === 'tech' ? '#0F766E' : '#7C3AED', marginBottom: '10px' }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.18em', color: track === 'engineer' ? '#0F766E' : '#7C3AED', marginBottom: '10px' }}>
                     YOUR GENAI TRACK
                   </div>
                   <h2 style={{ fontSize: 'clamp(20px, 2.8vw, 26px)', fontWeight: 700, color: 'var(--ed-ink)', fontFamily: "'Lora', serif", marginBottom: '10px', lineHeight: 1.3 }}>
-                    {track === 'tech' ? 'Tech Builder Track' : 'Workflow & Operator Track'}
+                    {track === 'engineer' ? 'Engineer Track' : 'Builder Track'}
                   </h2>
                   <p style={{ fontSize: '14px', color: 'var(--ed-ink2)', lineHeight: 1.7, maxWidth: '500px', margin: '0 auto' }}>
-                    {track === 'tech'
-                      ? 'You are ready to learn GenAI through implementation detail: payloads, nodes, APIs, control logic, retries, and production-minded workflow behavior.'
-                      : 'You will get the same GenAI foundations through business-first language: workflow mapping, review loops, safe use cases, and clear decision boundaries before implementation detail.'}
+                    {track === 'engineer'
+                      ? '15 modules to become a world-class 10x AI Engineer: ML foundations, LLM APIs and production patterns, RAG systems, agents, observability, and evals — ending in a production-grade capstone.'
+                      : '14 modules to automate work and build AI products, no coding required: AI fluency, n8n workflows, business agents, vibe coding, AI-powered products, and GTM — ending in a shipped MVP and demo day.'}
                   </p>
                 </div>
 
@@ -300,13 +300,13 @@ export default function GenAIPlacementQuiz({ onComplete, onBack }: Props) {
                     <div style={{ padding: '14px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
                       <div style={{ fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>Language</div>
                       <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
-                        {track === 'tech' ? 'Schemas, payloads, nodes, retries, observability' : 'Approvals, handoffs, use cases, decision quality, human review'}
+                        {track === 'engineer' ? 'Python, SDKs, RAG, agents, evals, observability' : 'Workflows, agents-for-business, vibe coding, GTM, no-code shipping'}
                       </div>
                     </div>
                     <div style={{ padding: '14px', borderRadius: '8px', background: 'var(--ed-cream)', border: '1px solid var(--ed-rule)' }}>
-                      <div style={{ fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>Module 01</div>
+                      <div style={{ fontSize: '9px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--ed-ink3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>Capstone</div>
                       <div style={{ fontSize: '13px', color: 'var(--ed-ink2)', lineHeight: 1.65 }}>
-                        {track === 'tech' ? 'Focus on implementation architecture and workflow control' : 'Focus on workflow judgment and operational design'}
+                        {track === 'engineer' ? 'Production RAG or agent platform: deployed, monitored, evaluated' : 'Shipped AI product or automation: real users, real usage data'}
                       </div>
                     </div>
                   </div>

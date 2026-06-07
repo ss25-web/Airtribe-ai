@@ -1,2 +1,2 @@
-export type GenAITrack = 'non-tech' | 'tech';
+export type GenAITrack = 'builder' | 'engineer';
 

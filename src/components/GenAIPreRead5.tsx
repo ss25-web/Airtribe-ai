@@ -46,135 +46,135 @@ const QUIZZES = [
   {
     conceptId: 'genai-m5-loops',
     question: {
-      tech: "Aarav's SplitInBatches workflow processes 200 claims in batches of 10. After the batch loop, a Merge node combines all results. The first 10 claims process fine. Batches 2–20 produce empty outputs. What is the most likely cause?",
-      'non-tech': "Rhea's weekly report workflow loops over 50 policy renewals and appends each to a Google Sheet. The workflow completes successfully but the sheet has only 1 row. What is the most likely design error?",
+      engineer: "Aarav's SplitInBatches workflow processes 200 claims in batches of 10. After the batch loop, a Merge node combines all results. The first 10 claims process fine. Batches 2–20 produce empty outputs. What is the most likely cause?",
+      'builder': "Rhea's weekly report workflow loops over 50 policy renewals and appends each to a Google Sheet. The workflow completes successfully but the sheet has only 1 row. What is the most likely design error?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. The OpenAI node rate-limits after 10 calls — insert a Wait node between batches',
         'B. SplitInBatches is in "once" mode — only the first batch flows downstream',
         'C. The Merge node is misconfigured and is silently discarding all but the first batch',
         'D. The n8n execution engine caps batch iterations at 10 by default for safety',
       ],
-      'non-tech': [
+      'builder': [
         'A. Google Sheets API rate-limited the first write and silently dropped the rest',
         'B. Loop is in append mode but the column mapping rewrites the same row each time',
         'C. The workflow is writing all 50 rows but to a different sheet tab on the same file',
         'D. The loop runs once because the previous node is not configured to iterate the array',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 3 },
+    correctIndex: { engineer: 1, 'builder': 3 },
     explanation: {
-      tech: "SplitInBatches in 'once' mode emits the first batch and stops — multi-batch processing requires the feedback edge from the 'has items' output back into the batch node.",
-      'non-tech': "A loop that isn't iterating processes the first item and ends. Inspect the upstream node's item-processing mode before assuming the data is the problem.",
+      engineer: "SplitInBatches in 'once' mode emits the first batch and stops — multi-batch processing requires the feedback edge from the 'has items' output back into the batch node.",
+      'builder': "A loop that isn't iterating processes the first item and ends. Inspect the upstream node's item-processing mode before assuming the data is the problem.",
     },
     keyInsight: "A loop that runs once is not a loop — verify the iteration feedback edge and the node's processing mode before testing at scale.",
   },
   {
     conceptId: 'genai-m5-transforms',
     question: {
-      tech: "Aarav receives claims from two sources: API A returns `{ claimId, amount, status }` and API B returns `{ id, value, state }`. The downstream classifier expects `{ claim_id, amount, status }`. What is the correct approach?",
-      'non-tech': "Rhea's workflow merges data from Google Sheets (column: 'Policy Number') and a webhook (field: 'policyNum'). The merge step finds zero matches. What is the root cause?",
+      engineer: "Aarav receives claims from two sources: API A returns `{ claimId, amount, status }` and API B returns `{ id, value, state }`. The downstream classifier expects `{ claim_id, amount, status }`. What is the correct approach?",
+      'builder': "Rhea's workflow merges data from Google Sheets (column: 'Policy Number') and a webhook (field: 'policyNum'). The merge step finds zero matches. What is the root cause?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Run two separate workflows — one per API — and merge their results downstream',
         'B. Add a Set node after each source that maps to the canonical schema pre-merge',
         'C. Use a Function node with a try/catch that handles either format at runtime',
         'D. Add field aliases inside the classifier prompt so it accepts either shape',
       ],
-      'non-tech': [
+      'builder': [
         'A. The merge node is joining on the wrong key — it defaults to the first field by name',
         "B. Google Sheets' 'Policy Number' and the webhook's 'policyNum' are different strings",
         'C. Google Sheets returns strings and the webhook returns numbers — the types collide',
         'D. The merge node requires both sources to have identical schemas — unsupported here',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "Normalising to a canonical schema right after each source keeps every downstream node identical and testable. One Set node per source is safer than dynamic handling downstream.",
-      'non-tech': "Merge joins on matching field names. 'Policy Number' ≠ 'policyNum' — rename one with a Set node before the merge step. Field-name mismatches are the most common merge failure.",
+      engineer: "Normalising to a canonical schema right after each source keeps every downstream node identical and testable. One Set node per source is safer than dynamic handling downstream.",
+      'builder': "Merge joins on matching field names. 'Policy Number' ≠ 'policyNum' — rename one with a Set node before the merge step. Field-name mismatches are the most common merge failure.",
     },
     keyInsight: "Normalise to a canonical schema at the source, not at the consumer. Every node downstream becomes simpler when the shape is consistent.",
   },
   {
     conceptId: 'genai-m5-routing',
     question: {
-      tech: "The AI classifier returns a confidence field: 0.0–1.0. Aarav routes claims above 0.85 to auto-process, 0.5–0.85 to human review, below 0.5 to rejection queue. After two weeks, 60% of claims are in human review. What should he investigate first?",
-      'non-tech': "Rhea's workflow sends policy renewals to one of three teams based on policy type. After a week, Team C reports receiving renewals that should go to Team A. What is the most productive first diagnostic step?",
+      engineer: "The AI classifier returns a confidence field: 0.0–1.0. Aarav routes claims above 0.85 to auto-process, 0.5–0.85 to human review, below 0.5 to rejection queue. After two weeks, 60% of claims are in human review. What should he investigate first?",
+      'builder': "Rhea's workflow sends policy renewals to one of three teams based on policy type. After a week, Team C reports receiving renewals that should go to Team A. What is the most productive first diagnostic step?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Lower the auto-process threshold to 0.75 to drain the human review queue faster',
         'B. Audit the actual confidence distribution before re-tuning any threshold values',
         'C. Add a fourth route for the 0.75–0.85 band to spread reviewer load more evenly',
         'D. Drop confidence-band routing and switch to a fixed classification label per case',
       ],
-      'non-tech': [
+      'builder': [
         'A. Ask Team C to forward the misrouted renewals to Team A and watch for repeats',
         'B. Print the exact field values the router is reading and compare them to the conditions',
         "C. Re-run the workflow on last week's data to attempt to reproduce the misroute",
         'D. Add a logging node after the router to capture which path each renewal takes',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 1 },
+    correctIndex: { engineer: 1, 'builder': 1 },
     explanation: {
-      tech: "If 60% of claims cluster in the mid-range, the problem is classifier calibration — not threshold position. Adjusting thresholds without auditing the distribution is guessing.",
-      'non-tech': "Routing bugs are almost always a mismatch between the value the router reads and the condition written. Print the runtime value before changing any logic.",
+      engineer: "If 60% of claims cluster in the mid-range, the problem is classifier calibration — not threshold position. Adjusting thresholds without auditing the distribution is guessing.",
+      'builder': "Routing bugs are almost always a mismatch between the value the router reads and the condition written. Print the runtime value before changing any logic.",
     },
     keyInsight: "Before tuning a routing condition, audit what values are actually arriving at the router. Most routing bugs are data shape or field-name errors, not logic errors.",
   },
   {
     conceptId: 'genai-m5-hitl',
     question: {
-      tech: "Aarav adds a Wait node to pause the workflow until a Slack approver clicks 'Approve.' The workflow runs but the Wait node times out after 5 minutes. The approver received the Slack message but never saw a button. What is the issue?",
-      'non-tech': "Rhea's approval flow sends an email to a manager and waits for a reply. After two days, the manager replies 'Approved' but the workflow never continues. What is the most likely design gap?",
+      engineer: "Aarav adds a Wait node to pause the workflow until a Slack approver clicks 'Approve.' The workflow runs but the Wait node times out after 5 minutes. The approver received the Slack message but never saw a button. What is the issue?",
+      'builder': "Rhea's approval flow sends an email to a manager and waits for a reply. After two days, the manager replies 'Approved' but the workflow never continues. What is the most likely design gap?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. Slack nodes do not support interactive components — switch to a webhook approval flow',
         'B. Slack message went out as plain text — the interactive button payload was never added',
         'C. The Wait node timeout is set too short — extend it from 5 to 30 minutes',
         'D. The approver needs an n8n workspace seat before they can interact with workflows',
       ],
-      'non-tech': [
+      'builder': [
         'A. Free-text email replies cannot resume a Wait node — needs a structured link or form',
         'B. The manager replied to the wrong email thread and the reply never reached the workflow',
         'C. n8n does not support email-based approval flows — switch to Slack or a web form',
         'D. The Wait node expired before the manager replied — re-trigger the workflow now',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 0 },
+    correctIndex: { engineer: 1, 'builder': 0 },
     explanation: {
-      tech: "The Wait node resumes on a webhook callback. The Slack message must carry an interactive block whose action URL points at the Wait node's webhook. Plain-text Slack cannot trigger resume.",
-      'non-tech': "n8n's Wait node resumes on a webhook call — it cannot parse free-text email replies. Use a structured link (button → webhook) or a form-based flow.",
+      engineer: "The Wait node resumes on a webhook callback. The Slack message must carry an interactive block whose action URL points at the Wait node's webhook. Plain-text Slack cannot trigger resume.",
+      'builder': "n8n's Wait node resumes on a webhook call — it cannot parse free-text email replies. Use a structured link (button → webhook) or a form-based flow.",
     },
     keyInsight: "Human-in-the-loop means a structured handshake — a link, a button, a form. Free-text replies cannot resume a Wait node. Design the interface first.",
   },
   {
     conceptId: 'genai-m5-agents',
     question: {
-      tech: "Aarav builds a chat agent for internal claims queries. After 10 messages, the agent starts forgetting context from the first 3 exchanges. The Window Buffer Memory is set to 10. What is happening?",
-      'non-tech': "Rhea deploys a policy FAQ chatbot with memory. After a few days, users report the bot sometimes confuses two different users' questions in a single session. What is the most likely configuration error?",
+      engineer: "Aarav builds a chat agent for internal claims queries. After 10 messages, the agent starts forgetting context from the first 3 exchanges. The Window Buffer Memory is set to 10. What is happening?",
+      'builder': "Rhea deploys a policy FAQ chatbot with memory. After a few days, users report the bot sometimes confuses two different users' questions in a single session. What is the most likely configuration error?",
     },
     options: {
-      tech: [
+      engineer: [
         'A. The model context window is smaller than ten exchanges — reduce the buffer size',
         'B. Window Buffer is a sliding window — message 11 evicts message 1 by design',
         'C. The agent node needs to be restarted after every ten exchanges to clear the buffer',
         'D. The memory node is mis-wired — it is storing raw tokens instead of full messages',
       ],
-      'non-tech': [
+      'builder': [
         'A. A shared, hardcoded session ID — every user is writing to the same memory store',
         'B. Window Buffer Memory is too large and mixes context across separate conversations',
         'C. The model is hallucinating cross-user data — switch to a more accurate model',
         'D. The chatbot needs a login system before per-user memory can possibly work',
       ],
     },
-    correctIndex: { tech: 1, 'non-tech': 0 },
+    correctIndex: { engineer: 1, 'builder': 0 },
     explanation: {
-      tech: "Window Buffer Memory is intentionally a sliding window. For recall beyond the window, use summary memory or a vector-store-backed memory that persists key facts separately.",
-      'non-tech': "n8n separates conversations by session ID. If every user hits the same hardcoded session ID, they all share one memory store. Session ID must be unique per user conversation.",
+      engineer: "Window Buffer Memory is intentionally a sliding window. For recall beyond the window, use summary memory or a vector-store-backed memory that persists key facts separately.",
+      'builder': "n8n separates conversations by session ID. If every user hits the same hardcoded session ID, they all share one memory store. Session ID must be unique per user conversation.",
     },
     keyInsight: "Memory without session isolation is shared state. Trace the session ID through the workflow — a static session ID means all users share the same memory.",
   },
@@ -184,13 +184,13 @@ const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
 const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; moduleContext: string }> = {
-  'non-tech': {
-    label: 'Workflow & Operator Track',
+  'builder': {
+    label: 'Builder Track',
     introTitle: 'Advanced n8n · Operator Lens',
     moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 05 · Advanced n8n: Loops, Transforms & AI Agents. Follows Rhea, operations lead at Northstar Health, as she moves from single-run workflows to systems that iterate, branch, wait for human input, and hold conversation context across sessions.`,
   },
-  tech: {
-    label: 'Tech Builder Track',
+  engineer: {
+    label: 'Engineer Track',
     introTitle: 'Advanced n8n · Builder Lens',
     moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 05 · Advanced n8n: Loops, Transforms & AI Agents. Follows Aarav, platform engineer at Northstar Health, as he upgrades the claims automation from a single-pass pipeline to a looping, branching, memory-enabled system that handles real-world data volume and complexity.`,
   },
@@ -213,8 +213,8 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // batch tokens animate through the loop (or stall after batch 1 when the
 // feedback edge is broken).
 const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
-  const [arraySize, setArraySize] = useState(track === 'tech' ? 20 : 50);
-  const [batchSize, setBatchSize] = useState(track === 'tech' ? 5 : 10);
+  const [arraySize, setArraySize] = useState(track === 'engineer' ? 20 : 50);
+  const [batchSize, setBatchSize] = useState(track === 'engineer' ? 5 : 10);
   const [feedbackEdge, setFeedbackEdge] = useState(false);
   const [running, setRunning] = useState(false);
   const [activeBatch, setActiveBatch] = useState<number | null>(null);
@@ -249,7 +249,7 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
   const feedbackPath = `M ${procX + N8N_NW / 2} ${nodeY} C ${procX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} ${nodeY}`;
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'splitinbatches-backlog.json' : 'splitinbatches-renewals.json'} status={running ? 'IDLE' : feedbackEdge ? 'ACTIVE' : 'ERROR'}>
+    <N8nFrame filename={track === 'engineer' ? 'splitinbatches-backlog.json' : 'splitinbatches-renewals.json'} status={running ? 'IDLE' : feedbackEdge ? 'ACTIVE' : 'ERROR'}>
       {/* Canvas */}
       <N8nCanvas width={780} height={150}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
@@ -275,10 +275,10 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
             markerEnd={feedbackEdge ? 'url(#bs-arrow-loop)' : undefined}
           />
         </svg>
-        <N8nNodeCard x={triggerX} y={nodeY} label={track === 'tech' ? 'HTTP Pull Backlog' : 'Read Renewals Sheet'} typeKey={track === 'tech' ? 'data' : 'data'} icon={track === 'tech' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={triggerX} y={nodeY} label={track === 'engineer' ? 'HTTP Pull Backlog' : 'Read Renewals Sheet'} typeKey={track === 'engineer' ? 'data' : 'data'} icon={track === 'engineer' ? '⇄' : '⊞'} />
         <N8nNodeCard x={splitX}   y={nodeY} label="SplitInBatches" typeKey="loop" icon="↻" subLabel={`BATCH SIZE ${batchSize}`} status={activeBatch !== null ? 'pending' : undefined} />
-        <N8nNodeCard x={procX}    y={nodeY} label={track === 'tech' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" status={activeBatch !== null ? 'pending' : undefined} />
-        <N8nNodeCard x={sheetX}   y={nodeY} label={track === 'tech' ? 'Tracker Sheet' : 'Send Digest'} typeKey="output" icon={track === 'tech' ? '⊞' : '✉'} />
+        <N8nNodeCard x={procX}    y={nodeY} label={track === 'engineer' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" status={activeBatch !== null ? 'pending' : undefined} />
+        <N8nNodeCard x={sheetX}   y={nodeY} label={track === 'engineer' ? 'Tracker Sheet' : 'Send Digest'} typeKey="output" icon={track === 'engineer' ? '⊞' : '✉'} />
       </N8nCanvas>
 
       {/* Batch ticker */}
@@ -315,7 +315,7 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'center', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>ARRAY SIZE · {arraySize}</div>
-          <input type="range" min={5} max={track === 'tech' ? 60 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
+          <input type="range" min={5} max={track === 'engineer' ? 60 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
         </div>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>BATCH SIZE · {batchSize}</div>
@@ -362,7 +362,7 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
 // connects fields.
 const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
   type Field = { name: string; type: string };
-  const sourceFields: Field[] = track === 'tech'
+  const sourceFields: Field[] = track === 'engineer'
     ? [
         { name: 'claimID',     type: 'string' },
         { name: 'subject',     type: 'string' },
@@ -376,7 +376,7 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
         { name: 'Status',          type: 'string' },
         { name: 'Notes',           type: 'text'   },
       ];
-  const targetFields: Field[] = track === 'tech'
+  const targetFields: Field[] = track === 'engineer'
     ? [
         { name: 'claim_id',             type: 'string' },
         { name: 'policy_code',          type: 'string' },
@@ -389,7 +389,7 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
         { name: 'status',        type: 'string' },
         { name: 'summary_input', type: 'text'   },
       ];
-  const correct: Record<string, string> = track === 'tech'
+  const correct: Record<string, string> = track === 'engineer'
     ? { claimID: 'claim_id', policyCode: 'policy_code', subject: 'classification_input', body: 'classification_input' }
     : { row_id: 'exception_id', exception_date: 'date', 'Renewal Manager': 'manager', Status: 'status', Notes: 'summary_input' };
 
@@ -419,7 +419,7 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
   const fieldY = (idx: number) => FIRST_FIELD_Y + idx * (ROW_H + 4);
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'set-node-classifier-input.json' : 'set-node-renewals-input.json'} status={checked && allMapped ? 'ACTIVE' : 'EDITING'}>
+    <N8nFrame filename={track === 'engineer' ? 'set-node-classifier-input.json' : 'set-node-renewals-input.json'} status={checked && allMapped ? 'ACTIVE' : 'EDITING'}>
       {/* Mini canvas at top */}
       <N8nCanvas width={640} height={100}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 640, height: 100, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
@@ -431,9 +431,9 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
           <path d={n8nBezier(12 + N8N_NW, 20 + N8N_NH / 2, 220, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
           <path d={n8nBezier(220 + N8N_NW, 20 + N8N_NH / 2, 428, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
         </svg>
-        <N8nNodeCard x={12}  y={20} label={track === 'tech' ? 'Claims Source' : 'Renewals Sheet'} typeKey="data" icon={track === 'tech' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={12}  y={20} label={track === 'engineer' ? 'Claims Source' : 'Renewals Sheet'} typeKey="data" icon={track === 'engineer' ? '⇄' : '⊞'} />
         <N8nNodeCard x={220} y={20} label="Set (Edit Fields)" typeKey="transform" icon="⚙" subLabel={`MAPPING ${Object.keys(mappings).length}/${total}`} status={checked ? (allMapped ? 'ok' : 'fail') : undefined} />
-        <N8nNodeCard x={428} y={20} label={track === 'tech' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" ghost={!checked || !allMapped} />
+        <N8nNodeCard x={428} y={20} label={track === 'engineer' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" ghost={!checked || !allMapped} />
       </N8nCanvas>
 
       {/* Set node editor panel */}
@@ -553,7 +553,7 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
 const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
   type Branch = 'A' | 'B' | 'C';
   type Item = { id: string; label: string; field: string; value: string; correct: Branch };
-  const items: Item[] = track === 'tech' ? [
+  const items: Item[] = track === 'engineer' ? [
     { id: 'CLM-4412', label: 'CLM-4412', field: 'confidence', value: '0.71', correct: 'B' },
     { id: 'CLM-4413', label: 'CLM-4413', field: 'confidence', value: '0.91', correct: 'A' },
     { id: 'CLM-4414', label: 'CLM-4414', field: 'confidence', value: '0.55', correct: 'C' },
@@ -564,7 +564,7 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
     { id: '4433', label: '#4433', field: 'status',  value: 'pending+5d', correct: 'B' },
     { id: '4441', label: '#4441', field: 'status',  value: 'critical',   correct: 'A' },
   ];
-  const BRANCHES: { id: Branch; label: string; node: string; icon: string; rule: string }[] = track === 'tech' ? [
+  const BRANCHES: { id: Branch; label: string; node: string; icon: string; rule: string }[] = track === 'engineer' ? [
     { id: 'A', label: 'Auto-write',     node: 'Tracker Sheet',     icon: '⊞', rule: 'confidence ≥ 0.85' },
     { id: 'B', label: 'Human review',   node: 'Review Queue',      icon: '⚑', rule: '0.60 ≤ conf < 0.85' },
     { id: 'C', label: 'Manual triage',  node: 'Triage Dead-letter', icon: '⚠', rule: 'confidence < 0.60' },
@@ -585,7 +585,7 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
   const branchY = [40, 160, 280];
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'confidence-router.json' : 'priority-router.json'} status={revealed ? (score === items.length ? 'ACTIVE' : 'ERROR') : 'EDITING'}>
+    <N8nFrame filename={track === 'engineer' ? 'confidence-router.json' : 'priority-router.json'} status={revealed ? (score === items.length ? 'ACTIVE' : 'ERROR') : 'EDITING'}>
       <N8nCanvas width={780} height={400}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 400, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
           <defs>
@@ -708,7 +708,7 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
 const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
   type ItemState = 'pending' | 'approved' | 'rejected' | 'escalated';
   const [state, setState] = useState<ItemState>('pending');
-  const item = track === 'tech'
+  const item = track === 'engineer'
     ? { id: 'CLM-4412', label: 'Pharmacy override · Tier 2', confidence: '0.71', sla: 'Thursday 17:00', channel: 'claims-review' }
     : { id: '#4412', label: 'Escalate to regional manager', days: '6d open (SLA: 5d)', sla: 'Thursday 12:00', channel: 'ops-approvals' };
 
@@ -720,7 +720,7 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
   const escalateY = 250;
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'wait-approval-claim.json' : 'wait-approval-exception.json'} status={state === 'pending' ? 'IDLE' : 'ACTIVE'}>
+    <N8nFrame filename={track === 'engineer' ? 'wait-approval-claim.json' : 'wait-approval-exception.json'} status={state === 'pending' ? 'IDLE' : 'ACTIVE'}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
         {/* LEFT: canvas */}
         <div style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
@@ -741,10 +741,10 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
               <path d={n8nBezier(waitX + N8N_NW, waitY + N8N_NH / 2, escalateX, escalateY + N8N_NH / 2)} stroke={state === 'escalated' ? '#A855F7' : 'rgba(255,255,255,0.10)'} strokeWidth={state === 'escalated' ? 2 : 1.5} strokeDasharray={state === 'escalated' ? undefined : '4 5'} fill="none" markerEnd="url(#ap-arrow)" />
             </svg>
 
-            <N8nNodeCard x={upstreamX} y={upstreamY} label={track === 'tech' ? 'OpenAI Classify' : 'Validate Brief'} typeKey={track === 'tech' ? 'ai' : 'transform'} icon={track === 'tech' ? '◈' : '✓'} />
+            <N8nNodeCard x={upstreamX} y={upstreamY} label={track === 'engineer' ? 'OpenAI Classify' : 'Validate Brief'} typeKey={track === 'engineer' ? 'ai' : 'transform'} icon={track === 'engineer' ? '◈' : '✓'} />
             <N8nNodeCard x={waitX}     y={waitY}     label="Wait (webhook)" typeKey="wait" icon="⏱" subLabel={`TIMEOUT 48H · ${state.toUpperCase()}`} status={state === 'pending' ? 'pending' : 'ok'} />
-            <N8nNodeCard x={approveX}  y={approveY}  label={track === 'tech' ? 'Write Tracker' : 'Send Escalation'} typeKey="output" icon={track === 'tech' ? '⊞' : '✉'} ghost={state !== 'approved'} status={state === 'approved' ? 'ok' : undefined} />
-            <N8nNodeCard x={rejectX}   y={rejectY}   label={track === 'tech' ? 'Manual Triage' : 'Hold for Review'} typeKey="error" icon="⚠" ghost={state !== 'rejected'} status={state === 'rejected' ? 'fail' : undefined} />
+            <N8nNodeCard x={approveX}  y={approveY}  label={track === 'engineer' ? 'Write Tracker' : 'Send Escalation'} typeKey="output" icon={track === 'engineer' ? '⊞' : '✉'} ghost={state !== 'approved'} status={state === 'approved' ? 'ok' : undefined} />
+            <N8nNodeCard x={rejectX}   y={rejectY}   label={track === 'engineer' ? 'Manual Triage' : 'Hold for Review'} typeKey="error" icon="⚠" ghost={state !== 'rejected'} status={state === 'rejected' ? 'fail' : undefined} />
             <N8nNodeCard x={escalateX} y={escalateY} label="Auto-Escalate" typeKey="transform" icon="⇑" ghost={state !== 'escalated'} status={state === 'escalated' ? 'pending' : undefined} subLabel="WEBHOOK /escalate" />
           </N8nCanvas>
         </div>
@@ -769,7 +769,7 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
                 </div>
               </div>
               <div style={{ fontSize: 11.5, color: '#D1D1D1', lineHeight: 1.6, marginBottom: 10 }}>
-                {track === 'tech'
+                {track === 'engineer'
                   ? <><strong>⚑ Review Required</strong><br />Claim <span style={{ color: '#7BCFA0' }}>{item.id}</span> — confidence <span style={{ color: '#F5A623' }}>{item.confidence}</span><br />Suggested: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>
                   : <><strong>⚑ Approval Required</strong><br />Exception <span style={{ color: '#7BCFA0' }}>{item.id}</span> — {item.days}<br />Action: <span style={{ color: '#A78BFA' }}>{item.label}</span><br />SLA: <strong>{item.sla}</strong></>}
               </div>
@@ -805,7 +805,7 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
 // second user never sees the first user's context.
 const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
   type User = { id: string; name: string; color: string; questions: string[]; answers: string[] };
-  const users: User[] = track === 'tech'
+  const users: User[] = track === 'engineer'
     ? [
         { id: 'user-7821', name: 'Aarav', color: '#10B981', questions: ['What is deductible for Plan B, Tier 2?', 'What about Tier 3?', 'Is there a family cap?'], answers: ['Plan B Tier 2 deductible: $1,400/yr (per plan_schedule.pdf).', 'Plan B Tier 3: $2,100/yr. (Plan B inherited from prior turn.)', 'Family OOP max for Plan B: $8,700 across all tiers.'] },
         { id: 'user-4203', name: 'Guest', color: '#A855F7', questions: ['What is the deductible?', 'For which plan?'],                                  answers: ['I need more context — which plan and tier?', 'No prior context in this session. Please specify the plan and tier.'] },
@@ -827,7 +827,7 @@ const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
   const upperY = 30;
 
   return (
-    <N8nFrame filename={track === 'tech' ? 'agent-claims-faq.json' : 'agent-ops-faq.json'} status="ACTIVE">
+    <N8nFrame filename={track === 'engineer' ? 'agent-claims-faq.json' : 'agent-ops-faq.json'} status="ACTIVE">
       {/* Mini canvas at top */}
       <N8nCanvas width={620} height={150}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 620, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
@@ -968,12 +968,12 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 1: Loops & Iteration ── */}
       <ChapterSection id="genai-m5-loops" num="01" accentRgb={ACCENT_RGB} first>
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "In Pre-Read 04, Aarav built the exception classification workflow end-to-end — trigger, Set node, OpenAI classifier, Validate Output, dead-letter error path, and a live test against 12 real exceptions. The workflow runs reliably on one exception per trigger. This pre-read is about the three gaps that appear the moment volume arrives: a 247-item backlog that needs batching, two claim APIs whose field names don't match the classifier's input schema, and a confidence threshold that should pause for human sign-off before writing to the tracker."
           : "In Pre-Read 04, Rhea automated her Monday exception summary — mapped the manual process step by step, wired it in n8n with a service account credential, added a Slack error alert, and ran it live before showing her director. The brief now sends automatically every Monday. That success prompted a second request from her manager: build a weekly renewal digest for the 80 accounts on the renewals sheet. Rhea opens n8n. The Monday workflow handled one fixed output. This one needs to loop over 80 rows — and the renewals sheet field names don't match her prompt template."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The exception classifier handles one email per trigger. This week's backlog: 247 unclassified claims. Running the workflow 247 times manually defeats the purpose of building it. Aarav needs the workflow to take an array and iterate — without hitting OpenAI rate limits or losing items."
             : "The Monday brief runs perfectly. Now her manager asks for a second workflow: a weekly renewal digest from the 80 accounts on the renewals sheet. First test run: the workflow completes in 3 seconds and produces one output. Not 80. Rhea checks every node — all green. The workflow succeeded. It just only processed the first row."}
         </SituationCard>
@@ -1012,27 +1012,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#2563EB"
           content={<>Every batch loop has three things: the input array, the feedback edge, and the merge point. Before debugging a batch problem, draw those three things on paper. Most batch failures are a missing feedback edge or a merge node that collects from the wrong output.</>}
           expandedContent={<>Rate limits are the invisible constraint in batch workflows. If your AI node makes one API call per item and you have 200 items, that is 200 API calls — possibly within seconds. Most LLM APIs throttle at 60 requests/minute. Add a Wait node (500ms) between batches for any workflow running at volume.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav's SplitInBatches workflow processes 200 claims in batches of 10. After batch 1, no more batches run. What is missing?"
             : "Rhea's loop processes the first renewal and stops. 79 renewals remain untouched. What is the most likely cause?"}
           options={[
-            { text: track === 'tech' ? "The batch size is too large — reduce it to 5" : "The loop node needs a larger timeout setting", correct: false, feedback: "Batch size and timeouts are not the cause here." },
-            { text: track === 'tech' ? "The feedback edge from 'has items' back to the batch node is missing" : "The loop node's 'has items' output is not connected back to the loop node", correct: true, feedback: "Correct. The feedback edge is the loop mechanism. Without it, the node processes one batch and stops." },
-            { text: track === 'tech' ? "The downstream AI node doesn't support batch input" : "The Google Sheet only exported the first row", correct: false, feedback: "The downstream node is not the issue — the loop setup is." },
-            { text: track === 'tech' ? "n8n limits batch workflows to one iteration by default" : "The workflow needs to be run in manual mode to iterate", correct: false, feedback: "No such default limit exists." },
+            { text: track === 'engineer' ? "The batch size is too large — reduce it to 5" : "The loop node needs a larger timeout setting", correct: false, feedback: "Batch size and timeouts are not the cause here." },
+            { text: track === 'engineer' ? "The feedback edge from 'has items' back to the batch node is missing" : "The loop node's 'has items' output is not connected back to the loop node", correct: true, feedback: "Correct. The feedback edge is the loop mechanism. Without it, the node processes one batch and stops." },
+            { text: track === 'engineer' ? "The downstream AI node doesn't support batch input" : "The Google Sheet only exported the first row", correct: false, feedback: "The downstream node is not the issue — the loop setup is." },
+            { text: track === 'engineer' ? "n8n limits batch workflows to one iteration by default" : "The workflow needs to be run in manual mode to iterate", correct: false, feedback: "No such default limit exists." },
           ]}
           conceptId="genai-m5-loops"
         />
         <TiltCard style={{ margin: '28px 0' }}><BatchSimulatorCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Take a workflow that processes a single item. Add a SplitInBatches node with batch size 5. Connect the feedback edge. Run it on an array of 20 test items. Verify all 20 are processed — not just the first 5."
           : "Take your renewal workflow. Replace the single-item trigger with a loop that reads all rows from the spreadsheet. Run it on 10 test rows. Confirm 10 outputs are produced — not just 1."} />
       </ChapterSection>
 
       {/* ── Section 2: Data Transforms ── */}
       <ChapterSection id="genai-m5-transforms" num="02" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "Claims come from two APIs. API A returns `{ claimId, amount, status }`. API B returns `{ id, value, state }`. The AI classifier expects `{ claim_id, amount, status }`. Both sources feed into the same classifier node. Nothing matches."
             : "Rhea's renewal workflow pulls account data from Google Sheets and status updates from the renewals webhook. The sheet column is 'Policy Number'. The webhook sends 'policyNum'. The merge node finds zero matches. Her first instinct: write a script to normalize both to lowercase. Then she remembers — she is working in the visual editor, not the code editor. She needs to solve this without writing a single line of code."}
         </SituationCard>
@@ -1072,27 +1072,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           content={<>The most expensive data bugs in production are the ones that don&apos;t error — they just produce wrong output. A Set node that silently maps a missing field to an empty string lets the workflow &ldquo;succeed&rdquo; while producing garbage. Always validate the shape at the Set node, not downstream.</>}
           expandedContent={<>When merging two sources, print both inputs to the merge node before running the merge. Confirm that the join key field exists on both sides, has the same name, and has matching values. A merge that finds zero matches is almost always a field name mismatch or a type mismatch (string vs. number).</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav's Set node maps `id` → `claim_id`. But after the Set node, the downstream classifier receives items where `claim_id` is undefined. What should he check?"
             : "Rhea adds a Set node to rename 'policyNum' → 'Policy Number'. The merge still finds zero matches. What is the next diagnostic step?"}
           options={[
-            { text: track === 'tech' ? "The classifier expects a different field name than claim_id" : "The Google Sheets column name has a trailing space — 'Policy Number ' ≠ 'Policy Number'", correct: false, feedback: "Possible but not the first thing to check." },
-            { text: track === 'tech' ? "The Set node is using dot notation to read a nested field that doesn't exist at that path — the field is undefined before mapping" : "The Set node is correctly renaming the field but the merge node is configured to join on a different key entirely", correct: true, feedback: "Correct. If the source field path is wrong in the Set node, it reads undefined and maps undefined to the target field. Verify the input shape before the Set node." },
-            { text: track === 'tech' ? "The Set node runs after the merge point — it should run before" : "The webhook is sending data after the merge node runs", correct: false, feedback: "Execution order would be visible in the workflow diagram." },
-            { text: track === 'tech' ? "The Function node should be used instead of the Set node for field remapping" : "Google Sheets returns fields alphabetically — the merge node is confused by the order", correct: false, feedback: "Neither the node type nor field order is the issue here." },
+            { text: track === 'engineer' ? "The classifier expects a different field name than claim_id" : "The Google Sheets column name has a trailing space — 'Policy Number ' ≠ 'Policy Number'", correct: false, feedback: "Possible but not the first thing to check." },
+            { text: track === 'engineer' ? "The Set node is using dot notation to read a nested field that doesn't exist at that path — the field is undefined before mapping" : "The Set node is correctly renaming the field but the merge node is configured to join on a different key entirely", correct: true, feedback: "Correct. If the source field path is wrong in the Set node, it reads undefined and maps undefined to the target field. Verify the input shape before the Set node." },
+            { text: track === 'engineer' ? "The Set node runs after the merge point — it should run before" : "The webhook is sending data after the merge node runs", correct: false, feedback: "Execution order would be visible in the workflow diagram." },
+            { text: track === 'engineer' ? "The Function node should be used instead of the Set node for field remapping" : "Google Sheets returns fields alphabetically — the merge node is confused by the order", correct: false, feedback: "Neither the node type nor field order is the issue here." },
           ]}
           conceptId="genai-m5-transforms"
         />
         <TiltCard style={{ margin: '28px 0' }}><FieldMapperCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Take two HTTP nodes with different response schemas. Add a Set node after each that maps both to a shared canonical schema. Connect both to a Merge node. Verify the merged output has consistent field names and no undefined values."
           : "Create a small test: two data sources with different field names for the same concept. Add Set nodes to normalize both. Merge them on the shared field name. Confirm the merge finds matches — print the output before and after."} />
       </ChapterSection>
 
       {/* ── Section 3: Conditional Routing ── */}
       <ChapterSection id="genai-m5-routing" num="03" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The AI classifier returns a confidence score: 0.0–1.0. High confidence → auto-process. Mid-range → human review. Low confidence → rejection queue. Three routes. After one week, 60% of claims are stuck in human review. Either the threshold is wrong or the classifier is poorly calibrated."
             : "Rhea's renewal workflow routes to three teams based on policy type: Health, Dental, Vision. After a week, Team Vision reports receiving Dental renewals. The If/Switch node conditions look right on paper."}
         </SituationCard>
@@ -1132,27 +1132,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#7C3AED"
           content={<>Routing conditions are promises: &ldquo;if the data looks like this, do that.&rdquo; When routing breaks, the first question is whether the data kept its end of the promise. Print the input to the routing node before changing the condition. The condition is usually fine. The data usually isn&apos;t.</>}
           expandedContent={<>The most dangerous routing failure is silent — an item that matches no condition and falls out of the workflow without any alert. Always wire the Switch node&apos;s fallback output to a Slack alert or a dead-letter Google Sheet. If items are disappearing from your workflow, the fallback branch tells you how many.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav routes claims above 0.85 to auto-process. One week in, 3% of auto-processed claims are wrong. The AI confidence was above 0.85 for all of them. What is the most useful diagnostic?"
             : "Rhea's routing looks correct in the workflow but is still wrong in production. She has checked the field names and they match. What should she check next?"}
           options={[
-            { text: track === 'tech' ? "Lower the threshold to 0.92 to be more conservative" : "Re-run the workflow with the most recent data and check if the issue reproduces", correct: false, feedback: "This treats the symptom, not the root cause." },
-            { text: track === 'tech' ? "The confidence score field from the AI node might be a string, not a number — '0.87' > 0.85 is false in string comparison" : "The condition may be matching on a field that has extra whitespace or encoding differences not visible in the UI", correct: true, feedback: "Correct. Type mismatches and invisible character differences are the most common silent routing failures." },
-            { text: track === 'tech' ? "The AI model's confidence scores are not reliable above 0.85" : "The Switch node has a known bug with string comparisons in this version of n8n", correct: false, feedback: "Blame the tool last." },
-            { text: track === 'tech' ? "Add a second AI call to verify high-confidence claims before auto-processing" : "Contact n8n support to investigate the routing behavior", correct: false, feedback: "Engineering complexity before diagnosing the actual failure is premature." },
+            { text: track === 'engineer' ? "Lower the threshold to 0.92 to be more conservative" : "Re-run the workflow with the most recent data and check if the issue reproduces", correct: false, feedback: "This treats the symptom, not the root cause." },
+            { text: track === 'engineer' ? "The confidence score field from the AI node might be a string, not a number — '0.87' > 0.85 is false in string comparison" : "The condition may be matching on a field that has extra whitespace or encoding differences not visible in the UI", correct: true, feedback: "Correct. Type mismatches and invisible character differences are the most common silent routing failures." },
+            { text: track === 'engineer' ? "The AI model's confidence scores are not reliable above 0.85" : "The Switch node has a known bug with string comparisons in this version of n8n", correct: false, feedback: "Blame the tool last." },
+            { text: track === 'engineer' ? "Add a second AI call to verify high-confidence claims before auto-processing" : "Contact n8n support to investigate the routing behavior", correct: false, feedback: "Engineering complexity before diagnosing the actual failure is premature." },
           ]}
           conceptId="genai-m5-routing"
         />
         <TiltCard style={{ margin: '28px 0' }}><RoutePredictorCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Take a workflow that routes on an AI confidence score. Print the actual confidence values before the If node. Confirm they are numbers, not strings. Test with boundary values: 0.84, 0.85, 0.86. Verify each routes correctly."
           : "Take a routing workflow. Before the Switch node, add a Set node that prints the routing field value. Run it on 5 test items. Confirm the values match what the Switch conditions expect — same case, no spaces, correct format."} />
       </ChapterSection>
 
       {/* ── Section 4: Human-in-the-Loop ── */}
       <ChapterSection id="genai-m5-hitl" num="04" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "Claims in the mid-confidence range (0.5–0.85) need a human reviewer before they are processed. Aarav adds a Wait node. The workflow pauses. The reviewer gets a Slack message. But the message has no button. The Wait node times out after 5 minutes."
             : "Two managers need to approve the weekly exception report before it goes to the director. Rhea adds an approval step — the workflow emails the managers and waits. Three days later, both managers have replied 'Approved' by email. The workflow is still paused."}
         </SituationCard>
@@ -1192,27 +1192,27 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#C2410C"
           content={<>In health insurance, an approval that leaves no record may as well not have happened. Every human checkpoint in a workflow touching claims or patient data must write to an audit log: decision, timestamp, approver identity. A Wait node that resumes without recording who approved creates compliance risk, not safety.</>}
           expandedContent={<>Think about the timeout branch as a compliance case. If an approval is not received within 24 hours, what should happen? Silently continuing is usually wrong. Escalating to a senior reviewer, flagging in a tracking sheet, or auto-rejecting are all more defensible than a silent default. Design the timeout branch with the same care as the approval branch.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav's Wait node has a 2-hour timeout. When the timeout fires, the workflow continues to the next node automatically. The next node sends a Slack notification: 'Claim processed.' Is this correct behavior?"
             : "Rhea's Wait node times out after 48 hours with no approval received. The workflow continues and sends the report to the director anyway. Leela flags this. Why?"}
           options={[
-            { text: track === 'tech' ? "Yes — continuing after timeout is the correct fallback for real-time workflows" : "The report was sent without authorization — in a regulated context, sending without approval is a compliance violation regardless of whether the workflow continued correctly", correct: true, feedback: "Correct. Timeout fallback behavior has the same compliance weight as an explicit approval decision." },
-            { text: track === 'tech' ? "No — the Wait node should retry before timing out" : "The report should have been sent sooner — 48 hours is too long a timeout", correct: false, feedback: "Timeout duration is not the issue here." },
-            { text: track === 'tech' ? "No — the Slack notification should say 'Review timed out' not 'Claim processed'" : "The approval step should be removed — email approval is too slow", correct: false, feedback: "Notification wording and approval speed are not the core issue." },
-            { text: track === 'tech' ? "Yes — the claim was processed, so the Slack message is accurate" : "The workflow should have a longer timeout — 72 hours is standard for approvals", correct: false, feedback: "Accuracy of notification text and timeout length miss the compliance concern entirely." },
+            { text: track === 'engineer' ? "Yes — continuing after timeout is the correct fallback for real-time workflows" : "The report was sent without authorization — in a regulated context, sending without approval is a compliance violation regardless of whether the workflow continued correctly", correct: true, feedback: "Correct. Timeout fallback behavior has the same compliance weight as an explicit approval decision." },
+            { text: track === 'engineer' ? "No — the Wait node should retry before timing out" : "The report should have been sent sooner — 48 hours is too long a timeout", correct: false, feedback: "Timeout duration is not the issue here." },
+            { text: track === 'engineer' ? "No — the Slack notification should say 'Review timed out' not 'Claim processed'" : "The approval step should be removed — email approval is too slow", correct: false, feedback: "Notification wording and approval speed are not the core issue." },
+            { text: track === 'engineer' ? "Yes — the claim was processed, so the Slack message is accurate" : "The workflow should have a longer timeout — 72 hours is standard for approvals", correct: false, feedback: "Accuracy of notification text and timeout length miss the compliance concern entirely." },
           ]}
           conceptId="genai-m5-hitl"
         />
         <TiltCard style={{ margin: '28px 0' }}><ApprovalSimulatorCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Build a minimal approval flow: an HTTP trigger → a Wait node → a Slack message with an interactive button. The button's action URL is the Wait node's resume webhook. Test it manually: trigger the workflow, click the Slack button, confirm the workflow resumes."
           : "Design an approval flow for your report workflow: email containing an approval link → Wait node → continue on click. Map out what happens on timeout (48 hours, no click). Write the timeout branch action before you build the happy path."} />
       </ChapterSection>
 
       {/* ── Section 5: Memory & Chat Agents ── */}
       <ChapterSection id="genai-m5-agents" num="05" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'engineer'
             ? "The claims team wants a chat interface to query the exception database in natural language. Aarav builds an Agent node with Window Buffer Memory. After 10 messages, the agent starts forgetting the context established in the first 3 exchanges. And two engineers using it simultaneously keep seeing each other's conversation context."
             : "Rhea deploys a policy FAQ chatbot for the operations team. After a week, team members report the bot is mixing up answers — one person's context appearing in another person's session. The memory is bleeding between users."}
         </SituationCard>
@@ -1252,19 +1252,19 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           content={<>Window Buffer Memory is right for most conversational use cases. Where it fails is when a conversation requires recall of something said more than N messages ago. Before building a vector-store memory layer, ask: is the issue that the window is too small, or that the context genuinely needs to persist across sessions? Those are different problems with different solutions.</>}
           expandedContent={<>The most reliable test for session isolation: two browser windows, two different user IDs, same question asked in both. Open both at the same time. If one window&apos;s answer is influenced by the other window&apos;s conversation, the session IDs are colliding. Run this test before any production deployment of a multi-user agent.</>}
-          question={track === 'tech'
+          question={track === 'engineer'
             ? "Aarav sets the session ID to `{{ $json.userId }}`. Two engineers with different user IDs still see each other's context. What is the most likely cause?"
             : "Rhea sets the session ID to the employee's name. Two employees named 'Aisha' at different sites report sharing context. What is the fix?"}
           options={[
-            { text: track === 'tech' ? "The Window Buffer Memory node doesn't support dynamic session IDs" : "Names are not reliable unique identifiers — use a unique employee ID or a generated session token instead", correct: true, feedback: "Correct. Two users with the same name share the same session. Unique IDs must be genuinely unique across all users." },
-            { text: track === 'tech' ? "The userId field is missing from the request body — it defaults to a static fallback" : "The memory node needs to be reset between sessions", correct: false, feedback: "Possible but not the most likely cause given the question framing." },
-            { text: track === 'tech' ? "Window Buffer Memory doesn't support multi-user scenarios — use a vector store" : "Use a different memory node type that supports name-based isolation", correct: false, feedback: "The memory type is not the issue — the session key is." },
-            { text: track === 'tech' ? "The n8n workflow needs to run in parallel execution mode for multi-user support" : "Reset the chatbot daily to clear memory contamination", correct: false, feedback: "Neither addresses the root cause: non-unique session IDs." },
+            { text: track === 'engineer' ? "The Window Buffer Memory node doesn't support dynamic session IDs" : "Names are not reliable unique identifiers — use a unique employee ID or a generated session token instead", correct: true, feedback: "Correct. Two users with the same name share the same session. Unique IDs must be genuinely unique across all users." },
+            { text: track === 'engineer' ? "The userId field is missing from the request body — it defaults to a static fallback" : "The memory node needs to be reset between sessions", correct: false, feedback: "Possible but not the most likely cause given the question framing." },
+            { text: track === 'engineer' ? "Window Buffer Memory doesn't support multi-user scenarios — use a vector store" : "Use a different memory node type that supports name-based isolation", correct: false, feedback: "The memory type is not the issue — the session key is." },
+            { text: track === 'engineer' ? "The n8n workflow needs to run in parallel execution mode for multi-user support" : "Reset the chatbot daily to clear memory contamination", correct: false, feedback: "Neither addresses the root cause: non-unique session IDs." },
           ]}
           conceptId="genai-m5-agents"
         />
         <TiltCard style={{ margin: '28px 0' }}><SessionIsolationCard track={track} /></TiltCard>
-        <ApplyItBox prompt={track === 'tech'
+        <ApplyItBox prompt={track === 'engineer'
           ? "Build a chat agent with Window Buffer Memory. Set the session ID to a dynamic user identifier from the request. Test with two different user IDs simultaneously. Confirm context from one session does not appear in the other."
           : "Design the session ID strategy for your FAQ chatbot. What unique identifier is available per user? Map it. Test with two team members using the chatbot at the same time. Confirm their conversations are isolated."} />
         <NextChapterTeaser text="Module 06 goes beyond workflows into full agent architecture — how agents plan, use tools, reason across multiple steps, and operate at production scale with observability built in." />
@@ -1274,7 +1274,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 }
 
 export default function GenAIPreRead5({ track, onBack, onNext, nextLabel }: Props) {
-  const completionMessage = track === 'tech'
+  const completionMessage = track === 'engineer'
     ? 'You can iterate, branch, gate, and remember. The workflows from M04 run once. The patterns from M05 run at volume. Module 06 wires this into full agent architecture.'
     : 'Loops, routing, approvals, and memory in one system. Your automation can now handle real-world data size, team approvals, and stateful conversations. Module 06 shows how to scale this into production agent systems.';
   return (

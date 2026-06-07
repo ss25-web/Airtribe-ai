@@ -69,7 +69,7 @@ const PM_TRACK_OPTIONS: TrackChoiceOption<Track>[] = [
 
 const GENAI_TRACK_OPTIONS: TrackChoiceOption<GenAITrack>[] = [
   {
-    id: 'non-tech',
+    id: 'builder',
     eyebrow: 'GenAI track',
     title: 'Operator Track',
     description: 'For product, business, operations, and growth learners who want to use AI well without needing to code the underlying systems.',
@@ -79,7 +79,7 @@ const GENAI_TRACK_OPTIONS: TrackChoiceOption<GenAITrack>[] = [
     details: ['No-code friendly', 'Workflows', 'Use cases'],
   },
   {
-    id: 'tech',
+    id: 'engineer',
     eyebrow: 'GenAI track',
     title: 'Builder Track',
     description: 'For technical learners who want to reason about prompts, retrieval, tools, automation, and production-grade AI behavior.',
@@ -139,13 +139,13 @@ export default function Home() {
       setActiveModule(savedModule);
     } else if (savedStage === 'genai-quiz') {
       setStage('genai-quiz');
-      if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+      if (savedGenAITrack === 'engineer' || savedGenAITrack === 'builder') setGenaiTrack(savedGenAITrack);
     } else if (savedStage === 'genai') {
       setStage('genai');
-      if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+      if (savedGenAITrack === 'engineer' || savedGenAITrack === 'builder') setGenaiTrack(savedGenAITrack);
     } else if (savedStage === 'genai-reading') {
       setStage('genai-reading');
-      if (savedGenAITrack === 'tech' || savedGenAITrack === 'non-tech') setGenaiTrack(savedGenAITrack);
+      if (savedGenAITrack === 'engineer' || savedGenAITrack === 'builder') setGenaiTrack(savedGenAITrack);
       setGenaiModule(localStorage.getItem('airtribe_genai_module') ?? '01');
     } else if (savedStage === 'swe-select') {
       setStage('swe-select');

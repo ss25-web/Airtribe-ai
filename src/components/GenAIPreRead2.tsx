@@ -39,135 +39,135 @@ const QUIZZES = [
   {
     conceptId: 'genai-m2-anatomy',
     question: {
-      'non-tech': "Rhea's discharge summary prompt gives inconsistent tone — formal sometimes, casual others. What's the most targeted fix?",
-      'tech': "Aarav's entity extraction returns incomplete JSON on roughly one call in four. What's the most targeted first fix?",
+      'builder': "Rhea's discharge summary prompt gives inconsistent tone — formal sometimes, casual others. What's the most targeted fix?",
+      'engineer': "Aarav's entity extraction returns incomplete JSON on roughly one call in four. What's the most targeted first fix?",
     },
     options: {
-      'non-tech': [
+      'builder': [
         "A) Add 'use professional language' at the end of the existing brief",
         "B) Open the prompt with 'You are a clinical documentation specialist'",
         "C) Add five examples of summaries written in the target tone",
         "D) Switch to a stronger model that defaults to clinical register",
       ],
-      'tech': [
+      'engineer': [
         "A) Raise temperature so the model varies its phrasing each call",
         "B) Add five worked examples of the expected JSON in the user message",
         "C) Define the output schema in the system message or response_format",
         "D) Wrap the call in a retry loop that discards malformed responses",
       ],
     },
-    correctIndex: { 'non-tech': 1, 'tech': 2 },
+    correctIndex: { 'builder': 1, 'engineer': 2 },
     explanation: {
-      'non-tech': "A role declaration anchors persona, tone, and vocabulary across runs. Vague stylistic instructions like 'be professional' get interpreted differently each call.",
-      'tech': "An explicit schema tells the model exactly which fields to populate and in which shape. Examples reinforce a schema but can't replace it.",
+      'builder': "A role declaration anchors persona, tone, and vocabulary across runs. Vague stylistic instructions like 'be professional' get interpreted differently each call.",
+      'engineer': "An explicit schema tells the model exactly which fields to populate and in which shape. Examples reinforce a schema but can't replace it.",
     },
     keyInsight: "A clear role and a defined output contract eliminate the largest sources of run-to-run variance.",
   },
   {
     conceptId: 'genai-m2-fewshot',
     question: {
-      'non-tech': "Slightly critical feedback keeps classifying as Neutral when it should be Negative. Best fix?",
-      'tech': "Network connectivity tickets misclassify despite five existing examples in the prompt. Most impactful first move?",
+      'builder': "Slightly critical feedback keeps classifying as Neutral when it should be Negative. Best fix?",
+      'engineer': "Network connectivity tickets misclassify despite five existing examples in the prompt. Most impactful first move?",
     },
     options: {
-      'non-tech': [
+      'builder': [
         "A) Add three more clearly-Neutral examples to balance the prompt",
         "B) Add borderline-critical examples explicitly labelled Negative",
         "C) Tell the model to be stricter when feedback sounds critical",
         "D) Ask the model to explain its reasoning before labelling",
       ],
-      'tech': [
+      'engineer': [
         "A) Add examples covering the misclassified subtypes you've seen live",
         "B) Fine-tune the base model on your full historical ticket dataset",
         "C) Add a confidence threshold and queue low-scoring tickets for review",
         "D) Implement retrieval over your past ticket archive at inference time",
       ],
     },
-    correctIndex: { 'non-tech': 1, 'tech': 0 },
+    correctIndex: { 'builder': 1, 'engineer': 0 },
     explanation: {
-      'non-tech': "Few-shot examples teach the boundary. The cases the model misclassifies are exactly the ones it needs as labelled examples — show it what borderline-negative looks like.",
-      'tech': "If five examples aren't enough, the examples aren't representative of the failure modes. Add the specific subtypes that misclassify before reaching for fine-tuning or RAG.",
+      'builder': "Few-shot examples teach the boundary. The cases the model misclassifies are exactly the ones it needs as labelled examples — show it what borderline-negative looks like.",
+      'engineer': "If five examples aren't enough, the examples aren't representative of the failure modes. Add the specific subtypes that misclassify before reaching for fine-tuning or RAG.",
     },
     keyInsight: "Few-shot examples teach edge cases and boundaries — they're cheapest at the misclassified seams.",
   },
   {
     conceptId: 'genai-m2-context',
     question: {
-      'non-tech': "Summarising hundreds of pages of patient history for a specialist referral gives generic output. Best first step?",
-      'tech': "RAG chatbot hallucinates whenever five-to-seven large docs are stuffed into the context. Best fix?",
+      'builder': "Summarising hundreds of pages of patient history for a specialist referral gives generic output. Best first step?",
+      'engineer': "RAG chatbot hallucinates whenever five-to-seven large docs are stuffed into the context. Best fix?",
     },
     options: {
-      'non-tech': [
+      'builder': [
         "A) Add an instruction telling the model to be more detailed",
         "B) Manually pull the sections that matter and summarise only those",
         "C) Chunk the history into ten-page pieces and summarise each chunk",
         "D) Wait for a model with a much larger context window to ship",
       ],
-      'tech': [
+      'engineer': [
         "A) Summarise each retrieved doc first, then answer from the summaries",
         "B) Append more retrieved docs so the model has fuller coverage",
         "C) Switch to a model with a multi-million-token context window",
         "D) Add a system message instructing 'only use the provided context'",
       ],
     },
-    correctIndex: { 'non-tech': 1, 'tech': 0 },
+    correctIndex: { 'builder': 1, 'engineer': 0 },
     explanation: {
-      'non-tech': "Models lose detail in long contexts ('lost in the middle'). Pre-extracting the relevant sections is the highest-leverage move — chunking helps less if every chunk is mostly noise.",
-      'tech': "Compress before you answer. Per-doc summaries strip noise and free up tokens for the actual reasoning step — far more reliable than dumping everything in.",
+      'builder': "Models lose detail in long contexts ('lost in the middle'). Pre-extracting the relevant sections is the highest-leverage move — chunking helps less if every chunk is mostly noise.",
+      'engineer': "Compress before you answer. Per-doc summaries strip noise and free up tokens for the actual reasoning step — far more reliable than dumping everything in.",
     },
     keyInsight: "Context window management is about delivering the right tokens, not the most tokens.",
   },
   {
     conceptId: 'genai-m2-models',
     question: {
-      'non-tech': "Two workflows: high-volume routine intake emails plus low-volume complex specialist referrals. Which model strategy?",
-      'tech': "Daily reports (medium complexity, 100/day) plus weekly insights (high complexity, 5/week). Budget constrained. Strategy?",
+      'builder': "Two workflows: high-volume routine intake emails plus low-volume complex specialist referrals. Which model strategy?",
+      'engineer': "Daily reports (medium complexity, 100/day) plus weekly insights (high complexity, 5/week). Budget constrained. Strategy?",
     },
     options: {
-      'non-tech': [
+      'builder': [
         "A) Run GPT-4o on both workflows — best quality across the board",
         "B) Run Claude Haiku on both workflows — fast and cheap end-to-end",
         "C) Haiku for the routine intake, GPT-4o for the complex referrals",
         "D) Run Gemini Flash on both workflows — balanced speed and quality",
       ],
-      'tech': [
+      'engineer': [
         "A) Run GPT-4o for both — eliminates routing complexity at higher cost",
         "B) Cheaper Haiku-class model for daily reports, GPT-4o for weekly insights",
         "C) Run Claude Haiku for both — minimises cost at unknown quality risk",
         "D) Run Gemini Flash for both — balances cost and quality uniformly",
       ],
     },
-    correctIndex: { 'non-tech': 2, 'tech': 1 },
+    correctIndex: { 'builder': 2, 'engineer': 1 },
     explanation: {
-      'non-tech': "Match model capability to task complexity and volume. The cheap fast model handles bulk routine work; reserve the premium model for the cases that genuinely need it.",
-      'tech': "A hybrid routing strategy preserves quality on the small high-stakes workload while keeping cost low on the high-volume routine workload.",
+      'builder': "Match model capability to task complexity and volume. The cheap fast model handles bulk routine work; reserve the premium model for the cases that genuinely need it.",
+      'engineer': "A hybrid routing strategy preserves quality on the small high-stakes workload while keeping cost low on the high-volume routine workload.",
     },
     keyInsight: "Model selection is a routing decision — different tasks deserve different models.",
   },
   {
     conceptId: 'genai-m2-refine',
     question: {
-      'non-tech': "V3 of the consent-form prompt is more concise but now omits a legal disclaimer V1 always included. Next step?",
-      'tech': "V2 improved most summaries but regressed on edge cases. Before deploying V3 to prod, what's critical?",
+      'builder': "V3 of the consent-form prompt is more concise but now omits a legal disclaimer V1 always included. Next step?",
+      'engineer': "V2 improved most summaries but regressed on edge cases. Before deploying V3 to prod, what's critical?",
     },
     options: {
-      'non-tech': [
+      'builder': [
         "A) Revert to V1 entirely and stop iterating until legal re-reviews",
         "B) Diff V1 vs V3, find the dropped clause, restore it as a constraint",
         "C) Tack 'include all legal disclaimers' onto the end of the V3 prompt",
         "D) Ask legal to simplify the disclaimer so V3 stays short",
       ],
-      'tech': [
+      'engineer': [
         "A) A/B test V3 with internal users in staging for a week",
         "B) Run V3 against the golden eval set and diff metrics vs V1 and V2",
         "C) Manually spot-check 10-20 V3 outputs and ship if they look fine",
         "D) Commit V3 to git so we can revert if anything looks off in prod",
       ],
     },
-    correctIndex: { 'non-tech': 1, 'tech': 1 },
+    correctIndex: { 'builder': 1, 'engineer': 1 },
     explanation: {
-      'non-tech': "Refinement is a diff, not a rewrite. Find the specific change that dropped the disclaimer and pin it back in as an explicit constraint — preserve the conciseness win.",
-      'tech': "A golden eval set is what makes regressions visible. Run V3 against it and compare per-case metrics vs V1 and V2 before any traffic shifts.",
+      'builder': "Refinement is a diff, not a rewrite. Find the specific change that dropped the disclaimer and pin it back in as an explicit constraint — preserve the conciseness win.",
+      'engineer': "A golden eval set is what makes regressions visible. Run V3 against it and compare per-case metrics vs V1 and V2 before any traffic shifts.",
     },
     keyInsight: "Prompt refinement is version-controlled and evaluation-driven — never ship V3 without diffing the regressions.",
   },
@@ -214,7 +214,7 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   // Test set — three real tickets across all three target categories.
   // Each has the literal text the model "sees" plus the ground-truth label.
   type Ticket = { id: string; text: string; truth: 'Network' | 'Database' | 'Server' };
-  const TICKETS: Ticket[] = useMemo(() => track === 'non-tech'
+  const TICKETS: Ticket[] = useMemo(() => track === 'builder'
     ? [
         { id: 'T-401', truth: 'Network',  text: 'Patient portal keeps timing out for staff on the 3rd floor; works fine on the 4th. Started after lunch.' },
         { id: 'T-402', truth: 'Database', text: 'EHR refuses to save new visit notes — error says "deadlock detected on row lock wait." Started ~10:30am.' },
@@ -611,7 +611,7 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
   type CCat = 'Pre-Auth' | 'Coverage Limit' | 'Non-Emergent';
   type Turn = { role: 'user' | 'assistant'; text: string };
 
-  const isTech = track !== 'non-tech';
+  const isTech = track !== 'builder';
   const CATS = (isTech ? ['Network', 'Database', 'Server'] : ['Pre-Auth', 'Coverage Limit', 'Non-Emergent']) as readonly (Cat | CCat)[];
 
   const SYSTEM = isTech
@@ -999,7 +999,7 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
 // learner discovers that order matters, not just inclusion, by experiment.
 const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
   type Seg = { id: string; label: string; short: string; tokens: number; content: string };
-  const SEGS: Seg[] = useMemo(() => track === 'non-tech'
+  const SEGS: Seg[] = useMemo(() => track === 'builder'
     ? [
         { id: 's1', label: 'Patient demographics', short: 'demographics', tokens: 320, content: 'Jane Doe, 68F, admitted 2024-03-12 with community-acquired pneumonia.' },
         { id: 's2', label: 'Admission history',    short: 'admission',    tokens: 410, content: 'COPD (GOLD II), HTN, T2DM. Presented with productive cough, fever, dyspnea, SpO2 88% RA.' },
@@ -1018,7 +1018,7 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
   // 3 real test questions, each anchored to a specific segment.
   type Q = { id: string; q: string; anchor: string; truth: string; hedge: string };
-  const QUERIES: Q[] = useMemo(() => track === 'non-tech'
+  const QUERIES: Q[] = useMemo(() => track === 'builder'
     ? [
         { id: 'Q1', q: 'When was the patient admitted, and for what?',           anchor: 's1', truth: 'Jane Doe was admitted on 2024-03-12 with community-acquired pneumonia.', hedge: 'The patient was admitted in early 2024 for a respiratory issue, though I would double-check the exact date.' },
         { id: 'Q2', q: 'What was the critical clinical event during admission?', anchor: 's4', truth: 'On day 4, the patient developed acute kidney injury suspected from ACE-i + diuretic interaction. ACE-i was stopped and renal function began recovering.', hedge: 'The records mention day-4 renal function changes but the specific cause is not clearly stated.' },
@@ -1321,7 +1321,7 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
   };
 
   type Workload = { id: string; label: string; volumePerDay: number; tokensPerCall: number; needsFrontier: boolean; latencyBudgetMs: number };
-  const WORKLOADS: Workload[] = track === 'non-tech'
+  const WORKLOADS: Workload[] = track === 'builder'
     ? [
         { id: 'w1', label: 'Intake form summarisation',     volumePerDay: 200, tokensPerCall: 2000, needsFrontier: false, latencyBudgetMs: 600 },
         { id: 'w2', label: 'Exception classification',     volumePerDay: 100, tokensPerCall: 1500, needsFrontier: false, latencyBudgetMs: 400 },
@@ -1537,7 +1537,7 @@ const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
   const [version, setVersion] = useState(1);
 
   // Initial prompt versions — the learner can edit any of these in place.
-  const INITIAL = track === 'non-tech' ? {
+  const INITIAL = track === 'builder' ? {
     v1: 'Write a discharge summary for this patient.',
     v2: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes. Return a bulleted list of key actions for home care. Use a professional, empathetic tone.`,
     v3: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes (last 7 days only). Return a bulleted list of key actions for home care. Use a professional, empathetic tone.
@@ -1557,7 +1557,7 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
   const [v3Text, setV3Text] = useState(INITIAL.v3);
 
   // The real test input — the model "sees" this every run.
-  const TEST_INPUT = track === 'non-tech'
+  const TEST_INPUT = track === 'builder'
     ? 'PATIENT: Jane Doe, 68F. Admitted 2024-03-12 (community-acquired pneumonia). PMH: COPD, HTN, T2DM. Treated azithromycin + ceftriaxone. Day-4 AKI suspected from ACE-i + diuretic interaction — ACE-i stopped, renal recovering. Discharged 2024-03-20. Nephrology f/u 2 weeks. Low-sodium diet, daily weights.'
     : 'INCIDENT INC-2024-03-12: Primary DB01 outage 14:00 UTC. Initial dx: runaway query, no replication lag. Actions: killed PID 12345, restarted db-service, drained pool. CRITICAL: user_sessions table corrupted during restart — restore from 13:55 UTC backup. Recovered 16:30 UTC. Impact: 2.5h partial degradation.';
 
@@ -1574,7 +1574,7 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
   // Deterministic "model" output — keyed off the four signals.
   const generate = (text: string): string => {
     const s = analyse(text);
-    if (track === 'non-tech') {
+    if (track === 'builder') {
       if (!s.hasRole && !s.hasFormat) {
         return 'Patient was discharged after treatment. They should follow up with their doctor and continue medications as prescribed.';
       }
@@ -1618,7 +1618,7 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
   const rubric = useMemo(() => {
     const out = currentOutput;
     const isStructured = /^[•\-\d]|^\{/.test(out) || /[\n][•\-\d]/.test(out) || out.trim().startsWith('{');
-    const criticalKey = track === 'non-tech' ? /aki|nephrology|ace[- ]?i|low[- ]sodium/i : /user_sessions|data_integrity|corrupted|restore from .* backup/i;
+    const criticalKey = track === 'builder' ? /aki|nephrology|ace[- ]?i|low[- ]sodium/i : /user_sessions|data_integrity|corrupted|restore from .* backup/i;
     const hasCritical = criticalKey.test(out);
     const inScope = !/i recommend|please consult|generic|may want to/i.test(out);
     return { isStructured, hasCritical, inScope };
@@ -1888,13 +1888,13 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
 // --- Track Meta ---
 
 const TRACK_META: Record<GenAITrack, { label: string; introTitle: string; moduleContext: string }> = {
-  'non-tech': {
-    label: 'Workflow & Operator Track',
+  'builder': {
+    label: 'Builder Track',
     introTitle: 'Prompt Engineering · Operator Lens',
     moduleContext: `GenAI Launchpad · Non-Tech Track · Pre-Read 02 · Prompt Engineering & LLM Foundations. Follows Rhea, an operations lead at Northstar Health, as she moves from inconsistent AI outputs to reliable, structured prompts — mastering prompt anatomy, few-shot examples, context management, model selection, and iterative refinement.`,
   },
-  tech: {
-    label: 'Tech Builder Track',
+  engineer: {
+    label: 'Engineer Track',
     introTitle: 'Prompt Engineering · Builder Lens',
     moduleContext: `GenAI Launchpad · Tech Track · Pre-Read 02 · Prompt Engineering & LLM Foundations. Follows Aarav, a platform engineer at Northstar Health, as he moves from unpredictable API responses to production-grade prompt engineering — covering system messages, response_format constraints, token budgets, model routing, and prompt versioning.`,
   },
@@ -1965,37 +1965,37 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
       </div>
       </div>
 
-      <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'tech' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${track === 'tech' ? 'rgba(15,118,110,0.18)' : `rgba(${ACCENT_RGB},0.18)`}` }}>
-        <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: track === 'tech' ? '#0F766E' : ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
-        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'tech' ? "Your lens: how do you write prompts that behave like production code — predictable, testable, safe to iterate on?" : "Your lens: how do you translate a fuzzy operational requirement into a prompt that gives consistent, trustworthy outputs every time?"}</div>
+      <div style={{ marginBottom: '10px', padding: '16px 20px', borderRadius: '10px', background: track === 'engineer' ? 'rgba(15,118,110,0.08)' : `rgba(${ACCENT_RGB},0.08)`, border: `1px solid ${track === 'engineer' ? 'rgba(15,118,110,0.18)' : `rgba(${ACCENT_RGB},0.18)`}` }}>
+        <div style={{ fontFamily: "\'JetBrains Mono\', monospace", fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: track === 'engineer' ? '#0F766E' : ACCENT, marginBottom: '8px' }}>{TRACK_META[track].label.toUpperCase()}</div>
+        <div style={{ fontSize: '15px', color: 'var(--ed-ink2)', lineHeight: 1.75 }}>{track === 'engineer' ? "Your lens: how do you write prompts that behave like production code — predictable, testable, safe to iterate on?" : "Your lens: how do you translate a fuzzy operational requirement into a prompt that gives consistent, trustworthy outputs every time?"}</div>
       </div>
 
       <ChapterSection id="genai-m2-anatomy" num="01" accentRgb={ACCENT_RGB} first>
         {chLabel('Prompt Engineering & LLM Foundations')}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "In Pre-Read 01, Aarav built the mental model: GenAI completes, it does not retrieve; tasks have zones; outputs are bounded by context quality. That foundation is necessary but not sufficient. The gap between knowing what a prompt should do and writing one that reliably does it is where most integrations fail. This pre-read goes inside the call — the system message, the few-shot examples, the context budget, the model choice, the versioning discipline. Each section is a lever Aarav can pull on the ticket classifier, the incident summariser, or any LLM call his team ships."
           : "In Pre-Read 01, Rhea built the mental model: the model generates, it does not look things up; tasks belong in zones; a vague brief gives the model permission to choose everything. That understanding changes how you think about AI failures. This pre-read is about what to actually do about them — how to write prompts that stop being inconsistent, how to teach the model your domain, how to manage what it can see, how to pick the right model, and how to change prompts without breaking what works."
         )}
         {h2("The Anatomy of a Prompt")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can write a system message and user message that specify all five anatomy components for any LLM call — and annotate which component each line is doing."
           : "\u25b6 After this section, you can write a complete, structured prompt for your most-used AI task, with role, format, and constraints all explicitly specified."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'non-tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'builder'
             ? <>Rhea&apos;s first discharge summary prompt: &ldquo;Write a discharge summary for this patient.&rdquo; The outputs are wildly inconsistent &mdash; sometimes complete, sometimes missing critical medications. Her instinct is that the model is bad. Anika has a different diagnosis: the prompt is a vague brief.</>
             : <>Aarav&apos;s first API call for entity extraction: just the raw user message, no system prompt, no output format. The result is verbose, occasionally hallucinated, and unpredictable in structure. He runs it again with the same input and gets a different response. Rohan points to the missing output contract instead.</>}
         </SituationCard>
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "A prompt is not a question — it is a specification. When Rhea writes 'Write a discharge summary', she has specified nothing. The model fills every unspecified dimension with its own defaults: tone, length, what to include."
           : "Without a system message, the model has no persona, no role constraints, no output contract. It behaves like a general-purpose chatbot. Aarav's extraction task needs the model to behave like a structured API endpoint — that requires an explicit specification."
         )}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "The five anatomy components: Role (who the model should act as), Task (what it needs to do), Context (what information to use), Format (how the output should be structured), Constraints (rules, tone, exclusions). Each component eliminates a dimension of variance."
           : "The five components map to API parameters: System Message (role, scope, instructions), User Message (specific task + input data), Context Payload, Response Format (JSON schema, markdown), Parameters (temperature, max_tokens). Together they define a deterministic contract."
         )}
         {pullQuote("A vague brief produces a vague output. The model is not failing — you are underspecifying.")}
-        {track === 'non-tech' ? keyBox("What Rhea\u2019s discharge summary prompt looks like assembled", [
+        {track === 'builder' ? keyBox("What Rhea\u2019s discharge summary prompt looks like assembled", [
           'SYSTEM: You are a clinical documentation specialist at Northstar Health. Write in formal clinical register. Do not speculate beyond the information provided. If a field is missing from the record, write \u201cnot documented\u201d — do not infer.',
           'USER: Write a discharge summary for the patient below. Include these sections in order: (1) Primary diagnosis, (2) Medications prescribed — name, dose, and frequency for each, (3) Follow-up appointments with dates and department, (4) Restrictions or instructions. Maximum 200 words total.',
           '[Patient record inserted here]',
@@ -2019,9 +2019,9 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
         ], ACCENT)}
         <PromptBuilderTool track={track} />
         <GenAIConversationScene
-          mentor={track === 'non-tech' ? 'anika' : 'rohan'}
+          mentor={track === 'builder' ? 'anika' : 'rohan'}
           track={track}
-          accent={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
+          accent={track === 'builder' ? '#7C3AED' : '#2563EB'}
           techLines={[
             { speaker: 'protagonist', text: "Entity extraction is returning incomplete JSON on about 1-in-4 calls. I\u2019ve been varying the phrasing." },
             { speaker: 'mentor', text: "Before you touch the phrasing — is the output schema defined anywhere in the system message?" },
@@ -2036,14 +2036,14 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ]}
         />
         <GenAIAvatar
-          name={track === 'non-tech' ? 'Anika' : 'Rohan'}
-          nameColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
-          borderColor={track === 'non-tech' ? '#7C3AED' : '#2563EB'}
+          name={track === 'builder' ? 'Anika' : 'Rohan'}
+          nameColor={track === 'builder' ? '#7C3AED' : '#2563EB'}
+          borderColor={track === 'builder' ? '#7C3AED' : '#2563EB'}
           conceptId="genai-m2-anatomy"
-          content={<>{track === 'non-tech' ? "Before reaching for a different model, ask: what exactly was specified, and what was left open?" : "Every prompt you write is an API contract. If you wouldn\u2019t ship an API without a response schema, don\u2019t ship a prompt without an output format."}</>}
-          expandedContent={track === 'non-tech' ? "Consistency isn't a model capability — it's a prompt property. A well-specified prompt will outperform a vague prompt on a much stronger model." : "System messages are your configuration layer. Treat them with the same discipline as service configuration — version-controlled, reviewed, tested."}
-          question={track === 'non-tech' ? "Rhea\u2019s discharge summaries vary wildly in tone. What single prompt change has the most impact?" : "Aarav\u2019s entity extraction returns incomplete JSON on 1 in 4 calls. Best targeted fix?"}
-          options={track === 'non-tech' ? [
+          content={<>{track === 'builder' ? "Before reaching for a different model, ask: what exactly was specified, and what was left open?" : "Every prompt you write is an API contract. If you wouldn\u2019t ship an API without a response schema, don\u2019t ship a prompt without an output format."}</>}
+          expandedContent={track === 'builder' ? "Consistency isn't a model capability — it's a prompt property. A well-specified prompt will outperform a vague prompt on a much stronger model." : "System messages are your configuration layer. Treat them with the same discipline as service configuration — version-controlled, reviewed, tested."}
+          question={track === 'builder' ? "Rhea\u2019s discharge summaries vary wildly in tone. What single prompt change has the most impact?" : "Aarav\u2019s entity extraction returns incomplete JSON on 1 in 4 calls. Best targeted fix?"}
+          options={track === 'builder' ? [
             { text: "Add \u2018use professional language\u2019 at the end of the prompt", correct: false, feedback: "Vague style instructions don\u2019t anchor tone — the model interprets them differently each run." },
             { text: "Open with \u2018You are a clinical documentation assistant\u2019", correct: true, feedback: "A role declaration anchors persona, tone, and vocabulary. It\u2019s the highest-leverage single change." },
             { text: "Add five example sentences showing the preferred tone", correct: false, feedback: "Examples help, but a role declaration is a higher-leverage starting point." },
@@ -2055,7 +2055,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             { text: "Add more JSON examples to the user message to show the model the expected format", correct: false, feedback: "Examples reinforce the schema but don\u2019t replace it. Without a schema constraint, the model can still invent fields or omit required ones. Define the schema in the system message first." },
           ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Look at your last LLM API call. Which of the five anatomy components are missing? Add a system message with role + output format constraint and compare the output." : "Find a prompt your team uses that gives inconsistent results. Identify the missing anatomy components and add them one at a time."} />
+        <ApplyItBox prompt={track === 'engineer' ? "Look at your last LLM API call. Which of the five anatomy components are missing? Add a system message with role + output format constraint and compare the output." : "Find a prompt your team uses that gives inconsistent results. Identify the missing anatomy components and add them one at a time."} />
         <QuizEngine
           conceptId="genai-m2-anatomy"
           conceptName="Prompt Anatomy"
@@ -2069,26 +2069,26 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[0].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has a structured prompt. But the model still lacks Northstar\u2019s domain knowledge. Next: how to transfer that knowledge without fine-tuning." : "Rhea\u2019s prompts are now structured. But the model still misclassifies her domain-specific insurance categories. Next: how to teach it her domain."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav now has a structured prompt. But the model still lacks Northstar\u2019s domain knowledge. Next: how to transfer that knowledge without fine-tuning." : "Rhea\u2019s prompts are now structured. But the model still misclassifies her domain-specific insurance categories. Next: how to teach it her domain."} />
       </ChapterSection>
 
       <ChapterSection id="genai-m2-fewshot" num="02" accentRgb={ACCENT_RGB}>
         {chLabel('Zero-Shot vs Few-Shot')}
         {h2("Examples don\u2019t clarify — they transfer domain knowledge.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can identify which category in a classifier needs boundary examples, write those examples using a repeatable process, and know when to stop adding them."
           : "\u25b6 After this section, you can write a boundary example for your most-confused classification pair and explain why it works better than adding more clear-cut examples."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'non-tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'builder'
             ? <>Rhea is classifying insurance exceptions using a zero-shot prompt. Accuracy is 68%. &ldquo;Pre-Authorization &mdash; Medical Necessity&rdquo; keeps miscategorising as &ldquo;Coverage Limit&rdquo; &mdash; a subtle distinction that matters operationally. Adding &ldquo;classify carefully&rdquo; changes nothing.</>
             : <>Aarav&rsquo;s IT ticket classifier runs at 70% accuracy. Network connectivity tickets involving VPN authentication failures keep routing to the wrong team. The categories exist in the prompt. The problem is the model has never seen Northstar&rsquo;s specific failure patterns.</>}
         </SituationCard>
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "Zero-shot prompting relies on the model's pre-trained knowledge. When your categories have internal meanings not aligned with general language use, the model has no way to learn the distinction from a label alone."
           : "The model's training data doesn't include Northstar's internal ticket taxonomy. Without domain-specific examples, it applies general IT knowledge. For a routing system, 'close' means misrouted tickets."
         )}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "Three labeled examples of the ambiguous boundary — showing exactly what distinguishes a 'Pre-Authorization' denial from a 'Coverage Limit' denial in Northstar's context — can move accuracy from 68% to 91% with no other changes."
           : "Adding three to five labeled examples per problematic category transfers the classification logic directly. The model learns the boundary you care about, not the one it guessed."
         )}
@@ -2104,7 +2104,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           'Stopping signal 1: run the updated prompt on 20 new inputs. If the confused category\u2019s accuracy has not improved by at least 10 percentage points, your examples are not targeting the right boundary — not the right quantity.',
           'Stopping signal 2: the misclassified cases shift to a different category pair. That is your next boundary to target. Stop adding to the current set.',
         ], '#0F766E')}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "How Rhea wrote a boundary example for Pre-Authorization vs Coverage Limit: (1) She found a real exception request where the patient\u2019s procedure was medically required but not pre-authorised — the case that kept getting mis-labelled. (2) She wrote the input as a one-sentence description: \u2018Patient requires MRI for suspected disc herniation. Procedure is medically indicated but prior authorisation was not obtained.\u2019 (3) She labelled it explicitly: Pre-Authorization \u2013 Medical Necessity. (4) She added a note in the prompt: \u2018This is Pre-Authorization, not Coverage Limit — the procedure is covered but the approval step was missed.\u2019 That note is the boundary signal the model needs."
           : "How Aarav wrote a boundary example for VPN auth failure tickets: (1) He found a real ticket that kept routing to the wrong team — a VPN timeout that looked like a general network issue. (2) He wrote the input verbatim: \u2018User cannot connect to VPN from home network. Credentials valid. Connection times out after 30 seconds.\u2019 (3) He labelled it: Network \u2013 VPN Authentication. (4) He added a note: \u2018This is VPN Authentication, not General Network — credentials are valid, the failure is in the auth handshake, not the connection layer.\u2019 Three examples like this moved the routing accuracy for VPN tickets from 58% to 91%."
         )}
@@ -2133,8 +2133,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m2-fewshot"
           content={<>The question to ask about a few-shot example isn\u2019t \u201cis it correct?\u201d — it\u2019s \u201cdoes it show the model the boundary it keeps getting wrong?\u201d</>}
           expandedContent="Most teams add examples of the most common case. Classification errors almost always happen on the most ambiguous cases. Examples are most valuable where the model's prior is weakest."
-          question={track === 'non-tech' ? "Slightly critical feedback keeps classifying as Neutral. What kind of example helps most?" : "Network tickets misclassify despite 5 examples. Most impactful fix?"}
-          options={track === 'non-tech' ? [
+          question={track === 'builder' ? "Slightly critical feedback keeps classifying as Neutral. What kind of example helps most?" : "Network tickets misclassify despite 5 examples. Most impactful fix?"}
+          options={track === 'builder' ? [
             { text: "More clearly positive examples to anchor the Positive end", correct: false, feedback: "The unclear boundary is Neutral vs Negative — not Positive vs Neutral." },
             { text: "Borderline-negative examples explicitly labelled as Negative", correct: true, feedback: "Edge-case examples teach exactly where the ambiguous boundary sits." },
             { text: "A longer instruction explaining what Negative means", correct: false, feedback: "Instructions describe; examples demonstrate. For subtle boundaries, demonstration wins." },
@@ -2146,7 +2146,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             { text: "Remove the VPN Authentication category and merge it with General Network", correct: false, feedback: "Collapsing categories removes real operational distinctions — VPN auth failures and general network issues route to different teams for a reason. The fix is better examples, not fewer categories." },
           ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Find a classification endpoint. How many labeled examples per class? For the three most-confused categories, write one boundary example each and measure accuracy." : "Think of an AI task where your team has complained about wrong categories. Write three labeled examples for the most-confused category and add them to the prompt."} />
+        <ApplyItBox prompt={track === 'engineer' ? "Find a classification endpoint. How many labeled examples per class? For the three most-confused categories, write one boundary example each and measure accuracy." : "Think of an AI task where your team has complained about wrong categories. Write three labeled examples for the most-confused category and add them to the prompt."} />
         <QuizEngine
           conceptId="genai-m2-fewshot"
           conceptName="Zero-Shot vs Few-Shot"
@@ -2160,26 +2160,26 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[1].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has structured prompts and domain examples. But his chatbot forgets context after a few turns. Next: what actually reaches the model — and what gets silently dropped." : "Rhea\u2019s prompts are well-structured with the right examples. But her summarizer still misses a critical finding on page 7. Next: what the model can actually see."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav has structured prompts and domain examples. But his chatbot forgets context after a few turns. Next: what actually reaches the model — and what gets silently dropped." : "Rhea\u2019s prompts are well-structured with the right examples. But her summarizer still misses a critical finding on page 7. Next: what the model can actually see."} />
       </ChapterSection>
 
       <ChapterSection id="genai-m2-context" num="03" accentRgb={ACCENT_RGB}>
         {chLabel('Context Window: What Goes In Matters')}
         {h2("The context window is a spotlight, not a searchlight.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can diagnose a context window failure from API logs and apply the correct fix — sliding window, front-loading, or periodic summarisation — to your specific situation."
           : "\u25b6 After this section, you can identify when a missed output was caused by context placement and restructure a prompt to front-load what the model must not miss."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'non-tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'builder'
             ? <>Rhea feeds 10 pages of patient notes into her summarizer. The output is &ldquo;generally fine&rdquo; until a pharmacist flags a critical drug interaction on page 7 was not in the summary. The model processed the full document and still missed it. This is a context management problem.</>
             : <>Aarav&rsquo;s internal support chatbot forgets user instructions after 5&ndash;6 turns. He checks the API logs: the cumulative message history silently exceeds the model&rsquo;s 16k token limit. Older messages are dropped without any error.</>}
         </SituationCard>
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "LLMs process everything within a fixed context window. When content is long, attention distributes unevenly: information in the middle of a large context is systematically less likely to appear in the output — the 'lost in the middle' phenomenon."
           : "Every token in the API request counts toward the context window limit. Once that limit is reached, oldest content is silently truncated. The model never receives it, returns no error, and produces degraded outputs."
         )}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "The fix isn\u2019t a bigger context window — it\u2019s intelligent pre-processing: extract critical flags first (adverse drug reactions, key diagnoses), place them at the beginning of the prompt, then include only the relevant sections."
           : "The fix is explicit context budget management: monitor prompt_tokens in the API response, implement a sliding window retaining only the most recent N turns, and periodically summarize older conversation into a compressed context block."
         )}
@@ -2208,8 +2208,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m2-context"
           content={<>The model can only use what\u2019s in front of it. If the most critical information is buried in the middle of a large context, it has the same effect as if you never included it.</>}
           expandedContent="Researchers have documented the 'lost in the middle' effect: critical information in the middle of a long context has lower retrieval accuracy than information at the start or end. Front-load what matters most."
-          question={track === 'non-tech' ? "Rhea\u2019s summarizer misses a critical drug reaction buried on page 7 of 10. Best fix?" : "Aarav\u2019s chatbot forgets instructions after 6 turns. Root cause?"}
-          options={track === 'non-tech' ? [
+          question={track === 'builder' ? "Rhea\u2019s summarizer misses a critical drug reaction buried on page 7 of 10. Best fix?" : "Aarav\u2019s chatbot forgets instructions after 6 turns. Root cause?"}
+          options={track === 'builder' ? [
             { text: "Request a model with a larger context window", correct: false, feedback: "A bigger window doesn\u2019t fix \u2018lost in the middle\u2019 — it can make it worse by adding more surrounding filler." },
             { text: "Pre-extract critical flags and place them at the top of the prompt", correct: true, feedback: "The model prioritizes context at the start. Front-loading critical information ensures it\u2019s seen and included." },
             { text: "Break the document into chunks and summarize each separately", correct: false, feedback: "Chunking can fragment relationships across sections and may miss the critical finding entirely." },
@@ -2221,7 +2221,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             { text: "The model deprioritizes earlier turns as conversation length grows", correct: false, feedback: "The model doesn\u2019t deprioritize — it truncates. When the context limit is reached, oldest messages are dropped entirely, not down-weighted. They simply don\u2019t exist in the next API call." },
           ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Check your most-used LLM call\u2019s token count in the API response. Where is the critical information in the prompt? What would happen if you moved it to the top?" : "Think of an AI summary that missed something important. Where was that information in the source document? What would pre-extraction have looked like?"} />
+        <ApplyItBox prompt={track === 'engineer' ? "Check your most-used LLM call\u2019s token count in the API response. Where is the critical information in the prompt? What would happen if you moved it to the top?" : "Think of an AI summary that missed something important. Where was that information in the source document? What would pre-extraction have looked like?"} />
         <QuizEngine
           conceptId="genai-m2-context"
           conceptName="Context Window"
@@ -2235,26 +2235,26 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[2].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav\u2019s prompts are structured, domain-aware, and context-managed. Now he\u2019s running $12k/month on GPT-4o for tasks that don\u2019t need it. Next: how to select the right model for each task." : "Rhea\u2019s prompts are working reliably. Now Anika asks: is she using the right model for each task, or paying for capability she doesn\u2019t need?"} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav\u2019s prompts are structured, domain-aware, and context-managed. Now he\u2019s running $12k/month on GPT-4o for tasks that don\u2019t need it. Next: how to select the right model for each task." : "Rhea\u2019s prompts are working reliably. Now Anika asks: is she using the right model for each task, or paying for capability she doesn\u2019t need?"} />
       </ChapterSection>
 
       <ChapterSection id="genai-m2-models" num="04" accentRgb={ACCENT_RGB}>
         {chLabel('Model Selection & Cost')}
         {h2("The best model for a task is the smallest one that meets the quality bar.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can define a quality bar for a task, run a structured 20-input evaluation, and make a cost-justified routing decision between model tiers."
           : "\u25b6 After this section, you can define what \u2018good enough\u2019 means for a specific task, test a cheaper model against that bar, and decide whether hybrid routing makes sense for your workflow."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'non-tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'builder'
             ? <>Rhea assumes GPT-4o is right for everything. She runs it on 200 intake form summaries per day and 5 complex referral letters. Anika points out that for structured summarization at high volume, Claude Haiku produces nearly identical quality at a fraction of the cost.</>
             : <>Aarav\u2019s ticket classifier costs $12,000/month on GPT-4o. Rohan flags this as unsustainable. The task is classification with 7 categories and 5 few-shot examples per category. It doesn\u2019t require frontier reasoning.</>}
         </SituationCard>
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "Model selection is a cost-quality tradeoff. GPT-4o excels at complex reasoning and nuanced writing. For Rhea\u2019s structured intake summaries — consistent inputs producing bulleted outputs — a smaller model delivers the same quality at 20\u00d7 lower cost."
           : "Model capability scales with cost, but not linearly. For classification with clear categories and domain examples, the performance delta between GPT-4o and Claude Haiku is small. The cost delta is not. A hybrid strategy is almost always the right architecture."
         )}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "GPT-4o is for frontier reasoning: open-ended generation, multi-step analysis, tasks where quality variance has high consequences. For structured, high-volume language tasks with clear success criteria, a smaller model is the engineering-correct choice."
           : "Aarav\u2019s team finds Haiku achieves 92% accuracy vs GPT-4o\u2019s 95% at 1/20th the cost. Hybrid: route clear-cut tickets to Haiku, ambiguous ones to GPT-4o. Result: effective 94.7% accuracy at $2.4k/month."
         )}
@@ -2283,8 +2283,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m2-models"
           content={<>Define the minimum quality bar first. Then find the cheapest model that clears it — never start from the top down.</>}
           expandedContent="'What\u2019s the best model?' is the wrong question. 'What\u2019s the minimum capability required?' is the right one. This leads to hybrid architectures that are both cost-efficient and reliable."
-          question={track === 'non-tech' ? "Rhea has 200 structured summaries/day and 5 complex referrals/day. Best model strategy?" : "Daily reports at 100/day (medium complexity) and weekly insights at 5/week (high complexity). Budget is tight. Best strategy?"}
-          options={track === 'non-tech' ? [
+          question={track === 'builder' ? "Rhea has 200 structured summaries/day and 5 complex referrals/day. Best model strategy?" : "Daily reports at 100/day (medium complexity) and weekly insights at 5/week (high complexity). Budget is tight. Best strategy?"}
+          options={track === 'builder' ? [
             { text: "GPT-4o for everything — quality matters most in healthcare", correct: false, feedback: "GPT-4o at 200/day is expensive overkill for structured summarization. Quality gaps are marginal; cost gaps are not." },
             { text: "Haiku for high-volume summaries, GPT-4o for complex referrals", correct: true, feedback: "Match model capability to task complexity. Small models at scale, frontier models for irreducible complexity." },
             { text: "Gemini Flash for everything — it\u2019s the cheapest per token", correct: false, feedback: "Cheapest per token isn\u2019t always cheapest overall. Complex referrals may need multiple retries on a weaker model." },
@@ -2296,8 +2296,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             { text: "Run a cost analysis and use whatever model the budget allows", correct: false, feedback: "Budget constraints shape the decision, but they don\u2019t replace the quality bar. If a cheaper model doesn\u2019t clear the bar for your high-complexity task, using it because it\u2019s affordable produces unacceptable outputs at any price." },
           ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Map your team\u2019s LLM API calls by volume and task complexity. Which high-volume calls could move to a smaller model? Estimate the monthly cost difference." : "List two AI tasks your team uses. Look up cost per 1M tokens for the current model vs the tier below. What\u2019s the monthly delta at your current volume?"} />
-        {track === 'tech' ? keyBox('How to actually find where the quality bar sits', [
+        <ApplyItBox prompt={track === 'engineer' ? "Map your team\u2019s LLM API calls by volume and task complexity. Which high-volume calls could move to a smaller model? Estimate the monthly cost difference." : "List two AI tasks your team uses. Look up cost per 1M tokens for the current model vs the tier below. What\u2019s the monthly delta at your current volume?"} />
+        {track === 'engineer' ? keyBox('How to actually find where the quality bar sits', [
           '1. Pull 20 representative inputs from your real task — not hand-picked examples, but a random sample including messy, ambiguous, and edge-case inputs.',
           '2. Define a pass/fail rubric for each input before you run any model. For classification: correct label. For extraction: all required fields present and correctly typed. For summarisation: must include X, must not include Y. Write it down first — do not judge outputs by feel.',
           '3. Run all 20 inputs through the candidate smaller model (e.g. Haiku or GPT-3.5-turbo) and your current model. Score each output against the rubric.',
@@ -2325,30 +2325,30 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[3].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav has structure, examples, context management, and model routing. But prompt changes are unversioned. The last question: how to iterate safely." : "Rhea has reliable prompts for every task tier. But she\u2019s been making changes by trial and error with no way to detect regressions. Last question: how to improve without breaking what works."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav has structure, examples, context management, and model routing. But prompt changes are unversioned. The last question: how to iterate safely." : "Rhea has reliable prompts for every task tier. But she\u2019s been making changes by trial and error with no way to detect regressions. Last question: how to improve without breaking what works."} />
       </ChapterSection>
 
       <ChapterSection id="genai-m2-refine" num="05" accentRgb={ACCENT_RGB}>
         {chLabel('The Refinement Loop')}
         {h2("Prompts are code. They need versioning, testing, and regression checks.")}
-        {para(track === 'tech'
+        {para(track === 'engineer'
           ? "\u25b6 After this section, you can set up a minimal prompt versioning workflow — git directory, golden dataset, eval script, promotion rule — before shipping any prompt change to production."
           : "\u25b6 After this section, you can maintain a version log and golden cases sheet that would have caught the V1\u2192V3 compliance regression before it reached production."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
-          {track === 'non-tech'
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+          {track === 'builder'
             ? <>Rhea has improved her discharge summary prompt across three versions. V3 is more concise. But a compliance auditor flags a legal disclaimer always present in V1 is now missing. She has no record of what changed and no way to know which edit caused the regression.</>
             : <>Aarav deploys a prompt update (V2) that improves summary quality for most cases. Two days later, a team lead flags edge-case incident reports are missing the resolution step. No golden dataset, no version diff, no automated way to detect this regression before production.</>}
         </SituationCard>
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "A prompt is a living document governing critical outputs. When you change it without tracking what changed, you\u2019re deploying code without version control. The first time you introduce a regression that reaches a patient or regulator, the absence of a refinement loop becomes a liability."
           : "Prompt engineering without a testing framework is technical debt at the application layer. Every untracked change is a potential regression. Production AI systems need the same discipline as production code."
         )}
-        {para(track === 'non-tech'
+        {para(track === 'builder'
           ? "Rhea\u2019s refinement loop: store each version with a changelog. Maintain 'golden cases' — inputs where you know exactly what the correct output looks like. Before replacing V2 with V3, verify V3 passes all golden cases."
           : "Aarav\u2019s workflow: store prompts in a prompts/ directory in git. Build a golden dataset of 50\u2013100 labeled examples covering normal cases, edge cases, and previously seen failures. Automate evaluation on every PR."
         )}
-        {track === 'non-tech' ? keyBox('What Rhea\u2019s minimal refinement loop looks like in practice', [
+        {track === 'builder' ? keyBox('What Rhea\u2019s minimal refinement loop looks like in practice', [
           'Version doc: one shared Google Doc with a simple table — columns: Version, Date, What changed, Why. One row per edit. Takes two minutes to fill in.',
           'Golden cases sheet: a separate spreadsheet with 10\u201315 rows. Each row: the input text, what the output MUST include, what it must NOT include. Start with the cases that have failed or been flagged before.',
           'Before replacing V2 with V3: paste each golden case input into the new prompt and check the output against the \u201cmust include / must not include\u201d columns manually. Flag any row where V3 fails something V2 passed.',
@@ -2387,8 +2387,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m2-refine"
           content={<>Every prompt change is a hypothesis. You need to know what it might break, not just what it might improve.</>}
           expandedContent="From a compliance perspective, an undocumented prompt change that removes a safety instruction is indistinguishable from a silent code change that introduces a compliance violation. Treat prompts with the same governance as any production artifact."
-          question={track === 'non-tech' ? "V3 consent form prompt omits a legal disclaimer that V1 always included. Next step?" : "V2 improved summaries for most cases but introduced edge-case regressions. Before shipping V3, what\u2019s critical?"}
-          options={track === 'non-tech' ? [
+          question={track === 'builder' ? "V3 consent form prompt omits a legal disclaimer that V1 always included. Next step?" : "V2 improved summaries for most cases but introduced edge-case regressions. Before shipping V3, what\u2019s critical?"}
+          options={track === 'builder' ? [
             { text: "Revert to V1 — safety and compliance take precedence", correct: false, feedback: "Reverting discards valid improvements. Diagnose the specific change that caused the regression and fix it surgically." },
             { text: "Diff V1 and V3, identify what dropped the disclaimer, add an explicit constraint", correct: true, feedback: "Systematic comparison lets you preserve the improvement while restoring the requirement. That\u2019s the refinement loop." },
             { text: "Ask legal to simplify the disclaimer to fit the concise format", correct: false, feedback: "That changes the requirement, not the prompt. The problem is prompt regression." },
@@ -2400,7 +2400,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             { text: "Ask the team lead who flagged the regression to validate V3 outputs manually", correct: false, feedback: "Human spot-checking is valuable but doesn\u2019t catch failures that only appear under specific input patterns. The golden dataset exists precisely because a handful of manually reviewed cases can miss the failure mode entirely." },
           ]}
         />
-        <ApplyItBox prompt={track === 'tech' ? "Does your team have a golden dataset for your most-used prompt? If not, identify 20 representative test cases and store them with expected outputs — that\u2019s your regression baseline." : "Think of the last time an AI tool gave different outputs from before. What would a golden case set look like for that task? Write down 5 representative inputs and expected outputs."} />
+        <ApplyItBox prompt={track === 'engineer' ? "Does your team have a golden dataset for your most-used prompt? If not, identify 20 representative test cases and store them with expected outputs — that\u2019s your regression baseline." : "Think of the last time an AI tool gave different outputs from before. What would a golden case set look like for that task? Write down 5 representative inputs and expected outputs."} />
         <QuizEngine
           conceptId="genai-m2-refine"
           conceptName="Refinement Loop"
@@ -2414,7 +2414,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
             keyInsight: QUIZZES[4].keyInsight,
           }}
         />
-        <NextChapterTeaser text={track === 'tech' ? "Aarav now has the full prompt engineering stack. Pre-Read 03 is about a harder problem — his prompts are right but analysts still don't trust the outputs. The issue isn't prompting. It's what goes into the pipeline before the prompt ever runs." : "Rhea has reliable, structured prompts for every task tier. Pre-Read 03 is about a problem prompting alone can't fix — her AI outputs look complete but miss critical context. The issue isn't how she asks. It's what she's asking the model to read."} />
+        <NextChapterTeaser text={track === 'engineer' ? "Aarav now has the full prompt engineering stack. Pre-Read 03 is about a harder problem — his prompts are right but analysts still don't trust the outputs. The issue isn't prompting. It's what goes into the pipeline before the prompt ever runs." : "Rhea has reliable, structured prompts for every task tier. Pre-Read 03 is about a problem prompting alone can't fix — her AI outputs look complete but miss critical context. The issue isn't how she asks. It's what she's asking the model to read."} />
       </ChapterSection>
     </>
   );
@@ -2430,7 +2430,7 @@ interface Props {
 }
 
 export default function GenAIPreRead2({ track, onBack, onNext, nextLabel }: Props) {
-  const completionMessage = track === 'tech'
+  const completionMessage = track === 'engineer'
     ? 'You now have the core prompt engineering toolkit: anatomy, few-shot transfer, context budgeting, model routing, and safe iteration with regression testing.'
     : 'You now know how to write prompts that work reliably: structured anatomy, domain examples, context management, the right model, and a safe refinement process.';
   return (

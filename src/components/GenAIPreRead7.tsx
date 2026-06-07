@@ -48,17 +48,17 @@ const QUIZZES = [
   {
     conceptId: 'genai-m7-lastmile',
     question: {
-      tech: "Aarav's agent responds 'I cannot access adjuster workloads without live data.' The route logic works. What is the actual gap?",
-      'non-tech': "Rhea's AI summary is accurate but can't answer 'is this account in our CRM?' even though the CRM exists. What is missing?",
+      engineer: "Aarav's agent responds 'I cannot access adjuster workloads without live data.' The route logic works. What is the actual gap?",
+      'builder': "Rhea's AI summary is accurate but can't answer 'is this account in our CRM?' even though the CRM exists. What is missing?",
     },
     options: {
-      tech: [
+      engineer: [
         { text: "The model is too weak to handle live data lookups", correct: false, feedback: "Model capability is not the issue — the AI has no mechanism to call external systems, regardless of model size." },
         { text: "There is no bridge from the model to live enterprise systems", correct: true, feedback: "The last-mile gap: the model can reason but has no sanctioned, structured way to call the HR database at runtime." },
         { text: "The system prompt doesn't include adjuster workload data", correct: false, feedback: "Pasting live data into the system prompt is not scalable and requires a separate pipeline to stay fresh." },
         { text: "The claims classifier needs access to a larger context window", correct: false, feedback: "Context window size is unrelated to the ability to call external APIs at runtime." },
       ],
-      'non-tech': [
+      'builder': [
         { text: "The AI needs to be retrained on CRM data to answer CRM questions", correct: false, feedback: "Retraining is expensive and still wouldn't give real-time access to live CRM records." },
         { text: "There is no tool connecting the AI to the live CRM system", correct: true, feedback: "The AI can only reason about data already in the prompt. A tool is what lets it query the CRM at runtime." },
         { text: "The n8n workflow needs more HTTP nodes to pull CRM data first", correct: false, feedback: "Pre-pulling data works for fixed queries but breaks for dynamic questions — you can't predict every question in advance." },
@@ -69,17 +69,17 @@ const QUIZZES = [
   {
     conceptId: 'genai-m7-anatomy',
     question: {
-      tech: "Aarav writes a tool description: 'Gets HR data.' What is the critical missing element?",
-      'non-tech': "Rhea sets up a Salesforce lookup tool in n8n but the AI calls it for every message, even general questions. What is wrong with her tool setup?",
+      engineer: "Aarav writes a tool description: 'Gets HR data.' What is the critical missing element?",
+      'builder': "Rhea sets up a Salesforce lookup tool in n8n but the AI calls it for every message, even general questions. What is wrong with her tool setup?",
     },
     options: {
-      tech: [
+      engineer: [
         { text: "It needs the tool's return type and field names listed", correct: false, feedback: "Return type docs are helpful but not what controls when the tool fires. The model needs decision constraints." },
         { text: "It is missing when to call this tool and when NOT to call it", correct: true, feedback: "A tool description without a decision boundary is an open invitation. The model needs explicit scope: when YES and when NO." },
         { text: "It should include the HR database URL and auth method", correct: false, feedback: "Auth details don't belong in a public tool description — and they still don't tell the model when to use the tool." },
         { text: "The tool name should be more descriptive of its function", correct: false, feedback: "Name clarity helps but the decision logic lives in the description, not the name." },
       ],
-      'non-tech': [
+      'builder': [
         { text: "The Salesforce credential is misconfigured and the tool never returns data", correct: false, feedback: "If the tool never returned data the agent would error, not call it repeatedly." },
         { text: "The tool description lacks a 'when NOT to call this' constraint", correct: true, feedback: "Without a negative constraint the model treats the tool as broadly useful. Add: 'Do not call for general questions where account data is already in context.'" },
         { text: "The tool needs a human-approval node before every Salesforce lookup", correct: false, feedback: "Human approval is a governance control, not a fix for a missing call-scope definition." },
@@ -90,17 +90,17 @@ const QUIZZES = [
   {
     conceptId: 'genai-m7-build',
     question: {
-      tech: "Aarav's get_adjuster_load() tool returns a JSON blob with 40 fields. The agent uses only 3 of them. What is the practical consequence?",
-      'non-tech': "Rhea's tool returns the full Salesforce account record (60 fields). The AI uses the account_status field. What is the issue?",
+      engineer: "Aarav's get_adjuster_load() tool returns a JSON blob with 40 fields. The agent uses only 3 of them. What is the practical consequence?",
+      'builder': "Rhea's tool returns the full Salesforce account record (60 fields). The AI uses the account_status field. What is the issue?",
     },
     options: {
-      tech: [
+      engineer: [
         { text: "The agent may become confused by irrelevant fields and hallucinate wrong values", correct: false, feedback: "The model won't hallucinate from excess fields, but token waste and context dilution are real risks." },
         { text: "Unnecessary tokens increase cost and dilute the fields the agent actually needs", correct: true, feedback: "Every unused field consumes context and costs tokens. Tools should return only what the agent needs to act on." },
         { text: "The JSON schema becomes invalid if more than 10 fields are returned", correct: false, feedback: "There is no field count limit — the issue is cost and context efficiency, not schema validity." },
         { text: "The agent will fail to parse the response and throw an error", correct: false, feedback: "Parsing doesn't fail on extra fields — the agent just ignores them, wasting context." },
       ],
-      'non-tech': [
+      'builder': [
         { text: "The workflow will fail because n8n can't handle Salesforce responses over 50 fields", correct: false, feedback: "n8n handles large JSON responses. The issue is cost and response quality, not system capacity." },
         { text: "60 fields of unused data consume tokens and may cause the agent to miss the key field", correct: true, feedback: "Smaller, focused responses help the model reason more accurately and cost less per call." },
         { text: "Salesforce will block the request for returning too many fields at once", correct: false, feedback: "Salesforce returns what the API query requests — the field count is your control, not Salesforce's limit." },
@@ -111,17 +111,17 @@ const QUIZZES = [
   {
     conceptId: 'genai-m7-permissions',
     question: {
-      tech: "Aarav's MCP server uses a single API key with full HR access. A bug causes it to be called with adjuster_id='*'. What should have prevented this?",
-      'non-tech': "Rhea's Salesforce tool credential has full read-write access. The AI agent accidentally calls an update-record action. What control was missing?",
+      engineer: "Aarav's MCP server uses a single API key with full HR access. A bug causes it to be called with adjuster_id='*'. What should have prevented this?",
+      'builder': "Rhea's Salesforce tool credential has full read-write access. The AI agent accidentally calls an update-record action. What control was missing?",
     },
     options: {
-      tech: [
+      engineer: [
         { text: "Input validation in the MCP server rejecting wildcard IDs", correct: true, feedback: "The tool should validate inputs before calling downstream systems. A scoped key adds defence-in-depth but input validation is the first line." },
         { text: "A more descriptive tool name that discourages wildcard usage", correct: false, feedback: "The model doesn't use a tool name as a security boundary — only server-side validation stops wildcard calls." },
         { text: "Rate limiting on the MCP server to slow down bulk requests", correct: false, feedback: "Rate limiting slows damage but doesn't prevent invalid inputs from reaching HR." },
         { text: "A longer system prompt warning the model not to use wildcards", correct: false, feedback: "Prompt-based constraints can be bypassed by prompt injection. Server-side validation is the reliable control." },
       ],
-      'non-tech': [
+      'builder': [
         { text: "A human-in-the-loop approval before any write action is executed", correct: true, feedback: "For write operations in production systems, a human approval node is the correct guardrail. Read tools are generally safe to call without approval." },
         { text: "A more specific tool description telling the AI not to update records", correct: false, feedback: "Prompt-based constraints don't replace access controls — a compromised or confused AI can still call write endpoints." },
         { text: "A separate n8n workflow for read vs. write operations", correct: false, feedback: "Separate workflows are an architectural preference, not a security control. The credential scope is the real control." },
@@ -132,17 +132,17 @@ const QUIZZES = [
   {
     conceptId: 'genai-m7-production',
     question: {
-      tech: "Aarav's production logs show get_policy_details called 340 times in one hour — 8× above normal. What is the correct first response?",
-      'non-tech': "Rhea's n8n execution log shows her Salesforce tool returning 403 Forbidden on every call after 2pm yesterday. What should she check first?",
+      engineer: "Aarav's production logs show get_policy_details called 340 times in one hour — 8× above normal. What is the correct first response?",
+      'builder': "Rhea's n8n execution log shows her Salesforce tool returning 403 Forbidden on every call after 2pm yesterday. What should she check first?",
     },
     options: {
-      tech: [
+      engineer: [
         { text: "Immediately disable the tool to prevent further overuse", correct: false, feedback: "Disabling a production tool without diagnosis risks breaking dependent workflows." },
         { text: "Inspect the tool call inputs to find whether a prompt loop is generating repeated calls", correct: true, feedback: "A spike pattern usually means a loop or a broken stopping condition. Read the inputs before disabling anything." },
         { text: "Increase the rate limit ceiling to accommodate higher demand", correct: false, feedback: "Raising limits without understanding why they're being hit encourages runaway cost." },
         { text: "Switch to a model with lower tool-call frequency by default", correct: false, feedback: "Models don't have 'call frequency settings' — the call rate is driven by prompt loops or bad stopping conditions." },
       ],
-      'non-tech': [
+      'builder': [
         { text: "Re-deploy the entire workflow to pick up fresh credentials", correct: false, feedback: "Re-deployment doesn't fix a 403 if the underlying cause is a credential expiry or permission change." },
         { text: "Check whether the Salesforce credential expired or was revoked after 2pm", correct: true, feedback: "403 Forbidden after a specific time almost always means the auth token expired or a permission was changed. Check the credential vault." },
         { text: "Add a retry node to the workflow to handle intermittent 403 errors", correct: false, feedback: "Retrying a 403 won't work — the server is actively denying the request, not returning a transient error." },
@@ -172,17 +172,17 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
   const [mcpEnabled, setMcpEnabled] = useState(false);
   const [step, setStep] = useState(0);
 
-  const prompt = track === 'tech'
+  const prompt = track === 'engineer'
     ? 'Route CLM-8847 to the least-loaded adjuster in the claims team.'
     : 'Is Hartwell Group in our CRM, and when is their renewal due?';
-  const noMcpReply = track === 'tech'
+  const noMcpReply = track === 'engineer'
     ? "I don't have access to live adjuster workload data \u2014 I can't tell which one has the lightest caseload right now. To answer this I'd need a connection to your HR or workforce-management system."
     : "I don't have access to your CRM. Based only on what you've shared, I can't confirm whether Hartwell Group is in the system or when their renewal is.";
 
-  const tool = track === 'tech'
+  const tool = track === 'engineer'
     ? { server: 'northstar-claims', name: 'get_adjuster_load', args: 'department="claims"', result: '[\n  {"id":"ADJ-04","cases_open":3,"capacity":"high"},\n  {"id":"ADJ-07","cases_open":8,"capacity":"low"},\n  {"id":"ADJ-12","cases_open":5,"capacity":"med"}\n]' }
     : { server: 'northstar-crm',    name: 'lookup_crm_account', args: 'account_name="Hartwell Group"', result: '{\n  "found": true,\n  "account_id": "ACC-2204",\n  "status": "active",\n  "renewal_date": "2026-05-12",\n  "owner": "Leila Ramos"\n}' };
-  const mcpReply = track === 'tech'
+  const mcpReply = track === 'engineer'
     ? 'Route to **ADJ-04**. They have 3 open cases and the highest available capacity — the lowest current load in the claims team.'
     : 'Yes — **Hartwell Group** is in the CRM. Account ACC-2204, status active, renewal due **12 May 2026**, owned by Leila Ramos.';
 
@@ -196,8 +196,8 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
   const Bubble = ({ role, children }: { role: 'user' | 'assistant'; children: React.ReactNode }) => (
     <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-        <div style={{ width: 18, height: 18, borderRadius: '50%', background: role === 'user' ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: role === 'user' ? 'inherit' : 'serif' }}>{role === 'user' ? (track === 'tech' ? 'A' : 'R') : 'A'}</div>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{role === 'user' ? (track === 'tech' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+        <div style={{ width: 18, height: 18, borderRadius: '50%', background: role === 'user' ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: role === 'user' ? 'inherit' : 'serif' }}>{role === 'user' ? (track === 'engineer' ? 'A' : 'R') : 'A'}</div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{role === 'user' ? (track === 'engineer' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
       </div>
       <div style={{ maxWidth: '90%', padding: '9px 12px', background: role === 'user' ? CD.panel : 'transparent', border: role === 'user' ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{children}</div>
     </div>
@@ -289,21 +289,21 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
 // Claude renders the tool in its tools tray: the icon + name and the
 // description rendered as the agent will read it.
 const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
-  const [toolName, setToolName] = useState(track === 'tech' ? 'get_adjuster_load' : 'lookup_crm_account');
+  const [toolName, setToolName] = useState(track === 'engineer' ? 'get_adjuster_load' : 'lookup_crm_account');
   const [desc, setDesc] = useState('');
-  const [paramName, setParamName] = useState(track === 'tech' ? 'department' : 'account_name');
+  const [paramName, setParamName] = useState(track === 'engineer' ? 'department' : 'account_name');
   const [paramType, setParamType] = useState('string');
 
   const hasWhen = /when|use this/i.test(desc);
   const hasWhenNot = /\bnot\b|do not|don't|never/i.test(desc);
   const descScore = (hasWhen ? 1 : 0) + (hasWhenNot ? 1 : 0) + (desc.length > 30 ? 1 : 0);
 
-  const placeholder = track === 'tech'
+  const placeholder = track === 'engineer'
     ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status."
     : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions.";
 
   return (
-    <ClaudeDesktopFrame chatTitle={`Edit MCP server · ${track === 'tech' ? 'northstar-claims' : 'northstar-crm'}`} view="SERVER CONFIG" mcpServers={descScore === 3 ? 1 : 0}>
+    <ClaudeDesktopFrame chatTitle={`Edit MCP server · ${track === 'engineer' ? 'northstar-claims' : 'northstar-crm'}`} view="SERVER CONFIG" mcpServers={descScore === 3 ? 1 : 0}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
         {/* LEFT: VS Code-style schema editor */}
         <div style={{ borderRight: `1px solid ${CD.border}`, background: '#0E0E0E' }}>
@@ -415,7 +415,7 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
               <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(167,139,250,0.15)', border: `1px solid ${CD.tool}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CD.tool, fontSize: 11 }}>⚒</div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: CD.inkPrimary, fontFamily: "'JetBrains Mono', monospace" }}>{toolName || 'my_tool'}</div>
-                <div style={{ fontSize: 9, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{track === 'tech' ? 'northstar-claims' : 'northstar-crm'}</div>
+                <div style={{ fontSize: 9, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{track === 'engineer' ? 'northstar-claims' : 'northstar-crm'}</div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: desc ? CD.inkPrimary : CD.inkMuted, lineHeight: 1.6, fontStyle: desc ? 'normal' as const : 'italic' as const }}>
@@ -455,7 +455,7 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
 const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
   type StepType = 'USER' | 'REASON' | 'TOOL_USE' | 'TOOL_RESULT' | 'REASON_2' | 'ANSWER';
   type Step = { type: StepType; label: string; text: string };
-  const steps: Step[] = track === 'tech' ? [
+  const steps: Step[] = track === 'engineer' ? [
     { type: 'USER',        label: 'User message',     text: 'Route claim CLM-8847 to the best available adjuster in the claims team.' },
     { type: 'REASON',      label: 'Model reasoning',  text: 'I need to know current adjuster workloads before I can route. I should call get_adjuster_load() for the claims department.' },
     { type: 'TOOL_USE',    label: 'Tool call',        text: 'get_adjuster_load(department="claims")' },
@@ -532,8 +532,8 @@ const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
           return (
             <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 18, height: 18, borderRadius: '50%', background: isUser ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: isUser ? 'inherit' : 'serif' }}>{isUser ? (track === 'tech' ? 'A' : 'R') : 'A'}</div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{isUser ? (track === 'tech' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: isUser ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: isUser ? 'inherit' : 'serif' }}>{isUser ? (track === 'engineer' ? 'A' : 'R') : 'A'}</div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{isUser ? (track === 'engineer' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
               </div>
               <div style={{ maxWidth: '90%', padding: '9px 12px', background: isUser ? CD.panel : 'transparent', border: isUser ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{s.text}</div>
             </motion.div>
@@ -573,7 +573,7 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
   type ToolType = 'READ' | 'WRITE' | 'SEND' | 'DELETE';
   type ToolRow = { name: string; action: string; type: ToolType; answer: Rating; risk: string };
 
-  const tools: ToolRow[] = track === 'tech' ? [
+  const tools: ToolRow[] = track === 'engineer' ? [
     { name: 'get_adjuster_load',    action: 'Reads adjuster caseload from HR API',     type: 'READ',   answer: 'safe',   risk: 'Read-only on non-sensitive data — safe to allow always.' },
     { name: 'update_claim_status',  action: 'Writes new status to claims database',    type: 'WRITE',  answer: 'review', risk: 'Modifies production records — must require user confirmation.' },
     { name: 'send_adjuster_email',  action: 'Sends email from adjuster account',       type: 'SEND',   answer: 'review', risk: 'External-facing action — must require explicit confirmation each time.' },
@@ -694,7 +694,7 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
 // rows that look anomalous and the audit pass calls out exactly why.
 const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
   type Log = { time: string; tool: string; status: number; ms: number; calls: number; flag: boolean; anomaly?: string };
-  const logs: Log[] = track === 'tech' ? [
+  const logs: Log[] = track === 'engineer' ? [
     { time: '14:02:11', tool: 'get_adjuster_load',   status: 200, ms: 82,   calls: 4,   flag: false },
     { time: '14:02:19', tool: 'get_policy_clause',   status: 200, ms: 61,   calls: 340, flag: true, anomaly: 'Called 340× in 60 min — 8× above baseline. Likely an agent prompt loop.' },
     { time: '14:03:02', tool: 'update_claim_status', status: 403, ms: 12,   calls: 7,   flag: true, anomaly: '403 Forbidden — token may lack write scope or has expired.' },
@@ -803,14 +803,14 @@ type Props = { track: GenAITrack; onBack: () => void; onNext?: () => void; nextL
 export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Props) {
   const storedSections = useLearnerStore(s => s.completedSections[`genai-pr-${MODULE_NUM}`] ?? []);
   const completedSections = new Set(storedSections);
-  const trackMeta = track === 'tech'
-    ? { label: 'Tech Builder Track', shortLabel: 'Tech', introTitle: 'Model Context Protocol · Builder Lens' }
-    : { label: 'Workflow & Operator Track', shortLabel: 'Non-Tech', introTitle: 'Model Context Protocol · Operator Lens' };
+  const trackMeta = track === 'engineer'
+    ? { label: 'Engineer Track', shortLabel: 'Tech', introTitle: 'Model Context Protocol · Builder Lens' }
+    : { label: 'Builder Track', shortLabel: 'Non-Tech', introTitle: 'Model Context Protocol · Operator Lens' };
 
   const quizData = QUIZZES.map(q => ({
     conceptId: q.conceptId,
-    question: (q.question as Record<string, string>)[track] ?? q.question['tech'],
-    options: ((q.options as Record<string, { text: string; correct: boolean; feedback: string }[]>)[track] ?? q.options['tech']),
+    question: (q.question as Record<string, string>)[track] ?? q.question['engineer'],
+    options: ((q.options as Record<string, { text: string; correct: boolean; feedback: string }[]>)[track] ?? q.options['engineer']),
   }));
 
   const MENTORS: { name: string; role: string; desc: string; color: string; mentorId: GenAIMentorId }[] = [
@@ -820,9 +820,9 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
     { name: 'Kabir',  role: 'Operations Intelligence',   desc: 'Distinguishes repetitive work from work that is actually ready for AI.',            color: '#0F766E', mentorId: 'kabir' },
   ];
 
-  const protagonist = track === 'tech' ? 'Aarav' : 'Rhea';
-  const protagonistRole = track === 'tech' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
-  const protagonistDesc = track === 'tech'
+  const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
+  const protagonistRole = track === 'engineer' ? 'Platform Engineer · Northstar Health' : 'Operations Lead · Northstar Health';
+  const protagonistDesc = track === 'engineer'
     ? 'His claims routing agent classifies perfectly. But every time it tries to assign a case to an adjuster, it can\u2019t reach the HR system. The data exists. The bridge doesn\u2019t.'
     : 'Her n8n workflows summarise and classify in seconds. But when her director asks \u2018is Hartwell Group in the CRM?\u2019 the AI can\u2019t answer. The CRM is there. The connection isn\u2019t.';
   return (
@@ -852,7 +852,7 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' as const, marginBottom: '24px' }}>
                     <div style={{ width: '108px', flexShrink: 0, padding: '16px 10px 14px', borderRadius: '20px', background: 'var(--ed-card)', border: '1px solid var(--ed-rule)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textAlign: 'center' }}>
                       <div style={{ borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
-                        {track === 'tech' ? <AaravFace size={52} /> : <RheaFace size={52} />}
+                        {track === 'engineer' ? <AaravFace size={52} /> : <RheaFace size={52} />}
                       </div>
                       <div style={{ fontSize: '12px', fontWeight: 700, color: ACCENT, lineHeight: 1.2 }}>{protagonist}</div>
                       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', color: 'var(--ed-ink3)', lineHeight: 1.4 }}>{protagonistRole}</div>
@@ -900,12 +900,12 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
 
           {/* ── Section 1: The Last-Mile Problem ── */}
           <ChapterSection id="genai-m7-lastmile" num="01" accentRgb={ACCENT_RGB} first>
-            {para(track === 'tech'
+            {para(track === 'engineer'
               ? "In Pre-Read 06, Aarav built an agent that classifies claims, reasons through policy lookups, and drafts resolution responses using the ReAct loop. The agent runs well on the data it has. This pre-read is about the gap it keeps hitting: tasks that require live data from systems the model has no bridge to."
               : "In Pre-Read 06, Rhea's n8n agent can answer fixed questions from data she pre-loads into the workflow, and uses tool-call nodes to call a handful of configured integrations. This pre-read is about the question her director keeps asking — one that requires the AI to query a live system it has no connection to."
             )}
-            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
-              {track === 'tech'
+            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
+              {track === 'engineer'
                 ? "Aarav's agent correctly classifies incoming claims by category. But every time it tries to suggest routing — which adjuster to assign — it outputs: 'I don\u2019t have access to adjuster workload data.' The HR system exists. The API exists. The model just has no way to reach it."
                 : "Rhea's director asks her to build an AI assistant that can answer: 'Is Hartwell Group in our CRM and when is their renewal?' The AI can summarise data Rhea pastes in. But it cannot look up a live CRM record. The CRM is there. The connection isn't."}
             </SituationCard>
@@ -950,15 +950,15 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
               conceptId="genai-m7-lastmile"
             />
             <TiltCard style={{ margin: '28px 0' }}><MCPVsApiCompareCard track={track} /></TiltCard>
-            <ApplyItBox prompt={track === 'tech'
+            <ApplyItBox prompt={track === 'engineer'
               ? "List 3 questions your users ask that your current AI cannot answer because it lacks live data. For each: name the system that holds the answer (HR, CRM, claims DB). These are your first MCP tool candidates."
               : "List 3 questions your director or team asks that your n8n AI workflows can't currently answer. For each: which system holds that data? That list is your MCP tool roadmap."} />
           </ChapterSection>
 
           {/* ── Section 2: What MCP Actually Is ── */}
           <ChapterSection id="genai-m7-anatomy" num="02" accentRgb={ACCENT_RGB}>
-            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
-              {track === 'tech'
+            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
+              {track === 'engineer'
                 ? "Aarav registers his first MCP tool: get_adjuster_load. The model calls it — but it calls it on every single message, whether the question is about routing or not. Even a simple 'what day is it?' triggers the adjuster workload lookup. He traces the problem to one field."
                 : "Rhea sets up her first tool node in the n8n Agent and links it to a Salesforce HTTP request. The AI calls it on every message — even for questions about exception summaries that have nothing to do with accounts. She looks at the Description field she left as 'Gets account data.'"}
             </SituationCard>
@@ -1003,15 +1003,15 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
               conceptId="genai-m7-anatomy"
             />
             <TiltCard style={{ margin: '28px 0' }}><MCPToolSchemaBuilderCard track={track} /></TiltCard>
-            <ApplyItBox prompt={track === 'tech'
+            <ApplyItBox prompt={track === 'engineer'
               ? "Take one of your MCP tool candidates from Section 1. Write its description: one sentence for when to call it, one sentence for when NOT to call it. Then write the input schema: what parameter(s) does it take, and which are required?"
               : "Pick one of your data-lookup candidates from Section 1. In the n8n tool node Description field, write: 'Call this when [specific condition]. Do not call when [counterexample].' Test it with a question that should NOT trigger the tool. Does it fire?"} />
           </ChapterSection>
 
           {/* ── Section 3: Your First MCP Tool ── */}
           <ChapterSection id="genai-m7-build" num="03" accentRgb={ACCENT_RGB}>
-            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
-              {track === 'tech'
+            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
+              {track === 'engineer'
                 ? "Aarav writes the tool description, adds the input schema, and deploys his first MCP server. The model calls it correctly. But the tool returns the full HR employee record — 40 fields — and the agent only uses 3: adjuster_id, cases_open, and available_capacity. The other 37 fields are burning tokens on every call."
                 : "Rhea's Salesforce lookup tool now fires correctly — only when account-specific questions arrive. But the tool returns the full Salesforce account object: 60 fields. The AI uses account_status, renewal_date, and owner_name. She needs to understand what to do with the other 57 fields."}
             </SituationCard>
@@ -1056,15 +1056,15 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
               conceptId="genai-m7-build"
             />
             <TiltCard style={{ margin: '28px 0' }}><MCPFlowStepperCard track={track} /></TiltCard>
-            <ApplyItBox prompt={track === 'tech'
+            <ApplyItBox prompt={track === 'engineer'
               ? "Build the stub for get_adjuster_load(): define the input schema (department: string), write the description (when + when-not), and define the response model with only the 3 fields: adjuster_id, cases_open, available_capacity. Do not connect it to HR yet — just get the shape right."
               : "In n8n, set up the Salesforce HTTP Request tool node. After the request, add a Set node that outputs only: account_id, account_status, renewal_date, owner_name. Test it with a sample account name. Confirm the AI receives only 4 fields."} />
           </ChapterSection>
 
           {/* ── Section 4: Scope, Trust & Permissions ── */}
           <ChapterSection id="genai-m7-permissions" num="04" accentRgb={ACCENT_RGB}>
-            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
-              {track === 'tech'
+            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
+              {track === 'engineer'
                 ? "Aarav demos the routing agent to a manager. The manager asks: 'Can it look up any employee, or just adjusters?' Aarav checks his MCP server — the API key it uses has full HR access. The tool accepts any adjuster_id. Including one that starts with 'EXEC-'. He realizes the scope is wider than intended."
                 : "Rhea's tool is working. Her director asks: 'Can this AI update a renewal date if it decides one needs changing?' Rhea checks the Salesforce credential — it has read and write access. Her current tool only reads. But nothing stops someone from adding a write action later with the same key."}
             </SituationCard>
@@ -1109,15 +1109,15 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
               conceptId="genai-m7-permissions"
             />
             <TiltCard style={{ margin: '28px 0' }}><MCPPermissionAuditCard track={track} /></TiltCard>
-            <ApplyItBox prompt={track === 'tech'
+            <ApplyItBox prompt={track === 'engineer'
               ? "Audit your planned MCP tools using the 3-question test: (1) Can it be called with out-of-scope inputs? (2) Is the credential scoped to only what the tool needs? (3) For any write tool — is there a human gate? Fix the first gap you find."
               : "Go to your n8n credential vault. For each tool credential: is it read-only or read-write? If it\u2019s read-write, does it belong to a tool that only reads? Create a read-only credential variant for every read-only tool you have."} />
           </ChapterSection>
 
           {/* ── Section 5: MCP in Production ── */}
           <ChapterSection id="genai-m7-production" num="05" accentRgb={ACCENT_RGB}>
-            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'tech' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
-              {track === 'tech'
+            <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '\u25ce Aarav\u2019s Situation' : '\u25ce Rhea\u2019s Situation'}>
+              {track === 'engineer'
                 ? "Aarav\u2019s MCP server has been live for 3 days. He opens the tool call logs and sees get_policy_clause called 340 times in the last hour. Normal is around 40. The other tools are at baseline. No alerts fired. He wasn\u2019t looking."
                 : "Rhea\u2019s Salesforce lookup has been live for a week. A colleague says the AI stopped answering CRM questions correctly this afternoon. Rhea checks the n8n execution log for the first time. Every tool call since 14:03 shows a 403 Forbidden error."}
             </SituationCard>
@@ -1162,10 +1162,10 @@ export default function GenAIPreRead7({ track, onBack, onNext, nextLabel }: Prop
               conceptId="genai-m7-production"
             />
             <TiltCard style={{ margin: '28px 0' }}><MCPLogReaderCard track={track} /></TiltCard>
-            <ApplyItBox prompt={track === 'tech'
+            <ApplyItBox prompt={track === 'engineer'
               ? "Before deploying your MCP tool: define the 3 monitoring signals you will check (volume, latency, error rate) and the threshold that would trigger investigation for each. Write them into a comment in the server code so the next person who touches it knows the baselines."
               : "After your Salesforce tool is live for 3 days, open the n8n execution log. Find the tool\u2019s entries. Note: how many calls? Any non-200 status codes? Any latency above 2 seconds? These three numbers are your production baseline."} />
-            <NextChapterTeaser text={track === 'tech'
+            <NextChapterTeaser text={track === 'engineer'
               ? "Pre-Read 08 is about a harder problem: the agent is running and calling tools correctly — but you don't know if the answers it's producing are actually good. Evaluation is the discipline of measuring that, systematically."
               : "Pre-Read 08 covers the question Rhea's director will eventually ask: 'How do we know the AI is actually right?' Her workflows are producing outputs. Pre-Read 08 is about building the system that tells you which ones to trust."} />
           </ChapterSection>
