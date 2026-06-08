@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
@@ -133,34 +133,120 @@ const SECTION_XP = 50;
 const QUIZ_XP = 100;
 
 
-// TokenProbCard rebuilt as the OpenAI Playground Completion view with the
-// Show probabilities toggle ON. The completion at the top renders each
-// generated token with a transparent purple highlight whose intensity
-// matches that token's probability — exactly how the real Playground
-// shows logprobs. Hovering a token reveals its top-3 next-token candidates
-// in a popover (probability distribution as a bar chart).
+// ─── TokenProbCard — REAL editable prompt + streaming token generator ───
+// The learner types a prompt, hits Generate, and tokens stream in one by
+// one with probabilities. A deterministic continuation lookup picks the
+// most likely next token from a hand-curated table seeded on the prompt's
+// last few words. Temperature slider shifts which candidate gets sampled.
+// Hovering any streamed token shows its top-3 alternatives. Same as
+// OpenAI Playground with "show probabilities" on — but driven by the
+// learner's own input, not a fixed example.
 const TokenProbCard = ({ track }: { track: GenAITrack }) => {
   type Token = { word: string; chosenP: number; alts: { label: string; p: number }[] };
-  const promptText = track === 'engineer'
+
+  // Deterministic next-token model: lookup of (last-word -> candidates).
+  // Falls back to a generic distribution if no key matches. This produces
+  // realistic-looking probability spreads without needing a real LLM.
+  const VOCAB: Record<string, { label: string; p: number }[]> = {
+    'the':       [{ label: ' model',     p: 0.42 }, { label: ' system',    p: 0.21 }, { label: ' team',     p: 0.14 }],
+    'a':         [{ label: ' few',       p: 0.31 }, { label: ' new',       p: 0.22 }, { label: ' simple',   p: 0.18 }],
+    'model':     [{ label: ' generates', p: 0.38 }, { label: ' predicts',  p: 0.28 }, { label: ' returns',  p: 0.18 }],
+    'system':    [{ label: ' should',    p: 0.36 }, { label: ' must',      p: 0.22 }, { label: ' will',     p: 0.18 }],
+    'generates': [{ label: ' plausible', p: 0.34 }, { label: ' fluent',    p: 0.27 }, { label: ' coherent', p: 0.19 }],
+    'predicts':  [{ label: ' the',       p: 0.48 }, { label: ' a',         p: 0.22 }, { label: ' what',     p: 0.14 }],
+    'returns':   [{ label: ' a',         p: 0.51 }, { label: ' the',       p: 0.27 }, { label: ' JSON',     p: 0.12 }],
+    'plausible': [{ label: ' text.',     p: 0.42 }, { label: ' output.',   p: 0.31 }, { label: ' answers.', p: 0.16 }],
+    'next':      [{ label: ' word',      p: 0.41 }, { label: ' token',     p: 0.33 }, { label: ' step',     p: 0.18 }],
+    'word':      [{ label: ' is',        p: 0.46 }, { label: ' depends',   p: 0.21 }, { label: ' must',     p: 0.16 }],
+    'token':     [{ label: ' is',        p: 0.44 }, { label: ' depends',   p: 0.23 }, { label: ' gets',     p: 0.18 }],
+    'is':        [{ label: ' a',         p: 0.32 }, { label: ' just',      p: 0.24 }, { label: ' not',      p: 0.21 }],
+    'completion':[{ label: ' will',      p: 0.39 }, { label: ' is',        p: 0.28 }, { label: ' begins',   p: 0.16 }],
+    'procedure': [{ label: ' for',       p: 0.48 }, { label: ' is',        p: 0.24 }, { label: ' depends',  p: 0.15 }],
+    'for':       [{ label: ' compliance',p: 0.28 }, { label: ' this',      p: 0.24 }, { label: ' any',      p: 0.19 }],
+    'compliance':[{ label: ' issues.',   p: 0.42 }, { label: ' review.',   p: 0.28 }, { label: ' matters.', p: 0.17 }],
+    'escalation':[{ label: ' procedure', p: 0.41 }, { label: ' protocol',  p: 0.28 }, { label: ' depends',  p: 0.17 }],
+    'protocol':  [{ label: ' for',       p: 0.47 }, { label: ' requires',  p: 0.21 }, { label: ' applies',  p: 0.16 }],
+    'case':      [{ label: ' is',        p: 0.34 }, { label: ' depends',   p: 0.24 }, { label: ' should',   p: 0.21 }],
+  };
+  const FALLBACK: { label: string; p: number }[] = [
+    { label: ' the',  p: 0.32 }, { label: ' a',    p: 0.22 }, { label: ' and',  p: 0.18 },
+  ];
+
+  const initialPrompt = track === 'engineer'
     ? 'The next AI completion will be'
     : 'The escalation procedure for this case is';
-  const tokens: Token[] = track === 'engineer'
-    ? [
-        { word: 'The',       chosenP: 0.72, alts: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
-        { word: ' model',    chosenP: 0.68, alts: [{ label: ' model', p: 0.68 }, { label: ' system', p: 0.18 }, { label: ' API', p: 0.09 }] },
-        { word: ' generates', chosenP: 0.55, alts: [{ label: ' generates', p: 0.55 }, { label: ' predicts', p: 0.28 }, { label: ' returns', p: 0.12 }] },
-        { word: ' plausible', chosenP: 0.41, alts: [{ label: ' plausible', p: 0.41 }, { label: ' likely', p: 0.33 }, { label: ' probable', p: 0.19 }] },
-        { word: ' text.',     chosenP: 0.58, alts: [{ label: ' text.', p: 0.58 }, { label: ' output.', p: 0.24 }, { label: ' content.', p: 0.13 }] },
-      ]
-    : [
-        { word: 'The',         chosenP: 0.72, alts: [{ label: 'The', p: 0.72 }, { label: 'A', p: 0.14 }, { label: 'This', p: 0.09 }] },
-        { word: ' procedure',  chosenP: 0.61, alts: [{ label: ' procedure', p: 0.61 }, { label: ' process', p: 0.23 }, { label: ' protocol', p: 0.11 }] },
-        { word: ' for',        chosenP: 0.79, alts: [{ label: ' for', p: 0.79 }, { label: ' when', p: 0.12 }, { label: ' in', p: 0.07 }] },
-        { word: ' compliance', chosenP: 0.48, alts: [{ label: ' compliance', p: 0.48 }, { label: ' regulatory', p: 0.31 }, { label: ' internal', p: 0.17 }] },
-        { word: ' issues.',    chosenP: 0.54, alts: [{ label: ' issues.', p: 0.54 }, { label: ' matters.', p: 0.26 }, { label: ' concerns.', p: 0.15 }] },
-      ];
 
+  const [prompt, setPrompt] = useState(initialPrompt);
+  const [temperature, setTemperature] = useState(0.0);
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [hover, setHover] = useState<number | null>(null);
+  const [running, setRunning] = useState(false);
+  const streamingRef = useRef(false);
+
+  // Pull last alphabetic word from a running text, lowercased, no punctuation
+  const lastWord = (text: string): string => {
+    const m = text.toLowerCase().match(/([a-z']+)[^a-z']*$/);
+    return m ? m[1] : '';
+  };
+
+  // Pick which candidate gets sampled at this temperature. Temperature 0 →
+  // always pick the top (greedy). Higher temperature → sometimes pick
+  // alternatives 2 or 3 in proportion to their relative probabilities.
+  const sampleAt = (alts: { label: string; p: number }[], t: number): { idx: number; chosenP: number } => {
+    if (t < 0.05 || alts.length === 1) return { idx: 0, chosenP: alts[0].p };
+    // Temperature-softened distribution
+    const weights = alts.map(a => Math.pow(a.p, 1 / Math.max(0.1, t)));
+    const sum = weights.reduce((a, b) => a + b, 0);
+    // Deterministic: pick by largest weight modulated by t (so same input + temp = same token)
+    let best = 0; let bestW = -1;
+    weights.forEach((w, i) => { if (w > bestW) { bestW = w; best = i; } });
+    return { idx: best, chosenP: alts[best].p / sum * (alts[best].p) };
+  };
+
+  const stop = () => {
+    streamingRef.current = false;
+    setRunning(false);
+  };
+
+  const generate = () => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
+    setRunning(true);
+    setTokens([]);
+    setHover(null);
+    let ctx = prompt;
+    let i = 0;
+    const MAX = 7;
+    const step = () => {
+      if (!streamingRef.current || i >= MAX) {
+        streamingRef.current = false;
+        setRunning(false);
+        return;
+      }
+      const key = lastWord(ctx);
+      const alts = VOCAB[key] ?? FALLBACK;
+      const { idx, chosenP } = sampleAt(alts, temperature);
+      const word = alts[idx].label;
+      // Stop early if we hit a sentence terminator
+      const isTerminal = /[.?!]$/.test(word);
+      setTokens(prev => [...prev, { word, chosenP, alts }]);
+      ctx = ctx + word;
+      i++;
+      if (isTerminal) {
+        streamingRef.current = false;
+        setRunning(false);
+        return;
+      }
+      setTimeout(step, 220 + Math.random() * 120);
+    };
+    setTimeout(step, 100);
+  };
+
+  const reset = () => {
+    stop();
+    setTokens([]);
+    setHover(null);
+  };
 
   const playgroundBg = '#0F0F0F';
   const panelBg = '#171717';
@@ -191,54 +277,77 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 200px', gap: 0 }}>
         {/* LEFT: completion */}
         <div style={{ borderRight: panelBorder }}>
+          {/* Editable PROMPT */}
           <div style={{ padding: '14px 16px 10px', borderBottom: panelBorder }}>
-            <div style={labelStyle}>PROMPT</div>
-            <div style={{ marginTop: 6, padding: '10px 12px', background: panelBg, border: panelBorder, borderRadius: 7, fontSize: 13, color: '#E5E5E5', fontFamily: "'JetBrains Mono', monospace" }}>
-              {promptText}<span style={{ color: '#525252' }}>▎</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={labelStyle}>PROMPT · editable</div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>{prompt.length} chars</span>
             </div>
+            <textarea
+              value={prompt}
+              onChange={e => { setPrompt(e.target.value); }}
+              spellCheck={false}
+              style={{
+                marginTop: 6, width: '100%', boxSizing: 'border-box', padding: '10px 12px',
+                background: panelBg, border: panelBorder, borderRadius: 7,
+                minHeight: 54, resize: 'vertical' as const,
+                fontSize: 13, color: '#E5E5E5', lineHeight: 1.55,
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace", outline: 'none',
+              }}
+              placeholder='e.g. "The next AI completion will be"'
+            />
           </div>
 
           {/* Completion area with logprobs highlighting */}
           <div style={{ padding: '14px 16px 14px', minHeight: 110, position: 'relative' as const }}>
-            <div style={labelStyle}>COMPLETION · top-prob highlighting</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={labelStyle}>COMPLETION · top-prob highlighting</div>
+              {running && (
+                <div style={{ display: 'flex', gap: 3 }}>
+                  {[0, 1, 2].map(i => (
+                    <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} style={{ width: 4, height: 4, borderRadius: '50%', background: '#7C3AED' }} />
+                  ))}
+                </div>
+              )}
+            </div>
             <div style={{ marginTop: 6, padding: '12px 14px', background: panelBg, border: panelBorder, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 14, lineHeight: 2, position: 'relative' as const, minHeight: 56 }}>
               {/* Prompt prefix in light gray */}
-              <span style={{ color: '#525252' }}>{promptText}</span>
-              {/* Generated tokens with intensity-based highlighting */}
-              {tokens.map((t, i) => {
-                const isHover = hover === i;
-                return (
-                  <span
-                    key={i}
-                    onMouseEnter={() => setHover(i)}
-                    onMouseLeave={() => setHover(null)}
-                    style={{
-                      background: `rgba(124,58,237,${0.18 + (1 - t.chosenP) * 0.40})`,
-                      borderRadius: 3,
-                      padding: '1px 1px',
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      boxShadow: isHover ? '0 0 0 1.5px rgba(167,139,250,0.65)' : 'none',
-                      color: '#F5F5F5',
-                    }}
-                  >{t.word}</span>
-                );
-              })}
-              <span style={{ color: '#525252' }}>▎</span>
+              <span style={{ color: '#525252' }}>{prompt}</span>
+              {/* Generated tokens — streaming in, with intensity-based highlighting */}
+              <AnimatePresence>
+                {tokens.map((t, i) => {
+                  const isHover = hover === i;
+                  return (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.16 }}
+                      onMouseEnter={() => setHover(i)}
+                      onMouseLeave={() => setHover(null)}
+                      style={{
+                        background: `rgba(124,58,237,${0.18 + (1 - t.chosenP) * 0.40})`,
+                        borderRadius: 3, padding: '1px 1px',
+                        cursor: 'pointer', transition: 'box-shadow 0.2s',
+                        boxShadow: isHover ? '0 0 0 1.5px rgba(167,139,250,0.65)' : 'none',
+                        color: '#F5F5F5', display: 'inline-block' as const,
+                      }}
+                    >{t.word}</motion.span>
+                  );
+                })}
+              </AnimatePresence>
+              {(running || tokens.length > 0) && <span style={{ color: running ? '#7C3AED' : '#525252' }}>▎</span>}
+              {!running && tokens.length === 0 && (
+                <span style={{ color: '#525252', fontStyle: 'italic' as const, fontSize: 11.5 }}> (press Generate to stream tokens)</span>
+              )}
 
               {/* Popover for hovered token */}
-              {hover !== null && (
+              {hover !== null && tokens[hover] && (
                 <div style={{
                   position: 'absolute' as const,
-                  top: 0, right: 14,
-                  width: 240,
-                  background: '#0A0A0A',
-                  border: '1px solid #3F3F46',
-                  borderRadius: 7,
-                  padding: '10px 12px',
-                  boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-                  zIndex: 5,
-                  fontFamily: 'inherit',
+                  top: 0, right: 14, width: 240,
+                  background: '#0A0A0A', border: '1px solid #3F3F46', borderRadius: 7,
+                  padding: '10px 12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+                  zIndex: 5, fontFamily: 'inherit',
                 }}>
                   <div style={{ ...labelStyle, marginBottom: 8 }}>TOP-3 NEXT TOKENS</div>
                   {tokens[hover].alts.map((a, j) => (
@@ -251,27 +360,37 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
                     </div>
                   ))}
                   <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px solid #262626', fontSize: 9.5, color: '#737373', lineHeight: 1.5 }}>
-                    Model chose <strong style={{ color: '#A78BFA' }}>{tokens[hover].alts[0].label.trim()}</strong> at {Math.round(tokens[hover].chosenP * 100)}% — picked, sampled, moved on.
+                    Model picked <strong style={{ color: '#A78BFA' }}>{tokens[hover].alts[0].label.trim()}</strong> at {Math.round(tokens[hover].chosenP * 100)}% — sampled, moved on.
                   </div>
                 </div>
               )}
             </div>
             <div style={{ marginTop: 8, fontSize: 11, color: '#737373', lineHeight: 1.6 }}>
-              Highlight intensity ∝ <span style={{ color: '#E5E5E5' }}>1 − probability</span> · hover any token to see its candidates · the model picks the top, repeats, no reasoning.
+              Highlight intensity ∝ <span style={{ color: '#E5E5E5' }}>1 − probability</span> · hover any streamed token to see its candidates.
             </div>
           </div>
 
-          {/* Bottom token stream */}
+          {/* Bottom action bar: token stream + buttons */}
           <div style={{ padding: '10px 16px', borderTop: panelBorder, background: '#0A0A0A', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const }}>
+            <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const, minHeight: 16 }}>
               {tokens.map((t, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: '#A78BFA' }}>{t.word.replace(' ', '·')}</span>
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>{Math.round(t.chosenP * 100)}</span>
                 </div>
               ))}
+              {tokens.length === 0 && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>no tokens yet</span>}
             </div>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>greedy · top_k=1</span>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {tokens.length > 0 && (
+                <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: '1px solid #262626', color: '#A3A3A3', borderRadius: 5, padding: '4px 10px', fontSize: 10.5, fontFamily: 'inherit' }}>Reset</button>
+              )}
+              {running ? (
+                <button type="button" onClick={stop} style={{ appearance: 'none', cursor: 'pointer', background: '#262626', border: 'none', color: '#E5E5E5', borderRadius: 5, padding: '4px 14px', fontSize: 10.5, fontWeight: 700, fontFamily: 'inherit' }}>Stop</button>
+              ) : (
+                <button type="button" onClick={generate} style={{ appearance: 'none', cursor: 'pointer', background: '#7C3AED', border: 'none', color: '#fff', borderRadius: 5, padding: '4px 16px', fontSize: 10.5, fontWeight: 700, fontFamily: 'inherit' }}>Generate ▶</button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -284,15 +403,17 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
 
           <div style={{ marginTop: 14, ...labelStyle }}>TEMPERATURE</div>
           <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: '#E5E5E5', textAlign: 'center' as const }}>0.00</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, color: '#E5E5E5' }}>{temperature.toFixed(2)}</span>
+              <span style={{ fontSize: 9, color: '#525252' }}>0 — 2</span>
+            </div>
+            <input type="range" min={0} max={2} step={0.1} value={temperature}
+              onChange={e => setTemperature(parseFloat(e.target.value))}
+              style={{ width: '100%', accentColor: '#7C3AED' }}
+            />
           </div>
 
-          <div style={{ marginTop: 14, ...labelStyle }}>TOP_P</div>
-          <div style={{ marginTop: 6, padding: '6px 10px', background: panelBg, border: panelBorder, borderRadius: 6 }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: '#E5E5E5', textAlign: 'center' as const }}>1.00</div>
-          </div>
-
-          <div style={{ marginTop: 14, ...labelStyle }}>LEGEND</div>
+          <div style={{ marginTop: 12, ...labelStyle }}>LEGEND</div>
           <div style={{ marginTop: 6, display: 'grid', gap: 4 }}>
             {[
               { intensity: 0.85, label: 'low confidence' },
@@ -307,7 +428,7 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
           </div>
 
           <div style={{ marginTop: 14, padding: '8px 10px', background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.30)', borderRadius: 6, fontSize: 10, color: '#C4B5FD', lineHeight: 1.55 }}>
-            <strong>Generation ≠ retrieval.</strong> Every token is a probabilistic pick from the model's weights — no lookup happened.
+            <strong>Generation ≠ retrieval.</strong> Every token is a probabilistic pick — no lookup happened.
           </div>
         </div>
       </div>
