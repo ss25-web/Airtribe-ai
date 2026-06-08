@@ -1086,7 +1086,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can draw a node diagram for the current manual exception process — and identify exactly where the AI node belongs in it."
           : "\u25b6 After this section, you can write out your Monday morning process step by step and identify which steps are engineering problems before the AI call ever runs."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav has been handed a ticket: &ldquo;Build an automated exception classification system using AI.&rdquo; He opens n8n. His first instinct is to find an AI node and start there. He has no map of the current exception intake process, no schema for the input data, and no definition of what &ldquo;classified&rdquo; means as an output.</>
             : <>Rhea has decided to automate her Monday morning exception summary using n8n. Kabir sits down with her. Her first question is: &ldquo;Where do I put the AI?&rdquo; Kabir does not answer it. He asks her what happens between 7am Monday and the moment she sends the summary.</>}
@@ -1187,7 +1187,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can read any n8n node's output schema, identify a data shape mismatch at an edge, and insert the correct transformation node to fix it."
           : "\u25b6 After this section, you can build the left side of a workflow — trigger, data pull, format transform — and verify each handoff before adding the AI node."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav has his workflow spec. He opens n8n for the first time. He sees a canvas. He drags in an Email Trigger. The first thing he does is look for an AI node. Rohan stops him and points to the data panel on the right side of the Email Trigger node.</>
             : <>Rhea has her process documented. She opens n8n. Kabir shows her the canvas and asks her to drag in the first node without telling her which one to use. She drags in an OpenAI node. Kabir asks her to move it to the right side of the canvas.</>}
@@ -1289,7 +1289,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can explain the difference between personal credentials and service accounts, and redesign any workflow that uses personal credentials in a production context."
           : "\u25b6 After this section, you can identify every credential your workflow uses, who owns it, and what happens to the workflow if that person's access changes."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav&apos;s workflow is wired. He used the team&apos;s shared OpenAI API key for the classification node and his own Slack token for the notification. Rohan looks at the credentials list and asks him one question: &ldquo;What happens to this workflow if you rotate the API key next week?&rdquo; Aarav realises he doesn&apos;t have an answer.</>
             : <>Rhea&apos;s workflow is nearly complete. Her assistant set up the Google Sheets credential using Rhea&apos;s personal Google account because it was the fastest path. Kabir asks: &ldquo;What happens to the Monday summary if Rhea is on leave and changes her password?&rdquo; Nobody in the room has an answer.</>}
@@ -1388,7 +1388,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can answer three questions for every node in a workflow: what happens on timeout, what happens on unexpected output format, what happens when the node succeeds but the output is wrong."
           : "\u25b6 After this section, you can add an output validation step before any send node — so the workflow alerts you instead of sending an empty email."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>The overnight classification workflow has run. In the morning: 14 of 22 exceptions are classified and routed. 8 are missing. The n8n execution log shows no errors — every node ran green. Rohan looks at the error handling settings and immediately sees the problem.</>
             : <>Rhea&apos;s Monday report workflow ran. It sent the email. But the email body is empty. Her director calls at 10am to ask what happened. The n8n execution log shows all green nodes. Rhea realises the workflow succeeded at a task she didn&apos;t define correctly.</>}
@@ -1486,7 +1486,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can define production readiness for a classification workflow — including the confidence threshold design, the human review queue, and what a 'verified output' means in a compliance context."
           : "\u25b6 After this section, you can run the baseline comparison test — comparing AI output to a manually produced reference — and explain why happy-path success doesn't mean production readiness."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav runs the full end-to-end workflow on a real exception. Trigger fires. Email parsed. Classification runs. Slack notification sent. It works. He marks the workflow production-ready. Rohan asks him one question: &ldquo;What does the workflow do when the AI returns a confidence score below 0.6?&rdquo; Aarav has no answer.</>
             : <>Rhea&apos;s workflow runs successfully on her test dataset. All nodes green. Output looks reasonable. She tells Kabir she&apos;s ready to go live. Kabir asks her to run one more test before she does. Not a technical test — a quality test. He asks her to compare the AI output to last week&apos;s manually written brief.</>}

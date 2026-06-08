@@ -815,7 +815,7 @@ export default function Track1ProductStrategy({
             { speaker: 'other', text: "I've got 47 items in the backlog. Engineers asking what to build, sales asking for integrations, CS asking for better reporting. I need you to tell me what actually matters — and why." },
             { speaker: 'priya', text: "Which problem are we actually solving? Not which feature — which problem." },
             { speaker: 'other', text: "40% week-two churn. Pick whatever fixes it fastest. The board sees this in six weeks." },
-            { speaker: 'priya', text: "We don\u2019t have a problem statement yet — we have a symptom. The backlog can\u2019t tell us why they\u2019re churning. Only the customers can." },
+            { speaker: 'priya', text: "We don\’t have a problem statement yet — we have a symptom. The backlog can\’t tell us why they\’re churning. Only the customers can." },
           ]}
         />
 
@@ -828,7 +828,7 @@ export default function Track1ProductStrategy({
           EdSpark&apos;s question isn&apos;t &ldquo;what features should we ship?&rdquo; It&apos;s &ldquo;what does a new sales manager need to stop churning in week two — and can we build a defensible position around solving that?&rdquo;
         </>)}
 
-        {pullQuote("The board doesn\u2019t want a roadmap. They want a reason to believe.")}
+        {pullQuote("The board doesn\’t want a roadmap. They want a reason to believe.")}
 
         {para(<>
           Product strategy has three components: a <em>theory of the customer</em> (who you&apos;re serving and why they choose you), a <em>theory of differentiation</em> (what you do that competitors can&apos;t easily replicate), and a <em>theory of sequencing</em> (which bets to make in which order to get there).
@@ -889,10 +889,10 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'other', text: "I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn\u2019t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection." },
-            { speaker: 'priya', text: "That\u2019s not a feature gap. That\u2019s a workflow dependency. If they can\u2019t see live pipeline data inside EdSpark, the coaching scores are meaningless." },
+            { speaker: 'other', text: "I pulled the churn exit data. 70% of customers who churned in the first month cited the same thing: the product didn\’t connect to how they actually run deals. Not the AI. Not the call quality. The CRM connection." },
+            { speaker: 'priya', text: "That\’s not a feature gap. That\’s a workflow dependency. If they can\’t see live pipeline data inside EdSpark, the coaching scores are meaningless." },
             { speaker: 'other', text: "Exactly. And nobody asked which CRM workflows actually matter. They built the generic sync." },
-            { speaker: 'priya', text: "Then that\u2019s where EdSpark\u2019s moat starts. Not more features — deeper integration than Gong is willing to build for a 40-person team." },
+            { speaker: 'priya', text: "Then that\’s where EdSpark\’s moat starts. Not more features — deeper integration than Gong is willing to build for a 40-person team." },
           ]}
         />
 
@@ -967,8 +967,8 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#E67E22"
           lines={[
-            { speaker: 'other', text: "Three things this quarter — fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\u2019t afford to move slow." },
-            { speaker: 'priya', text: "Running two large bets simultaneously with six engineers doesn\u2019t produce two half-finished products on schedule. It produces two fully-broken products three weeks late." },
+            { speaker: 'other', text: "Three things this quarter — fix onboarding, get Salesforce to beta, build the manager analytics dashboard. Run them in parallel. We can\’t afford to move slow." },
+            { speaker: 'priya', text: "Running two large bets simultaneously with six engineers doesn\’t produce two half-finished products on schedule. It produces two fully-broken products three weeks late." },
             { speaker: 'other', text: "Walk me through the math then." },
             { speaker: 'priya', text: "Onboarding first — that stops the churn bleed. Then analytics tells us why churn is changing. Then Salesforce gets scoped from actual data instead of assumptions. Each bet unlocks the next one." },
           ]}
@@ -982,7 +982,7 @@ export default function Track1ProductStrategy({
           The reason is second-order effects. Every engineering decision creates dependencies — on shared infrastructure, on team cognitive load, on the QA pipeline, on each other&apos;s code. Running parallel bets isn&apos;t twice the output. It&apos;s half the focus applied to everything.
         </>)}
 
-        {pullQuote("Doing two things at once with a small team doesn\u2019t split the work. It multiplies the risk.")}
+        {pullQuote("Doing two things at once with a small team doesn\’t split the work. It multiplies the risk.")}
 
         {para(<>
           Systems thinking is the practice of mapping the downstream effects of decisions before you commit to them.
@@ -1038,8 +1038,8 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right — specifically around manager involvement rates and coaching frequency — it\u2019ll tell us why churn is dropping. Or why it\u2019s not." },
-            { speaker: 'priya', text: "You\u2019re saying it\u2019s not just a board slide. It\u2019s the instrument that tells us how to scope the next bet." },
+            { speaker: 'other', text: "One thing on the analytics dashboard: if we scope it right — specifically around manager involvement rates and coaching frequency — it\’ll tell us why churn is dropping. Or why it\’s not." },
+            { speaker: 'priya', text: "You\’re saying it\’s not just a board slide. It\’s the instrument that tells us how to scope the next bet." },
             { speaker: 'other', text: "Exactly. Build the right dashboard and you know which CRM workflows actually matter to managers — not which ones we assumed mattered." },
             { speaker: 'priya', text: "Then we scope it tight. Coaching frequency and manager involvement only. Nothing else on the dashboard until churn drops." },
           ]}
@@ -1053,7 +1053,7 @@ export default function Track1ProductStrategy({
           Each bet unlocks the next. That&apos;s the sequencing argument Priya needs to make to Rohan.
         </>)}
 
-        {pullQuote("The best bet is not the one with the highest expected value. It\u2019s the one that makes every subsequent bet better.")}
+        {pullQuote("The best bet is not the one with the highest expected value. It\’s the one that makes every subsequent bet better.")}
 
         {para(<>
           The trap is Bet C. Salesforce integration has the highest revenue potential and two enterprise prospects waiting. The temptation is to front-load it.
@@ -1117,10 +1117,10 @@ export default function Track1ProductStrategy({
         <ConversationScene
           mentor="rohan" name="Marcus" role="Enterprise Sales · EdSpark" accent="#16A34A"
           lines={[
-            { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\u2019ve been chasing this account for three months — finally." },
-            { speaker: 'priya', text: "Congratulations. What\u2019s their expansion potential? How many reps does Apex have in total?" },
-            { speaker: 'other', text: "...I don\u2019t know. I hadn\u2019t thought past the close." },
-            { speaker: 'priya', text: "The $40K contract is the entrance fee to the conversation, not the contract itself. Tell me about their org structure — because that\u2019s what we\u2019re actually selling to." },
+            { speaker: 'other', text: "Priya! We closed Apex Corp. 50 seats, six-month pilot, $40K contract. I\’ve been chasing this account for three months — finally." },
+            { speaker: 'priya', text: "Congratulations. What\’s their expansion potential? How many reps does Apex have in total?" },
+            { speaker: 'other', text: "...I don\’t know. I hadn\’t thought past the close." },
+            { speaker: 'priya', text: "The $40K contract is the entrance fee to the conversation, not the contract itself. Tell me about their org structure — because that\’s what we\’re actually selling to." },
           ]}
         />
 
@@ -1132,7 +1132,7 @@ export default function Track1ProductStrategy({
           What EdSpark does with those 50 seats in 90 days determines whether Apex Corp becomes a 500-seat account or a cautionary tale in the next board deck.
         </>)}
 
-        {pullQuote("The land is not the goal. It\u2019s the cost of admission to earn the proof that drives the expand.")}
+        {pullQuote("The land is not the goal. It\’s the cost of admission to earn the proof that drives the expand.")}
 
         {para(<>
           The mistake Priya must avoid: treating Apex Corp as a customer success problem and handing it off to support.

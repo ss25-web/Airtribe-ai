@@ -1001,8 +1001,8 @@ export default function Track2UXDesign({
         <ConversationScene
           mentor="rohan" name="Rohan" role="CEO · EdSpark" accent="#4F46E5"
           lines={[
-            { speaker: 'priya', text: "She asked about our design system during the demo. I said we have component guidelines. I don\u2019t think it landed well." },
-            { speaker: 'other', text: "That question wasn\u2019t about design. It was about trust. Enterprise procurement teams are looking for reasons to say no. Inconsistency is an easy one." },
+            { speaker: 'priya', text: "She asked about our design system during the demo. I said we have component guidelines. I don\’t think it landed well." },
+            { speaker: 'other', text: "That question wasn\’t about design. It was about trust. Enterprise procurement teams are looking for reasons to say no. Inconsistency is an easy one." },
             { speaker: 'priya', text: "So what do I do about it?" },
             { speaker: 'other', text: "Audit the demo-critical screens first. Fix the immediate risk. Then figure out the root cause before you prescribe a solution." },
           ]}
@@ -1011,7 +1011,7 @@ export default function Track2UXDesign({
           name="Rohan"
           nameColor="#4F46E5"
           borderColor="#4F46E5"
-          content={<>Enterprise clients see inconsistency as a signal of undisciplined engineering culture — harder integrations, more support tickets, slower iterations. The Infosys lead wasn\u2019t being difficult. She was doing her job.</>}
+          content={<>Enterprise clients see inconsistency as a signal of undisciplined engineering culture — harder integrations, more support tickets, slower iterations. The Infosys lead wasn\’t being difficult. She was doing her job.</>}
           expandedContent="A visually inconsistent product signals that the team ships fast but not carefully — which maps directly to how enterprise buyers assess integration risk and long-term support burden."
           conceptId="ux-apm-enterprise-trust"
           question="After the demo, Rohan asks you to 'fix the design inconsistency issue.' What do you do first?"
@@ -1082,8 +1082,8 @@ export default function Track2UXDesign({
           mentor="kiran" name="Kiran" role="Data · EdSpark" accent="#3A86FF"
           lines={[
             { speaker: 'other', text: "15% drop-off in the analysis flow. Spikes on screens with non-standard UI elements. I put a dollar figure on it." },
-            { speaker: 'priya', text: "How do we know it\u2019s the UI inconsistency and not something else?" },
-            { speaker: 'other', text: "The data doesn\u2019t distinguish between \u2018ugly\u2019 and \u2018confusing.\u2019 But the users do. A non-standard element breaks their muscle memory. And broken muscle memory costs you a completion." },
+            { speaker: 'priya', text: "How do we know it\’s the UI inconsistency and not something else?" },
+            { speaker: 'other', text: "The data doesn\’t distinguish between \‘ugly\’ and \‘confusing.\’ But the users do. A non-standard element breaks their muscle memory. And broken muscle memory costs you a completion." },
           ]}
         />
         <Avatar
@@ -1162,16 +1162,16 @@ export default function Track2UXDesign({
           mentor="maya" name="Maya" role="Designer · EdSpark" accent="#C85A40"
           lines={[
             { speaker: 'priya', text: "Rohan thinks we should ship features for the enterprise clients first. How do I push back?" },
-            { speaker: 'other', text: "I\u2019m not asking for six weeks to make things pretty. I\u2019m asking for six weeks so that every feature after this takes half the time." },
+            { speaker: 'other', text: "I\’m not asking for six weeks to make things pretty. I\’m asking for six weeks so that every feature after this takes half the time." },
             { speaker: 'priya', text: "How do I say that in a way Rohan will hear?" },
-            { speaker: 'other', text: "Show him the engineering math. 4 hours per feature now. 45 minutes with a shared library. You\u2019re not pausing — you\u2019re buying speed." },
+            { speaker: 'other', text: "Show him the engineering math. 4 hours per feature now. 45 minutes with a shared library. You\’re not pausing — you\’re buying speed." },
           ]}
         />
         <Avatar
           name="Maya"
           nameColor="#C85A40"
           borderColor="#C85A40"
-          content={<>A design system is a force multiplier. The first feature built with it might take just as long — but every subsequent one gets faster, more consistent, and cheaper to change. The real cost of not having one isn\u2019t the design quality today. It\u2019s the velocity penalty paid on every feature for the rest of the product\u2019s life.</>}
+          content={<>A design system is a force multiplier. The first feature built with it might take just as long — but every subsequent one gets faster, more consistent, and cheaper to change. The real cost of not having one isn\’t the design quality today. It\’s the velocity penalty paid on every feature for the rest of the product\’s life.</>}
           expandedContent="'Not having a design system' is a compounding cost, not a fixed one. Every sprint without it adds one more inconsistent component to untangle later. The right time to invest is when the per-feature cost of inconsistency exceeds the amortised cost of convergence."
           conceptId="ux-apm-design-system-framing"
           question="Rohan says: 'We can't afford 6 weeks on infrastructure when we have enterprise clients wanting features.' How do you respond?"
@@ -1242,15 +1242,15 @@ export default function Track2UXDesign({
           lines={[
             { speaker: 'priya', text: "I said the badge should be bigger and the colours felt muted. Maya made the changes. The problem is still there." },
             { speaker: 'other', text: "The test for PM critique feedback: can you trace it back to a user need or a business outcome?" },
-            { speaker: 'priya', text: "I couldn\u2019t. I just thought it would look better for enterprise." },
-            { speaker: 'other', text: "That\u2019s a preference. Preferences in a critique cost the team a design decision without giving them any insight." },
+            { speaker: 'priya', text: "I couldn\’t. I just thought it would look better for enterprise." },
+            { speaker: 'other', text: "That\’s a preference. Preferences in a critique cost the team a design decision without giving them any insight." },
           ]}
         />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content={<>PM feedback is only valuable in a critique when it carries context the designer doesn\u2019t have — user research, business constraints, hypothesis testing. When a PM gives goal-based feedback, the designer can make the right trade-off themselves. Preference-based feedback forecloses those trade-offs without understanding them.</>}
+          content={<>PM feedback is only valuable in a critique when it carries context the designer doesn\’t have — user research, business constraints, hypothesis testing. When a PM gives goal-based feedback, the designer can make the right trade-off themselves. Preference-based feedback forecloses those trade-offs without understanding them.</>}
           expandedContent="The second approach produces better design and a better working relationship. Maya can push back on goal-based feedback with design reasoning. She can only comply with preference-based feedback."
           conceptId="ux-apm-critique-role"
           question="Maya presents a design with a prominent empty state illustration. You think it's too decorative. What's the right response?"
@@ -1327,8 +1327,8 @@ export default function Track2UXDesign({
         <ConversationScene
           mentor="dev" name="Dev" role="Engineer · EdSpark" accent="#6E7681"
           lines={[
-            { speaker: 'other', text: "I can build the animation. But I need to know if it\u2019s worth two days. That\u2019s your call, not mine." },
-            { speaker: 'priya', text: "Maya advocated for it. She thinks it\u2019ll improve the sense of completion." },
+            { speaker: 'other', text: "I can build the animation. But I need to know if it\’s worth two days. That\’s your call, not mine." },
+            { speaker: 'priya', text: "Maya advocated for it. She thinks it\’ll improve the sense of completion." },
             { speaker: 'other', text: "The completion state is used twice a month per manager. Is that where we want two days of engineering time right now?" },
             { speaker: 'priya', text: "No. Ship the static label. The animation goes in the next polish sprint if frequency or visibility warrants it." },
           ]}
@@ -1337,7 +1337,7 @@ export default function Track2UXDesign({
           name="Dev"
           nameColor="#6E7681"
           borderColor="#6E7681"
-          content={<>Engineers often have opinions about what\u2019s worth building carefully — but they need the PM to provide context of where users spend attention and what the business prioritises. \u2018Worth it\u2019 is not a design judgement. It\u2019s a product judgement that needs user frequency data, business context, and delivery constraint awareness.</>}
+          content={<>Engineers often have opinions about what\’s worth building carefully — but they need the PM to provide context of where users spend attention and what the business prioritises. \‘Worth it\’ is not a design judgement. It\’s a product judgement that needs user frequency data, business context, and delivery constraint awareness.</>}
           expandedContent="Speed-vs-craft decisions involve engineering time, user impact, and business priority — all things the PM owns. Deferring to a designer means a designer is making a resourcing decision without business context."
           conceptId="ux-apm-craft-threshold"
           question="Maya advocates for the animation. Dev says it's 2 days. Salesforce integration ships next week. What do you decide?"
@@ -1410,17 +1410,17 @@ export default function Track2UXDesign({
         <ConversationScene
           mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="#0097A7"
           lines={[
-            { speaker: 'priya', text: "I\u2019ve had this design system conversation with Rohan three times. He always says \u2018makes sense, let\u2019s find the right time.\u2019 The right time never comes." },
+            { speaker: 'priya', text: "I\’ve had this design system conversation with Rohan three times. He always says \‘makes sense, let\’s find the right time.\’ The right time never comes." },
             { speaker: 'other', text: "The problem with framing design investment as a design improvement is that it competes with other improvements." },
             { speaker: 'priya', text: "So I lead with the revenue risk." },
-            { speaker: 'other', text: "Revenue risk is always urgent. The strongest pitch doesn\u2019t argue for design. It argues for velocity, revenue, and client retention — and shows that a design system is the mechanism." },
+            { speaker: 'other', text: "Revenue risk is always urgent. The strongest pitch doesn\’t argue for design. It argues for velocity, revenue, and client retention — and shows that a design system is the mechanism." },
           ]}
         />
         <Avatar
           name="Asha"
           nameColor="#0097A7"
           borderColor="#0097A7"
-          content={<>There\u2019s a critical sequence: show the cost of the status quo first (makes the problem urgent), then the ROI of the investment (makes approval feel safe), then the implementation plan (removes the fear of disruption). Leading with the plan before establishing urgency produces nodding but no action.</>}
+          content={<>There\’s a critical sequence: show the cost of the status quo first (makes the problem urgent), then the ROI of the investment (makes approval feel safe), then the implementation plan (removes the fear of disruption). Leading with the plan before establishing urgency produces nodding but no action.</>}
           expandedContent="Rohan approved the design system on slide two. The story on slide three made it real — but the numbers were what convinced him. That sequence matters in every investment pitch to a skeptical CEO."
           conceptId="ux-apm-pitch-structure"
           question="Rohan approves the design system. How do you make sure the investment delivers what you promised?"

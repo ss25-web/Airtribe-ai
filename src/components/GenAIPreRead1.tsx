@@ -1223,10 +1223,10 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
         {chLabel('Week 0 · Introduction to Generative AI')}
         {h2('It does not look things up. It generates what probably comes next.')}
         {para(track === 'engineer'
-          ? "\u25b6 After this section, you can explain why adding a stronger model won\u2019t fix a retrieval problem — and name the architectural component that actually is missing."
+          ? "\u25b6 After this section, you can explain why adding a stronger model won\’t fix a retrieval problem — and name the architectural component that actually is missing."
           : "\u25b6 After this section, you can tell the difference between a model problem and an information problem, and know which one to fix."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav&apos;s team shipped an LLM call that returns coverage rates during claims triage. Three days after demo, the data team flags it: the numbers look right but aren&apos;t. No one panics — it was a prototype. But Aarav pulls the API call apart looking for the bug. There is no bug. The model returned plausible rates because plausible rates are what the training data looked like. There is no claim system in the call. No policy database. Just a question and a model that answered it. He messages Rohan: <em>&ldquo;I think I fundamentally misunderstood what this thing actually does.&rdquo;</em></>
             : <>Rhea&apos;s team has been using an AI assistant for policy questions for three weeks. Good adoption, saves time. Then someone follows an AI-generated escalation procedure that turns out to be wrong. Rhea calls the vendor. The support rep says: <em>&ldquo;The model doesn&apos;t have access to your internal systems. It responds based on training data.&rdquo;</em> She sits with that for a while. They had been asking it questions as if it were a well-informed colleague who had read the Northstar handbook. It hadn&apos;t. It had read everything else. She messages Anika.</>}
@@ -1254,8 +1254,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor={ACCENT}
           conceptId="genai-m1-what-it-is"
           content={track === 'engineer'
-            ? "The model has no claims system in your call — it generated statistically plausible rates. That\u2019s not a bug. It\u2019s the architecture."
-            : "The model generated a plausible escalation procedure from generic training data. Northstar\u2019s actual handbook was never part of the conversation."}
+            ? "The model has no claims system in your call — it generated statistically plausible rates. That\’s not a bug. It\’s the architecture."
+            : "The model generated a plausible escalation procedure from generic training data. Northstar\’s actual handbook was never part of the conversation."}
           expandedContent={track === 'engineer'
             ? "There's no claims system in your call. No policy database. So the model did what it always does: it generated the most statistically plausible continuation of the text you gave it. Rates in the right format, right range, right level of precision — because that's what coverage rate responses look like in the training data. The model has no way to know what Northstar's actual rates are. You didn't give it Northstar's rates. This isn't a hallucination bug to fix. It's an architecture question: you were asking a completion system to do retrieval. Those are different jobs."
             : "The model gave you the most plausible escalation procedure it could construct from everything it's been trained on — general healthcare operations, compliance docs, whatever made it into the pretraining set. That's not a malfunction. That's what it does. It generates the most likely continuation of the text you gave it. It has no idea what Northstar's actual procedure is unless you put it in the conversation yourself. No model does — not this one, not a newer one. What broke wasn't the model's reliability. It was the assumption underneath the question."}
@@ -1286,7 +1286,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           conceptId="genai-m1-what-it-is"
           content={track === 'engineer'
             ? "Before you redesign anything — what kind of task was the coverage rate lookup, at its core? Language task or data lookup?"
-            : "Rhea, before you update your team\u2019s guidelines — I want to ask you one question. The escalation procedure task: was that a language problem or an information lookup?"}
+            : "Rhea, before you update your team\’s guidelines — I want to ask you one question. The escalation procedure task: was that a language problem or an information lookup?"}
           expandedContent={track === 'engineer'
             ? "That's the filter I use first. Language task: the input is text, the output is text, and you don't need anything from an external system to answer correctly. Data lookup: the correct answer lives in a specific record somewhere. Coverage rates are a lookup — they live in a claims system. The model is genuinely excellent at language tasks. It is not a database. Once you separate those two categories, most of the confusion about when to use AI and when not to dissolves immediately."
             : "Those are two different jobs. Language task: rewrite this, summarise that, draft a response — the model works from what's in the prompt and its training. Information lookup: tell me the current escalation procedure, pull the right premium for this tier — the correct answer lives in a specific document or system. The model is very good at language work. It is not a retrieval system. The moment you ask it to look something up that isn't in the context, you've crossed from one category to the other. Most AI failures I've seen come from that exact crossing."}
@@ -1313,7 +1313,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           'Disconnected from live data — it needs retrieval infrastructure for anything that requires current or proprietary facts.',
         ], ACCENT)}
         {para(track === 'engineer'
-          ? "A retrieval layer is the component that sits between your application and the model. When a user asks about current coverage rates, the retrieval layer queries your claims system first, then passes the actual rate — alongside the question — to the model as part of the prompt. The model\u2019s job is language work: formatting, synthesising, explaining the result. The retrieval layer\u2019s job is fetching the fact. They are different components doing different jobs. Without a retrieval layer, you are asking the model to remember something it was never given."
+          ? "A retrieval layer is the component that sits between your application and the model. When a user asks about current coverage rates, the retrieval layer queries your claims system first, then passes the actual rate — alongside the question — to the model as part of the prompt. The model\’s job is language work: formatting, synthesising, explaining the result. The retrieval layer\’s job is fetching the fact. They are different components doing different jobs. Without a retrieval layer, you are asking the model to remember something it was never given."
           : "A retrieval layer is the part of an AI system that looks things up before the model responds. Think of it like a research assistant: before the model writes anything, the retrieval layer finds the relevant policy document, the specific procedure, or the correct figure — and puts it in the prompt as context. Without this layer, the model writes from training data. With it, the model writes from the specific document you gave it. Most early AI failures happen because teams skip this step and ask the model to recall things it was never shown."
         )}
         {track === 'engineer' ? keyBox('What a retrieval layer looks like in the call flow', [
@@ -1340,9 +1340,9 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
         {h2('Every model has a reliable zone. Most teams use it outside that zone.')}
         {para(track === 'engineer'
           ? "\u25b6 After this section, you can classify any proposed LLM integration into Reliable, Extended, or Unreliable zone using three diagnostic questions — and explain what to do differently in each zone."
-          : "\u25b6 After this section, you can map your team\u2019s AI tasks across the three zones and identify which ones need a retrieval layer or human review step to be safe."
+          : "\u25b6 After this section, you can map your team\’s AI tasks across the three zones and identify which ones need a retrieval layer or human review step to be safe."
         )}
-        <SituationCard accent="#2563EB" accentRgb="37,99,235" label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent="#2563EB" accentRgb="37,99,235" label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav takes a whiteboard and maps everything his team has tried with LLMs in the last quarter. Left side: worked reliably. Right side: failed or got flagged. Middle: inconsistent. He stares at the left side — classification, summarisation, extraction from forms, rewriting dense notes. He stares at the right side — arithmetic on claim amounts, questions about current patient records, contract language that had to be legally exact. The pattern is uncomfortable because it was obvious in retrospect. The model wasn&apos;t bad at some things and good at others randomly. It had a zone. Nobody had looked for it. He calls Rohan.</>
             : <>Rhea makes a list. Every AI experiment her team has run in the last two months — she writes them on a whiteboard and draws three columns. The left column fills quickly: draft an email, summarise a case note, reformat a form for a different audience. All of them language, no single right answer, easy for a human to review. The right column is slower but the pattern is just as clear: check an SLA window, look up a current premium, verify a policy was filed. All of them needing live data, all of them silently wrong when the model tried. She had never made this map before. She had been treating AI as either magic or useless. She calls Rohan.</>}
@@ -1353,15 +1353,15 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           accent="#2563EB"
           techLines={[
             { speaker: 'protagonist', text: "I mapped everything out — classification, summarisation, extraction on the left. Arithmetic on claim amounts, current patient records, exact contract language on the right." },
-            { speaker: 'mentor', text: "Good map. What do all the left-side tasks have in common that the right side doesn\u2019t?" },
-            { speaker: 'protagonist', text: "The left side... doesn\u2019t need anything from an external system. Text in, text out. Everything needed is in the prompt." },
-            { speaker: 'mentor', text: "That\u2019s the reliable zone. The model generates equally fluently in both columns — it just can\u2019t warn you when it\u2019s outside it." },
+            { speaker: 'mentor', text: "Good map. What do all the left-side tasks have in common that the right side doesn\’t?" },
+            { speaker: 'protagonist', text: "The left side... doesn\’t need anything from an external system. Text in, text out. Everything needed is in the prompt." },
+            { speaker: 'mentor', text: "That\’s the reliable zone. The model generates equally fluently in both columns — it just can\’t warn you when it\’s outside it." },
           ]}
           nonTechLines={[
             { speaker: 'protagonist', text: "Left column fills fast: draft email, summarise case note, reformat a form. Right column: SLA check, current premium lookup, policy verification — all wrong." },
             { speaker: 'mentor', text: "Good map. Now look at the right column failures. Were any of those still running in production when they failed?" },
             { speaker: 'protagonist', text: "Yes — the SLA checker was deployed. It was flagging cases for weeks before someone noticed something was off." },
-            { speaker: 'mentor', text: "That\u2019s the real risk. Not that the model failed — it\u2019s that nobody could tell it had." },
+            { speaker: 'mentor', text: "That\’s the real risk. Not that the model failed — it\’s that nobody could tell it had." },
           ]}
         />
         <GenAIAvatar
@@ -1370,7 +1370,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#2563EB"
           conceptId="genai-m1-capabilities"
           content={track === 'engineer'
-            ? "Good map. What does the left side have in common that the right side doesn\u2019t?"
+            ? "Good map. What does the left side have in common that the right side doesn\’t?"
             : "Good map. Now look at the right column — the failures. Were any of those still running when they failed?"}
           expandedContent={track === 'engineer'
             ? "The left side is language work. Text in, text out, everything the model needs is in the prompt. The right side is either data lookups or precision tasks where being 95% right is a liability. That's the reliable zone — language tasks where the model works from what you've given it and errors are catchable before they cause harm. Outside that zone, the model doesn't warn you. It keeps generating with exactly the same confidence. Classification works. Arithmetic on novel numbers does not. The model looks equally certain in both cases. You have to know the zones before you assign the tasks, because the model won't tell you when it's out of its depth."
@@ -1451,7 +1451,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can diagnose a prompt variance problem and specify the missing dimensions — role, format, constraints, length, example — that collapse it."
           : "\u25b6 After this section, you can rewrite a vague prompt by identifying every unspecified dimension and filling it in deliberately."
         )}
-        <SituationCard accent="#0F766E" accentRgb="15,118,110" label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent="#0F766E" accentRgb="15,118,110" label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav notices the variance problem. Same endpoint, same model, same task — &ldquo;summarise this case note&rdquo; — and the outputs range from sharp and structured to meandering and vague. He spends two hours blaming the model version. Then he looks more carefully at the calls themselves. The good outputs came from Aisha&apos;s prompts. The bad ones came from Imran&apos;s. The model is the same. The prompts are not. Aisha&apos;s specify a role, output format, required fields, and length. Imran&apos;s are three words followed by a case note. He messages Anika.</>
             : <>Rhea watches her team use the AI assistant for a week. She notices something: the people who get useful, consistent results are writing very different prompts from the people who get frustrating ones. Aisha&apos;s prompts are long — role, format, what to include, what to skip, how long the output should be. Imran&apos;s are short: &ldquo;Summarise this.&rdquo; &ldquo;What should I do about this case?&rdquo; Same model. The outputs barely resemble each other. Rhea thinks it might be a skill gap — that Aisha has some intuition Imran hasn&apos;t developed. She messages Anika to check.</>}
@@ -1461,16 +1461,16 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           track={track}
           accent="#0F766E"
           techLines={[
-            { speaker: 'protagonist', text: "Same model, same task — Aisha gets sharp, structured outputs. Imran gets meandering ones. I can\u2019t explain it." },
-            { speaker: 'mentor', text: "Read me one of Imran\u2019s prompts and one of Aisha\u2019s. Exactly as written." },
-            { speaker: 'protagonist', text: "Imran: \u2018Summarise this case note.\u2019 Aisha: role, task, format, length, what to exclude, one example output." },
-            { speaker: 'mentor', text: "Imran\u2019s prompt has one dimension specified. Aisha\u2019s has six. Every gap Imran leaves, the model fills with whatever seems statistically plausible — differently each run." },
+            { speaker: 'protagonist', text: "Same model, same task — Aisha gets sharp, structured outputs. Imran gets meandering ones. I can\’t explain it." },
+            { speaker: 'mentor', text: "Read me one of Imran\’s prompts and one of Aisha\’s. Exactly as written." },
+            { speaker: 'protagonist', text: "Imran: \‘Summarise this case note.\’ Aisha: role, task, format, length, what to exclude, one example output." },
+            { speaker: 'mentor', text: "Imran\’s prompt has one dimension specified. Aisha\’s has six. Every gap Imran leaves, the model fills with whatever seems statistically plausible — differently each run." },
           ]}
           nonTechLines={[
             { speaker: 'protagonist', text: "Aisha gets useful outputs consistently. Imran gets all over the place. I assumed Aisha just has better instincts." },
-            { speaker: 'mentor', text: "It\u2019s not instincts. \u2018Summarise this\u2019 is a question. Aisha\u2019s version is a specification. They\u2019re different briefs." },
-            { speaker: 'protagonist', text: "So the model is choosing everything Imran didn\u2019t specify — format, length, what to include." },
-            { speaker: 'mentor', text: "And it chooses differently every run. Aisha\u2019s prompts don\u2019t leave anything to chance. That\u2019s not intuition — it\u2019s discipline." },
+            { speaker: 'mentor', text: "It\’s not instincts. \‘Summarise this\’ is a question. Aisha\’s version is a specification. They\’re different briefs." },
+            { speaker: 'protagonist', text: "So the model is choosing everything Imran didn\’t specify — format, length, what to include." },
+            { speaker: 'mentor', text: "And it chooses differently every run. Aisha\’s prompts don\’t leave anything to chance. That\’s not intuition — it\’s discipline." },
           ]}
         />
         <GenAIAvatar
@@ -1479,8 +1479,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'engineer'
-            ? "Imran\u2019s prompt has one dimension specified. Aisha\u2019s has five. Every unspecified dimension is a choice the model makes for you."
-            : "It\u2019s not a skill gap. Aisha is specifying a task. Imran is asking a question. Those are not the same thing."}
+            ? "Imran\’s prompt has one dimension specified. Aisha\’s has five. Every unspecified dimension is a choice the model makes for you."
+            : "It\’s not a skill gap. Aisha is specifying a task. Imran is asking a question. Those are not the same thing."}
           expandedContent={track === 'engineer'
             ? "There it is. Imran's prompt has one dimension specified: the task. Aisha's has five: role, task, format, length, and constraints. Every dimension that's unspecified in a prompt is a decision the model makes for you — format, length, perspective, tone, level of detail, what to include. It fills those gaps with the most statistically plausible defaults from its training data. Sometimes that matches what you want. Often it doesn't. Imran's variance isn't a model problem. It's a specification problem. The model is doing exactly what it was asked to do — it just had to choose everything Imran didn't specify."
             : "When you type 'Summarise this', the model has to decide: how long? What format? What to include? What to leave out? What level of detail? It fills every one of those gaps with whatever seems most plausible based on its training. Sometimes that matches what you needed. Often it doesn't. Aisha's prompts leave almost no gaps. Imran's prompts are almost entirely gaps. The model isn't performing differently — it's just completing very different briefs. The good news is this is immediately fixable. You don't need a new tool, a new model, or any technical changes."}
@@ -1510,8 +1510,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor="#0F766E"
           conceptId="genai-m1-mental-model"
           content={track === 'engineer'
-            ? "Aarav, there\u2019s one more thing Aisha does that Imran doesn\u2019t. Look at her prompts again."
-            : "Rhea, there\u2019s one thing I\u2019ve watched consistently narrow the gap between what people want and what the model produces. Does Aisha ever include an example in her prompts?"}
+            ? "Aarav, there\’s one more thing Aisha does that Imran doesn\’t. Look at her prompts again."
+            : "Rhea, there\’s one thing I\’ve watched consistently narrow the gap between what people want and what the model produces. Does Aisha ever include an example in her prompts?"}
           expandedContent={track === 'engineer'
             ? "She includes an example output. Not always — but for any task where the format really matters, she pastes one previous output and says 'like this.' I've watched teams spend hours writing instruction paragraphs trying to explain exactly what format they need, and then still be surprised when the model interprets it differently. One concrete example teaches format, tone, level of detail, and scope simultaneously. It shows the model what you mean instead of describing it. That's the fastest way to collapse the gap between the output you're imagining and the output you get."
             : "That's the pattern. Instructions tell the model what you want. Examples show it. When Aisha includes a sample output, the model has a concrete reference for length, format, and style — not a description to interpret. I've seen teams spend a whole afternoon writing detailed prompt instructions and still get variance because there's always room to interpret a description differently. One well-chosen example closes most of that gap immediately."}
@@ -1554,7 +1554,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can identify a context assembly failure in a staging environment and know to fix the data pipeline before touching the prompt."
           : "\u25b6 After this section, you can audit what the model actually receives in a failing case and distinguish a context quality problem from a prompt problem."
         )}
-        <SituationCard accent="#C2410C" accentRgb="194,65,12" label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent="#C2410C" accentRgb="194,65,12" label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav&apos;s team has a prompt that works well in testing — sharp outputs, right format, right length. In staging, the same prompt produces degraded outputs on roughly one in five cases. He spends most of a day in the prompt, adding constraints, clarifying the format spec, running A/B tests. The outputs barely change. Finally, a colleague suggests inspecting the actual payloads. He pulls up a failing case. The context packet has a patient record where three fields are null, a case note truncated at the API limit, and an intake form where structured fields were flattened into a single unbroken string. He messages Rohan.</>
             : <>Rhea&apos;s team has been using the summary tool for six weeks. Mostly good. Then she notices the failure cases aren&apos;t random — they cluster around older cases, cases from before the system migration, cases where the PDF attachments didn&apos;t load. She pulls up a good summary and a bad one side by side. Same prompt. The bad one came from a case with half the fields blank and two attachments that show as &ldquo;unavailable.&rdquo; She&apos;d been assuming it was the prompt. She messages Rohan.</>}
@@ -1564,16 +1564,16 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           track={track}
           accent="#C2410C"
           techLines={[
-            { speaker: 'protagonist', text: "My prompt works perfectly in testing. In staging, 1-in-5 cases degrade. I\u2019ve spent a day tightening the constraints." },
+            { speaker: 'protagonist', text: "My prompt works perfectly in testing. In staging, 1-in-5 cases degrade. I\’ve spent a day tightening the constraints." },
             { speaker: 'mentor', text: "Stop touching the prompt. Pull up a failing staging case and tell me exactly what the model received." },
             { speaker: 'protagonist', text: "Three null fields, a case note truncated at the API limit, one form flattened into an unbroken string." },
-            { speaker: 'mentor', text: "The model didn\u2019t fail. It generated the best output it could from broken inputs. The bug is in your context assembly pipeline, not the prompt." },
+            { speaker: 'mentor', text: "The model didn\’t fail. It generated the best output it could from broken inputs. The bug is in your context assembly pipeline, not the prompt." },
           ]}
           nonTechLines={[
-            { speaker: 'protagonist', text: "The failures cluster around older cases and cases where PDFs didn\u2019t load. I\u2019ve been rewriting the prompt for a week." },
-            { speaker: 'mentor', text: "The prompt isn\u2019t your problem. Pull up a bad case and tell me what was actually in the record the model received." },
+            { speaker: 'protagonist', text: "The failures cluster around older cases and cases where PDFs didn\’t load. I\’ve been rewriting the prompt for a week." },
+            { speaker: 'mentor', text: "The prompt isn\’t your problem. Pull up a bad case and tell me what was actually in the record the model received." },
             { speaker: 'protagonist', text: "Half the fields are blank. Two attachments show as unavailable." },
-            { speaker: 'mentor', text: "The model produced a summary of what it was given. It doesn\u2019t have a way to say \u2018this isn\u2019t enough.\u2019 Context quality failure — not a prompt failure." },
+            { speaker: 'mentor', text: "The model produced a summary of what it was given. It doesn\’t have a way to say \‘this isn\’t enough.\’ Context quality failure — not a prompt failure." },
           ]}
         />
         <GenAIAvatar
@@ -1655,7 +1655,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "\u25b6 After this section, you can apply three selection criteria to a list of AI candidates and make the case for which one is safe and learnable enough to build first."
           : "\u25b6 After this section, you can evaluate a proposed AI use case against three readiness criteria and identify the smallest version of the idea that passes all three."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? <>Aarav has three candidates for a first production AI integration. Option one: auto-approve routine claims exceptions when AI confidence is above a threshold — biggest efficiency gain, clearest ROI. Option two: classify inbound case requests by type and urgency, flagging low-confidence cases for human review. Option three: an autonomous intake agent that monitors the queue, routes requests, and takes action without human checkpoints — most technically interesting. He builds the ROI case for option one. Then he messages Anika before the presentation.</>
             : <>Rhea has three options to bring to her director. Option one: auto-resolve routine exception requests where the AI confidence is above 80% — biggest headline number, clearest headcount case. Option two: classify inbound escalations by category and urgency, with human review of anything below a confidence threshold. Option three: AI drafts responses to provider complaints, sent directly after a quick assistant spot-check. She&apos;s been building the case for option one. She calls Anika the night before the presentation.</>}
@@ -1665,16 +1665,16 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           track={track}
           accent={ACCENT}
           techLines={[
-            { speaker: 'protagonist', text: "Option one has the clearest ROI — auto-approve routine claims when AI confidence clears 80%. I\u2019ve built the case." },
+            { speaker: 'protagonist', text: "Option one has the clearest ROI — auto-approve routine claims when AI confidence clears 80%. I\’ve built the case." },
             { speaker: 'mentor', text: "Walk me through it. What happens to a case when the confidence score is high but the decision is wrong?" },
             { speaker: 'protagonist', text: "It gets approved and routes through the system. Nobody reviews it before it acts." },
-            { speaker: 'mentor', text: "Confidence is the model\u2019s estimate of its own certainty — not accuracy. At 80%, one in five confident decisions is wrong. Your ROI deck doesn\u2019t price that in." },
+            { speaker: 'mentor', text: "Confidence is the model\’s estimate of its own certainty — not accuracy. At 80%, one in five confident decisions is wrong. Your ROI deck doesn\’t price that in." },
           ]}
           nonTechLines={[
-            { speaker: 'protagonist', text: "Option one has the best headline number — auto-resolve exceptions at 80% confidence. That\u2019s the headcount case my director wants." },
+            { speaker: 'protagonist', text: "Option one has the best headline number — auto-resolve exceptions at 80% confidence. That\’s the headcount case my director wants." },
             { speaker: 'mentor', text: "Walk me through what an incorrectly resolved exception looks like to the person who submitted it." },
-            { speaker: 'protagonist', text: "They\u2019d get a resolution notice. But if it was wrong\u2026 they might not know until something downstream broke." },
-            { speaker: 'mentor', text: "And can you tell how many wrong resolutions there have been? That\u2019s the question your director will ask when the first one surfaces." },
+            { speaker: 'protagonist', text: "They\’d get a resolution notice. But if it was wrong\… they might not know until something downstream broke." },
+            { speaker: 'mentor', text: "And can you tell how many wrong resolutions there have been? That\’s the question your director will ask when the first one surfaces." },
           ]}
         />
         <GenAIAvatar
@@ -1714,8 +1714,8 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           borderColor={ACCENT}
           conceptId="genai-m1-use-case-readiness"
           content={track === 'engineer'
-            ? "Aarav, I want to ask you something different. After six weeks of running option two — what would you need to see before you\u2019d feel comfortable removing the review step?"
-            : "Rhea, after six weeks of running option two — what would you need to see before you\u2019d feel ready to move to option one?"}
+            ? "Aarav, I want to ask you something different. After six weeks of running option two — what would you need to see before you\’d feel comfortable removing the review step?"
+            : "Rhea, after six weeks of running option two — what would you need to see before you\’d feel ready to move to option one?"}
           expandedContent={track === 'engineer'
             ? "That's the question that turns a pilot into a strategy. You'd want to know: which case types does the model classify correctly 98%+ of the time? Which ones does it consistently get wrong? What does the context look like in the failures — are there patterns? How long does the review step actually take when a human catches a bad classification? Those six weeks turn the 80% confidence threshold from a number into a decision. You don't remove the review step. You narrow it — apply it only to the case types where the model has earned that trust. That's how you get to option one. Not by starting there."
             : "That's the question that connects option two to option one. Not 'when have we run it long enough?' but 'what does the data show us?' Which escalation categories is the model consistently right on? Which ones does it misclassify, and what do those cases look like? How often does the human reviewer change the classification? Once you have that, you're not guessing about 80% confidence — you have actual accuracy rates on your actual cases. You extend autonomy to the categories the model has earned it on. That's how option one becomes viable. Not by starting there on faith."}
@@ -1736,7 +1736,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
                 { text: 'Whether the 93% accuracy has been consistent across all six weeks of the pilot', correct: false, feedback: 'Consistency over time matters, but it still doesn\'t tell you what the failures look like. A model that\'s consistently 93% accurate on low-stakes cases might still be failing on the highest-urgency ones.' },
               ]}
         />
-        {track === 'builder' ? keyBox('Walking two tasks through the criteria — Rhea\u2019s candidates', [
+        {track === 'builder' ? keyBox('Walking two tasks through the criteria — Rhea\’s candidates', [
           'Task A: AI drafts responses to provider complaints, reviewed by an assistant before sending.',
           '  \u2713 Win clearly: a good draft is readable, on-tone, and addresses the complaint. Rhea can define that before running it.',
           '  \u2713 Verify easily: the assistant reads it in 30 seconds and spots anything wrong.',
@@ -1747,7 +1747,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           '  \u2717 Win clearly: seems clear — yes or no answer. But the correct answer requires a timestamp from the case management system.',
           '  \u2717 Fail cheaply: if the model generates a wrong SLA status and it acts on a case before anyone checks, harm is done silently.',
           '  \u2192 Fails. Not a language task — it requires live data the model cannot access. Extended zone at minimum.',
-        ], ACCENT) : keyBox('Walking two tasks through the criteria — Aarav\u2019s candidates', [
+        ], ACCENT) : keyBox('Walking two tasks through the criteria — Aarav\’s candidates', [
           'Task A: AI auto-formats outgoing case correspondence to the required template.',
           '  \u2713 Win clearly: correct formatting is visually verifiable — the fields are in the right place, the structure matches the template.',
           '  \u2713 Verify easily: anyone can read the output and spot a misplaced field or wrong section header.',

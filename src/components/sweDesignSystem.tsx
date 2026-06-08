@@ -77,7 +77,7 @@ export const SituationCard = ({ protagonist, accentColor, children, label, story
       marginTop: '-36px',
       marginLeft: '-4px'
     }}>
-      {label ?? (protagonist ? `◎ ${protagonist}\u2019s Situation` : "◎ THE SITUATION")}
+      {label ?? (protagonist ? `◎ ${protagonist}\’s Situation` : "◎ THE SITUATION")}
     </div>
     <div style={{
       fontSize: '15px',

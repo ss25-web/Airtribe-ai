@@ -882,8 +882,8 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             lines={[
               { speaker: 'other', text: "What do you think your job is?" },
               { speaker: 'priya', text: "Build features? Manage the roadmap? Make decisions about the product?" },
-              { speaker: 'other', text: "Engineers build the product. Designers shape how it feels. Business decides how it makes money. So what\u2019s left for you?" },
-              { speaker: 'priya', text: "I\u2026 don\u2019t know." },
+              { speaker: 'other', text: "Engineers build the product. Designers shape how it feels. Business decides how it makes money. So what\’s left for you?" },
+              { speaker: 'priya', text: "I\… don\’t know." },
             ]}
           />
           <Avatar
@@ -967,9 +967,9 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             lines={[
               { speaker: 'other', text: "What did the user say exactly?" },
               { speaker: 'priya', text: "The app is confusing." },
-              { speaker: 'other', text: "That\u2019s a feeling. Not a problem. What were they trying to do when they felt confused?" },
-              { speaker: 'priya', text: "I\u2026 don\u2019t know. I assumed it was navigation." },
-              { speaker: 'other', text: "Maybe. Or maybe they couldn\u2019t find a specific feature. Or the language was unclear. Or the page loaded slowly. Or they were new and had no idea where to start. Each of those is a completely different fix." },
+              { speaker: 'other', text: "That\’s a feeling. Not a problem. What were they trying to do when they felt confused?" },
+              { speaker: 'priya', text: "I\… don\’t know. I assumed it was navigation." },
+              { speaker: 'other', text: "Maybe. Or maybe they couldn\’t find a specific feature. Or the language was unclear. Or the page loaded slowly. Or they were new and had no idea where to start. Each of those is a completely different fix." },
             ]}
           />
           <Avatar
@@ -1005,9 +1005,9 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
             lines={[
               { speaker: 'priya', text: "I almost redesigned the entire navigation for a search problem." },
-              { speaker: 'other', text: "This happens to everyone. We call it solution-first thinking. You see a complaint, your brain jumps to a fix. The fix feels productive. But you\u2019ve skipped the most important step." },
+              { speaker: 'other', text: "This happens to everyone. We call it solution-first thinking. You see a complaint, your brain jumps to a fix. The fix feels productive. But you\’ve skipped the most important step." },
               { speaker: 'priya', text: "Understanding the actual problem." },
-              { speaker: 'other', text: "Exactly. A user complaint is a signal, not a specification. It tells you something is wrong. It doesn\u2019t tell you what." },
+              { speaker: 'other', text: "Exactly. A user complaint is a signal, not a specification. It tells you something is wrong. It doesn\’t tell you what." },
             ]}
           />
           <Avatar
@@ -1065,9 +1065,9 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             lines={[
               { speaker: 'other', text: "What kind of search?" },
               { speaker: 'priya', text: "Just... search. For recordings." },
-              { speaker: 'other', text: "By date? By contact name? Keywords in the transcript? Duration? Those are four completely different things to build. Also — Friday? We have two other things this sprint. To do this properly, I\u2019d need at least a week." },
-              { speaker: 'priya', text: "I didn\u2019t realise it was that complicated." },
-              { speaker: 'other', text: "Don\u2019t worry. But next time — tell me the problem. Not the solution. Let me figure out what\u2019s actually buildable and what tradeoffs you\u2019d be making." },
+              { speaker: 'other', text: "By date? By contact name? Keywords in the transcript? Duration? Those are four completely different things to build. Also — Friday? We have two other things this sprint. To do this properly, I\’d need at least a week." },
+              { speaker: 'priya', text: "I didn\’t realise it was that complicated." },
+              { speaker: 'other', text: "Don\’t worry. But next time — tell me the problem. Not the solution. Let me figure out what\’s actually buildable and what tradeoffs you\’d be making." },
             ]}
           />
           <Avatar
@@ -1173,8 +1173,8 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             lines={[
               { speaker: 'priya', text: "How do I choose? Every stakeholder says their thing is the most important." },
               { speaker: 'other', text: "Before you pick a feature — what outcome is EdSpark trying to improve right now?" },
-              { speaker: 'priya', text: "Users\u2026 like the product?" },
-              { speaker: 'other', text: "More specifically. Are you trying to grow? Retain? Activate? Those are different problems with different solutions. You can\u2019t prioritize features without knowing what goal you\u2019re prioritizing toward." },
+              { speaker: 'priya', text: "Users\… like the product?" },
+              { speaker: 'other', text: "More specifically. Are you trying to grow? Retain? Activate? Those are different problems with different solutions. You can\’t prioritize features without knowing what goal you\’re prioritizing toward." },
             ]}
           />
           <Avatar
@@ -1204,8 +1204,8 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
             lines={[
               { speaker: 'other', text: "40% of users churn in the first two weeks. They sign up. They poke around. They leave and never come back. We traced it — most of them never completed onboarding. They never got to the first value moment." },
-              { speaker: 'priya', text: "So the Salesforce integration the VP keeps pushing\u2026" },
-              { speaker: 'other', text: "Three customers asked for it. We lose 200 users a month to bad onboarding. Those aren\u2019t the same scale of problem." },
+              { speaker: 'priya', text: "So the Salesforce integration the VP keeps pushing\…" },
+              { speaker: 'other', text: "Three customers asked for it. We lose 200 users a month to bad onboarding. Those aren\’t the same scale of problem." },
             ]}
           />
           <Avatar
@@ -1237,10 +1237,10 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <ConversationScene
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
             lines={[
-              { speaker: 'priya', text: "The VP of Sales isn\u2019t happy. He pushed back hard in Slack." },
-              { speaker: 'other', text: "You\u2019re going to be saying no to someone, always. The question isn\u2019t how to avoid that. It\u2019s how to make sure the no is the right no." },
-              { speaker: 'priya', text: "How do I know it\u2019s the right no?" },
-              { speaker: 'other', text: "A no backed by data and strategy is something people can respect, even if they don\u2019t like it. A no that\u2019s just \u2018not right now\u2019 is just friction." },
+              { speaker: 'priya', text: "The VP of Sales isn\’t happy. He pushed back hard in Slack." },
+              { speaker: 'other', text: "You\’re going to be saying no to someone, always. The question isn\’t how to avoid that. It\’s how to make sure the no is the right no." },
+              { speaker: 'priya', text: "How do I know it\’s the right no?" },
+              { speaker: 'other', text: "A no backed by data and strategy is something people can respect, even if they don\’t like it. A no that\’s just \‘not right now\’ is just friction." },
             ]}
           />
           <Avatar
@@ -1299,11 +1299,11 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <ConversationScene
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
             lines={[
-              { speaker: 'other', text: "You wrote \u2018share results.\u2019 I built that. I didn\u2019t know how sharing usually happens here. If you know that, tell me — I\u2019m not guessing to annoy you, I genuinely didn\u2019t have that context." },
+              { speaker: 'other', text: "You wrote \‘share results.\’ I built that. I didn\’t know how sharing usually happens here. If you know that, tell me — I\’m not guessing to annoy you, I genuinely didn\’t have that context." },
               { speaker: 'priya', text: "Fair. I should have specified." },
               { speaker: 'other', text: "Also — did you check in during the sprint at all?" },
-              { speaker: 'priya', text: "No. I didn\u2019t want to micromanage." },
-              { speaker: 'other', text: "There\u2019s a difference. Checking in is not micromanaging. You\u2019re not checking if I\u2019m working hard — you\u2019re checking if we still mean the same thing by \u2018done.\u2019" },
+              { speaker: 'priya', text: "No. I didn\’t want to micromanage." },
+              { speaker: 'other', text: "There\’s a difference. Checking in is not micromanaging. You\’re not checking if I\’m working hard — you\’re checking if we still mean the same thing by \‘done.\’" },
             ]}
           />
           <Avatar
@@ -1315,7 +1315,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             conceptId="collaboration"
             question="Mid-sprint, your spec says 'share results.' Dev might build a link, email, or Slack integration. The right move:"
             options={[
-              { text: "Wait until sprint end — don\u2019t interrupt the build", correct: false, feedback: "That 10 minutes of ambiguity now becomes a week of rework later. Catching it mid-sprint is always cheaper." },
+              { text: "Wait until sprint end — don\’t interrupt the build", correct: false, feedback: "That 10 minutes of ambiguity now becomes a week of rework later. Catching it mid-sprint is always cheaper." },
               { text: "Clarify immediately: 'When I said share results, I meant via Slack integration'", correct: true, feedback: "Exactly. Catching misalignment during the sprint is product management. Catching it in the retro is damage control." },
               { text: "Add more detail to the spec for next sprint", correct: false, feedback: "Writing longer specs doesn't fix this — the spec already had the ambiguous phrase in it. What fixes it is a mid-sprint conversation." },
             ]}
@@ -1329,7 +1329,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
               { speaker: 'priya', text: "Should I have been more specific in the spec?" },
               { speaker: 'other', text: "Sometimes. But the bigger question — did you talk to Dev at all during those two weeks?" },
               { speaker: 'priya', text: "No. I assumed it was going fine." },
-              { speaker: 'other', text: "That assumption cost you a week of rework. Alignment isn\u2019t a kickoff meeting. It\u2019s a habit. You\u2019re not done when the sprint starts." },
+              { speaker: 'other', text: "That assumption cost you a week of rework. Alignment isn\’t a kickoff meeting. It\’s a habit. You\’re not done when the sprint starts." },
             ]}
           />
           <Avatar
@@ -1343,7 +1343,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             options={[
               { text: "The spec was too short", correct: false, feedback: "Longer specs contain more ambiguous words. Length doesn't fix clarity — conversations do." },
               { text: "Shared understanding was never confirmed during the sprint", correct: true, feedback: "Alignment at kickoff decays. Things agreed on Monday are often interpreted differently by Wednesday. Mid-sprint check-ins catch this." },
-              { text: "Engineering should ask more questions upfront", correct: false, feedback: "Maybe — but it\u2019s the PM\u2019s job to make the problem clear enough that the right questions surface naturally." },
+              { text: "Engineering should ask more questions upfront", correct: false, feedback: "Maybe — but it\’s the PM\’s job to make the problem clear enough that the right questions surface naturally." },
             ]}
           />
         </div>
@@ -1385,8 +1385,8 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
               { speaker: 'other', text: "What did you define as success before we shipped?" },
               { speaker: 'priya', text: "Users completing onboarding." },
               { speaker: 'other', text: "What number? And when were you going to check?" },
-              { speaker: 'priya', text: "I\u2026 didn\u2019t set a specific number. I assumed we\u2019d just see if it worked." },
-              { speaker: 'other', text: "That\u2019s the problem. If you didn\u2019t define what \u2018working\u2019 looks like before you shipped, you can\u2019t know if it\u2019s working after." },
+              { speaker: 'priya', text: "I\… didn\’t set a specific number. I assumed we\’d just see if it worked." },
+              { speaker: 'other', text: "That\’s the problem. If you didn\’t define what \‘working\’ looks like before you shipped, you can\’t know if it\’s working after." },
             ]}
           />
           <Avatar
@@ -1394,7 +1394,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             nameColor="var(--teal)"
             borderColor="var(--teal)"
             content={<>Before every launch, I ask PMs three questions: What behavior are you trying to change? What number tells you that behavior has changed? When are you checking? If you can&apos;t answer all three, the feature isn&apos;t ready to ship — or at least, you&apos;re not ready to evaluate it. Shipping without measurement is just hope.</>}
-            expandedContent={<>It sounds strict. It isn&apos;t. The three questions take five minutes. Skipping them costs weeks. Define success before you build it — not after you\u2019re already defending it.</>}
+            expandedContent={<>It sounds strict. It isn&apos;t. The three questions take five minutes. Skipping them costs weeks. Define success before you build it — not after you\’re already defending it.</>}
             conceptId="north-star"
             question="You're about to ship a new search feature. Which set of answers do you need before launch?"
             options={[
@@ -1415,9 +1415,9 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
           <ConversationScene
             mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
             lines={[
-              { speaker: 'other', text: "The metric told us something was wrong. The investigation told us what. That\u2019s how it\u2019s supposed to work." },
+              { speaker: 'other', text: "The metric told us something was wrong. The investigation told us what. That\’s how it\’s supposed to work." },
               { speaker: 'priya', text: "What should I have done differently?" },
-              { speaker: 'other', text: "Before you shipped: define what success looks like in a number. After you ship: check it within a week. Don\u2019t wait a month. A week. Things that are broken need to be found fast." },
+              { speaker: 'other', text: "Before you shipped: define what success looks like in a number. After you ship: check it within a week. Don\’t wait a month. A week. Things that are broken need to be found fast." },
             ]}
           />
           <Avatar
@@ -1425,7 +1425,7 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             nameColor="var(--teal)"
             borderColor="var(--teal)"
             content={<>The metric I care about most for any new feature isn&apos;t the vanity metric — page views, impressions. It&apos;s the completion metric: did users do the thing the feature was designed for? For onboarding, that&apos;s completion rate. For search, it&apos;s successful searches. For sharing, it&apos;s shares that resulted in someone opening the shared content.</>}
-            expandedContent={<>Find the behavior that proves the feature is doing what it was meant to do. That&apos;s your metric. Everything else is noise until you\u2019ve confirmed the core behavior is actually happening.</>}
+            expandedContent={<>Find the behavior that proves the feature is doing what it was meant to do. That&apos;s your metric. Everything else is noise until you\’ve confirmed the core behavior is actually happening.</>}
             conceptId="north-star"
             question="You shipped a sharing feature. Which metric best tells you if it worked?"
             options={[
@@ -1487,9 +1487,9 @@ export default function Track1NewPM({ completedSections = new Set<string>() }: {
             lines={[
               { speaker: 'other', text: "Still here?" },
               { speaker: 'priya', text: "Just connecting some dots." },
-              { speaker: 'other', text: "\u2018Understand. Decide. Build. Measure.\u2019 That\u2019s it. That\u2019s the whole loop." },
+              { speaker: 'other', text: "\‘Understand. Decide. Build. Measure.\’ That\’s it. That\’s the whole loop." },
               { speaker: 'priya', text: "Is it always that simple?" },
-              { speaker: 'other', text: "The loop is simple. The work inside it isn\u2019t. But if you always know which part you\u2019re in — you\u2019ll know what to do next." },
+              { speaker: 'other', text: "The loop is simple. The work inside it isn\’t. But if you always know which part you\’re in — you\’ll know what to do next." },
             ]}
           />
           <Avatar

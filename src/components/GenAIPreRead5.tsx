@@ -972,7 +972,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "In Pre-Read 04, Aarav built the exception classification workflow end-to-end — trigger, Set node, OpenAI classifier, Validate Output, dead-letter error path, and a live test against 12 real exceptions. The workflow runs reliably on one exception per trigger. This pre-read is about the three gaps that appear the moment volume arrives: a 247-item backlog that needs batching, two claim APIs whose field names don't match the classifier's input schema, and a confidence threshold that should pause for human sign-off before writing to the tracker."
           : "In Pre-Read 04, Rhea automated her Monday exception summary — mapped the manual process step by step, wired it in n8n with a service account credential, added a Slack error alert, and ran it live before showing her director. The brief now sends automatically every Monday. That success prompted a second request from her manager: build a weekly renewal digest for the 80 accounts on the renewals sheet. Rhea opens n8n. The Monday workflow handled one fixed output. This one needs to loop over 80 rows — and the renewals sheet field names don't match her prompt template."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The exception classifier handles one email per trigger. This week's backlog: 247 unclassified claims. Running the workflow 247 times manually defeats the purpose of building it. Aarav needs the workflow to take an array and iterate — without hitting OpenAI rate limits or losing items."
             : "The Monday brief runs perfectly. Now her manager asks for a second workflow: a weekly renewal digest from the 80 accounts on the renewals sheet. First test run: the workflow completes in 3 seconds and produces one output. Not 80. Rhea checks every node — all green. The workflow succeeded. It just only processed the first row."}
@@ -1031,7 +1031,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 2: Data Transforms ── */}
       <ChapterSection id="genai-m5-transforms" num="02" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "Claims come from two APIs. API A returns `{ claimId, amount, status }`. API B returns `{ id, value, state }`. The AI classifier expects `{ claim_id, amount, status }`. Both sources feed into the same classifier node. Nothing matches."
             : "Rhea's renewal workflow pulls account data from Google Sheets and status updates from the renewals webhook. The sheet column is 'Policy Number'. The webhook sends 'policyNum'. The merge node finds zero matches. Her first instinct: write a script to normalize both to lowercase. Then she remembers — she is working in the visual editor, not the code editor. She needs to solve this without writing a single line of code."}
@@ -1091,7 +1091,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 3: Conditional Routing ── */}
       <ChapterSection id="genai-m5-routing" num="03" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The AI classifier returns a confidence score: 0.0–1.0. High confidence → auto-process. Mid-range → human review. Low confidence → rejection queue. Three routes. After one week, 60% of claims are stuck in human review. Either the threshold is wrong or the classifier is poorly calibrated."
             : "Rhea's renewal workflow routes to three teams based on policy type: Health, Dental, Vision. After a week, Team Vision reports receiving Dental renewals. The If/Switch node conditions look right on paper."}
@@ -1151,7 +1151,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 4: Human-in-the-Loop ── */}
       <ChapterSection id="genai-m5-hitl" num="04" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "Claims in the mid-confidence range (0.5–0.85) need a human reviewer before they are processed. Aarav adds a Wait node. The workflow pauses. The reviewer gets a Slack message. But the message has no button. The Wait node times out after 5 minutes."
             : "Two managers need to approve the weekly exception report before it goes to the director. Rhea adds an approval step — the workflow emails the managers and waits. Three days later, both managers have replied 'Approved' by email. The workflow is still paused."}
@@ -1211,7 +1211,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 5: Memory & Chat Agents ── */}
       <ChapterSection id="genai-m5-agents" num="05" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The claims team wants a chat interface to query the exception database in natural language. Aarav builds an Agent node with Window Buffer Memory. After 10 messages, the agent starts forgetting the context established in the first 3 exchanges. And two engineers using it simultaneously keep seeing each other's conversation context."
             : "Rhea deploys a policy FAQ chatbot for the operations team. After a week, team members report the bot is mixing up answers — one person's context appearing in another person's session. The memory is bleeding between users."}

@@ -1160,7 +1160,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
           ? "In Pre-Read 05, Aarav upgraded the claims workflow to process batches of 200+ exceptions, remap inconsistent field names from source systems, route items by confidence score rather than category alone, queue low-confidence items for human review, and isolate conversation context per user session. The automation is production-grade. This pre-read is about a different class of problem: tasks where the steps needed aren't known until the model reads the data — and where a fixed workflow chain can't make that call."
           : "In Pre-Read 05, Rhea's workflows can iterate over 80 spreadsheet rows, handle mismatched field names with a Code node, pause for her approval before any email is sent, and maintain separate memory per conversation session. The automation is solid. This pre-read is about the question her director keeps asking that no fixed workflow can answer — because answering it requires the system to decide what to look up, look it up, read the result, and decide whether to look up something else."
         )}
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "A new task: build a system that takes an exception report, looks up the relevant policy, determines the correct resolution path, and drafts a response. The steps are unknown until the exception is read. Aarav reaches for an agent. Rohan asks: are you sure an agent is the right call here?"
             : "The director wants a system that can answer ops questions in natural language: 'How many Dental renewals are overdue this week?' 'Which accounts have outstanding escalations?' Rhea has built workflows. She needs to know what she would need to build to answer questions like these."}
@@ -1220,7 +1220,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 2: Tool Use & Integrations ── */}
       <ChapterSection id="genai-m6-tools" num="02" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The agent has three tools: search_claims, lookup_policy, draft_response. The model calls search_claims on every turn — even when the user asks a policy question. The tool description reads: 'Search claims.' Nothing else."
             : "Rhea's agent has a Send Email tool and a Lookup Policy tool. It sends emails on almost every turn. Users complain it is sending unsolicited summaries. The tool description for Send Email reads: 'Sends an email.'"}
@@ -1280,7 +1280,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 3: Multi-Step Reasoning ── */}
       <ChapterSection id="genai-m6-reasoning" num="03" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The agent is asked: 'What is the total value of unresolved claims for patients enrolled in the Platinum plan this quarter?' It retrieves claims, then states a sum in its response. The sum is wrong by $4,000. There are 340 claims in the result."
             : "The agent is asked: 'Which of our top 10 accounts by premium are most at risk for non-renewal this quarter?' It returns 3 account names. The ops team cannot verify the reasoning. Rhea needs to explain how the agent reached its answer."}
@@ -1340,7 +1340,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 4: RAG in Agent Workflows ── */}
       <ChapterSection id="genai-m6-rag" num="04" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The agent is answering claims questions correctly 80% of the time. For the other 20%, the retrieved policy documents are correct but the answer is still wrong. Aarav checks the retrieval — the right documents are being fetched. The problem is downstream."
             : "Rhea's policy FAQ chatbot answers complex questions inconsistently. The same question asked twice sometimes gets different answers. The retrieval is returning the right documents both times."}
@@ -1400,7 +1400,7 @@ function CoreContent({ track, completedSections = new Set<string>(), activeSecti
 
       {/* ── Section 5: Scale & Observability ── */}
       <ChapterSection id="genai-m6-scale" num="05" accentRgb={ACCENT_RGB}>
-        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\u2019s Situation' : '◎ Rhea\u2019s Situation'}>
+        <SituationCard accent={ACCENT} accentRgb={ACCENT_RGB} label={track === 'engineer' ? '◎ Aarav\’s Situation' : '◎ Rhea\’s Situation'}>
           {track === 'engineer'
             ? "The agent system has been running for 30 days. OpenAI bill is 4× the estimate. Aarav has workflow-level success/failure logs but nothing more granular. He cannot identify which workflow, which user, or which tool call is driving the cost."
             : "After a month of running, the director asks: 'How many times did the agent send an escalation email this month, and what triggered each one?' Rhea cannot answer. The workflow logs show success — but not what happened inside each run."}

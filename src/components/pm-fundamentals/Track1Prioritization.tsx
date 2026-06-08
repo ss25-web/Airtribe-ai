@@ -1026,17 +1026,17 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           role="Senior PM"
           accent="var(--purple)"
           lines={[
-            { speaker: 'priya', text: "I have four things on my list but I can\u2019t figure out how to compare them. A sales ask, user complaints, a data signal, a referral idea — they don\u2019t even feel like the same type of thing." },
-            { speaker: 'other', text: "They\u2019re not. Feature requests, complaints, stakeholder asks, data signals — four completely different input types with different confidence levels and shelf lives." },
+            { speaker: 'priya', text: "I have four things on my list but I can\’t figure out how to compare them. A sales ask, user complaints, a data signal, a referral idea — they don\’t even feel like the same type of thing." },
+            { speaker: 'other', text: "They\’re not. Feature requests, complaints, stakeholder asks, data signals — four completely different input types with different confidence levels and shelf lives." },
             { speaker: 'priya', text: "So how do I compare them?" },
-            { speaker: 'other', text: "You don\u2019t — not yet. First you convert them into the same currency: problem statements. Right now you have apples, oranges, and a wrench in the same bowl." },
+            { speaker: 'other', text: "You don\’t — not yet. First you convert them into the same currency: problem statements. Right now you have apples, oranges, and a wrench in the same bowl." },
           ]}
         />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>Before you can prioritize, convert every input into a problem statement. That\u2019s the common currency that makes comparison possible.</>}
+          content={<>Before you can prioritize, convert every input into a problem statement. That\’s the common currency that makes comparison possible.</>}
         />
 
         {h2(<>You can&apos;t prioritize what you haven&apos;t defined</>)}
@@ -1145,9 +1145,9 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           accent="var(--purple)"
           lines={[
             { speaker: 'priya', text: "I rewrote all four items as problem statements. It took longer than I expected — I kept wanting to jump to the solution." },
-            { speaker: 'other', text: "That\u2019s the discipline. Now look at what you have: four comparable, specific statements. You can finally ask the right question — which one matters most?" },
+            { speaker: 'other', text: "That\’s the discipline. Now look at what you have: four comparable, specific statements. You can finally ask the right question — which one matters most?" },
             { speaker: 'priya', text: "Two of them feel like they might be solving the same underlying thing though. CRM sync and deal context loss." },
-            { speaker: 'other', text: "That\u2019s JTBD. Users don\u2019t want features — they want to get a job done. When two requests share the same job, you might only need to build one thing." },
+            { speaker: 'other', text: "That\’s JTBD. Users don\’t want features — they want to get a job done. When two requests share the same job, you might only need to build one thing." },
           ]}
         />
         <Avatar
@@ -1155,7 +1155,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
           content={<>Now you have four comparable problem statements. Jobs to Be Done helps you spot when two different requests are actually the same job — which means you might only need to build one thing.</>}
-          expandedContent={<>Jobs to Be Done is the frame behind every problem statement. Users don\u2019t want features — they want to get a job done. \u201cBuild CRM integration\u201d is a feature. \u201cSales reps need to stay in context during deal reviews\u201d is a job. Find the job, and the right solution becomes obvious. The JTBD frame also helps you spot when two different feature requests are actually solving the same underlying job — which means you might only need to build one thing.</>}
+          expandedContent={<>Jobs to Be Done is the frame behind every problem statement. Users don\’t want features — they want to get a job done. \u201cBuild CRM integration\u201d is a feature. \u201cSales reps need to stay in context during deal reviews\u201d is a job. Find the job, and the right solution becomes obvious. The JTBD frame also helps you spot when two different feature requests are actually solving the same underlying job — which means you might only need to build one thing.</>}
         />
 
         {keyBox('Problem Statement Template', [
@@ -1165,7 +1165,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           'Name the user group, the broken action, and the cost',
         ], ACCENT)}
 
-        {pullQuote('A good problem statement has three parts: who is affected, what they\u2019re struggling to do, and what happens when they fail. Strip the solution out entirely.')}
+        {pullQuote('A good problem statement has three parts: who is affected, what they\’re struggling to do, and what happens when they fail. Strip the solution out entirely.')}
 
         <div className="rv">
           <ProblemStatement3Parts />
@@ -1248,9 +1248,9 @@ export default function Track1Prioritization({ completedSections = new Set<strin
         <ConversationScene
           mentor="kiran" name="Kiran" role="Data Analyst · EdSpark" accent="#3A86FF"
           lines={[
-            { speaker: 'priya', text: "Three customers asked for CRM. That\u2019s a lot of noise from three people." },
+            { speaker: 'priya', text: "Three customers asked for CRM. That\’s a lot of noise from three people." },
             { speaker: 'other', text: "They sent five Slack messages each. The 40% churn problem sent zero messages. It just quietly churned." },
-            { speaker: 'priya', text: "So the loudest signal isn\u2019t always the biggest problem." },
+            { speaker: 'priya', text: "So the loudest signal isn\’t always the biggest problem." },
             { speaker: 'other', text: "Volume of noise is not the same as breadth of impact. The data is the tie-breaker — not the number of escalations." },
           ]}
         />
@@ -1331,17 +1331,17 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           accent="var(--purple)"
           lines={[
             { speaker: 'priya', text: "The RICE scores are really clear — onboarding at 800, CRM at 12.5. But I feel like Marcus is going to push back on the numbers." },
-            { speaker: 'other', text: "Good. That\u2019s the point. When he pushes back on the score, he\u2019s really pushing back on your assumptions — your Reach estimate, your Confidence level. That\u2019s strategy, not feelings." },
+            { speaker: 'other', text: "Good. That\’s the point. When he pushes back on the score, he\’s really pushing back on your assumptions — your Reach estimate, your Confidence level. That\’s strategy, not feelings." },
             { speaker: 'priya', text: "So the disagreement becomes about data, not opinions." },
-            { speaker: 'other', text: "Exactly. RICE doesn\u2019t make the decision for you. It forces you to make your assumptions visible. When you disagree on a score, you\u2019re having a much better conversation." },
+            { speaker: 'other', text: "Exactly. RICE doesn\’t make the decision for you. It forces you to make your assumptions visible. When you disagree on a score, you\’re having a much better conversation." },
           ]}
         />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>RICE doesn\u2019t make the decision for you. It forces assumptions into the open. Disagreement on a score is disagreement on strategy — a much better conversation than gut vs. gut.</>}
-          expandedContent={<>The confidence score is the most honest part of RICE. It\u2019s where you admit what you don\u2019t know. A team that puts 80% confidence on everything is lying to itself. A team that puts 30% on something should probably run more research before committing to build it. Low confidence is not a problem — it\u2019s a signal to gather more data before you start building.</>}
+          content={<>RICE doesn\’t make the decision for you. It forces assumptions into the open. Disagreement on a score is disagreement on strategy — a much better conversation than gut vs. gut.</>}
+          expandedContent={<>The confidence score is the most honest part of RICE. It\’s where you admit what you don\’t know. A team that puts 80% confidence on everything is lying to itself. A team that puts 30% on something should probably run more research before committing to build it. Low confidence is not a problem — it\’s a signal to gather more data before you start building.</>}
           question="What does a low RICE score for a feature request mean?"
           options={[
             { text: 'The feature is not worth building — ever', correct: false, feedback: 'RICE scores change as context changes. A low score today might be high next quarter if the strategic situation shifts.' },
@@ -1407,18 +1407,18 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           role="Senior PM"
           accent="var(--purple)"
           lines={[
-            { speaker: 'priya', text: "I sent the reply. I didn\u2019t apologize, I didn\u2019t cave. But I\u2019m still nervous Marcus is going to escalate." },
-            { speaker: 'other', text: "That\u2019s fine. The goal isn\u2019t for him to agree. The goal is for him to understand your reasoning. \u2018I disagree but I understand why\u2019 is a successful outcome." },
-            { speaker: 'priya', text: "What if he doesn\u2019t understand?" },
-            { speaker: 'other', text: "Then you didn\u2019t communicate clearly enough — not that you made the wrong call. Clarity builds trust even when people disagree." },
+            { speaker: 'priya', text: "I sent the reply. I didn\’t apologize, I didn\’t cave. But I\’m still nervous Marcus is going to escalate." },
+            { speaker: 'other', text: "That\’s fine. The goal isn\’t for him to agree. The goal is for him to understand your reasoning. \‘I disagree but I understand why\’ is a successful outcome." },
+            { speaker: 'priya', text: "What if he doesn\’t understand?" },
+            { speaker: 'other', text: "Then you didn\’t communicate clearly enough — not that you made the wrong call. Clarity builds trust even when people disagree." },
           ]}
         />
         <Avatar
           name="Asha"
           nameColor="var(--purple-light)"
           borderColor="var(--purple)"
-          content={<>Priya didn\u2019t apologize and didn\u2019t cave. She explained with data and connected it to a shared metric. \u201cI disagree but I understand\u201d is the goal — not agreement.</>}
-          expandedContent={<>The test of a good prioritization decision is not whether everyone agrees. It\u2019s whether everyone understands why. If a stakeholder can say \u201cI disagree but I understand the reasoning,\u201d you\u2019ve done your job. \u201cI disagree and I don\u2019t understand why\u201d means you didn\u2019t communicate well enough — not that your decision was wrong.</>}
+          content={<>Priya didn\’t apologize and didn\’t cave. She explained with data and connected it to a shared metric. \u201cI disagree but I understand\u201d is the goal — not agreement.</>}
+          expandedContent={<>The test of a good prioritization decision is not whether everyone agrees. It\’s whether everyone understands why. If a stakeholder can say \u201cI disagree but I understand the reasoning,\u201d you\’ve done your job. \u201cI disagree and I don\’t understand why\u201d means you didn\’t communicate well enough — not that your decision was wrong.</>}
           question="A senior stakeholder disagrees with your priority call. What do you do?"
           options={[
             { text: 'Change the priority to keep them happy', correct: false, feedback: 'This makes every future decision subject to whoever shouts loudest. It also destroys your credibility as someone who makes principled decisions.' },
@@ -1527,9 +1527,9 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           mentor="asha" name="Asha" role="Senior PM" accent="var(--purple)"
           lines={[
             { speaker: 'priya', text: "I went through the whole process — problem statements, RICE, stakeholder comms. It felt like a lot of work for one sprint decision." },
-            { speaker: 'other', text: "What\u2019s the alternative? Guess, get pushback, rebuild trust. The process is faster than the recovery." },
+            { speaker: 'other', text: "What\’s the alternative? Guess, get pushback, rebuild trust. The process is faster than the recovery." },
             { speaker: 'priya', text: "I kept wanting to skip steps when I thought I knew the answer." },
-            { speaker: 'other', text: "You don\u2019t skip the process when you\u2019re confident. You skip it when you\u2019re rushed — and that\u2019s when the mistakes happen." },
+            { speaker: 'other', text: "You don\’t skip the process when you\’re confident. You skip it when you\’re rushed — and that\’s when the mistakes happen." },
           ]}
         />
 
@@ -1566,7 +1566,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           moduleContext={MODULE_CONTEXT}
           staticQuiz={{
             conceptId: 'prioritization-mindset-m4',
-            question: "Priya\u2019s RICE scores show onboarding at 800 and CRM at 12.5. Marcus pushes back emotionally. What\u2019s the right move?",
+            question: "Priya\’s RICE scores show onboarding at 800 and CRM at 12.5. Marcus pushes back emotionally. What\’s the right move?",
             options: [
               'A) Revisit the RICE scores to account for Marcus\'s stated business context',
               'B) Hold the call, acknowledge Marcus\'s concern, and give CRM a concrete future review slot',
@@ -1574,8 +1574,8 @@ export default function Track1Prioritization({ completedSections = new Set<strin
               'D) Escalate to the CEO to get executive backing before responding',
             ],
             correctIndex: 1,
-            explanation: "Data-backed decisions shouldn\u2019t reverse under emotional pressure — only under new data. Acknowledging the concern while holding the call, and giving CRM a concrete future slot, keeps both the relationship and the process intact.",
-            keyInsight: "You can hold a decision and care about someone\u2019s goals at the same time. \u2018I disagree but I understand\u2019 is a successful outcome.",
+            explanation: "Data-backed decisions shouldn\’t reverse under emotional pressure — only under new data. Acknowledging the concern while holding the call, and giving CRM a concrete future slot, keeps both the relationship and the process intact.",
+            keyInsight: "You can hold a decision and care about someone\’s goals at the same time. \‘I disagree but I understand\’ is a successful outcome.",
           }}
         />
 
@@ -1583,7 +1583,7 @@ export default function Track1Prioritization({ completedSections = new Set<strin
           mentor="asha" name="Asha" role="Senior PM" accent="var(--purple)"
           lines={[
             { speaker: 'priya', text: "I said no to CRM, no to reporting, no to the refactor. And it felt like the right call." },
-            { speaker: 'other', text: "You didn\u2019t just say no. You said: here\u2019s the evidence, here\u2019s the order of operations, here\u2019s when CRM gets its turn. That\u2019s different from saying no." },
+            { speaker: 'other', text: "You didn\’t just say no. You said: here\’s the evidence, here\’s the order of operations, here\’s when CRM gets its turn. That\’s different from saying no." },
             { speaker: 'priya', text: "Good prioritisation is just saying yes to the right problem at the right time." },
             { speaker: 'other', text: "And saying not-yet to everything else — with a clear record of why, so you can update it when the picture changes." },
           ]}

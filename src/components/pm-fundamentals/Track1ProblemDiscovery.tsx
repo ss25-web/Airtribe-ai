@@ -1098,9 +1098,9 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
             lines={[
               { speaker: 'priya', text: "I spent all weekend on this. 14 screens. And none of it is right." },
-              { speaker: 'other', text: "You saw a number — 40% churn — and your brain jumped to a cause: \u2018the onboarding must be confusing.\u2019 Then you spent a weekend solving that cause before checking whether it was real." },
+              { speaker: 'other', text: "You saw a number — 40% churn — and your brain jumped to a cause: \‘the onboarding must be confusing.\’ Then you spent a weekend solving that cause before checking whether it was real." },
               { speaker: 'priya', text: "So what do I do now?" },
-              { speaker: 'other', text: "The number is a symptom. You don\u2019t know the cause yet. Talk to five churned users before you open Figma again. You caught it before you shipped it. Most PMs don\u2019t." },
+              { speaker: 'other', text: "The number is a symptom. You don\’t know the cause yet. Talk to five churned users before you open Figma again. You caught it before you shipped it. Most PMs don\’t." },
             ]}
           />
           <Avatar
@@ -1178,10 +1178,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <ConversationScene
             mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
             lines={[
-              { speaker: 'priya', text: "Which managers do I reach out to? I can\u2019t interview all 340." },
-              { speaker: 'other', text: "Interview managers who churned in the last 10 days, at teams of 5\u201320 reps. Recent enough to remember. Representative enough to generalize. Not enterprise — too many variables. Not solo reps — different job entirely." },
+              { speaker: 'priya', text: "Which managers do I reach out to? I can\’t interview all 340." },
+              { speaker: 'other', text: "Interview managers who churned in the last 10 days, at teams of 5\–20 reps. Recent enough to remember. Representative enough to generalize. Not enterprise — too many variables. Not solo reps — different job entirely." },
               { speaker: 'priya', text: "And where do I put the notes?" },
-              { speaker: 'other', text: "I\u2019ve set up a Dovetail workspace for the team. Every transcript, clip, and tag goes in there. By the time you\u2019ve done 5 interviews, the patterns start forming automatically. I\u2019ll add you tonight." },
+              { speaker: 'other', text: "I\’ve set up a Dovetail workspace for the team. Every transcript, clip, and tag goes in there. By the time you\’ve done 5 interviews, the patterns start forming automatically. I\’ll add you tonight." },
             ]}
           />
           <Avatar
@@ -1189,7 +1189,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             nameColor="var(--coral)"
             borderColor="var(--coral)"
             content={<>Dovetail stores transcripts and notes, and the real value is tagging: as you read each interview, tag observations like &ldquo;didn&apos;t know what to do first.&rdquo; Once all interviews are tagged, Dovetail shows you which tags appear most — automatically surfacing the patterns across 8 pages of notes.</>}
-            expandedContent={<>It turns raw notes into a prioritized list of themes. The tool does the clustering. Your job is to interpret what the clusters mean — that\u2019s the synthesis step that no tool can do for you.</>}
+            expandedContent={<>It turns raw notes into a prioritized list of themes. The tool does the clustering. Your job is to interpret what the clusters mean — that\’s the synthesis step that no tool can do for you.</>}
             conceptId="customer-segments"
             question="EdSpark has 340 churned users last month. You need to understand why managers specifically are churning. Who do you interview?"
             options={[
@@ -1252,7 +1252,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <ConversationScene
             mentor="kiran" name="Kiran" role="Data · EdSpark" accent="var(--teal)"
             lines={[
-              { speaker: 'other', text: "Before you go interview people — look at this. We ran three months of support tickets through Kraftful. 34% are about \u2018not knowing where to start.\u2019 28%: \u2018not understanding the difference between features.\u2019 18% technical." },
+              { speaker: 'other', text: "Before you go interview people — look at this. We ran three months of support tickets through Kraftful. 34% are about \‘not knowing where to start.\’ 28%: \‘not understanding the difference between features.\’ 18% technical." },
               { speaker: 'priya', text: "So this confirms the onboarding is the issue." },
               { speaker: 'other', text: "Careful. These are users who cared enough to write in. The silent churners might have a completely different story. Use this to sharpen your interview questions. Not to replace the interviews." },
             ]}
@@ -1352,10 +1352,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <ConversationScene
             mentor="asha" name="Asha" role="Senior PM · EdSpark" accent="var(--purple)"
             lines={[
-              { speaker: 'priya', text: "So my 14 screens were completely wrong. The problem isn\u2019t navigation. It\u2019s not even onboarding confusion." },
-              { speaker: 'other', text: "The product gave him a toolbox without showing him how to use a single tool. He\u2019d still churn at exactly the same point even if you\u2019d shipped everything you designed." },
+              { speaker: 'priya', text: "So my 14 screens were completely wrong. The problem isn\’t navigation. It\’s not even onboarding confusion." },
+              { speaker: 'other', text: "The product gave him a toolbox without showing him how to use a single tool. He\’d still churn at exactly the same point even if you\’d shipped everything you designed." },
               { speaker: 'priya', text: "And the follow-up question was what made the difference." },
-              { speaker: 'other', text: "Always. \u2018Can you be more specific?\u2019 is the whole job. The insight lives in the second answer, not the first." },
+              { speaker: 'other', text: "Always. \‘Can you be more specific?\’ is the whole job. The insight lives in the second answer, not the first." },
             ]}
           />
           <Avatar
@@ -1405,7 +1405,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
             '\u201cWalk me through the last time you...\u201d — gets a real story, not a hypothetical',
             '\u201cWhat were you hoping to do when you...\u201d — surfaces the job, not the feature',
             '\u201cWhat happened next?\u201d — the most underused follow-up in any interview',
-            '\u201cHelp me understand why that mattered\u2026\u201d — gets to motivation, not just behaviour',
+            '\u201cHelp me understand why that mattered\…\u201d — gets to motivation, not just behaviour',
           ], 'var(--coral)')}
 
           <QuizEngine conceptId="user-research" conceptName="Interview Technique" moduleContext={MODULE_CONTEXT} staticQuiz={QUIZZES[3]} />
@@ -1450,10 +1450,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <ConversationScene
             mentor="maya" name="Maya" role="Designer · EdSpark" accent="var(--coral)"
             lines={[
-              { speaker: 'priya', text: "I\u2019ve tagged all six interviews. The \u2018doesn\u2019t know what good looks like\u2019 tag shows up in five of them. Is that my finding?" },
-              { speaker: 'other', text: "That\u2019s your signal. Dovetail shows you which themes appear across the most interviews — 5 of 6 is hard to argue with. But the tool doesn\u2019t tell you what it means." },
-              { speaker: 'priya', text: "They didn\u2019t just have trouble with a feature. They had no frame of reference for good coaching at all." },
-              { speaker: 'other', text: "That\u2019s not in the data. That\u2019s your synthesis. EdSpark gives them a mirror — nobody gave them a benchmark. That\u2019s a completely different problem than UX confusion." },
+              { speaker: 'priya', text: "I\’ve tagged all six interviews. The \‘doesn\’t know what good looks like\’ tag shows up in five of them. Is that my finding?" },
+              { speaker: 'other', text: "That\’s your signal. Dovetail shows you which themes appear across the most interviews — 5 of 6 is hard to argue with. But the tool doesn\’t tell you what it means." },
+              { speaker: 'priya', text: "They didn\’t just have trouble with a feature. They had no frame of reference for good coaching at all." },
+              { speaker: 'other', text: "That\’s not in the data. That\’s your synthesis. EdSpark gives them a mirror — nobody gave them a benchmark. That\’s a completely different problem than UX confusion." },
             ]}
           />
           <Avatar
@@ -1516,10 +1516,10 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           {pullQuote("A note is what happened. An insight is what it means. Synthesis is the gap between them.", 'var(--green)')}
 
           {keyBox('Note \u2192 Tag \u2192 Pattern \u2192 Insight', [
-            'Note — what the user said or did: \u201cI didn\u2019t know what I was supposed to be creating\u201d',
+            'Note — what the user said or did: \u201cI didn\’t know what I was supposed to be creating\u201d',
             'Tag — a label you apply across interviews: \u201cno benchmark for success\u201d',
             'Pattern — a tag that appears across 3+ independent conversations unprompted',
-            'Insight — your interpretation: what the pattern means for the product and the user\u2019s job',
+            'Insight — your interpretation: what the pattern means for the product and the user\’s job',
           ], 'var(--green)')}
 
           <AffinityClusterAnimation />
@@ -1553,7 +1553,7 @@ export default function Track1ProblemDiscovery({ completedSections = new Set<str
           <ConversationScene
             mentor="dev" name="Dev" role="Engineer · EdSpark" accent="var(--blue)"
             lines={[
-              { speaker: 'other', text: "Priya walked in Friday with one page. Rohan read it in 90 seconds, looked up, and said \u2018What\u2019s the fix?\u2019" },
+              { speaker: 'other', text: "Priya walked in Friday with one page. Rohan read it in 90 seconds, looked up, and said \‘What\’s the fix?\’" },
               { speaker: 'priya', text: "I have a hypothesis — but I want to hear what the team thinks first." },
               { speaker: 'other', text: "What if we showed an anonymised example coaching session the first time you add a recording? A real before/after call. I can build that in a day. Maya said: or a 60-second video. Kiran said: A/B test both." },
               { speaker: 'priya', text: "None of those were in my original plan." },
