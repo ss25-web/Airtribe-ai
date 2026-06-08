@@ -33,9 +33,9 @@ const CONFIG: ModuleConfig = {
   ],
   achievements: [
     { id: 'm9-stack',       icon: '🔍', label: 'Stack Reader',      desc: 'Saw the system behind the feature' },
-    { id: 'm9-latency',     icon: '⏱',  label: 'UX Timer',          desc: 'Treated latency as a product problem' },
-    { id: 'm9-schema',      icon: '🗄',  label: 'Schema Thinker',   desc: 'Asked data shape before building' },
-    { id: 'm9-api',         icon: '⇄',  label: 'Contract Owner',    desc: 'Understood APIs as product promises' },
+    { id: 'm9-latency',     icon: '⏱️', label: 'UX Timer',          desc: 'Treated latency as a product problem' },
+    { id: 'm9-schema',      icon: '🗄️', label: 'Schema Thinker',   desc: 'Asked data shape before building' },
+    { id: 'm9-api',         icon: '🔗', label: 'Contract Owner',    desc: 'Understood APIs as product promises' },
     { id: 'm9-permissions', icon: '🔑', label: 'Access Designer',   desc: 'Built the matrix, not the sentence' },
     { id: 'm9-scale',       icon: '📈', label: 'Scale PM',          desc: 'Adapted experience shape to load' },
     { id: 'm9-estimation',  icon: '🎯', label: 'Scope Sharpener',   desc: 'Resolved ambiguity before planning' },

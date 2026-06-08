@@ -43,7 +43,7 @@ const SECTIONS_APM: ModuleSection[] = [
 
 const ACHIEVEMENTS_APM: ModuleAchievement[] = [
   { id: 'm2a-strategy-pressure',   icon: '🏋️', label: 'Disciplined', desc: 'Held strategy under reactive pressure' },
-  { id: 'm2a-platform-inflection', icon: '🏗',  label: 'Architect',   desc: 'Sized a platform bet correctly'         },
+  { id: 'm2a-platform-inflection', icon: '🏗️',  label: 'Architect',   desc: 'Sized a platform bet correctly'         },
   { id: 'm2a-portfolio-systems',   icon: '🎲',  label: 'Portfolio PM',desc: 'Managed a three-bet portfolio'          },
   { id: 'm2a-kill-criteria',       icon: '✂️',  label: 'Kill Artist', desc: 'Stopped something already started'      },
   { id: 'm2a-series-b-narrative',  icon: '📖',  label: 'Storyteller', desc: 'Built a fundable Series B thesis'       },
