@@ -63,7 +63,7 @@ const MODULES = [
     desc: 'Ask questions of your data in plain English — no SQL. Upload a CSV, get charts, trends, and anomalies in minutes. Build AI-powered dashboards and go from raw data to a clear "so what" every time.',
     duration: 'Live sessions · 2',
     tools: ['ChatGPT', 'Claude', 'Excel', 'Python', 'SQL'],
-    available: false,
+    available: true,
     accent: '#7C3AED',
   },
   {
@@ -73,7 +73,7 @@ const MODULES = [
     desc: 'How web apps work: frontend, backend, database, API. GitHub and Vercel: deploy your first live page. Read error messages and know what to give AI when something breaks.',
     duration: 'Live sessions · 2',
     tools: ['GitHub', 'Vercel', 'Chrome DevTools', 'Postman', 'Claude'],
-    available: false,
+    available: true,
     accent: '#B45309',
   },
   {
