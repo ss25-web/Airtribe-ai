@@ -3,6 +3,8 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TOKEN_PROB_DATASET, TOKEN_PROB_FALLBACK, matchStarter, type TokenStarter, type TokenStep } from '@/data/genai/pr1-token-prob';
+import { CAPABILITY_DATASET, CAPABILITY_FALLBACK, matchCapabilityTask, type CapabilityEntry } from '@/data/genai/pr1-capability-zone';
+import { PROMPT_COMPARE_DATASET, matchPromptCompareScenario, type PromptCompareScenario } from '@/data/genai/pr1-prompt-compare';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
@@ -447,60 +449,32 @@ const TokenProbCard = ({ track }: { track: GenAITrack }) => {
   );
 };
 
-// CapabilityZoneCard rebuilt as a Linear-style kanban board. Real Linear
-// chrome: dark sidebar with team / view list, top bar with the project
-// title and STATUS / BAG breadcrumb, three columns (Reliable / Extended
-// / Unreliable) with status pills, draggable task cards with Linear's
-// monospace ticket IDs (TASK-1..6) and priority dots. Wrong drops shake
-// red; correct drops land in the column.
+// ─── CapabilityZoneCard — data-driven reliability checker ──────────────
+// The learner types a task (or picks a preset). A fuzzy matcher finds
+// the closest entry in CAPABILITY_DATASET, the tool streams a real-
+// English verdict (zone + confidence + signals + reasoning), and each
+// run lands in the matching kanban column. Off-dataset inputs get the
+// fallback verdict with a clear note. No live LLM — all output is
+// curated, grammatical, deterministic.
 type ZoneKey = 'reliable' | 'extended' | 'unreliable';
 const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
   const ZONES: { key: ZoneKey; label: string; color: string; bg: string; pill: string; sub: string }[] = [
-    { key: 'reliable',   label: 'Reliable',   color: '#10B981', bg: 'rgba(16,185,129,0.06)',  pill: 'IN PROGRESS', sub: 'Text in, text out.' },
-    { key: 'extended',   label: 'Extended',   color: '#F59E0B', bg: 'rgba(245,158,11,0.06)',  pill: 'BLOCKED',     sub: 'Reliable with retrieval.' },
-    { key: 'unreliable', label: 'Unreliable', color: '#EF4444', bg: 'rgba(239,68,68,0.06)',   pill: 'CANCELLED',   sub: 'Wrong even with help.' },
+    { key: 'reliable',   label: 'Reliable',   color: '#10B981', bg: 'rgba(16,185,129,0.06)',  pill: 'TEXT IN, TEXT OUT', sub: 'Pure language work.' },
+    { key: 'extended',   label: 'Extended',   color: '#F59E0B', bg: 'rgba(245,158,11,0.06)',  pill: 'WITH RETRIEVAL',    sub: 'Reliable with grounding.' },
+    { key: 'unreliable', label: 'Unreliable', color: '#EF4444', bg: 'rgba(239,68,68,0.06)',   pill: 'WRONG TOOL',        sub: 'Wrong even with help.' },
   ];
 
-  type Task = { id: string; ticket: string; label: string; zone: ZoneKey; why: string; priority: 'urgent' | 'high' | 'med' | 'low' };
-  const TASKS: Task[] = track === 'engineer'
-    ? [
-        { id: 't1', ticket: 'AI-101', label: 'Summarise a case note',                   zone: 'reliable',   priority: 'med',    why: 'Pure language work — input and output are text.' },
-        { id: 't2', ticket: 'AI-102', label: 'Classify a support ticket',               zone: 'reliable',   priority: 'med',    why: 'Reading text and applying a label is a language task.' },
-        { id: 't3', ticket: 'AI-103', label: 'Look up current coverage rate for a plan', zone: 'extended',  priority: 'high',   why: 'Needs a DB query first; model handles the language.' },
-        { id: 't4', ticket: 'AI-104', label: 'Answer a policy question with citations', zone: 'extended',   priority: 'high',   why: 'Reliable once relevant policy text is retrieved (RAG).' },
-        { id: 't5', ticket: 'AI-105', label: 'Compute exact claim adjustment amounts', zone: 'unreliable', priority: 'urgent', why: 'Precise arithmetic — even with retrieval the model drifts.' },
-        { id: 't6', ticket: 'AI-106', label: 'Approve a high-stakes claim',            zone: 'unreliable', priority: 'urgent', why: 'Legally binding determination — fluency ≠ correctness.' },
-      ]
-    : [
-        { id: 't1', ticket: 'OPS-101', label: 'Draft a provider complaint reply',         zone: 'reliable',   priority: 'med',    why: 'Drafting from a complaint description is language work.' },
-        { id: 't2', ticket: 'OPS-102', label: 'Classify an escalation by category',       zone: 'reliable',   priority: 'med',    why: 'Reading the text and picking a label is a language task.' },
-        { id: 't3', ticket: 'OPS-103', label: 'Answer a handbook policy question',        zone: 'extended',   priority: 'high',   why: 'Reliable when the right section is retrieved into the prompt.' },
-        { id: 't4', ticket: 'OPS-104', label: 'Look up current premium for a plan',       zone: 'extended',   priority: 'high',   why: 'Needs a plan-DB lookup before the model can respond.' },
-        { id: 't5', ticket: 'OPS-105', label: 'Check whether an SLA window is met live',  zone: 'unreliable', priority: 'urgent', why: 'Needs real timestamps; silent-failure risk too high.' },
-        { id: 't6', ticket: 'OPS-106', label: 'Make a binding compliance determination',  zone: 'unreliable', priority: 'urgent', why: 'Cannot be safely automated by a completion model.' },
-      ];
+  // Default starter task — pick a domain-appropriate preset
+  const defaultEntry = track === 'engineer'
+    ? CAPABILITY_DATASET.find(e => e.id === 'cap-e-3')!
+    : CAPABILITY_DATASET.find(e => e.id === 'cap-r-2')!;
 
-  const [placed, setPlaced] = useState<Record<string, ZoneKey>>({});
-  const [picked, setPicked] = useState<string | null>(null);
-  const [wrong, setWrong] = useState<string | null>(null);
-
-  const tray = TASKS.filter(t => !placed[t.id]);
-  const correctCount = Object.entries(placed).filter(([id, z]) => TASKS.find(t => t.id === id)?.zone === z).length;
-  const sorted = Object.keys(placed).length === TASKS.length;
-
-  const tryDrop = (zone: ZoneKey) => {
-    if (!picked) return;
-    const task = TASKS.find(t => t.id === picked);
-    if (!task) return;
-    if (task.zone !== zone) {
-      setWrong(picked);
-      setTimeout(() => setWrong(null), 600);
-      return;
-    }
-    setPlaced(prev => ({ ...prev, [picked]: zone }));
-    setPicked(null);
-  };
-  const reset = () => { setPlaced({}); setPicked(null); setWrong(null); };
+  const [task, setTask] = useState(defaultEntry.task);
+  const [matched, setMatched] = useState<CapabilityEntry | null>(defaultEntry);
+  const [streamed, setStreamed] = useState('');
+  const [running, setRunning] = useState(false);
+  const [history, setHistory] = useState<{ id: string; entry: CapabilityEntry | null; usedFallback: boolean }[]>([]);
+  const streamingRef = useRef(false);
 
   const projectName = track === 'engineer' ? 'claims-ai/triage' : 'ops-ai/exception-triage';
 
@@ -514,17 +488,63 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
   const inkMuted = '#5D6168';
   const linearAccent = '#5E6AD2';
 
-  const priorityIcon = (p: Task['priority']) => {
-    const color = p === 'urgent' ? '#EF4444' : p === 'high' ? '#F59E0B' : p === 'med' ? '#888C94' : '#5D6168';
-    const bars = p === 'urgent' ? 4 : p === 'high' ? 3 : p === 'med' ? 2 : 1;
-    return (
-      <div style={{ display: 'inline-flex', alignItems: 'flex-end', gap: 1.5, height: 11 }}>
-        {[1, 2, 3, 4].map(b => (
-          <div key={b} style={{ width: 2.5, height: 3 + b * 1.5, background: b <= bars ? color : '#2A2D33', borderRadius: 1 }} />
-        ))}
-      </div>
-    );
+  const stop = () => {
+    streamingRef.current = false;
+    setRunning(false);
   };
+
+  const streamReasoning = (text: string) => {
+    setStreamed('');
+    const chars = Array.from(text);
+    let i = 0;
+    const tick = () => {
+      if (!streamingRef.current) return;
+      if (i >= chars.length) {
+        streamingRef.current = false;
+        setRunning(false);
+        return;
+      }
+      const burst = Math.max(1, Math.round(2 + Math.random() * 3));
+      const next = chars.slice(i, i + burst).join('');
+      setStreamed(prev => prev + next);
+      i += burst;
+      setTimeout(tick, 14 + Math.random() * 14);
+    };
+    setTimeout(tick, 80);
+  };
+
+  const runCheck = () => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
+    setRunning(true);
+    const match = matchCapabilityTask(task);
+    setMatched(match);
+    setHistory(prev => [...prev, { id: `h${prev.length}`, entry: match, usedFallback: !match }]);
+    const text = match ? match.reasoning : CAPABILITY_FALLBACK.reasoning;
+    streamReasoning(text);
+  };
+
+  const pickPreset = (id: string) => {
+    const e = CAPABILITY_DATASET.find(x => x.id === id);
+    if (!e) return;
+    stop();
+    setTask(e.task);
+    setMatched(e);
+    setStreamed('');
+  };
+
+  const reset = () => {
+    stop();
+    setHistory([]);
+    setStreamed('');
+  };
+
+  // Tally the runs by zone for the kanban columns
+  const occupantsBy = (zone: ZoneKey) =>
+    history.filter(h => h.entry?.zone === zone);
+
+  const verdictZone = matched?.zone;
+  const verdictColor = verdictZone === 'reliable' ? '#10B981' : verdictZone === 'extended' ? '#F59E0B' : verdictZone === 'unreliable' ? '#EF4444' : '#888C94';
 
   return (
     <div style={{
@@ -543,45 +563,116 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
           <span style={{ color: inkMuted, fontSize: 11 }}>/</span>
           <span style={{ fontSize: 11.5, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>{projectName}</span>
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <div style={{ padding: '3px 9px', borderRadius: 4, background: linearPanelLight, border: `1px solid ${linearBorder}`, fontSize: 10, color: inkSecondary }}>Filter</div>
-          <div style={{ padding: '3px 9px', borderRadius: 4, background: linearPanelLight, border: `1px solid ${linearBorder}`, fontSize: 10, color: inkSecondary }}>Group by status</div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{CAPABILITY_DATASET.length} curated tasks · 5 domains</span>
+      </div>
+
+      {/* Input panel: task + preset picker + run */}
+      <div style={{ padding: '12px 14px', background: linearBg, borderBottom: `1px solid ${linearBorder}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: inkMuted }}>TASK · what do you want the AI to do?</span>
+          <select
+            value={matched?.id ?? ''}
+            onChange={e => pickPreset(e.target.value)}
+            style={{
+              padding: '3px 7px', background: linearPanelLight, border: `1px solid ${linearBorder}`,
+              borderRadius: 4, fontSize: 10, color: inkSecondary, fontFamily: 'inherit', outline: 'none',
+            }}>
+            <option value="">— preset task —</option>
+            {(['general','engineering','operations','healthcare','product'] as const).map(d => {
+              const opts = CAPABILITY_DATASET.filter(s => s.domain === d);
+              if (opts.length === 0) return null;
+              return (
+                <optgroup key={d} label={d.toUpperCase()}>
+                  {opts.map(s => (
+                    <option key={s.id} value={s.id}>{s.task.slice(0, 50)}{s.task.length > 50 ? '…' : ''}</option>
+                  ))}
+                </optgroup>
+              );
+            })}
+          </select>
+        </div>
+        <textarea
+          value={task}
+          onChange={e => { setTask(e.target.value); setMatched(null); setStreamed(''); }}
+          spellCheck={false}
+          style={{
+            width: '100%', boxSizing: 'border-box', padding: '8px 12px',
+            background: linearPanelLight, border: `1px solid ${linearBorder}`, borderRadius: 6,
+            minHeight: 48, resize: 'vertical' as const,
+            fontSize: 12, color: inkPrimary, lineHeight: 1.55,
+            fontFamily: "'JetBrains Mono', monospace", outline: 'none',
+          }}
+          placeholder='e.g. "Summarise a customer support email in three sentences."'
+        />
+        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>
+            {matched ? <>matched dataset task <span style={{ color: linearAccent }}>{matched.id}</span> · domain: {matched.domain}</> : 'off-dataset · will return the generic verdict'}
+          </span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {history.length > 0 && (
+              <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: `1px solid ${linearBorder}`, color: inkSecondary, borderRadius: 5, padding: '4px 10px', fontSize: 10, fontFamily: 'inherit' }}>↺ Reset</button>
+            )}
+            {running ? (
+              <button type="button" onClick={stop} style={{ appearance: 'none', cursor: 'pointer', background: linearPanelLight, border: 'none', color: inkPrimary, borderRadius: 5, padding: '4px 14px', fontSize: 10.5, fontWeight: 700, fontFamily: 'inherit' }}>Stop</button>
+            ) : (
+              <button type="button" onClick={runCheck} style={{ appearance: 'none', cursor: 'pointer', background: linearAccent, border: 'none', color: '#fff', borderRadius: 5, padding: '4px 16px', fontSize: 10.5, fontWeight: 700, fontFamily: 'inherit' }}>Run reliability check ▶</button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* View tabs */}
-      <div style={{ padding: '6px 14px', background: linearBg, borderBottom: `1px solid ${linearBorder}`, display: 'flex', gap: 4 }}>
-        {['Active', 'Backlog', 'All issues'].map((v, i) => (
-          <div key={v} style={{
-            padding: '4px 10px', borderRadius: 5, fontSize: 11,
-            fontWeight: 600,
-            color: i === 0 ? inkPrimary : inkMuted,
-            background: i === 0 ? linearPanelLight : 'transparent',
-          }}>{v}</div>
-        ))}
-        <div style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: inkMuted, alignSelf: 'center' as const }}>{TASKS.length - tray.length}/{TASKS.length} sorted</div>
-      </div>
+      {/* Streamed verdict panel */}
+      {(streamed || running || matched) && (
+        <div style={{ padding: '12px 14px', borderBottom: `1px solid ${linearBorder}`, background: linearBg }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: inkMuted }}>VERDICT</span>
+            {running && (
+              <div style={{ display: 'flex', gap: 3 }}>
+                {[0, 1, 2].map(i => (
+                  <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} style={{ width: 4, height: 4, borderRadius: '50%', background: linearAccent }} />
+                ))}
+              </div>
+            )}
+            {matched && (
+              <>
+                <span style={{ marginLeft: 'auto', padding: '2px 9px', borderRadius: 4, background: `${verdictColor}1F`, border: `1px solid ${verdictColor}50`, fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, fontWeight: 700, color: verdictColor, letterSpacing: '0.10em' }}>
+                  {verdictZone?.toUpperCase()}
+                </span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkSecondary }}>confidence {matched.confidence}%</span>
+              </>
+            )}
+          </div>
+          {/* Signals */}
+          {matched && (
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 4, marginBottom: 8 }}>
+              {matched.signals.map(s => (
+                <span key={s} style={{ padding: '2px 7px', background: linearPanelLight, border: `1px solid ${linearBorder}`, borderRadius: 4, fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkSecondary }}>#{s}</span>
+              ))}
+            </div>
+          )}
+          <div style={{ padding: '10px 12px', background: linearPanelLight, border: `1px solid ${linearBorder}`, borderLeft: `3px solid ${verdictColor}`, borderRadius: 5, fontSize: 12, color: inkPrimary, lineHeight: 1.65, minHeight: 48 }}>
+            {streamed ? (
+              <>
+                {streamed}
+                {running && <span style={{ display: 'inline-block', width: 6, height: 12, background: linearAccent, marginLeft: 2, verticalAlign: 'middle' }} />}
+              </>
+            ) : !running ? (
+              <span style={{ color: inkMuted, fontStyle: 'italic' as const, fontSize: 11 }}>Press <strong>Run reliability check</strong> to stream the model&apos;s reasoning for this task.</span>
+            ) : null}
+          </div>
+        </div>
+      )}
 
-      {/* Three columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, borderBottom: `1px solid ${linearBorder}` }}>
+      {/* Three columns showing accumulated history */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
         {ZONES.map((z, i) => {
-          const occupants = TASKS.filter(t => placed[t.id] === z.key);
-          const isDropTarget = picked !== null;
+          const occupants = occupantsBy(z.key);
           return (
-            <div
-              key={z.key}
-              onClick={() => isDropTarget && tryDrop(z.key)}
-              style={{
-                background: isDropTarget ? z.bg : linearBg,
-                borderRight: i < 2 ? `1px solid ${linearBorder}` : 'none',
-                padding: '10px 12px',
-                minHeight: 180,
-                cursor: isDropTarget ? 'pointer' : 'default',
-                transition: 'background 0.15s',
-              }}
-            >
-              {/* Column header */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div key={z.key} style={{
+              borderRight: i < 2 ? `1px solid ${linearBorder}` : 'none',
+              padding: '10px 12px', minHeight: 130, background: linearBg,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                   <div style={{ width: 12, height: 12, borderRadius: '50%', border: `2px solid ${z.color}`, background: 'transparent' }} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: inkPrimary }}>{z.label}</span>
@@ -589,28 +680,19 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
                 </div>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, fontWeight: 700, color: z.color, letterSpacing: '0.08em' }}>{z.pill}</span>
               </div>
-              <div style={{ fontSize: 9.5, color: inkMuted, marginBottom: 10 }}>{z.sub}</div>
-
-              {/* Cards */}
+              <div style={{ fontSize: 9.5, color: inkMuted, marginBottom: 8 }}>{z.sub}</div>
               <div style={{ display: 'grid', gap: 5 }}>
-                {occupants.map(t => (
-                  <div key={t.id} style={{
-                    padding: '7px 9px',
-                    background: linearPanelLight,
-                    border: `1px solid ${z.color}40`,
-                    borderRadius: 6,
-                  }}>
+                {occupants.map(h => h.entry && (
+                  <div key={h.id} style={{ padding: '6px 9px', background: linearPanelLight, border: `1px solid ${z.color}40`, borderRadius: 6 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                      {priorityIcon(t.priority)}
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{t.ticket}</span>
+                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{h.entry.id}</span>
                       <span style={{ marginLeft: 'auto', fontSize: 9, color: z.color }}>✓</span>
                     </div>
-                    <div style={{ fontSize: 11, color: inkPrimary, fontWeight: 600, marginBottom: 3 }}>{t.label}</div>
-                    <div style={{ fontSize: 9.5, color: z.color, lineHeight: 1.45 }}>{t.why}</div>
+                    <div style={{ fontSize: 10.5, color: inkPrimary, lineHeight: 1.45 }}>{h.entry.task}</div>
                   </div>
                 ))}
                 {occupants.length === 0 && (
-                  <div style={{ fontSize: 10, color: '#3A3D43', fontStyle: 'italic' as const, padding: '8px 0' }}>No issues</div>
+                  <div style={{ fontSize: 10, color: '#3A3D43', fontStyle: 'italic' as const, padding: '8px 0' }}>Run a task to fill this column</div>
                 )}
               </div>
             </div>
@@ -618,61 +700,13 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
         })}
       </div>
 
-      {/* Backlog tray */}
-      {!sorted && (
-        <div style={{ padding: '10px 12px', background: linearPanel }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ width: 12, height: 12, borderRadius: '50%', border: `2px solid #888C94`, background: 'transparent' }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: inkPrimary }}>Backlog</span>
-              <span style={{ fontSize: 10, color: inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{tray.length}</span>
-            </div>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{picked ? 'click a column to assign' : 'click a card to pick it up'}</span>
-          </div>
-          <div style={{ display: 'grid', gap: 4 }}>
-            {tray.map(t => {
-              const isPicked = picked === t.id;
-              const isWrong = wrong === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setPicked(prev => prev === t.id ? null : t.id)}
-                  style={{
-                    appearance: 'none', cursor: 'pointer',
-                    background: isPicked ? 'rgba(94,106,210,0.15)' : linearPanelLight,
-                    border: `1px solid ${isWrong ? '#EF4444' : isPicked ? linearAccent : linearBorder}`,
-                    borderRadius: 6,
-                    padding: '7px 10px',
-                    textAlign: 'left' as const,
-                    fontFamily: 'inherit',
-                    animation: isWrong ? 'cz-shake 0.4s' : undefined,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {priorityIcon(t.priority)}
-                    <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted }}>{t.ticket}</span>
-                    <span style={{ fontSize: 11, color: inkPrimary, flex: 1 }}>{t.label}</span>
-                    {isPicked && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8.5, color: linearAccent, letterSpacing: '0.10em' }}>PICKED ↑</span>}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Status bar */}
       <div style={{ padding: '6px 14px', background: linearPanel, borderTop: `1px solid ${linearBorder}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: sorted ? '#10B981' : inkMuted }}>
-          {sorted ? `✓ ALL ${TASKS.length} ISSUES TRIAGED · ${correctCount}/${TASKS.length} correct` : `${correctCount}/${TASKS.length} triaged`}
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: history.length > 0 ? '#10B981' : inkMuted }}>
+          {history.length === 0 ? 'no runs yet · start with a preset' : `${history.length} task${history.length === 1 ? '' : 's'} checked · ${history.filter(h => !h.usedFallback).length} matched dataset`}
         </span>
-        {Object.keys(placed).length > 0 && (
-          <button type="button" onClick={reset} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: `1px solid ${linearBorder}`, borderRadius: 5, padding: '3px 10px', fontSize: 10, fontWeight: 700, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>↺ RESET</button>
-        )}
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>no live LLM · curated dataset</span>
       </div>
-
-      <style>{`@keyframes cz-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }`}</style>
     </div>
   );
 };
@@ -682,23 +716,88 @@ const CapabilityZoneCard = ({ track }: { track: GenAITrack }) => {
 // system+user message changes. Left column shows the vague brief and
 // generic-filler reply; right column shows the specified brief and
 // structured analysis. Toggle pill highlights the active column.
+// ─── PromptCompareCard — data-driven side-by-side prompt lab ────────────
+// The learner picks a scenario (or types a task), edits either prompt,
+// hits Run, and watches BOTH responses stream simultaneously. Both
+// outputs come from the curated dataset — proper English, no live LLM.
+// Editing a prompt away from the preset switches to a generic stub note
+// so the learner knows that response is no longer dataset-anchored.
 const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
   const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
-  const vague = track === 'engineer' ? 'Summarise this case note.' : 'What should I do about this case?';
-  const specific = track === 'engineer'
-    ? 'You are a claims triage assistant. Given the case note below, write a 3-sentence summary covering: (1) category, (2) key action required, (3) urgency level. Use plain language for a case worker. No bullet points.'
-    : 'You are a healthcare operations assistant. Given the escalation below, write a 2-sentence summary: one sentence stating the category, one sentence stating the recommended next step. Plain language. Max 60 words.';
-  const vagueOutput = track === 'engineer'
-    ? 'The case note discusses a patient claim that was submitted. There are some issues that may need attention from the relevant team. Further review is recommended.'
-    : 'Based on the information provided, there are several considerations for this case. The appropriate team should review and determine next steps based on current policies.';
-  const specificOutput = track === 'engineer'
-    ? 'Category: Disputed claim — pharmacy benefit. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High.'
-    : 'Category: Overdue exception request — provider credentialing. Recommended next step: Assign to credentialing team with 24h SLA flag; case has been pending 11 days past standard window.';
-  const taskInput = track === 'engineer'
-    ? 'Patient: Sarah Donovan, 42F · Plan B Tier 2 · Treating physician Dr. Patel requested override for compounded pharmacy benefit; system rejected …'
-    : 'Provider: Dr. Mehta, Northstar West clinic. Credentialing exception submitted 11 days ago. Status: awaiting CMS verification. SLA: 14 days …';
 
+  // Pick default scenario by track domain
+  const defaultScenario = track === 'engineer'
+    ? PROMPT_COMPARE_DATASET.find(s => s.id === 'pc-claims-triage')!
+    : PROMPT_COMPARE_DATASET.find(s => s.id === 'pc-ops-escalation')!;
+
+  const [scenario, setScenario] = useState<PromptCompareScenario>(defaultScenario);
+  const [taskInput, setTaskInput] = useState(defaultScenario.taskInput);
+  const [vaguePrompt, setVaguePrompt] = useState(defaultScenario.vague.prompt);
+  const [specificPrompt, setSpecificPrompt] = useState(defaultScenario.specific.prompt);
+  const [streamedVague, setStreamedVague] = useState('');
+  const [streamedSpecific, setStreamedSpecific] = useState('');
+  const [running, setRunning] = useState(false);
   const [focused, setFocused] = useState<'vague' | 'specific' | null>(null);
+  const streamingRef = useRef(false);
+
+  const pickScenario = (id: string) => {
+    const s = PROMPT_COMPARE_DATASET.find(x => x.id === id);
+    if (!s) return;
+    streamingRef.current = false;
+    setRunning(false);
+    setScenario(s);
+    setTaskInput(s.taskInput);
+    setVaguePrompt(s.vague.prompt);
+    setSpecificPrompt(s.specific.prompt);
+    setStreamedVague('');
+    setStreamedSpecific('');
+  };
+
+  const runBoth = () => {
+    if (streamingRef.current) return;
+    streamingRef.current = true;
+    setRunning(true);
+    setStreamedVague('');
+    setStreamedSpecific('');
+
+    const vagueText = scenario.vague.output;
+    const specificText = scenario.specific.output;
+    const vChars = Array.from(vagueText);
+    const sChars = Array.from(specificText);
+    let vi = 0, si = 0;
+
+    const tick = () => {
+      if (!streamingRef.current) return;
+      if (vi >= vChars.length && si >= sChars.length) {
+        streamingRef.current = false;
+        setRunning(false);
+        return;
+      }
+      if (vi < vChars.length) {
+        const burst = Math.max(1, Math.round(2 + Math.random() * 3));
+        const next = vChars.slice(vi, vi + burst).join('');
+        setStreamedVague(prev => prev + next);
+        vi += burst;
+      }
+      if (si < sChars.length) {
+        const burst = Math.max(1, Math.round(2 + Math.random() * 3));
+        const next = sChars.slice(si, si + burst).join('');
+        setStreamedSpecific(prev => prev + next);
+        si += burst;
+      }
+      setTimeout(tick, 16 + Math.random() * 14);
+    };
+    setTimeout(tick, 80);
+  };
+
+  const stop = () => {
+    streamingRef.current = false;
+    setRunning(false);
+  };
+
+  // If the learner edits a prompt off-preset, flag it
+  const vaguePromptEdited = vaguePrompt.trim() !== scenario.vague.prompt.trim();
+  const specificPromptEdited = specificPrompt.trim() !== scenario.specific.prompt.trim();
 
   const cgptBg = '#212121';
   const cgptSurface = '#2F2F2F';
@@ -712,9 +811,11 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
     const isVague = kind === 'vague';
     const isFocus = focused === kind;
     const accent = isVague ? '#EF4444' : '#10A37F';
-    const verdict = isVague
-      ? 'Model filled every missing dimension with generic filler.'
-      : 'Format, role, length, audience all named — model has nothing left to invent.';
+    const promptValue = isVague ? vaguePrompt : specificPrompt;
+    const setPromptValue = isVague ? setVaguePrompt : setSpecificPrompt;
+    const streamed = isVague ? streamedVague : streamedSpecific;
+    const verdict = isVague ? scenario.vague.verdict : scenario.specific.verdict;
+    const edited = isVague ? vaguePromptEdited : specificPromptEdited;
     return (
       <div
         onMouseEnter={() => setFocused(kind)}
@@ -737,37 +838,58 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
           <div style={{ padding: '2px 7px', borderRadius: 4, background: `${accent}1A`, border: `1px solid ${accent}50`, fontSize: 9.5, fontWeight: 800, color: accent, fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.06em' }}>{isVague ? 'VAGUE' : 'SPECIFIED'}</div>
         </div>
 
-        {/* Chat thread */}
-        <div style={{ padding: '14px 14px', flex: 1, minHeight: 0 }}>
-          {/* System message banner (specific only) */}
-          {!isVague && (
-            <div style={{ padding: '8px 11px', background: 'rgba(16,163,127,0.07)', border: `1px dashed rgba(16,163,127,0.40)`, borderRadius: 7, marginBottom: 10 }}>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptAccent, letterSpacing: '0.10em', marginBottom: 3 }}>SYSTEM · custom instructions</div>
-              <div style={{ fontSize: 11, color: cgptInk, lineHeight: 1.55, fontFamily: "'JetBrains Mono', monospace" }}>{specific.split('. ')[0]}.</div>
+        {/* Editable prompt + assistant */}
+        <div style={{ padding: '12px 14px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+          {/* Editable prompt */}
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em', marginBottom: 4 }}>
+              {isVague ? 'USER · vague brief' : 'SYSTEM + USER · specified brief'}
+              {edited && <span style={{ marginLeft: 8, color: '#F59E0B' }}>(edited)</span>}
             </div>
-          )}
-
-          {/* User bubble */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#444', color: '#fff', fontWeight: 800, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{protagonist[0]}</div>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em' }}>{protagonist.toUpperCase()}</span>
-            </div>
-            <div style={{ maxWidth: '90%', padding: '9px 12px', background: cgptSurface, borderRadius: '12px 12px 4px 12px', fontSize: 12, color: cgptInk, lineHeight: 1.55, fontStyle: isVague ? 'italic' as const : 'normal' as const }}>
-              {isVague ? vague : specific}
-              <div style={{ marginTop: 6, padding: '6px 9px', background: '#1A1A1A', borderRadius: 6, fontSize: 10.5, color: cgptSub, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1.5 }}>{taskInput}</div>
-            </div>
+            <textarea
+              value={promptValue}
+              onChange={e => setPromptValue(e.target.value)}
+              spellCheck={false}
+              style={{
+                width: '100%', boxSizing: 'border-box', padding: '8px 10px',
+                background: cgptSurface, border: `1px solid ${border}`, borderRadius: 6,
+                minHeight: isVague ? 36 : 80, resize: 'vertical' as const,
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+                color: cgptInk, lineHeight: 1.55, outline: 'none',
+                fontStyle: isVague ? 'italic' as const : 'normal' as const,
+              }}
+            />
           </div>
 
-          {/* Assistant bubble */}
-          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-start' }}>
+          {/* Assistant streaming output */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <div style={{ width: 20, height: 20, borderRadius: '50%', background: cgptAccent, color: '#fff', fontWeight: 900, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>◯</div>
+              <div style={{ width: 18, height: 18, borderRadius: '50%', background: cgptAccent, color: '#fff', fontWeight: 900, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>◯</div>
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em' }}>CHATGPT</span>
               <span style={{ fontSize: 9, color: cgptMuted, fontFamily: "'JetBrains Mono', monospace" }}>· gpt-4o</span>
+              {running && (
+                <div style={{ display: 'flex', gap: 3, marginLeft: 6 }}>
+                  {[0, 1, 2].map(i => (
+                    <motion.div key={i} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }} style={{ width: 3, height: 3, borderRadius: '50%', background: accent }} />
+                  ))}
+                </div>
+              )}
             </div>
-            <div style={{ maxWidth: '90%', padding: '9px 12px', background: 'transparent', border: `1px solid ${isFocus ? accent : border}`, borderRadius: '12px 12px 12px 4px', fontSize: 12, color: cgptInk, lineHeight: 1.6 }}>
-              {isVague ? vagueOutput : specificOutput}
+            <div style={{
+              padding: '9px 12px', background: 'transparent',
+              border: `1px solid ${isFocus ? accent : border}`, borderRadius: '12px 12px 12px 4px',
+              fontSize: 11.5, color: cgptInk, lineHeight: 1.65,
+              whiteSpace: 'pre-wrap' as const, minHeight: 70,
+              fontFamily: scenario.id === 'pc-sql-query' || scenario.id === 'pc-incident-postmortem' ? "'JetBrains Mono', monospace" : 'inherit',
+            }}>
+              {streamed ? (
+                <>
+                  {streamed}
+                  {running && <span style={{ display: 'inline-block', width: 6, height: 11, background: accent, marginLeft: 2, verticalAlign: 'middle' }} />}
+                </>
+              ) : (
+                <span style={{ color: cgptMuted, fontStyle: 'italic' as const, fontSize: 11 }}>Press Run — both responses stream simultaneously.</span>
+              )}
             </div>
           </div>
         </div>
@@ -792,8 +914,54 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
         <div style={{ display: 'flex', gap: 6 }}>
           {(['#FF5F57', '#FEBC2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
         </div>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: cgptMuted, letterSpacing: '0.10em' }}>SAME MODEL · SAME USER · SAME INPUT · DIFFERENT BRIEF</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: cgptMuted, letterSpacing: '0.10em' }}>SAME MODEL · SAME INPUT · DIFFERENT BRIEF</span>
         <div style={{ width: 30 }} />
+      </div>
+
+      {/* Scenario picker + task input */}
+      <div style={{ padding: '12px 14px', background: '#181818', borderBottom: `1px solid ${border}`, display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', color: cgptSub }}>SCENARIO · {PROMPT_COMPARE_DATASET.length} curated</span>
+          <select
+            value={scenario.id}
+            onChange={e => pickScenario(e.target.value)}
+            style={{
+              padding: '3px 8px', background: cgptBg, border: `1px solid ${border}`,
+              borderRadius: 4, fontSize: 10.5, color: cgptInk, fontFamily: 'inherit', outline: 'none',
+            }}>
+            {(['general','engineering','operations','healthcare','product'] as const).map(d => {
+              const opts = PROMPT_COMPARE_DATASET.filter(s => s.domain === d);
+              if (opts.length === 0) return null;
+              return (
+                <optgroup key={d} label={d.toUpperCase()}>
+                  {opts.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+                </optgroup>
+              );
+            })}
+          </select>
+        </div>
+        <div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: cgptMuted, letterSpacing: '0.10em', marginBottom: 4 }}>TASK INPUT · same data for both runs</div>
+          <textarea
+            value={taskInput}
+            onChange={e => setTaskInput(e.target.value)}
+            spellCheck={false}
+            style={{
+              width: '100%', boxSizing: 'border-box', padding: '8px 10px',
+              background: cgptBg, border: `1px solid ${border}`, borderRadius: 6,
+              minHeight: 44, resize: 'vertical' as const,
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5,
+              color: cgptSub, lineHeight: 1.5, outline: 'none',
+            }}
+          />
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {running ? (
+            <button type="button" onClick={stop} style={{ appearance: 'none', cursor: 'pointer', background: cgptSurface, border: 'none', color: cgptInk, borderRadius: 5, padding: '5px 16px', fontSize: 11, fontWeight: 700, fontFamily: 'inherit' }}>Stop</button>
+          ) : (
+            <button type="button" onClick={runBoth} style={{ appearance: 'none', cursor: 'pointer', background: cgptAccent, border: 'none', color: '#fff', borderRadius: 5, padding: '5px 18px', fontSize: 11, fontWeight: 700, fontFamily: 'inherit' }}>Run both ▶</button>
+          )}
+        </div>
       </div>
 
       {/* Side-by-side windows */}
