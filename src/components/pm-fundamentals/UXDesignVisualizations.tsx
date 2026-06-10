@@ -683,18 +683,26 @@ export function CraftInvestmentMatrix() {
           </div>
         </div>
 
-        {/* 2×2 grid */}
+        {/* 2×2 grid — explicit grid positions so row labels stay in col 1 and
+            quadrants land in their correct (row, col). Without these, CSS
+            auto-placement was filling row 1 first (label, label, quadrant0)
+            and pushing the rest into row 2, causing the overlap.            */}
         <div style={{ display: 'grid', gridTemplateColumns: '44px 1fr 1fr', gridTemplateRows: '1fr 1fr' }}>
-          {/* Row labels */}
+          {/* Row labels — pinned to column 1 */}
           {[{ label: '↑ HIGH FREQ', color: '#22C55E', sub: 'Used daily' }, { label: '↓ LOW FREQ', color: '#F59E0B', sub: 'Used monthly' }].map((r, ri) => (
-            <div key={ri} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '8px 0', borderTop: ri > 0 ? '1px solid var(--ed-rule)' : 'none', gap: '4px' }}>
+            <div key={ri} style={{ gridColumn: 1, gridRow: ri + 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', padding: '8px 0', borderTop: ri > 0 ? '1px solid var(--ed-rule)' : 'none', gap: '4px' }}>
               <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontFamily: "'JetBrains Mono', monospace", fontSize: '8px', fontWeight: 800, color: r.color, letterSpacing: '0.1em' }}>{r.label}</div>
               <div style={{ writingMode: 'vertical-lr' as const, transform: 'rotate(180deg)', fontSize: '9px', color: 'var(--ed-ink3)' }}>{r.sub}</div>
             </div>
           ))}
 
-          {/* 4 quadrant cards: [top-left, top-right, bot-left, bot-right] = [0,1,2,3] */}
-          {QUADRANTS.map((q, qi) => (
+          {/* 4 quadrant cards: [top-left, top-right, bot-left, bot-right] = [0,1,2,3]
+              QUADRANTS order is row-major starting from HIGH FREQ row:
+              0=HF×LV (r1c2)  1=HF×HV (r1c3)  2=LF×LV (r2c2)  3=LF×HV (r2c3) */}
+          {QUADRANTS.map((q, qi) => {
+            const gridCol = (qi % 2 === 0) ? 2 : 3;
+            const gridRow = qi < 2 ? 1 : 2;
+            return (
             <AnimatePresence key={qi}>
               {qi < visible && (
                 <motion.div
@@ -702,6 +710,7 @@ export function CraftInvestmentMatrix() {
                   transition={{ type: 'spring', stiffness: 260, damping: 22 }}
                   onClick={() => setSelected(selected === qi ? null : qi)}
                   style={{
+                    gridColumn: gridCol, gridRow: gridRow,
                     background: selected === qi ? q.bg : 'var(--ed-card)',
                     borderLeft: '1px solid var(--ed-rule)',
                     borderTop: qi < 2 ? 'none' : '1px solid var(--ed-rule)',
@@ -730,7 +739,8 @@ export function CraftInvestmentMatrix() {
                 </motion.div>
               )}
             </AnimatePresence>
-          ))}
+            );
+          })}
         </div>
       </div>
 
