@@ -12,6 +12,10 @@ import {
   chLabel, h2, keyBox, para, pullQuote, TiltCard,
 } from './pm-fundamentals/designSystem';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
+import {
+  getItTickets, type ItTicket, type ItCategory,
+  fakeCategoryFor, quoteSnippet, lowerLabel,
+} from '@/data/genai/pr2-tickets';
 
 const ACCENT = '#2563EB';
 const ACCENT_RGB = '37,99,235';
@@ -211,21 +215,37 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // goal is 3/3 in correct format — they will iterate on the SYSTEM until
 // it generalises, which is what real prompt engineering actually is.
 const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
-  // Test set — three real tickets across all three target categories.
-  // Each has the literal text the model "sees" plus the ground-truth label.
-  type Ticket = { id: string; text: string; truth: 'Network' | 'Database' | 'Server' };
-  const TICKETS: Ticket[] = useMemo(() => track === 'builder'
-    ? [
-        { id: 'T-401', truth: 'Network',  text: 'Patient portal keeps timing out for staff on the 3rd floor; works fine on the 4th. Started after lunch.' },
-        { id: 'T-402', truth: 'Database', text: 'EHR refuses to save new visit notes — error says "deadlock detected on row lock wait." Started ~10:30am.' },
-        { id: 'T-403', truth: 'Server',   text: 'Appointment scheduler is returning 502 Bad Gateway every few minutes. Other apps on the same domain are fine.' },
-      ]
-    : [
-        { id: 'T-401', truth: 'Network',  text: 'Sales team in Chicago getting intermittent VPN drops every 10–15 min. Other offices unaffected. Started after lunch.' },
-        { id: 'T-402', truth: 'Database', text: 'Order-write API throwing "deadlock detected on row lock wait" on ~5% of requests since 10:30am. Read traffic fine.' },
-        { id: 'T-403', truth: 'Server',   text: 'Checkout service returning 502 Bad Gateway intermittently. Other services on the same cluster are healthy.' },
-      ]
-  , [track]);
+  // Full ticket corpus (~45 per track across Network/Database/Server) lives
+  // in the pr2-tickets dataset. We pick three at a time so the test panel
+  // still feels familiar, with "Shuffle 3" picking a fresh set on demand.
+  type Ticket = ItTicket;
+  const ALL_TICKETS = useMemo(() => getItTickets(track), [track]);
+
+  // Default working set = one ticket per ground-truth label so the learner
+  // can see the full label spread without shuffling. Rebuild whenever the
+  // pool changes (track switch).
+  const buildDefaultSet = useCallback((pool: Ticket[]): Ticket[] => {
+    const byCat: Partial<Record<ItCategory, Ticket>> = {};
+    for (const t of pool) if (!byCat[t.truth]) byCat[t.truth] = t;
+    return [byCat.Network, byCat.Database, byCat.Server].filter(Boolean) as Ticket[];
+  }, []);
+
+  const [TICKETS, setTickets] = useState<Ticket[]>(() => buildDefaultSet(ALL_TICKETS));
+
+  useEffect(() => {
+    // When the track switches, reset to defaults for the new pool.
+    setTickets(buildDefaultSet(ALL_TICKETS));
+  }, [ALL_TICKETS, buildDefaultSet]);
+
+  const shuffleSet = useCallback(() => {
+    // Pick one random ticket per category from the pool.
+    const cats: ItCategory[] = ['Network', 'Database', 'Server'];
+    const next: Ticket[] = cats.map(cat => {
+      const pool = ALL_TICKETS.filter(t => t.truth === cat);
+      return pool[Math.floor(Math.random() * pool.length)];
+    });
+    setTickets(next);
+  }, [ALL_TICKETS]);
 
   const TASK_LINE = 'Classify the support ticket below into exactly one of: Network, Database, Server.';
   const STARTER_SYSTEM = 'You are a support classifier.';
@@ -261,62 +281,67 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
   // ─── Model behaviour — picks an output shape from (specQuality, temp) ─
   // and bakes the active ticket's text into it so output varies per ticket.
-  const generate = useCallback((ticket: Ticket): { text: string; predicted: 'Network' | 'Database' | 'Server' | null; format: 'word' | 'verbose' | 'hedged' | 'wrong' } => {
+  // The "wrong label" branch picks from a 15-entry hallucination pool
+  // keyed off the ticket id so each ticket gets a different invented label
+  // instead of always returning "Connectivity".
+  const generate = useCallback((ticket: Ticket): { text: string; predicted: ItCategory | null; format: 'word' | 'verbose' | 'hedged' | 'wrong' } => {
     const t = ticket.truth;
     const tempHigh = temperature >= 1.3;
     const tempVeryHigh = temperature >= 1.7;
 
-    // Heuristic "model classification": when categories are enumerated in
-    // the system message, the model knows the label space. When not, it
-    // invents categories.
     const knowsLabels = sigs.hasCategories;
     const predicted = knowsLabels ? t : null;
+    const snippet = quoteSnippet(ticket);
 
-    // No role at all → generic verbose deflection
+    // No role at all → generic verbose deflection that still quotes the
+    // ticket so the learner sees the model "echoing" their input.
     if (!sigs.hasRole && !sigs.hasCategories) {
       return {
-        text: `Looking at this ticket, it appears to be a technical issue that the support team should investigate. The user is reporting a problem that may need attention from the relevant team. I'd recommend looking into the symptoms described and routing accordingly.`,
+        text: `Looking at this ticket — "${snippet}" — it appears to be a technical issue the support team should investigate. I'd recommend looking into the symptoms described and routing it to whichever team handles incidents of this shape.`,
         predicted: null,
         format: 'verbose',
       };
     }
 
-    // Knows labels but no format constraint → label buried in prose
+    // Knows labels but no format constraint → label buried in prose that
+    // quotes the ticket's signal phrase.
     if (knowsLabels && !sigs.hasFormat) {
       return {
-        text: `This ticket sounds like a ${t.toLowerCase()} issue — the symptoms (${ticket.text.slice(0, 50).toLowerCase()}…) point to the ${t.toLowerCase()} layer. I'd categorise it as ${t}, though you may want to confirm with the team.`,
+        text: `This ticket — "${snippet}" — reads as a ${lowerLabel(t)} issue. The behaviour described points to the ${lowerLabel(t)} layer. I'd categorise it as ${t}, though you may want to confirm with the on-call.`,
         predicted,
         format: 'verbose',
       };
     }
 
-    // Format constraint + categories + low temperature → clean single word
+    // Format constraint + categories + low temperature → clean single word.
     if (knowsLabels && sigs.hasFormat && !tempHigh) {
       return { text: t, predicted, format: 'word' };
     }
 
-    // High temperature drifts even when the spec is tight
+    // High temperature drifts even when the spec is tight.
     if (knowsLabels && sigs.hasFormat && tempHigh && !tempVeryHigh) {
       if (sigs.hasGuard) return { text: t, predicted, format: 'word' };
       return { text: `${t}.`, predicted, format: 'word' };
     }
 
-    // Very high temp → drift / hedge regardless of guard
+    // Very high temp → drift / hedge regardless of guard, naming a real
+    // alternative category so the noise is plausible.
     if (knowsLabels && tempVeryHigh) {
+      const alt: ItCategory = t === 'Network' ? 'Server' : t === 'Server' ? 'Database' : 'Network';
       return {
-        text: `${t} (though it could also be classified as ${t === 'Network' ? 'Server' : 'Network'} depending on perspective)`,
+        text: `${t} (though "${snippet}" could also be read as ${alt} depending on perspective)`,
         predicted,
         format: 'hedged',
       };
     }
 
-    // Knows format but not categories → invents a label
+    // Knows format but not categories → invents a label, varied per ticket.
     return {
-      text: 'Connectivity',
+      text: fakeCategoryFor(track, ticket.id),
       predicted: null,
       format: 'wrong',
     };
-  }, [sigs, temperature]);
+  }, [sigs, temperature, track]);
 
   // Ref guard prevents two stream() calls racing into the same response
   // state when Run is double-tapped or React state hasn't yet flipped the
@@ -466,6 +491,23 @@ const PromptBuilderTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  onClick={() => {
+                    shuffleSet();
+                    setActiveIdx(0);
+                    setVerdicts(['pending', 'pending', 'pending']);
+                    setResponse('');
+                  }}
+                  title={`Shuffle a fresh 3-ticket set from the ${ALL_TICKETS.length}-ticket corpus`}
+                  style={{
+                    appearance: 'none', cursor: 'pointer',
+                    padding: '3px 9px', borderRadius: 5,
+                    background: '#171717', border: '1px solid #262626',
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                    color: '#A3A3A3', display: 'flex', alignItems: 'center', gap: 5,
+                  }}
+                >↻ shuffle</button>
               </div>
             </div>
             <div style={{ marginTop: 8, padding: '11px 12px', background: panelBg, border: panelBorder, borderRadius: 8, fontSize: 12.5, color: '#D4D4D4', lineHeight: 1.65, whiteSpace: 'pre-wrap' as const }}>
@@ -650,19 +692,53 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
         ]},
       ];
 
-  // 3 real test tickets — one per category, none copy-pasted from the examples.
+  // Test tickets come from the per-track corpus (~45 IT tickets per track
+  // or 15 claims). Each FewShot card shuffles a fresh 3-ticket subset — one
+  // per category — so the matrix grades a new evaluation set every time.
   type Ticket = { id: string; truth: Cat | CCat; text: string };
-  const TICKETS: Ticket[] = isTech
-    ? [
-        { id: 'T-501', truth: 'Network',  text: 'Chicago office gets VPN drops every 10–15 min after lunch; other sites unaffected, no client update.' },
-        { id: 'T-502', truth: 'Database', text: 'Order-write API returning "deadlock detected on row lock wait" on ~5% of requests since 10:30am.' },
-        { id: 'T-503', truth: 'Server',   text: 'Checkout service returning 502 Bad Gateway intermittently; cluster siblings healthy, load avg climbing.' },
-      ]
-    : [
-        { id: 'C-501', truth: 'Pre-Auth',       text: 'Pre-authorised cardiac MRI denied at adjudication — reviewer wrote "does not meet medical necessity criteria."' },
-        { id: 'C-502', truth: 'Coverage Limit', text: 'Outpatient PT claim denied at session 9 of 12 — EOB says "annual benefit cap reached."' },
-        { id: 'C-503', truth: 'Non-Emergent',   text: 'Urgent-care visit for sore throat denied — insurer flagged as "non-emergent presentation."' },
-      ];
+  const ALL_FS_TICKETS = useMemo<Ticket[]>(() => {
+    if (isTech) {
+      return getItTickets(track).map(t => ({ id: t.id, truth: t.truth as Cat, text: t.text }));
+    }
+    // Builder track keeps the claims-routing variant.
+    return [
+      { id: 'C-501', truth: 'Pre-Auth' as CCat,       text: 'Pre-authorised cardiac MRI denied at adjudication — reviewer wrote "does not meet medical necessity criteria."' },
+      { id: 'C-502', truth: 'Coverage Limit' as CCat, text: 'Outpatient PT claim denied at session 9 of 12 — EOB says "annual benefit cap reached."' },
+      { id: 'C-503', truth: 'Non-Emergent' as CCat,   text: 'Urgent-care visit for sore throat denied — insurer flagged as "non-emergent presentation."' },
+      { id: 'C-504', truth: 'Pre-Auth' as CCat,       text: 'Hospitalist orders inpatient PET-CT — payer denial reads "no pre-authorisation on file" despite the IP-only flag.' },
+      { id: 'C-505', truth: 'Coverage Limit' as CCat, text: 'Speech-therapy invoice rejected after the 30th hour — plan limit is 30 hours/year per CPT 92507.' },
+      { id: 'C-506', truth: 'Non-Emergent' as CCat,   text: 'Late-night ER visit for ankle sprain denied — payer applied the "could have waited 24h" non-emergent rule.' },
+      { id: 'C-507', truth: 'Pre-Auth' as CCat,       text: 'Outpatient surgery for septoplasty denied — pre-auth was filed but lacked the required ENT specialist sign-off.' },
+      { id: 'C-508', truth: 'Coverage Limit' as CCat, text: 'Continuous glucose monitor supply denied — patient already received the annual allowance of 12 sensors.' },
+      { id: 'C-509', truth: 'Non-Emergent' as CCat,   text: 'Walk-in clinic copay denied for medication refill — labelled "non-urgent encounter, refer back to PCP."' },
+      { id: 'C-510', truth: 'Pre-Auth' as CCat,       text: 'Robotic prostatectomy claim denied — pre-authorisation was approved for laparoscopic, not robotic, approach.' },
+      { id: 'C-511', truth: 'Coverage Limit' as CCat, text: 'Mental-health teletherapy claim denied — patient passed the 26-visit annual cap on 23 March.' },
+      { id: 'C-512', truth: 'Non-Emergent' as CCat,   text: 'Patient visited the ER for chronic back pain, no new injury — denial cites "non-emergent presentation, refer PT."' },
+    ];
+  }, [isTech, track]);
+
+  const buildFsDefault = (pool: Ticket[]): Ticket[] => {
+    const seen = new Set<string>();
+    const out: Ticket[] = [];
+    for (const c of CATS) {
+      const pick = pool.find(t => t.truth === c);
+      if (pick && !seen.has(pick.id)) { out.push(pick); seen.add(pick.id); }
+    }
+    return out;
+  };
+
+  const [TICKETS, setFsTickets] = useState<Ticket[]>(() => buildFsDefault(ALL_FS_TICKETS));
+  useEffect(() => { setFsTickets(buildFsDefault(ALL_FS_TICKETS)); /* reset on track switch */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ALL_FS_TICKETS]);
+
+  const shuffleFsTickets = () => {
+    const next: Ticket[] = CATS.map(cat => {
+      const pool = ALL_FS_TICKETS.filter(t => t.truth === cat);
+      return pool[Math.floor(Math.random() * pool.length)];
+    });
+    setFsTickets(next);
+  };
 
   // ─── Deterministic few-shot classifier ─────────────────────────────────
   // Real model behaviour as a function of (shotCount, anchor example, ticket truth).
@@ -852,6 +928,23 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  onClick={() => {
+                    shuffleFsTickets();
+                    setActiveIdx(0);
+                    setResponse('');
+                    setMatrix({ 0: ['pending','pending','pending'], 1: ['pending','pending','pending'], 3: ['pending','pending','pending'] });
+                  }}
+                  title={`Shuffle a fresh 3-ticket set from the ${ALL_FS_TICKETS.length}-ticket corpus`}
+                  style={{
+                    appearance: 'none', cursor: 'pointer',
+                    padding: '3px 9px', borderRadius: 5,
+                    background: '#FFFFFF', border: '1px solid #E8E3DA',
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+                    color: inkInk, display: 'flex', alignItems: 'center', gap: 5,
+                  }}
+                >↻ shuffle</button>
               </div>
             </div>
             {visibleExamples.length === 0 && (
