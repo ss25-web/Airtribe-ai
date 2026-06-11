@@ -13,6 +13,11 @@ import {
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
 import { ClaudeDesktopFrame, CDLabel, CD } from './claudeDesktopChrome';
+import { filterSourceScenarios, type SourceScenario, type Source as SourceDoc } from '@/data/genai/pr3-source-pipeline';
+import { filterCompressionSummaries, type CompressionSummary } from '@/data/genai/pr3-compression-compare';
+import { filterFiveW1H, type FiveW1HBrief } from '@/data/genai/pr3-5w1h';
+import { filterCoveScenarios, type CoveScenario, type CoveVerdict } from '@/data/genai/pr3-cove';
+import { filterAudienceScenarios, type AudienceScenario } from '@/data/genai/pr3-audience-draft';
 
 const ACCENT = '#0891B2';
 const ACCENT_RGB = '8,145,178';
@@ -213,27 +218,24 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // status pills, PDF/MD/SHEET file-type icons, learner adds the required
 // docs (checkbox column), then "Index for Claude" runs the simulated
 // embedding flow and grades source coverage.
-type Source = { id: string; label: string; required: boolean; kind: 'pdf' | 'md' | 'sheet' | 'doc'; size: string; note: string };
 const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
-  const sources: Source[] = track === 'engineer'
-    ? [
-        { id: 'primary',    label: 'plan-schedule-v3.pdf',         kind: 'pdf',   size: '212 KB', required: true,  note: 'Core terms — but does not include the 2022 amendment.' },
-        { id: 'amendment',  label: 'amendment-2022-02.pdf',         kind: 'pdf',   size: '64 KB',  required: true,  note: 'Contains clause 4.2c — the override rule. Not in v3.' },
-        { id: 'precedents', label: 'case-precedents.md',            kind: 'md',    size: '38 KB',  required: true,  note: 'Three prior approvals of the same type — supports the decision.' },
-        { id: 'guidelines', label: 'internal-claims-guidelines.md', kind: 'md',    size: '17 KB',  required: false, note: 'Useful context but not decision-critical for this query type.' },
-        { id: 'faq',        label: 'benefits-faq-public.md',        kind: 'md',    size: '11 KB',  required: false, note: 'Member-facing language — not authoritative for triage.' },
-      ]
-    : [
-        { id: 'ticket',  label: 'current-exception.pdf',         kind: 'pdf',   size: '8 KB',   required: true,  note: 'The trigger — but context-free without prior history.' },
-        { id: 'thread',  label: 'prior-week-thread.md',          kind: 'md',    size: '23 KB',  required: true,  note: 'Contains the context the AI missed in Tuesday\'s review.' },
-        { id: 'policy',  label: 'sla-policy-v2.pdf',             kind: 'pdf',   size: '46 KB',  required: true,  note: 'The rule governing this exception type — must be in scope.' },
-        { id: 'flags',   label: 'open-escalation-flags.sheet',    kind: 'sheet', size: '4 KB',   required: true,  note: 'Other open items on this account that change the recommendation.' },
-        { id: 'history', label: 'account-history-12m.sheet',     kind: 'sheet', size: '88 KB',  required: false, note: 'Useful for trend analysis but not needed for the weekly summary.' },
-      ];
+  const scenarios = filterSourceScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: SourceScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const sources = scenario.sources;
+  const projectName = scenario.projectName;
 
-  const [selected, setSelected] = useState<Set<string>>(new Set([track === 'engineer' ? 'primary' : 'ticket']));
+  const [selected, setSelected] = useState<Set<string>>(new Set([scenario.defaultSelected]));
   const [indexing, setIndexing] = useState<'idle' | 'running' | 'done'>('idle');
   const [revealed, setRevealed] = useState(false);
+
+  // Reset state when scenario changes
+  useEffect(() => {
+    setSelected(new Set([scenario.defaultSelected]));
+    setIndexing('idle');
+    setRevealed(false);
+  }, [scenario.id, scenario.defaultSelected]);
+
   const requiredIds = sources.filter(s => s.required).map(s => s.id);
   const coveredRequired = requiredIds.filter(id => selected.has(id)).length;
   const isComplete = coveredRequired === requiredIds.length;
@@ -248,15 +250,27 @@ const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
     setTimeout(() => { setIndexing('done'); setRevealed(true); }, 1300);
   };
 
-  const reset = () => { setSelected(new Set([track === 'engineer' ? 'primary' : 'ticket'])); setIndexing('idle'); setRevealed(false); };
+  const reset = () => { setSelected(new Set([scenario.defaultSelected])); setIndexing('idle'); setRevealed(false); };
 
-  const projectName = track === 'engineer' ? 'Claims policy assistant' : 'Exception review assistant';
   const totalSelectedSize = sources.filter(s => selected.has(s.id)).reduce((sum, s) => sum + parseInt(s.size), 0);
 
-  const kindIcon = (k: Source['kind']) => k === 'pdf' ? { icon: 'PDF', color: '#F87171' } : k === 'sheet' ? { icon: 'CSV', color: '#34D399' } : { icon: 'MD',  color: CD.tool };
+  const kindIcon = (k: SourceDoc['kind']) => k === 'pdf' ? { icon: 'PDF', color: '#F87171' } : k === 'sheet' ? { icon: 'CSV', color: '#34D399' } : { icon: 'MD',  color: CD.tool };
 
   return (
     <ClaudeDesktopFrame chatTitle={`Project · ${projectName}`} view="KNOWLEDGE" mcpServers={0}>
+      {/* Scenario picker — swap the project to load a fresh source list */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>SCENARIO</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Sub-header */}
       <div style={{ padding: '10px 14px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
@@ -353,16 +367,20 @@ const SourcePipelineCard = ({ track }: { track: GenAITrack }) => {
 // Each turn cycles to the next summary. Score panel on the right rail
 // tracks progress.
 const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
-  type Summary = { text: string; answer: 'generic' | 'decision'; explain: string };
-  const summaries: Summary[] = track === 'engineer' ? [
-    { text: 'The case concerns a pharmacy benefit claim submitted on 14 March. There are several policy considerations that may be relevant. The claim has been flagged for review by the system.', answer: 'generic', explain: 'No action, no urgency, no decision frame — an analyst reads this and still has to decide everything.' },
-    { text: 'Category: Disputed pharmacy benefit. Action: Escalate to pharmacy review — physician override requested, 48h SLA. Urgency: High. Key factor: amendment clause 4.2c absent from pipeline.', answer: 'decision', explain: 'Every sentence serves a decision: category, action, deadline, blocking factor. Nothing for the reader to re-derive.' },
-    { text: 'Claim #A2241 has been processed. The relevant policy documents were reviewed and a summary was generated. Several factors were identified that may affect the outcome of the claim.', answer: 'generic', explain: '"May affect" and "several factors" are content-free — pure compression, zero decision grade.' },
-  ] : [
-    { text: 'This week had 23 exceptions across the portfolio. Several items were flagged for follow-up. The team is continuing to monitor the backlog.', answer: 'generic', explain: '"Several items" and "continuing to monitor" tell the director nothing actionable — status update, not a brief.' },
-    { text: 'Director attention needed: 2 of 23 exceptions exceed SLA (#4412, #7089). Recommend same-day review before Friday close. Remaining 21 within tolerance — no action needed.', answer: 'decision', explain: 'Two exceptions named, action stated, deadline given, the rest explicitly cleared. The director reads one line and knows what to do.' },
-    { text: 'The exception review for the week has been completed. Analysts have reviewed the items and made notes where applicable. Some items may require director-level attention.', answer: 'generic', explain: '"May require" and "where applicable" are evasions — the director reads it and finds nothing to act on.' },
-  ];
+  // Dataset-driven: a per-track pool of summaries; user can shuffle the pool
+  // or step through one by one. The mechanic (classify generic vs decision)
+  // is unchanged.
+  const pool = useMemo(() => filterCompressionSummaries(track), [track]);
+  // Show 5 at a time so the score panel feels achievable. Reshuffle on RESTART.
+  const pickFive = (p: CompressionSummary[]): CompressionSummary[] => {
+    const arr = [...p];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, Math.min(5, arr.length));
+  };
+  const [summaries, setSummaries] = useState<CompressionSummary[]>(() => pickFive(pool));
   const [idx, setIdx] = useState(0);
   const [choice, setChoice] = useState<'generic' | 'decision' | null>(null);
   const [score, setScore] = useState(0);
@@ -381,12 +399,15 @@ const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
     if (idx < summaries.length - 1) { setIdx(i => i + 1); setChoice(null); }
     else setDone(true);
   };
-  const reset = () => { setIdx(0); setChoice(null); setScore(0); setHistory([]); setDone(false); };
+  const reset = () => {
+    setSummaries(pickFive(pool));
+    setIdx(0); setChoice(null); setScore(0); setHistory([]); setDone(false);
+  };
 
   const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
 
   return (
-    <ClaudeDesktopFrame chatTitle={`Reviewing summary ${idx + 1}/${summaries.length}`} view="SUMMARY REVIEW">
+    <ClaudeDesktopFrame chatTitle={`Reviewing ${current.domain} · ${idx + 1}/${summaries.length}`} view="SUMMARY REVIEW">
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 220px', gap: 0 }}>
         {/* Chat */}
         <div style={{ padding: '14px 16px', minHeight: 280, background: CD.bg, borderRight: `1px solid ${CD.border}` }}>
@@ -397,7 +418,7 @@ const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{protagonist.toUpperCase()}</span>
             </div>
             <div style={{ maxWidth: '90%', padding: '9px 12px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: '12px 12px 4px 12px', fontSize: 11.5, color: CD.inkPrimary }}>
-              Summarise the {track === 'engineer' ? 'claim ' + idx : 'exception batch ' + idx} for the {track === 'engineer' ? 'triage queue' : 'director brief'}.
+              {current.prompt}
             </div>
           </div>
 
@@ -477,27 +498,36 @@ const CompressionCompareCard = ({ track }: { track: GenAITrack }) => {
 // of the system prompt Claude will receive — exactly how Claude renders
 // custom instructions in the right rail of the project view.
 const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
-  type Dim = { key: 'WHO' | 'WHAT' | 'WHEN' | 'WHY' | 'HOW'; q: string; opts: string[]; correct: number };
-  const dims: Dim[] = track === 'engineer' ? [
-    { key: 'WHO',  q: 'Who is affected?',           opts: ['(empty)', 'Tier 2 claimant only',          'Claimant + treating physician',                    'Claimant + physician + pharmacy manager'],          correct: 2 },
-    { key: 'WHAT', q: 'What claim scenario?',       opts: ['(empty)', 'Any pharmacy claim',            'Physician override request, clause 4.2c',         'Billing dispute'],                                  correct: 1 },
-    { key: 'WHEN', q: 'When does the policy apply?', opts: ['(empty)', 'All claims after 2020',         'Claims after Jan 2022, Plan B only',              'Claims flagged by system'],                          correct: 1 },
-    { key: 'WHY',  q: 'Why is this being researched?', opts: ['(empty)', 'Routine summary',              '48h SLA escalation decision — irreversible',     'Model accuracy check'],                              correct: 1 },
-    { key: 'HOW',  q: 'How will the output be used?', opts: ['(empty)', 'Stored in archive',              'Case worker: approve / escalate / request info', 'Director review'],                                  correct: 1 },
-  ] : [
-    { key: 'WHO',  q: 'Who reads this brief?',         opts: ['(empty)', 'All analysts',                  'Regional Director — pre-meeting scan, 5 min',     'Anyone on the team'],                                correct: 1 },
-    { key: 'WHAT', q: 'What question are they asking?', opts: ['(empty)', 'What happened this week?',       'Is there anything I need to act on before Friday?', 'How many exceptions were there?'],                  correct: 1 },
-    { key: 'WHEN', q: 'When do they decide?',           opts: ['(empty)', 'Whenever convenient',            'Thursday AM before weekly ops call',              'End of month'],                                      correct: 1 },
-    { key: 'WHY',  q: 'Why is this week different?',    opts: ['(empty)', 'Routine weekly summary',         '2 accounts breached SLA — board visibility risk', 'New exceptions added'],                              correct: 1 },
-    { key: 'HOW',  q: 'How will they act on it?',       opts: ['(empty)', 'File for reference',             'Approve escalation or delegate — one decision',   'Forward to all managers'],                          correct: 1 },
-  ];
+  const briefs = filterFiveW1H(track);
+  const [briefId, setBriefId] = useState<string>(briefs[0].id);
+  const activeBrief: FiveW1HBrief = briefs.find(b => b.id === briefId) ?? briefs[0];
+  const dims = activeBrief.dims;
 
-  const [vals, setVals] = useState<Record<string, number>>(Object.fromEntries(dims.map(d => [d.key, 0])));
+  const [vals, setVals] = useState<Record<string, number>>(() => Object.fromEntries(dims.map(d => [d.key, 0])));
+
+  // Reset all selections whenever the brief changes
+  useEffect(() => {
+    setVals(Object.fromEntries(activeBrief.dims.map(d => [d.key, 0])));
+  }, [activeBrief.id, activeBrief.dims]);
+
   const filled = dims.filter(d => vals[d.key] > 0).length;
   const allCorrect = dims.every(d => vals[d.key] === d.correct);
 
   return (
-    <ClaudeDesktopFrame chatTitle="Project · Custom instructions" view="5W1H BRIEF COMPOSER">
+    <ClaudeDesktopFrame chatTitle={`Project · ${activeBrief.label.replace(/^[^·]+·\s*/, '')} · Custom instructions`} view="5W1H BRIEF COMPOSER">
+      {/* Brief picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>BRIEF TYPE</CDLabel>
+        <select
+          value={briefId}
+          onChange={(e) => setBriefId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {briefs.map(b => <option key={b.id} value={b.id}>{b.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{briefs.length} presets</span>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
         {/* LEFT: form */}
         <div style={{ padding: '14px 16px', borderRight: `1px solid ${CD.border}`, background: CD.bg }}>
@@ -549,7 +579,7 @@ const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
         <div style={{ padding: '14px 16px', background: CD.panelAlt }}>
           <CDLabel>SYSTEM PROMPT · what Claude will read</CDLabel>
           <div style={{ marginTop: 8, padding: '11px 13px', background: '#0E0E0E', border: `1px solid ${CD.border}`, borderRadius: 7, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: CD.inkSecondary, lineHeight: 1.7, minHeight: 200 }}>
-            <span style={{ color: '#569CD6' }}>You are</span> a research assistant for the {track === 'engineer' ? 'claims triage' : 'ops exception'} team.
+            <span style={{ color: '#569CD6' }}>You are</span> a research assistant for the {activeBrief.team} team.
             <br /><br />
             <span style={{ color: '#569CD6' }}>Research scope:</span>
             <br />
@@ -600,35 +630,43 @@ const FiveW1HCard = ({ track }: { track: GenAITrack }) => {
 // Wrong tags expose the failure mode (hallucinated stat, unsourced rate,
 // etc.) in red; correct tags light up the citation badge green.
 const COVECard = ({ track }: { track: GenAITrack }) => {
-  type Verdict = 'C' | 'O' | 'V' | 'E';
-  type Claim = { id: string; text: string; verdict: Verdict; explain: string };
-  const claims: Claim[] = track === 'engineer' ? [
-    { id: 'a', text: 'Coverage rate for Tier 2 pharmacy benefits is 78%.',                       verdict: 'V', explain: 'Verbatim in plan_schedule.pdf row 14, "Tier 2 pharmacy cover rate". Source is exact and traceable.' },
-    { id: 'b', text: 'The industry average override approval rate is 82%.',                       verdict: 'O', explain: 'Not in any document in your pipeline — model pulled it from training data. Hallucinated benchmark.' },
-    { id: 'c', text: 'Claim #A2241 requires escalation under clause 4.2c, Feb 2022 amendment.', verdict: 'C', explain: 'Factually accurate — the amendment confirms §4.2c applies to Tier 2 CA plans. Clause reference is exact.' },
-    { id: 'd', text: 'Recommended action: escalate to pharmacy review, 48h SLA.',                verdict: 'E', explain: 'Directly serves the case worker\'s decision. Action, queue, deadline — nothing left to infer.' },
-  ] : [
-    { id: 'a', text: '23 exceptions were processed this week.',                                  verdict: 'C', explain: 'Verifiable against exception tracker export (row count, current week filter). Factually accurate.' },
-    { id: 'b', text: 'Resolution time improved 18% compared to last month.',                     verdict: 'O', explain: 'This figure does not appear in any document you indexed — model generated it from training patterns.' },
-    { id: 'c', text: 'Accounts #4412 and #7089 are 6 and 8 days over SLA respectively.',         verdict: 'V', explain: 'Traceable to exception_tracker.sheet rows 14 + 23, column "Days Open" vs SLA column. Source explicit.' },
-    { id: 'd', text: '2 accounts need your decision before Friday — rest is resolved.',          verdict: 'E', explain: 'Directly answers what the director is asking. Filters to action items, clears everything else.' },
-  ];
+  const scenarios = filterCoveScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: CoveScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const claims = scenario.claims;
 
-  const OPTS: { key: Verdict; label: string; color: string }[] = [
+  const OPTS: { key: CoveVerdict; label: string; color: string }[] = [
     { key: 'C', label: 'Correctness',    color: '#22D3EE' },
     { key: 'O', label: 'Originality',    color: '#A78BFA' },
     { key: 'V', label: 'Verifiability',  color: '#60A5FA' },
     { key: 'E', label: 'Effectiveness',  color: '#10B981' },
   ];
 
-  const [picks, setPicks] = useState<Record<string, Verdict>>({});
+  const [picks, setPicks] = useState<Record<string, CoveVerdict>>({});
   const [activeClaim, setActiveClaim] = useState<string | null>(null);
+
+  // Reset on scenario switch
+  useEffect(() => { setPicks({}); setActiveClaim(null); }, [scenario.id]);
+
   const allPicked = claims.every(c => picks[c.id]);
   const score = claims.filter(c => picks[c.id] === c.verdict).length;
   const reset = () => { setPicks({}); setActiveClaim(null); };
 
   return (
-    <ClaudeDesktopFrame chatTitle="Fact-check Claude's draft" view="COVE AUDIT">
+    <ClaudeDesktopFrame chatTitle={`Fact-check · ${scenario.domain}`} view="COVE AUDIT">
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>DRAFT</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ padding: '14px 16px', background: CD.bg }}>
         <CDLabel>CLAUDE'S DRAFT · click each highlighted claim to audit it</CDLabel>
 
@@ -733,24 +771,22 @@ const COVECard = ({ track }: { track: GenAITrack }) => {
 // Clicking a tab streams a new Claude reply tuned to that reader; verdict
 // below explains the lens shift.
 const AudienceDraftCard = ({ track }: { track: GenAITrack }) => {
-  const synthesis = track === 'engineer'
-    ? 'Claim #A2241: pharmacy override request by Dr. Mehta. §4.2c (Feb 2022 amendment) permits Tier 2 CA override. 48h SLA. 3 precedent approvals in Q4. Amendment not in current policy index.'
-    : 'Week of Mar 10: 23 exceptions, 2 SLA breaches (#4412: 6d, #7089: 8d), 19 within tolerance, 2 pending close EOW. #4412 is third breach in 6 weeks.';
-
-  type Audience = { id: string; label: string; subtitle: string; color: string; brief: string; why: string };
-  const audiences: Audience[] = track === 'engineer' ? [
-    { id: 'worker',     label: 'Case Worker',        subtitle: 'executes the call',     color: '#22D3EE', brief: 'Escalate Claim #A2241 to pharmacy review. Form: PH-7. Deadline: Thursday 5pm. Note §4.2c in submission — amendment clause, not in standard index.', why: 'Action + form + deadline, nothing else. The case worker executes — they don\'t need context or patterns.' },
-    { id: 'compliance', label: 'Compliance Officer', subtitle: 'audits the decision',   color: '#A78BFA', brief: 'Override request under §4.2c (Feb 2022 amendment). CA-only provision. 3 precedent approvals on file. Audit trail: case note #A2241. Amendment currently unindexed — gap in standard policy lookup.', why: 'Clause, provision, audit trail, gap. The compliance lens is: is this defensible? is it documented?' },
-    { id: 'pm',         label: 'Product Manager',    subtitle: 'fixes the system',      color: '#60A5FA', brief: 'Override flow triggered 4× in Q4. Root cause: clause 4.2c (Feb 2022 amendment) not in policy index. Case workers escalating manually each time. Fix: index the amendment. Estimated 12 affected cases/month.', why: 'Pattern + root cause + fix. Same synthesis, different question: "where does the system break and what do we build?"' },
-  ] : [
-    { id: 'analyst',  label: 'Team Analyst',     subtitle: 'works the queue',     color: '#22D3EE', brief: '#4412 (6d over SLA) and #7089 (8d): both need case notes before Thursday noon. Check escalation history for each. #4412 is a repeat breach — flag for supervisor review.', why: 'Specific accounts, specific tasks, specific deadline. The analyst executes — they need exact next steps.' },
-    { id: 'director', label: 'Regional Director', subtitle: 'decides before the call', color: '#A78BFA', brief: 'Action needed before Friday: #4412 and #7089 exceed SLA — board visibility risk if unresolved. Recommend you flag to ops lead today. Other 21 exceptions within tolerance — no action needed from you.', why: 'One decision. Clear risk. Explicit "no action needed" for everything else. Director doesn\'t need account details.' },
-    { id: 'oplead',   label: 'Operations Lead',   subtitle: 'spots the systemic issue', color: '#10B981', brief: 'SLA breach rate: 2/23 (8.7%) vs 3.2% baseline. #4412: third breach in 6 weeks — systemic flag. Recommend root-cause review for that account before next reporting cycle.', why: 'Trend + baseline + systemic flag. Ops lens is: "is this a one-off or a process problem?"' },
-  ];
+  const scenarios = filterAudienceScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: AudienceScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const synthesis = scenario.synthesis;
+  const audiences = scenario.audiences;
 
   const [activeId, setActiveId] = useState<string>(audiences[0].id);
   const [streamKey, setStreamKey] = useState(0);
-  const chosen = audiences.find(a => a.id === activeId)!;
+
+  // Reset active audience when scenario changes
+  useEffect(() => {
+    setActiveId(scenario.audiences[0].id);
+    setStreamKey(k => k + 1);
+  }, [scenario.id, scenario.audiences]);
+
+  const chosen = audiences.find(a => a.id === activeId) ?? audiences[0];
 
   const switchAudience = (id: string) => {
     setActiveId(id);
@@ -760,7 +796,20 @@ const AudienceDraftCard = ({ track }: { track: GenAITrack }) => {
   const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
 
   return (
-    <ClaudeDesktopFrame chatTitle="Same synthesis · different reader" view="AUDIENCE REWRITE">
+    <ClaudeDesktopFrame chatTitle={`Same synthesis · different reader · ${scenario.label.replace(/^[^·]+·\s*/, '')}`} view="AUDIENCE REWRITE">
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>SYNTHESIS</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ padding: '14px 16px', background: CD.bg }}>
         {/* Synthesis card at top */}
         <div style={{ marginBottom: 14, padding: '11px 13px', background: CD.panel, border: `1px solid ${CD.border}`, borderRadius: 8 }}>
