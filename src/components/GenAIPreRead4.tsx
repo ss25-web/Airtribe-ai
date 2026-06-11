@@ -12,6 +12,11 @@ import {
   ApplyItBox, ChapterSection, NextChapterTeaser, PMPrincipleBox, SituationCard,
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
+import { filterWorkflows, type WorkflowScenario } from '@/data/genai/pr4-workflow-anatomy';
+import { filterNodeSets, type NodeSetScenario } from '@/data/genai/pr4-node-type-map';
+import { filterCredScenarios, type CredScenario } from '@/data/genai/pr4-credentials';
+import { filterErrorPathScenarios, type ErrorPathScenario } from '@/data/genai/pr4-error-path';
+import { filterCanvasScenarios, type CanvasScenario, type M4Node, type M4Conn } from '@/data/genai/pr4-canvas-explorer';
 
 const ACCENT = '#0F766E';
 const ACCENT_RGB = '15,118,110';
@@ -214,24 +219,17 @@ import { NODE_TYPES, type NodeTypeKey, N8N_NW, N8N_NH, N8nFrame, N8nNodeCard, n8
 // learner clicks each ghost-node, picks its TYPE from the palette, and the
 // node materialises with its type bar + icon. Mis-tags flash red.
 const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
-  type WStep = { id: string; x: number; label: string; icon: string; correctType: NodeTypeKey; hint: string };
-  const steps: WStep[] = track === 'engineer' ? [
-    { id: 'a', x: 10,  label: 'Gmail Trigger',     icon: '✉', correctType: 'trigger',   hint: 'Email arriving in the monitored inbox is what starts the workflow.' },
-    { id: 'b', x: 195, label: 'Extract policy_code', icon: '⚙', correctType: 'transform', hint: 'Pure data shaping — conditional logic on a field. No AI yet.' },
-    { id: 'c', x: 380, label: 'Format prompt',     icon: '⚙', correctType: 'transform', hint: 'A Set node assembles the prompt text. Still engineering, not AI.' },
-    { id: 'd', x: 565, label: 'OpenAI Classify',   icon: '◈', correctType: 'ai',        hint: 'The one AI call — language work converting prompt to category + confidence.' },
-    { id: 'e', x: 750, label: 'Append to Sheet',   icon: '⊞', correctType: 'output',    hint: 'A Sheets write node — engineering, not AI.' },
-  ] : [
-    { id: 'a', x: 10,  label: 'Schedule Trigger',  icon: '◷', correctType: 'trigger',   hint: 'Cron trigger fires at 7am every Monday — starts the workflow on time.' },
-    { id: 'b', x: 195, label: 'Read Sheet',        icon: '⊞', correctType: 'data',      hint: 'A Sheets read node pulling exception rows. External-system data fetch.' },
-    { id: 'c', x: 380, label: 'Format prompt',     icon: '⚙', correctType: 'transform', hint: 'A Set node assembling the rows into the Claude prompt — engineering.' },
-    { id: 'd', x: 565, label: 'Claude Brief',      icon: '◈', correctType: 'ai',        hint: 'The single AI call — drafts the weekly brief from the assembled prompt.' },
-    { id: 'e', x: 750, label: 'Gmail Send',        icon: '✉', correctType: 'output',    hint: 'A Gmail send node — delivers the brief. Engineering, not AI.' },
-  ];
+  const scenarios = filterWorkflows(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: WorkflowScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const steps = scenario.steps;
 
   const [tags, setTags] = useState<Record<string, NodeTypeKey>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [wrongFlash, setWrongFlash] = useState<string | null>(null);
+
+  useEffect(() => { setTags({}); setSelectedId(null); setWrongFlash(null); }, [scenario.id]);
+
   const allTagged = steps.every(s => tags[s.id]);
   const score = steps.filter(s => tags[s.id] === s.correctType).length;
   const aiCount = steps.filter(s => s.correctType === 'ai').length;
@@ -251,7 +249,20 @@ const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
   const reset = () => { setTags({}); setSelectedId(null); };
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'workflow-anatomy.json' : 'monday-brief-anatomy.json'} status={allTagged ? 'ACTIVE' : 'EDITING'}>
+    <N8nFrame filename={scenario.filename} status={allTagged ? 'ACTIVE' : 'EDITING'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>WORKFLOW</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       <N8nCanvas width={920} height={110}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 920, height: 110, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
           <defs>
@@ -351,31 +362,17 @@ const WorkflowAnatomy = ({ track }: { track: GenAITrack }) => {
 // the node into the lane in n8n-card style, wrong attempts flash and stay
 // in the palette.
 const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
-  type Item = { id: string; label: string; icon: string; correctCat: NodeTypeKey };
-  const nodeItems: Item[] = track === 'engineer' ? [
-    { id: 'gmailtr',  label: 'Gmail Trigger',     icon: '✉', correctCat: 'trigger' },
-    { id: 'http',     label: 'HTTP Request',      icon: '⇄', correctCat: 'data' },
-    { id: 'setn',     label: 'Set Node',          icon: '⚙', correctCat: 'transform' },
-    { id: 'openai',   label: 'OpenAI Node',       icon: '◯', correctCat: 'ai' },
-    { id: 'sheets',   label: 'Google Sheets',     icon: '⊞', correctCat: 'data' },
-    { id: 'code',     label: 'Code Node',         icon: '{}', correctCat: 'transform' },
-    { id: 'webhook',  label: 'Webhook Trigger',   icon: '⚡', correctCat: 'trigger' },
-    { id: 'claude',   label: 'Anthropic Node',    icon: 'A',  correctCat: 'ai' },
-  ] : [
-    { id: 'sched',    label: 'Schedule Trigger',  icon: '◷', correctCat: 'trigger' },
-    { id: 'sheets',   label: 'Google Sheets',     icon: '⊞', correctCat: 'data' },
-    { id: 'setn',     label: 'Set Node',          icon: '⚙', correctCat: 'transform' },
-    { id: 'claude',   label: 'Anthropic Node',    icon: 'A',  correctCat: 'ai' },
-    { id: 'form',     label: 'Google Forms',      icon: '✎', correctCat: 'trigger' },
-    { id: 'ifn',      label: 'IF Node',           icon: '◆', correctCat: 'transform' },
-    { id: 'airtable', label: 'Airtable',          icon: '▦', correctCat: 'data' },
-    { id: 'openai',   label: 'OpenAI Node',       icon: '◯', correctCat: 'ai' },
-  ];
+  const scenarios = filterNodeSets(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: NodeSetScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const nodeItems = scenario.items;
   const CATS: NodeTypeKey[] = ['trigger', 'data', 'transform', 'ai'];
 
   const [selected, setSelected] = useState<string | null>(null);
   const [placements, setPlacements] = useState<Record<string, NodeTypeKey>>({});
   const [wrong, setWrong] = useState<string | null>(null);
+
+  useEffect(() => { setSelected(null); setPlacements({}); setWrong(null); }, [scenario.id]);
 
   const place = (id: string, cat: NodeTypeKey) => {
     const item = nodeItems.find(n => n.id === id);
@@ -395,6 +392,19 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
 
   return (
     <N8nFrame filename="node-categories.json" status={allPlaced ? 'ACTIVE' : 'EDITING'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>NODE SET</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '210px 1fr', gap: 0 }}>
         {/* Left palette */}
         <div style={{ background: '#0A0D14', borderRight: '1px solid rgba(255,255,255,0.06)', padding: '12px 12px', maxHeight: 360, overflow: 'auto' }}>
@@ -498,33 +508,10 @@ const NodeTypeMapCard = ({ track }: { track: GenAITrack }) => {
 // (Settings → Credentials). Each row shows provider logo, credential name,
 // scope, who owns it, last rotated. The learner picks risk per row.
 const CredentialCard = ({ track }: { track: GenAITrack }) => {
-  const protagonist = track === 'engineer' ? 'Aarav' : 'Rhea';
-  type Cred = {
-    id: string; name: string; provider: string; logo: string; logoBg: string;
-    scope: string; owner: string; rotated: string; type: 'api' | 'oauth' | 'service';
-    correctRisk: 'low' | 'medium' | 'high';
-    explain: string;
-  };
-  const creds: Cred[] = [
-    {
-      id: 'api', name: 'openai-classifier-key', provider: 'OpenAI', logo: '◯', logoBg: '#10A37F',
-      scope: 'project:exception-classifier', owner: 'team-ai (team vault)', rotated: '14 d ago', type: 'api',
-      correctRisk: 'low',
-      explain: 'Team vault + project-scoped key. Compromise only affects this workflow; anyone on the team can rotate without breaking it.',
-    },
-    {
-      id: 'oauth', name: `personal-oauth-${protagonist.toLowerCase()}`, provider: 'Google', logo: 'G', logoBg: '#4285F4',
-      scope: 'sheets.read, sheets.write', owner: `${protagonist.toLowerCase()}@northstar.com`, rotated: 'Never rotated', type: 'oauth',
-      correctRisk: 'high',
-      explain: `Personal OAuth on ${protagonist}'s account is a single point of failure. Password reset, 2FA change, or offboarding silently invalidates the token at 7am Monday.`,
-    },
-    {
-      id: 'svc', name: 'team-automation', provider: 'Google IAM', logo: 'G', logoBg: '#4285F4',
-      scope: 'sheets.* gmail.send', owner: 'team-automation@northstar.iam', rotated: '6 d ago', type: 'service',
-      correctRisk: 'low',
-      explain: 'Service account — team-owned, not tied to any individual. Survives password changes, 2FA updates, and offboarding. The right pattern for automation.',
-    },
-  ];
+  const scenarios = filterCredScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: CredScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const creds = scenario.creds;
 
   const RISKS = [
     { key: 'low' as const,    label: 'LOW',    color: '#16A34A' },
@@ -532,11 +519,27 @@ const CredentialCard = ({ track }: { track: GenAITrack }) => {
     { key: 'high' as const,   label: 'HIGH',   color: '#DC2626' },
   ];
   const [picks, setPicks] = useState<Record<string, 'low' | 'medium' | 'high'>>({});
+
+  useEffect(() => { setPicks({}); }, [scenario.id]);
+
   const allPicked = creds.every(c => picks[c.id]);
   const score = creds.filter(c => picks[c.id] === c.correctRisk).length;
 
   return (
     <N8nFrame filename="credentials" status={allPicked ? 'ACTIVE' : 'AUDITING'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>VAULT</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ padding: '12px 16px', background: '#0F1117', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -612,9 +615,9 @@ const CredentialCard = ({ track }: { track: GenAITrack }) => {
       })}
 
       {allPicked && (
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', background: score === 3 ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)' }}>
-          <span style={{ fontSize: 11.5, color: score === 3 ? '#86EFAC' : '#FBBF24' }}>
-            <span style={{ fontWeight: 700 }}>{score}/3 correct.</span> {score < 3 ? 'Personal OAuth is the most commonly underrated risk in production workflows.' : 'You can spot credential risk before it breaks production at 2am.'}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', background: score === creds.length ? 'rgba(22,163,74,0.08)' : 'rgba(245,158,11,0.08)' }}>
+          <span style={{ fontSize: 11.5, color: score === creds.length ? '#86EFAC' : '#FBBF24' }}>
+            <span style={{ fontWeight: 700 }}>{score}/{creds.length} correct.</span> {score < creds.length ? 'Personal OAuth is the most commonly underrated risk in production workflows.' : 'You can spot credential risk before it breaks production at 2am.'}
           </span>
         </div>
       )}
@@ -627,10 +630,12 @@ const CredentialCard = ({ track }: { track: GenAITrack }) => {
 // of four candidate downstream nodes. The chosen branch animates into
 // existence with a red bezier; wrong choices fade in muted.
 const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
-  type Choice = { id: string; label: string; icon: string; verdict: 'silent-fail' | 'silent-fail-bad' | 'correct-route' | 'silent-fail'; result: string };
-  type Failure = { id: string; nodeLabel: string; nodeIcon: string; failTitle: string; failDetail: string; choices: Choice[] };
-
-  const failures: Failure[] = track === 'engineer' ? [
+  const scenarios = filterErrorPathScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: ErrorPathScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const failures = scenario.failures;
+  // Keep the legacy literal block alive but unused — we read from `failures` above.
+  const _LEGACY_FAILURES = track === 'engineer' ? [
     {
       id: 'ai',
       nodeLabel: 'OpenAI Classify', nodeIcon: '◈',
@@ -685,6 +690,9 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   const [step, setStep] = useState(0);
   const [picks, setPicks] = useState<Record<string, string>>({});
   const [allDone, setAllDone] = useState(false);
+
+  useEffect(() => { setStep(0); setPicks({}); setAllDone(false); }, [scenario.id]);
+
   const current = failures[step];
   const picked = picks[current?.id];
   const pickedChoice = current?.choices.find(c => c.id === picked);
@@ -709,7 +717,20 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
   ];
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'failure-routing.json' : 'monday-brief-failure.json'} status={picked ? (pickedChoice?.verdict === 'correct-route' ? 'ACTIVE' : 'FAILING') : 'ERROR'}>
+    <N8nFrame filename={scenario.filename} status={picked ? (pickedChoice?.verdict === 'correct-route' ? 'ACTIVE' : 'FAILING') : 'ERROR'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>FAILURE SCENARIO</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Scenario header */}
       <div style={{ padding: '10px 16px', background: 'rgba(220,38,38,0.10)', borderBottom: '1px solid rgba(220,38,38,0.25)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -749,13 +770,13 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
         </svg>
 
         {/* Upstream node */}
-        <N8nNodeCard x={upstreamX} y={failY} label={track === 'engineer' ? 'Format prompt' : 'Read Sheet'} typeKey={track === 'engineer' ? 'transform' : 'data'} icon="⚙" />
+        <N8nNodeCard x={upstreamX} y={failY} label={scenario.upstream.label} typeKey={scenario.upstream.type} icon={scenario.upstream.icon} />
         {/* Failing node */}
         <div style={{ animation: 'ep-pulse 1.4s ease-in-out infinite' }}>
           <N8nNodeCard x={failX} y={failY} label={current.nodeLabel} typeKey={'error'} icon={current.nodeIcon} status="fail" />
         </div>
         {/* Happy path */}
-        <N8nNodeCard x={okPathX} y={okPathY} label={track === 'engineer' ? 'Append to Sheet' : 'Gmail Send'} typeKey={'output'} icon={track === 'engineer' ? '⊞' : '✉'} ghost />
+        <N8nNodeCard x={okPathX} y={okPathY} label={scenario.happyPath.label} typeKey={'output'} icon={scenario.happyPath.icon} ghost />
 
         {/* Choice nodes — render all four; chosen wrong fades muted, correct lights green */}
         {current.choices.map((c, i) => {
@@ -812,12 +833,17 @@ const ErrorPathCard = ({ track }: { track: GenAITrack }) => {
 };
 
 // Section 05: n8n canvas explorer — full workflow as interactive n8n-style canvas
-interface M4Node { id: string; x: number; y: number; label: string; typeLabel: string; icon: string; color: string; desc: string; input: string; output: string; risk: string; }
-interface M4Conn { from: string; to: string; isError?: boolean; fromBottom?: boolean; }
+// (Types M4Node + M4Conn now live in the dataset module.)
 
 const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
+  const canvasScenarios = filterCanvasScenarios(track);
+  const [canvasId, setCanvasId] = useState<string>(canvasScenarios[0].id);
+  const canvas: CanvasScenario = canvasScenarios.find(c => c.id === canvasId) ?? canvasScenarios[0];
+
   const [selected, setSelected] = useState<string | null>(null);
   const NW = 160, NH = 56;
+
+  useEffect(() => { setSelected(null); }, [canvas.id]);
 
   const techNodes: M4Node[] = [
     { id: 'trigger', x: 10, y: 30, label: 'Gmail Trigger', typeLabel: 'TRIGGER', icon: '✉', color: '#0F766E',
@@ -894,10 +920,13 @@ const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
     { from: 'validate', to: 'error', isError: true, fromBottom: true },
   ];
 
-  const nodes = track === 'engineer' ? techNodes : nonTechNodes;
-  const conns = track === 'engineer' ? techConns : nonTechConns;
+  const nodes = canvas.nodes;
+  const conns = canvas.conns;
+  // Suppress unused-warnings for the legacy literal blocks above; they’re
+  // kept inline for diff minimality but read from `canvas` at render time.
+  void techNodes; void techConns; void nonTechNodes; void nonTechConns;
   const sel = nodes.find(n => n.id === selected);
-  const CW = track === 'engineer' ? 926 : 1110;
+  const CW = canvas.width;
 
   const getPath = (conn: M4Conn): string => {
     const f = nodes.find(n => n.id === conn.from);
@@ -923,12 +952,24 @@ const N8nCanvasExplorer = ({ track }: { track: GenAITrack }) => {
           {(['#FF5F57', '#FFBD2E', '#28C840'] as const).map(c => <div key={c} style={{ width: 9, height: 9, borderRadius: '50%', background: c }} />)}
         </div>
         <div style={{ flex: 1, textAlign: 'center' as const, fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>
-          n8n — {track === 'engineer' ? 'exception-classifier.json' : 'monday-brief.json'}
+          n8n — {canvas.filename}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E' }} />
           <span style={{ fontSize: '9px', color: '#22C55E', fontFamily: "'JetBrains Mono', monospace" }}>ACTIVE</span>
         </div>
+      </div>
+      {/* Canvas picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>CANVAS</span>
+        <select
+          value={canvasId}
+          onChange={(e) => setCanvasId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {canvasScenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{canvasScenarios.length} presets</span>
       </div>
       {/* Canvas */}
       <div style={{ overflowX: 'auto' as const, padding: '24px 20px 20px',
