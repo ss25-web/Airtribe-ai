@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TOKEN_PROB_DATASET, TOKEN_PROB_FALLBACK, matchStarter, type TokenStarter, type TokenStep } from '@/data/genai/pr1-token-prob';
 import { CAPABILITY_DATASET, CAPABILITY_FALLBACK, matchCapabilityTask, type CapabilityEntry } from '@/data/genai/pr1-capability-zone';
 import { PROMPT_COMPARE_DATASET, matchPromptCompareScenario, type PromptCompareScenario } from '@/data/genai/pr1-prompt-compare';
+import { filterByTrack as filterContextByTrack, type ContextPacketScenario } from '@/data/genai/pr1-context-packet';
+import { filterReadinessByTrack, READINESS_CRITERIA, type ReadinessTriage, type ReadinessCandidate, type CriterionKey } from '@/data/genai/pr1-use-case-readiness';
 import QuizEngine from './QuizEngine';
 import GenAIAvatar, { GenAIConversationScene, GenAIHeroCharacterStrip } from './GenAIAvatar';
 import type { GenAITrack } from './genaiTypes';
@@ -982,51 +984,50 @@ const PromptCompareCard = ({ track }: { track: GenAITrack }) => {
 // Fields in the request body render with proper syntax tinting and missing
 // values get the red null/blank flag treatment that any API debugger uses.
 const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
-  type Field = { key: string; value: string; ok: boolean; type?: 'string' | 'number' | 'null' };
-  const goodFields: Field[] = track === 'engineer'
-    ? [
-        { key: 'patient_id',   value: '"PT-88412"',        ok: true,  type: 'string' },
-        { key: 'claim_amount', value: '2840.00',           ok: true,  type: 'number' },
-        { key: 'case_note',    value: '"847 chars — complete"', ok: true, type: 'string' },
-        { key: 'intake_form',  value: '{ … structured }',  ok: true,  type: 'string' },
-        { key: 'policy_tier',  value: '"Tier 2 — PPO"',    ok: true,  type: 'string' },
-      ]
-    : [
-        { key: 'case_id',        value: '"ESC-2024-7712"',         ok: true, type: 'string' },
-        { key: 'category',       value: '"Provider credentialing"', ok: true, type: 'string' },
-        { key: 'submitted_date', value: '"2024-03-01"',             ok: true, type: 'string' },
-        { key: 'case_notes',     value: '"1204 chars — complete"',  ok: true, type: 'string' },
-        { key: 'attachments',    value: '["PDF-1.pdf", "PDF-2.pdf"]', ok: true, type: 'string' },
-      ];
-  const badFields: Field[] = track === 'engineer'
-    ? [
-        { key: 'patient_id',   value: '"PT-88412"',              ok: true,  type: 'string' },
-        { key: 'claim_amount', value: 'null',                    ok: false, type: 'null' },
-        { key: 'case_note',    value: '"truncated at 256 chars…"', ok: false, type: 'string' },
-        { key: 'intake_form',  value: '"flattened string blob"', ok: false, type: 'string' },
-        { key: 'policy_tier',  value: 'null',                    ok: false, type: 'null' },
-      ]
-    : [
-        { key: 'case_id',        value: '"ESC-2024-4405"',  ok: true,  type: 'string' },
-        { key: 'category',       value: '""',               ok: false, type: 'string' },
-        { key: 'submitted_date', value: '"2022-11-14"',     ok: true,  type: 'string' },
-        { key: 'case_notes',     value: 'null',             ok: false, type: 'null' },
-        { key: 'attachments',    value: '["unavailable", "unavailable"]', ok: false, type: 'string' },
-      ];
-  const goodOutput = track === 'engineer'
-    ? 'Category: Disputed pharmacy benefit claim. Action: Escalate to pharmacy review within 48h — override requested by treating physician. Urgency: High. Risk: $2,840 exposure on PT-88412 if SLA breached.'
-    : 'Category: Provider credentialing exception, submitted 2024-03-01 (case 7712). Recommended next step: Route to credentialing team; attached docs cover physician licensure and OON contract — sufficient for review without follow-up.';
-  const badOutput = track === 'engineer'
-    ? 'A patient case was reviewed and requires further triage. The claim is being processed per standard procedure. Please escalate as needed.'
-    : 'Based on the available information, this case requires standard review. We recommend following the appropriate escalation process based on category and urgency.';
-
+  // Dataset-driven: pick scenario from filtered list, toggle COMPLETE/BROKEN,
+  // stream the pre-authored response from the dataset.
+  const scenarios = filterContextByTrack(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
   const [env, setEnv] = useState<'good' | 'bad'>('good');
+  const [streamed, setStreamed] = useState<string>('');
+  const streamingRef = useRef<number | null>(null);
+
+  const scenario: ContextPacketScenario =
+    scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+
   const active = env === 'good'
-    ? { fields: goodFields, output: goodOutput, accent: '#16A34A', label: 'PROD · complete packet',  pill: '200 OK', warning: 0 }
-    : { fields: badFields,  output: badOutput,  accent: '#EF4444', label: 'PROD · broken packet',   pill: '200 OK', warning: badFields.filter(f => !f.ok).length };
-  const url = track === 'engineer'
-    ? 'POST  https://api.northstar.health/v1/claims/{id}/triage'
-    : 'POST  https://api.northstar.health/v1/exceptions/triage';
+    ? { fields: scenario.completeFields, output: scenario.completeOutput, accent: '#16A34A', label: 'PROD · complete packet', pill: '200 OK', warning: 0 }
+    : { fields: scenario.brokenFields,  output: scenario.brokenOutput,  accent: '#EF4444', label: 'PROD · broken packet',   pill: '200 OK', warning: scenario.brokenFields.filter(f => !f.ok).length };
+
+  // Re-stream the response whenever scenario or env changes.
+  React.useEffect(() => {
+    if (streamingRef.current !== null) {
+      window.clearTimeout(streamingRef.current);
+      streamingRef.current = null;
+    }
+    setStreamed('');
+    const target = active.output;
+    let i = 0;
+    const step = () => {
+      i += 2;
+      setStreamed(target.slice(0, i));
+      if (i < target.length) {
+        streamingRef.current = window.setTimeout(step, 10);
+      } else {
+        streamingRef.current = null;
+      }
+    };
+    streamingRef.current = window.setTimeout(step, 60);
+    return () => {
+      if (streamingRef.current !== null) {
+        window.clearTimeout(streamingRef.current);
+        streamingRef.current = null;
+      }
+    };
+  }, [scenarioId, env, active.output]);
+
+  const url = scenario.url;
+  const urlPath = url.split('  ')[1] ?? url;
 
   const inkPrimary = '#E5E7EB';
   const inkSub = '#9CA3AF';
@@ -1047,7 +1048,7 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
         <div style={{ width: 18, height: 18, borderRadius: 4, background: postman, color: '#fff', fontSize: 11, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>P</div>
         <span style={{ fontSize: 12, fontWeight: 700, color: inkPrimary }}>Postman</span>
         <span style={{ color: inkMuted, fontSize: 11 }}>·</span>
-        <span style={{ fontSize: 11, color: inkSub }}>northstar / triage-request</span>
+        <span style={{ fontSize: 11, color: inkSub }}>{scenario.domain} · {scenario.id}</span>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>ENVIRONMENT</span>
           {(['good', 'bad'] as const).map(e => (
@@ -1069,10 +1070,32 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
         </div>
       </div>
 
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: '#1B1B1B', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>SCENARIO</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{
+            flex: 1, appearance: 'none' as const, cursor: 'pointer',
+            background: '#262626', border: `1px solid ${border}`, borderRadius: 5,
+            padding: '5px 10px', fontSize: 11, fontWeight: 600, color: inkPrimary,
+            fontFamily: 'inherit',
+          }}
+        >
+          {scenarios.map(s => (
+            <option key={s.id} value={s.id}>{s.label}</option>
+          ))}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>
+          {scenarios.length} presets
+        </span>
+      </div>
+
       {/* URL bar with HTTP method */}
       <div style={{ padding: '10px 14px', background: '#1F1F1F', borderBottom: `1px solid ${border}`, display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ padding: '5px 12px', background: postman, color: '#fff', borderRadius: 5, fontWeight: 800, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}>POST</div>
-        <div style={{ flex: 1, padding: '5px 11px', background: '#262626', border: `1px solid ${border}`, borderRadius: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: inkPrimary }}>{url.split('  ')[1]}</div>
+        <div style={{ flex: 1, padding: '5px 11px', background: '#262626', border: `1px solid ${border}`, borderRadius: 5, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: inkPrimary }}>{urlPath}</div>
         <button type="button" style={{ appearance: 'none', cursor: 'default', padding: '5px 14px', background: '#0E84F5', border: 'none', borderRadius: 5, fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: 'inherit' }}>Send</button>
       </div>
 
@@ -1123,7 +1146,10 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#22C55E' }}>200 OK</span>
           </div>
           <div style={{ padding: '12px 14px', background: '#1A1A1A', fontSize: 11.5, color: inkPrimary, lineHeight: 1.65, minHeight: 120 }}>
-            {active.output}
+            {streamed}
+            {streamingRef.current !== null && (
+              <span style={{ display: 'inline-block', width: 6, height: 13, background: '#22C55E', verticalAlign: 'middle', marginLeft: 2, animation: 'blink 1s steps(2) infinite' }} />
+            )}
           </div>
         </div>
       </div>
@@ -1134,9 +1160,7 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
           {env === 'good' ? '✓ MODEL WROTE FROM FACTS' : '✗ MODEL DRIFTED INTO PLAUSIBLE FILLER'}
         </div>
         <div style={{ fontSize: 10.5, color: inkSub, lineHeight: 1.55 }}>
-          {env === 'good'
-            ? 'Every required field present and well-typed — model has hard facts to write from.'
-            : `${active.warning} fields silently null or truncated · model can\'t see the gap and fills it with generic prose. Status code is still 200 — nothing alerts.`}
+          {env === 'good' ? scenario.completeNote : scenario.brokenNote}
         </div>
       </div>
     </div>
@@ -1149,116 +1173,15 @@ const ContextPacketCard = ({ track }: { track: GenAITrack }) => {
 // criteria. Each row reveals a pass/fail verdict with a one-line explanation;
 // a final verdict ribbon shows whether this is a safe first build.
 const UseCaseReadinessCard = ({ track }: { track: GenAITrack }) => {
-  type CriterionKey = 'language' | 'bounded' | 'verify' | 'recover' | 'observe';
-  type Outcome = { pass: boolean; note: string };
-  type Candidate = {
-    id: 'auto' | 'review' | 'autonomous';
-    label: string;
-    blurb: string;
-    verdict: 'Build first' | 'Wait — needs review step' | 'Don’t build';
-    verdictColor: string;
-    rows: Record<CriterionKey, Outcome>;
-  };
+  // Dataset-driven: triage picker (filtered by track) swaps in 3 fresh
+  // candidates per domain. Five-criterion reveal mechanic stays the same.
+  const triages = filterReadinessByTrack(track);
+  const [triageId, setTriageId] = useState<string>(triages[0].id);
+  const activeTriage: ReadinessTriage = triages.find(t => t.id === triageId) ?? triages[0];
+  const CRITERIA = READINESS_CRITERIA;
+  const CANDIDATES = activeTriage.candidates;
 
-  const CRITERIA: { key: CriterionKey; label: string; sub: string }[] = [
-    { key: 'language', label: 'Language-based', sub: 'Text in, text out — no live data lookup.' },
-    { key: 'bounded',  label: 'Bounded output', sub: 'A category, draft or summary — not a final action.' },
-    { key: 'verify',   label: 'Easy to verify', sub: 'A human can spot a wrong output quickly.' },
-    { key: 'recover',  label: 'Recoverable',    sub: 'Errors caught before they affect anything downstream.' },
-    { key: 'observe',  label: 'Observable',     sub: 'You can see what the model gets wrong, not just right.' },
-  ];
-
-  const CANDIDATES: Candidate[] = track === 'engineer'
-    ? [
-        {
-          id: 'auto',
-          label: 'Auto-approve routine exceptions at >80% confidence',
-          blurb: 'Biggest headline ROI. No human in the loop. Confidence threshold gates the action.',
-          verdict: 'Don’t build',
-          verdictColor: '#DC2626',
-          rows: {
-            language: { pass: false, note: 'Approval requires policy + claim record. That’s a lookup, not language work.' },
-            bounded:  { pass: false, note: 'Output is an irreversible decision on a live case.' },
-            verify:   { pass: false, note: 'Nobody reads correct approvals — wrong ones are invisible.' },
-            recover:  { pass: false, note: 'Wrong approval routes through downstream systems silently.' },
-            observe:  { pass: false, note: 'You see headline volume, not the failure pattern.' },
-          },
-        },
-        {
-          id: 'review',
-          label: 'Classify case requests + flag low-confidence for human review',
-          blurb: 'Model suggests a category. Human confirms anything uncertain. Tickets land in the right queue.',
-          verdict: 'Build first',
-          verdictColor: '#16A34A',
-          rows: {
-            language: { pass: true,  note: 'Reading a request and assigning a label is pure language work.' },
-            bounded:  { pass: true,  note: 'Output is one label from a small set — not an action.' },
-            verify:   { pass: true,  note: 'A reviewer can confirm or override a label in seconds.' },
-            recover:  { pass: true,  note: 'Wrong labels are caught at review before anything routes.' },
-            observe:  { pass: true,  note: 'You log every disagreement — that’s your failure-mode dataset.' },
-          },
-        },
-        {
-          id: 'autonomous',
-          label: 'Autonomous intake agent: monitor, route, act',
-          blurb: 'Long-running agent watches the queue and takes action without checkpoints.',
-          verdict: 'Don’t build',
-          verdictColor: '#DC2626',
-          rows: {
-            language: { pass: false, note: 'Routing decisions touch live system state — not in the prompt.' },
-            bounded:  { pass: false, note: 'Multi-step actions, not a single bounded output.' },
-            verify:   { pass: false, note: 'A reviewer can’t reconstruct what the agent did across N steps.' },
-            recover:  { pass: false, note: 'Side-effects from step 3 are live by the time step 7 fails.' },
-            observe:  { pass: false, note: 'Compound failure modes — hard to attribute which step went wrong.' },
-          },
-        },
-      ]
-    : [
-        {
-          id: 'auto',
-          label: 'Auto-resolve routine exceptions at >80% confidence',
-          blurb: 'Biggest headcount story. No human in the loop. Confidence score gates the action.',
-          verdict: 'Don’t build',
-          verdictColor: '#DC2626',
-          rows: {
-            language: { pass: false, note: 'Resolving an exception needs policy + case data the model can’t see.' },
-            bounded:  { pass: false, note: 'The output is a real action affecting the submitter — not just text.' },
-            verify:   { pass: false, note: 'Nobody reads correct resolutions; wrong ones surface only downstream.' },
-            recover:  { pass: false, note: 'A wrong resolution notice is hard to walk back.' },
-            observe:  { pass: false, note: 'You see how many got resolved — not how many got resolved wrong.' },
-          },
-        },
-        {
-          id: 'review',
-          label: 'Classify escalations + flag low-confidence for human review',
-          blurb: 'Model suggests a category and urgency. A reviewer confirms anything uncertain before it routes.',
-          verdict: 'Build first',
-          verdictColor: '#16A34A',
-          rows: {
-            language: { pass: true,  note: 'Reading an escalation and assigning a category is language work.' },
-            bounded:  { pass: true,  note: 'Output is one label — bounded, not an action.' },
-            verify:   { pass: true,  note: 'A reviewer can confirm or correct in under a minute.' },
-            recover:  { pass: true,  note: 'Wrong labels caught at the review step before routing.' },
-            observe:  { pass: true,  note: 'Every reviewer correction is data on where the model fails.' },
-          },
-        },
-        {
-          id: 'autonomous',
-          label: 'AI drafts complaint responses sent after a 30-sec spot check',
-          blurb: 'AI writes the reply, an assistant glances, then it goes out the door.',
-          verdict: 'Wait — needs review step',
-          verdictColor: '#D97706',
-          rows: {
-            language: { pass: true,  note: 'Drafting a reply from a complaint description is language work.' },
-            bounded:  { pass: true,  note: 'Output is a draft — bounded.' },
-            verify:   { pass: false, note: '30-second spot checks miss tone errors and factual drift.' },
-            recover:  { pass: false, note: 'A bad reply is already in the provider’s inbox.' },
-            observe:  { pass: false, note: 'You won’t see the bad drafts that slipped through.' },
-          },
-        },
-      ];
-
-  const [pickedId, setPickedId] = useState<Candidate['id']>('review');
+  const [pickedId, setPickedId] = useState<ReadinessCandidate['id']>('review');
   const [revealed, setRevealed] = useState<Record<CriterionKey, boolean>>({
     language: false, bounded: false, verify: false, recover: false, observe: false,
   });
@@ -1268,8 +1191,14 @@ const UseCaseReadinessCard = ({ track }: { track: GenAITrack }) => {
   const allRevealed = revealedCount === CRITERIA.length;
   const passCount = (Object.keys(revealed) as CriterionKey[]).filter(k => revealed[k] && picked.rows[k].pass).length;
 
-  const switchCandidate = (id: Candidate['id']) => {
+  const switchCandidate = (id: ReadinessCandidate['id']) => {
     setPickedId(id);
+    setRevealed({ language: false, bounded: false, verify: false, recover: false, observe: false });
+  };
+
+  const switchTriage = (id: string) => {
+    setTriageId(id);
+    setPickedId('review');
     setRevealed({ language: false, bounded: false, verify: false, recover: false, observe: false });
   };
 
@@ -1297,9 +1226,34 @@ const UseCaseReadinessCard = ({ track }: { track: GenAITrack }) => {
           <div style={{ width: 18, height: 18, borderRadius: 4, background: linearAccent, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 11 }}>L</div>
           <span style={{ fontSize: 12, fontWeight: 700, color: inkPrimary }}>Linear</span>
           <span style={{ color: inkMuted, fontSize: 11 }}>/</span>
-          <span style={{ fontSize: 11.5, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>ai-platform/first-build-triage</span>
+          <span style={{ fontSize: 11.5, color: inkSecondary, fontFamily: "'JetBrains Mono', monospace" }}>ai-platform/{activeTriage.id}</span>
         </div>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9.5, color: inkMuted, letterSpacing: '0.10em' }}>BUILD-FIRST DECISION</span>
+      </div>
+
+      {/* Triage picker — swap domain to load a fresh set of 3 candidates */}
+      <div style={{ padding: '8px 14px', background: linearPanelLight, borderBottom: `1px solid ${linearBorder}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted, letterSpacing: '0.10em' }}>DOMAIN</span>
+        <select
+          value={triageId}
+          onChange={(e) => switchTriage(e.target.value)}
+          style={{
+            flex: 1, appearance: 'none' as const, cursor: 'pointer',
+            background: linearBg, border: `1px solid ${linearBorder}`, borderRadius: 5,
+            padding: '5px 10px', fontSize: 11, fontWeight: 600, color: inkPrimary,
+            fontFamily: 'inherit',
+          }}
+        >
+          {triages.map(t => (
+            <option key={t.id} value={t.id}>{t.label}</option>
+          ))}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: inkMuted }}>{triages.length} presets</span>
+      </div>
+
+      {/* Work-context line so the learner knows what team they’re in */}
+      <div style={{ padding: '8px 14px', background: linearBg, borderBottom: `1px solid ${linearBorder}`, fontSize: 11, color: inkSecondary, lineHeight: 1.5 }}>
+        {activeTriage.workContext}
       </div>
 
       {/* Candidate row — like Linear's "Cycle" issue list */}
