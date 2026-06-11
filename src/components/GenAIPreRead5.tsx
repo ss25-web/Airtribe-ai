@@ -13,6 +13,13 @@ import {
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
 import { N8N_NW, N8N_NH, N8nFrame, N8nNodeCard, n8nBezier, N8nCanvas } from './n8nCanvas';
+import {
+  filterBatchScenarios, type BatchScenario,
+  filterFieldMapScenarios, type FieldMapScenario,
+  filterRouteScenarios, type RouteScenario, type RoutingBranch,
+  filterApprovalScenarios, type ApprovalScenario,
+  filterSessionScenarios, type SessionScenario,
+} from '@/data/genai/pr5-tools';
 
 const ACCENT = '#059669';
 const ACCENT_RGB = '5,150,105';
@@ -213,11 +220,23 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // batch tokens animate through the loop (or stall after batch 1 when the
 // feedback edge is broken).
 const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
-  const [arraySize, setArraySize] = useState(track === 'engineer' ? 20 : 50);
-  const [batchSize, setBatchSize] = useState(track === 'engineer' ? 5 : 10);
+  const scenarios = filterBatchScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: BatchScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+
+  const [arraySize, setArraySize] = useState(scenario.defaultArraySize);
+  const [batchSize, setBatchSize] = useState(scenario.defaultBatchSize);
   const [feedbackEdge, setFeedbackEdge] = useState(false);
   const [running, setRunning] = useState(false);
   const [activeBatch, setActiveBatch] = useState<number | null>(null);
+
+  useEffect(() => {
+    setArraySize(scenario.defaultArraySize);
+    setBatchSize(scenario.defaultBatchSize);
+    setFeedbackEdge(false);
+    setRunning(false);
+    setActiveBatch(null);
+  }, [scenario.id, scenario.defaultArraySize, scenario.defaultBatchSize]);
   const batches = Math.max(1, Math.ceil(arraySize / batchSize));
   const visibleBatches = Math.min(batches, 6);
   const willRunCount = feedbackEdge ? batches : 1;
@@ -249,7 +268,20 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
   const feedbackPath = `M ${procX + N8N_NW / 2} ${nodeY} C ${procX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} -20 ${splitX + N8N_NW / 2} ${nodeY}`;
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'splitinbatches-backlog.json' : 'splitinbatches-renewals.json'} status={running ? 'IDLE' : feedbackEdge ? 'ACTIVE' : 'ERROR'}>
+    <N8nFrame filename={scenario.filename} status={running ? 'IDLE' : feedbackEdge ? 'ACTIVE' : 'ERROR'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>WORKFLOW</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Canvas */}
       <N8nCanvas width={780} height={150}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
@@ -275,10 +307,10 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
             markerEnd={feedbackEdge ? 'url(#bs-arrow-loop)' : undefined}
           />
         </svg>
-        <N8nNodeCard x={triggerX} y={nodeY} label={track === 'engineer' ? 'HTTP Pull Backlog' : 'Read Renewals Sheet'} typeKey={track === 'engineer' ? 'data' : 'data'} icon={track === 'engineer' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={triggerX} y={nodeY} label={scenario.triggerLabel} typeKey={scenario.triggerType} icon={scenario.triggerIcon} />
         <N8nNodeCard x={splitX}   y={nodeY} label="SplitInBatches" typeKey="loop" icon="↻" subLabel={`BATCH SIZE ${batchSize}`} status={activeBatch !== null ? 'pending' : undefined} />
-        <N8nNodeCard x={procX}    y={nodeY} label={track === 'engineer' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" status={activeBatch !== null ? 'pending' : undefined} />
-        <N8nNodeCard x={sheetX}   y={nodeY} label={track === 'engineer' ? 'Tracker Sheet' : 'Send Digest'} typeKey="output" icon={track === 'engineer' ? '⊞' : '✉'} />
+        <N8nNodeCard x={procX}    y={nodeY} label={scenario.procLabel} typeKey="ai" icon={scenario.procIcon} status={activeBatch !== null ? 'pending' : undefined} />
+        <N8nNodeCard x={sheetX}   y={nodeY} label={scenario.outputLabel} typeKey="output" icon={scenario.outputIcon} />
       </N8nCanvas>
 
       {/* Batch ticker */}
@@ -315,7 +347,7 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
       <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'center', background: '#141920', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>ARRAY SIZE · {arraySize}</div>
-          <input type="range" min={5} max={track === 'engineer' ? 60 : 100} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
+          <input type="range" min={5} max={scenario.maxArraySize} value={arraySize} onChange={e => setArraySize(+e.target.value)} style={{ width: '100%', accentColor: '#0891B2' }} />
         </div>
         <div>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#A3A3A3', marginBottom: 4 }}>BATCH SIZE · {batchSize}</div>
@@ -361,41 +393,18 @@ const BatchSimulatorCard = ({ track }: { track: GenAITrack }) => {
 // the right with mapping arrows drawn between them when the learner
 // connects fields.
 const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
-  type Field = { name: string; type: string };
-  const sourceFields: Field[] = track === 'engineer'
-    ? [
-        { name: 'claimID',     type: 'string' },
-        { name: 'subject',     type: 'string' },
-        { name: 'body',        type: 'text'   },
-        { name: 'policyCode',  type: 'string' },
-      ]
-    : [
-        { name: 'row_id',          type: 'string' },
-        { name: 'exception_date',  type: 'date'   },
-        { name: 'Renewal Manager', type: 'string' },
-        { name: 'Status',          type: 'string' },
-        { name: 'Notes',           type: 'text'   },
-      ];
-  const targetFields: Field[] = track === 'engineer'
-    ? [
-        { name: 'claim_id',             type: 'string' },
-        { name: 'policy_code',          type: 'string' },
-        { name: 'classification_input', type: 'text'   },
-      ]
-    : [
-        { name: 'exception_id',  type: 'string' },
-        { name: 'date',          type: 'date'   },
-        { name: 'manager',       type: 'string' },
-        { name: 'status',        type: 'string' },
-        { name: 'summary_input', type: 'text'   },
-      ];
-  const correct: Record<string, string> = track === 'engineer'
-    ? { claimID: 'claim_id', policyCode: 'policy_code', subject: 'classification_input', body: 'classification_input' }
-    : { row_id: 'exception_id', exception_date: 'date', 'Renewal Manager': 'manager', Status: 'status', Notes: 'summary_input' };
+  const scenarios = filterFieldMapScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: FieldMapScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const sourceFields = scenario.sourceFields;
+  const targetFields = scenario.targetFields;
+  const correct = scenario.correct;
 
   const [selected, setSelected] = useState<string | null>(null);
   const [mappings, setMappings] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
+
+  useEffect(() => { setSelected(null); setMappings({}); setChecked(false); }, [scenario.id]);
 
   const mapTo = (target: string) => {
     if (!selected) return;
@@ -419,7 +428,20 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
   const fieldY = (idx: number) => FIRST_FIELD_Y + idx * (ROW_H + 4);
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'set-node-classifier-input.json' : 'set-node-renewals-input.json'} status={checked && allMapped ? 'ACTIVE' : 'EDITING'}>
+    <N8nFrame filename={scenario.filename} status={checked && allMapped ? 'ACTIVE' : 'EDITING'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>SET NODE</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Mini canvas at top */}
       <N8nCanvas width={640} height={100}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 640, height: 100, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
@@ -431,9 +453,9 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
           <path d={n8nBezier(12 + N8N_NW, 20 + N8N_NH / 2, 220, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
           <path d={n8nBezier(220 + N8N_NW, 20 + N8N_NH / 2, 428, 20 + N8N_NH / 2)} stroke="rgba(255,255,255,0.18)" strokeWidth={1.5} fill="none" markerEnd="url(#fm-arrow)" />
         </svg>
-        <N8nNodeCard x={12}  y={20} label={track === 'engineer' ? 'Claims Source' : 'Renewals Sheet'} typeKey="data" icon={track === 'engineer' ? '⇄' : '⊞'} />
+        <N8nNodeCard x={12}  y={20} label={scenario.sourceNodeLabel} typeKey="data" icon={scenario.sourceNodeIcon} />
         <N8nNodeCard x={220} y={20} label="Set (Edit Fields)" typeKey="transform" icon="⚙" subLabel={`MAPPING ${Object.keys(mappings).length}/${total}`} status={checked ? (allMapped ? 'ok' : 'fail') : undefined} />
-        <N8nNodeCard x={428} y={20} label={track === 'engineer' ? 'OpenAI Classify' : 'Claude Digest'} typeKey="ai" icon="◈" ghost={!checked || !allMapped} />
+        <N8nNodeCard x={428} y={20} label={scenario.downstreamNodeLabel} typeKey="ai" icon="◈" ghost={!checked || !allMapped} />
       </N8nCanvas>
 
       {/* Set node editor panel */}
@@ -551,31 +573,16 @@ const FieldMapperCard = ({ track }: { track: GenAITrack }) => {
 // presses Execute — items animate into the correct downstream node when
 // right, into the wrong one (flashing red) when wrong.
 const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
-  type Branch = 'A' | 'B' | 'C';
-  type Item = { id: string; label: string; field: string; value: string; correct: Branch };
-  const items: Item[] = track === 'engineer' ? [
-    { id: 'CLM-4412', label: 'CLM-4412', field: 'confidence', value: '0.71', correct: 'B' },
-    { id: 'CLM-4413', label: 'CLM-4413', field: 'confidence', value: '0.91', correct: 'A' },
-    { id: 'CLM-4414', label: 'CLM-4414', field: 'confidence', value: '0.55', correct: 'C' },
-    { id: 'CLM-4415', label: 'CLM-4415', field: 'confidence', value: '0.63', correct: 'B' },
-  ] : [
-    { id: '4412', label: '#4412', field: 'status',  value: 'critical',   correct: 'A' },
-    { id: '4419', label: '#4419', field: 'status',  value: 'pending+2d', correct: 'C' },
-    { id: '4433', label: '#4433', field: 'status',  value: 'pending+5d', correct: 'B' },
-    { id: '4441', label: '#4441', field: 'status',  value: 'critical',   correct: 'A' },
-  ];
-  const BRANCHES: { id: Branch; label: string; node: string; icon: string; rule: string }[] = track === 'engineer' ? [
-    { id: 'A', label: 'Auto-write',     node: 'Tracker Sheet',     icon: '⊞', rule: 'confidence ≥ 0.85' },
-    { id: 'B', label: 'Human review',   node: 'Review Queue',      icon: '⚑', rule: '0.60 ≤ conf < 0.85' },
-    { id: 'C', label: 'Manual triage',  node: 'Triage Dead-letter', icon: '⚠', rule: 'confidence < 0.60' },
-  ] : [
-    { id: 'A', label: 'Immediate',      node: 'Escalate Slack',    icon: '⚡', rule: 'status = critical' },
-    { id: 'B', label: 'Manager F/U',    node: 'Manager Email',     icon: '✉', rule: 'pending > 4d' },
-    { id: 'C', label: 'Weekly summary', node: 'Weekly Digest',     icon: '☰', rule: 'pending ≤ 4d' },
-  ];
+  const scenarios = filterRouteScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: RouteScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const items = scenario.items;
+  const BRANCHES = scenario.branches;
 
-  const [picks, setPicks] = useState<Record<string, Branch>>({});
+  const [picks, setPicks] = useState<Record<string, RoutingBranch>>({});
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => { setPicks({}); setRevealed(false); }, [scenario.id]);
   const allPicked = items.every(i => picks[i.id]);
   const score = revealed ? items.filter(i => picks[i.id] === i.correct).length : 0;
 
@@ -585,7 +592,20 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
   const branchY = [40, 160, 280];
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'confidence-router.json' : 'priority-router.json'} status={revealed ? (score === items.length ? 'ACTIVE' : 'ERROR') : 'EDITING'}>
+    <N8nFrame filename={scenario.filename} status={revealed ? (score === items.length ? 'ACTIVE' : 'ERROR') : 'EDITING'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>SWITCH</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       <N8nCanvas width={780} height={400}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 780, height: 400, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
           <defs>
@@ -707,10 +727,22 @@ const RoutePredictorCard = ({ track }: { track: GenAITrack }) => {
 // in the canvas and animates the workflow's resume.
 const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
   type ItemState = 'pending' | 'approved' | 'rejected' | 'escalated';
+  const scenarios = filterApprovalScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: ApprovalScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
   const [state, setState] = useState<ItemState>('pending');
-  const item = track === 'engineer'
-    ? { id: 'CLM-4412', label: 'Pharmacy override · Tier 2', confidence: '0.71', sla: 'Thursday 17:00', channel: 'claims-review' }
-    : { id: '#4412', label: 'Escalate to regional manager', days: '6d open (SLA: 5d)', sla: 'Thursday 12:00', channel: 'ops-approvals' };
+  // Legacy `item` shape kept for downstream references that still read from
+  // dot-notation properties; we forward to scenario values.
+  const item = {
+    id: scenario.itemId,
+    label: scenario.itemLabel,
+    confidence: scenario.itemDetail,
+    days: scenario.itemDetail,
+    sla: scenario.sla,
+    channel: scenario.channel,
+  };
+
+  useEffect(() => { setState('pending'); }, [scenario.id]);
 
   const upstreamX = 12, waitX = 200, approveX = 408, rejectX = 408, escalateX = 408;
   const upstreamY = 140;
@@ -720,7 +752,20 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
   const escalateY = 250;
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'wait-approval-claim.json' : 'wait-approval-exception.json'} status={state === 'pending' ? 'IDLE' : 'ACTIVE'}>
+    <N8nFrame filename={scenario.filename} status={state === 'pending' ? 'IDLE' : 'ACTIVE'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>APPROVAL FLOW</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
         {/* LEFT: canvas */}
         <div style={{ borderRight: '1px solid rgba(255,255,255,0.06)' }}>
@@ -741,10 +786,10 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
               <path d={n8nBezier(waitX + N8N_NW, waitY + N8N_NH / 2, escalateX, escalateY + N8N_NH / 2)} stroke={state === 'escalated' ? '#A855F7' : 'rgba(255,255,255,0.10)'} strokeWidth={state === 'escalated' ? 2 : 1.5} strokeDasharray={state === 'escalated' ? undefined : '4 5'} fill="none" markerEnd="url(#ap-arrow)" />
             </svg>
 
-            <N8nNodeCard x={upstreamX} y={upstreamY} label={track === 'engineer' ? 'OpenAI Classify' : 'Validate Brief'} typeKey={track === 'engineer' ? 'ai' : 'transform'} icon={track === 'engineer' ? '◈' : '✓'} />
+            <N8nNodeCard x={upstreamX} y={upstreamY} label={scenario.upstreamLabel} typeKey={scenario.upstreamType} icon={scenario.upstreamIcon} />
             <N8nNodeCard x={waitX}     y={waitY}     label="Wait (webhook)" typeKey="wait" icon="⏱" subLabel={`TIMEOUT 48H · ${state.toUpperCase()}`} status={state === 'pending' ? 'pending' : 'ok'} />
-            <N8nNodeCard x={approveX}  y={approveY}  label={track === 'engineer' ? 'Write Tracker' : 'Send Escalation'} typeKey="output" icon={track === 'engineer' ? '⊞' : '✉'} ghost={state !== 'approved'} status={state === 'approved' ? 'ok' : undefined} />
-            <N8nNodeCard x={rejectX}   y={rejectY}   label={track === 'engineer' ? 'Manual Triage' : 'Hold for Review'} typeKey="error" icon="⚠" ghost={state !== 'rejected'} status={state === 'rejected' ? 'fail' : undefined} />
+            <N8nNodeCard x={approveX}  y={approveY}  label={scenario.approveLabel} typeKey="output" icon={scenario.approveIcon} ghost={state !== 'approved'} status={state === 'approved' ? 'ok' : undefined} />
+            <N8nNodeCard x={rejectX}   y={rejectY}   label={scenario.rejectLabel} typeKey="error" icon={scenario.rejectIcon} ghost={state !== 'rejected'} status={state === 'rejected' ? 'fail' : undefined} />
             <N8nNodeCard x={escalateX} y={escalateY} label="Auto-Escalate" typeKey="transform" icon="⇑" ghost={state !== 'escalated'} status={state === 'escalated' ? 'pending' : undefined} subLabel="WEBHOOK /escalate" />
           </N8nCanvas>
         </div>
@@ -804,19 +849,15 @@ const ApprovalSimulatorCard = ({ track }: { track: GenAITrack }) => {
 // each session forward and watches the memory IDs stay isolated — the
 // second user never sees the first user's context.
 const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
-  type User = { id: string; name: string; color: string; questions: string[]; answers: string[] };
-  const users: User[] = track === 'engineer'
-    ? [
-        { id: 'user-7821', name: 'Aarav', color: '#10B981', questions: ['What is deductible for Plan B, Tier 2?', 'What about Tier 3?', 'Is there a family cap?'], answers: ['Plan B Tier 2 deductible: $1,400/yr (per plan_schedule.pdf).', 'Plan B Tier 3: $2,100/yr. (Plan B inherited from prior turn.)', 'Family OOP max for Plan B: $8,700 across all tiers.'] },
-        { id: 'user-4203', name: 'Guest', color: '#A855F7', questions: ['What is the deductible?', 'For which plan?'],                                  answers: ['I need more context — which plan and tier?', 'No prior context in this session. Please specify the plan and tier.'] },
-      ]
-    : [
-        { id: 'rhea-3', name: 'Rhea', color: '#10B981', questions: ['List open exceptions for Northstar West.', 'Which is highest priority?', 'Draft escalation for it.'], answers: ['3 open: #4412 (6d), #4419 (2d), #4433 (1d). SLA: 5d.', '#4412 — 6d open, 1d past SLA. (Carried from prior turn.)', 'Drafting escalation for #4412 (Northstar West, 6d) to regional manager…'] },
-        { id: 'ops-9', name: 'Guest', color: '#A855F7', questions: ['What is the highest-priority exception?', 'Escalate it.'],                       answers: ['No account context in this session. Specify an account or exception ID.', 'I need an exception ID before escalating. (No prior context.)'] },
-      ];
+  const scenarios = filterSessionScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: SessionScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const users = scenario.users;
 
   const [turns, setTurns] = useState<Record<string, number>>({});
-  const ask = (user: User) => {
+
+  useEffect(() => { setTurns({}); }, [scenario.id]);
+  const ask = (user: typeof users[number]) => {
     const current = turns[user.id] ?? 0;
     if (current < user.questions.length) setTurns(prev => ({ ...prev, [user.id]: current + 1 }));
   };
@@ -827,7 +868,20 @@ const SessionIsolationCard = ({ track }: { track: GenAITrack }) => {
   const upperY = 30;
 
   return (
-    <N8nFrame filename={track === 'engineer' ? 'agent-claims-faq.json' : 'agent-ops-faq.json'} status="ACTIVE">
+    <N8nFrame filename={scenario.filename} status="ACTIVE">
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 16px', background: '#141B27', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.14em' }}>AGENT</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0D14', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E2E8F0', fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Mini canvas at top */}
       <N8nCanvas width={620} height={150}>
         <svg style={{ position: 'absolute' as const, top: 0, left: 0, width: 620, height: 150, pointerEvents: 'none' as const, overflow: 'visible' as const }}>
