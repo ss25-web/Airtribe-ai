@@ -227,13 +227,13 @@ export default function Home() {
     localStorage.setItem(LS_STAGE, 'genai-reading');
     localStorage.setItem('airtribe_genai_module', num);
     localStorage.removeItem(LS_TRACK);
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const goBackToGenAIOverview = () => {
     setStage('genai');
     localStorage.setItem(LS_STAGE, 'genai');
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const goOverview = (track: Track) => {
@@ -248,7 +248,7 @@ export default function Home() {
     setStage('reading');
     localStorage.setItem(LS_STAGE, 'reading');
     localStorage.setItem(LS_MODULE, moduleNum);
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const goSWE = () => {
@@ -282,13 +282,13 @@ export default function Home() {
       localStorage.setItem(LS_STAGE, 'swe-reading');
       localStorage.setItem('airtribe_swe_module', moduleNum);
     }
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const goBackToSWEOverview = () => {
     setStage('swe');
     localStorage.setItem(LS_STAGE, 'swe');
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const goBackToSWESelect = () => {
@@ -443,7 +443,7 @@ export default function Home() {
   const goBackToOverview = () => {
     setStage('overview');
     localStorage.setItem(LS_STAGE, 'overview');
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   if (stage === 'reading' && assignedTrack) {
