@@ -382,7 +382,7 @@ export const Avatar = ({ name, nameColor: _nameColor, borderColor, content, expa
     if (answered) return;
     setSelectedIdx(i);
     if (conceptId && options) {
-      store.recordQuizAttempt(conceptId, options[i].correct);
+      store.recordQuizAttempt(conceptId, options[i].correct, question ?? `avatar:${name}:${conceptId}`);
     }
   };
 

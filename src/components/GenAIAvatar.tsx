@@ -436,7 +436,7 @@ export default function GenAIAvatar({
     if (answered) return;
     setSelectedIdx(i);
     if (conceptId && options) {
-      store.recordQuizAttempt(conceptId, options[i].correct);
+      store.recordQuizAttempt(conceptId, options[i].correct, question ?? `genai-avatar:${name}:${conceptId}`);
     }
   };
 

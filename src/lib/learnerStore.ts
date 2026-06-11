@@ -52,10 +52,15 @@ interface LearnerStore {
   // Persistence for module progress
   completedSections: Record<string, string[]>;
 
+  // Per-concept set of quiz signatures already credited. Each quiz can
+  // only bump pKnow once even if the learner re-clicks the same option
+  // after the parent re-mounts (scrolling away/back, navigation).
+  answeredQuizzes: Record<string, string[]>;
+
   // Actions
   initSession: () => void;
   trackEvent: (event: Omit<LearnerEvent, 'timestamp'>) => void;
-  recordQuizAttempt: (conceptId: string, correct: boolean) => void;
+  recordQuizAttempt: (conceptId: string, correct: boolean, signature?: string) => void;
   updateScrollDepth: (depth: number) => void;
   markSectionViewed: (sectionId: string) => void;
   markSectionCompleted: (moduleId: string, sectionId: string) => void;
@@ -68,7 +73,7 @@ interface LearnerStore {
 
 type PersistedLearnerStore = Partial<Pick<
   LearnerStore,
-  'learnerId' | 'conceptStates' | 'recentAnswers' | 'cards' | 'preferredDifficulty' | 'streakDays' | 'lastActiveDate' | 'theme' | 'completedSections'
+  'learnerId' | 'conceptStates' | 'recentAnswers' | 'cards' | 'preferredDifficulty' | 'streakDays' | 'lastActiveDate' | 'theme' | 'completedSections' | 'answeredQuizzes'
 >>;
 
 export const useLearnerStore = create<LearnerStore>()(
@@ -86,6 +91,7 @@ export const useLearnerStore = create<LearnerStore>()(
       lastActiveDate: '',
       theme: 'dark',
       completedSections: {},
+      answeredQuizzes: {},
 
       initSession: () => {
         const today = new Date().toISOString().split('T')[0];
@@ -118,17 +124,33 @@ export const useLearnerStore = create<LearnerStore>()(
         }));
       },
 
-      recordQuizAttempt: (conceptId, correct) => {
+      recordQuizAttempt: (conceptId, correct, signature) => {
+        // Dedupe by (conceptId, signature). If the same quiz has already
+        // been credited for this concept, do nothing — re-clicking the
+        // same option after a re-mount (scroll-away/back, navigation)
+        // should not bump mastery again.
+        const state = get();
+        if (signature) {
+          const already = state.answeredQuizzes[conceptId] ?? [];
+          if (already.includes(signature)) return;
+        }
+
         set(state => {
           const existing = state.conceptStates[conceptId] ?? createConceptState(conceptId);
           const updated = updateConceptState(existing, correct);
           const newAnswers = [...state.recentAnswers, correct].slice(-10);
           const difficulty = predictOptimalDifficulty(newAnswers);
+          const answeredForConcept = signature
+            ? [...(state.answeredQuizzes[conceptId] ?? []), signature]
+            : (state.answeredQuizzes[conceptId] ?? []);
 
           return {
             conceptStates: { ...state.conceptStates, [conceptId]: updated },
             recentAnswers: newAnswers,
             preferredDifficulty: difficulty,
+            answeredQuizzes: signature
+              ? { ...state.answeredQuizzes, [conceptId]: answeredForConcept }
+              : state.answeredQuizzes,
           };
         });
 
@@ -281,6 +303,7 @@ export const useLearnerStore = create<LearnerStore>()(
           lastActiveDate: state.lastActiveDate ?? '',
           theme: state.theme ?? 'dark',
           completedSections: migratedCompleted,
+          answeredQuizzes: state.answeredQuizzes ?? {},
         };
       },
       partialize: (state) => ({
@@ -293,6 +316,7 @@ export const useLearnerStore = create<LearnerStore>()(
         lastActiveDate: state.lastActiveDate,
         theme: state.theme,
         completedSections: state.completedSections,
+        answeredQuizzes: state.answeredQuizzes,
       }),
     }
   )

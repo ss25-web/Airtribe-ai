@@ -18,12 +18,17 @@ export interface ConceptState {
   masteryReached: boolean;
 }
 
-// Default BKT parameters calibrated for PM concepts
+// Default BKT parameters calibrated for PM concepts.
+// pTransit raised + pGuess lowered so a learner who answers all of a
+// concept's quizzes correctly reaches the mastery threshold within
+// ~2–3 attempts instead of ~7. Most concepts only ship 1–2 quizzes per
+// module, so the previous calibration capped real-world mastery at
+// ~30–40% even on a perfect run.
 const DEFAULT_PARAMS: BKTParams = {
   pLearn: 0.0,   // start at 0% — mastery earned through activity only
-  pTransit: 0.12,
+  pTransit: 0.32,
   pSlip: 0.08,
-  pGuess: 0.25,
+  pGuess: 0.10,
 };
 
 const MASTERY_THRESHOLD = 0.85;
@@ -67,7 +72,12 @@ export function updateConceptState(
   correct: boolean,
   params?: BKTParams
 ): ConceptState {
-  const newPKnow = updateKnowledge(state.pKnow, correct, params);
+  const rawPKnow = updateKnowledge(state.pKnow, correct, params);
+  // BKT is asymptotic — pKnow approaches 1.0 but never quite reaches it.
+  // Once the learner crosses the mastery threshold on a correct answer,
+  // clamp to 1.0 so the UI shows a clean "100% mastered" instead of
+  // dangling at 97–99% forever.
+  const newPKnow = (correct && rawPKnow >= MASTERY_THRESHOLD) ? 1 : rawPKnow;
   return {
     ...state,
     pKnow: newPKnow,

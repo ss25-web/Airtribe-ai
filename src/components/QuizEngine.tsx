@@ -97,7 +97,7 @@ export default function QuizEngine({
 
     const correct = index === quiz.correctIndex;
 
-    recordQuizAttempt(conceptId, correct);
+    recordQuizAttempt(conceptId, correct, quiz.question);
     trackEvent({ type: 'quiz_attempt', data: { conceptId, correct, selectedIndex: index } });
 
     if (correct) {
