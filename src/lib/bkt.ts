@@ -52,8 +52,14 @@ export function updateKnowledge(
     pKnowGivenObs = denominator > 0 ? numerator / denominator : pKnow;
   }
 
-  // Apply learning transition
-  return pKnowGivenObs + (1 - pKnowGivenObs) * pTransit;
+  // Apply the learning-transition term ONLY on correct answers. Standard
+  // BKT applies it on every attempt (the "you also learn from getting
+  // it wrong" assumption), but in this product a wrong answer was still
+  // bumping pKnow from 0 to ~0.32 because the Bayesian downgrade alone
+  // can't offset the transit term when pKnow starts low. Skipping
+  // transit on wrong answers makes the UX match user expectation:
+  // correct → mastery goes up, wrong → mastery does not go up.
+  return correct ? pKnowGivenObs + (1 - pKnowGivenObs) * pTransit : pKnowGivenObs;
 }
 
 export function createConceptState(conceptId: string, initialPKnow?: number): ConceptState {
