@@ -13,6 +13,13 @@ import {
   TiltCard, chLabel, h2, keyBox, para, pullQuote,
 } from './pm-fundamentals/designSystem';
 import { LangSmithFrame, LangSmithLabel, LS } from './langsmithChrome';
+import {
+  filterCaScenarios, type CaScenario,
+  filterToolScenarios, type ToolScenario,
+  filterTraceScenarios, type TraceScenario, type SpanType, type Span,
+  filterGroundingScenarios, type GroundingScenario,
+  filterAnomalyScenarios, type AnomalyScenario,
+} from '@/data/genai/pr6-tools';
 
 const ACCENT = '#7C3AED';
 const ACCENT_RGB = '124,58,237';
@@ -211,21 +218,15 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // half is the task list — the learner classifies each task, the
 // matching topology highlights, wrong picks flash red.
 const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
-  type Task = { id: string; label: string; answer: 'chain' | 'agent'; hint: string };
-  const tasks: Task[] = track === 'engineer' ? [
-    { id: 't1', label: 'Classify claim CLM-4412: fetch → classify → write.',                          answer: 'chain', hint: 'Fixed 3-step sequence — no branching.' },
-    { id: 't2', label: '"What coverage does this claim have?" — may need policy / plan / amendments.', answer: 'agent', hint: 'Dynamic — agent decides which tools to call.' },
-    { id: 't3', label: 'Every Monday: pull claims, classify, email summary.',                          answer: 'chain', hint: 'Predictable cron — same path every run.' },
-    { id: 't4', label: 'Investigate why CLM-4415 was denied — policy? data? system?',                  answer: 'agent', hint: 'Unknown path; needs reasoning about what to check.' },
-  ] : [
-    { id: 't1', label: 'Every Friday: pull exceptions, summarise, email ops lead.',                    answer: 'chain', hint: 'Same 3 steps every run — no decisions needed.' },
-    { id: 't2', label: 'Resolve exception #4412 — may need SLA, history, contact logs.',               answer: 'agent', hint: 'Agent must decide what to look up next.' },
-    { id: 't3', label: 'Reformat exception list from Sheet A and send to Sheet B.',                    answer: 'chain', hint: 'Deterministic transform — no branching.' },
-    { id: 't4', label: '"Is this exception a priority?" for any given account.',                        answer: 'agent', hint: 'Fetch data, reason over it, then answer.' },
-  ];
+  const scenarios = filterCaScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: CaScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const tasks = scenario.tasks;
 
   const [picks, setPicks] = useState<Record<string, 'chain' | 'agent'>>({});
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => { setPicks({}); setRevealed(false); }, [scenario.id]);
   const [hover, setHover] = useState<'chain' | 'agent' | null>(null);
   const allPicked = tasks.every(t => picks[t.id]);
   const score = revealed ? tasks.filter(t => picks[t.id] === t.answer).length : 0;
@@ -236,7 +237,20 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
   const W = 360, H = 200;
 
   return (
-    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} view="LANGGRAPH STUDIO" status={revealed ? (score === tasks.length ? 'success' : 'error') : 'pending'}>
+    <LangSmithFrame project={scenario.project} view="LANGGRAPH STUDIO" status={revealed ? (score === tasks.length ? 'success' : 'error') : 'pending'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LangSmithLabel>WORKLOAD SET</LangSmithLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: LS.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Two side-by-side graph topologies */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, borderBottom: `1px solid ${LS.border}` }}>
         {/* Chain topology */}
@@ -434,37 +448,21 @@ const ChainAgentClassifierCard = ({ track }: { track: GenAITrack }) => {
 // three description versions (tabs), then runs an eval that simulates
 // 4 user queries against the description and reports correct-call %.
 const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
-  const toolName = track === 'engineer' ? 'get_claim_data' : 'get_exception_data';
-  type Eval = { query: string; shouldCall: boolean; whyA: string; whyB: string; whyC: string };
-  type Version = { id: string; label: string; desc: string; verdict: 'good' | 'over' | 'vague'; pct: number; reason: string };
-  const versions: Version[] = track === 'engineer' ? [
-    { id: 'A', label: 'V1 · vague',  desc: 'Gets claim data.',                                                                                                                                                       verdict: 'vague', pct: 38, reason: 'Too vague — agent calls this for everything, causing unnecessary lookups.' },
-    { id: 'B', label: 'V2 · scoped', desc: `Use ${toolName}() when the user asks about a specific claim by ID. Do NOT call for general policy questions or when claim data is already in context.`, verdict: 'good',  pct: 92, reason: 'Precise when + when-not-to. Agent calls only when appropriate.' },
-    { id: 'C', label: 'V3 · over',   desc: 'Retrieves claim information. Can be used for claim details, policy info, status updates, and general inquiries.',                                       verdict: 'over',  pct: 51, reason: 'Too broad — agent over-calls this for policy questions and general queries.' },
-  ] : [
-    { id: 'A', label: 'V1 · vague',  desc: 'Fetches exception data.',                                                                                                                                                 verdict: 'vague', pct: 41, reason: 'Too vague — agent calls for any question, causing unnecessary tool calls.' },
-    { id: 'B', label: 'V2 · over',   desc: 'Fetches data, history, and contacts for exceptions. Also useful for general account questions, trends, and email drafts.',                              verdict: 'over',  pct: 47, reason: 'Over-scoped — agent uses this even when account data is already in context.' },
-    { id: 'C', label: 'V3 · scoped', desc: `Use ${toolName}() when the user asks about a specific exception or account. Do NOT call for general trend reports or when exception data is already loaded.`, verdict: 'good',  pct: 94, reason: 'Clear scope with when/when-not. Prevents under- and over-calling.' },
-  ];
-
-  // Eval queries — same set across versions, the description determines whether the agent calls correctly
-  const evalSet = track === 'engineer'
-    ? [
-        { query: 'What’s the status of CLM-4412?', shouldCall: true },
-        { query: 'How does the appeal process work in general?', shouldCall: false },
-        { query: 'Show me the breakdown for CLM-8810', shouldCall: true },
-        { query: 'Summarise the conversation so far', shouldCall: false },
-      ]
-    : [
-        { query: 'Status on exception #4412?', shouldCall: true },
-        { query: 'What’s the average exception age across all teams?', shouldCall: false },
-        { query: 'Fetch details on Hartwell Group’s open exceptions', shouldCall: true },
-        { query: 'Summarise the discussion so far', shouldCall: false },
-      ];
+  const scenarios = filterToolScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: ToolScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const toolName = scenario.toolName;
+  const versions = scenario.versions;
+  const evalSet = scenario.evalSet;
 
   const [active, setActive] = useState<string>(versions[0].id);
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<Record<string, boolean[]>>({});
+
+  useEffect(() => {
+    setActive(scenario.versions[0].id);
+    setResults({});
+  }, [scenario.id, scenario.versions]);
 
   const activeV = versions.find(v => v.id === active)!;
 
@@ -489,7 +487,20 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
   const currentResults = results[active];
 
   return (
-    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run={`tool/${toolName}`} view="PROMPT HUB · TOOL" status={currentResults ? (activeV.verdict === 'good' ? 'success' : 'error') : 'pending'}>
+    <LangSmithFrame project={scenario.project} run={`tool/${toolName}`} view="PROMPT HUB · TOOL" status={currentResults ? (activeV.verdict === 'good' ? 'success' : 'error') : 'pending'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LangSmithLabel>TOOL</LangSmithLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: LS.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Tab bar for versions */}
       <div style={{ display: 'flex', background: '#080B14', borderBottom: `1px solid ${LS.border}` }}>
         {versions.map(v => {
@@ -535,7 +546,7 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
               { n: 5, t: <><span style={{ color: '#9CDCFE' }}>  "parameters"</span>: {'{'}</> },
               { n: 6, t: <><span style={{ color: '#9CDCFE' }}>    "type"</span>: <span style={{ color: '#CE9178' }}>"object"</span>,</> },
               { n: 7, t: <><span style={{ color: '#9CDCFE' }}>    "properties"</span>: {'{'}</> },
-              { n: 8, t: <><span style={{ color: '#9CDCFE' }}>      "{track === 'engineer' ? 'claim_id' : 'exception_id'}"</span>: {'{'} <span style={{ color: '#9CDCFE' }}>"type"</span>: <span style={{ color: '#CE9178' }}>"string"</span> {'}'}</> },
+              { n: 8, t: <><span style={{ color: '#9CDCFE' }}>      "{scenario.paramKey}"</span>: {'{'} <span style={{ color: '#9CDCFE' }}>"type"</span>: <span style={{ color: '#CE9178' }}>"string"</span> {'}'}</> },
               { n: 9, t: <>    {'}'}</> },
               { n: 10, t: <>  {'}'}</> },
               { n: 11, t: <>{'}'}</> },
@@ -611,30 +622,19 @@ const ToolDescriptionGraderCard = ({ track }: { track: GenAITrack }) => {
 // / output JSON). The "predict the next span type" interaction lives
 // inside the next-pending entry of the run tree.
 const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
-  type SpanType = 'REASON' | 'ACT' | 'OBS';
-  type Span = { type: SpanType; name: string; text: string; latency: number; tokens?: number };
-  const steps: Span[] = track === 'engineer' ? [
-    { type: 'REASON', name: 'reasoner.think',         text: 'User asked about claim CLM-4412. I should fetch claim data first.',                          latency: 412, tokens: 184 },
-    { type: 'ACT',    name: 'tool.get_claim_data',    text: 'get_claim_data(claim_id="CLM-4412")',                                                       latency: 68 },
-    { type: 'OBS',    name: 'tool.result',            text: '{ category: "pharmacy", policy_code: "4.2c", status: "disputed", amount: 1840 }',           latency: 6 },
-    { type: 'REASON', name: 'reasoner.think',         text: '§4.2c is in the amendment. Verify the clause before classifying.',                          latency: 388, tokens: 162 },
-    { type: 'ACT',    name: 'tool.query_policy_db',   text: 'query_policy_db(query="clause 4.2c pharmacy override", policy_type="amendment")',           latency: 94 },
-    { type: 'OBS',    name: 'tool.result',            text: '{ clause: "4.2c", permits: "Tier 2 CA override", effective: "2022-02-01" }',                latency: 5 },
-    { type: 'REASON', name: 'reasoner.final',         text: 'Claim qualifies under §4.2c. Confidence high. Ready to write classification.',              latency: 290, tokens: 134 },
-  ] : [
-    { type: 'REASON', name: 'reasoner.think',         text: 'User wants highest-priority exception for Northstar West. Fetch the data first.',           latency: 388, tokens: 176 },
-    { type: 'ACT',    name: 'tool.get_exception_data', text: 'get_exception_data(account_id="northstar-west")',                                          latency: 72 },
-    { type: 'OBS',    name: 'tool.result',            text: '[{id:4412, days_open:6, sla:5}, {id:4419, days_open:2}, {id:4433, days_open:1}]',           latency: 4 },
-    { type: 'REASON', name: 'reasoner.think',         text: '#4412 is past SLA. Check escalation history before recommending.',                          latency: 412, tokens: 152 },
-    { type: 'ACT',    name: 'tool.get_exception_data', text: 'get_exception_data(account_id="northstar-west", exception_id=4412, include_history=true)', latency: 88 },
-    { type: 'OBS',    name: 'tool.result',            text: '{ escalations: [], last_contact: "2026-03-08", notes: "awaiting docs from insured" }',     latency: 5 },
-    { type: 'REASON', name: 'reasoner.final',         text: 'No prior escalations, last contact 5 days ago. Standard first escalation is appropriate.', latency: 296, tokens: 124 },
-  ];
+  const scenarios = filterTraceScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: TraceScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const steps = scenario.steps;
 
   const [current, setCurrent] = useState(0);
   const [predictions, setPredictions] = useState<Record<number, SpanType>>({});
   const [showType, setShowType] = useState(false);
   const [selectedSpan, setSelectedSpan] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrent(0); setPredictions({}); setShowType(false); setSelectedSpan(null);
+  }, [scenario.id]);
   const isDone = current >= steps.length;
   const nextStep = steps[current];
 
@@ -651,7 +651,20 @@ const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
   const iconFor  = (t: SpanType) => t === 'REASON' ? '🧠' : t === 'ACT' ? '⚡' : '◉';
 
   return (
-    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run={`run-${track === 'engineer' ? '7821' : '4412'}`} view="TRACE VIEW" status={isDone ? 'success' : 'pending'}>
+    <LangSmithFrame project={scenario.project} run={scenario.runId} view="TRACE VIEW" status={isDone ? 'success' : 'pending'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LangSmithLabel>TRACE</LangSmithLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: LS.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Run summary bar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '8px 14px', borderBottom: `1px solid ${LS.border}`, background: LS.panel, fontFamily: "'JetBrains Mono', monospace", fontSize: 10 }}>
         <span style={{ color: LS.inkSecondary }}><span style={{ color: LS.inkMuted }}>spans </span><span style={{ color: LS.inkPrimary, fontWeight: 700 }}>{current}/{steps.length}</span></span>
@@ -789,25 +802,13 @@ const ReActStepExplorerCard = ({ track }: { track: GenAITrack }) => {
 // sampling, but the GROUNDED column has a retrieved-documents pane that
 // the model used. Hallucination risk and source citations differ.
 const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
-  const query = track === 'engineer' ? 'Does Plan B Tier 2 cover physician overrides for CA-based claims?' : 'What is the SLA for Northstar West escalations?';
-  const groundedAnswer = track === 'engineer'
-    ? 'Yes — §4.2c (amendment, Feb 2022) permits Tier 2 physician overrides for CA-based plans. Applies to Plan B (Plan Schedule pp. 14-16). Document citations: amendment-2022.pdf §4.2c; plan-schedule.pdf row 14.'
-    : 'SLA for Northstar West escalations is 5 business days (Northstar SLA policy v2, §2.1). Breaches trigger manager-level escalation per §2.3 of the exception guide. Sources: sla-policy-v2.pdf §2.1, §2.3.';
-  const ungroundedAnswer = track === 'engineer'
-    ? 'Yes, Plan B generally covers physician overrides. Most Tier 2 plans in California include this, typically within 30 days. Check with your plan administrator for exact terms.'
-    : 'SLA for escalations is typically 3–7 business days depending on the account. For priority accounts it may be shorter. Refer to your internal policy documentation.';
-
-  const docs = track === 'engineer'
-    ? [
-        { name: 'amendment-2022.pdf', span: '§4.2c, l.124-148', score: 0.94 },
-        { name: 'plan-schedule.pdf',  span: 'row 14, "Plan B"',  score: 0.87 },
-        { name: 'CA-overrides.md',    span: '## Tier 2',          score: 0.71 },
-      ]
-    : [
-        { name: 'sla-policy-v2.pdf',   span: '§2.1, "Escalation SLA"',   score: 0.93 },
-        { name: 'exception-guide.pdf', span: '§2.3, "Breach handling"',  score: 0.81 },
-        { name: 'northstar-faq.pdf',   span: '## Escalations',           score: 0.68 },
-      ];
+  const scenarios = filterGroundingScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: GroundingScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const query = scenario.query;
+  const groundedAnswer = scenario.groundedAnswer;
+  const ungroundedAnswer = scenario.ungroundedAnswer;
+  const docs = scenario.docs;
 
   const Run = ({ grounded }: { grounded: boolean }) => {
     const accent = grounded ? LS.accent : LS.err;
@@ -878,7 +879,20 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
   };
 
   return (
-    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} run="compare 0b40 ↔ 0b41" view="RUN COMPARISON">
+    <LangSmithFrame project={scenario.project} run="compare 0b40 ↔ 0b41" view="RUN COMPARISON">
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LangSmithLabel>QUERY</LangSmithLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: LS.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Shared query at top */}
       <div style={{ padding: '10px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}` }}>
         <LangSmithLabel>USER INPUT (shared across runs)</LangSmithLabel>
@@ -900,31 +914,17 @@ const GroundingToggleCard = ({ track }: { track: GenAITrack }) => {
 // anomaly badge. Clicking the spike or the flagged run reveals a root
 // cause picker.
 const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
-  type Row = { id: string; ts: string; in: number; out: number; tools: number; cost: number; anomaly: boolean };
-  const rows: Row[] = track === 'engineer' ? [
-    { id: 'run-001', ts: '14:02', in: 1240, out: 380,  tools: 2,  cost: 0.018, anomaly: false },
-    { id: 'run-002', ts: '14:08', in: 8920, out: 2100, tools: 11, cost: 0.134, anomaly: true  },
-    { id: 'run-003', ts: '14:14', in: 1180, out: 340,  tools: 2,  cost: 0.017, anomaly: false },
-    { id: 'run-004', ts: '14:21', in: 1310, out: 410,  tools: 3,  cost: 0.020, anomaly: false },
-  ] : [
-    { id: 'run-001', ts: '09:01', in: 980,  out: 290,  tools: 1, cost: 0.013, anomaly: false },
-    { id: 'run-002', ts: '09:07', in: 1100, out: 320,  tools: 1, cost: 0.015, anomaly: false },
-    { id: 'run-003', ts: '09:14', in: 6840, out: 1900, tools: 7, cost: 0.103, anomaly: true  },
-    { id: 'run-004', ts: '09:22', in: 990,  out: 300,  tools: 1, cost: 0.014, anomaly: false },
-  ];
-  const causes = track === 'engineer' ? [
-    { label: 'Agent entered a tool-calling loop — called get_claim_data 9 times before stopping', correct: true },
-    { label: 'Larger claim document ingested — document size drove up input tokens',               correct: false },
-    { label: 'Model switched to GPT-4 for this run, which has higher token costs',                  correct: false },
-  ] : [
-    { label: 'Exception batch included 50 items instead of the usual 5',                            correct: false },
-    { label: 'Agent looped on get_exception_data — called 6 times before timing out',              correct: true },
-    { label: 'System prompt was accidentally duplicated in this run',                               correct: false },
-  ];
+  const scenarios = filterAnomalyScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: AnomalyScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const rows = scenario.rows;
+  const causes = scenario.causes;
 
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const [selectedCause, setSelectedCause] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => { setSelectedRow(null); setSelectedCause(null); setRevealed(false); }, [scenario.id]);
   const anomaly = rows.find(r => r.anomaly)!;
   const correctCause = causes.findIndex(c => c.correct);
   const totalCost = rows.reduce((s, r) => s + r.cost, 0);
@@ -932,10 +932,10 @@ const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
   const p95Tokens = Math.max(...rows.map(r => r.in));
   const reset = () => { setSelectedRow(null); setSelectedCause(null); setRevealed(false); };
 
-  // Trend bars — 24 bars with the anomaly spike at the correct timestamp
+  // Trend bars — 24 bars with the anomaly spike at the configured timestamp
   const trend = Array.from({ length: 24 }, (_, i) => {
     const baseline = 14 + Math.round(Math.sin(i / 3) * 5 + Math.random() * 4);
-    const isSpike = i === 12;
+    const isSpike = i === scenario.spikeIndex;
     return { i, h: isSpike ? 58 : baseline, isSpike };
   });
 
@@ -947,7 +947,20 @@ const AnomalyDetectiveCard = ({ track }: { track: GenAITrack }) => {
   );
 
   return (
-    <LangSmithFrame project={track === 'engineer' ? 'claims-agent' : 'ops-exception-agent'} view="MONITORING · LAST 1H" status={revealed ? 'error' : 'pending'}>
+    <LangSmithFrame project={scenario.project} view="MONITORING · LAST 1H" status={revealed ? 'error' : 'pending'}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: LS.panel, borderBottom: `1px solid ${LS.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <LangSmithLabel>PROJECT</LangSmithLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: LS.bg, border: `1px solid ${LS.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: LS.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: LS.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Summary tiles */}
       <div style={{ padding: '12px 14px', background: LS.panelAlt, borderBottom: `1px solid ${LS.border}`, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
         <Tile label="RUNS"           value={String(rows.length)} />
