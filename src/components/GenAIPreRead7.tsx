@@ -15,6 +15,13 @@ import {
 } from './pm-fundamentals/designSystem';
 import { AirtribeLogo, DarkModeToggle } from './AirtribeBrand';
 import { ClaudeDesktopFrame, CDLabel, CD } from './claudeDesktopChrome';
+import {
+  filterCompareScenarios, type CompareScenario,
+  filterSchemaScenarios, type SchemaScenario,
+  filterFlowScenarios, type FlowScenario, type FlowStepType,
+  filterPermissionScenarios, type PermissionScenario,
+  filterLogScenarios, type LogScenario,
+} from '@/data/genai/pr7-tools';
 
 const ACCENT = '#B45309';
 const ACCENT_RGB = '180,83,9';
@@ -169,22 +176,18 @@ function computeXP(completedSections: Set<string>, conceptStates: Record<string,
 // can't help), once with the MCP server toggled ON (a tool_use block
 // fires, the result returns, the assistant responds with grounded facts).
 const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
+  const scenarios = filterCompareScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: CompareScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
   const [mcpEnabled, setMcpEnabled] = useState(false);
   const [step, setStep] = useState(0);
 
-  const prompt = track === 'engineer'
-    ? 'Route CLM-8847 to the least-loaded adjuster in the claims team.'
-    : 'Is Hartwell Group in our CRM, and when is their renewal due?';
-  const noMcpReply = track === 'engineer'
-    ? "I don't have access to live adjuster workload data \— I can't tell which one has the lightest caseload right now. To answer this I'd need a connection to your HR or workforce-management system."
-    : "I don't have access to your CRM. Based only on what you've shared, I can't confirm whether Hartwell Group is in the system or when their renewal is.";
+  useEffect(() => { setMcpEnabled(false); setStep(0); }, [scenario.id]);
 
-  const tool = track === 'engineer'
-    ? { server: 'northstar-claims', name: 'get_adjuster_load', args: 'department="claims"', result: '[\n  {"id":"ADJ-04","cases_open":3,"capacity":"high"},\n  {"id":"ADJ-07","cases_open":8,"capacity":"low"},\n  {"id":"ADJ-12","cases_open":5,"capacity":"med"}\n]' }
-    : { server: 'northstar-crm',    name: 'lookup_crm_account', args: 'account_name="Hartwell Group"', result: '{\n  "found": true,\n  "account_id": "ACC-2204",\n  "status": "active",\n  "renewal_date": "2026-05-12",\n  "owner": "Leila Ramos"\n}' };
-  const mcpReply = track === 'engineer'
-    ? 'Route to **ADJ-04**. They have 3 open cases and the highest available capacity — the lowest current load in the claims team.'
-    : 'Yes — **Hartwell Group** is in the CRM. Account ACC-2204, status active, renewal due **12 May 2026**, owned by Leila Ramos.';
+  const prompt = scenario.prompt;
+  const noMcpReply = scenario.noMcpReply;
+  const tool = { server: scenario.toolServer, name: scenario.toolName, args: scenario.toolArgs, result: scenario.toolResult };
+  const mcpReply = scenario.mcpReply;
 
   const playMcp = () => {
     setMcpEnabled(true);
@@ -196,8 +199,8 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
   const Bubble = ({ role, children }: { role: 'user' | 'assistant'; children: React.ReactNode }) => (
     <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-        <div style={{ width: 18, height: 18, borderRadius: '50%', background: role === 'user' ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: role === 'user' ? 'inherit' : 'serif' }}>{role === 'user' ? (track === 'engineer' ? 'A' : 'R') : 'A'}</div>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{role === 'user' ? (track === 'engineer' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+        <div style={{ width: 18, height: 18, borderRadius: '50%', background: role === 'user' ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: role === 'user' ? 'inherit' : 'serif' }}>{role === 'user' ? scenario.protagonistInitial : 'A'}</div>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{role === 'user' ? scenario.protagonist : 'CLAUDE'}</span>
       </div>
       <div style={{ maxWidth: '90%', padding: '9px 12px', background: role === 'user' ? CD.panel : 'transparent', border: role === 'user' ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{children}</div>
     </div>
@@ -205,6 +208,19 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
 
   return (
     <ClaudeDesktopFrame chatTitle={`Asking ${tool.name.replace(/_/g, ' ')}`} view={mcpEnabled ? 'WITH MCP' : 'NO MCP'} mcpServers={mcpEnabled ? 1 : 0}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>SCENARIO</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Server-config sub-bar */}
       <div style={{ padding: '8px 14px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <CDLabel>SETTINGS · MCP SERVERS</CDLabel>
@@ -289,21 +305,42 @@ const MCPVsApiCompareCard = ({ track }: { track: GenAITrack }) => {
 // Claude renders the tool in its tools tray: the icon + name and the
 // description rendered as the agent will read it.
 const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
-  const [toolName, setToolName] = useState(track === 'engineer' ? 'get_adjuster_load' : 'lookup_crm_account');
+  const scenarios = filterSchemaScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: SchemaScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+
+  const [toolName, setToolName] = useState(scenario.defaultToolName);
   const [desc, setDesc] = useState('');
-  const [paramName, setParamName] = useState(track === 'engineer' ? 'department' : 'account_name');
+  const [paramName, setParamName] = useState(scenario.defaultParamName);
   const [paramType, setParamType] = useState('string');
+
+  useEffect(() => {
+    setToolName(scenario.defaultToolName);
+    setDesc('');
+    setParamName(scenario.defaultParamName);
+  }, [scenario.id, scenario.defaultToolName, scenario.defaultParamName]);
 
   const hasWhen = /when|use this/i.test(desc);
   const hasWhenNot = /\bnot\b|do not|don't|never/i.test(desc);
   const descScore = (hasWhen ? 1 : 0) + (hasWhenNot ? 1 : 0) + (desc.length > 30 ? 1 : 0);
 
-  const placeholder = track === 'engineer'
-    ? "Use this tool when the user asks about adjuster availability or caseload. Do not call for policy questions or claim status."
-    : "Use this tool when the user asks about a specific account by name or ID. Do not call for general trend questions.";
+  const placeholder = scenario.placeholder;
 
   return (
-    <ClaudeDesktopFrame chatTitle={`Edit MCP server · ${track === 'engineer' ? 'northstar-claims' : 'northstar-crm'}`} view="SERVER CONFIG" mcpServers={descScore === 3 ? 1 : 0}>
+    <ClaudeDesktopFrame chatTitle={`Edit MCP server · ${scenario.serverName}`} view="SERVER CONFIG" mcpServers={descScore === 3 ? 1 : 0}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>TOOL</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 0 }}>
         {/* LEFT: VS Code-style schema editor */}
         <div style={{ borderRight: `1px solid ${CD.border}`, background: '#0E0E0E' }}>
@@ -415,7 +452,7 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
               <div style={{ width: 22, height: 22, borderRadius: 5, background: 'rgba(167,139,250,0.15)', border: `1px solid ${CD.tool}50`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: CD.tool, fontSize: 11 }}>⚒</div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: CD.inkPrimary, fontFamily: "'JetBrains Mono', monospace" }}>{toolName || 'my_tool'}</div>
-                <div style={{ fontSize: 9, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{track === 'engineer' ? 'northstar-claims' : 'northstar-crm'}</div>
+                <div style={{ fontSize: 9, color: CD.inkMuted, fontFamily: "'JetBrains Mono', monospace" }}>{scenario.serverName}</div>
               </div>
             </div>
             <div style={{ fontSize: 11, color: desc ? CD.inkPrimary : CD.inkMuted, lineHeight: 1.6, fontStyle: desc ? 'normal' as const : 'italic' as const }}>
@@ -453,28 +490,16 @@ const MCPToolSchemaBuilderCard = ({ track }: { track: GenAITrack }) => {
 // content type with the right colour (user bubble / reasoning panel /
 // tool_use code / tool_result JSON / reasoning / assistant reply).
 const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
-  type StepType = 'USER' | 'REASON' | 'TOOL_USE' | 'TOOL_RESULT' | 'REASON_2' | 'ANSWER';
-  type Step = { type: StepType; label: string; text: string };
-  const steps: Step[] = track === 'engineer' ? [
-    { type: 'USER',        label: 'User message',     text: 'Route claim CLM-8847 to the best available adjuster in the claims team.' },
-    { type: 'REASON',      label: 'Model reasoning',  text: 'I need to know current adjuster workloads before I can route. I should call get_adjuster_load() for the claims department.' },
-    { type: 'TOOL_USE',    label: 'Tool call',        text: 'get_adjuster_load(department="claims")' },
-    { type: 'TOOL_RESULT', label: 'Tool result',      text: '[\n  {"id":"ADJ-04","cases_open":3,"capacity":"high"},\n  {"id":"ADJ-07","cases_open":8,"capacity":"low"},\n  {"id":"ADJ-12","cases_open":5,"capacity":"med"}\n]' },
-    { type: 'REASON_2',    label: 'Model reasoning',  text: "ADJ-04 has the fewest open cases (3) and the highest capacity. That's the correct route." },
-    { type: 'ANSWER',      label: 'Assistant reply',  text: 'Routing CLM-8847 to ADJ-04. They have 3 open cases and high available capacity — lowest current load in the claims team.' },
-  ] : [
-    { type: 'USER',        label: 'User message',     text: 'Is Hartwell Group in our CRM and when is their renewal?' },
-    { type: 'REASON',      label: 'Model reasoning',  text: 'The user is asking about a specific account by name. I should call lookup_crm_account() for Hartwell Group.' },
-    { type: 'TOOL_USE',    label: 'Tool call',        text: 'lookup_crm_account(account_name="Hartwell Group")' },
-    { type: 'TOOL_RESULT', label: 'Tool result',      text: '{\n  "found": true,\n  "account_id": "ACC-2204",\n  "status": "active",\n  "renewal_date": "2026-05-12",\n  "owner": "Leila Ramos"\n}' },
-    { type: 'REASON_2',    label: 'Model reasoning',  text: 'Account found, active, renewal in May. I have everything I need to answer the question directly.' },
-    { type: 'ANSWER',      label: 'Assistant reply',  text: 'Yes — Hartwell Group is in the CRM. Account ACC-2204, active, renewal due 12 May 2026, owned by Leila Ramos.' },
-  ];
+  const scenarios = filterFlowScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: FlowScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const steps = scenario.steps;
 
   const [current, setCurrent] = useState(0);
+  useEffect(() => { setCurrent(0); }, [scenario.id]);
   const done = current >= steps.length;
 
-  const palette = (t: StepType) => {
+  const palette = (t: FlowStepType) => {
     switch (t) {
       case 'USER':        return { icon: '👤', label: 'USER',        color: CD.inkSecondary, bg: CD.panel };
       case 'REASON':
@@ -487,6 +512,19 @@ const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
 
   return (
     <ClaudeDesktopFrame chatTitle="Developer · live trace" view={done ? 'COMPLETE' : `STEP ${current + 1}/${steps.length}`} mcpServers={1}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>TRACE</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ padding: '14px 16px', background: CD.bg, minHeight: 280 }}>
         {steps.slice(0, Math.max(1, current)).map((s, i) => {
           const p = palette(s.type);
@@ -532,8 +570,8 @@ const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
           return (
             <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: isUser ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                <div style={{ width: 18, height: 18, borderRadius: '50%', background: isUser ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: isUser ? 'inherit' : 'serif' }}>{isUser ? (track === 'engineer' ? 'A' : 'R') : 'A'}</div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{isUser ? (track === 'engineer' ? 'AARAV' : 'RHEA') : 'CLAUDE'}</span>
+                <div style={{ width: 18, height: 18, borderRadius: '50%', background: isUser ? '#3B3B3B' : CD.accent, color: '#fff', fontWeight: 900, fontSize: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: isUser ? 'inherit' : 'serif' }}>{isUser ? scenario.protagonistInitial : 'A'}</div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted, letterSpacing: '0.10em' }}>{isUser ? scenario.protagonist : 'CLAUDE'}</span>
               </div>
               <div style={{ maxWidth: '90%', padding: '9px 12px', background: isUser ? CD.panel : 'transparent', border: isUser ? `1px solid ${CD.border}` : 'none', borderRadius: 8, fontSize: 12, color: CD.inkPrimary, lineHeight: 1.6 }}>{s.text}</div>
             </motion.div>
@@ -571,24 +609,16 @@ const MCPFlowStepperCard = ({ track }: { track: GenAITrack }) => {
 const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
   type Rating = 'safe' | 'review' | 'block';
   type ToolType = 'READ' | 'WRITE' | 'SEND' | 'DELETE';
-  type ToolRow = { name: string; action: string; type: ToolType; answer: Rating; risk: string };
 
-  const tools: ToolRow[] = track === 'engineer' ? [
-    { name: 'get_adjuster_load',    action: 'Reads adjuster caseload from HR API',     type: 'READ',   answer: 'safe',   risk: 'Read-only on non-sensitive data — safe to allow always.' },
-    { name: 'update_claim_status',  action: 'Writes new status to claims database',    type: 'WRITE',  answer: 'review', risk: 'Modifies production records — must require user confirmation.' },
-    { name: 'send_adjuster_email',  action: 'Sends email from adjuster account',       type: 'SEND',   answer: 'review', risk: 'External-facing action — must require explicit confirmation each time.' },
-    { name: 'get_policy_clause',    action: 'Reads policy text from document store',   type: 'READ',   answer: 'safe',   risk: 'Read-only on non-sensitive documents — safe.' },
-    { name: 'delete_claim_record',  action: 'Permanently deletes a claim row',         type: 'DELETE', answer: 'block',  risk: 'Irreversible — must never be callable by the agent.' },
-  ] : [
-    { name: 'lookup_crm_account',   action: 'Reads account data from Salesforce',       type: 'READ',   answer: 'safe',   risk: 'Read-only — safe to allow always.' },
-    { name: 'update_renewal_date',  action: 'Updates renewal date in Salesforce',       type: 'WRITE',  answer: 'review', risk: 'Modifies CRM records — needs human approval per call.' },
-    { name: 'send_renewal_email',   action: 'Sends renewal email to account holder',    type: 'SEND',   answer: 'review', risk: 'External email to a customer — must confirm before sending.' },
-    { name: 'get_exception_list',   action: 'Reads open exceptions from worksheet',     type: 'READ',   answer: 'safe',   risk: 'Read-only lookup — safe.' },
-    { name: 'archive_account',      action: 'Marks account as closed in Salesforce',    type: 'DELETE', answer: 'block',  risk: 'Hard to reverse — must never fire without multi-step approval.' },
-  ];
+  const scenarios = filterPermissionScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: PermissionScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const tools = scenario.tools;
 
   const [picks, setPicks] = useState<Record<number, Rating>>({});
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => { setPicks({}); setRevealed(false); }, [scenario.id]);
   const allPicked = tools.every((_, i) => picks[i]);
   const score = revealed ? tools.filter((t, i) => picks[i] === t.answer).length : 0;
 
@@ -606,6 +636,19 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
 
   return (
     <ClaudeDesktopFrame chatTitle="Settings · Tool permissions" view="PERMISSIONS" mcpServers={1}>
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>SERVER</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       <div style={{ padding: '12px 16px', background: CD.panelAlt, borderBottom: `1px solid ${CD.border}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -693,23 +736,15 @@ const MCPPermissionAuditCard = ({ track }: { track: GenAITrack }) => {
 // latency in yellow when above threshold). The learner clicks the
 // rows that look anomalous and the audit pass calls out exactly why.
 const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
-  type Log = { time: string; tool: string; status: number; ms: number; calls: number; flag: boolean; anomaly?: string };
-  const logs: Log[] = track === 'engineer' ? [
-    { time: '14:02:11', tool: 'get_adjuster_load',   status: 200, ms: 82,   calls: 4,   flag: false },
-    { time: '14:02:19', tool: 'get_policy_clause',   status: 200, ms: 61,   calls: 340, flag: true, anomaly: 'Called 340× in 60 min — 8× above baseline. Likely an agent prompt loop.' },
-    { time: '14:03:02', tool: 'update_claim_status', status: 403, ms: 12,   calls: 7,   flag: true, anomaly: '403 Forbidden — token may lack write scope or has expired.' },
-    { time: '14:03:44', tool: 'get_adjuster_load',   status: 200, ms: 1840, calls: 3,   flag: true, anomaly: 'Latency spike — 1840ms vs 82ms baseline. HR API may be under load.' },
-    { time: '14:04:10', tool: 'send_adjuster_email', status: 200, ms: 210,  calls: 2,   flag: false },
-  ] : [
-    { time: '14:02:11', tool: 'lookup_crm_account',  status: 200, ms: 94,   calls: 5,   flag: false },
-    { time: '14:02:19', tool: 'get_renewal_status',  status: 200, ms: 77,   calls: 88,  flag: true, anomaly: 'Called 88× in 30 min — probable loop in the agent prompt.' },
-    { time: '14:03:02', tool: 'update_renewal_date', status: 403, ms: 11,   calls: 4,   flag: true, anomaly: '403 Forbidden — Salesforce credential may have expired or been revoked.' },
-    { time: '14:03:44', tool: 'lookup_crm_account',  status: 200, ms: 2200, calls: 6,   flag: true, anomaly: 'Latency 2200ms vs 94ms baseline — Salesforce rate-throttle possible.' },
-    { time: '14:04:10', tool: 'send_renewal_email',  status: 200, ms: 188,  calls: 3,   flag: false },
-  ];
+  const scenarios = filterLogScenarios(track);
+  const [scenarioId, setScenarioId] = useState<string>(scenarios[0].id);
+  const scenario: LogScenario = scenarios.find(s => s.id === scenarioId) ?? scenarios[0];
+  const logs = scenario.logs;
 
   const [flagged, setFlagged] = useState<Set<number>>(new Set());
   const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => { setFlagged(new Set()); setRevealed(false); }, [scenario.id]);
   const correctCount = logs.filter(l => l.flag).length;
   const foundCount = revealed ? logs.filter((l, i) => l.flag && flagged.has(i)).length : 0;
   const falsePositives = revealed ? logs.filter((l, i) => !l.flag && flagged.has(i)).length : 0;
@@ -718,6 +753,19 @@ const MCPLogReaderCard = ({ track }: { track: GenAITrack }) => {
 
   return (
     <ClaudeDesktopFrame chatTitle="Developer · MCP log tail" view="LOG VIEWER">
+      {/* Scenario picker */}
+      <div style={{ padding: '8px 14px', background: CD.panel, borderBottom: `1px solid ${CD.border}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <CDLabel>LOG STREAM</CDLabel>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: CD.bg, border: `1px solid ${CD.border}`, borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: CD.inkPrimary, fontFamily: 'inherit' }}
+        >
+          {scenarios.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: CD.inkMuted }}>{scenarios.length} presets</span>
+      </div>
+
       {/* Command bar — looks like the terminal command that started the tail */}
       <div style={{ padding: '8px 14px', background: '#080808', borderBottom: `1px solid ${CD.border}`, fontFamily: "'JetBrains Mono', monospace", fontSize: 10.5, color: CD.inkSecondary }}>
         <span style={{ color: CD.accent }}>$</span> tail -f ~/Library/Logs/Claude/mcp.log<span style={{ color: CD.tool }}> | grep tool_use</span>
