@@ -16,6 +16,11 @@ import {
   getItTickets, type ItTicket, type ItCategory,
   fakeCategoryFor, quoteSnippet, lowerLabel,
 } from '@/data/genai/pr2-tickets';
+import {
+  filterContextScenarios, type ContextScenario,
+  filterWorkloadPortfolios, type WorkloadPortfolio,
+  filterDiffScenarios, type DiffScenario,
+} from '@/data/genai/pr2-scenarios';
 
 const ACCENT = '#2563EB';
 const ACCENT_RGB = '37,99,235';
@@ -1092,37 +1097,20 @@ const FewShotLabeler: React.FC<{ track: GenAITrack }> = ({ track }) => {
 // learner discovers that order matters, not just inclusion, by experiment.
 const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
   type Seg = { id: string; label: string; short: string; tokens: number; content: string };
-  const SEGS: Seg[] = useMemo(() => track === 'builder'
-    ? [
-        { id: 's1', label: 'Patient demographics', short: 'demographics', tokens: 320, content: 'Jane Doe, 68F, admitted 2024-03-12 with community-acquired pneumonia.' },
-        { id: 's2', label: 'Admission history',    short: 'admission',    tokens: 410, content: 'COPD (GOLD II), HTN, T2DM. Presented with productive cough, fever, dyspnea, SpO2 88% RA.' },
-        { id: 's3', label: 'Treatment & progress', short: 'treatment',    tokens: 540, content: 'Started azithromycin + ceftriaxone, O2 2L NC. Respiratory status improving by day 3.' },
-        { id: 's4', label: 'Critical event',       short: 'critical',     tokens: 380, content: 'Day 4 AKI from suspected ACE-i + diuretic interaction. ACE-i stopped, renal function recovering.' },
-        { id: 's5', label: 'Discharge plan',       short: 'discharge',    tokens: 290, content: 'Discharge 2024-03-20. Nephrology follow-up. Low-sodium diet, daily weights.' },
-      ]
-    : [
-        { id: 's1', label: 'Incident header',      short: 'header',       tokens: 280, content: 'INC-2024-03-12 — DB outage. Primary DB01. Began 14:00 UTC.' },
-        { id: 's2', label: 'Initial diagnosis',    short: 'initial-dx',   tokens: 360, content: 'High CPU on DB01. Initial diagnosis: runaway query, no replication lag.' },
-        { id: 's3', label: 'Actions taken',        short: 'actions',      tokens: 520, content: 'Killed PID 12345. Restarted db-service. Drained connection pool. Monitoring metrics.' },
-        { id: 's4', label: 'Critical finding',     short: 'critical',     tokens: 420, content: 'CRITICAL: user_sessions table corrupted during restart. Initiated restore from 13:55 UTC backup.' },
-        { id: 's5', label: 'Resolution',           short: 'resolution',   tokens: 300, content: 'user_sessions restored 16:30 UTC. Service fully recovered. Post-mortem scheduled.' },
-      ]
-  , [track]);
+  // Scenario library (6+ per track) lives in pr2-scenarios. The picker
+  // swaps the entire case study — 5 segments + 3 queries — so the model
+  // actually answers a different problem each time.
+  const SCENARIOS = useMemo(() => filterContextScenarios(track), [track]);
+  const [scenarioId, setScenarioId] = useState<string>(SCENARIOS[0]?.id ?? '');
+  const scenario: ContextScenario = useMemo(
+    () => SCENARIOS.find(s => s.id === scenarioId) ?? SCENARIOS[0],
+    [SCENARIOS, scenarioId]
+  );
+  const SEGS: Seg[] = scenario.segments;
 
   // 3 real test questions, each anchored to a specific segment.
   type Q = { id: string; q: string; anchor: string; truth: string; hedge: string };
-  const QUERIES: Q[] = useMemo(() => track === 'builder'
-    ? [
-        { id: 'Q1', q: 'When was the patient admitted, and for what?',           anchor: 's1', truth: 'Jane Doe was admitted on 2024-03-12 with community-acquired pneumonia.', hedge: 'The patient was admitted in early 2024 for a respiratory issue, though I would double-check the exact date.' },
-        { id: 'Q2', q: 'What was the critical clinical event during admission?', anchor: 's4', truth: 'On day 4, the patient developed acute kidney injury suspected from ACE-i + diuretic interaction. ACE-i was stopped and renal function began recovering.', hedge: 'The records mention day-4 renal function changes but the specific cause is not clearly stated.' },
-        { id: 'Q3', q: 'What is the follow-up plan after discharge?',            anchor: 's5', truth: 'Discharged 2024-03-20. Nephrology follow-up, low-sodium diet, daily weights.', hedge: 'The patient was discharged in March 2024 with some outpatient follow-up; the specifics aren’t fully clear from the context.' },
-      ]
-    : [
-        { id: 'Q1', q: 'When did the outage begin and which DB was primary?',    anchor: 's1', truth: 'INC-2024-03-12 — Primary DB was DB01. Outage began at 14:00 UTC.', hedge: 'A database outage occurred on March 12, affecting a primary database — the exact timestamp isn’t fully clear from the context.' },
-        { id: 'Q2', q: 'What was the critical finding during incident response?', anchor: 's4', truth: 'The user_sessions table was found corrupted during restart. A restore from the 13:55 UTC backup was initiated.', hedge: 'The records reference user_sessions activity around the restart but the specific finding is not clearly stated.' },
-        { id: 'Q3', q: 'When was the service fully recovered?',                  anchor: 's5', truth: 'user_sessions was restored 16:30 UTC; service fully recovered after that.', hedge: 'Service was recovered later that afternoon, though the exact timestamp isn’t fully clear from the context.' },
-      ]
-  , [track]);
+  const QUERIES: Q[] = scenario.queries;
 
   // State: ordered list of included segment IDs (order = position in context).
   const [order, setOrder] = useState<string[]>(SEGS.map(s => s.id));
@@ -1131,6 +1119,23 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
   const [activeQuery, setActiveQuery] = useState(0);
   const [response, setResponse] = useState('');
   const [streaming, setStreaming] = useState(false);
+
+  // Reset all internal state whenever the scenario or track changes — otherwise
+  // a stale `order` pointing at segments from the old scenario would render
+  // nothing in the canvas.
+  useEffect(() => {
+    setOrder(scenario.segments.map(s => s.id));
+    setVerdicts(['pending', 'pending', 'pending']);
+    setActiveQuery(0);
+    setResponse('');
+  }, [scenario.id, scenario.segments]);
+
+  // When the track changes, pick the first scenario in the filtered list.
+  useEffect(() => {
+    if (!SCENARIOS.find(s => s.id === scenarioId)) {
+      setScenarioId(SCENARIOS[0]?.id ?? '');
+    }
+  }, [SCENARIOS, scenarioId]);
 
   const maxTokens = 8000;
   const totalTokens = useMemo(() => order.reduce((sum, id) => sum + (SEGS.find(s => s.id === id)?.tokens ?? 0), 0), [order, SEGS]);
@@ -1227,6 +1232,19 @@ const ContextWindowInspector: React.FC<{ track: GenAITrack }> = ({ track }) => {
           <div style={{ fontSize: 10, color: '#737373' }}>· lost-in-the-middle demo</div>
         </div>
         <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: overflowed ? '#EF4444' : '#A3A3A3' }}>{totalTokens.toLocaleString()} / {maxTokens.toLocaleString()} tokens · {Math.round(utilisation * 100)}%</div>
+      </div>
+
+      {/* Scenario picker — swap the entire case study */}
+      <div style={{ padding: '8px 14px', background: '#0E0E13', borderBottom: '1px solid #1F1F26', display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#737373', letterSpacing: '0.14em' }}>SCENARIO</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: '#0A0A0F', border: '1px solid #262626', borderRadius: 5, padding: '5px 10px', fontSize: 11, fontWeight: 600, color: '#E5E5E5', fontFamily: 'inherit' }}
+        >
+          {SCENARIOS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#525252' }}>{SCENARIOS.length} presets</span>
       </div>
 
       {/* Window bar with stacked segments + attention heatmap */}
@@ -1413,37 +1431,54 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
     'gemini-1.5-flash':    { name: 'Gemini 1.5 Flash',    provider: 'Google',    logo: 'G', logoBg: '#4285F4', contextK: 1000, inPrice: 0.075, outPrice: 0.30,  latencyMs: 240, tier: 'fast',     badges: ['vision', '1M-context'] },
   };
 
+  // Workload portfolios (6 per platform) live in pr2-scenarios. Picker
+  // swaps the whole 3-workload set so the budget arithmetic and verdicts
+  // change meaningfully — not just the labels.
   type Workload = { id: string; label: string; volumePerDay: number; tokensPerCall: number; needsFrontier: boolean; latencyBudgetMs: number };
-  const WORKLOADS: Workload[] = track === 'builder'
-    ? [
-        { id: 'w1', label: 'Intake form summarisation',     volumePerDay: 200, tokensPerCall: 2000, needsFrontier: false, latencyBudgetMs: 600 },
-        { id: 'w2', label: 'Exception classification',     volumePerDay: 100, tokensPerCall: 1500, needsFrontier: false, latencyBudgetMs: 400 },
-        { id: 'w3', label: 'Complex care-plan synthesis',  volumePerDay: 5,   tokensPerCall: 6000, needsFrontier: true,  latencyBudgetMs: 1500 },
-      ]
-    : [
-        { id: 'w1', label: 'Log anomaly summarisation',    volumePerDay: 500, tokensPerCall: 1500, needsFrontier: false, latencyBudgetMs: 600 },
-        { id: 'w2', label: 'Ticket routing classifier',   volumePerDay: 200, tokensPerCall: 1200, needsFrontier: false, latencyBudgetMs: 350 },
-        { id: 'w3', label: 'Root-cause analysis for SEV-1s', volumePerDay: 8, tokensPerCall: 8000, needsFrontier: true,  latencyBudgetMs: 1500 },
-      ];
+  const PORTFOLIOS = useMemo(() => filterWorkloadPortfolios(track), [track]);
+  const [portfolioId, setPortfolioId] = useState<string>(PORTFOLIOS[0]?.id ?? '');
+  const portfolio: WorkloadPortfolio = useMemo(
+    () => PORTFOLIOS.find(p => p.id === portfolioId) ?? PORTFOLIOS[0],
+    [PORTFOLIOS, portfolioId]
+  );
+  const WORKLOADS: Workload[] = portfolio.workloads;
 
   // Starting state = baseline "everything on gpt-4o" so the learner can
-  // see how much money the over-spec posture is costing.
-  const BASELINE_ROUTING: Record<string, ModelId> = { w1: 'gpt-4o', w2: 'gpt-4o', w3: 'gpt-4o' };
+  // see how much money the over-spec posture is costing — derived from
+  // the active portfolio's workload list so it tracks the picker.
+  const BASELINE_ROUTING: Record<string, ModelId> = useMemo(
+    () => Object.fromEntries(WORKLOADS.map(w => [w.id, 'gpt-4o' as ModelId])),
+    [WORKLOADS]
+  );
   const [routing, setRouting] = useState<Record<string, ModelId>>(BASELINE_ROUTING);
 
-  const monthCostOf = (r: Record<string, ModelId>) => {
+  // Reset routing whenever the portfolio (or track) changes.
+  useEffect(() => {
+    setRouting(BASELINE_ROUTING);
+  }, [BASELINE_ROUTING]);
+
+  // If the track flips and the current portfolioId is no longer in the
+  // filtered list, fall back to the first available portfolio.
+  useEffect(() => {
+    if (!PORTFOLIOS.find(p => p.id === portfolioId)) {
+      setPortfolioId(PORTFOLIOS[0]?.id ?? '');
+    }
+  }, [PORTFOLIOS, portfolioId]);
+
+  const monthCostOf = useCallback((r: Record<string, ModelId>) => {
     let total = 0;
     for (const w of WORKLOADS) {
       const m = MODELS[r[w.id]];
+      if (!m) continue;
       const tokens = w.tokensPerCall * w.volumePerDay * 30;
       // assume 70% input / 30% output split
       const cost = (tokens * 0.7 / 1_000_000) * m.inPrice + (tokens * 0.3 / 1_000_000) * m.outPrice;
       total += cost;
     }
     return total;
-  };
-  const monthlyCost  = useMemo(() => monthCostOf(routing),         [routing]);
-  const baselineCost = useMemo(() => monthCostOf(BASELINE_ROUTING), []);
+  }, [WORKLOADS, MODELS]);
+  const monthlyCost  = useMemo(() => monthCostOf(routing),          [monthCostOf, routing]);
+  const baselineCost = useMemo(() => monthCostOf(BASELINE_ROUTING), [monthCostOf, BASELINE_ROUTING]);
   const savings = baselineCost - monthlyCost;
 
   // Real per-workload verdict driven by (model.tier, needsFrontier, latency).
@@ -1534,6 +1569,17 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
 
         {/* RIGHT: workload routing */}
         <div style={{ padding: '12px 14px 14px' }}>
+          {/* Portfolio picker — swap the whole 3-workload set */}
+          <div style={{ marginBottom: 10 }}>
+            <div style={{ ...labelMono, marginBottom: 4 }}>PORTFOLIO · {PORTFOLIOS.length} presets</div>
+            <select
+              value={portfolioId}
+              onChange={(e) => setPortfolioId(e.target.value)}
+              style={{ width: '100%', appearance: 'none' as const, cursor: 'pointer', background: '#0A0A12', border: rowBorder, borderRadius: 5, padding: '5px 8px', fontSize: 11, fontWeight: 600, color: inkPrimary, fontFamily: 'inherit' }}
+            >
+              {PORTFOLIOS.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <div style={labelMono}>ROUTE WORKLOADS</div>
             <button type="button" onClick={() => setRouting(BASELINE_ROUTING)} style={{ appearance: 'none', cursor: 'pointer', background: 'transparent', border: rowBorder, borderRadius: 4, padding: '2px 8px', fontSize: 9, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color: inkMuted, letterSpacing: '0.06em' }}>RESET TO BASELINE</button>
@@ -1629,30 +1675,37 @@ const ModelSelectorTool: React.FC<{ track: GenAITrack }> = ({ track }) => {
 const PromptDiffViewer: React.FC<{ track: GenAITrack }> = ({ track }) => {
   const [version, setVersion] = useState(1);
 
-  // Initial prompt versions — the learner can edit any of these in place.
-  const INITIAL = track === 'builder' ? {
-    v1: 'Write a discharge summary for this patient.',
-    v2: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes. Return a bulleted list of key actions for home care. Use a professional, empathetic tone.`,
-    v3: `You are a clinical documentation assistant. Summarise the patient's discharge plan from the provided care notes (last 7 days only). Return a bulleted list of key actions for home care. Use a professional, empathetic tone.
-Example: For a patient with AKI, include specific dietary restrictions and follow-up with nephrology.`,
-  } : {
-    v1: 'Summarize incident report.',
-    v2: `System: You are an API endpoint for generating structured summaries.
-User: Summarize the incident report.
-System: Output a JSON object with fields: "incident_id", "root_cause", "resolution_steps", "impact".`,
-    v3: `System: You are an API endpoint for generating structured summaries.
-User: Summarize the incident report.
-System: Output a JSON object with fields: "incident_id", "root_cause", "resolution_steps", "impact", "data_integrity_status".
-Example: If "data corruption detected", set "data_integrity_status" to "Compromised, restored from backup".`,
-  };
+  // Scenario library (3 per track) lives in pr2-scenarios. Picker swaps
+  // the whole test-input + starter v1/v2/v3 trio, so the diff visualises
+  // the same lesson against a genuinely different clinical / incident case.
+  const SCENARIOS = useMemo(() => filterDiffScenarios(track), [track]);
+  const [scenarioId, setScenarioId] = useState<string>(SCENARIOS[0]?.id ?? '');
+  const scenario: DiffScenario = useMemo(
+    () => SCENARIOS.find(s => s.id === scenarioId) ?? SCENARIOS[0],
+    [SCENARIOS, scenarioId]
+  );
+  const INITIAL = { v1: scenario.v1, v2: scenario.v2, v3: scenario.v3 };
+
   const [v1Text, setV1Text] = useState(INITIAL.v1);
   const [v2Text, setV2Text] = useState(INITIAL.v2);
   const [v3Text, setV3Text] = useState(INITIAL.v3);
 
+  // Reset editor + version selection whenever the scenario (or track) changes.
+  useEffect(() => {
+    setV1Text(scenario.v1);
+    setV2Text(scenario.v2);
+    setV3Text(scenario.v3);
+    setVersion(1);
+  }, [scenario.id, scenario.v1, scenario.v2, scenario.v3]);
+
+  useEffect(() => {
+    if (!SCENARIOS.find(s => s.id === scenarioId)) {
+      setScenarioId(SCENARIOS[0]?.id ?? '');
+    }
+  }, [SCENARIOS, scenarioId]);
+
   // The real test input — the model "sees" this every run.
-  const TEST_INPUT = track === 'builder'
-    ? 'PATIENT: Jane Doe, 68F. Admitted 2024-03-12 (community-acquired pneumonia). PMH: COPD, HTN, T2DM. Treated azithromycin + ceftriaxone. Day-4 AKI suspected from ACE-i + diuretic interaction — ACE-i stopped, renal recovering. Discharged 2024-03-20. Nephrology f/u 2 weeks. Low-sodium diet, daily weights.'
-    : 'INCIDENT INC-2024-03-12: Primary DB01 outage 14:00 UTC. Initial dx: runaway query, no replication lag. Actions: killed PID 12345, restarted db-service, drained pool. CRITICAL: user_sessions table corrupted during restart — restore from 13:55 UTC backup. Recovered 16:30 UTC. Impact: 2.5h partial degradation.';
+  const TEST_INPUT = scenario.testInput;
 
   // ─── Deterministic prompt analyzer ────────────────────────────────────
   // Detects four signals from the prompt text. Same shape as the
@@ -1665,38 +1718,19 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
   });
 
   // Deterministic "model" output — keyed off the four signals.
+  // Pulls from the active scenario's outputs map so the same lesson plays
+  // out with case-specific text (Jane Doe vs Marcus vs Lina; DB01 vs auth
+  // cascade vs payments retry).
   const generate = (text: string): string => {
     const s = analyse(text);
-    if (track === 'builder') {
-      if (!s.hasRole && !s.hasFormat) {
-        return 'Patient was discharged after treatment. They should follow up with their doctor and continue medications as prescribed.';
-      }
-      if (s.hasRole && s.hasFormat && !s.hasScope && !s.hasExample) {
-        return '• Patient discharged on 2024-03-20.\n• Follow up with primary care.\n• Continue antibiotics as prescribed.\n• Take medications as directed.';
-      }
-      if (s.hasRole && s.hasFormat && (s.hasScope || s.hasExample) && !(s.hasScope && s.hasExample)) {
-        return '• Discharged 2024-03-20.\n• Continue azithromycin + ceftriaxone course.\n• Follow up nephrology in 2 weeks for AKI.\n• Low-sodium diet, daily weights.';
-      }
-      if (s.hasRole && s.hasFormat && s.hasScope && s.hasExample) {
-        return '• Discharged 2024-03-20.\n• Complete azithromycin + ceftriaxone course.\n• Nephrology follow-up in 2 weeks — AKI was day-4 ACE-i + diuretic interaction; ACE-i discontinued.\n• Low-sodium diet, daily weights, monitor fluid intake.\n• PCP follow-up 1 week.';
-      }
-      return 'Patient discharged. Follow up as advised. Continue medications.';
-    }
-    if (!s.hasRole && !s.hasFormat) {
-      return 'The system had a database issue. The team identified the problem and resolved it. Service was restored.';
-    }
-    if (s.hasRole && s.hasFormat && !s.hasScope && !s.hasExample) {
-      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service"],\n  "impact": "Partial service degradation for 2.5 hours."\n}';
-    }
-    if (s.hasRole && s.hasFormat && (s.hasScope || s.hasExample) && !(s.hasScope && s.hasExample)) {
-      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service", "Restored user_sessions"],\n  "impact": "2.5h partial service degradation."\n}';
-    }
-    if (s.hasRole && s.hasFormat && s.hasScope && s.hasExample) {
-      return '{\n  "incident_id": "INC-2024-03-12",\n  "root_cause": "Runaway query on DB01",\n  "resolution_steps": ["Killed PID 12345", "Restarted db-service", "Restored user_sessions from 13:55 UTC backup"],\n  "impact": "2.5h partial degradation; recovered 16:30 UTC.",\n  "data_integrity_status": "Compromised, restored from backup"\n}';
-    }
-    return 'The incident was investigated and resolved.';
+    const o = scenario.outputs;
+    if (!s.hasRole && !s.hasFormat) return o.none;
+    if (s.hasRole && !s.hasFormat) return o.roleOnly;
+    if (s.hasRole && s.hasFormat && !s.hasScope && !s.hasExample) return o.roleAndFormat;
+    if (s.hasRole && s.hasFormat && s.hasScope && s.hasExample) return o.full;
+    if (s.hasRole && s.hasFormat && (s.hasScope || s.hasExample)) return o.partial;
+    return o.fallback;
   };
-
   const PROMPTS = { v1: v1Text, v2: v2Text, v3: v3Text };
   const setPrompt = (v: 1 | 2 | 3, text: string) => {
     if (v === 1) setV1Text(text); else if (v === 2) setV2Text(text); else setV3Text(text);
@@ -1704,18 +1738,18 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
   const resetVersion = (v: 1 | 2 | 3) => setPrompt(v, v === 1 ? INITIAL.v1 : v === 2 ? INITIAL.v2 : INITIAL.v3);
 
   const currentPrompt = PROMPTS[`v${version}` as keyof typeof PROMPTS];
-  const currentOutput = useMemo(() => generate(currentPrompt), [currentPrompt, track]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const currentOutput = useMemo(() => generate(currentPrompt), [currentPrompt, scenario.outputs]);
   const currentSigs = analyse(currentPrompt);
 
   // Real rubric checks against the live output for this version.
   const rubric = useMemo(() => {
     const out = currentOutput;
     const isStructured = /^[•\-\d]|^\{/.test(out) || /[\n][•\-\d]/.test(out) || out.trim().startsWith('{');
-    const criticalKey = track === 'builder' ? /aki|nephrology|ace[- ]?i|low[- ]sodium/i : /user_sessions|data_integrity|corrupted|restore from .* backup/i;
-    const hasCritical = criticalKey.test(out);
+    const hasCritical = scenario.criticalKeyRegex.test(out);
     const inScope = !/i recommend|please consult|generic|may want to/i.test(out);
     return { isStructured, hasCritical, inScope };
-  }, [currentOutput, track]);
+  }, [currentOutput, scenario.criticalKeyRegex]);
   const score = (rubric.isStructured ? 1 : 0) + (rubric.hasCritical ? 1 : 0) + (rubric.inScope ? 1 : 0);
 
   const currentVerdict = score === 3
@@ -1809,9 +1843,22 @@ Example: If "data corruption detected", set "data_integrity_status" to "Compromi
           <span style={{ color: '#FF5F57', fontSize: 11 }}>●</span>
           <span style={{ color: '#FEBC2E', fontSize: 11 }}>●</span>
           <span style={{ color: '#28C840', fontSize: 11 }}>●</span>
-          <span style={{ marginLeft: 8, fontSize: 11 }}>prompts — northstar-claims-classifier</span>
+          <span style={{ marginLeft: 8, fontSize: 11 }}>prompts — {scenario.label.replace(/^[^·]+·\s*/, '')}</span>
         </div>
         <div style={{ fontSize: 10, color: '#858585' }}>Visual Studio Code</div>
+      </div>
+
+      {/* Scenario picker */}
+      <div style={{ padding: '6px 12px', background: vsSideBg, borderBottom: `1px solid ${vsBorder}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: '#858585', letterSpacing: '0.14em' }}>SCENARIO</span>
+        <select
+          value={scenarioId}
+          onChange={(e) => setScenarioId(e.target.value)}
+          style={{ flex: 1, appearance: 'none' as const, cursor: 'pointer', background: vsBg, border: `1px solid ${vsBorder}`, borderRadius: 5, padding: '4px 9px', fontSize: 11, fontWeight: 600, color: vsText, fontFamily: 'inherit' }}
+        >
+          {SCENARIOS.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
+        </select>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: vsGutter }}>{SCENARIOS.length} presets</span>
       </div>
 
       {/* Tab strip */}
